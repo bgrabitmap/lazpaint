@@ -1,10 +1,11 @@
 *.bak
 *.dbg
-*.exe
+lazpaint/release/bin/*.exe
 *.lps
 backup/*
 lib
 debug
+__pycache__
 *.res
 *.lrt
 /lazpaint/*.lrj
@@ -16,8 +17,6 @@ lazpaint/backup/
 vectoredit/vectoredit
 
 vectoredit/backup/
-
-lazpaint/release/lazpaint
 
 lazpaint/test_embedded/backup/
 
@@ -35,3 +34,8 @@ lazpaint/dialog/backup/
 .DS_Store
 lazpaint/release/bin/lazpaint.app
 lazpaint/release/macOS/*.dmg
+lazpaint/release/windows/lazpaint32
+lazpaint/release/windows/lazpaint64
+lazpaint/release/bin/i18n/lazpaint32.*
+lazpaint/release/bin/i18n/lazpaint_x64.*
+/lazpaint/dialog/color/backup

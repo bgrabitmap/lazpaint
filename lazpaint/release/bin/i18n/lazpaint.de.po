@@ -27,6 +27,237 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: tablet.getprocfailed
+msgid "Procedure %s failed to load properly."
+msgstr "Prozedur %s konnte nicht ordnungsgemäß geladen werden."
+
+#: tablet.openfailed
+msgid "Tablet context failed to open."
+msgstr "Tablet-Kontext konnte nicht geöffnet werden."
+
+#: tfabout.button_donate.caption
+msgctxt "tfabout.button_donate.caption"
+msgid "Donate..."
+msgstr "Spenden Sie..."
+
+#: tfabout.caption
+msgctxt "tfabout.caption"
+msgid "About"
+msgstr "Über"
+
+#: tfabout.labelurl.caption
+msgid "http://sourceforge.net/projects/lazpaint/"
+msgstr "http://sourceforge.net/projects/lazpaint/"
+
+#: tfabout.label_authors.caption
+msgctxt "tfabout.label_authors.caption"
+msgid "Authors:"
+msgstr "Autoren:"
+
+#: tfabout.label_authorsvalue.caption
+#| msgid "Circular help by FabienWang and Lainz"
+msgctxt "tfabout.label_authorsvalue.caption"
+msgid "Circular helped by FabienWang, Lainz and others"
+msgstr "Circular unterstützt von FabienWang, Lainz und Anderen"
+
+#: tfabout.label_homepage.caption
+msgctxt "tfabout.label_homepage.caption"
+msgid "Homepage:"
+msgstr "Homepage:"
+
+#: tfabout.label_libraries.caption
+msgctxt "tfabout.label_libraries.caption"
+msgid "Libraries used:"
+msgstr "Bibliotheken:"
+
+#: tfabout.label_licence.caption
+msgctxt "tfabout.label_licence.caption"
+msgid "Licence:"
+msgstr "Lizenz:"
+
+#: tfabout.label_opensource.caption
+msgctxt "tfabout.label_opensource.caption"
+msgid "Open source (GPLv3)"
+msgstr "Open Source (GPLv3)"
+
+#: tfadjustcurves.button_cancel.caption
+msgctxt "tfadjustcurves.button_cancel.caption"
+msgid "Cancel"
+msgstr "Abbruch"
+
+#: tfadjustcurves.button_ok.caption
+msgctxt "tfadjustcurves.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfadjustcurves.caption
+msgid "Adjust curves"
+msgstr "Farbkurven anpassen"
+
+#: tfadjustcurves.toolbutton_newcurve.hint
+msgid "Discard current curve and start a new one"
+msgstr "Aktuelle Farbkurve verwerfen und eine Neue beginnen"
+
+#: tfadjustcurves.toolbutton_posterize.hint
+msgctxt "tfadjustcurves.toolbutton_posterize.hint"
+msgid "Posterize"
+msgstr "Tontrennung"
+
+#: tfadjustcurves.toolbutton_removepoint.hint
+msgid "Remove selected point (Del)"
+msgstr "Gewäten Punkt entfernen (Del)"
+
+#: tfblendop.button_cancel.caption
+msgctxt "tfblendop.button_cancel.caption"
+msgid "Cancel"
+msgstr "Abbruch"
+
+#: tfblendop.button_ok.caption
+msgctxt "tfblendop.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfblendop.caption
+msgid "Blend operation"
+msgstr "Überblendungsoperation"
+
+#: tfblendop.label_blendopcategory.caption
+msgctxt "tfblendop.label_blendopcategory.caption"
+msgid "Category of blend operation"
+msgstr "Üerblendungseffekt-Kategorien"
+
+#: tfblendop.label_blendopvalue.caption
+msgctxt "tfblendop.label_blendopvalue.caption"
+msgid "."
+msgstr "."
+
+#: tfblendop.label_kritaover.caption
+msgctxt "tfblendop.label_kritaover.caption"
+msgid "Krita"
+msgstr "Krita"
+
+#: tfblendop.label_kritaover.hint
+msgid "Blend operations that are available in Krita"
+msgstr "In Krita verfügbarere Üerblendungseffekte"
+
+#: tfblendop.label_otherover.caption
+msgctxt "tfblendop.label_otherover.caption"
+msgid "Other"
+msgstr "Andere"
+
+#: tfblendop.label_otherover.hint
+msgid "Blend operations of LazPaint and Paint.NET"
+msgstr "Überblendungseffekte von LazPaint und Paint.NET"
+
+#: tfblendop.label_patternover.caption
+msgctxt "tfblendop.label_patternover.caption"
+msgid "Pattern over"
+msgstr "Muster über"
+
+#: tfblendop.label_patternover.hint
+msgid "Preview blend operation with the specified image on top"
+msgstr "Überblendungseffekt Vorschau mit gewähltem Bild im Vordergrund "
+
+#: tfblendop.label_patternunder.caption
+msgctxt "tfblendop.label_patternunder.caption"
+msgid "Pattern under"
+msgstr "Muster unter"
+
+#: tfblendop.label_patternunder.hint
+msgid "Preview blend operation with the specified image underneath"
+msgstr "Überblendungseffekt Vorschau mit gewähltem Bild im Hintergrund"
+
+#: tfblendop.label_previewwith.caption
+msgctxt "tfblendop.label_previewwith.caption"
+msgid "Preview with"
+msgstr "Vorschau mit"
+
+#: tfblendop.label_selectedblendop.caption
+msgid "Selected blend operation :"
+msgstr "Gewählte Operation:"
+
+#: tfblendop.label_svgover.caption
+msgctxt "tfblendop.label_svgover.caption"
+msgid "Basic SVG"
+msgstr "Einfaches SVG"
+
+#: tfblendop.label_svgover.hint
+msgid "Basic blend operations that are available in virtually all image editors"
+msgstr "Überblendungseffekte die in nahezu allen Bildverarbeitungsprogramen zur Verfügung stehen"
+
+#: tfbrowseimages.caption
+msgid "Browse images"
+msgstr "Bilder durchsuchen"
+
+#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
+msgid "Use this directory on startup"
+msgstr "Verwenden Sie dieses Verzeichnis beim Start"
+
+#: tfbrowseimages.label_status.caption
+msgctxt "tfbrowseimages.label_status.caption"
+msgid "."
+msgstr "."
+
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr "Ordner oder Container erstellen"
+
+#: tfbrowseimages.toolbutton_goup.hint
+msgid "Go one directory up"
+msgstr "Gehe ein Verzeichnis hoch"
+
+#: tfbrowseimages.toolbutton_openselectedfiles.hint
+msgid "Open selected files"
+msgstr "Gewählte Datei öffnen"
+
+#: tfbrowseimages.toolbutton_viewbigicon.hint
+msgctxt "tfbrowseimages.toolbutton_viewbigicon.hint"
+msgid "Show big icons"
+msgstr "Große Vorschaubilder anzeigen"
+
+#: tfbrowseimages.toolbutton_viewdetails.hint
+msgctxt "tfbrowseimages.toolbutton_viewdetails.hint"
+msgid "Show details and preview"
+msgstr "Eigenschaften und Vorschau anzeigen"
+
+#: tfbrowseimages.tool_selectdrive.hint
+msgid "Select drive"
+msgstr "Speichermedium auswählen"
+
+#: tfcanvassize.button_cancel.caption
+msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Abbruch"
+
+#: tfcanvassize.button_ok.caption
+msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcanvassize.caption
+msgctxt "tfcanvassize.caption"
+msgid "Canvas size"
+msgstr "Leinwandgröße"
+
+#: tfcanvassize.checkbox_flipmode.caption
+msgid "Flip mode"
+msgstr "Spiegelungsmodus"
+
+#: tfcanvassize.label_anchor.caption
+msgctxt "tfcanvassize.label_anchor.caption"
+msgid "Anchor :"
+msgstr "Anker:"
+
+#: tfcanvassize.label_height.caption
+msgctxt "tfcanvassize.label_height.caption"
+msgid "Height :"
+msgstr "Höhe:"
+
+#: tfcanvassize.label_width.caption
+msgctxt "tfcanvassize.label_width.caption"
+msgid "Width :"
+msgstr "Breite:"
+
 #: tfchoosecolor.bcbutton_addtopalette.hint
 msgid "Add color to palette"
 msgstr "Farbe der Palette hinzufügen"
@@ -44,12 +275,332 @@ msgstr "Farbe"
 msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
 msgstr "Farbbeschreibung: Anklicken, um Farbnamen oder CSS Farbcode mit der Tastatur einzugeben"
 
+#: tfcolorintensity.button_cancel.caption
+msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Abbruch"
+
+#: tfcolorintensity.button_ok.caption
+msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcolorintensity.caption
+msgctxt "tfcolorintensity.caption"
+msgid "Intensity"
+msgstr "Intensität"
+
+#: tfcolorintensity.label_multiply.caption
+msgctxt "tfcolorintensity.label_multiply.caption"
+msgid "Multiply"
+msgstr "Multiplizieren"
+
+#: tfcolorintensity.label_shift.caption
+msgctxt "tfcolorintensity.label_shift.caption"
+msgid "Shift"
+msgstr "Verschieben"
+
+#: tfcolorize.button_cancel.caption
+msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Abbruch"
+
+#: tfcolorize.button_ok.caption
+msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcolorize.caption
+msgctxt "tfcolorize.caption"
+msgid "Colorize"
+msgstr "Einfärben"
+
+#: tfcolorize.checkbox_gsba.caption
+msgctxt "tfcolorize.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "Korrigierte Farbe und Helligkeit"
+
+#: tfcolorize.label_colorness.caption
+msgctxt "tfcolorize.label_colorness.caption"
+msgid "Colorness"
+msgstr "Farbigkeit"
+
+#: tfcolorize.label_hue.caption
+msgctxt "tfcolorize.label_hue.caption"
+msgid "Hue"
+msgstr "Farbton"
+
+#: tfcolorize.label_preset.caption
+msgid "Preset"
+msgstr "Voreingestellt"
+
+#: tfcustomblur.button_cancel.caption
+msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Abbruch"
+
+#: tfcustomblur.button_editmask.caption
+msgid "Edit mask..."
+msgstr "Maske bearbeiten..."
+
+#: tfcustomblur.button_loadmask.caption
+msgid "Load mask..."
+msgstr "Maske laden..."
+
+#: tfcustomblur.button_ok.caption
+msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcustomblur.caption
+msgctxt "tfcustomblur.caption"
+msgid "Custom blur"
+msgstr "Benutzerdefinierter Weichzeichner"
+
+#: tfcustomblur.openpicturedialog1.title
+msgid "Open grayscale file"
+msgstr "Graustufen-Datei öffnen"
+
+#: tfemboss.button_cancel.caption
+msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Abbruch"
+
+#: tfemboss.button_ok.caption
+msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfemboss.caption
+msgctxt "tfemboss.caption"
+msgid "Emboss"
+msgstr "Gravur"
+
+#: tfemboss.checkbox_preservecolors.caption
+msgid "Preserve colors"
+msgstr "Farben erhalten"
+
+#: tfemboss.checkbox_transparent.caption
+msgid "Transparent"
+msgstr "Transparent"
+
+#: tfemboss.label_direction.caption
+msgctxt "tfemboss.label_direction.caption"
+msgid "Direction :"
+msgstr "Richtung:"
+
+#: tffilterfunction.button_cancel.caption
+msgctxt "tffilterfunction.button_cancel.caption"
+msgid "Cancel"
+msgstr "Abbruch"
+
+#: tffilterfunction.button_ok.caption
+msgctxt "tffilterfunction.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tffilterfunction.caption
+msgid "Apply function"
+msgstr "Funktion anwenden"
+
+#: tffilterfunction.checkbox_gamma.caption
+msgid "Gamma correction"
+msgstr "Korrigiert gamma"
+
+#: tffilterfunction.checkbox_gsba.caption
+msgctxt "tffilterfunction.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "Korrigiert Farbton und Helligkeit"
+
+#: tffilterfunction.label_alphaequals.caption
+msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_blueequals.caption
+msgctxt "tffilterfunction.label_blueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_greenequals.caption
+msgctxt "tffilterfunction.label_greenequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_hueequals.caption
+msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_lightnessequals.caption
+msgctxt "tffilterfunction.label_lightnessequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_redequals.caption
+msgctxt "tffilterfunction.label_redequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_saturationequals.caption
+msgctxt "tffilterfunction.label_saturationequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_variables.caption
+msgid "Variables :"
+msgstr "Variablen:"
+
+#: tffilterfunction.tabsheet_hsl.caption
+msgid "HSL"
+msgstr "HSL"
+
+#: tffilterfunction.tabsheet_rgb.caption
+msgctxt "tffilterfunction.tabsheet_rgb.caption"
+msgid "RGB"
+msgstr "RGB"
+
+#: tfgeometricbrush.button_cancel.caption
+msgctxt "tfgeometricbrush.button_cancel.caption"
+msgid "Cancel"
+msgstr "Abbruch"
+
+#: tfgeometricbrush.button_ok.caption
+msgctxt "tfgeometricbrush.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfgeometricbrush.caption
+msgid "Geometric brush"
+msgstr "Geometrischer Pinsel"
+
+#: tfgeometricbrush.checkbox_isgradient.caption
+msgid "Opacity gradient"
+msgstr "Deckkraft Verlauf"
+
+#: tfgeometricbrush.label1.caption
+msgid "Number of sides:"
+msgstr "Anzahl der Seiten:"
+
+#: tfimagelist.caption
+msgid "Image List"
+msgstr "Bilderliste"
+
+#: tfimagelist.pmautouncheckonopen.caption
+msgid "Autouncheck files after being open"
+msgstr "Nach Speichern Datei automatisch abwählen"
+
+#: tfimagelist.pmautouncheckonsave.caption
+msgid "Autouncheck files after being edited and saved"
+msgstr "Nach Bearbeiten und Speichern Datei automatisch abwahlen"
+
+#: tfimagelist.pmremoveall.caption
+msgid "Empty image list"
+msgstr "Bilderliste leeren"
+
+#: tfimagelist.pmremovenonexistent.caption
+msgid "Remove nonexistent images"
+msgstr "Nichtexistierende Bilder entfernen"
+
+#: tfimagelist.pmremoveunchecked.caption
+msgid "Remove unchecked images"
+msgstr "Nichtgewählte Bilder entfernen"
+
+#: tfimagelist.pmunchecknonexistent.caption
+msgid "Uncheck nonexistent files"
+msgstr "Nichtexistierende Dateien abwählen"
+
+#: tfimagelist.stringgrid1.columns[0].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[1].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[1].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[2].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[2].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[3].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[3].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.tbaddfiles.hint
+msgid "Add images to list"
+msgstr "Bilder zur Liste hinzufügen"
+
+#: tfimagelist.tbautouncheck.hint
+msgid "Enable/disable autounchecking for processed files"
+msgstr "Automatisches Abwählen der verarbeiteten Datei Ein-/Ausschalten"
+
+#: tfimagelist.tbautozoomfit.hint
+msgid "Enable/disable autofitting images in the LazPaint window"
+msgstr "Automatische Größenanpassung im LazPaint Fenster Ein-/Ausschalten"
+
+#: tfimagelist.tbcheckall.hint
+msgid "Check all files for processing"
+msgstr "Alle Dateien zur Bearbeitung wählen"
+
+#: tfimagelist.tbminiwindow.hint
+msgid "Switch to miniwindow"
+msgstr "Fenster minimieren"
+
+#: tfimagelist.tbmovedown.hint
+msgid "Move selected items down"
+msgstr "Gewähltes Element nach unten bewegen"
+
+#: tfimagelist.tbmoveup.hint
+msgid "Move selected items up"
+msgstr "Gewähltes Element nach oben bewegen"
+
+#: tfimagelist.tbnormalwindows.hint
+msgid "Switch to normal window"
+msgstr "Fenster vergrößern"
+
+#: tfimagelist.tbopenimage.hint
+msgid "Open current image"
+msgstr "Aktuelles Bild öffnen"
+
+#: tfimagelist.tbopennext.hint
+msgctxt "tfimagelist.tbopennext.hint"
+msgid "Open next image (Alt-Right)"
+msgstr "Nächstes Bild öffnen (Alt-Rechts)"
+
+#: tfimagelist.tbopennextsw.hint
+msgctxt "tfimagelist.tbopennextsw.hint"
+msgid "Open next image"
+msgstr "Nächstes Bild öffnen "
+
+#: tfimagelist.tbopenprev.hint
+msgctxt "tfimagelist.tbopenprev.hint"
+msgid "Open previous image (Alt-Left)"
+msgstr "Vorheriges Bild offnen (Alt-Links)"
+
+#: tfimagelist.tbopenprevsw.hint
+msgctxt "tfimagelist.tbopenprevsw.hint"
+msgid "Open previous image"
+msgstr "Vorheriges Bild offnen"
+
+#: tfimagelist.tbremoveitem.hint
+msgid "Remove selected images from list"
+msgstr "Gewählte Bilder von der Liste entfernen"
+
+#: tfimagelist.tbuncheckall.hint
+msgid "Uncheck all files for processing"
+msgstr "Alle Dateien zur Bearbeitung abwählen"
+
 #: tflayerstack.caption
 msgctxt "tflayerstack.caption"
 msgid "Layers"
 msgstr "Ebenen"
 
 #: tflayerstack.toolblendop.hint
+msgctxt "tflayerstack.toolblendop.hint"
 msgid "Select blend operation"
 msgstr "Überblendungseffekt auswählen"
 
@@ -62,6 +613,11 @@ msgstr "Ebenefenster einzoomen"
 msgctxt "tflayerstack.toolzoomlayerstackout.hint"
 msgid "Zoom layer stack out"
 msgstr "Ebenefenster auszoomen"
+
+#: tfloading.caption
+msgctxt "tfloading.caption"
+msgid "Loading..."
+msgstr "Laden..."
 
 #: tfmain.brushcreategeometric.hint
 msgctxt "tfmain.brushcreategeometric.hint"
@@ -257,6 +813,10 @@ msgstr "Prüfen"
 msgid "Validate modifications"
 msgstr "Änderungen prüfen"
 
+#: tfmain.exportpicturedialog.title
+msgid "Export as..."
+msgstr "Ausführen als..."
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Eintrag auswählen"
@@ -264,6 +824,10 @@ msgstr "Eintrag auswählen"
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
 msgstr "Eintrag von Datei auswählen"
+
+#: tfmain.fileexport.caption
+msgid "Export..."
+msgstr "Ausführen..."
 
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
@@ -307,6 +871,10 @@ msgstr "Neu laden"
 #: tfmain.fileremembersaveformat.hint
 msgid "Remember save format"
 msgstr "Sich Speicherformat einprägen"
+
+#: tfmain.filerunscript.caption
+msgid "Run script..."
+msgstr "Skript ausführen..."
 
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
@@ -467,7 +1035,7 @@ msgid "Twirl..."
 msgstr "Wirbel..."
 
 #: tfmain.filterwavedisplacement.caption
-msgid "Wave diplacement..."
+msgid "Wave displacement..."
 msgstr "Wellen-Wandel..."
 
 #: tfmain.forgetdialoganswers.caption
@@ -566,11 +1134,6 @@ msgstr "Vertikal spiegeln"
 #: tfmain.imageverticalflip.hint
 msgid "Flip image vertically"
 msgstr "Das Bild vertikal spiegeln"
-
-#: tfmain.image_currenttexture.hint
-msgctxt "tfmain.image_currenttexture.hint"
-msgid "Current texture"
-msgstr "Aktuelle Textur"
 
 #: tfmain.image_currenttool.hint
 msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
@@ -848,6 +1411,12 @@ msgctxt "tfmain.menurender.caption"
 msgid "Render"
 msgstr "Rendering"
 
+#: tfmain.menuscript.caption
+#, fuzzy
+msgctxt "tfmain.menuscript.caption"
+msgid "Script"
+msgstr "Skript"
+
 #: tfmain.menuselect.caption
 msgctxt "tfmain.menuselect.caption"
 msgid "Select"
@@ -984,15 +1553,6 @@ msgstr "Auswahl horizontal spiegeln"
 msgid "Flip selection vertically"
 msgstr "Auswahl vertikal spiegeln"
 
-#: tfmain.shape_backcolor.hint
-msgctxt "tfmain.shape_backcolor.hint"
-msgid "Select secondary color"
-msgstr "Zweite Farbe wählen"
-
-#: tfmain.shape_pencolor.hint
-msgid "Select pen color"
-msgstr "Stiftfarbe wählen"
-
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
@@ -1003,11 +1563,6 @@ msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
 msgstr "Vertikale Größe des Pfeils"
 
-#: tfmain.spinedit_backopacity.hint
-msgctxt "tfmain.spinedit_backopacity.hint"
-msgid "Secondary color opacity"
-msgstr "Deckkraft der zweiten Farbe"
-
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
 msgid "Spacing between patterns"
@@ -1017,11 +1572,6 @@ msgstr "Abstand der Muster"
 msgctxt "tfmain.spinedit_eraser.hint"
 msgid "Eraser opacity"
 msgstr "Deckkraft des Radierers"
-
-#: tfmain.spinedit_penopacity.hint
-msgctxt "tfmain.spinedit_penopacity.hint"
-msgid "Pen opacity"
-msgstr "Deckkraft des Stiftes"
 
 #: tfmain.spinedit_penwidth.hint
 msgctxt "tfmain.spinedit_penwidth.hint"
@@ -1062,11 +1612,6 @@ msgstr "Vertikaler Versatz des Schattens"
 msgctxt "tfmain.spinedit_textsize.hint"
 msgid "Text size"
 msgstr "Textgröße"
-
-#: tfmain.spinedit_textureopacity.hint
-msgctxt "tfmain.spinedit_textureopacity.hint"
-msgid "Texture opacity"
-msgstr "Deckkraft der Textur"
 
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
@@ -1143,11 +1688,6 @@ msgctxt "tfmain.toollayermapping.hint"
 msgid "Layer perspective"
 msgstr "Perspektive"
 
-#: tfmain.toolloadtexture.hint
-msgctxt "tfmain.toolloadtexture.hint"
-msgid "Load texture..."
-msgstr "Textur laden..."
-
 #: tfmain.toolmagicwand.caption
 msgid "Magic wand"
 msgstr "Zauberstab"
@@ -1161,10 +1701,9 @@ msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
 msgid "Move selection"
 msgstr "Auswahl bewegen"
 
-#: tfmain.toolnotexture.hint
-msgctxt "tfmain.toolnotexture.hint"
-msgid "No texture"
-msgstr "Keine Textur"
+#: tfmain.toolopenedcurve.hint
+msgid "Opened curve"
+msgstr "Geöffnete Kurve"
 
 #: tfmain.toolpen.caption
 msgctxt "TFMAIN.TOOLPEN.CAPTION"
@@ -1187,6 +1726,10 @@ msgstr "Polygon"
 #: tfmain.toolpolygon.hint
 msgid "Polygon or polyline"
 msgstr "Polygon oder Polylinie"
+
+#: tfmain.toolpolyline.hint
+msgid "Polyline"
+msgstr "Polylinie"
 
 #: tfmain.toolrect.hint
 msgctxt "TFMAIN.TOOLRECT.HINT"
@@ -1290,11 +1833,6 @@ msgstr "Kurve zeichnen"
 msgid "Move point"
 msgstr "Punkt bewegen"
 
-#: tfmain.tool_diamondgradient.hint
-msgctxt "tfmain.tool_diamondgradient.hint"
-msgid "Diamond gradient"
-msgstr "Diamantverlauf"
-
 #: tfmain.tool_drawshapeborder.hint
 msgctxt "tfmain.tool_drawshapeborder.hint"
 msgid "Draw border"
@@ -1309,6 +1847,18 @@ msgstr "Durchsichtig machen"
 msgctxt "tfmain.tool_eraseblur.hint"
 msgid "Soften"
 msgstr "Weichzeichnen"
+
+#: tfmain.tool_erasedarken.hint
+msgid "Darken"
+msgstr "Dunkel machen"
+
+#: tfmain.tool_eraselighten.hint
+msgid "Lighten"
+msgstr "Aufhellen"
+
+#: tfmain.tool_erasesharpen.hint
+msgid "Sharpen"
+msgstr "Scharfzeichnen"
 
 #: tfmain.tool_fillshape.hint
 msgctxt "tfmain.tool_fillshape.hint"
@@ -1334,11 +1884,6 @@ msgstr "Fugenverbindung"
 msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
 msgid "Round join"
 msgstr "Runde Verbindung"
-
-#: tfmain.tool_lineargradient.hint
-msgctxt "tfmain.tool_lineargradient.hint"
-msgid "Linear gradient"
-msgstr "Linearer Verlauf"
 
 #: tfmain.tool_phongshapecone.hint
 msgctxt "tfmain.tool_phongshapecone.hint"
@@ -1385,20 +1930,17 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "Progressive Füllung"
 
-#: tfmain.tool_radialgradient.hint
-msgctxt "tfmain.tool_radialgradient.hint"
-msgid "Radial gradient"
-msgstr "Radialer Verlauf"
+#: tfmain.tool_textaligncenter.hint
+msgid "Center"
+msgstr "Zentrieren"
 
-#: tfmain.tool_reflectedgradient.hint
-msgctxt "tfmain.tool_reflectedgradient.hint"
-msgid "Reflected gradient"
-msgstr "Reflektierter Verlauf"
+#: tfmain.tool_textalignleft.hint
+msgid "Align left"
+msgstr "Links angleichen"
 
-#: tfmain.tool_singradient.hint
-msgctxt "tfmain.tool_singradient.hint"
-msgid "Sine gradient"
-msgstr "Sinusverlauf"
+#: tfmain.tool_textalignright.hint
+msgid "Align right"
+msgstr "Rechts angleichen"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -1499,1399 +2041,6 @@ msgstr "Zoom zur originalen Pixelgröße"
 msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "Auszoomen"
-
-#: tftwirl.button_cancel.caption
-msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Abbruch"
-
-#: tftwirl.button_ok.caption
-msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tftwirl.caption
-msgctxt "tftwirl.caption"
-msgid "Twirl"
-msgstr "Wirbel"
-
-#: tftwirl.label_angle.caption
-msgctxt "tftwirl.label_angle.caption"
-msgid "Angle :"
-msgstr "Winkel:"
-
-#: tftwirl.label_radius.caption
-msgctxt "tftwirl.label_radius.caption"
-msgid "Radius :"
-msgstr "Radius:"
-
-#: tfwavedisplacement.button_cancel.caption
-msgctxt "tfwavedisplacement.button_cancel.caption"
-msgid "Cancel"
-msgstr "Abbruch"
-
-#: tfwavedisplacement.button_ok.caption
-msgctxt "tfwavedisplacement.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfwavedisplacement.caption
-msgid "Wave displacement"
-msgstr "Wellen-Wandel"
-
-#: tfwavedisplacement.label_displacement.caption
-msgid "Displacement :"
-msgstr "Versatz:"
-
-#: tfwavedisplacement.label_phase.caption
-msgid "Phase :"
-msgstr "Phase:"
-
-#: tfwavedisplacement.label_wavelength.caption
-msgid "Wavelength :"
-msgstr "Wellenlänge:"
-
-#: uresourcestrings.rsactioninprogress
-msgid "Action in progress"
-msgstr "Aktion wird durchgeführt"
-
-#: uresourcestrings.rsaddtoimagelist
-msgid "Add files to the image processing list"
-msgstr "Bild zur Bildverarbeitungsliste hinfügen"
-
-#: uresourcestrings.rsalignshape
-msgid "Align shape"
-msgstr "Form angleichen"
-
-#: uresourcestrings.rsallapplications
-msgid "all"
-msgstr "alle"
-
-#: uresourcestrings.rsallsupportedfiletypes
-msgid "All supported filetypes"
-msgstr "Alle unterstützten Dateitypen"
-
-#: uresourcestrings.rsalt
-msgid "ALT"
-msgstr "ALT"
-
-#: uresourcestrings.rsholdkeysscalemode
-msgid "Hold %1 or %2 to scale"
-msgstr "%1 oder %2 halten zum Skalieren"
-
-#: uresourcestrings.rsanimatedgif
-msgid "Animated GIF"
-msgstr "Animiertes GIF"
-
-#: uresourcestrings.rsautodetect
-msgid "Autodetect"
-msgstr "Autodetect"
-
-#: uresourcestrings.rsbackspaceremovelastpoint
-msgid "Press BACKSPACE to remove last point"
-msgstr "RÜCKWÄRTS-Taste löscht letzten Punkt"
-
-#: uresourcestrings.rsbestquality
-msgid "Best quality"
-msgstr "Beste Qualität"
-
-#: uresourcestrings.rsbitmap
-msgid "Bitmap"
-msgstr "Bitmap"
-
-#: uresourcestrings.rsblendopnotusedforbackground
-msgid "The blend operation is applied only if there is a layer underneath"
-msgstr "Überblendungseffekte werden nur angewendet wenn eine Ebene darunter liegt"
-
-#: uresourcestrings.rsblue
-msgid "Blue"
-msgstr "Blau"
-
-#: uresourcestrings.rsbrightness
-msgid "Brightness"
-msgstr "Helligkeit"
-
-#: uresourcestrings.rsbytes
-msgid "Bytes"
-msgstr "Bytes"
-
-#: uresourcestrings.rscancel
-msgctxt "uresourcestrings.rscancel"
-msgid "Cancel"
-msgstr "Abbruch"
-
-#: uresourcestrings.rscannotdrawshapeonsvglayer
-msgid "Cannot draw shape on SVG layer"
-msgstr "Form kann nicht auf SVG-Ebene gezeichnet werden"
-
-#: uresourcestrings.rscannotopenfile
-msgid "Cannot open file"
-msgstr "Datei kann nicht geöffnet werden"
-
-#: uresourcestrings.rscanvassize
-msgctxt "uresourcestrings.rscanvassize"
-msgid "Canvas size"
-msgstr "Leinwandgröße"
-
-#: uresourcestrings.rscdrom
-msgid "CD"
-msgstr "CD"
-
-#: uresourcestrings.rsclearpalette
-msgid "Clear palette"
-msgstr "Palette räumen"
-
-#: uresourcestrings.rscloserequest
-msgid "Close request"
-msgstr "Anforderung schließen"
-
-#: uresourcestrings.rscolors
-msgctxt "uresourcestrings.rscolors"
-msgid "Colors"
-msgstr "Farben"
-
-#: uresourcestrings.rsconfirmdeletefromcontainer
-msgid "Are you sure you want to delete this file from the container?"
-msgstr "Möchten Sie wirklich diese Datei aus dem Containerdatei löschen?"
-
-#: uresourcestrings.rsconfirmdeletemultiplefromcontainer
-msgid "Are you sure you want to delete these %1 files from the container?"
-msgstr "Möchten Sie wirklich diese %1 Datei aus dem Containerdatei löschen?"
-
-#: uresourcestrings.rsconfirmmovemultipletotrash
-msgid "Are you sure you want to move these %1 files to the trash?"
-msgstr "Möchten Sie wirklich diese %1 Datei in den Papierkorb verschieben?"
-
-#: uresourcestrings.rsconfirmmovetotrash
-msgid "Are you sure you want to move this file to the trash?"
-msgstr "Möchten Sie wirklich diese %1 Datei in den Papierkorb verschieben?"
-
-#: uresourcestrings.rsconflictingactions
-msgid "Conflicting actions"
-msgstr "Konflikt von Aktionen"
-
-#: uresourcestrings.rscontrast
-msgid "Contrast"
-msgstr "Kontrast"
-
-#: uresourcestrings.rscorrectedhueccw
-msgctxt "uresourcestrings.rscorrectedhueccw"
-msgid "Corr. Hue CCW"
-msgstr "Färbung gegen UZS, korr."
-
-#: uresourcestrings.rscorrectedhuecw
-msgctxt "uresourcestrings.rscorrectedhuecw"
-msgid "Corr. Hue CW"
-msgstr "Färbung in UZS, korrigiert"
-
-#: uresourcestrings.rscosine
-msgid "Cosine"
-msgstr "Kosinus"
-
-#: uresourcestrings.rscrop
-msgid "Crop"
-msgstr "Zuchneiden"
-
-#: uresourcestrings.rsctrl
-msgid "CTRL"
-msgstr "STRG"
-
-#: uresourcestrings.rscmd
-msgid "CMD"
-msgstr "CMD"
-
-#: uresourcestrings.rsholdkeyrestrictrotation
-msgid "Hold %1 to restrict rotation angle"
-msgstr "Halten Sie %1 für stufenweise Drehung"
-
-#: uresourcestrings.rscurvemodehint
-msgid "Press S or X to set the curve mode of the last point"
-msgstr "S oder X drücken um das Kurvenmodus des letzten Punkt zu bestimmen"
-
-#: uresourcestrings.rsdefaultpalette
-msgid "Default palette"
-msgstr "Standard Palette"
-
-#: uresourcestrings.rsdeletefile
-msgctxt "uresourcestrings.rsdeletefile"
-msgid "Delete"
-msgstr "Löschen"
-
-#: uresourcestrings.rsdeleteimageentry
-msgid "Delete selected image entry?"
-msgstr "Ausgewählte Bildeintrag löschen?"
-
-#: uresourcestrings.rsdirectorynotempty
-msgid "Directory is not empty"
-msgstr "Das Verzeichnis ist nicht leer"
-
-#: uresourcestrings.rsditherlayerusingpalette
-msgid "Dither layer using palette"
-msgstr "Dithering auf dieser Ebene mit der Palette anwenden"
-
-#: uresourcestrings.rsduplicateimage
-msgid "Duplicate image"
-msgstr "Bild duplizieren"
-
-#: uresourcestrings.rseditmask
-msgid "Edit mask"
-msgstr "Maske bearbeiten"
-
-#: uresourcestrings.rseditselection
-msgid "Edit selection"
-msgstr "Auswahl bearbeiten"
-
-#: uresourcestrings.rsedittexture
-msgid "Edit texture"
-msgstr "Textur bearbeiten"
-
-#: uresourcestrings.rsemptylayer
-msgid "Layer is empty"
-msgstr "Die Ebene ist leer"
-
-#: uresourcestrings.rsemptyselection
-msgid "Selection is empty"
-msgstr "Der Auswahl ist leer"
-
-#: uresourcestrings.rsenterfolderorcontainername
-msgid "Enter name for new folder or container (using RES or LRS extension):"
-msgstr "Namen für neues Verzeichnis oder Container (mit RES oder LRS Erweiterung) eingeben"
-
-#: uresourcestrings.rsenterlayername
-msgid "Enter layer name:"
-msgstr "Ebenenamen eingeben:"
-
-#: uresourcestrings.rsentries
-msgid "Entries"
-msgstr "Einträge"
-
-#: uresourcestrings.rserror
-msgid "Error"
-msgstr "Fehler"
-
-#: uresourcestrings.rserrorloadingoriginal
-msgid "Error while loading original however layer can be rasterized."
-msgstr "Fehler beim Laden vom Original, die Ebene kann aber gerastert weredn"
-
-#: uresourcestrings.rserroronopeningfile
-msgid "Error on opening file \"%1\""
-msgstr "Fehler beim Öffnen der Datei \"%1\""
-
-#: uresourcestrings.rsexitrequest
-msgid "Exit request"
-msgstr "Anforderung beenden"
-
-#: uresourcestrings.rsexpect1parameter
-msgid "expects one parameter : "
-msgstr "erwartet einen Parameter: "
-
-#: uresourcestrings.rsexpect2parameters
-msgid "expects two parameters : "
-msgstr "erwartet zwei Parameter: "
-
-#: uresourcestrings.rsexpectnparameters
-msgid "expects N parameters : "
-msgstr "erwartet N Parameter: "
-
-#: uresourcestrings.rsfast
-msgid "Fast"
-msgstr "Schnell"
-
-#: uresourcestrings.rsfilecannotbeempty
-msgid "File cannot be empty"
-msgstr "Datei darf nicht leer sein"
-
-#: uresourcestrings.rsfiledate
-msgid "Date"
-msgstr "Datum"
-
-#: uresourcestrings.rsfileextensionnotsupported
-msgid "This file extension is not supported."
-msgstr "Diese Dateierweiterung wird nicht unterstützt."
-
-#: uresourcestrings.rsfileformatnotrecognized
-msgid "The file format has not been recognized."
-msgstr "Dieses Dateiformat konnte nicht erkannt werden."
-
-#: uresourcestrings.rsfilename
-msgid "Filename"
-msgstr "Dateiname"
-
-#: uresourcestrings.rsfilenotfound
-msgid "File not found!"
-msgstr "Datei nicht gefunden!"
-
-#: uresourcestrings.rsfilenotsaved
-msgid "File not saved"
-msgstr "Datei nicht gespeichert"
-
-#: uresourcestrings.rsfilesize
-msgid "Size"
-msgstr "Größe"
-
-#: uresourcestrings.rsfilesystem
-msgid "File system"
-msgstr "Dateisystem"
-
-#: uresourcestrings.rsfiletype
-msgid "Type"
-msgstr "Typ"
-
-#: uresourcestrings.rsfixeddrive
-msgid "Fixed"
-msgstr "Festplatte"
-
-#: uresourcestrings.rsfolder
-msgid "Folder"
-msgstr "Ordner"
-
-#: uresourcestrings.rsfolderorcontaineralreadyexists
-msgid "Folder or container already exists."
-msgstr "Ordner oder Container existiert schon."
-
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
-msgstr "Folgende Fehler traten auf:"
-
-#: uresourcestrings.rsframes
-msgid "Frames"
-msgstr "Rahmen"
-
-#: uresourcestrings.rsfunctionnotdefined
-msgid "The function %1 is not defined."
-msgstr "Die Funktion %1 ist nicht vorhanden."
-
-#: uresourcestrings.rsgreen
-msgid "Green"
-msgstr "Grün"
-
-#: uresourcestrings.rshalfcosine
-msgid "Half-cosine"
-msgstr "Halber Kosinus"
-
-#: uresourcestrings.rsholdkeysnaptopixel
-msgid "Hold %1 to snap to pixels"
-msgstr "Halten Sie %1 zum Ausrichten am Raster"
-
-#: uresourcestrings.rsshift
-msgid "SHIFT"
-msgstr "UMSCHALT"
-
-#: uresourcestrings.rsholdkeyforsquare
-msgid "Hold %1 to draw a square or a circle"
-msgstr "Halten Sie %1 für ein Quadrat / einen Kreis"
-
-#: uresourcestrings.rshotspot
-msgctxt "uresourcestrings.rshotspot"
-msgid "Hot spot"
-msgstr "Hot-Spot"
-
-#: uresourcestrings.rshue
-msgctxt "uresourcestrings.rshue"
-msgid "Hue"
-msgstr "Farbton"
-
-#: uresourcestrings.rshueccw
-msgctxt "uresourcestrings.rshueccw"
-msgid "Hue CCW"
-msgstr "Färbung gegen UZS"
-
-#: uresourcestrings.rshuecw
-msgctxt "uresourcestrings.rshuecw"
-msgid "Hue CW"
-msgstr "Färbung in UZS"
-
-#: uresourcestrings.rsiconimagealreadyexists
-msgid "There is already an image with this size and depth."
-msgstr "Es gibt schon ein Bild mit dieser Größe und Tiefe"
-
-#: uresourcestrings.rsiconorcursor
-msgid "Icon/cursor"
-msgstr "Ikon/Cursor"
-
-#: uresourcestrings.rsiconsize
-msgctxt "uresourcestrings.rsiconsize"
-msgid "Icon size"
-msgstr "Ikongröße"
-
-#: uresourcestrings.rsimagetoobig
-msgid "Image is too big"
-msgstr "Bild ist zu groß"
-
-#: uresourcestrings.rsinfinity
-msgctxt "uresourcestrings.rsinfinity"
-msgid "Infinity"
-msgstr "Unendlichkeit"
-
-#: uresourcestrings.rsinformation
-msgid "Information"
-msgstr "Information"
-
-#: uresourcestrings.rsintensity
-msgctxt "uresourcestrings.rsintensity"
-msgid "Intensity"
-msgstr "Intensität"
-
-#: uresourcestrings.rsinternalerror
-msgid "Internal error"
-msgstr "Interner Fehler"
-
-#: uresourcestrings.rsinvalidname
-msgid "Invalid name"
-msgstr "Ungültiger Name"
-
-#: uresourcestrings.rsinvalidopacity
-msgid "Invalid opacity : "
-msgstr "Ungültige Deckkraft:"
-
-#: uresourcestrings.rsinvalidresamplesize
-msgid "Invalid resample size : "
-msgstr "Ungültige Resamplegröße:"
-
-#: uresourcestrings.rsinvalidsizefornew
-msgid "Invalid size for new : "
-msgstr "Ungültige Größe für neu:"
-
-#: uresourcestrings.rskeepchanges
-msgid "Do you want to keep changes?"
-msgstr "Möchten Sie die Änderungen beibehalten?"
-
-#: uresourcestrings.rskeepemptyspace
-msgid "Keep empty space around opaque pixels?"
-msgstr "Freiraum um undurchsichtige Pixel behalten?"
-
-#: uresourcestrings.rslanczos
-msgid "Lanczos %1"
-msgstr "Lanczos %1"
-
-#: uresourcestrings.rslandscape
-msgid "Landscape"
-msgstr "Querformat"
-
-#: uresourcestrings.rslatestversion
-msgid "The latest version of LazPaint available online is"
-msgstr "Die letzte online-verfügbare Version von LazPaint ist"
-
-#: uresourcestrings.rslayeredimage
-msgid "Layered image"
-msgstr "Bild mit Ebenen"
-
-#: uresourcestrings.rslayers
-msgctxt "uresourcestrings.rslayers"
-msgid "Layers"
-msgstr "Ebenen"
-
-#: uresourcestrings.rslazpaint
-msgctxt "uresourcestrings.rslazpaint"
-msgid "LazPaint"
-msgstr "LazPaint"
-
-#: uresourcestrings.rslazpaintonly
-msgid "LazPaint only"
-msgstr "Nur LazPaint"
-
-#: uresourcestrings.rslight
-msgid "Light"
-msgstr "Licht"
-
-#: uresourcestrings.rslightness
-msgctxt "uresourcestrings.rslightness"
-msgid "Lightness"
-msgstr "Helligkeit"
-
-#: uresourcestrings.rslightposition
-msgid "Light position"
-msgstr "Position der Beleuchtung"
-
-#: uresourcestrings.rslinear
-msgid "Linear"
-msgstr "Linear"
-
-#: uresourcestrings.rslinearrgb
-msgid "Linear RGB"
-msgstr "Linear RGB"
-
-#: uresourcestrings.rsloadandmergepalette
-msgid "Load and merge palette..."
-msgstr "Palette laden und zusammenfügen"
-
-#: uresourcestrings.rsloading
-msgid "Loading"
-msgstr "Datei wird geladen"
-
-#: uresourcestrings.rsloadpalette
-msgid "Load palette..."
-msgstr "Palette laden..."
-
-#: uresourcestrings.rsloopcount
-msgid "Loop count"
-msgstr "Loop-Zahl"
-
-#: uresourcestrings.rsmakencolorspalettefrombitmap
-msgid "Make %1-colors palette from image"
-msgstr "Eine %1-Farben-Palette des Bildes erstellen"
-
-#: uresourcestrings.rsmergeselection
-msgid "Do you want to merge selection?"
-msgstr "Möchten Sie die Auswahl zusammenfügen?"
-
-#: uresourcestrings.rsmitchell
-msgid "Mitchell"
-msgstr "Mitchell"
-
-#: uresourcestrings.rsmorethanonefile
-msgid "You are trying to open more than one file. How would you like these files to be opened?"
-msgstr "Es wird versucht mehrere Dateien zu öffnen. Wie sollen diese Dateien geöffnet werden?"
-
-#: uresourcestrings.rsmovingorrotatingselection
-msgid "Moving or rotating selection"
-msgstr "Auswahl wird bewegt oder gedreht"
-
-#: uresourcestrings.rsmustreleaseselection
-msgid "You must first release the selection"
-msgstr "Bitte heben Sie zuerst die Auswahl auf"
-
-#: uresourcestrings.rsmustshowlayer
-msgid "You must first make the layer visible"
-msgstr "Bitte machen Sie die Ebene zuerst sichtbar"
-
-#: uresourcestrings.rsnetworkdrive
-msgid "Network"
-msgstr "Netz"
-
-#: uresourcestrings.rsnewimage
-msgctxt "uresourcestrings.rsnewimage"
-msgid "New image"
-msgstr "Neues Bild"
-
-#: uresourcestrings.rsno
-msgid "No"
-msgstr "Nein"
-
-#: uresourcestrings.rsnoactivelayer
-msgid "No active layer"
-msgstr "Keine aktive Ebene"
-
-#: uresourcestrings.rsnoactiveselection
-msgid "There is no active selection"
-msgstr "Es gibt keine aktive Auswahl"
-
-#: uresourcestrings.rsnoandproceedtonext
-msgid "Do not save and open another file"
-msgstr "Keine weitere Datei speichern und öffnen"
-
-#: uresourcestrings.rsnoname
-msgid "noname"
-msgstr "unbekannt"
-
-#: uresourcestrings.rsnormalblendop
-msgid "Normal"
-msgstr "Normal"
-
-#: uresourcestrings.rsnothingtobedeformed
-msgid "There is nothing to be deformed"
-msgstr "Es gibt nichts zu verformen"
-
-#: uresourcestrings.rsnothingtoberetrieved
-msgid "There is nothing to be retrieved"
-msgstr "Es gibt nichts zurückzuholen"
-
-#: uresourcestrings.rsnotreasonableformat
-msgid "It is not reasonable to save such a big image in this file format."
-msgstr "Es wird nicht empfohlen, ein so großes Bild in diesem Dateiformat zu speichern."
-
-#: uresourcestrings.rsnumber
-msgid "№"
-msgstr "Nr."
-
-#: uresourcestrings.rsokay
-msgid "Okay"
-msgstr "OK"
-
-#: uresourcestrings.rsopacity
-msgid "Opacity"
-msgstr "Deckkraft"
-
-#: uresourcestrings.rsopen
-msgid "Open"
-msgstr "Öffnen"
-
-#: uresourcestrings.rsopenfilesaslayers
-msgid "Open files as layers in a single image"
-msgstr "Dateien als Ebenen in einem einzigen Bild öffnen"
-
-#: uresourcestrings.rsopenfirstfileonly
-msgid "Open the first file only"
-msgstr "Öffne nur die erste Datei"
-
-#: uresourcestrings.rsopening
-msgid "Opening"
-msgstr "Datei wird geöffnet"
-
-#: uresourcestrings.rsopenmultipleimagefiles
-msgid "Open multiple image files"
-msgstr "Mehrere Bilddateien öffnen"
-
-#: uresourcestrings.rsotherblendop
-msgid "Other..."
-msgstr "Andere..."
-
-#: uresourcestrings.rsoverwritefile
-msgid "File already exists. Do you want to overwrite it?"
-msgstr "Die Datei existiert schon. Möchten Sie sie überschreiben?"
-
-#: uresourcestrings.rspaletteincludesalphachannel
-msgid "Palette includes alpha channel"
-msgstr "Palette enthält alpha-Kanal"
-
-#: uresourcestrings.rspaletteoptions
-msgid "Palette options"
-msgstr "Paletten Optionen"
-
-#: uresourcestrings.rspercent
-msgctxt "uresourcestrings.rspercent"
-msgid "%"
-msgstr "%"
-
-#: uresourcestrings.rsportait
-msgid "Portrait"
-msgstr "Hochformat"
-
-#: uresourcestrings.rsposterizelayerusingpalette
-msgid "Posterize layer using palette"
-msgstr "Posterisierung der Ebene mit der Palette anwenden"
-
-#: uresourcestrings.rspresetname
-msgid "Preset name"
-msgstr "Voreingestellter Name"
-
-#: uresourcestrings.rspx
-msgid "px"
-msgstr "px"
-
-#: uresourcestrings.rsramdisk
-msgid "RAM disk"
-msgstr "RAM-Disk"
-
-#: uresourcestrings.rsrasterlayer
-msgid "Raster layer"
-msgstr "Raster-Ebene"
-
-#: uresourcestrings.rsrecentdirectories
-msgid "Recent directories:"
-msgstr "Letzte Verzeichnisse:"
-
-#: uresourcestrings.rsred
-msgid "Red"
-msgstr "Rot"
-
-#: uresourcestrings.rsreload
-msgctxt "uresourcestrings.rsreload"
-msgid "Reload"
-msgstr "Neu laden"
-
-#: uresourcestrings.rsreloadchanged
-msgid "Bitmap has been modified. Do you really want to reload?"
-msgstr "Die Bitmap wurde verändert. Möchten Sie sie wirklich neu laden?"
-
-#: uresourcestrings.rsremovabledrive
-msgid "Removable"
-msgstr "Wechseldatenträger"
-
-#: uresourcestrings.rsrepeatimage
-msgctxt "uresourcestrings.rsrepeatimage"
-msgid "Repeat image"
-msgstr "Bild wiederholen"
-
-#: uresourcestrings.rsretrieveselectedarea
-msgid "Do you want to retrieve selected area?"
-msgstr "Möchten Sie den ausgewählten Bereich zurückholen?"
-
-#: uresourcestrings.rsreturnvalides
-msgid "Press ENTER to validate"
-msgstr "Drücken Sie EINGABE zum Prüfen"
-
-#: uresourcestrings.rsrgb
-msgctxt "uresourcestrings.rsrgb"
-msgid "RGB"
-msgstr "RGB"
-
-#: uresourcestrings.rsrightclickforsource
-msgid "Use RIGHT click to define source"
-msgstr "RECHTS-Klick um die Quelle zu wählen"
-
-#: uresourcestrings.rssaturation
-msgctxt "uresourcestrings.rssaturation"
-msgid "Saturation"
-msgstr "Sättigung"
-
-#: uresourcestrings.rssave
-msgctxt "uresourcestrings.rssave"
-msgid "Save"
-msgstr "Speichern"
-
-#: uresourcestrings.rssaveasbuttonhint
-msgctxt "uresourcestrings.rssaveasbuttonhint"
-msgid "Save with specified filename"
-msgstr "Mit angegebenem Dateinamen speichern"
-
-#: uresourcestrings.rssavechanges
-msgid "Current bitmap has been modified. Do you want to save changes?"
-msgstr "Das aktuelle Bitmap wurde geändert. Möchten Sie die Änderungen speichern?"
-
-#: uresourcestrings.rssavepaletteas
-msgid "Save palette as..."
-msgstr "Palette speichern als..."
-
-#: uresourcestrings.rsscript
-msgid "Script"
-msgstr "Skript"
-
-#: uresourcestrings.rsshowpalette
-msgctxt "uresourcestrings.rsshowpalette"
-msgid "Show palette"
-msgstr "Palette anzeigen"
-
-#: uresourcestrings.rssourceposition
-msgid "Source position"
-msgstr "Quellenposition"
-
-#: uresourcestrings.rsspline
-msgctxt "uresourcestrings.rsspline"
-msgid "Spline"
-msgstr "Polynomzug (Spline)"
-
-#: uresourcestrings.rsstoragedevice
-msgid "Device"
-msgstr "Gerät"
-
-#: uresourcestrings.rstexturemapping
-msgctxt "uresourcestrings.rstexturemapping"
-msgid "Texture mapping"
-msgstr "Texturzuweisung"
-
-#: uresourcestrings.rstherearenocheckeditems
-msgid "There are no checked items. Check some items or add some new ones."
-msgstr "Es gibt keine gewählten Elemente. Wählen Sie Elemente oder fügen Sie neue hinzu."
-
-#: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
-msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
-msgstr "Es wurde kein Dateiname für diese Datei gegeben. Verwenden Sie \"Speichern unter...\" aus dem Hauptmenü."
-
-#: uresourcestrings.rstodo
-msgid "To do"
-msgstr "Verw."
-
-#: uresourcestrings.rstodoimages
-msgid "Images left: %1"
-msgstr "Verbleibende Bilder: %1"
-
-#: uresourcestrings.rstooloninvisiblelayer
-msgid "Tool cannot be used on an invisible layer"
-msgstr "Das Werkzeug kann nicht an einer unsichtbaren Ebene verwendet"
-
-#: uresourcestrings.rstoomanylayers
-msgid "Too many layers"
-msgstr "Zu viele Ebene"
-
-#: uresourcestrings.rstoomanyshapesinlayer
-msgid "Too many shapes in layer"
-msgstr "Zu viele Formen in der Ebene"
-
-#: uresourcestrings.rstotalimages
-msgid "Total images: %1"
-msgstr "Bilder insgesamt: %1"
-
-#: uresourcestrings.rstransferselectiontootherlayer
-msgid "Transfer selection to other layer?"
-msgstr "Auswahl auf andere Ebene verschieben?"
-
-#: uresourcestrings.rstransformedrasterlayer
-msgid "Transformed raster layer"
-msgstr "Verformte Raster-Ebene"
-
-#: uresourcestrings.rstransformselectioncontent
-msgid "Do you want to transform content of the selection?"
-msgstr "Möchten Sie den Inhalt der Auswahl verformen?"
-
-#: uresourcestrings.rsunabletoapplyfilter
-msgid "Unable to apply filter : "
-msgstr "Kann Filter nicht anwenden: "
-
-#: uresourcestrings.rsunabletoloadfile
-msgid "Unable to load file : "
-msgstr "Kann Datei nicht laden: "
-
-#: uresourcestrings.rsunabletosavefile
-msgid "Unable to save file : "
-msgstr "Kann Datei nicht speichern: "
-
-#: uresourcestrings.rsunknowncommand
-msgid "Unknown command : "
-msgstr "Unbekannter Befehl: "
-
-#: uresourcestrings.rsunknownoriginal
-msgid "Unknown original"
-msgstr "Unbekanntes Original"
-
-#: uresourcestrings.rsvectoriallayer
-msgid "Vectorial layer"
-msgstr "Vektor-Ebene"
-
-#: uresourcestrings.rsyes
-msgid "Yes"
-msgstr "Ja"
-
-#: tablet.getprocfailed
-msgid "Procedure %s failed to load properly."
-msgstr "Prozedur %s konnte nicht ordnungsgemäß geladen werden."
-
-#: tablet.openfailed
-msgid "Tablet context failed to open."
-msgstr "Tablet-Kontext konnte nicht geöffnet werden."
-
-#: tfabout.button_donate.caption
-msgctxt "tfabout.button_donate.caption"
-msgid "Donate..."
-msgstr "Spenden Sie..."
-
-#: tfabout.caption
-msgctxt "tfabout.caption"
-msgid "About"
-msgstr "Über"
-
-#: tfabout.labelurl.caption
-msgid "http://sourceforge.net/projects/lazpaint/"
-msgstr "http://sourceforge.net/projects/lazpaint/"
-
-#: tfabout.label_authors.caption
-msgctxt "tfabout.label_authors.caption"
-msgid "Authors:"
-msgstr "Autoren:"
-
-#: tfabout.label_authorsvalue.caption
-#| msgid "Circular help by FabienWang and Lainz"
-msgctxt "tfabout.label_authorsvalue.caption"
-msgid "Circular helped by FabienWang, Lainz and others"
-msgstr "Circular unterstützt von FabienWang, Lainz und Anderen"
-
-#: tfabout.label_homepage.caption
-msgctxt "tfabout.label_homepage.caption"
-msgid "Homepage:"
-msgstr "Homepage:"
-
-#: tfabout.label_libraries.caption
-msgctxt "tfabout.label_libraries.caption"
-msgid "Libraries used:"
-msgstr "Bibliotheken:"
-
-#: tfabout.label_licence.caption
-msgctxt "tfabout.label_licence.caption"
-msgid "Licence:"
-msgstr "Lizenz:"
-
-#: tfabout.label_opensource.caption
-msgctxt "tfabout.label_opensource.caption"
-msgid "Open source (GPLv3)"
-msgstr "Open Source (GPLv3)"
-
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "Abbruch"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfadjustcurves.caption
-msgid "Adjust curves"
-msgstr "Farbkurven anpassen"
-
-#: tfadjustcurves.toolbutton_newcurve.hint
-msgid "Discard current curve and start a new one"
-msgstr "Aktuelle Farbkurve verwerfen und eine Neue beginnen"
-
-#: tfadjustcurves.toolbutton_posterize.hint
-msgctxt "tfadjustcurves.toolbutton_posterize.hint"
-msgid "Posterize"
-msgstr "Tontrennung"
-
-#: tfadjustcurves.toolbutton_removepoint.hint
-msgid "Remove selected point (Del)"
-msgstr "Gewäten Punkt entfernen (Del)"
-
-#: tfblendop.button_cancel.caption
-msgctxt "tfblendop.button_cancel.caption"
-msgid "Cancel"
-msgstr "Abbruch"
-
-#: tfblendop.button_ok.caption
-msgctxt "tfblendop.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfblendop.caption
-msgid "Blend operation"
-msgstr "Überblendungsoperation"
-
-#: tfblendop.label_blendopcategory.caption
-msgctxt "tfblendop.label_blendopcategory.caption"
-msgid "Category of blend operation"
-msgstr "Üerblendungseffekt-Kategorien"
-
-#: tfblendop.label_blendopvalue.caption
-msgctxt "tfblendop.label_blendopvalue.caption"
-msgid "."
-msgstr "."
-
-#: tfblendop.label_kritaover.caption
-msgctxt "tfblendop.label_kritaover.caption"
-msgid "Krita"
-msgstr "Krita"
-
-#: tfblendop.label_kritaover.hint
-msgid "Blend operations that are available in Krita"
-msgstr "In Krita verfügbarere Üerblendungseffekte"
-
-#: tfblendop.label_otherover.caption
-msgctxt "tfblendop.label_otherover.caption"
-msgid "Other"
-msgstr "Andere"
-
-#: tfblendop.label_otherover.hint
-msgid "Blend operations of LazPaint and Paint.NET"
-msgstr "Überblendungseffekte von LazPaint und Paint.NET"
-
-#: tfblendop.label_patternover.caption
-msgctxt "tfblendop.label_patternover.caption"
-msgid "Pattern over"
-msgstr "Muster über"
-
-#: tfblendop.label_patternover.hint
-msgid "Preview blend operation with the specified image on top"
-msgstr "Überblendungseffekt Vorschau mit gewähltem Bild im Vordergrund "
-
-#: tfblendop.label_patternunder.caption
-msgctxt "tfblendop.label_patternunder.caption"
-msgid "Pattern under"
-msgstr "Muster unter"
-
-#: tfblendop.label_patternunder.hint
-msgid "Preview blend operation with the specified image underneath"
-msgstr "Überblendungseffekt Vorschau mit gewähltem Bild im Hintergrund"
-
-#: tfblendop.label_previewwith.caption
-msgctxt "tfblendop.label_previewwith.caption"
-msgid "Preview with"
-msgstr "Vorschau mit"
-
-#: tfblendop.label_selectedblendop.caption
-msgid "Selected blend operation :"
-msgstr "Gewählte Operation:"
-
-#: tfblendop.label_svgover.caption
-msgctxt "tfblendop.label_svgover.caption"
-msgid "Basic SVG"
-msgstr "Einfaches SVG"
-
-#: tfblendop.label_svgover.hint
-msgid "Basic blend operations that are available in virtually all image editors"
-msgstr "Überblendungseffekte die in nahezu allen Bildverarbeitungsprogramen zur Verfügung stehen"
-
-#: tfbrowseimages.caption
-msgid "Browse images"
-msgstr "Bilder durchsuchen"
-
-#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
-msgid "Use this directory on startup"
-msgstr "Verwenden Sie dieses Verzeichnis beim Start"
-
-#: tfbrowseimages.label_status.caption
-msgctxt "tfbrowseimages.label_status.caption"
-msgid "."
-msgstr "."
-
-#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
-msgid "Create folder or container"
-msgstr "Ordner oder Container erstellen"
-
-#: tfbrowseimages.toolbutton_goup.hint
-msgid "Go one directory up"
-msgstr "Gehe ein Verzeichnis hoch"
-
-#: tfbrowseimages.toolbutton_openselectedfiles.hint
-msgid "Open selected files"
-msgstr "Gewählte Datei öffnen"
-
-#: tfbrowseimages.toolbutton_viewbigicon.hint
-msgctxt "tfbrowseimages.toolbutton_viewbigicon.hint"
-msgid "Show big icons"
-msgstr "Große Vorschaubilder anzeigen"
-
-#: tfbrowseimages.toolbutton_viewdetails.hint
-msgctxt "tfbrowseimages.toolbutton_viewdetails.hint"
-msgid "Show details and preview"
-msgstr "Eigenschaften und Vorschau anzeigen"
-
-#: tfbrowseimages.tool_selectdrive.hint
-msgid "Select drive"
-msgstr "Speichermedium auswählen"
-
-#: tfcanvassize.button_cancel.caption
-msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Abbruch"
-
-#: tfcanvassize.button_ok.caption
-msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfcanvassize.caption
-msgctxt "tfcanvassize.caption"
-msgid "Canvas size"
-msgstr "Leinwandgröße"
-
-#: tfcanvassize.checkbox_flipmode.caption
-msgid "Flip mode"
-msgstr "Spiegelungsmodus"
-
-#: tfcanvassize.label_anchor.caption
-msgctxt "tfcanvassize.label_anchor.caption"
-msgid "Anchor :"
-msgstr "Anker:"
-
-#: tfcanvassize.label_height.caption
-msgctxt "tfcanvassize.label_height.caption"
-msgid "Height :"
-msgstr "Höhe:"
-
-#: tfcanvassize.label_width.caption
-msgctxt "tfcanvassize.label_width.caption"
-msgid "Width :"
-msgstr "Breite:"
-
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Abbruch"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfcolorintensity.caption
-msgctxt "tfcolorintensity.caption"
-msgid "Intensity"
-msgstr "Intensität"
-
-#: tfcolorintensity.label_multiply.caption
-msgctxt "tfcolorintensity.label_multiply.caption"
-msgid "Multiply"
-msgstr "Multiplizieren"
-
-#: tfcolorintensity.label_shift.caption
-msgctxt "tfcolorintensity.label_shift.caption"
-msgid "Shift"
-msgstr "Verschieben"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Abbruch"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfcolorize.caption
-msgctxt "tfcolorize.caption"
-msgid "Colorize"
-msgstr "Einfärben"
-
-#: tfcolorize.checkbox_gsba.caption
-msgctxt "tfcolorize.checkbox_gsba.caption"
-msgid "Corrected hue and lightness"
-msgstr "Korrigierte Farbe und Helligkeit"
-
-#: tfcolorize.label_colorness.caption
-msgctxt "tfcolorize.label_colorness.caption"
-msgid "Colorness"
-msgstr "Farbigkeit"
-
-#: tfcolorize.label_hue.caption
-msgctxt "tfcolorize.label_hue.caption"
-msgid "Hue"
-msgstr "Farbton"
-
-#: tfcolorize.label_preset.caption
-msgid "Preset"
-msgstr "Voreingestellt"
-
-#: tfcustomblur.button_cancel.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Abbruch"
-
-#: tfcustomblur.button_editmask.caption
-msgid "Edit mask..."
-msgstr "Maske bearbeiten..."
-
-#: tfcustomblur.button_loadmask.caption
-msgid "Load mask..."
-msgstr "Maske laden..."
-
-#: tfcustomblur.button_ok.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfcustomblur.caption
-msgctxt "tfcustomblur.caption"
-msgid "Custom blur"
-msgstr "Benutzerdefinierter Weichzeichner"
-
-#: tfcustomblur.openpicturedialog1.title
-msgid "Open grayscale file"
-msgstr "Graustufen-Datei öffnen"
-
-#: tfemboss.button_cancel.caption
-msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Abbruch"
-
-#: tfemboss.button_ok.caption
-msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfemboss.caption
-msgctxt "tfemboss.caption"
-msgid "Emboss"
-msgstr "Gravur"
-
-#: tfemboss.checkbox_preservecolors.caption
-msgid "Preserve colors"
-msgstr "Farben erhalten"
-
-#: tfemboss.checkbox_transparent.caption
-msgid "Transparent"
-msgstr "Transparent"
-
-#: tfemboss.label_direction.caption
-msgctxt "tfemboss.label_direction.caption"
-msgid "Direction :"
-msgstr "Richtung:"
-
-#: tffilterfunction.button_cancel.caption
-msgctxt "tffilterfunction.button_cancel.caption"
-msgid "Cancel"
-msgstr "Abbruch"
-
-#: tffilterfunction.button_ok.caption
-msgctxt "tffilterfunction.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tffilterfunction.caption
-msgid "Apply function"
-msgstr "Funktion anwenden"
-
-#: tffilterfunction.checkbox_gsba.caption
-msgctxt "tffilterfunction.checkbox_gsba.caption"
-msgid "Corrected hue and lightness"
-msgstr "Korrigiert Farbton und Helligkeit"
-
-#: tffilterfunction.label_alphaequals.caption
-msgctxt "tffilterfunction.label_alphaequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_blueequals.caption
-msgctxt "tffilterfunction.label_blueequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_greenequals.caption
-msgctxt "tffilterfunction.label_greenequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_hueequals.caption
-msgctxt "tffilterfunction.label_hueequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_lightnessequals.caption
-msgctxt "tffilterfunction.label_lightnessequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_redequals.caption
-msgctxt "tffilterfunction.label_redequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_saturationequals.caption
-msgctxt "tffilterfunction.label_saturationequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_variables.caption
-msgid "Variables :"
-msgstr "Variablen:"
-
-#: tffilterfunction.tabsheet_hsl.caption
-msgid "HSL"
-msgstr "HSL"
-
-#: tffilterfunction.tabsheet_rgb.caption
-msgctxt "tffilterfunction.tabsheet_rgb.caption"
-msgid "RGB"
-msgstr "RGB"
-
-#: tfgeometricbrush.button_cancel.caption
-msgctxt "tfgeometricbrush.button_cancel.caption"
-msgid "Cancel"
-msgstr "Abbruch"
-
-#: tfgeometricbrush.button_ok.caption
-msgctxt "tfgeometricbrush.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfgeometricbrush.caption
-msgid "Geometric brush"
-msgstr "Geometrischer Pinsel"
-
-#: tfgeometricbrush.checkbox_isgradient.caption
-msgid "Opacity gradient"
-msgstr "Deckkraft Verlauf"
-
-#: tfgeometricbrush.label1.caption
-msgid "Number of sides:"
-msgstr "Anzahl der Seiten:"
-
-#: tfimagelist.caption
-msgid "Image List"
-msgstr "Bilderliste"
-
-#: tfimagelist.pmautouncheckonopen.caption
-msgid "Autouncheck files after being open"
-msgstr "Nach Speichern Datei automatisch abwählen"
-
-#: tfimagelist.pmautouncheckonsave.caption
-msgid "Autouncheck files after being edited and saved"
-msgstr "Nach Bearbeiten und Speichern Datei automatisch abwahlen"
-
-#: tfimagelist.pmremoveall.caption
-msgid "Empty image list"
-msgstr "Bilderliste leeren"
-
-#: tfimagelist.pmremovenonexisting.caption
-msgid "Remove nonexisting images"
-msgstr "Nichtexistierende Bilder entfernen"
-
-#: tfimagelist.pmremoveunchecked.caption
-msgid "Remove unchecked images"
-msgstr "Nichtgewählte Bilder entfernen"
-
-#: tfimagelist.pmunchecknonexisting.caption
-msgid "Uncheck nonexisting files"
-msgstr "Nichtexistierende Dateien abwählen"
-
-#: tfimagelist.stringgrid1.columns[0].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.stringgrid1.columns[1].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[1].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.stringgrid1.columns[2].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[2].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.stringgrid1.columns[3].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[3].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.tbaddfiles.hint
-msgid "Add images to list"
-msgstr "Bilder zur Liste hinzufügen"
-
-#: tfimagelist.tbautouncheck.hint
-msgid "Enable/disable autounchecking for processed files"
-msgstr "Automatisches Abwählen der verarbeiteten Datei Ein-/Ausschalten"
-
-#: tfimagelist.tbautozoomfit.hint
-msgid "Enable/disable autofitting images in the LazPaint window"
-msgstr "Automatische Größenanpassung im LazPaint Fenster Ein-/Ausschalten"
-
-#: tfimagelist.tbcheckall.hint
-msgid "Check all files for processing"
-msgstr "Alle Dateien zur Bearbeitung wählen"
-
-#: tfimagelist.tbminiwindow.hint
-msgid "Switch to miniwindow"
-msgstr "Fenster minimieren"
-
-#: tfimagelist.tbmovedown.hint
-msgid "Move selected items down"
-msgstr "Gewähltes Element nach unten bewegen"
-
-#: tfimagelist.tbmoveup.hint
-msgid "Move selected items up"
-msgstr "Gewähltes Element nach oben bewegen"
-
-#: tfimagelist.tbnormalwindows.hint
-msgid "Switch to normal window"
-msgstr "Fenster vergrößern"
-
-#: tfimagelist.tbopenimage.hint
-msgid "Open current image"
-msgstr "Aktuelles Bild öffnen"
-
-#: tfimagelist.tbopennext.hint
-msgctxt "tfimagelist.tbopennext.hint"
-msgid "Open next image (Alt-Right)"
-msgstr "Nächstes Bild öffnen (Alt-Rechts)"
-
-#: tfimagelist.tbopennextsw.hint
-msgctxt "tfimagelist.tbopennextsw.hint"
-msgid "Open next image"
-msgstr "Nächstes Bild öffnen "
-
-#: tfimagelist.tbopenprev.hint
-msgctxt "tfimagelist.tbopenprev.hint"
-msgid "Open previous image (Alt-Left)"
-msgstr "Vorheriges Bild offnen (Alt-Links)"
-
-#: tfimagelist.tbopenprevsw.hint
-msgctxt "tfimagelist.tbopenprevsw.hint"
-msgid "Open previous image"
-msgstr "Vorheriges Bild offnen"
-
-#: tfimagelist.tbremoveitem.hint
-msgid "Remove selected images from list"
-msgstr "Gewählte Bilder von der Liste entfernen"
-
-#: tfimagelist.tbuncheckall.hint
-msgid "Uncheck all files for processing"
-msgstr "Alle Dateien zur Bearbeitung abwählen"
-
-#: tfloading.caption
-msgctxt "tfloading.caption"
-msgid "Loading..."
-msgstr "Laden..."
 
 #: tfmotionblur.button_cancel.caption
 msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
@@ -3478,7 +2627,7 @@ msgstr "2 Farben"
 
 #: tfsaveoption.radiobutton_32bitsperpixel.caption
 msgid "32 bits"
-msgstr ""
+msgstr "32 bits"
 
 #: tfsaveoption.radiobutton_miomap.caption
 msgid "MioMap"
@@ -3537,4 +2686,897 @@ msgstr "Sättigung"
 msgctxt "tftoolbox.caption"
 msgid "Tools"
 msgstr "Werkzeuge"
+
+#: tftwirl.button_cancel.caption
+msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Abbruch"
+
+#: tftwirl.button_ok.caption
+msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tftwirl.caption
+msgctxt "tftwirl.caption"
+msgid "Twirl"
+msgstr "Wirbel"
+
+#: tftwirl.label_angle.caption
+msgctxt "tftwirl.label_angle.caption"
+msgid "Angle :"
+msgstr "Winkel:"
+
+#: tftwirl.label_radius.caption
+msgctxt "tftwirl.label_radius.caption"
+msgid "Radius :"
+msgstr "Radius:"
+
+#: tfwavedisplacement.button_cancel.caption
+msgctxt "tfwavedisplacement.button_cancel.caption"
+msgid "Cancel"
+msgstr "Abbruch"
+
+#: tfwavedisplacement.button_ok.caption
+msgctxt "tfwavedisplacement.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfwavedisplacement.caption
+msgid "Wave displacement"
+msgstr "Wellen-Wandel"
+
+#: tfwavedisplacement.label_displacement.caption
+msgid "Displacement :"
+msgstr "Versatz:"
+
+#: tfwavedisplacement.label_phase.caption
+msgid "Phase :"
+msgstr "Phase:"
+
+#: tfwavedisplacement.label_wavelength.caption
+msgid "Wavelength :"
+msgstr "Wellenlänge:"
+
+#: uresourcestrings.rsactioninprogress
+msgid "Action in progress"
+msgstr "Aktion wird durchgeführt"
+
+#: uresourcestrings.rsaddtoimagelist
+msgid "Add files to the image processing list"
+msgstr "Bild zur Bildverarbeitungsliste hinfügen"
+
+#: uresourcestrings.rsalignshape
+msgid "Align shape"
+msgstr "Form angleichen"
+
+#: uresourcestrings.rsallapplications
+msgid "all"
+msgstr "alle"
+
+#: uresourcestrings.rsallsupportedfiletypes
+msgid "All supported filetypes"
+msgstr "Alle unterstützten Dateitypen"
+
+#: uresourcestrings.rsalt
+msgid "ALT"
+msgstr "ALT"
+
+#: uresourcestrings.rsanimatedgif
+msgid "Animated GIF"
+msgstr "Animiertes GIF"
+
+#: uresourcestrings.rsautodetect
+msgid "Autodetect"
+msgstr "Autodetect"
+
+#: uresourcestrings.rsbackspaceremovelastpoint
+msgid "Press BACKSPACE to remove last point"
+msgstr "RÜCKWÄRTS-Taste löscht letzten Punkt"
+
+#: uresourcestrings.rsbestquality
+msgid "Best quality"
+msgstr "Beste Qualität"
+
+#: uresourcestrings.rsbitmap
+msgid "Bitmap"
+msgstr "Bitmap"
+
+#: uresourcestrings.rsblendopnotusedforbackground
+msgid "The blend operation is applied only if there is a layer underneath"
+msgstr "Überblendungseffekte werden nur angewendet wenn eine Ebene darunter liegt"
+
+#: uresourcestrings.rsblue
+msgid "Blue"
+msgstr "Blau"
+
+#: uresourcestrings.rsbrightness
+msgid "Brightness"
+msgstr "Helligkeit"
+
+#: uresourcestrings.rsbytes
+msgid "Bytes"
+msgstr "Bytes"
+
+#: uresourcestrings.rscancel
+msgctxt "uresourcestrings.rscancel"
+msgid "Cancel"
+msgstr "Abbruch"
+
+#: uresourcestrings.rscancelledbyuser
+msgid "Cancelled by user"
+msgstr "Vom Benutzer abgebrochen"
+
+#: uresourcestrings.rscannotdrawshapeonsvglayer
+msgid "Cannot draw shape on SVG layer"
+msgstr "Form kann nicht auf SVG-Ebene gezeichnet werden"
+
+#: uresourcestrings.rscannotopenfile
+msgid "Cannot open file"
+msgstr "Datei kann nicht geöffnet werden"
+
+#: uresourcestrings.rscanvassize
+msgctxt "uresourcestrings.rscanvassize"
+msgid "Canvas size"
+msgstr "Leinwandgröße"
+
+#: uresourcestrings.rscdrom
+msgid "CD"
+msgstr "CD"
+
+#: uresourcestrings.rsclearpalette
+msgid "Clear palette"
+msgstr "Palette räumen"
+
+#: uresourcestrings.rscloserequest
+msgid "Close request"
+msgstr "Anforderung schließen"
+
+#: uresourcestrings.rscmd
+msgid "CMD"
+msgstr "CMD"
+
+#: uresourcestrings.rscolors
+msgctxt "uresourcestrings.rscolors"
+msgid "Colors"
+msgstr "Farben"
+
+#: uresourcestrings.rsconfirmdeletefromcontainer
+msgid "Are you sure you want to delete this file from the container?"
+msgstr "Möchten Sie wirklich diese Datei aus dem Containerdatei löschen?"
+
+#: uresourcestrings.rsconfirmdeletemultiplefromcontainer
+msgid "Are you sure you want to delete these %1 files from the container?"
+msgstr "Möchten Sie wirklich diese %1 Datei aus dem Containerdatei löschen?"
+
+#: uresourcestrings.rsconfirmmovemultipletotrash
+msgid "Are you sure you want to move these %1 files to the trash?"
+msgstr "Möchten Sie wirklich diese %1 Datei in den Papierkorb verschieben?"
+
+#: uresourcestrings.rsconfirmmovetotrash
+msgid "Are you sure you want to move this file to the trash?"
+msgstr "Möchten Sie wirklich diese %1 Datei in den Papierkorb verschieben?"
+
+#: uresourcestrings.rsconflictingactions
+msgid "Conflicting actions"
+msgstr "Konflikt von Aktionen"
+
+#: uresourcestrings.rscontrast
+msgid "Contrast"
+msgstr "Kontrast"
+
+#: uresourcestrings.rscorrectedhueccw
+msgctxt "uresourcestrings.rscorrectedhueccw"
+msgid "Corr. Hue CCW"
+msgstr "Färbung gegen UZS, korr."
+
+#: uresourcestrings.rscorrectedhuecw
+msgctxt "uresourcestrings.rscorrectedhuecw"
+msgid "Corr. Hue CW"
+msgstr "Färbung in UZS, korrigiert"
+
+#: uresourcestrings.rscosine
+msgid "Cosine"
+msgstr "Kosinus"
+
+#: uresourcestrings.rscrop
+msgid "Crop"
+msgstr "Zuchneiden"
+
+#: uresourcestrings.rsctrl
+msgid "CTRL"
+msgstr "STRG"
+
+#: uresourcestrings.rscurvemodehint
+msgid "Press S or X to set the curve mode of the last point"
+msgstr "S oder X drücken um das Kurvenmodus des letzten Punkt zu bestimmen"
+
+#: uresourcestrings.rsdefaultpalette
+msgid "Default palette"
+msgstr "Standard Palette"
+
+#: uresourcestrings.rsdeletefile
+msgctxt "uresourcestrings.rsdeletefile"
+msgid "Delete"
+msgstr "Löschen"
+
+#: uresourcestrings.rsdeleteimageentry
+msgid "Delete selected image entry?"
+msgstr "Ausgewählte Bildeintrag löschen?"
+
+#: uresourcestrings.rsdirectorynotempty
+msgid "Directory is not empty"
+msgstr "Das Verzeichnis ist nicht leer"
+
+#: uresourcestrings.rsditherlayerusingpalette
+msgid "Dither layer using palette"
+msgstr "Dithering auf dieser Ebene mit der Palette anwenden"
+
+#: uresourcestrings.rsduplicateimage
+msgid "Duplicate image"
+msgstr "Bild duplizieren"
+
+#: uresourcestrings.rseditmask
+msgid "Edit mask"
+msgstr "Maske bearbeiten"
+
+#: uresourcestrings.rseditselection
+msgid "Edit selection"
+msgstr "Auswahl bearbeiten"
+
+#: uresourcestrings.rsedittexture
+msgid "Edit texture"
+msgstr "Textur bearbeiten"
+
+#: uresourcestrings.rsemptylayer
+msgid "Layer is empty"
+msgstr "Die Ebene ist leer"
+
+#: uresourcestrings.rsemptyselection
+msgid "Selection is empty"
+msgstr "Der Auswahl ist leer"
+
+#: uresourcestrings.rsendwithoutmatchingbegin
+msgid "End without matching begin"
+msgstr "Ende ohne Anfang"
+
+#: uresourcestrings.rsenterfolderorcontainername
+msgid "Enter name for new folder or container (using RES or LRS extension):"
+msgstr "Namen für neues Verzeichnis oder Container (mit RES oder LRS Erweiterung) eingeben"
+
+#: uresourcestrings.rsenterlayername
+msgid "Enter layer name:"
+msgstr "Ebenenamen eingeben:"
+
+#: uresourcestrings.rsentries
+msgid "Entries"
+msgstr "Einträge"
+
+#: uresourcestrings.rserror
+msgid "Error"
+msgstr "Fehler"
+
+#: uresourcestrings.rserrordecodingraw
+msgid "Error decoding raw image."
+msgstr "Fehler beim Dekodieren des Rohbilds."
+
+#: uresourcestrings.rserrorloadingoriginal
+msgid "Error while loading original however layer can be rasterized."
+msgstr "Fehler beim Laden vom Original, die Ebene kann aber gerastert weredn"
+
+#: uresourcestrings.rserroronopeningfile
+msgid "Error on opening file \"%1\""
+msgstr "Fehler beim Öffnen der Datei \"%1\""
+
+#: uresourcestrings.rsexception
+msgid "An exception was encountered"
+msgstr "Eine Ausnahme wurde festgestellt"
+
+#: uresourcestrings.rsexitrequest
+msgid "Exit request"
+msgstr "Anforderung beenden"
+
+#: uresourcestrings.rsexpect1parameter
+msgid "expects one parameter : "
+msgstr "erwartet einen Parameter: "
+
+#: uresourcestrings.rsexpect2parameters
+msgid "expects two parameters : "
+msgstr "erwartet zwei Parameter: "
+
+#: uresourcestrings.rsexpectnparameters
+msgid "expects N parameters : "
+msgstr "erwartet N Parameter: "
+
+#: uresourcestrings.rsfast
+msgid "Fast"
+msgstr "Schnell"
+
+#: uresourcestrings.rsfilecannotbeempty
+msgid "File cannot be empty"
+msgstr "Datei darf nicht leer sein"
+
+#: uresourcestrings.rsfiledate
+msgid "Date"
+msgstr "Datum"
+
+#: uresourcestrings.rsfileextensionnotsupported
+msgid "This file extension is not supported."
+msgstr "Diese Dateierweiterung wird nicht unterstützt."
+
+#: uresourcestrings.rsfileformatnotrecognized
+msgid "The file format has not been recognized."
+msgstr "Dieses Dateiformat konnte nicht erkannt werden."
+
+#: uresourcestrings.rsfilename
+msgid "Filename"
+msgstr "Dateiname"
+
+#: uresourcestrings.rsfilenotfound
+msgid "File not found!"
+msgstr "Datei nicht gefunden!"
+
+#: uresourcestrings.rsfilenotsaved
+msgid "File not saved"
+msgstr "Datei nicht gespeichert"
+
+#: uresourcestrings.rsfilesize
+msgid "Size"
+msgstr "Größe"
+
+#: uresourcestrings.rsfilesystem
+msgid "File system"
+msgstr "Dateisystem"
+
+#: uresourcestrings.rsfiletype
+msgid "Type"
+msgstr "Typ"
+
+#: uresourcestrings.rsfixeddrive
+msgid "Fixed"
+msgstr "Festplatte"
+
+#: uresourcestrings.rsfolder
+msgid "Folder"
+msgstr "Ordner"
+
+#: uresourcestrings.rsfolderorcontaineralreadyexists
+msgid "Folder or container already exists."
+msgstr "Ordner oder Container existiert schon."
+
+#: uresourcestrings.rsfollowingerrorsoccured
+msgid "Following errors occured:"
+msgstr "Folgende Fehler traten auf:"
+
+#: uresourcestrings.rsframes
+msgid "Frames"
+msgstr "Rahmen"
+
+#: uresourcestrings.rsfunctionnotdefined
+msgid "The function %1 is not defined."
+msgstr "Die Funktion %1 ist nicht vorhanden."
+
+#: uresourcestrings.rsgreen
+msgid "Green"
+msgstr "Grün"
+
+#: uresourcestrings.rshalfcosine
+msgid "Half-cosine"
+msgstr "Halber Kosinus"
+
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "Halten Sie %1 für ein Quadrat / einen Kreis"
+
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "Halten Sie %1 für stufenweise Drehung"
+
+#: uresourcestrings.rsholdkeysnaptopixel
+msgid "Hold %1 to snap to pixels"
+msgstr "Halten Sie %1 zum Ausrichten am Raster"
+
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "%1 oder %2 halten zum Skalieren"
+
+#: uresourcestrings.rshotspot
+msgctxt "uresourcestrings.rshotspot"
+msgid "Hot spot"
+msgstr "Hot-Spot"
+
+#: uresourcestrings.rshue
+msgctxt "uresourcestrings.rshue"
+msgid "Hue"
+msgstr "Farbton"
+
+#: uresourcestrings.rshueccw
+msgctxt "uresourcestrings.rshueccw"
+msgid "Hue CCW"
+msgstr "Färbung gegen UZS"
+
+#: uresourcestrings.rshuecw
+msgctxt "uresourcestrings.rshuecw"
+msgid "Hue CW"
+msgstr "Färbung in UZS"
+
+#: uresourcestrings.rsiconimagealreadyexists
+msgid "There is already an image with this size and depth."
+msgstr "Es gibt schon ein Bild mit dieser Größe und Tiefe"
+
+#: uresourcestrings.rsiconorcursor
+msgid "Icon/cursor"
+msgstr "Ikon/Cursor"
+
+#: uresourcestrings.rsiconsize
+msgctxt "uresourcestrings.rsiconsize"
+msgid "Icon size"
+msgstr "Ikongröße"
+
+#: uresourcestrings.rsimagetoobig
+msgid "Image is too big"
+msgstr "Bild ist zu groß"
+
+#: uresourcestrings.rsinfinity
+msgctxt "uresourcestrings.rsinfinity"
+msgid "Infinity"
+msgstr "Unendlichkeit"
+
+#: uresourcestrings.rsinformation
+msgid "Information"
+msgstr "Information"
+
+#: uresourcestrings.rsintensity
+msgctxt "uresourcestrings.rsintensity"
+msgid "Intensity"
+msgstr "Intensität"
+
+#: uresourcestrings.rsinternalerror
+msgid "Internal error"
+msgstr "Interner Fehler"
+
+#: uresourcestrings.rsinvalidname
+msgid "Invalid name"
+msgstr "Ungültiger Name"
+
+#: uresourcestrings.rsinvalidopacity
+msgid "Invalid opacity : "
+msgstr "Ungültige Deckkraft:"
+
+#: uresourcestrings.rsinvalidparameters
+msgid "Invalid parameters"
+msgstr "Ungültige Parameter"
+
+#: uresourcestrings.rsinvalidresamplesize
+msgid "Invalid resample size : "
+msgstr "Ungültige Resamplegröße:"
+
+#: uresourcestrings.rsinvalidsizefornew
+msgid "Invalid size for new : "
+msgstr "Ungültige Größe für neu:"
+
+#: uresourcestrings.rskeepchanges
+msgid "Do you want to keep changes?"
+msgstr "Möchten Sie die Änderungen beibehalten?"
+
+#: uresourcestrings.rskeepemptyspace
+msgid "Keep empty space around opaque pixels?"
+msgstr "Freiraum um undurchsichtige Pixel behalten?"
+
+#: uresourcestrings.rslanczos
+msgid "Lanczos %1"
+msgstr "Lanczos %1"
+
+#: uresourcestrings.rslandscape
+msgid "Landscape"
+msgstr "Querformat"
+
+#: uresourcestrings.rslatestversion
+msgid "The latest version of LazPaint available online is"
+msgstr "Die letzte online-verfügbare Version von LazPaint ist"
+
+#: uresourcestrings.rslayeredimage
+msgid "Layered image"
+msgstr "Bild mit Ebenen"
+
+#: uresourcestrings.rslayers
+msgctxt "uresourcestrings.rslayers"
+msgid "Layers"
+msgstr "Ebenen"
+
+#: uresourcestrings.rslazpaint
+msgctxt "uresourcestrings.rslazpaint"
+msgid "LazPaint"
+msgstr "LazPaint"
+
+#: uresourcestrings.rslazpaintonly
+msgid "LazPaint only"
+msgstr "Nur LazPaint"
+
+#: uresourcestrings.rslight
+msgid "Light"
+msgstr "Licht"
+
+#: uresourcestrings.rslightness
+msgctxt "uresourcestrings.rslightness"
+msgid "Lightness"
+msgstr "Helligkeit"
+
+#: uresourcestrings.rslightposition
+msgid "Light position"
+msgstr "Position der Beleuchtung"
+
+#: uresourcestrings.rslinear
+msgid "Linear"
+msgstr "Linear"
+
+#: uresourcestrings.rslinearrgb
+msgid "Linear RGB"
+msgstr "Linear RGB"
+
+#: uresourcestrings.rsloadandmergepalette
+msgid "Load and merge palette..."
+msgstr "Palette laden und zusammenfügen"
+
+#: uresourcestrings.rsloading
+msgid "Loading"
+msgstr "Datei wird geladen"
+
+#: uresourcestrings.rsloadpalette
+msgid "Load palette..."
+msgstr "Palette laden..."
+
+#: uresourcestrings.rsloopcount
+msgid "Loop count"
+msgstr "Loop-Zahl"
+
+#: uresourcestrings.rsmakencolorspalettefrombitmap
+msgid "Make %1-colors palette from image"
+msgstr "Eine %1-Farben-Palette des Bildes erstellen"
+
+#: uresourcestrings.rsmergeselection
+msgid "Do you want to merge selection?"
+msgstr "Möchten Sie die Auswahl zusammenfügen?"
+
+#: uresourcestrings.rsmitchell
+msgid "Mitchell"
+msgstr "Mitchell"
+
+#: uresourcestrings.rsmorethanonefile
+msgid "You are trying to open more than one file. How would you like these files to be opened?"
+msgstr "Es wird versucht mehrere Dateien zu öffnen. Wie sollen diese Dateien geöffnet werden?"
+
+#: uresourcestrings.rsmovingorrotatingselection
+msgid "Moving or rotating selection"
+msgstr "Auswahl wird bewegt oder gedreht"
+
+#: uresourcestrings.rsmustreleaseselection
+msgid "You must first release the selection"
+msgstr "Bitte heben Sie zuerst die Auswahl auf"
+
+#: uresourcestrings.rsmustshowlayer
+msgid "You must first make the layer visible"
+msgstr "Bitte machen Sie die Ebene zuerst sichtbar"
+
+#: uresourcestrings.rsnetworkdrive
+msgid "Network"
+msgstr "Netz"
+
+#: uresourcestrings.rsnewimage
+msgctxt "uresourcestrings.rsnewimage"
+msgid "New image"
+msgstr "Neues Bild"
+
+#: uresourcestrings.rsno
+msgid "No"
+msgstr "Nein"
+
+#: uresourcestrings.rsnoactivelayer
+msgid "No active layer"
+msgstr "Keine aktive Ebene"
+
+#: uresourcestrings.rsnoactiveselection
+msgid "There is no active selection"
+msgstr "Es gibt keine aktive Auswahl"
+
+#: uresourcestrings.rsnoandproceedtonext
+msgid "Do not save and open another file"
+msgstr "Keine weitere Datei speichern und öffnen"
+
+#: uresourcestrings.rsnoname
+msgid "noname"
+msgstr "unbekannt"
+
+#: uresourcestrings.rsnormalblendop
+msgid "Normal"
+msgstr "Normal"
+
+#: uresourcestrings.rsnothingtobedeformed
+msgid "There is nothing to be deformed"
+msgstr "Es gibt nichts zu verformen"
+
+#: uresourcestrings.rsnothingtoberetrieved
+msgid "There is nothing to be retrieved"
+msgstr "Es gibt nichts zurückzuholen"
+
+#: uresourcestrings.rsnotreasonableformat
+msgid "It is not reasonable to save such a big image in this file format."
+msgstr "Es wird nicht empfohlen, ein so großes Bild in diesem Dateiformat zu speichern."
+
+#: uresourcestrings.rsnumber
+msgid "№"
+msgstr "Nr."
+
+#: uresourcestrings.rsokay
+msgid "Okay"
+msgstr "OK"
+
+#: uresourcestrings.rsopacity
+msgid "Opacity"
+msgstr "Deckkraft"
+
+#: uresourcestrings.rsopen
+msgid "Open"
+msgstr "Öffnen"
+
+#: uresourcestrings.rsopenfilesaslayers
+msgid "Open files as layers in a single image"
+msgstr "Dateien als Ebenen in einem einzigen Bild öffnen"
+
+#: uresourcestrings.rsopenfirstfileonly
+msgid "Open the first file only"
+msgstr "Öffne nur die erste Datei"
+
+#: uresourcestrings.rsopening
+msgid "Opening"
+msgstr "Datei wird geöffnet"
+
+#: uresourcestrings.rsopenmultipleimagefiles
+msgid "Open multiple image files"
+msgstr "Mehrere Bilddateien öffnen"
+
+#: uresourcestrings.rsotherblendop
+msgid "Other..."
+msgstr "Andere..."
+
+#: uresourcestrings.rsoverwritefile
+msgid "File already exists. Do you want to overwrite it?"
+msgstr "Die Datei existiert schon. Möchten Sie sie überschreiben?"
+
+#: uresourcestrings.rspaletteincludesalphachannel
+msgid "Palette includes alpha channel"
+msgstr "Palette enthält alpha-Kanal"
+
+#: uresourcestrings.rspaletteoptions
+msgid "Palette options"
+msgstr "Paletten Optionen"
+
+#: uresourcestrings.rspercent
+msgctxt "uresourcestrings.rspercent"
+msgid "%"
+msgstr "%"
+
+#: uresourcestrings.rsportait
+msgid "Portrait"
+msgstr "Hochformat"
+
+#: uresourcestrings.rsposterizelayerusingpalette
+msgid "Posterize layer using palette"
+msgstr "Posterisierung der Ebene mit der Palette anwenden"
+
+#: uresourcestrings.rspresetname
+msgid "Preset name"
+msgstr "Voreingestellter Name"
+
+#: uresourcestrings.rspx
+msgid "px"
+msgstr "px"
+
+#: uresourcestrings.rspythonunexpectedversion
+msgid "Expected python version %1 but %2 found."
+msgstr "Erwartete Python-Version %1, aber %2 gefunden."
+
+#: uresourcestrings.rsramdisk
+msgid "RAM disk"
+msgstr "RAM-Disk"
+
+#: uresourcestrings.rsrasterlayer
+msgid "Raster layer"
+msgstr "Raster-Ebene"
+
+#: uresourcestrings.rsrecentdirectories
+msgid "Recent directories:"
+msgstr "Letzte Verzeichnisse:"
+
+#: uresourcestrings.rsred
+msgid "Red"
+msgstr "Rot"
+
+#: uresourcestrings.rsreload
+msgctxt "uresourcestrings.rsreload"
+msgid "Reload"
+msgstr "Neu laden"
+
+#: uresourcestrings.rsreloadchanged
+msgid "Bitmap has been modified. Do you really want to reload?"
+msgstr "Die Bitmap wurde verändert. Möchten Sie sie wirklich neu laden?"
+
+#: uresourcestrings.rsremovabledrive
+msgid "Removable"
+msgstr "Wechseldatenträger"
+
+#: uresourcestrings.rsrepeatimage
+msgctxt "uresourcestrings.rsrepeatimage"
+msgid "Repeat image"
+msgstr "Bild wiederholen"
+
+#: uresourcestrings.rsresamplingimage
+msgid "Resampling image..."
+msgstr "Bild umsampeln..."
+
+#: uresourcestrings.rsretrieveselectedarea
+msgid "Do you want to retrieve selected area?"
+msgstr "Möchten Sie den ausgewählten Bereich zurückholen?"
+
+#: uresourcestrings.rsreturnvalides
+msgid "Press ENTER to validate"
+msgstr "Drücken Sie EINGABE zum Prüfen"
+
+#: uresourcestrings.rsrgb
+msgctxt "uresourcestrings.rsrgb"
+msgid "RGB"
+msgstr "RGB"
+
+#: uresourcestrings.rsrightclickforsource
+msgid "Use RIGHT click to define source"
+msgstr "RECHTS-Klick um die Quelle zu wählen"
+
+#: uresourcestrings.rssaturation
+msgctxt "uresourcestrings.rssaturation"
+msgid "Saturation"
+msgstr "Sättigung"
+
+#: uresourcestrings.rssave
+msgctxt "uresourcestrings.rssave"
+msgid "Save"
+msgstr "Speichern"
+
+#: uresourcestrings.rssaveasbuttonhint
+msgctxt "uresourcestrings.rssaveasbuttonhint"
+msgid "Save with specified filename"
+msgstr "Mit angegebenem Dateinamen speichern"
+
+#: uresourcestrings.rssavechanges
+msgid "Current bitmap has been modified. Do you want to save changes?"
+msgstr "Das aktuelle Bitmap wurde geändert. Möchten Sie die Änderungen speichern?"
+
+#: uresourcestrings.rssavepaletteas
+msgid "Save palette as..."
+msgstr "Palette speichern als..."
+
+#: uresourcestrings.rsscript
+msgctxt "uresourcestrings.rsscript"
+msgid "Script"
+msgstr "Skript"
+
+#: uresourcestrings.rsselectblendoperation
+#, fuzzy
+msgctxt "uresourcestrings.rsselectblendoperation"
+msgid "Select blend operation"
+msgstr "Überblendungseffekt auswählen"
+
+#: uresourcestrings.rsshift
+msgid "SHIFT"
+msgstr "UMSCHALT"
+
+#: uresourcestrings.rsshowpalette
+msgctxt "uresourcestrings.rsshowpalette"
+msgid "Show palette"
+msgstr "Palette anzeigen"
+
+#: uresourcestrings.rssourceposition
+msgid "Source position"
+msgstr "Quellenposition"
+
+#: uresourcestrings.rsspline
+msgctxt "uresourcestrings.rsspline"
+msgid "Spline"
+msgstr "Polynomzug (Spline)"
+
+#: uresourcestrings.rsstoragedevice
+msgid "Device"
+msgstr "Gerät"
+
+#: uresourcestrings.rstexturemapping
+msgctxt "uresourcestrings.rstexturemapping"
+msgid "Texture mapping"
+msgstr "Texturzuweisung"
+
+#: uresourcestrings.rstherearenocheckeditems
+msgid "There are no checked items. Check some items or add some new ones."
+msgstr "Es gibt keine gewählten Elemente. Wählen Sie Elemente oder fügen Sie neue hinzu."
+
+#: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
+msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
+msgstr "Es wurde kein Dateiname für diese Datei gegeben. Verwenden Sie \"Speichern unter...\" aus dem Hauptmenü."
+
+#: uresourcestrings.rstodo
+msgid "To do"
+msgstr "Verw."
+
+#: uresourcestrings.rstodoimages
+msgid "Images left: %1"
+msgstr "Verbleibende Bilder: %1"
+
+#: uresourcestrings.rstooloninvisiblelayer
+msgid "Tool cannot be used on an invisible layer"
+msgstr "Das Werkzeug kann nicht an einer unsichtbaren Ebene verwendet"
+
+#: uresourcestrings.rstoomanyactions
+msgid "Too many actions"
+msgstr "Zu viele Aktionen"
+
+#: uresourcestrings.rstoomanylayers
+msgid "Too many layers"
+msgstr "Zu viele Ebene"
+
+#: uresourcestrings.rstoomanyshapesinlayer
+msgid "Too many shapes in layer"
+msgstr "Zu viele Formen in der Ebene"
+
+#: uresourcestrings.rstotalimages
+msgid "Total images: %1"
+msgstr "Bilder insgesamt: %1"
+
+#: uresourcestrings.rstransferselectiontootherlayer
+msgid "Transfer selection to other layer?"
+msgstr "Auswahl auf andere Ebene verschieben?"
+
+#: uresourcestrings.rstransformedrasterlayer
+msgid "Transformed raster layer"
+msgstr "Verformte Raster-Ebene"
+
+#: uresourcestrings.rstransformselectioncontent
+msgid "Do you want to transform content of the selection?"
+msgstr "Möchten Sie den Inhalt der Auswahl verformen?"
+
+#: uresourcestrings.rsunabletoapplyfilter
+msgid "Unable to apply filter : "
+msgstr "Kann Filter nicht anwenden: "
+
+#: uresourcestrings.rsunabletoloadfile
+msgid "Unable to load file : "
+msgstr "Kann Datei nicht laden: "
+
+#: uresourcestrings.rsunabletosavefile
+msgid "Unable to save file : "
+msgstr "Kann Datei nicht speichern: "
+
+#: uresourcestrings.rsunknowncommand
+msgid "Unknown command : "
+msgstr "Unbekannter Befehl: "
+
+#: uresourcestrings.rsunknownoriginal
+msgid "Unknown original"
+msgstr "Unbekanntes Original"
+
+#: uresourcestrings.rsvectoriallayer
+msgid "Vectorial layer"
+msgstr "Vektor-Ebene"
+
+#: uresourcestrings.rsyes
+msgid "Yes"
+msgstr "Ja"
+
+#: uresourcestrings.rszoomlayerstackin
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackin"
+msgid "Zoom layer stack in"
+msgstr "Ebenefenster einzoomen"
+
+#: uresourcestrings.rszoomlayerstackout
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackout"
+msgid "Zoom layer stack out"
+msgstr "Ebenefenster auszoomen"
 

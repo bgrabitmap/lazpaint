@@ -17,13 +17,13 @@
       <Icon Value="0"/>
     </General>
     <i18n>
-      <EnableI18N Value="True" LFM="False"/>
+      <EnableI18N LFM="False"/>
       <OutDir Value="release\bin\i18n"/>
     </i18n>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="7"/>
-      <RevisionNr Value="7"/>
+      <RevisionNr Value="8"/>
       <CharSet Value="04B0"/>
       <StringTable CompanyName="http://sourceforge.net/projects/lazpaint/" ProductName="LazPaint" InternalName="lazpaint" OriginalFilename="lazpaint.exe"/>
     </VersionInfo>
@@ -318,19 +318,26 @@
       <Version Value="2"/>
     </PublishOptions>
     <RunParams>
+      <local>
+        <CommandLineParams Value="-scriptbasedir ..\..\..\scripts"/>
+      </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
-        <Mode0 Name="default"/>
+        <Mode0 Name="default">
+          <local>
+            <CommandLineParams Value="-scriptbasedir ..\..\..\scripts"/>
+          </local>
+        </Mode0>
       </Modes>
     </RunParams>
     <RequiredPackages Count="5">
       <Item1>
-        <PackageName Value="bgracontrols"/>
-        <MinVersion Major="6" Minor="5" Valid="True"/>
+        <PackageName Value="BGRABitmapPack"/>
+        <MinVersion Major="10" Minor="6" Release="5" Valid="True"/>
       </Item1>
       <Item2>
-        <PackageName Value="BGRABitmapPack"/>
-        <MinVersion Major="10" Minor="6" Release="3" Valid="True"/>
+        <PackageName Value="bgracontrols"/>
+        <MinVersion Major="6" Minor="5" Valid="True"/>
       </Item2>
       <Item3>
         <PackageName Value="lazpaintcontrols"/>
@@ -342,7 +349,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="99">
+    <Units Count="105">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -528,6 +535,7 @@
       <Unit27>
         <Filename Value="uparse.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="UParse"/>
       </Unit27>
       <Unit28>
         <Filename Value="tools\utooldeformationgrid.pas"/>
@@ -835,6 +843,7 @@
       <Unit81>
         <Filename Value="uraintype.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="URainType"/>
       </Unit81>
       <Unit82>
         <Filename Value="dialog\filter\uformrain.pas"/>
@@ -928,6 +937,36 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="USelectionHighlight"/>
       </Unit98>
+      <Unit99>
+        <Filename Value="uraw.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="URaw"/>
+      </Unit99>
+      <Unit100>
+        <Filename Value="uprocessauto.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UProcessAuto"/>
+      </Unit100>
+      <Unit101>
+        <Filename Value="upython.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UPython"/>
+      </Unit101>
+      <Unit102>
+        <Filename Value="dialog\ulayerstackinterface.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ULayerStackInterface"/>
+      </Unit102>
+      <Unit103>
+        <Filename Value="dialog\uchoosecolorinterface.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UChooseColorInterface"/>
+      </Unit103>
+      <Unit104>
+        <Filename Value="uimagebackup.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UImageBackup"/>
+      </Unit104>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

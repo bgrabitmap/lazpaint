@@ -41,7 +41,6 @@ type
     Panel2: TPanel;
     Splitter1: TSplitter;
     Timer1: TTimer;
-    procedure CheckBox_UseDirectoryOnStartupChange(Sender: TObject);
     procedure ComboBox_FileExtensionChange(Sender: TObject);
     procedure DirectoryEdit1Change(Sender: TObject);
     procedure Edit_FilenameChange(Sender: TObject);
@@ -69,11 +68,15 @@ type
     function OnDeleteConfirmation({%H-}AForm:TForm; const AFiles: array of string; AContained: boolean): boolean;
   private
     function GetCurrentDirectory: string;
+    function GetCurrentFullname: string;
     procedure SetCurrentDirectory(AValue: string);
+    function AdaptExtension: boolean;
+    procedure ShellListView1SelectionChanged(Sender: TObject);
   private
     FLazPaintInstance: TLazPaintCustomInstance;
     FDefaultExtension: string;
     { private declarations }
+    FFileExtensionFilter: string;
     FFileExtensions: array of string;
     FDefaultExtensions: string;
     FOpenButtonHint: string;
@@ -89,7 +92,7 @@ type
     FSavedDetailsViewWidth: integer;
     FLastDirectory: string;
     FFileSystems: TFileSystemArray;
-    FFilename: string;
+    FFilename, FInitialFilename: string;
     FBmpIcon: TBGRABitmap;
     FLastBigIcon: boolean;
     FImageFileNotChecked, FImageFileUnkown, FImageFolder,
@@ -98,11 +101,16 @@ type
     FSelectedFiles: array of string;
     FCreateFolderOrContainerCaption: string;
     function GetCurrentExtensionFilter: string;
+    function GetFilterIndex: integer;
     function GetInitialFilename: string;
     function GetOpenLayerIcon: boolean;
+    function GetRememberStartDirectory: boolean;
+    procedure SetFileExtensionFilter(AValue: string);
+    procedure SetFilterIndex(AValue: integer);
     procedure SetInitialFilename(AValue: string);
     procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
     procedure SetOpenLayerIcon(AValue: boolean);
+    procedure SetRememberStartDirectory(AValue: boolean);
     procedure UpdateToolButtonOpen;
     function GetAllowMultiSelect: boolean;
     function GetSelectedFile(AIndex: integer): string;
@@ -127,6 +135,7 @@ type
     procedure DeleteSelectedFiles;
     procedure SelectFile(AName: string);
     procedure PreviewValidate({%H-}ASender: TObject);
+    property CurrentFullname: string read GetCurrentFullname;
     property CurrentDirectory: string read GetCurrentDirectory write SetCurrentDirectory;
   public
     { public declarations }
@@ -145,7 +154,10 @@ type
     property DefaultExtensions: string read FDefaultExtensions write FDefaultExtensions;
     property InitialFilename: string read GetInitialFilename write SetInitialFilename;
     property CurrentExtensionFilter: string read GetCurrentExtensionFilter;
+    property Filter: string read FFileExtensionFilter write SetFileExtensionFilter;
+    property FilterIndex: integer read GetFilterIndex write SetFilterIndex;
     property OpenLayerIcon: boolean read GetOpenLayerIcon write SetOpenLayerIcon;
+    property RememberStartDirectory: boolean read GetRememberStartDirectory write SetRememberStartDirectory;
   end;
 
 var
@@ -160,7 +172,7 @@ uses BGRAThumbnail, BGRAPaintNet, BGRAOpenRaster, BGRAReadLzp,
     Types, UResourceStrings,
     UConfig, bgrareadjpeg, FPReadJPEG,
     UFileExtensions, BGRAUTF8, LazFileUtils,
-    UGraph;
+    UGraph, URaw, UDarkTheme, ShellCtrls;
 
 var
   IconCache: TStringList;
@@ -224,19 +236,10 @@ begin
   StartThumbnails;
   if IsSaveDialog then
   begin
-    If (ExtractFileExt(Edit_Filename.Text) <> '') and (ComboBox_FileExtension.ItemIndex > 0) then
-      Edit_Filename.Text := ApplySelectedFilterExtension(Edit_Filename.Text, '?|'+CurrentExtensionFilter,1) else
+    if not AdaptExtension then
       Edit_FilenameChange(nil);
   end else
     Edit_Filename.Text := '';
-end;
-
-procedure TFBrowseImages.CheckBox_UseDirectoryOnStartupChange(Sender: TObject);
-begin
-  if IsSaveDialog then
-    LazPaintInstance.Config.SetRememberStartupTargetDirectory(CheckBox_UseDirectoryOnStartup.Checked)
-  else
-    LazPaintInstance.Config.SetRememberStartupSourceDirectory(CheckBox_UseDirectoryOnStartup.Checked)
 end;
 
 procedure TFBrowseImages.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -266,8 +269,7 @@ begin
   FPreview.OnValidate:= @PreviewValidate;
   FChosenImage := TImageEntry.Empty;
 
-  BCAssignSystemStyle(ComboBox_FileExtension, False, 0.40);
-  InitComboExt;
+  DarkThemeInstance.Apply(ComboBox_FileExtension, False, 0.40);
 
   bmp := TBitmap.Create;
   ImageList128.GetBitmap(0,bmp);
@@ -293,8 +295,10 @@ begin
   SetShellMask;
   ShellListView1.OnDblClick := @ShellListView1DblClick;
   ShellListView1.OnSelectItem := @ShellListView1SelectItem;
+  ShellListView1.OnSelectionChanged:=@ShellListView1SelectionChanged;
   ShellListView1.OnSort := @ShellListView1OnSort;
   ShellListView1.OnFormatType := @ShellListView1OnFormatType;
+  ShellListView1.SelectAllAction := [otNonFolders];
 
   BGRAPaintNet.RegisterPaintNetFormat;
   BGRAOpenRaster.RegisterOpenRasterFormat;
@@ -383,7 +387,15 @@ begin
   for i := 0 to LazPaintInstance.Config.RecentDirectoriesCount-1 do
     ListBox_RecentDirs.Items.Add(LazPaintInstance.Config.RecentDirectory[i]);
   InFilenameChange := true;
-  if not IsSaveDialog then Edit_Filename.Text := '';
+  if not IsSaveDialog then Edit_Filename.Text := ''
+  else Edit_Filename.Text := InitialFilename;
+  if Filter = '' then //default filter
+  begin
+    if IsSaveDialog then
+      Filter := GetExtensionFilter([eoWritable])
+    else
+      Filter := GetExtensionFilter([eoReadable]);
+  end;
   FFilename := '';
   FSelectedFiles := nil;
   InFilenameChange := false;
@@ -415,7 +427,7 @@ begin
   FreeAndNil(FChosenImage.bmp);
   UpdatePreview;
   UpdateToolButtonOpen;
-  if FDefaultExtensions<>'' then
+  if (FDefaultExtensions<>'') and (ComboBox_FileExtension.ItemIndex = -1) then
   begin
     for i := 0 to high(FFileExtensions) do
       if FFileExtensions[i] = FDefaultExtensions then
@@ -426,9 +438,7 @@ begin
   end;
   if IsSaveDialog then
   begin
-    If (ExtractFileExt(Edit_Filename.Text) <> '') and (ComboBox_FileExtension.ItemIndex > 0) then
-      Edit_Filename.Text := ApplySelectedFilterExtension(Edit_Filename.Text, '?|'+CurrentExtensionFilter,1)
-    else
+    If not AdaptExtension then
       Edit_FilenameChange(nil);
   end;
   FInFormShow:= false;
@@ -469,20 +479,19 @@ begin
   wasTimer := Timer1.Enabled;
   Timer1.Enabled := false;
 
-  if not InFilenameChange and ShellListView1.ItemSelected[Item] then
+  if not InFilenameChange and Selected then
   begin
     InFilenameChange := true;
     Edit_Filename.Text := ShellListView1.ItemName[Item];
     InFilenameChange := false;
   end;
 
-  if ShellListView1.ItemSelected[Item] and not ShellListView1.ItemIsFolder[Item] then
+  if Selected and not ShellListView1.ItemIsFolder[Item] then
     UpdatePreview(ShellListView1.ItemFullName[Item])
   else
     if FPreviewFilename = ShellListView1.ItemFullName[Item] then
       UpdatePreview('');
 
-  UpdateToolButtonOpen;
   Timer1.Enabled := wasTimer;
 end;
 
@@ -498,7 +507,9 @@ begin
   if AType = 'Folder' then AType := rsFolder else
   begin
     format := SuggestImageFormat(AType);
-    if format = ifPng then AType := 'PNG' //too long to write explicitely
+    if IsRawFilename('noname'+AType) then AType := 'Raw'
+    else if format = ifPortableAnyMap then AType := UTF8UpperCase(copy(AType,2,length(AType)-1))
+    else if format = ifPng then AType := 'PNG' //too long to write explicitely
     else if format = ifGIF then AType := 'GIF' //do not know if animated or not
     else if format = ifIco then AType := 'Icon'
     else if format = ifCur then AType := 'Cursor'
@@ -541,7 +552,11 @@ var i: integer;
           try
             s := FileManager.CreateFileStream(itemPath, fmOpenRead or fmShareDenyWrite);
             try
-              found := GetStreamThumbnail(s,ShellListView1.LargeIconSize,ShellListView1.LargeIconSize, BGRAPixelTransparent, True, ExtractFileExt(itemPath), FBmpIcon) <> nil;
+              if IsRawFilename(itemPath) then
+              begin
+                found := GetRawStreamThumbnail(s,ShellListView1.LargeIconSize,ShellListView1.LargeIconSize, BGRAPixelTransparent, True, FBmpIcon) <> nil;
+              end else
+                found := GetStreamThumbnail(s,ShellListView1.LargeIconSize,ShellListView1.LargeIconSize, BGRAPixelTransparent, True, ExtractFileExt(itemPath), FBmpIcon) <> nil;
             finally
               s.Free;
             end;
@@ -696,10 +711,32 @@ begin
   result := DirectoryEdit1.Text;
 end;
 
+function TFBrowseImages.GetCurrentFullname: string;
+begin
+  result := IncludeTrailingPathDelimiter(trim(CurrentDirectory))+Edit_Filename.Text;
+end;
+
 procedure TFBrowseImages.SetCurrentDirectory(AValue: string);
 begin
   DirectoryEdit1.Text := AValue;
   ResetDirectory(False);
+end;
+
+function TFBrowseImages.AdaptExtension: boolean;
+begin
+  If (Trim(Edit_Filename.Text) <> '') and (ComboBox_FileExtension.ItemIndex > 0) and not
+    FileManager.IsDirectory(CurrentFullname) then
+  begin
+    Edit_Filename.Text := ApplySelectedFilterExtension(Edit_Filename.Text, '?|'+CurrentExtensionFilter,1);
+    result := true;
+  end
+  else
+    result := false;
+end;
+
+procedure TFBrowseImages.ShellListView1SelectionChanged(Sender: TObject);
+begin
+  UpdateToolButtonOpen;
 end;
 
 procedure TFBrowseImages.UpdateToolButtonOpen;
@@ -711,12 +748,36 @@ end;
 
 function TFBrowseImages.GetInitialFilename: string;
 begin
-  result := Edit_Filename.Text;
+  result := FInitialFilename;
 end;
 
 function TFBrowseImages.GetOpenLayerIcon: boolean;
 begin
   result := ToolButton_OpenSelectedFiles.ImageIndex = 7;
+end;
+
+function TFBrowseImages.GetRememberStartDirectory: boolean;
+begin
+  result := CheckBox_UseDirectoryOnStartup.Checked;
+end;
+
+procedure TFBrowseImages.SetFileExtensionFilter(AValue: string);
+begin
+  if FFileExtensionFilter=AValue then Exit;
+  FFileExtensionFilter:=AValue;
+  InitComboExt;
+end;
+
+procedure TFBrowseImages.SetFilterIndex(AValue: integer);
+begin
+  if AValue < 1 then AValue := 1;
+  if AValue > ComboBox_FileExtension.Items.Count then
+    AValue := ComboBox_FileExtension.Items.Count;
+  if AValue <> ComboBox_FileExtension.ItemIndex then
+  begin
+    ComboBox_FileExtension.ItemIndex := AValue-1;
+    if Visible then ComboBox_FileExtensionChange(nil);
+  end;
 end;
 
 function TFBrowseImages.GetCurrentExtensionFilter: string;
@@ -727,9 +788,14 @@ begin
     result := '*.*';
 end;
 
+function TFBrowseImages.GetFilterIndex: integer;
+begin
+  result := ComboBox_FileExtension.ItemIndex+1;
+end;
+
 procedure TFBrowseImages.SetInitialFilename(AValue: string);
 begin
-  Edit_Filename.Text := Trim(AValue);
+  FInitialFilename := Trim(ExtractFileName(AValue));
 end;
 
 procedure TFBrowseImages.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
@@ -746,6 +812,11 @@ begin
     ToolButton_OpenSelectedFiles.ImageIndex := 7
   else
     ToolButton_OpenSelectedFiles.ImageIndex := 5;
+end;
+
+procedure TFBrowseImages.SetRememberStartDirectory(AValue: boolean);
+begin
+  CheckBox_UseDirectoryOnStartup.Checked := AValue;
 end;
 
 procedure TFBrowseImages.ResetDirectory(AFocus: boolean; AForceReload: boolean);
@@ -816,7 +887,6 @@ begin
     ToolButton_OpenSelectedFiles.ImageIndex := 5;
     ToolButton_OpenSelectedFiles.Hint := FOpenButtonHint;
   end;
-  InitComboExt;
 end;
 
 procedure TFBrowseImages.StartThumbnails;
@@ -875,10 +945,6 @@ begin
     vsPreview.Visible := false;
     Label_Status.Caption := rsRecentDirectories;
     ListBox_RecentDirs.Visible := true;
-    if IsSaveDialog then
-      CheckBox_UseDirectoryOnStartup.Checked := FLazPaintInstance.Config.DefaultRememberStartupTargetDirectory
-    else
-      CheckBox_UseDirectoryOnStartup.Checked := FLazPaintInstance.Config.DefaultRememberStartupSourceDirectory;
     CheckBox_UseDirectoryOnStartup.Left := Label_Status.Left+Label_Status.Width + 10;
     CheckBox_UseDirectoryOnStartup.Visible := ShowRememberStartupDirectory;
     SelectCurrentDir;
@@ -943,42 +1009,55 @@ end;
 
 procedure TFBrowseImages.ValidateFileOrDir;
 var fullName: string;
-  i,count: integer;
+  i,selCount: integer;
 begin
-  if ShellListView1.SelectedIndex <> -1 then
+  selCount := 0;
+  for i := 0 to ShellListView1.ItemCount-1 do
+    if ShellListView1.ItemSelected[i] and not ShellListView1.ItemIsFolder[i] then inc(selCount);
+
+  if (selCount > 0) or (ShellListView1.SelectedIndex <> -1) then
   begin
-    fullName := ShellListView1.ItemFullName[ShellListView1.SelectedIndex];
-    if ShellListView1.ItemIsFolder[ShellListView1.SelectedIndex] then
+    if ShellListView1.SelectedIndex <> -1 then
+      fullName := ShellListView1.ItemFullName[ShellListView1.SelectedIndex]
+    else
+      fullName := '';
+
+    if (ShellListView1.SelectedIndex <> -1) and ShellListView1.ItemIsFolder[ShellListView1.SelectedIndex] then
     begin
       CurrentDirectory := fullName;
       InFilenameChange := true;
-      Edit_Filename.text := '';
+      if IsSaveDialog then
+      begin
+        Edit_Filename.text := InitialFilename;
+        AdaptExtension;
+      end
+      else
+        Edit_Filename.text := '';
       InFilenameChange := false;
+      Edit_FilenameChange(nil);
       ShellListView1.SetFocus;
     end
     else
+    if selCount > 0 then
     begin
-      count := 0;
-      for i := 0 to ShellListView1.ItemCount-1 do
-        if ShellListView1.ItemSelected[i] and not ShellListView1.ItemIsFolder[i] then inc(count);
-      if (count > 0) and IsSaveDialog and OverwritePrompt then
+      if IsSaveDialog and OverwritePrompt then
       begin
         if QuestionDlg(rsSave, rsOverwriteFile, mtConfirmation, [mrOk, rsOkay, mrCancel, rsCancel],0) <> mrOk then exit;
       end;
-      setlength(FSelectedFiles,count);
-      count := 0;
+      setlength(FSelectedFiles,selCount);
+      selCount := 0;
       for i := 0 to ShellListView1.ItemCount-1 do
         if ShellListView1.ItemSelected[i] and not ShellListView1.ItemIsFolder[i] then
         begin
-          FSelectedFiles[count] := ShellListView1.ItemFullName[i];
-          inc(count);
+          FSelectedFiles[selCount] := ShellListView1.ItemFullName[i];
+          inc(selCount);
         end;
-      if IsSaveDialog and (count > 0) then FFilename := FSelectedFiles[0];
+      if IsSaveDialog and (selCount > 0) then FFilename := FSelectedFiles[0];
       UpdatePreview(fullName);
 
       //if we are opening one image and its preview contains all data
       //then we can provide the loaded image / frame
-      if not IsSaveDialog and (count = 1)
+      if not IsSaveDialog and (selCount = 1)
          and (FPreview.Filename = FPreviewFilename)
          and not FPreview.PreviewDataLoss then
       begin
@@ -994,13 +1073,14 @@ begin
     if IsSaveDialog and (Trim(Edit_Filename.Text)<>'') and (CurrentDirectory <> ':') and
       FileManager.IsDirectory(trim(CurrentDirectory)) then
     begin
-      FFilename:= IncludeTrailingPathDelimiter(trim(CurrentDirectory))+Edit_Filename.Text;
+      FFilename:= CurrentFullname;
       if (ExtractFileExt(FFilename)='') then
       begin
-        if (ComboBox_FileExtension.ItemIndex > 0) then
-          FFilename:= ApplySelectedFilterExtension(FFilename,'?|'+CurrentExtensionFilter,1)
-        else if DefaultExtension <> '' then
-          FFilename += DefaultExtension;
+        if AdaptExtension then
+          FFilename:= CurrentFullname
+        else
+          if DefaultExtension <> '' then
+            FFilename += DefaultExtension;
       end;
       if FileManager.FileExists(FFilename) and IsSaveDialog and OverwritePrompt then
       begin
@@ -1036,15 +1116,11 @@ begin
 end;
 
 procedure TFBrowseImages.InitComboExt;
-var extFilter: string;
+var
   parsedExt: TStringList;
   i: integer;
 begin
-  if IsSaveDialog then
-    extFilter := GetExtensionFilter([eoWritable],'')
-  else
-    extFilter := GetExtensionFilter([eoReadable],'');
-  parsedExt := TParseStringList.Create(extFilter,'|');
+  parsedExt := TParseStringList.Create(FFileExtensionFilter,'|');
   setlength(FFileExtensions, parsedExt.Count div 2);
   ComboBox_FileExtension.Clear;
   for i := 0 to high(FFileExtensions) do

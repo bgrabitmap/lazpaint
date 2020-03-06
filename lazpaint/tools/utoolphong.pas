@@ -15,9 +15,8 @@ type
   protected
     FMatrix: TAffineMatrix;
     procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff); override;
-    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     function CreateShape: TVectorShape; override;
-    function SlowShape: boolean; override;
   public
     constructor Create(AManager: TToolManager); override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -37,7 +36,7 @@ end;
 
 function TToolPhong.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctPhong,ctAltitude];
+  Result:= [ctBackFill,ctPhong,ctAltitude];
 end;
 
 procedure TToolPhong.ShapeChange(ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff);
@@ -49,9 +48,9 @@ begin
   inherited ShapeChange(ASender, ABounds, ADiff);
 end;
 
-procedure TToolPhong.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TToolPhong.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 begin
-  inherited AssignShapeStyle(AMatrix);
+  inherited AssignShapeStyle(AMatrix, AAlwaysFit);
   FMatrix := AMatrix;
   with (FShape as TPhongShape) do
   begin
@@ -65,11 +64,6 @@ end;
 function TToolPhong.CreateShape: TVectorShape;
 begin
   result := TPhongShape.Create(nil);
-end;
-
-function TToolPhong.SlowShape: boolean;
-begin
-  Result:= true;
 end;
 
 initialization

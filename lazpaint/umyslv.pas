@@ -32,6 +32,7 @@ type
   private
     FAllowMultiSelect: boolean;
     FOnDblClick: TNotifyEvent;
+    FOnSelectionChanged: TNotifyEvent;
     FOnSelectItem: TSelectItemEvent;
     FSortColumn: integer;
     FVirtualScreen: TBGRAVirtualScreen;
@@ -105,8 +106,11 @@ type
     procedure Clear;
     function GetItemFullName(AIndex: integer): string;
     function GetItemDisplayRect(AIndex: integer): TRect;
+    function InternalSelectAll: boolean;
+    function InternalDeselectAll(AExcept: integer = -1): boolean;
   public
     DetailIconSize, SmallIconSize, LargeIconSize, FontHeight, MinimumRowHeight: integer;
+    SelectAllAction: TObjectTypes;
     IconPadding: integer;
     BytesCaption: string;
     { Basic methods }
@@ -124,6 +128,7 @@ type
     procedure SetFocus;
     function GetItemAt(X,Y: Integer): integer;
     procedure DeselectAll;
+    procedure SelectAll;
     procedure Sort;
     procedure RemoveItemFromList(AIndex: integer);
     function IndexByName(AName: string; ACaseSensitive: boolean): integer;
@@ -134,6 +139,7 @@ type
     property ViewStyle: TViewStyle read GetViewStyleFit write SetViewStyleFit;
     property OnDblClick: TNotifyEvent read FOnDblClick write SetOnDblClick;
     property OnSelectItem: TSelectItemEvent read FOnSelectItem write SetOnSelectItem;
+    property OnSelectionChanged: TNotifyEvent read FOnSelectionChanged write FOnSelectionChanged;
     property SortColumn: integer read FSortColumn write SetSortColumn;
     property OnSort: TNotifyEvent read FOnSort write FOnSort;
     property OnFormatType: TFormatTypeEvent read FOnFormatType write FOnFormatType;
@@ -161,6 +167,9 @@ implementation
 
 uses LCLType, UResourceStrings, LazPaintType, LazUTF8, Forms, Math,
   UFileSystem, LazFileUtils;
+
+const
+  ssSnap = {$IFDEF DARWIN}ssMeta{$ELSE}ssCtrl{$ENDIF};
 
 var
   SortTarget: TLCShellListView;
@@ -433,8 +442,12 @@ begin
       if FObjectTypes * [otFolders] <> [] then FileManager.GetDirectoryElements(FRoot, '', FObjectTypes * [otFolders], Dirs, fstAlphabet);
       if FObjectTypes - [otFolders] <> [] then FileManager.GetDirectoryElements(FRoot, FMask, FObjectTypes - [otFolders], Files, fstAlphabet);
       setlength(FData, Dirs.Count+Files.Count);
-      fileType := rsFolder;
-      if Assigned(FOnFormatType) then FOnFormatType(self, fileType);
+      if Assigned(FOnFormatType) then
+      begin
+        fileType := 'Folder';
+        FOnFormatType(self, fileType);
+      end else
+        fileType := rsFolder;
       for i := 0 to Dirs.Count - 1 do
       if (Dirs.Items[i].Filename <> '') and (Dirs.Items[i].Filename[1] <> '.') then
       begin
@@ -520,6 +533,7 @@ var
     begin
       maxScroll := ItemCount*32 - (h-textHeight)*32 div FActualRowHeight + 8;
       if maxScroll < 0 then maxScroll := 0;
+      if FVerticalScrollPos > maxScroll then FVerticalScrollPos:= maxScroll;
       FVScrollBar := TVolatileScrollBar.Create(w-VolatileScrollBarSize,textHeight,
          VolatileScrollBarSize,h-textHeight,sbVertical,FVerticalScrollPos,0,maxScroll);
     end;
@@ -612,6 +626,7 @@ var
     begin
       maxScroll := ((ItemCount+FIconsPerLine-1) div FIconsPerLine)*32*FIconsPerLine - (h*32*FIconsPerLine div totalIconVSize) + 8*FIconsPerLine;
       if maxScroll < 0 then maxScroll := 0;
+      if FVerticalScrollPos > maxScroll then FVerticalScrollPos:= maxScroll;
       FVScrollBar := TVolatileScrollBar.Create(w-VolatileScrollBarSize,0,
          VolatileScrollBarSize,h,sbVertical,FVerticalScrollPos,0,maxScroll);
     end;
@@ -817,8 +832,12 @@ begin
   begin
     Key := 0;
     if SelectedIndex > 0 then KeySelectRange(Max(0,SelectedIndex-FItemsPerPage));
+  end else
+  if (Key = VK_A) and (ssSnap in Shift) then
+  begin
+    Key := 0;
+    SelectAll;
   end;
-
 end;
 
 procedure TLCShellListView.MouseDoubleClick(Sender: TObject);
@@ -829,8 +848,8 @@ end;
 
 procedure TLCShellListView.MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
-var i,idx,prevItem:integer;
-  prevItemWasSelected:boolean;
+var i,idx, prevIdx:integer;
+  keepSelection, selChanged:boolean;
 begin
   SetFocus;
   for i := 0 to ColumnCount-1 do
@@ -848,38 +867,60 @@ begin
       exit;
     end;
   idx := GetItemAt(X,Y);
-  prevItem := FSelectedIndex;
-  prevItemWasSelected := (prevItem <> -1) and ItemSelected[prevItem];
-  if not (ssCtrl in Shift) or not FAllowMultiSelect then DeselectAll;
-  if (ssShift in Shift) and (prevItem <> -1) and (idx <> -1) and FAllowMultiSelect then
+  keepSelection := (ssSnap in Shift) and FAllowMultiSelect;
+  selChanged := false;
+  if not keepSelection and InternalDeselectAll(FSelectedIndex) then selChanged := true;
+  if (ssShift in Shift) and (FSelectedIndex <> -1) and (idx <> -1) and FAllowMultiSelect then
   begin
-    FSelectedIndex:= prevItem;
-    ItemSelected[FSelectedIndex] := prevItemWasSelected;
-    while idx <> FSelectedIndex do
+    if idx <> FSelectedIndex then
     begin
-      if FSelectedIndex > idx then dec(FSelectedIndex) else inc(FSelectedIndex);
-      ItemSelected[FSelectedIndex] := not ItemSelected[FSelectedIndex];
+      while idx <> FSelectedIndex do
+      begin
+        if FSelectedIndex > idx then dec(FSelectedIndex) else inc(FSelectedIndex);
+        ItemSelected[FSelectedIndex] := not ItemSelected[FSelectedIndex];
+        selChanged := true;
+      end;
+      if not ItemSelected[FSelectedIndex] then FSelectedIndex := -1;
+      if Assigned(FOnSelectItem) then FOnSelectItem(self, FSelectedIndex, ItemSelected[FSelectedIndex]);
     end;
-    InvalidateView;
   end else
-  if idx <> -1 then
   begin
-    ItemSelected[idx] := not ItemSelected[idx];
-    if ItemSelected[idx] then
-      FSelectedIndex := idx
-    else
-      FSelectedIndex:= -1;
-    InvalidateView;
-  end;
-  if (FSelectedIndex <> prevItem) then
-  begin
-    if prevItemWasSelected and not ((prevItem <> -1) and ItemSelected[prevItem]) then
-      if Assigned(FOnSelectItem) then FOnSelectItem(self,prevItem,False);
-    if (FSelectedIndex <> -1) and ItemSelected[FSelectedIndex] then
+    if keepSelection then
     begin
-      if Assigned(FOnSelectItem) then FOnSelectItem(self,FSelectedIndex,true);
-      MakeItemVisible(FSelectedIndex);
+      if idx <> -1 then
+      begin
+        ItemSelected[idx] := not ItemSelected[idx];
+        if ItemSelected[idx] then FSelectedIndex := idx
+        else if idx = FSelectedIndex then FSelectedIndex := -1;
+        if Assigned(FOnSelectItem) then FOnSelectItem(self, idx, ItemSelected[idx]);
+        selChanged := true;
+      end;
+    end else
+    if idx <> FSelectedIndex then
+    begin
+      if FSelectedIndex <> -1 then
+      begin
+        prevIdx := FSelectedIndex;
+        ItemSelected[prevIdx] := false;
+        FSelectedIndex := -1;
+        if Assigned(FOnSelectItem) then FOnSelectItem(self, prevIdx, false);
+        selChanged := true;
+      end;
+      if idx <> -1 then
+      begin
+        ItemSelected[idx] := true;
+        FSelectedIndex := idx;
+        if Assigned(FOnSelectItem) then FOnSelectItem(self, idx, true);
+        selChanged := true;
+      end;
     end;
+  end;
+  if selChanged then
+  begin
+    InvalidateView;
+    if (FSelectedIndex <> -1) and ItemSelected[FSelectedIndex] then
+      MakeItemVisible(FSelectedIndex);
+    if Assigned(FOnSelectionChanged) then FOnSelectionChanged(self);
   end;
 end;
 
@@ -1136,6 +1177,7 @@ begin
   IconPadding := 8;
   FObjectTypes := [otFolders, otNonFolders];
   FSortColumn:= -1;
+  SelectAllAction := [otFolders, otNonFolders];
 end;
 
 procedure TLCShellListView.VirtualScreenFreed;
@@ -1205,6 +1247,48 @@ begin
     result := FData[AIndex].displayRect;
 end;
 
+function TLCShellListView.InternalSelectAll: boolean;
+var i:integer;
+begin
+  result:= false;
+  for i := 0 to ItemCount-1 do
+    if not FData[i].isSelected and
+      ((FData[i].isFolder and (otFolders in SelectAllAction)) or
+       (not FData[i].isFolder and (otNonFolders in SelectAllAction))) then
+    begin
+      FData[i].isSelected := true;
+      result := true;
+    end;
+  for i := 0 to ItemCount-1 do
+    if FData[i].isSelected and
+      ((FData[i].isFolder and not (otFolders in SelectAllAction)) or
+       (not FData[i].isFolder and not (otNonFolders in SelectAllAction))) then
+    begin
+      FData[i].isSelected := false;
+      result := true;
+    end;
+
+  if result then InvalidateView;
+end;
+
+function TLCShellListView.InternalDeselectAll(AExcept: integer): boolean;
+var i:integer;
+begin
+  result:= false;
+  for i := 0 to ItemCount-1 do
+    if (i <> AExcept) and FData[i].isSelected then
+    begin
+      FData[i].isSelected := false;
+      if FSelectedIndex = i then
+      begin
+        FSelectedIndex := -1;
+        if Assigned(FOnSelectItem) then FOnSelectItem(self, i, False);
+      end;
+      result := true;
+    end;
+  if result then InvalidateView;
+end;
+
 procedure TLCShellListView.Sort;
 var lst: TList;
   i: integer;
@@ -1272,18 +1356,15 @@ begin
 end;
 
 procedure TLCShellListView.DeselectAll;
-var i:integer;
-  discard: boolean;
 begin
-  discard:= false;
-  for i := 0 to ItemCount-1 do
-    if FData[i].isSelected then
-    begin
-      FData[i].isSelected := false;
-      discard := true;
-    end;
-  FSelectedIndex := -1;
-  if discard then InvalidateView;
+  if InternalDeselectAll then
+    if Assigned(FOnSelectionChanged) then FOnSelectionChanged(self);
+end;
+
+procedure TLCShellListView.SelectAll;
+begin
+  if InternalSelectAll then
+    if Assigned(FOnSelectionChanged) then FOnSelectionChanged(self);
 end;
 
 end.

@@ -69,7 +69,6 @@ object FBrowseImages: TFBrowseImages
       Top = 4
       Width = 222
       Caption = 'Use this directory on startup'
-      OnChange = CheckBox_UseDirectoryOnStartupChange
       ParentFont = False
       TabOrder = 2
       Visible = False

@@ -108,8 +108,7 @@ begin
   bmp.Free;
   self.Left := (Screen.Width-self.Width) div 2;
   self.Top := (Screen.Height-self.Height) div 2;
-  if not self.Visible then self.Show else self.Invalidate;
-  self.Update;
+  if not self.Visible then self.Show else BGRAPanel1.UpdateControl;
   if AMillisecond <> 0 then
     SetTimeOut(AMillisecond);
   WantedTimeOut := AMillisecond;

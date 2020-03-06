@@ -77,7 +77,7 @@ type
 
 implementation
 
-uses BGRATransform, LCLIntf, Types, ugraph, math, UTool, BGRAThumbnail;
+uses BGRATransform, LCLIntf, Types, ugraph, math, UTool, BGRAThumbnail, LCScaleDPI;
 
 function TImageView.GetFillSelectionHighlight: boolean;
 begin
@@ -100,7 +100,7 @@ procedure TImageView.SetShowSelection(AValue: boolean);
 begin
   if FShowSelection=AValue then Exit;
   FShowSelection:=AValue;
-  Image.ImageMayChangeCompletely;
+  Image.RenderMayChange(rect(0,0,Image.Width,Image.Height));
 end;
 
 function TImageView.GetPictureCoordsDefined: boolean;
@@ -156,41 +156,40 @@ begin
 
   if Assigned(FVirtualScreen) and ((FVirtualScreen.Width <> FLastPictureParameters.virtualScreenArea.Right-FLastPictureParameters.virtualScreenArea.Left) or
      (FVirtualScreen.Height <> FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top)) then
-  begin
     FreeAndNil(FVirtualScreen);
-    FLastPictureParameters.defined := false;
-  end;
 
   if not Assigned(FVirtualScreen) then
-  begin
     FVirtualScreen := TBGRABitmap.Create(FLastPictureParameters.virtualScreenArea.Right-FLastPictureParameters.virtualScreenArea.Left,
-                                        FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top);
-    FLastPictureParameters.defined := false;
-  end;
+                                        FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top, WorkspaceColor);
 
   if picParamWereDefined then FVirtualScreen.ClipRect := GetRenderUpdateRectVS(False);
   Image.ResetRenderUpdateRect;
-  FLastPictureParameters.defined := true;
 
-  renderRect := FLastPictureParameters.scaledArea;
-  OffsetRect(renderRect, -FLastPictureParameters.virtualScreenArea.Left,
-                         -FLastPictureParameters.virtualScreenArea.Top);
+  if not FVirtualScreen.ClipRect.IsEmpty then
+  begin
+    renderRect := FLastPictureParameters.scaledArea;
+    OffsetRect(renderRect, -FLastPictureParameters.virtualScreenArea.Left,
+                           -FLastPictureParameters.virtualScreenArea.Top);
 
-  DrawThumbnailCheckers(FVirtualScreen,renderRect,Image.IsIconCursor);
+    DrawThumbnailCheckers(FVirtualScreen,renderRect,Image.IsIconCursor);
 
-  //draw image (with merged selection)
-  FVirtualScreen.StretchPutImage(renderRect,Image.RenderedImage,dmDrawWithTransparency);
-  if (Zoom.Factor > MinZoomForGrid) and LazPaintInstance.GridVisible then
-    DrawGrid(FVirtualScreen,FLastPictureParameters.zoomFactorX,FLastPictureParameters.zoomFactorY,
-       FLastPictureParameters.originInVS.X,FLastPictureParameters.originInVS.Y);
+    //draw image (with merged selection)
+    FVirtualScreen.StretchPutImage(renderRect,Image.RenderedImage,dmDrawWithTransparency);
+    if (Zoom.Factor > DoScaleX(MinZoomForGrid, OriginalDPI)) and LazPaintInstance.GridVisible then
+      DrawGrid(FVirtualScreen,FLastPictureParameters.zoomFactorX,FLastPictureParameters.zoomFactorY,
+         FLastPictureParameters.originInVS.X,FLastPictureParameters.originInVS.Y);
 
-  DrawSelectionHighlight(renderRect);
+    DrawSelectionHighlight(renderRect);
+  end;
   FVirtualScreen.NoClip;
 
   //show tools info
   LazPaintInstance.ToolManager.RenderTool(FVirtualScreen);
 
   PaintVirtualScreenImplementation(ACanvasOfs, AWorkArea, AVSPart);
+  Image.VisibleArea := TRectF.Intersect(rectF(FormToBitmap(AWorkArea.Left, AWorkArea.Top),
+                                              FormToBitmap(AWorkArea.Right, AWorkArea.Bottom)),
+                          rectF(-0.5,-0.5,Image.Width-0.5,Image.Height-0.5));
 end;
 
 procedure TImageView.PaintVirtualScreenImplementation(ACanvasOfs: TPoint; AWorkArea: TRect; AVSPart: TRect);

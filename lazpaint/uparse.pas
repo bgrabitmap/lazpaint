@@ -21,8 +21,10 @@ var idxOpen,start,cur: integer;
 begin
     result := nil;
     idxOpen := pos('(',str);
-    if idxOpen = 0 then exit;
-    start := idxOpen+1;
+    if idxOpen = 0 then
+      start := 1
+    else
+      start := idxOpen+1;
     cur := start;
     while cur <= length(str) do
     begin
@@ -31,6 +33,7 @@ begin
          setlength(result,length(result)+1);
          result[high(result)] := copy(str,start,cur-start);
          start := cur+1;
+         if str[cur]=')' then break;
        end;
        inc(cur);
     end;

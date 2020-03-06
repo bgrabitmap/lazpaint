@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   StdCtrls, Spin, ExtCtrls, BGRABitmap, BGRABitmapTypes, LazPaintType, LCScaleDPI,
-  UFilterConnector, UFilterThread;
+  UFilterConnector, UFilterThread, UScripting;
 
 type
 
@@ -34,6 +34,7 @@ type
     FFilterConnector: TFilterConnector;
     FThreadManager: TFilterThreadManager;
     FLastRadius: single;
+    FVars: TVariableSet;
     procedure PreviewNeeded;
     procedure UpdateStep;
     procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
@@ -41,25 +42,28 @@ type
     blurType: TRadialBlurType;
   end;
 
-function ShowRadialBlurDlg(AFilterConnector: TObject; blurType:TRadialBlurType; ACaption: string = ''):boolean;
+function ShowRadialBlurDlg(AFilterConnector: TObject; ABlurType:TRadialBlurType;
+  ACaption: string = ''): TScriptResult;
 
 implementation
 
 uses UMac, BGRAFilters;
 
-function ShowRadialBlurDlg(AFilterConnector: TObject; blurType:TRadialBlurType; ACaption: string):boolean;
+function ShowRadialBlurDlg(AFilterConnector: TObject;
+  ABlurType: TRadialBlurType; ACaption: string): TScriptResult;
 var
   RadialBlur: TFRadialBlur;
 begin
-  result := false;
   RadialBlur:= TFRadialBlur.create(nil);
   RadialBlur.FFilterConnector := AFilterConnector as TFilterConnector;
   RadialBlur.FThreadManager := TFilterThreadManager.Create(RadialBlur.FFilterConnector);
   RadialBlur.FThreadManager.OnEvent := @RadialBlur.OnTaskEvent;
+  RadialBlur.FVars := RadialBlur.FFilterConnector.Parameters;
   if ACaption<>'' then RadialBlur.Caption := ACaption;
   try
-    RadialBlur.blurType := blurType;
-    result:= (RadialBlur.ShowModal = mrOk);
+    RadialBlur.blurType := ABlurType;
+    if RadialBlur.ShowModal = mrOk then result := srOk
+    else result := srCancelledByUser;
   finally
     RadialBlur.FThreadManager.Free;
     RadialBlur.free;
@@ -96,7 +100,12 @@ end;
 procedure TFRadialBlur.FormShow(Sender: TObject);
 begin
   FInitializing := True;
-  SpinEdit_Radius.Value := FFilterConnector.LazPaintInstance.Config.DefaultBlurRadius;
+  if Assigned(FVars) and FVars.IsDefined('Radius') then
+    SpinEdit_Radius.Value := FVars.Floats['Radius']
+  else if Assigned(FVars) and FVars.IsDefined('RadiusX') and FVars.IsDefined('RadiusY') then
+    SpinEdit_Radius.Value := (FVars.Floats['RadiusX']+FVars.Floats['RadiusY'])/2
+  else
+    SpinEdit_Radius.Value := FFilterConnector.LazPaintInstance.Config.DefaultBlurRadius;
   UpdateStep;
   FInitializing := False;
   PreviewNeeded;

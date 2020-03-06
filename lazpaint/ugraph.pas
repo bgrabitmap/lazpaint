@@ -6,12 +6,14 @@ interface
 
 uses
   Classes, SysUtils, bgrabitmap, bgrabitmaptypes, LazPaintType, Graphics, BGRALayers, LCLType,
-  BCButton, BCComboBox;
+  BCComboBox;
 
-const FrameDashLength = 4;
-  NicePointMaxRadius = 4;
+var
+  NicePointMaxRadius: integer = 4;
+  FrameDashLength: integer = 4;
 
 function ComputeRatio(ARatio: string): single;
+function RatioToStr(ARatio: single): string;
 
 function RectUnion(const rect1,Rect2: TRect): TRect;
 function RectInter(const rect1,Rect2: TRect): TRect;
@@ -30,8 +32,6 @@ function NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192):TRect; ove
 procedure NiceLine(bmp: TBGRABitmap; x1,y1,x2,y2: single; alpha: byte = 192);
 function NiceText(bmp: TBGRABitmap; x,y,bmpWidth,bmpHeight: integer; s: string; align: TAlignment = taLeftJustify; valign: TTextLayout = tlTop): TRect;
 function ComputeColorCircle(tx,ty: integer; light: word; hueCorrection: boolean = true): TBGRABitmap;
-function ChangeCanvasSizeOrigin(oldWidth,oldHeight,newWidth, newHeight: integer; anchor: string): TPoint;
-function ChangeCanvasSize(bmp: TBGRABitmap; ofs: TPoint; oldWidth,oldHeight,newWidth,newHeight: integer; anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRABitmap; overload;
 
 procedure RenderCloudsOn(bmp: TBGRABitmap; color: TBGRAPixel);
 procedure RenderWaterOn(bmp: TBGRABitmap; waterColor, skyColor: TBGRAPixel);
@@ -58,152 +58,12 @@ procedure DrawPenStyle(AComboBox: TBCComboBox; ARect: TRect; APenStyle: TPenStyl
 procedure DrawPenStyle(ABitmap: TBGRABitmap; ARect: TRect; APenStyle: TPenStyle; c: TBGRAPixel); overload;
 procedure DrawArrow(AComboBox: TBCComboBox; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState); overload;
 procedure DrawArrow(ABitmap: TBGRABitmap; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; AColor: TBGRAPixel); overload;
-procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean; AFontHeightRatio: single = 0.5);
-procedure BCAssignSystemStyle(ACombo: TBCComboBox; ADarkTheme: boolean; AFontHeightRatio: single = 0.5);
 
 implementation
 
-uses GraphType, math, Types, BGRAUTF8, FileUtil, dialogs, BGRAAnimatedGif,
-  BGRAGradients, BGRATextFX, uresourcestrings, LCScaleDPI, BCTypes,
-  BGRAThumbnail, LCVectorPolyShapes, udarktheme;
-
-procedure BCAssignSystemState(AState: TBCButtonState; AFontColor, ATopColor, AMiddleTopColor, AMiddleBottomColor, ABottomColor, ABorderColor: TColor);
-begin
-  with AState do
-  begin
-    Border.Style := bboSolid;
-    Border.Color := ABorderColor;
-    Border.ColorOpacity := 255;
-    FontEx.Color := AFontColor;
-    FontEx.Style := [];
-    FontEx.Shadow := True;
-    FontEx.ShadowColor := clBlack;
-    FontEx.ShadowColorOpacity := 192;
-    FontEx.ShadowOffsetX := 1;
-    FontEx.ShadowOffsetY := 1;
-    FontEx.ShadowRadius := 2;
-    Background.Gradient1EndPercent := 60;
-    Background.Style := bbsGradient;
-    // Gradient1
-    with Background.Gradient1 do
-    begin
-      GradientType := gtLinear;
-      StartColor := ATopColor;
-      EndColor := AMiddleTopColor;
-      Point1XPercent := 0;
-      Point1YPercent := 0;
-      Point2XPercent := 0;
-      Point2YPercent := 100;
-    end;
-    // Gradient2
-    with Background.Gradient2 do
-    begin
-      StartColor := AMiddleBottomColor;
-      EndColor := ABottomColor;
-      GradientType := gtLinear;
-      Point1XPercent := 0;
-      Point1YPercent := 0;
-      Point2XPercent := 0;
-      Point2YPercent := 100;
-    end;
-  end;
-end;
-
-procedure BCAssignSystemStyle(AButton: TBCButton; ADarkTheme: boolean; AFontHeightRatio: single);
-
-  function MergeColor(AColor1,AColor2:TColor):TColor;
-  begin
-    result:= BGRAToColor(MergeBGRAWithGammaCorrection(ColorToBGRA(ColorToRGB(AColor1)),1,
-    ColorToBGRA(ColorToRGB(AColor2)),1));
-  end;
-
-  function HoverColor(AColor1: TColor): TColor;
-  var hsla1, hsla2: THSLAPixel;
-  begin
-    hsla1 := BGRAToHSLA(ColorToBGRA(ColorToRGB(AColor1)));
-    hsla2 := BGRAToHSLA(ColorToBGRA(ColorToRGB(clHighlight)));
-    hsla1.hue := hsla2.hue;
-    hsla1.saturation:= hsla2.saturation;
-    result := BGRAToColor(HSLAToBGRA(hsla1));
-  end;
-
-var highlight, btnFace, btnShadow, btnText: TColor;
-  fh: Int64;
-begin
-  if ADarkTheme then
-  begin
-    highlight := $a0a0a0;
-    btnFace := clDarkEditableFace;
-    btnText := clLightText;
-    btnShadow:= clDarkPanelShadow;
-  end else
-  begin
-    {$IFDEF DARWIN}
-    highlight := MergeColor(clBtnFace,clWhite);
-    {$ELSE}
-    highlight := clBtnHighlight;
-    {$ENDIF}
-    btnFace := clBtnFace;
-    btnText := clBtnText;
-    btnShadow := clBtnShadow;
-  end;
-  with AButton do
-  begin
-    Rounding.RoundX := DoScaleX(3, OriginalDPI);
-    Rounding.RoundY := DoScaleX(3, OriginalDPI);
-    BCAssignSystemState(StateNormal, btnText, btnFace, highlight, btnFace, btnShadow, btnShadow);
-    BCAssignSystemState(StateHover, HoverColor(btnText), HoverColor(btnFace), HoverColor(highlight), HoverColor(btnFace), HoverColor(btnShadow), HoverColor(btnShadow));
-    BCAssignSystemState(StateClicked, HoverColor(btnText), HoverColor(MergeColor(btnFace,btnShadow)), HoverColor(btnFace), HoverColor(MergeColor(btnFace,btnShadow)), HoverColor(btnShadow), HoverColor(btnShadow));
-    fh := round((AButton.Height+4)*AFontHeightRatio);
-    StateNormal.Border.LightWidth := 0;
-    StateNormal.FontEx.Height := fh;
-    StateNormal.FontEx.ShadowColorOpacity:= 70;
-    StateNormal.FontEx.TextAlignment:= bcaLeftCenter;
-    StateNormal.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
-    StateHover.Border.LightWidth := 0;
-    StateHover.FontEx.Height := fh;
-    StateHover.FontEx.ShadowColorOpacity:= 70;
-    StateHover.FontEx.TextAlignment:= bcaLeftCenter;
-    StateHover.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
-    StateClicked.Border.LightWidth := 0;
-    StateClicked.FontEx.Height := fh;
-    StateClicked.FontEx.ShadowColorOpacity:= 70;
-    StateClicked.FontEx.TextAlignment:= bcaLeftCenter;
-    StateClicked.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
-  end;
-end;
-
-procedure BCAssignSystemStyle(ACombo: TBCComboBox; ADarkTheme: boolean;
-  AFontHeightRatio: single);
-var
-  fh: Int64;
-begin
-  BCAssignSystemStyle(ACombo.Button, ADarkTheme, AFontHeightRatio);
-  with ACombo do
-  begin
-    fh := round((Height+4)*AFontHeightRatio);
-    Button.StateNormal.FontEx.Height := fh;
-    Button.StateNormal.FontEx.ShadowColorOpacity:= 96;
-    Button.StateClicked.FontEx.Height := fh;
-    Button.StateClicked.FontEx.ShadowColorOpacity:= 96;
-    Button.StateHover.FontEx.Height := fh;
-    Button.StateHover.FontEx.ShadowColorOpacity:= 96;
-    if ADarkTheme then
-    begin
-      DropDownBorderColor:= clBlack;
-      DropDownFontColor:= clLightText;
-      DropDownColor:= clDarkBtnFace;
-    end else
-    begin
-      DropDownBorderColor := MergeBGRA(ColorToBGRA(clWindowText),ColorToBGRA(clWindow));
-      DropDownFontColor:= clWindowText;
-      DropDownColor:= clWindow;
-    end;
-    DropDownFontHighlight:= clHighlightText;
-    DropDownHighlight:= clHighlight;
-  end;
-
-end;
+uses GraphType, math, Types, FileUtil, dialogs, BGRAAnimatedGif,
+  BGRAGradients, BGRATextFX, uresourcestrings, LCScaleDPI,
+  BGRAThumbnail, LCVectorPolyShapes;
 
 function ComputeRatio(ARatio: string): single;
 var
@@ -223,6 +83,50 @@ begin
   if errPos <> 0 then exit;
   if denom <= 0 then exit;
   result := num/denom;
+end;
+
+function RatioToStr(ARatio: single): string;
+var
+  num,denom: integer;
+
+  procedure InvFrac;
+  var temp: integer;
+  begin
+    temp := num;
+    num := denom;
+    denom := temp;
+  end;
+
+  procedure AddFrac(AValue: integer);
+  begin
+    inc(num, AValue*denom);
+  end;
+
+const MaxDev = 3;
+var
+  dev: array[1..MaxDev] of integer;
+  devCount, i: integer;
+  curVal, remain: Single;
+
+begin
+  if ARatio < 0 then ARatio := -ARatio;
+  curVal := ARatio;
+  devCount := 0;
+  repeat
+    inc(devCount);
+    dev[devCount] := trunc(ARatio);
+    remain := frac(curVal);
+    if abs(remain) < 1e-3 then break;
+    curVal := 1/remain;
+  until devCount = MaxDev;
+  num := dev[devCount];
+  denom := 1;
+  for i := devCount-1 downto 1 do
+  begin
+    InvFrac;
+    AddFrac(dev[i]);
+  end;
+  result := IntToStr(num)+':'+IntToStr(denom);
 end;
 
 function RectUnion(const rect1, Rect2: TRect): TRect;
@@ -1391,80 +1295,6 @@ begin
       inc(pdest);
     end;
   end;
-end;
-
-function ChangeCanvasSizeOrigin(oldWidth,oldHeight,newWidth, newHeight: integer; anchor: string): TPoint;
-var
-  origin: TPoint;
-begin
-  origin := Point((newWidth div 2)-(oldWidth div 2),(newHeight div 2)-(oldHeight div 2));
-  anchor := UTF8LowerCase(anchor);
-  if (anchor='topleft') or (anchor='top') or (anchor='topright') then origin.Y := 0;
-  if (anchor='bottomleft') or (anchor='bottom') or (anchor='bottomright') then origin.Y := newHeight-oldHeight;
-  if (anchor='topleft') or (anchor='left') or (anchor='bottomleft') then origin.X := 0;
-  if (anchor='topright') or (anchor='right') or (anchor='bottomright') then origin.X := newWidth-oldWidth;
-  result := origin;
-end;
-
-function ChangeCanvasSize(bmp: TBGRABitmap; ofs: TPoint; oldWidth,oldHeight,newWidth, newHeight: integer;
-  anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRABitmap;
-var origin: TPoint;
-    xb,yb: integer;
-    dx,dy: integer;
-    minx,miny,maxx,maxy: integer;
-    flippedImages: array[Boolean,Boolean] of TBGRABitmap;
-begin
-   if (newWidth < 1) or (newHeight < 1) then
-     raise exception.Create('Invalid canvas size');
-   origin := ChangeCanvasSizeOrigin(oldWidth, oldHeight, newWidth, newHeight, anchor);
-   inc(origin.x, ofs.x);
-   inc(origin.y, ofs.y);
-
-   result := TBGRABitmap.Create(newWidth,newHeight, background);
-   dx := oldWidth;
-   dy := oldHeight;
-   if repeatImage then
-   begin
-     minx := (0-origin.X-oldWidth+1) div oldWidth;
-     miny := (0-origin.Y-oldHeight+1) div oldHeight;
-     maxx := (newWidth-origin.X+oldWidth-1) div oldWidth;
-     maxy := (newHeight-origin.Y+oldHeight-1) div oldHeight;
-   end else
-   begin
-     minx := 0;
-     miny := 0;
-     maxx := 0;
-     maxy := 0;
-   end;
-   if flipMode and repeatImage then
-   begin
-     flippedImages[false,false] := bmp;
-     if (minx <> 0) or (miny <> 0) or (maxx <> 0) or (maxy <> 0) then
-     begin
-       flippedImages[true,false] := bmp.Duplicate as TBGRABitmap;
-       flippedImages[true,false].HorizontalFlip;
-       flippedImages[true,true] := flippedImages[true,false].Duplicate as TBGRABitmap;
-       flippedImages[true,true].VerticalFlip;
-       flippedImages[false,true] := bmp.Duplicate as TBGRABitmap;
-       flippedImages[false,true].VerticalFlip;
-     end else
-     begin
-       flippedImages[true,false] := nil;  //never used
-       flippedImages[true,true] := nil;
-       flippedImages[false,true] := nil;
-     end;
-     for xb := minx to maxx do
-       for yb := miny to maxy do
-        result.PutImage(origin.x+xb*dx,origin.Y+yb*dy,flippedImages[odd(xb),odd(yb)],dmSet);
-     flippedImages[true,false].free;
-     flippedImages[true,true].free;
-     flippedImages[false,true].free;
-   end else
-   begin
-     for xb := minx to maxx do
-       for yb := miny to maxy do
-        result.PutImage(origin.x+xb*dx,origin.Y+yb*dy,bmp,dmSet);
-   end;
 end;
 
 initialization

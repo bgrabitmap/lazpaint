@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ComCtrls, Spin, BGRABitmap, LCScaleDPI, lazpainttype,
+  StdCtrls, ComCtrls, Spin, ExtCtrls, BGRABitmap, LCScaleDPI, lazpainttype,
   ufilterconnector, uscripting;
 
 type
@@ -20,12 +20,13 @@ type
     Combo_Preset: TComboBox;
     FloatSpinEdit_Hue: TFloatSpinEdit;
     FloatSpinEdit_Saturation: TFloatSpinEdit;
-    Label_Preset: TLabel;
     Label_Hue: TLabel;
     Label_Colorness: TLabel;
-    ToolBar8: TToolBar;
-    ToolButton1: TToolButton;
-    ToolButton23: TToolButton;
+    Label_Preset: TLabel;
+    Panel1: TPanel;
+    ToolBar_AddRemove: TToolBar;
+    ToolButton_Remove: TToolButton;
+    ToolButton_Add: TToolButton;
     TrackBar_Hue: TTrackBar;
     TrackBar_Saturation: TTrackBar;
     procedure Button_OKClick(Sender: TObject);
@@ -35,8 +36,8 @@ type
     procedure FloatSpinEdit_SaturationChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure ToolButton1Click(Sender: TObject);
-    procedure ToolButton23Click(Sender: TObject);
+    procedure ToolButton_RemoveClick(Sender: TObject);
+    procedure ToolButton_AddClick(Sender: TObject);
     procedure TrackBar_Change(Sender: TObject);
   private
     { private declarations }
@@ -45,15 +46,14 @@ type
     FFilterConnector: TFilterConnector;
     FUpdatingSpinEdit,FInComboPreset: boolean;
     FSelectedPresetName: string;
-    procedure AdjustLabels(ALabel1, ALabel2: TLabel; ATrack1, ATrack2: TTrackBar
-      );
+    procedure AdjustLabels(ALabel1, ALabel2: TLabel; ATrack1, ATrack2: TTrackBar);
     function GetChosenHue: Word;
-    function GetChosenHueF: double;
+    function GetChosenHueDegF: double;
     function GetChosenSatF: double;
     function GetChosenSaturation: Word;
     procedure OnTryStopAction({%H-}sender: TFilterConnector);
     procedure SetChosenHue(AValue: Word);
-    procedure SetChosenHueF(AValue: double);
+    procedure SetChosenHueDegF(AValue: double);
     procedure SetChosenSatF(AValue: double);
     procedure SetChosenSaturation(AValue: Word);
     procedure UpdateSpinEdit;
@@ -66,7 +66,7 @@ type
     procedure ApplyChosenColor;
     property ChosenHue: Word read GetChosenHue write SetChosenHue;
     property ChosenSaturation: Word read GetChosenSaturation write SetChosenSaturation;
-    property ChosenHueF: double read GetChosenHueF write SetChosenHueF;
+    property ChosenHueDegF: double read GetChosenHueDegF write SetChosenHueDegF;
     property ChosenSatF: double read GetChosenSatF write SetChosenSatF;
   end;
 
@@ -98,8 +98,8 @@ procedure TFColorize.Button_OKClick(Sender: TObject);
 begin
   ApplyChosenColor;
   FFilterConnector.ValidateAction;
-  FFilterConnector.Parameters.Floats['Hue'] := FloatSpinEdit_Hue.Value;
-  FFilterConnector.Parameters.Floats['Saturation'] := FloatSpinEdit_Saturation.Value;
+  FFilterConnector.Parameters.Floats['Hue'] := ChosenHueDegF;
+  FFilterConnector.Parameters.Floats['Saturation'] := ChosenSatF;
   FFilterConnector.Parameters.Booleans['Correction'] := CheckBox_GSBA.Checked;
 end;
 
@@ -127,7 +127,7 @@ procedure TFColorize.FloatSpinEdit_HueChange(Sender: TObject);
 begin
   if FUpdatingSpinEdit then exit;
   FUpdatingSpinEdit := true;
-  ChosenHueF := FloatSpinEdit_Hue.Value;
+  ChosenHueDegF := FloatSpinEdit_Hue.Value;
   Combo_Preset.ItemIndex := -1;
   FUpdatingSpinEdit := false;
 end;
@@ -163,9 +163,10 @@ begin
   ApplyChosenColor;
   Top := FInstance.MainFormBounds.Top;
   UpdateComboPreset(FInstance.Config.IndexOfColorizePreset(FSelectedPresetName));
+  ToolBar_AddRemove.Images := FInstance.Icons[DoScaleX(16, OriginalDPI)];
 end;
 
-procedure TFColorize.ToolButton1Click(Sender: TObject);
+procedure TFColorize.ToolButton_RemoveClick(Sender: TObject);
 begin
   if Combo_Preset.ItemIndex <> -1 then
   begin
@@ -174,13 +175,13 @@ begin
   end;
 end;
 
-procedure TFColorize.ToolButton23Click(Sender: TObject);
+procedure TFColorize.ToolButton_AddClick(Sender: TObject);
 var s: string; idx: integer;
 begin
   s := Trim(InputBox(rsColors,rsPresetName,''));
   if s <> '' then
   begin
-    idx := FInstance.Config.AddColorizePreset(s,GetChosenHueF,GetChosenSatF,CheckBox_GSBA.Checked);
+    idx := FInstance.Config.AddColorizePreset(s,ChosenHueDegF,ChosenSatF,CheckBox_GSBA.Checked);
     UpdateComboPreset(idx);
   end;
 end;
@@ -205,7 +206,7 @@ begin
   result := round(TrackBar_Hue.Position/TrackBar_Hue.Max*65535);
 end;
 
-function TFColorize.GetChosenHueF: double;
+function TFColorize.GetChosenHueDegF: double;
 begin
   result := round(ChosenHue/65536*3600)/10;
 end;
@@ -225,7 +226,7 @@ begin
   TrackBar_Hue.Position := round(AValue/65535*TrackBar_Hue.Max);
 end;
 
-procedure TFColorize.SetChosenHueF(AValue: double);
+procedure TFColorize.SetChosenHueDegF(AValue: double);
 begin
   ChosenHue:= round(AValue*65536/360) and 65535;
 end;
@@ -244,7 +245,7 @@ procedure TFColorize.UpdateSpinEdit;
 begin
   if FUpdatingSpinEdit then exit;
   FUpdatingSpinEdit:= true;
-  FloatSpinEdit_Hue.Value := ChosenHueF;
+  FloatSpinEdit_Hue.Value := ChosenHueDegF;
   FloatSpinEdit_Saturation.Value := ChosenSatF;
   FloatSpinEdit_Hue.Update;
   FloatSpinEdit_Saturation.Update;
@@ -257,7 +258,7 @@ begin
   OldInitialized := FInitialized;
   FInitialized := false;
   if AParams.IsDefined('Hue') then
-    ChosenHueF := AParams.Floats['Hue'];
+    ChosenHueDegF := AParams.Floats['Hue'];
   if AParams.IsDefined('Saturation') then
     ChosenSatF := AParams.Floats['Saturation'];
   if AParams.IsDefined('Correction') then
@@ -296,6 +297,7 @@ end;
 function TFColorize.ShowModal(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): integer;
 var gsbaOptionFromConfig: boolean;
     topmostInfo: TTopMostInfo;
+    h, s: Double; corr: boolean;
 begin
   try
     FFilterConnector := TFilterConnector.Create(AInstance,AParameters,false);
@@ -310,9 +312,15 @@ begin
   end;
   try
     FInstance := AInstance;
-    if AParameters.IsDefined('Correction') and AParameters.IsDefined('Hue') and AParameters.IsDefined('Saturation') then
+    if AParameters.Booleans['Validate'] then
     begin
-      Colorize(FFilterConnector, AParameters.Floats['Hue'], AParameters.Floats['Saturation'], AParameters.Booleans['Correction']);
+      if AParameters.IsDefined('Hue') then h := AParameters.Floats['Hue']
+      else h := ChosenHueDegF;
+      if AParameters.IsDefined('Saturation') then s := AParameters.Floats['Saturation']
+      else s := ChosenSatF;
+      if AParameters.IsDefined('Correction') then corr := AParameters.Booleans['Correction']
+      else corr := AInstance.Config.DefaultUseGSBA;
+      Colorize(FFilterConnector, h, s, corr);
       FFilterConnector.ValidateAction;
       result := mrOk;
     end else
@@ -348,7 +356,7 @@ end;
 
 procedure TFColorize.ApplyChosenColor;
 begin
-  Colorize(FFilterConnector,ChosenHueF,ChosenSatF,CheckBox_GSBA.Checked);
+  Colorize(FFilterConnector, ChosenHueDegF, ChosenSatF, CheckBox_GSBA.Checked);
 end;
 
 {$R *.lfm}

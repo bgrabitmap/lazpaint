@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   ExtCtrls, StdCtrls, ComCtrls, BGRABitmap, LazPaintType, LCScaleDPI,
-  ufilterconnector;
+  UFilterConnector, UScripting;
 
 type
 
@@ -26,7 +26,6 @@ type
     procedure Button_OKClick(Sender: TObject);
     procedure CheckBox_Change(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
@@ -42,14 +41,17 @@ type
     PaintBoxMouseMovePos: TPoint;
     angle: single;
     selectingAngle: boolean;
+    FInitializing: boolean;
     procedure ComputeAngle(X,Y: integer);
     function ComputeFilteredLayer: TBGRABitmap;
     procedure PreviewNeeded;
+    procedure InitParams;
   public
     FilterConnector: TFilterConnector;
+    FVars: TVariableSet;
   end;
 
-function ShowEmbossDlg(AFilterConnector: TObject):boolean;
+function ShowEmbossDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
@@ -57,18 +59,31 @@ uses BGRABitmapTypes, math, ugraph, umac;
 
 { TFEmboss }
 
-function ShowEmbossDlg(AFilterConnector: TObject):boolean;
+function ShowEmbossDlg(AFilterConnector: TObject): TScriptResult;
 var
   FEmboss: TFEmboss;
 begin
-  result := false;
   FEmboss:= TFEmboss.create(nil);
   FEmboss.FilterConnector := AFilterConnector as TFilterConnector;
+  FEmboss.FVars := FEmboss.FilterConnector.Parameters;
   try
     if FEmboss.FilterConnector.ActiveLayer <> nil then
-      result:= (FEmboss.showModal = mrOk)
+    begin
+      if Assigned(FEmboss.FilterConnector.Parameters) and
+        FEmboss.FilterConnector.Parameters.Booleans['Validate'] then
+      begin
+        FEmboss.InitParams;
+        FEmboss.PreviewNeeded;
+        FEmboss.FilterConnector.ValidateAction;
+        result := srOk;
+      end else
+      begin
+        if FEmboss.showModal = mrOk then result := srOk
+        else result := srCancelledByUser;
+      end;
+    end
     else
-      result := false;
+      result := srException;
   finally
     FEmboss.free;
   end;
@@ -82,14 +97,9 @@ begin
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
 end;
 
-procedure TFEmboss.FormDestroy(Sender: TObject);
-begin
-
-end;
-
 procedure TFEmboss.FormShow(Sender: TObject);
 begin
-  angle := FilterConnector.LazPaintInstance.Config.DefaultEmbossAngle;
+  InitParams;
   PreviewNeeded;
   Left := FilterConnector.LazPaintInstance.MainFormBounds.Left
 end;
@@ -182,6 +192,21 @@ end;
 procedure TFEmboss.PreviewNeeded;
 begin
   FilterConnector.PutImage(ComputeFilteredLayer,False,True);
+end;
+
+procedure TFEmboss.InitParams;
+begin
+  FInitializing:= true;
+  angle := FilterConnector.LazPaintInstance.Config.DefaultEmbossAngle;
+  if Assigned(FVars) then
+  begin
+    if FVars.IsDefined('Angle') then angle := FVars.Floats['Angle'];
+    if FVars.IsDefined('Transparent') then
+      CheckBox_Transparent.Checked := FVars.Booleans['Transparent'];
+    if FVars.IsDefined('PreserveColors') then
+      CheckBox_PreserveColors.Checked := FVars.Booleans['PreserveColors'];
+  end;
+  FInitializing:= false;
 end;
 
 {$R *.lfm}

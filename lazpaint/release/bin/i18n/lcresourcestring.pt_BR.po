@@ -1,0 +1,171 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: lcresourcestring.rsadjusttoshape
+msgid "Adjust to shape"
+msgstr "Ajuste-se à forma"
+
+#: lcresourcestring.rscigsbnegative
+msgid "Corr. HSL CCW"
+msgstr "HSL corr. CCW"
+
+#: lcresourcestring.rscigsbpositive
+msgid "Corr. HSL CW"
+msgstr "HSL corr. CW"
+
+#: lcresourcestring.rscilinearhslnegative
+msgid "HSL CCW"
+msgstr "HSL CCW"
+
+#: lcresourcestring.rscilinearhslpositive
+msgid "HSL CW"
+msgstr "HSL CW"
+
+#: lcresourcestring.rscilinearrgb
+msgid "RGB"
+msgstr "RGB"
+
+#: lcresourcestring.rscistdrgb
+msgid "sRGB"
+msgstr "sRGB"
+
+#: lcresourcestring.rscolor
+msgid "Color"
+msgstr "Cor"
+
+#: lcresourcestring.rscolorinterpolation
+msgid "Color interpolation"
+msgstr "Interpolação de cores"
+
+#: lcresourcestring.rseditgradtexpoints
+msgid "Edit gradient/texture points"
+msgstr "Editar pontos de gradiente/textura"
+
+#: lcresourcestring.rsendopacity
+msgid "End opacity"
+msgstr "Opacidade final"
+
+#: lcresourcestring.rsgradientangular
+msgid "Angular"
+msgstr "Angular"
+
+#: lcresourcestring.rsgradientdiamond
+msgid "Diamond"
+msgstr "Diamante"
+
+#: lcresourcestring.rsgradientfill
+msgid "Gradient fill"
+msgstr "Gradiente"
+
+#: lcresourcestring.rsgradientlinear
+msgid "Linear"
+msgstr "Linear"
+
+#: lcresourcestring.rsgradientradial
+msgid "Radial"
+msgstr "Radial"
+
+#: lcresourcestring.rsgradientreflected
+msgid "Reflected"
+msgstr "Refletida"
+
+#: lcresourcestring.rsgradientrepetition
+msgid "Gradient repetition"
+msgstr "Repetição de gradiente"
+
+#: lcresourcestring.rsgrpad
+msgid "Pad"
+msgstr "Acolchoar"
+
+#: lcresourcestring.rsgrreflect
+msgid "Reflect"
+msgstr "Refletir"
+
+#: lcresourcestring.rsgrrepeat
+msgid "Repeat"
+msgstr "Repetir"
+
+#: lcresourcestring.rsgrsine
+msgid "Sine"
+msgstr "Seno"
+
+#: lcresourcestring.rsincompatibletype
+msgid "Incompatible type"
+msgstr "Tipo incompatível"
+
+#: lcresourcestring.rsindexoutofbounds
+msgid "Index out of bounds"
+msgstr "Índice fora dos limites"
+
+#: lcresourcestring.rslightposition
+msgid "Light position"
+msgstr "Posição de luz"
+
+#: lcresourcestring.rsloadtexture
+msgid "Load texture"
+msgstr "Abrir textura"
+
+#: lcresourcestring.rsnofill
+msgid "No fill"
+msgstr "Sem preenchimento"
+
+#: lcresourcestring.rsnottexturefill
+msgid "It is not a texture fill"
+msgstr "Não é um preenchimento de textura"
+
+#: lcresourcestring.rsopacity
+msgid "Opacity"
+msgstr "Opacidade"
+
+#: lcresourcestring.rspreview
+msgid "Preview"
+msgstr "Prévia"
+
+#: lcresourcestring.rsshapeclassnotspecified
+msgid "Shape class not specified"
+msgstr "Classe de forma não especificada"
+
+#: lcresourcestring.rsshapenotfound
+msgid "Shape not found"
+msgstr "Forma não encontrada"
+
+#: lcresourcestring.rssolidcolor
+msgid "Solid color"
+msgstr "Monocromático"
+
+#: lcresourcestring.rsstartopacity
+msgid "Start opacity"
+msgstr "Opacidade inicial"
+
+#: lcresourcestring.rsswapcolors
+msgid "Swap colors"
+msgstr "Alterar cor"
+
+#: lcresourcestring.rstexturefill
+msgid "Texture fill"
+msgstr "Preenchimento de textura"
+
+#: lcresourcestring.rstexturerepetition
+msgid "Texture repetition"
+msgstr "Repetição de textura"
+
+#: lcresourcestring.rstrnone
+msgid "No repetition"
+msgstr "No repetição"
+
+#: lcresourcestring.rstrrepeatboth
+msgid "Repeat both"
+msgstr "Repetir ambos"
+
+#: lcresourcestring.rstrrepeatx
+msgid "Repeat X"
+msgstr "Repetir X"
+
+#: lcresourcestring.rstrrepeaty
+msgid "Repeat Y"
+msgstr "Repetir Y"
+
+#: lcresourcestring.rsunknownshapeclass
+msgid "Unknown shape class \"%1\""
+msgstr "Classe de forma desconhecida \"%1\""
+

@@ -1,17 +1,4 @@
 msgid ""
-msgstr ""
-"Project-Id-Version: Lazpaint 7.0.4\n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: 2019-08-20 12:23+0200\n"
-"Last-Translator: fred\n"
-"Language-Team: LazPaint\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: nl\n"
-"X-Generator: Poedit 2.2.3\n"
-
-msgid ""
 "Project-Id-Version: LazPaint\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: 2014-03-28 11:18+0200\n"
@@ -25,6 +12,16 @@ msgid ""
 "X-Generator: Virtaal 0.7.0\n"
 "X-Poedit-Language: Dutch\n"
 msgstr ""
+"Project-Id-Version: Lazpaint 7.0.4\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2019-08-20 12:23+0200\n"
+"Last-Translator: fred\n"
+"Language-Team: LazPaint\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+"X-Generator: Poedit 2.2.3\n"
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-07-21 16:07+0200\n"
@@ -50,6 +47,237 @@ msgstr ""
 "X-Generator: Virtaal 0.7.0\n"
 "X-Poedit-Language: Dutch\n"
 
+#: tablet.getprocfailed
+msgid "Procedure %s failed to load properly."
+msgstr "Procedure %s is niet correct geladen."
+
+#: tablet.openfailed
+msgid "Tablet context failed to open."
+msgstr "Tabletcontext kan niet worden geopend."
+
+#: tfabout.button_donate.caption
+msgctxt "tfabout.button_donate.caption"
+msgid "Donate..."
+msgstr "Doneren..."
+
+#: tfabout.caption
+msgctxt "tfabout.caption"
+msgid "About"
+msgstr "Over"
+
+#: tfabout.labelurl.caption
+msgid "http://sourceforge.net/projects/lazpaint/"
+msgstr "http://sourceforge.net/projects/lazpaint/"
+
+#: tfabout.label_authors.caption
+msgctxt "tfabout.label_authors.caption"
+msgid "Authors:"
+msgstr "Auteurs:"
+
+#: tfabout.label_authorsvalue.caption
+#| msgid "Circular help by FabienWang and Lainz"
+msgctxt "tfabout.label_authorsvalue.caption"
+msgid "Circular helped by FabienWang, Lainz and others"
+msgstr "Circular geholpen door FabienWang, Lainz en anderen"
+
+#: tfabout.label_homepage.caption
+msgctxt "tfabout.label_homepage.caption"
+msgid "Homepage:"
+msgstr "Homepage:"
+
+#: tfabout.label_libraries.caption
+msgctxt "tfabout.label_libraries.caption"
+msgid "Libraries used:"
+msgstr "Gebruikte libraries:"
+
+#: tfabout.label_licence.caption
+msgctxt "tfabout.label_licence.caption"
+msgid "Licence:"
+msgstr "Licentie:"
+
+#: tfabout.label_opensource.caption
+msgctxt "tfabout.label_opensource.caption"
+msgid "Open source (GPLv3)"
+msgstr "Open source (GPLv3)"
+
+#: tfadjustcurves.button_cancel.caption
+msgctxt "tfadjustcurves.button_cancel.caption"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfadjustcurves.button_ok.caption
+msgctxt "tfadjustcurves.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfadjustcurves.caption
+msgid "Adjust curves"
+msgstr "Krommen aanpassen"
+
+#: tfadjustcurves.toolbutton_newcurve.hint
+msgid "Discard current curve and start a new one"
+msgstr "Huidige kromme weggooien en een nieuwe beginnen"
+
+#: tfadjustcurves.toolbutton_posterize.hint
+msgctxt "tfadjustcurves.toolbutton_posterize.hint"
+msgid "Posterize"
+msgstr "Posterize"
+
+#: tfadjustcurves.toolbutton_removepoint.hint
+msgid "Remove selected point (Del)"
+msgstr "Verwijder geselecteerd punt (Del)"
+
+#: tfblendop.button_cancel.caption
+msgctxt "tfblendop.button_cancel.caption"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfblendop.button_ok.caption
+msgctxt "tfblendop.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfblendop.caption
+msgid "Blend operation"
+msgstr "Mengoperatie"
+
+#: tfblendop.label_blendopcategory.caption
+msgctxt "tfblendop.label_blendopcategory.caption"
+msgid "Category of blend operation"
+msgstr "Categorie van mengoperatie"
+
+#: tfblendop.label_blendopvalue.caption
+msgctxt "tfblendop.label_blendopvalue.caption"
+msgid "."
+msgstr "."
+
+#: tfblendop.label_kritaover.caption
+msgctxt "tfblendop.label_kritaover.caption"
+msgid "Krita"
+msgstr "Krita"
+
+#: tfblendop.label_kritaover.hint
+msgid "Blend operations that are available in Krita"
+msgstr "Mengoperaties die beschikbaar zijn in Krita"
+
+#: tfblendop.label_otherover.caption
+msgctxt "tfblendop.label_otherover.caption"
+msgid "Other"
+msgstr "Overig"
+
+#: tfblendop.label_otherover.hint
+msgid "Blend operations of LazPaint and Paint.NET"
+msgstr "Mengoperaties van LazPaint en Paint.NET"
+
+#: tfblendop.label_patternover.caption
+msgctxt "tfblendop.label_patternover.caption"
+msgid "Pattern over"
+msgstr "Patroon over"
+
+#: tfblendop.label_patternover.hint
+msgid "Preview blend operation with the specified image on top"
+msgstr "Voorvertoning van mengoperatie met gekozen afbeelding boven"
+
+#: tfblendop.label_patternunder.caption
+msgctxt "tfblendop.label_patternunder.caption"
+msgid "Pattern under"
+msgstr "Patroon onder"
+
+#: tfblendop.label_patternunder.hint
+msgid "Preview blend operation with the specified image underneath"
+msgstr "Voorvertoning van mengoperatie met gekozen afbeelding onder"
+
+#: tfblendop.label_previewwith.caption
+msgctxt "tfblendop.label_previewwith.caption"
+msgid "Preview with"
+msgstr "Voorvertoning met"
+
+#: tfblendop.label_selectedblendop.caption
+msgid "Selected blend operation :"
+msgstr "Gekozen mengoperatie :"
+
+#: tfblendop.label_svgover.caption
+msgctxt "tfblendop.label_svgover.caption"
+msgid "Basic SVG"
+msgstr "Basale SVG"
+
+#: tfblendop.label_svgover.hint
+msgid "Basic blend operations that are available in virtually all image editors"
+msgstr "Basale mengoperaties die beschikbaar zijn in bijna alle beeldbewerkingssoftware"
+
+#: tfbrowseimages.caption
+msgid "Browse images"
+msgstr "Blader door beelden"
+
+#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
+msgid "Use this directory on startup"
+msgstr "Gebruik deze map bij het opstarten"
+
+#: tfbrowseimages.label_status.caption
+msgctxt "tfbrowseimages.label_status.caption"
+msgid "."
+msgstr "."
+
+#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
+msgid "Create folder or container"
+msgstr "Maak een map of container"
+
+#: tfbrowseimages.toolbutton_goup.hint
+msgid "Go one directory up"
+msgstr "Een map omhoog gaan"
+
+#: tfbrowseimages.toolbutton_openselectedfiles.hint
+msgid "Open selected files"
+msgstr "Open geselecteerde bestanden"
+
+#: tfbrowseimages.toolbutton_viewbigicon.hint
+msgctxt "tfbrowseimages.toolbutton_viewbigicon.hint"
+msgid "Show big icons"
+msgstr "Toon grote iconen"
+
+#: tfbrowseimages.toolbutton_viewdetails.hint
+msgctxt "tfbrowseimages.toolbutton_viewdetails.hint"
+msgid "Show details and preview"
+msgstr "Toon details en voorvertoning"
+
+#: tfbrowseimages.tool_selectdrive.hint
+msgid "Select drive"
+msgstr "Selecteer schijf"
+
+#: tfcanvassize.button_cancel.caption
+msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfcanvassize.button_ok.caption
+msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcanvassize.caption
+msgctxt "tfcanvassize.caption"
+msgid "Canvas size"
+msgstr "Canvasgrootte"
+
+#: tfcanvassize.checkbox_flipmode.caption
+msgid "Flip mode"
+msgstr "Spiegelmodus"
+
+#: tfcanvassize.label_anchor.caption
+msgctxt "tfcanvassize.label_anchor.caption"
+msgid "Anchor :"
+msgstr "Anker :"
+
+#: tfcanvassize.label_height.caption
+msgctxt "tfcanvassize.label_height.caption"
+msgid "Height :"
+msgstr "Hoogte :"
+
+#: tfcanvassize.label_width.caption
+msgctxt "tfcanvassize.label_width.caption"
+msgid "Width :"
+msgstr "Breedte :"
+
 #: tfchoosecolor.bcbutton_addtopalette.hint
 msgid "Add color to palette"
 msgstr "Kleur toevoegen aan palet"
@@ -67,12 +295,332 @@ msgstr "Kleur"
 msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
 msgstr "Kleurbeschrijving: klik om een kleur in te typen met het toetsenbord middels kleurnamen of CSS notatie."
 
+#: tfcolorintensity.button_cancel.caption
+msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfcolorintensity.button_ok.caption
+msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcolorintensity.caption
+msgctxt "tfcolorintensity.caption"
+msgid "Intensity"
+msgstr "Intensiteit"
+
+#: tfcolorintensity.label_multiply.caption
+msgctxt "tfcolorintensity.label_multiply.caption"
+msgid "Multiply"
+msgstr "Vermenigvuldigen"
+
+#: tfcolorintensity.label_shift.caption
+msgctxt "tfcolorintensity.label_shift.caption"
+msgid "Shift"
+msgstr "Verschuiven"
+
+#: tfcolorize.button_cancel.caption
+msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfcolorize.button_ok.caption
+msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcolorize.caption
+msgctxt "tfcolorize.caption"
+msgid "Colorize"
+msgstr "Inkleuren"
+
+#: tfcolorize.checkbox_gsba.caption
+msgctxt "tfcolorize.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "Gecorrigeerde tint en helderheid"
+
+#: tfcolorize.label_colorness.caption
+msgctxt "tfcolorize.label_colorness.caption"
+msgid "Colorness"
+msgstr "Kleuring"
+
+#: tfcolorize.label_hue.caption
+msgctxt "tfcolorize.label_hue.caption"
+msgid "Hue"
+msgstr "Kleurtint"
+
+#: tfcolorize.label_preset.caption
+msgid "Preset"
+msgstr "Voorinstelling"
+
+#: tfcustomblur.button_cancel.caption
+msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfcustomblur.button_editmask.caption
+msgid "Edit mask..."
+msgstr "Bewerkingsmasker..."
+
+#: tfcustomblur.button_loadmask.caption
+msgid "Load mask..."
+msgstr "Laad masker..."
+
+#: tfcustomblur.button_ok.caption
+msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfcustomblur.caption
+msgctxt "tfcustomblur.caption"
+msgid "Custom blur"
+msgstr "Aangepaste vervaging"
+
+#: tfcustomblur.openpicturedialog1.title
+msgid "Open grayscale file"
+msgstr "Open grijstinten-bestand"
+
+#: tfemboss.button_cancel.caption
+msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfemboss.button_ok.caption
+msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfemboss.caption
+msgctxt "tfemboss.caption"
+msgid "Emboss"
+msgstr "Reliëf"
+
+#: tfemboss.checkbox_preservecolors.caption
+msgid "Preserve colors"
+msgstr "Kleuren behouden"
+
+#: tfemboss.checkbox_transparent.caption
+msgid "Transparent"
+msgstr "Transparant"
+
+#: tfemboss.label_direction.caption
+msgctxt "tfemboss.label_direction.caption"
+msgid "Direction :"
+msgstr "Richting :"
+
+#: tffilterfunction.button_cancel.caption
+msgctxt "tffilterfunction.button_cancel.caption"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tffilterfunction.button_ok.caption
+msgctxt "tffilterfunction.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tffilterfunction.caption
+msgid "Apply function"
+msgstr "Functie toepassen"
+
+#: tffilterfunction.checkbox_gamma.caption
+msgid "Gamma correction"
+msgstr "Gammacorrectie"
+
+#: tffilterfunction.checkbox_gsba.caption
+msgctxt "tffilterfunction.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "Gecorrigeerde tint en helderheid"
+
+#: tffilterfunction.label_alphaequals.caption
+msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_blueequals.caption
+msgctxt "tffilterfunction.label_blueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_greenequals.caption
+msgctxt "tffilterfunction.label_greenequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_hueequals.caption
+msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_lightnessequals.caption
+msgctxt "tffilterfunction.label_lightnessequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_redequals.caption
+msgctxt "tffilterfunction.label_redequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_saturationequals.caption
+msgctxt "tffilterfunction.label_saturationequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_variables.caption
+msgid "Variables :"
+msgstr "Variabelen :"
+
+#: tffilterfunction.tabsheet_hsl.caption
+msgid "HSL"
+msgstr "HSL"
+
+#: tffilterfunction.tabsheet_rgb.caption
+msgctxt "tffilterfunction.tabsheet_rgb.caption"
+msgid "RGB"
+msgstr "RGB"
+
+#: tfgeometricbrush.button_cancel.caption
+msgctxt "tfgeometricbrush.button_cancel.caption"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfgeometricbrush.button_ok.caption
+msgctxt "tfgeometricbrush.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfgeometricbrush.caption
+msgid "Geometric brush"
+msgstr "Geometrische borstel"
+
+#: tfgeometricbrush.checkbox_isgradient.caption
+msgid "Opacity gradient"
+msgstr "Dekkingsgradiënt"
+
+#: tfgeometricbrush.label1.caption
+msgid "Number of sides:"
+msgstr "Aantal zijden:"
+
+#: tfimagelist.caption
+msgid "Image List"
+msgstr "Afbeeldingslijst"
+
+#: tfimagelist.pmautouncheckonopen.caption
+msgid "Autouncheck files after being open"
+msgstr "Automatisch bestanden uitvinken na openen"
+
+#: tfimagelist.pmautouncheckonsave.caption
+msgid "Autouncheck files after being edited and saved"
+msgstr "Automatisch bestanden uitvinken na bewerking en opslag"
+
+#: tfimagelist.pmremoveall.caption
+msgid "Empty image list"
+msgstr "Schoon beeldlijst op"
+
+#: tfimagelist.pmremovenonexistent.caption
+msgid "Remove nonexistent images"
+msgstr "Verwijder niet-bestaande beelden"
+
+#: tfimagelist.pmremoveunchecked.caption
+msgid "Remove unchecked images"
+msgstr "Verwijder uitgevinkte beelden"
+
+#: tfimagelist.pmunchecknonexistent.caption
+msgid "Uncheck nonexistent files"
+msgstr "Vink niet-bestaande bestanden uit"
+
+#: tfimagelist.stringgrid1.columns[0].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[1].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[1].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[2].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[2].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.stringgrid1.columns[3].title.caption
+msgctxt "tfimagelist.stringgrid1.columns[3].title.caption"
+msgid "-"
+msgstr "-"
+
+#: tfimagelist.tbaddfiles.hint
+msgid "Add images to list"
+msgstr "Voeg beelden to aan lijst"
+
+#: tfimagelist.tbautouncheck.hint
+msgid "Enable/disable autounchecking for processed files"
+msgstr "Auto-uitvinken aan/uitzetten voor verwerkte bestanden"
+
+#: tfimagelist.tbautozoomfit.hint
+msgid "Enable/disable autofitting images in the LazPaint window"
+msgstr "Afbeelding autofit in LazPaint venster aan/uitzetten"
+
+#: tfimagelist.tbcheckall.hint
+msgid "Check all files for processing"
+msgstr "Controleer alle bestanden voor verwerking"
+
+#: tfimagelist.tbminiwindow.hint
+msgid "Switch to miniwindow"
+msgstr "Schakel naar minivenster"
+
+#: tfimagelist.tbmovedown.hint
+msgid "Move selected items down"
+msgstr "Verplaats geselecteerde items omlaag"
+
+#: tfimagelist.tbmoveup.hint
+msgid "Move selected items up"
+msgstr "Verplaats geselecteerde items omhoog"
+
+#: tfimagelist.tbnormalwindows.hint
+msgid "Switch to normal window"
+msgstr "Schakel naar normaal venster"
+
+#: tfimagelist.tbopenimage.hint
+msgid "Open current image"
+msgstr "Open huidige afbeelding"
+
+#: tfimagelist.tbopennext.hint
+msgctxt "tfimagelist.tbopennext.hint"
+msgid "Open next image (Alt-Right)"
+msgstr "Open volgende afbeelding (Alt-Rechts)"
+
+#: tfimagelist.tbopennextsw.hint
+msgctxt "tfimagelist.tbopennextsw.hint"
+msgid "Open next image"
+msgstr "Open volgende afbeelding"
+
+#: tfimagelist.tbopenprev.hint
+msgctxt "tfimagelist.tbopenprev.hint"
+msgid "Open previous image (Alt-Left)"
+msgstr "Open vorige afbeelding (Alt-Links)"
+
+#: tfimagelist.tbopenprevsw.hint
+msgctxt "tfimagelist.tbopenprevsw.hint"
+msgid "Open previous image"
+msgstr "Open vorige afbeelding"
+
+#: tfimagelist.tbremoveitem.hint
+msgid "Remove selected images from list"
+msgstr "Verwijder geselecteerde afbeeldingen uit lijst"
+
+#: tfimagelist.tbuncheckall.hint
+msgid "Uncheck all files for processing"
+msgstr "Vink alle bestanden uit voor verwerking"
+
 #: tflayerstack.caption
 msgctxt "tflayerstack.caption"
 msgid "Layers"
 msgstr "Lagen"
 
 #: tflayerstack.toolblendop.hint
+msgctxt "tflayerstack.toolblendop.hint"
 msgid "Select blend operation"
 msgstr "Kies mengoperatie"
 
@@ -85,6 +633,11 @@ msgstr "Inzoomen in lagenoverzicht"
 msgctxt "tflayerstack.toolzoomlayerstackout.hint"
 msgid "Zoom layer stack out"
 msgstr "Uitzoomen uit lagenoverzicht"
+
+#: tfloading.caption
+msgctxt "tfloading.caption"
+msgid "Loading..."
+msgstr "Bezig met laden..."
 
 #: tfmain.brushcreategeometric.hint
 msgctxt "tfmain.brushcreategeometric.hint"
@@ -278,6 +831,10 @@ msgstr "Valideren"
 msgid "Validate modifications"
 msgstr "Wijzigingen valideren"
 
+#: tfmain.exportpicturedialog.title
+msgid "Export as..."
+msgstr "Export als..."
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Kies invoer..."
@@ -285,6 +842,10 @@ msgstr "Kies invoer..."
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
 msgstr "Kies invoer in bestand"
+
+#: tfmain.fileexport.caption
+msgid "Export..."
+msgstr "Export..."
 
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
@@ -328,6 +889,10 @@ msgstr "Herlaad"
 #: tfmain.fileremembersaveformat.hint
 msgid "Remember save format"
 msgstr "Onthoud het opslagformaat"
+
+#: tfmain.filerunscript.caption
+msgid "Run script..."
+msgstr "Script uitvoeren..."
 
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
@@ -488,7 +1053,7 @@ msgid "Twirl..."
 msgstr "Wervelen..."
 
 #: tfmain.filterwavedisplacement.caption
-msgid "Wave diplacement..."
+msgid "Wave displacement..."
 msgstr "Golfverplaatsing ..."
 
 #: tfmain.forgetdialoganswers.caption
@@ -587,11 +1152,6 @@ msgstr "Verticaal spiegelen"
 #: tfmain.imageverticalflip.hint
 msgid "Flip image vertically"
 msgstr "Afbeelding verticaal spiegelen"
-
-#: tfmain.image_currenttexture.hint
-msgctxt "tfmain.image_currenttexture.hint"
-msgid "Current texture"
-msgstr "Huidige textuur"
 
 #: tfmain.image_currenttool.hint
 msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
@@ -868,6 +1428,12 @@ msgctxt "tfmain.menurender.caption"
 msgid "Render"
 msgstr "Renderen"
 
+#: tfmain.menuscript.caption
+#, fuzzy
+msgctxt "tfmain.menuscript.caption"
+msgid "Script"
+msgstr "Script"
+
 #: tfmain.menuselect.caption
 msgctxt "tfmain.menuselect.caption"
 msgid "Select"
@@ -1004,15 +1570,6 @@ msgstr "Selectie horizontaal spiegelen"
 msgid "Flip selection vertically"
 msgstr "Selectie verticaal omdraaien"
 
-#: tfmain.shape_backcolor.hint
-msgctxt "tfmain.shape_backcolor.hint"
-msgid "Select secondary color"
-msgstr "Secundaire kleur sele"
-
-#: tfmain.shape_pencolor.hint
-msgid "Select pen color"
-msgstr "Penkleur selecteren"
-
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
@@ -1023,11 +1580,6 @@ msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
 msgstr "Verticale grootte van de pijl"
 
-#: tfmain.spinedit_backopacity.hint
-msgctxt "tfmain.spinedit_backopacity.hint"
-msgid "Secondary color opacity"
-msgstr "Secundaire kleurdekking"
-
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
 msgid "Spacing between patterns"
@@ -1037,11 +1589,6 @@ msgstr "Afstand tussen patronen"
 msgctxt "tfmain.spinedit_eraser.hint"
 msgid "Eraser opacity"
 msgstr "Doorzichtigheid van uitwisgom"
-
-#: tfmain.spinedit_penopacity.hint
-msgctxt "tfmain.spinedit_penopacity.hint"
-msgid "Pen opacity"
-msgstr "Pendekking"
 
 #: tfmain.spinedit_penwidth.hint
 msgctxt "tfmain.spinedit_penwidth.hint"
@@ -1082,11 +1629,6 @@ msgstr "Verticale schaduw"
 msgctxt "tfmain.spinedit_textsize.hint"
 msgid "Text size"
 msgstr "Tekst grootte"
-
-#: tfmain.spinedit_textureopacity.hint
-msgctxt "tfmain.spinedit_textureopacity.hint"
-msgid "Texture opacity"
-msgstr "Textuurdekking"
 
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
@@ -1163,11 +1705,6 @@ msgctxt "tfmain.toollayermapping.hint"
 msgid "Layer perspective"
 msgstr "Laagperspectief"
 
-#: tfmain.toolloadtexture.hint
-msgctxt "tfmain.toolloadtexture.hint"
-msgid "Load texture..."
-msgstr "Textuur laden..."
-
 #: tfmain.toolmagicwand.caption
 msgid "Magic wand"
 msgstr "Toverstaf"
@@ -1181,10 +1718,9 @@ msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
 msgid "Move selection"
 msgstr "Selectie verplaatsen"
 
-#: tfmain.toolnotexture.hint
-msgctxt "tfmain.toolnotexture.hint"
-msgid "No texture"
-msgstr "Geen textuur"
+#: tfmain.toolopenedcurve.hint
+msgid "Opened curve"
+msgstr "Geopende curve"
 
 #: tfmain.toolpen.caption
 msgctxt "TFMAIN.TOOLPEN.CAPTION"
@@ -1207,6 +1743,10 @@ msgstr "Veelhoek"
 #: tfmain.toolpolygon.hint
 msgid "Polygon or polyline"
 msgstr "Veelhoek of polylijn"
+
+#: tfmain.toolpolyline.hint
+msgid "Polyline"
+msgstr "Polylijn"
 
 #: tfmain.toolrect.hint
 msgctxt "TFMAIN.TOOLRECT.HINT"
@@ -1309,11 +1849,6 @@ msgstr "Teken een kromme"
 msgid "Move point"
 msgstr "Verplaats punt"
 
-#: tfmain.tool_diamondgradient.hint
-msgctxt "tfmain.tool_diamondgradient.hint"
-msgid "Diamond gradient"
-msgstr "Diamand-verloop"
-
 #: tfmain.tool_drawshapeborder.hint
 msgctxt "tfmain.tool_drawshapeborder.hint"
 msgid "Draw border"
@@ -1328,6 +1863,18 @@ msgstr "Maak transparant"
 msgctxt "tfmain.tool_eraseblur.hint"
 msgid "Soften"
 msgstr "Soften"
+
+#: tfmain.tool_erasedarken.hint
+msgid "Darken"
+msgstr "Donkerder"
+
+#: tfmain.tool_eraselighten.hint
+msgid "Lighten"
+msgstr "Lichter maken"
+
+#: tfmain.tool_erasesharpen.hint
+msgid "Sharpen"
+msgstr "Verscherpen"
 
 #: tfmain.tool_fillshape.hint
 msgctxt "tfmain.tool_fillshape.hint"
@@ -1353,11 +1900,6 @@ msgstr "Verstekverbinding"
 msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
 msgid "Round join"
 msgstr "Ronde verbinding"
-
-#: tfmain.tool_lineargradient.hint
-msgctxt "tfmain.tool_lineargradient.hint"
-msgid "Linear gradient"
-msgstr "Lineair verloop"
 
 #: tfmain.tool_phongshapecone.hint
 msgctxt "tfmain.tool_phongshapecone.hint"
@@ -1404,20 +1946,17 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "Progressieve vloedvulling"
 
-#: tfmain.tool_radialgradient.hint
-msgctxt "tfmain.tool_radialgradient.hint"
-msgid "Radial gradient"
-msgstr "Radiaal verloop"
+#: tfmain.tool_textaligncenter.hint
+msgid "Center"
+msgstr "Middelste"
 
-#: tfmain.tool_reflectedgradient.hint
-msgctxt "tfmain.tool_reflectedgradient.hint"
-msgid "Reflected gradient"
-msgstr "Gereflecteerd verloop"
+#: tfmain.tool_textalignleft.hint
+msgid "Align left"
+msgstr "Links uitlijnen"
 
-#: tfmain.tool_singradient.hint
-msgctxt "tfmain.tool_singradient.hint"
-msgid "Sine gradient"
-msgstr "Sinusvormig verloop"
+#: tfmain.tool_textalignright.hint
+msgid "Align right"
+msgstr "Rechts uitlijnen"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -1517,6 +2056,652 @@ msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "Uitzoomen"
 
+#: tfmotionblur.button_cancel.caption
+msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfmotionblur.button_ok.caption
+msgctxt "TFMOTIONBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfmotionblur.caption
+msgctxt "tfmotionblur.caption"
+msgid "Motion blur"
+msgstr "Bewegingsvervaging"
+
+#: tfmotionblur.checkbox_oriented.caption
+msgid "Oriented"
+msgstr "Oriëntatie"
+
+#: tfmotionblur.label_distance.caption
+msgctxt "tfmotionblur.label_distance.caption"
+msgid "Distance :"
+msgstr "Afstand :"
+
+#: tfmultiimage.button_cancel.caption
+msgctxt "tfmultiimage.button_cancel.caption"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfmultiimage.button_ok.caption
+msgctxt "tfmultiimage.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfmultiimage.caption
+msgid "Choose image"
+msgstr "Afbeelding kiezen"
+
+#: tfnewimage.button_cancel.caption
+msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfnewimage.button_ok.caption
+msgctxt "TFNEWIMAGE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfnewimage.caption
+msgctxt "tfnewimage.caption"
+msgid "New image"
+msgstr "Nieuwe afbeelding"
+
+#: tfnewimage.combobox_bitdepth.text
+msgid "32"
+msgstr ""
+
+#: tfnewimage.label_bitdepth.caption
+msgid "Bit depth :"
+msgstr "Bit diepte:"
+
+#: tfnewimage.label_height.caption
+msgctxt "tfnewimage.label_height.caption"
+msgid "Height :"
+msgstr "Hoogte :"
+
+#: tfnewimage.label_height1.caption
+msgid "Ratio :"
+msgstr "Verhouding:"
+
+#: tfnewimage.label_memoryrequired.caption
+msgid "Memory required :"
+msgstr "Geheugen vereist:"
+
+#: tfnewimage.label_width.caption
+msgctxt "tfnewimage.label_width.caption"
+msgid "Width :"
+msgstr "Breedte :"
+
+#: tfnoisefilter.button_cancel.caption
+msgctxt "tfnoisefilter.button_cancel.caption"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfnoisefilter.button_ok.caption
+msgctxt "tfnoisefilter.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfnoisefilter.caption
+msgid "Noise filter"
+msgstr "Ruisfilter"
+
+#: tfnoisefilter.label_opacity.caption
+msgid "Opacity:"
+msgstr "Dekking:"
+
+#: tfnoisefilter.radio_grayscalenoise.caption
+msgid "Grayscale noise"
+msgstr "Grijstint ruis"
+
+#: tfnoisefilter.radio_rgbnoise.caption
+msgid "RGB noise"
+msgstr "RGB ruis"
+
+#: tfobject3d.button_cancel.caption
+msgctxt "tfobject3d.button_cancel.caption"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfobject3d.button_loadtex.caption
+msgid "Texture..."
+msgstr "Tekstuur..."
+
+#: tfobject3d.button_notex.caption
+msgid "No tex."
+msgstr "Geen tex."
+
+#: tfobject3d.button_ok.caption
+msgctxt "tfobject3d.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfobject3d.caption
+msgid "3D object"
+msgstr "3d object"
+
+#: tfobject3d.checkbox_antialiasing.caption
+msgid "Antialiasing"
+msgstr "Antialiasing"
+
+#: tfobject3d.checkbox_biface.caption
+msgid "2-sided faces"
+msgstr "2-zijdige vlakken"
+
+#: tfobject3d.checkbox_textureinterp.caption
+msgid "Texture interpolation"
+msgstr "Texture interpolatie"
+
+#: tfobject3d.groupbox_selectedlight.caption
+msgid "Selected light"
+msgstr "Geselecteerd licht"
+
+#: tfobject3d.groupbox_selectedmaterial.caption
+msgctxt "tfobject3d.groupbox_selectedmaterial.caption"
+msgid "Selected material"
+msgstr "Geselecteerd materiaal"
+
+#: tfobject3d.label_color.caption
+msgctxt "tfobject3d.label_color.caption"
+msgid "Color :"
+msgstr "Kleur :"
+
+#: tfobject3d.label_color1.caption
+msgctxt "tfobject3d.label_color1.caption"
+msgid "Color :"
+msgstr "Kleur :"
+
+#: tfobject3d.label_height.caption
+msgctxt "tfobject3d.label_height.caption"
+msgid "Height :"
+msgstr "Hoogte :"
+
+#: tfobject3d.label_lightingnormals.caption
+msgctxt "tfobject3d.label_lightingnormals.caption"
+msgid "Lighting normals :"
+msgstr "Belichting normalen :"
+
+#: tfobject3d.label_lights.caption
+msgid "Lights :"
+msgstr "Lichten:"
+
+#: tfobject3d.label_materials.caption
+msgctxt "tfobject3d.label_materials.caption"
+msgid "Materials :"
+msgstr "Materialen :"
+
+#: tfobject3d.label_opacity.caption
+msgctxt "tfobject3d.label_opacity.caption"
+msgid "Opacity :"
+msgstr "Dekking :"
+
+#: tfobject3d.label_specularindex.caption
+msgctxt "tfobject3d.label_specularindex.caption"
+msgid "Spec. index :"
+msgstr "Spec. index :"
+
+#: tfobject3d.label_width.caption
+msgctxt "tfobject3d.label_width.caption"
+msgid "Width :"
+msgstr "Breedte :"
+
+#: tfobject3d.label_zoom.caption
+msgctxt "tfobject3d.label_zoom.caption"
+msgid "Zoom"
+msgstr "Zoomen"
+
+#: tfobject3d.lights.caption
+msgid "Lights"
+msgstr "Lichten"
+
+#: tfobject3d.materials.caption
+msgid "Materials"
+msgstr "Materialen"
+
+#: tfobject3d.opentexturedialog.title
+msgctxt "tfobject3d.opentexturedialog.title"
+msgid "Open texture"
+msgstr "Textuur openen"
+
+#: tfobject3d.rendering.caption
+msgid "Rendering"
+msgstr "Renderen"
+
+#: tfobject3d.tooladddirectional.hint
+msgid "Add a directional light"
+msgstr "Voeg een gericht licht toe"
+
+#: tfobject3d.toolpointlight.hint
+msgid "Add a point light"
+msgstr "Voeg een puntlicht toe"
+
+#: tfobject3d.toolremoveselectedlight.hint
+msgid "Remove selected light"
+msgstr "Verwijder geselecteerd licht"
+
+#: tfphongfilter.button_cancel.caption
+msgctxt "tfphongfilter.button_cancel.caption"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfphongfilter.button_ok.caption
+msgctxt "tfphongfilter.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfphongfilter.caption
+msgctxt "tfphongfilter.caption"
+msgid "Shaded map"
+msgstr "Shaded map"
+
+#: tfphongfilter.groupbox_color.caption
+msgctxt "tfphongfilter.groupbox_color.caption"
+msgid "Color"
+msgstr "Kleur"
+
+#: tfphongfilter.groupbox_color1.caption
+msgid "Altitude map"
+msgstr "Hoogte map"
+
+#: tfphongfilter.label_altitude.caption
+msgid "Global altitude :"
+msgstr "Algemene hoogte :"
+
+#: tfphongfilter.label_lightposition.caption
+msgid "Light position :"
+msgstr "Lichtpositie :"
+
+#: tfphongfilter.radio_mapalpha.caption
+msgid "Alpha"
+msgstr "Alpha"
+
+#: tfphongfilter.radio_mapblue.caption
+msgid "B"
+msgstr "B"
+
+#: tfphongfilter.radio_mapgreen.caption
+msgid "G"
+msgstr "G"
+
+#: tfphongfilter.radio_maplightness.caption
+msgctxt "tfphongfilter.radio_maplightness.caption"
+msgid "Lightness"
+msgstr "Lichtheid"
+
+#: tfphongfilter.radio_maplinearlightness.caption
+msgid "Linear lightness"
+msgstr "Lineaire lichtheid"
+
+#: tfphongfilter.radio_mapred.caption
+msgid "R"
+msgstr "R"
+
+#: tfphongfilter.radio_mapsaturation.caption
+msgctxt "tfphongfilter.radio_mapsaturation.caption"
+msgid "Saturation"
+msgstr "Verzadiging"
+
+#: tfphongfilter.radio_usebackcolor.caption
+msgid "Back color"
+msgstr "Achtergrondkleur"
+
+#: tfphongfilter.radio_usekeep.caption
+msgid "Keep"
+msgstr "Behouden"
+
+#: tfphongfilter.radio_usepencolor.caption
+msgid "Pen color"
+msgstr "Penkleur"
+
+#: tfphongfilter.radio_usetexture.caption
+msgctxt "tfphongfilter.radio_usetexture.caption"
+msgid "Current texture"
+msgstr "Huidige textuur"
+
+#: tfpixelate.button_cancel.caption
+msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfpixelate.button_ok.caption
+msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfpixelate.caption
+msgctxt "tfpixelate.caption"
+msgid "Pixelate"
+msgstr "In pixels tonen"
+
+#: tfpixelate.label_pixelsize.caption
+msgctxt "tfpixelate.label_pixelsize.caption"
+msgid "Pixel size :"
+msgstr "Pixelgrootte :"
+
+#: tfpixelate.label_quality.caption
+msgctxt "tfpixelate.label_quality.caption"
+msgid "Quality :"
+msgstr "Kwaliteit :"
+
+#: tfposterize.button_cancel.caption
+msgctxt "tfposterize.button_cancel.caption"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfposterize.button_ok.caption
+msgctxt "tfposterize.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfposterize.caption
+msgctxt "tfposterize.caption"
+msgid "Posterize"
+msgstr "Posterize"
+
+#: tfposterize.checkbox_bylightness.caption
+msgid "By lightness"
+msgstr "Middels lichtheid"
+
+#: tfposterize.label_levels.caption
+msgid "Levels :"
+msgstr "Niveaus :"
+
+#: tfpreviewdialog.caption
+msgid "Preview"
+msgstr "Voorbeeld"
+
+#: tfpreviewdialog.lstatus.caption
+msgctxt "tfpreviewdialog.lstatus.caption"
+msgid "."
+msgstr "."
+
+#: tfprint.button_configureprinter.caption
+msgid "Configure..."
+msgstr "Instellen..."
+
+#: tfprint.button_print.caption
+msgid "Print!"
+msgstr "Druk af!"
+
+#: tfprint.button_zoomfit.caption
+msgctxt "tfprint.button_zoomfit.caption"
+msgid "Zoom fit"
+msgstr "Passend maken"
+
+#: tfprint.caption
+msgid "Print"
+msgstr "Druk af"
+
+#: tfprint.checkbox_ratio.caption
+msgctxt "tfprint.checkbox_ratio.caption"
+msgid "Keep aspect ratio"
+msgstr "Aspectverhouding behouden"
+
+#: tfprint.groupbox_imagesize.caption
+msgid "Image size"
+msgstr "Afbeeldingsgrootte"
+
+#: tfprint.groupbox_margins.caption
+msgid "Margins"
+msgstr "Marges"
+
+#: tfprint.label_bottom.caption
+msgid "Bottom:"
+msgstr "Onderkant:"
+
+#: tfprint.label_dpix.caption
+msgctxt "tfprint.label_dpix.caption"
+msgid "."
+msgstr "."
+
+#: tfprint.label_dpiy.caption
+msgctxt "tfprint.label_dpiy.caption"
+msgid "."
+msgstr "."
+
+#: tfprint.label_height.caption
+msgid "Height:"
+msgstr "Hoogte:"
+
+#: tfprint.label_left.caption
+msgid "Left:"
+msgstr "Links:"
+
+#: tfprint.label_orientation.caption
+msgid "Orientation:"
+msgstr "Oriëntatie:"
+
+#: tfprint.label_printerandpaper.caption
+msgid "Printer and paper:"
+msgstr "Printer en papier:"
+
+#: tfprint.label_right.caption
+msgid "Right:"
+msgstr "Rechts:"
+
+#: tfprint.label_top.caption
+msgid "Top:"
+msgstr "Bovenkant:"
+
+#: tfprint.label_width.caption
+msgid "Width:"
+msgstr "Breedte:"
+
+#: tfquestion.caption
+msgid "Question"
+msgstr "Vraag"
+
+#: tfquestion.checkbox_rememberchoice.caption
+msgid "Remember this choice"
+msgstr "Onthoud deze keuze"
+
+#: tfquestion.label_message.caption
+msgctxt "tfquestion.label_message.caption"
+msgid "."
+msgstr "."
+
+#: tfradialblur.button_cancel.caption
+msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfradialblur.button_ok.caption
+msgctxt "TFRADIALBLUR.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfradialblur.caption
+msgctxt "tfradialblur.caption"
+msgid "Radial blur"
+msgstr "Radiale vervaging"
+
+#: tfradialblur.label_radius.caption
+msgctxt "tfradialblur.label_radius.caption"
+msgid "Radius :"
+msgstr "Radius :"
+
+#: tfrain.button_cancel.caption
+msgctxt "tfrain.button_cancel.caption"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfrain.button_ok.caption
+msgctxt "tfrain.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfrain.caption
+msgid "Rain"
+msgstr "Regen"
+
+#: tfrain.label_quantity.caption
+msgid "Quantity:"
+msgstr "Aantal stuks:"
+
+#: tfrain.label_wind.caption
+msgid "Wind :"
+msgstr "Wind:"
+
+#: tfresample.button_cancel.caption
+msgctxt "TFRESAMPLE.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfresample.button_ok.caption
+msgctxt "TFRESAMPLE.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfresample.caption
+msgctxt "tfresample.caption"
+msgid "Resample"
+msgstr "Opnieuw samplen"
+
+#: tfresample.checkbox_ratio.caption
+msgctxt "tfresample.checkbox_ratio.caption"
+msgid "Keep aspect ratio"
+msgstr "Aspectverhouding behouden"
+
+#: tfresample.label_height.caption
+msgctxt "tfresample.label_height.caption"
+msgid "Height :"
+msgstr "Hoogte :"
+
+#: tfresample.label_quality.caption
+msgctxt "tfresample.label_quality.caption"
+msgid "Quality :"
+msgstr "Kwaliteit :"
+
+#: tfresample.label_width.caption
+msgctxt "tfresample.label_width.caption"
+msgid "Width :"
+msgstr "Breedte :"
+
+#: tfsaveoption.button_cancel.caption
+msgctxt "tfsaveoption.button_cancel.caption"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfsaveoption.button_ok.caption
+msgctxt "tfsaveoption.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfsaveoption.caption
+msgctxt "tfsaveoption.caption"
+msgid "Save"
+msgstr "Opslaan"
+
+#: tfsaveoption.checkbox_dithering.caption
+msgid "Dithering"
+msgstr "Dithering"
+
+#: tfsaveoption.label1.caption
+msgid "Quality:"
+msgstr "Kwaliteit:"
+
+#: tfsaveoption.label_0.caption
+msgid "0"
+msgstr "0"
+
+#: tfsaveoption.label_1.caption
+msgid "100"
+msgstr "100"
+
+#: tfsaveoption.label_50.caption
+msgid "50"
+msgstr "50"
+
+#: tfsaveoption.label_colordepth.caption
+msgid "Color depth:"
+msgstr "Kleuren diepte:"
+
+#: tfsaveoption.label_size.caption
+msgid "Size:"
+msgstr "Grootte:"
+
+#: tfsaveoption.radiobutton_16colors.caption
+msgid "16 colors"
+msgstr "16 kleuren"
+
+#: tfsaveoption.radiobutton_24bitsperpixel.caption
+msgid "24 bits"
+msgstr "24 bits"
+
+#: tfsaveoption.radiobutton_256colors.caption
+msgid "256 colors"
+msgstr "256 kleuren"
+
+#: tfsaveoption.radiobutton_2colors.caption
+msgid "2 colors"
+msgstr "2 kleuren"
+
+#: tfsaveoption.radiobutton_32bitsperpixel.caption
+msgid "32 bits"
+msgstr "32 bits"
+
+#: tfsaveoption.radiobutton_miomap.caption
+msgid "MioMap"
+msgstr "MioMap"
+
+#: tfsharpen.button_cancel.caption
+msgctxt "tfsharpen.button_cancel.caption"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfsharpen.button_ok.caption
+msgctxt "tfsharpen.button_ok.caption"
+msgid "OK"
+msgstr "OK"
+
+#: tfsharpen.caption
+msgid "Sharpen/Smooth"
+msgstr "Verscherpen/Gladstrijken"
+
+#: tfsharpen.label_amount.caption
+msgctxt "tfsharpen.label_amount.caption"
+msgid "Amount :"
+msgstr "Hoeveelheid :"
+
+#: tfshiftcolors.button_cancel.caption
+msgctxt "TFSHIFTCOLORS.BUTTON_CANCEL.CAPTION"
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: tfshiftcolors.button_ok.caption
+msgctxt "TFSHIFTCOLORS.BUTTON_OK.CAPTION"
+msgid "OK"
+msgstr "OK"
+
+#: tfshiftcolors.caption
+msgctxt "tfshiftcolors.caption"
+msgid "Shift colors"
+msgstr "Kleuren verschuiven"
+
+#: tfshiftcolors.checkbox_gsba.caption
+msgctxt "tfshiftcolors.checkbox_gsba.caption"
+msgid "Corrected hue and lightness"
+msgstr "Gecorrigeerde tint en helderheid"
+
+#: tfshiftcolors.label1.caption
+msgctxt "TFSHIFTCOLORS.LABEL1.CAPTION"
+msgid "Hue"
+msgstr "Kleurtint"
+
+#: tfshiftcolors.label2.caption
+#| msgid "Colorness"
+msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
+msgid "Saturation"
+msgstr "Verzadiging"
+
+#: tftoolbox.caption
+msgctxt "tftoolbox.caption"
+msgid "Tools"
+msgstr "Gereedschappen"
+
 #: tftwirl.button_cancel.caption
 msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -1588,9 +2773,9 @@ msgstr "alles"
 msgid "All supported filetypes"
 msgstr "Alle ondersteunde bestandstypes"
 
-#: uresourcestrings.rsholdkeysscalemode
-msgid "Hold %1 or %2 to scale"
-msgstr "Houd %1 of %2 vast om te schalen"
+#: uresourcestrings.rsalt
+msgid "ALT"
+msgstr "ALT"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
@@ -1633,6 +2818,10 @@ msgctxt "uresourcestrings.rscancel"
 msgid "Cancel"
 msgstr "Annuleren"
 
+#: uresourcestrings.rscancelledbyuser
+msgid "Cancelled by user"
+msgstr "Geannuleerd door gebruiker"
+
 #: uresourcestrings.rscannotdrawshapeonsvglayer
 msgid "Cannot draw shape on SVG layer"
 msgstr "Kan vorm niet tekenen op SVG laag"
@@ -1657,6 +2846,10 @@ msgstr "Wis palet"
 #: uresourcestrings.rscloserequest
 msgid "Close request"
 msgstr "Verzoek om te sluiten"
+
+#: uresourcestrings.rscmd
+msgid "CMD"
+msgstr "CMD"
 
 #: uresourcestrings.rscolors
 msgctxt "uresourcestrings.rscolors"
@@ -1705,9 +2898,9 @@ msgstr "Cosinus"
 msgid "Crop"
 msgstr "Bijsnijden"
 
-#: uresourcestrings.rsholdkeyrestrictrotation
-msgid "Hold %1 to restrict rotation angle"
-msgstr "Houd %2 ingedrukt om rotatiehoek te beperken"
+#: uresourcestrings.rsctrl
+msgid "CTRL"
+msgstr "CTRL"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -1734,6 +2927,10 @@ msgstr "Map is niet leeg"
 msgid "Dither layer using palette"
 msgstr "Ditherlaag met palet"
 
+#: uresourcestrings.rsduplicateimage
+msgid "Duplicate image"
+msgstr "Dubbele afbeelding"
+
 #: uresourcestrings.rseditmask
 msgid "Edit mask"
 msgstr "Bewerkings"
@@ -1754,6 +2951,10 @@ msgstr "Laag is leeg"
 msgid "Selection is empty"
 msgstr "Selectie is leeg"
 
+#: uresourcestrings.rsendwithoutmatchingbegin
+msgid "End without matching begin"
+msgstr "Einde zonder begin"
+
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
 msgstr "Voer naam in voor een nieuwe map of container (met extensie RES of LRS):"
@@ -1770,6 +2971,10 @@ msgstr "Ingangen"
 msgid "Error"
 msgstr "Fout"
 
+#: uresourcestrings.rserrordecodingraw
+msgid "Error decoding raw image."
+msgstr "Fout bij het decoderen van RAW-afbeelding."
+
 #: uresourcestrings.rserrorloadingoriginal
 msgid "Error while loading original however layer can be rasterized."
 msgstr "Fout bij het laden van origineel, maar laag kan worden gerasterd."
@@ -1777,6 +2982,10 @@ msgstr "Fout bij het laden van origineel, maar laag kan worden gerasterd."
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
 msgstr "Fout bij het openen van bestand% 1"
+
+#: uresourcestrings.rsexception
+msgid "An exception was encountered"
+msgstr "Er is een uitzondering opgetreden"
 
 #: uresourcestrings.rsexitrequest
 msgid "Exit request"
@@ -1870,13 +3079,21 @@ msgstr "Groen"
 msgid "Half-cosine"
 msgstr "Half-cosinus"
 
+#: uresourcestrings.rsholdkeyforsquare
+msgid "Hold %1 to draw a square or a circle"
+msgstr "Houd %1 ingedrukt om een vierkant of cirkel te tekenen"
+
+#: uresourcestrings.rsholdkeyrestrictrotation
+msgid "Hold %1 to restrict rotation angle"
+msgstr "Houd %2 ingedrukt om rotatiehoek te beperken"
+
 #: uresourcestrings.rsholdkeysnaptopixel
 msgid "Hold %1 to snap to pixels"
 msgstr "Houd %1 ingedrukt om op pixels vast te kleven"
 
-#: uresourcestrings.rsholdkeyforsquare
-msgid "Hold %1 to draw a square or a circle"
-msgstr "Houd %1 ingedrukt om een vierkant of cirkel te tekenen"
+#: uresourcestrings.rsholdkeysscalemode
+msgid "Hold %1 or %2 to scale"
+msgstr "Houd %1 of %2 vast om te schalen"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"
@@ -1940,6 +3157,10 @@ msgstr "Ongeldige naam"
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "
 msgstr "Ongeldige dekking : "
+
+#: uresourcestrings.rsinvalidparameters
+msgid "Invalid parameters"
+msgstr "Ongeldige parameters"
 
 #: uresourcestrings.rsinvalidresamplesize
 msgid "Invalid resample size : "
@@ -2166,6 +3387,10 @@ msgstr "Voorinstellingsnaam"
 msgid "px"
 msgstr "px"
 
+#: uresourcestrings.rspythonunexpectedversion
+msgid "Expected python version %1 but %2 found."
+msgstr "Verwachte python-versie %1 maar %2 gevonden."
+
 #: uresourcestrings.rsramdisk
 msgid "RAM disk"
 msgstr "RAM disk"
@@ -2199,6 +3424,10 @@ msgstr "Verwijderbaar"
 msgctxt "uresourcestrings.rsrepeatimage"
 msgid "Repeat image"
 msgstr "Afbeelding herhalen"
+
+#: uresourcestrings.rsresamplingimage
+msgid "Resampling image..."
+msgstr "Afbeelding resamplen..."
 
 #: uresourcestrings.rsretrieveselectedarea
 msgid "Do you want to retrieve selected area?"
@@ -2241,8 +3470,19 @@ msgid "Save palette as..."
 msgstr "Palet opslaan als..."
 
 #: uresourcestrings.rsscript
+msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Script"
+
+#: uresourcestrings.rsselectblendoperation
+#, fuzzy
+msgctxt "uresourcestrings.rsselectblendoperation"
+msgid "Select blend operation"
+msgstr "Kies mengoperatie"
+
+#: uresourcestrings.rsshift
+msgid "SHIFT"
+msgstr "SHIFT"
 
 #: uresourcestrings.rsshowpalette
 msgctxt "uresourcestrings.rsshowpalette"
@@ -2286,6 +3526,10 @@ msgstr "Resterende afbeeldingen:% 1"
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
 msgstr "Gereedschap kan niet worden gebruikt op een onzichtbare laag"
+
+#: uresourcestrings.rstoomanyactions
+msgid "Too many actions"
+msgstr "Te veel acties"
 
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
@@ -2339,1200 +3583,15 @@ msgstr "Vector laag"
 msgid "Yes"
 msgstr "Ja"
 
-#: tablet.getprocfailed
-msgid "Procedure %s failed to load properly."
-msgstr ""
-
-#: tablet.openfailed
-msgid "Tablet context failed to open."
-msgstr ""
-
-#: tfabout.button_donate.caption
-msgctxt "tfabout.button_donate.caption"
-msgid "Donate..."
-msgstr "Doneren..."
-
-#: tfabout.caption
-msgctxt "tfabout.caption"
-msgid "About"
-msgstr "Over"
-
-#: tfabout.labelurl.caption
-msgid "http://sourceforge.net/projects/lazpaint/"
-msgstr "http://sourceforge.net/projects/lazpaint/"
-
-#: tfabout.label_authors.caption
-msgctxt "tfabout.label_authors.caption"
-msgid "Authors:"
-msgstr "Auteurs:"
-
-#: tfabout.label_authorsvalue.caption
-#| msgid "Circular help by FabienWang and Lainz"
-msgctxt "tfabout.label_authorsvalue.caption"
-msgid "Circular helped by FabienWang, Lainz and others"
-msgstr "Circular geholpen door FabienWang, Lainz en anderen"
-
-#: tfabout.label_homepage.caption
-msgctxt "tfabout.label_homepage.caption"
-msgid "Homepage:"
-msgstr "Homepage:"
-
-#: tfabout.label_libraries.caption
-msgctxt "tfabout.label_libraries.caption"
-msgid "Libraries used:"
-msgstr "Gebruikte libraries:"
-
-#: tfabout.label_licence.caption
-msgctxt "tfabout.label_licence.caption"
-msgid "Licence:"
-msgstr "Licentie:"
-
-#: tfabout.label_opensource.caption
-msgctxt "tfabout.label_opensource.caption"
-msgid "Open source (GPLv3)"
-msgstr "Open source (GPLv3)"
-
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfadjustcurves.caption
-msgid "Adjust curves"
-msgstr "Krommen aanpassen"
-
-#: tfadjustcurves.toolbutton_newcurve.hint
-msgid "Discard current curve and start a new one"
-msgstr "Huidige kromme weggooien en een nieuwe beginnen"
-
-#: tfadjustcurves.toolbutton_posterize.hint
-msgctxt "tfadjustcurves.toolbutton_posterize.hint"
-msgid "Posterize"
-msgstr "Posterize"
-
-#: tfadjustcurves.toolbutton_removepoint.hint
-msgid "Remove selected point (Del)"
-msgstr "Verwijder geselecteerd punt (Del)"
-
-#: tfblendop.button_cancel.caption
-msgctxt "tfblendop.button_cancel.caption"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfblendop.button_ok.caption
-msgctxt "tfblendop.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfblendop.caption
-msgid "Blend operation"
-msgstr "Mengoperatie"
-
-#: tfblendop.label_blendopcategory.caption
-msgctxt "tfblendop.label_blendopcategory.caption"
-msgid "Category of blend operation"
-msgstr "Categorie van mengoperatie"
-
-#: tfblendop.label_blendopvalue.caption
-msgctxt "tfblendop.label_blendopvalue.caption"
-msgid "."
-msgstr "."
-
-#: tfblendop.label_kritaover.caption
-msgctxt "tfblendop.label_kritaover.caption"
-msgid "Krita"
-msgstr "Krita"
-
-#: tfblendop.label_kritaover.hint
-msgid "Blend operations that are available in Krita"
-msgstr "Mengoperaties die beschikbaar zijn in Krita"
-
-#: tfblendop.label_otherover.caption
-msgctxt "tfblendop.label_otherover.caption"
-msgid "Other"
-msgstr "Overig"
-
-#: tfblendop.label_otherover.hint
-msgid "Blend operations of LazPaint and Paint.NET"
-msgstr "Mengoperaties van LazPaint en Paint.NET"
-
-#: tfblendop.label_patternover.caption
-msgctxt "tfblendop.label_patternover.caption"
-msgid "Pattern over"
-msgstr "Patroon over"
-
-#: tfblendop.label_patternover.hint
-msgid "Preview blend operation with the specified image on top"
-msgstr "Voorvertoning van mengoperatie met gekozen afbeelding boven"
-
-#: tfblendop.label_patternunder.caption
-msgctxt "tfblendop.label_patternunder.caption"
-msgid "Pattern under"
-msgstr "Patroon onder"
-
-#: tfblendop.label_patternunder.hint
-msgid "Preview blend operation with the specified image underneath"
-msgstr "Voorvertoning van mengoperatie met gekozen afbeelding onder"
-
-#: tfblendop.label_previewwith.caption
-msgctxt "tfblendop.label_previewwith.caption"
-msgid "Preview with"
-msgstr "Voorvertoning met"
-
-#: tfblendop.label_selectedblendop.caption
-msgid "Selected blend operation :"
-msgstr "Gekozen mengoperatie :"
-
-#: tfblendop.label_svgover.caption
-msgctxt "tfblendop.label_svgover.caption"
-msgid "Basic SVG"
-msgstr "Basale SVG"
-
-#: tfblendop.label_svgover.hint
-msgid "Basic blend operations that are available in virtually all image editors"
-msgstr "Basale mengoperaties die beschikbaar zijn in bijna alle beeldbewerkingssoftware"
-
-#: tfbrowseimages.caption
-msgid "Browse images"
-msgstr "Blader door beelden"
-
-#: tfbrowseimages.checkbox_usedirectoryonstartup.caption
-msgid "Use this directory on startup"
-msgstr ""
-
-#: tfbrowseimages.label_status.caption
-msgctxt "tfbrowseimages.label_status.caption"
-msgid "."
-msgstr "."
-
-#: tfbrowseimages.toolbutton_createfolderorcontainer.hint
-msgid "Create folder or container"
-msgstr ""
-
-#: tfbrowseimages.toolbutton_goup.hint
-msgid "Go one directory up"
-msgstr "Een directory omhoog gaan"
-
-#: tfbrowseimages.toolbutton_openselectedfiles.hint
-msgid "Open selected files"
-msgstr ""
-
-#: tfbrowseimages.toolbutton_viewbigicon.hint
-msgctxt "tfbrowseimages.toolbutton_viewbigicon.hint"
-msgid "Show big icons"
-msgstr "Toon grote iconen"
-
-#: tfbrowseimages.toolbutton_viewdetails.hint
-msgctxt "tfbrowseimages.toolbutton_viewdetails.hint"
-msgid "Show details and preview"
-msgstr "Toon details en voorvertoning"
-
-#: tfbrowseimages.tool_selectdrive.hint
-msgid "Select drive"
-msgstr ""
-
-#: tfcanvassize.button_cancel.caption
-msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfcanvassize.button_ok.caption
-msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfcanvassize.caption
-msgctxt "tfcanvassize.caption"
-msgid "Canvas size"
-msgstr "Canvasgrootte"
-
-#: tfcanvassize.checkbox_flipmode.caption
-msgid "Flip mode"
-msgstr "Spiegelmodus"
-
-#: tfcanvassize.label_anchor.caption
-msgctxt "tfcanvassize.label_anchor.caption"
-msgid "Anchor :"
-msgstr "Anker :"
-
-#: tfcanvassize.label_height.caption
-msgctxt "tfcanvassize.label_height.caption"
-msgid "Height :"
-msgstr "Hoogte :"
-
-#: tfcanvassize.label_width.caption
-msgctxt "tfcanvassize.label_width.caption"
-msgid "Width :"
-msgstr "Breedte :"
-
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfcolorintensity.caption
-msgctxt "tfcolorintensity.caption"
-msgid "Intensity"
-msgstr "Intensiteit"
-
-#: tfcolorintensity.label_multiply.caption
-msgctxt "tfcolorintensity.label_multiply.caption"
-msgid "Multiply"
-msgstr "Vermenigvuldigen"
-
-#: tfcolorintensity.label_shift.caption
-msgctxt "tfcolorintensity.label_shift.caption"
-msgid "Shift"
-msgstr "Verschuiven"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfcolorize.caption
-msgctxt "tfcolorize.caption"
-msgid "Colorize"
-msgstr "Inkleuren"
-
-#: tfcolorize.checkbox_gsba.caption
-msgctxt "tfcolorize.checkbox_gsba.caption"
-msgid "Corrected hue and lightness"
-msgstr "Gecorrigeerde tint en helderheid"
-
-#: tfcolorize.label_colorness.caption
-msgctxt "tfcolorize.label_colorness.caption"
-msgid "Colorness"
-msgstr "Kleuring"
-
-#: tfcolorize.label_hue.caption
-msgctxt "tfcolorize.label_hue.caption"
-msgid "Hue"
-msgstr "Kleurtint"
-
-#: tfcolorize.label_preset.caption
-msgid "Preset"
-msgstr "Voorinstelling"
-
-#: tfcustomblur.button_cancel.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfcustomblur.button_editmask.caption
-msgid "Edit mask..."
-msgstr "Bewerkingsmasker..."
-
-#: tfcustomblur.button_loadmask.caption
-msgid "Load mask..."
-msgstr "Laad masker..."
-
-#: tfcustomblur.button_ok.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfcustomblur.caption
-msgctxt "tfcustomblur.caption"
-msgid "Custom blur"
-msgstr "Aangepaste vervaging"
-
-#: tfcustomblur.openpicturedialog1.title
-msgid "Open grayscale file"
-msgstr "Open grijstinten-bestand"
-
-#: tfemboss.button_cancel.caption
-msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfemboss.button_ok.caption
-msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfemboss.caption
-msgctxt "tfemboss.caption"
-msgid "Emboss"
-msgstr "Reliëf"
-
-#: tfemboss.checkbox_preservecolors.caption
-msgid "Preserve colors"
-msgstr ""
-
-#: tfemboss.checkbox_transparent.caption
-msgid "Transparent"
-msgstr ""
-
-#: tfemboss.label_direction.caption
-msgctxt "tfemboss.label_direction.caption"
-msgid "Direction :"
-msgstr "Richting :"
-
-#: tffilterfunction.button_cancel.caption
-msgctxt "tffilterfunction.button_cancel.caption"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tffilterfunction.button_ok.caption
-msgctxt "tffilterfunction.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tffilterfunction.caption
-msgid "Apply function"
-msgstr "Functie toepassen"
-
-#: tffilterfunction.checkbox_gsba.caption
-msgctxt "tffilterfunction.checkbox_gsba.caption"
-msgid "Corrected hue and lightness"
-msgstr "Gecorrigeerde tint en helderheid"
-
-#: tffilterfunction.label_alphaequals.caption
-msgctxt "tffilterfunction.label_alphaequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_blueequals.caption
-msgctxt "tffilterfunction.label_blueequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_greenequals.caption
-msgctxt "tffilterfunction.label_greenequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_hueequals.caption
-msgctxt "tffilterfunction.label_hueequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_lightnessequals.caption
-msgctxt "tffilterfunction.label_lightnessequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_redequals.caption
-msgctxt "tffilterfunction.label_redequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_saturationequals.caption
-msgctxt "tffilterfunction.label_saturationequals.caption"
-msgid "."
-msgstr "."
-
-#: tffilterfunction.label_variables.caption
-msgid "Variables :"
-msgstr "Variabelen :"
-
-#: tffilterfunction.tabsheet_hsl.caption
-msgid "HSL"
-msgstr "HSL"
-
-#: tffilterfunction.tabsheet_rgb.caption
-msgctxt "tffilterfunction.tabsheet_rgb.caption"
-msgid "RGB"
-msgstr "RGB"
-
-#: tfgeometricbrush.button_cancel.caption
-msgctxt "tfgeometricbrush.button_cancel.caption"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfgeometricbrush.button_ok.caption
-msgctxt "tfgeometricbrush.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfgeometricbrush.caption
-msgid "Geometric brush"
-msgstr ""
-
-#: tfgeometricbrush.checkbox_isgradient.caption
-msgid "Opacity gradient"
-msgstr ""
-
-#: tfgeometricbrush.label1.caption
-msgid "Number of sides:"
-msgstr ""
-
-#: tfimagelist.caption
-msgid "Image List"
-msgstr "Afbeeldingslijst"
-
-#: tfimagelist.pmautouncheckonopen.caption
-msgid "Autouncheck files after being open"
-msgstr "Automatisch bestanden uitvinken na openen"
-
-#: tfimagelist.pmautouncheckonsave.caption
-msgid "Autouncheck files after being edited and saved"
-msgstr "Automatisch bestanden uitvinken na bewerking en opslag"
-
-#: tfimagelist.pmremoveall.caption
-msgid "Empty image list"
-msgstr "Schoon beeldlijst op"
-
-#: tfimagelist.pmremovenonexisting.caption
-msgid "Remove nonexisting images"
-msgstr "Verwijder niet-bestaande beelden"
-
-#: tfimagelist.pmremoveunchecked.caption
-msgid "Remove unchecked images"
-msgstr "Verwijder uitgevinkte beelden"
-
-#: tfimagelist.pmunchecknonexisting.caption
-msgid "Uncheck nonexisting files"
-msgstr "Vink niet-bestaande bestanden uit"
-
-#: tfimagelist.stringgrid1.columns[0].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.stringgrid1.columns[1].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[1].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.stringgrid1.columns[2].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[2].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.stringgrid1.columns[3].title.caption
-msgctxt "tfimagelist.stringgrid1.columns[3].title.caption"
-msgid "-"
-msgstr "-"
-
-#: tfimagelist.tbaddfiles.hint
-msgid "Add images to list"
-msgstr "Voeg beelden to aan lijst"
-
-#: tfimagelist.tbautouncheck.hint
-msgid "Enable/disable autounchecking for processed files"
-msgstr "Auto-uitvinken aan/uitzetten voor verwerkte bestanden"
-
-#: tfimagelist.tbautozoomfit.hint
-msgid "Enable/disable autofitting images in the LazPaint window"
-msgstr "Afbeelding autofit in LazPaint venster aan/uitzetten"
-
-#: tfimagelist.tbcheckall.hint
-msgid "Check all files for processing"
-msgstr "Controleer alle bestanden voor verwerking"
-
-#: tfimagelist.tbminiwindow.hint
-msgid "Switch to miniwindow"
-msgstr "Schakel naar minivenster"
-
-#: tfimagelist.tbmovedown.hint
-msgid "Move selected items down"
-msgstr "Verplaats geselecteerde items omlaag"
-
-#: tfimagelist.tbmoveup.hint
-msgid "Move selected items up"
-msgstr "Verplaats geselecteerde items omhoog"
-
-#: tfimagelist.tbnormalwindows.hint
-msgid "Switch to normal window"
-msgstr "Schakel naar normaal venster"
-
-#: tfimagelist.tbopenimage.hint
-msgid "Open current image"
-msgstr "Open huidige afbeelding"
-
-#: tfimagelist.tbopennext.hint
-msgctxt "tfimagelist.tbopennext.hint"
-msgid "Open next image (Alt-Right)"
-msgstr "Open volgende afbeelding (Alt-Rechts)"
-
-#: tfimagelist.tbopennextsw.hint
-msgctxt "tfimagelist.tbopennextsw.hint"
-msgid "Open next image"
-msgstr "Open volgende afbeelding"
-
-#: tfimagelist.tbopenprev.hint
-msgctxt "tfimagelist.tbopenprev.hint"
-msgid "Open previous image (Alt-Left)"
-msgstr "Open vorige afbeelding (Alt-Links)"
-
-#: tfimagelist.tbopenprevsw.hint
-msgctxt "tfimagelist.tbopenprevsw.hint"
-msgid "Open previous image"
-msgstr "Open vorige afbeelding"
-
-#: tfimagelist.tbremoveitem.hint
-msgid "Remove selected images from list"
-msgstr "Verwijder geselecteerde afbeeldingen uit lijst"
-
-#: tfimagelist.tbuncheckall.hint
-msgid "Uncheck all files for processing"
-msgstr "Vink alle bestanden uit voor verwerking"
-
-#: tfloading.caption
-msgctxt "tfloading.caption"
-msgid "Loading..."
-msgstr "Bezig met laden..."
-
-#: tfmotionblur.button_cancel.caption
-msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfmotionblur.button_ok.caption
-msgctxt "TFMOTIONBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfmotionblur.caption
-msgctxt "tfmotionblur.caption"
-msgid "Motion blur"
-msgstr "Bewegingsvervaging"
-
-#: tfmotionblur.checkbox_oriented.caption
-msgid "Oriented"
-msgstr "Oriëntatie"
-
-#: tfmotionblur.label_distance.caption
-msgctxt "tfmotionblur.label_distance.caption"
-msgid "Distance :"
-msgstr "Afstand :"
-
-#: tfmultiimage.button_cancel.caption
-msgctxt "tfmultiimage.button_cancel.caption"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfmultiimage.button_ok.caption
-msgctxt "tfmultiimage.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfmultiimage.caption
-msgid "Choose image"
-msgstr "Afbeelding kiezen"
-
-#: tfnewimage.button_cancel.caption
-msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfnewimage.button_ok.caption
-msgctxt "TFNEWIMAGE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfnewimage.caption
-msgctxt "tfnewimage.caption"
-msgid "New image"
-msgstr "Nieuwe afbeelding"
-
-#: tfnewimage.combobox_bitdepth.text
-msgid "32"
-msgstr ""
-
-#: tfnewimage.label_bitdepth.caption
-msgid "Bit depth :"
-msgstr ""
-
-#: tfnewimage.label_height.caption
-msgctxt "tfnewimage.label_height.caption"
-msgid "Height :"
-msgstr "Hoogte :"
-
-#: tfnewimage.label_height1.caption
-msgid "Ratio :"
-msgstr ""
-
-#: tfnewimage.label_memoryrequired.caption
-msgid "Memory required :"
-msgstr ""
-
-#: tfnewimage.label_width.caption
-msgctxt "tfnewimage.label_width.caption"
-msgid "Width :"
-msgstr "Breedte :"
-
-#: tfnoisefilter.button_cancel.caption
-msgctxt "tfnoisefilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfnoisefilter.button_ok.caption
-msgctxt "tfnoisefilter.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfnoisefilter.caption
-msgid "Noise filter"
-msgstr "Ruisfilter"
-
-#: tfnoisefilter.label_opacity.caption
-msgid "Opacity:"
-msgstr "Dekking:"
-
-#: tfnoisefilter.radio_grayscalenoise.caption
-msgid "Grayscale noise"
-msgstr "Grijstint ruis"
-
-#: tfnoisefilter.radio_rgbnoise.caption
-msgid "RGB noise"
-msgstr "RGB ruis"
-
-#: tfobject3d.button_cancel.caption
-msgctxt "tfobject3d.button_cancel.caption"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfobject3d.button_loadtex.caption
-msgid "Texture..."
-msgstr "Tekstuur..."
-
-#: tfobject3d.button_notex.caption
-msgid "No tex."
-msgstr "Geen tex."
-
-#: tfobject3d.button_ok.caption
-msgctxt "tfobject3d.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfobject3d.caption
-msgid "3D object"
-msgstr "3d object"
-
-#: tfobject3d.checkbox_antialiasing.caption
-msgid "Antialiasing"
-msgstr "Antialiasing"
-
-#: tfobject3d.checkbox_biface.caption
-msgid "2-sided faces"
-msgstr "2-zijdige vlakken"
-
-#: tfobject3d.checkbox_textureinterp.caption
-msgid "Texture interpolation"
-msgstr "Texture interpolatie"
-
-#: tfobject3d.groupbox_selectedlight.caption
-msgid "Selected light"
-msgstr ""
-
-#: tfobject3d.groupbox_selectedmaterial.caption
-msgctxt "tfobject3d.groupbox_selectedmaterial.caption"
-msgid "Selected material"
-msgstr "Geselecteerd materiaal"
-
-#: tfobject3d.label_color.caption
-msgctxt "tfobject3d.label_color.caption"
-msgid "Color :"
-msgstr "Kleur :"
-
-#: tfobject3d.label_color1.caption
-msgctxt "tfobject3d.label_color1.caption"
-msgid "Color :"
-msgstr "Kleur :"
-
-#: tfobject3d.label_height.caption
-msgctxt "tfobject3d.label_height.caption"
-msgid "Height :"
-msgstr "Hoogte :"
-
-#: tfobject3d.label_lightingnormals.caption
-msgctxt "tfobject3d.label_lightingnormals.caption"
-msgid "Lighting normals :"
-msgstr "Belichting normalen :"
-
-#: tfobject3d.label_lights.caption
-msgid "Lights :"
-msgstr ""
-
-#: tfobject3d.label_materials.caption
-msgctxt "tfobject3d.label_materials.caption"
-msgid "Materials :"
-msgstr "Materialen :"
-
-#: tfobject3d.label_opacity.caption
-msgctxt "tfobject3d.label_opacity.caption"
-msgid "Opacity :"
-msgstr "Dekking :"
-
-#: tfobject3d.label_specularindex.caption
-msgctxt "tfobject3d.label_specularindex.caption"
-msgid "Spec. index :"
-msgstr "Spec. index :"
-
-#: tfobject3d.label_width.caption
-msgctxt "tfobject3d.label_width.caption"
-msgid "Width :"
-msgstr "Breedte :"
-
-#: tfobject3d.label_zoom.caption
-msgctxt "tfobject3d.label_zoom.caption"
-msgid "Zoom"
-msgstr "Zoomen"
-
-#: tfobject3d.lights.caption
-msgid "Lights"
-msgstr ""
-
-#: tfobject3d.materials.caption
-msgid "Materials"
-msgstr "Materialen"
-
-#: tfobject3d.opentexturedialog.title
-msgctxt "tfobject3d.opentexturedialog.title"
-msgid "Open texture"
-msgstr "Textuur openen"
-
-#: tfobject3d.rendering.caption
-msgid "Rendering"
-msgstr "Renderen"
-
-#: tfobject3d.tooladddirectional.hint
-msgid "Add a directional light"
-msgstr ""
-
-#: tfobject3d.toolpointlight.hint
-msgid "Add a point light"
-msgstr ""
-
-#: tfobject3d.toolremoveselectedlight.hint
-msgid "Remove selected light"
-msgstr ""
-
-#: tfphongfilter.button_cancel.caption
-msgctxt "tfphongfilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfphongfilter.button_ok.caption
-msgctxt "tfphongfilter.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfphongfilter.caption
-msgctxt "tfphongfilter.caption"
-msgid "Shaded map"
-msgstr "Shaded map"
-
-#: tfphongfilter.groupbox_color.caption
-msgctxt "tfphongfilter.groupbox_color.caption"
-msgid "Color"
-msgstr "Kleur"
-
-#: tfphongfilter.groupbox_color1.caption
-msgid "Altitude map"
-msgstr "Hoogte map"
-
-#: tfphongfilter.label_altitude.caption
-msgid "Global altitude :"
-msgstr "Algemene hoogte :"
-
-#: tfphongfilter.label_lightposition.caption
-msgid "Light position :"
-msgstr "Lichtpositie :"
-
-#: tfphongfilter.radio_mapalpha.caption
-msgid "Alpha"
-msgstr "Alpha"
-
-#: tfphongfilter.radio_mapblue.caption
-msgid "B"
-msgstr "B"
-
-#: tfphongfilter.radio_mapgreen.caption
-msgid "G"
-msgstr "G"
-
-#: tfphongfilter.radio_maplightness.caption
-msgctxt "tfphongfilter.radio_maplightness.caption"
-msgid "Lightness"
-msgstr "Lichtheid"
-
-#: tfphongfilter.radio_maplinearlightness.caption
-msgid "Linear lightness"
-msgstr "Lineaire lichtheid"
-
-#: tfphongfilter.radio_mapred.caption
-msgid "R"
-msgstr "R"
-
-#: tfphongfilter.radio_mapsaturation.caption
-msgctxt "tfphongfilter.radio_mapsaturation.caption"
-msgid "Saturation"
-msgstr "Verzadiging"
-
-#: tfphongfilter.radio_usebackcolor.caption
-msgid "Back color"
-msgstr "Achtergrondkleur"
-
-#: tfphongfilter.radio_usekeep.caption
-msgid "Keep"
-msgstr "Behouden"
-
-#: tfphongfilter.radio_usepencolor.caption
-msgid "Pen color"
-msgstr "Penkleur"
-
-#: tfphongfilter.radio_usetexture.caption
-msgctxt "tfphongfilter.radio_usetexture.caption"
-msgid "Current texture"
-msgstr "Huidige textuur"
-
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfpixelate.caption
-msgctxt "tfpixelate.caption"
-msgid "Pixelate"
-msgstr "In pixels tonen"
-
-#: tfpixelate.label_pixelsize.caption
-msgctxt "tfpixelate.label_pixelsize.caption"
-msgid "Pixel size :"
-msgstr "Pixelgrootte :"
-
-#: tfpixelate.label_quality.caption
-msgctxt "tfpixelate.label_quality.caption"
-msgid "Quality :"
-msgstr "Kwaliteit :"
-
-#: tfposterize.button_cancel.caption
-msgctxt "tfposterize.button_cancel.caption"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfposterize.button_ok.caption
-msgctxt "tfposterize.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfposterize.caption
-msgctxt "tfposterize.caption"
-msgid "Posterize"
-msgstr "Posterize"
-
-#: tfposterize.checkbox_bylightness.caption
-msgid "By lightness"
-msgstr "Middels lichtheid"
-
-#: tfposterize.label_levels.caption
-msgid "Levels :"
-msgstr "Niveaus :"
-
-#: tfpreviewdialog.caption
-msgid "Preview"
-msgstr ""
-
-#: tfpreviewdialog.lstatus.caption
-msgctxt "tfpreviewdialog.lstatus.caption"
-msgid "."
-msgstr "."
-
-#: tfprint.button_configureprinter.caption
-msgid "Configure..."
-msgstr "Instellen..."
-
-#: tfprint.button_print.caption
-msgid "Print!"
-msgstr "Druk af!"
-
-#: tfprint.button_zoomfit.caption
-msgctxt "tfprint.button_zoomfit.caption"
-msgid "Zoom fit"
-msgstr "Passend maken"
-
-#: tfprint.caption
-msgid "Print"
-msgstr "Druk af"
-
-#: tfprint.checkbox_ratio.caption
-msgctxt "tfprint.checkbox_ratio.caption"
-msgid "Keep aspect ratio"
-msgstr "Aspectverhouding behouden"
-
-#: tfprint.groupbox_imagesize.caption
-msgid "Image size"
-msgstr "Afbeeldingsgrootte"
-
-#: tfprint.groupbox_margins.caption
-msgid "Margins"
-msgstr "Marges"
-
-#: tfprint.label_bottom.caption
-msgid "Bottom:"
-msgstr "Onderkant:"
-
-#: tfprint.label_dpix.caption
-msgctxt "tfprint.label_dpix.caption"
-msgid "."
-msgstr "."
-
-#: tfprint.label_dpiy.caption
-msgctxt "tfprint.label_dpiy.caption"
-msgid "."
-msgstr "."
-
-#: tfprint.label_height.caption
-msgid "Height:"
-msgstr "Hoogte:"
-
-#: tfprint.label_left.caption
-msgid "Left:"
-msgstr "Links:"
-
-#: tfprint.label_orientation.caption
-msgid "Orientation:"
-msgstr "Oriëntatie:"
-
-#: tfprint.label_printerandpaper.caption
-msgid "Printer and paper:"
-msgstr "Printer en papier:"
-
-#: tfprint.label_right.caption
-msgid "Right:"
-msgstr "Rechts:"
-
-#: tfprint.label_top.caption
-msgid "Top:"
-msgstr "Bovenkant:"
-
-#: tfprint.label_width.caption
-msgid "Width:"
-msgstr "Breedte:"
-
-#: tfquestion.caption
-msgid "Question"
-msgstr ""
-
-#: tfquestion.checkbox_rememberchoice.caption
-msgid "Remember this choice"
-msgstr ""
-
-#: tfquestion.label_message.caption
-msgctxt "tfquestion.label_message.caption"
-msgid "."
-msgstr "."
-
-#: tfradialblur.button_cancel.caption
-msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfradialblur.button_ok.caption
-msgctxt "TFRADIALBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfradialblur.caption
-msgctxt "tfradialblur.caption"
-msgid "Radial blur"
-msgstr "Radiale vervaging"
-
-#: tfradialblur.label_radius.caption
-msgctxt "tfradialblur.label_radius.caption"
-msgid "Radius :"
-msgstr "Radius :"
-
-#: tfrain.button_cancel.caption
-msgctxt "tfrain.button_cancel.caption"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfrain.button_ok.caption
-msgctxt "tfrain.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfrain.caption
-msgid "Rain"
-msgstr ""
-
-#: tfrain.label_quantity.caption
-msgid "Quantity:"
-msgstr ""
-
-#: tfrain.label_wind.caption
-msgid "Wind :"
-msgstr ""
-
-#: tfresample.button_cancel.caption
-msgctxt "TFRESAMPLE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfresample.button_ok.caption
-msgctxt "TFRESAMPLE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfresample.caption
-msgctxt "tfresample.caption"
-msgid "Resample"
-msgstr "Opnieuw samplen"
-
-#: tfresample.checkbox_ratio.caption
-msgctxt "tfresample.checkbox_ratio.caption"
-msgid "Keep aspect ratio"
-msgstr "Aspectverhouding behouden"
-
-#: tfresample.label_height.caption
-msgctxt "tfresample.label_height.caption"
-msgid "Height :"
-msgstr "Hoogte :"
-
-#: tfresample.label_quality.caption
-msgctxt "tfresample.label_quality.caption"
-msgid "Quality :"
-msgstr "Kwaliteit :"
-
-#: tfresample.label_width.caption
-msgctxt "tfresample.label_width.caption"
-msgid "Width :"
-msgstr "Breedte :"
-
-#: tfsaveoption.button_cancel.caption
-msgctxt "tfsaveoption.button_cancel.caption"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfsaveoption.button_ok.caption
-msgctxt "tfsaveoption.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfsaveoption.caption
-msgctxt "tfsaveoption.caption"
-msgid "Save"
-msgstr "Opslaan"
-
-#: tfsaveoption.checkbox_dithering.caption
-msgid "Dithering"
-msgstr ""
-
-#: tfsaveoption.label1.caption
-msgid "Quality:"
-msgstr ""
-
-#: tfsaveoption.label_0.caption
-msgid "0"
-msgstr ""
-
-#: tfsaveoption.label_1.caption
-msgid "100"
-msgstr ""
-
-#: tfsaveoption.label_50.caption
-msgid "50"
-msgstr ""
-
-#: tfsaveoption.label_colordepth.caption
-msgid "Color depth:"
-msgstr ""
-
-#: tfsaveoption.label_size.caption
-msgid "Size:"
-msgstr ""
-
-#: tfsaveoption.radiobutton_16colors.caption
-msgid "16 colors"
-msgstr ""
-
-#: tfsaveoption.radiobutton_24bitsperpixel.caption
-msgid "24 bits"
-msgstr ""
-
-#: tfsaveoption.radiobutton_256colors.caption
-msgid "256 colors"
-msgstr ""
-
-#: tfsaveoption.radiobutton_2colors.caption
-msgid "2 colors"
-msgstr ""
-
-#: tfsaveoption.radiobutton_32bitsperpixel.caption
-msgid "32 bits"
-msgstr ""
-
-#: tfsaveoption.radiobutton_miomap.caption
-msgid "MioMap"
-msgstr ""
-
-#: tfsharpen.button_cancel.caption
-msgctxt "tfsharpen.button_cancel.caption"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfsharpen.button_ok.caption
-msgctxt "tfsharpen.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
-#: tfsharpen.caption
-msgid "Sharpen/Smooth"
-msgstr "Verscherpen/Gladstrijken"
-
-#: tfsharpen.label_amount.caption
-msgctxt "tfsharpen.label_amount.caption"
-msgid "Amount :"
-msgstr "Hoeveelheid :"
-
-#: tfshiftcolors.button_cancel.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfshiftcolors.button_ok.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
-#: tfshiftcolors.caption
-msgctxt "tfshiftcolors.caption"
-msgid "Shift colors"
-msgstr "Kleuren verschuiven"
-
-#: tfshiftcolors.checkbox_gsba.caption
-msgctxt "tfshiftcolors.checkbox_gsba.caption"
-msgid "Corrected hue and lightness"
-msgstr "Gecorrigeerde tint en helderheid"
-
-#: tfshiftcolors.label1.caption
-msgctxt "TFSHIFTCOLORS.LABEL1.CAPTION"
-msgid "Hue"
-msgstr "Kleurtint"
-
-#: tfshiftcolors.label2.caption
-#| msgid "Colorness"
-msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
-msgid "Saturation"
-msgstr "Verzadiging"
-
-#: tftoolbox.caption
-msgctxt "tftoolbox.caption"
-msgid "Tools"
-msgstr "Gereedschappen"
+#: uresourcestrings.rszoomlayerstackin
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackin"
+msgid "Zoom layer stack in"
+msgstr "Inzoomen in lagenoverzicht"
+
+#: uresourcestrings.rszoomlayerstackout
+#, fuzzy
+msgctxt "uresourcestrings.rszoomlayerstackout"
+msgid "Zoom layer stack out"
+msgstr "Uitzoomen uit lagenoverzicht"
 

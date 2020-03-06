@@ -10,7 +10,7 @@ uses
 function CreateToolBar(AImages: TImageList; AOwner: TComponent = nil): TToolbar;
 procedure ReorderToolbarContent(AToolbar: TToolbar);
 function GetToolbarSize(AToolbar: TToolbar; APadding: integer = 1): TSize;
-procedure SetToolbarImages(AToolbar: TToolbar; AImages: TImageList);
+procedure SetToolbarImages(AToolbar: TToolbar; AImages: TImageList; HorizPadding: integer = 5; VertPadding: integer = 4);
 procedure EnableDisableToolButtons(AButtons: array of TToolButton; AEnabled: boolean);
 procedure ShowAppendToolButtons(AButtons: array of TControl);
 function AddToolbarLabel(AToolbar: TToolbar; ACaption: string; AExistingContainer: TCustomControl): TLabel;
@@ -91,11 +91,11 @@ begin
   result.cy += APadding;
 end;
 
-procedure SetToolbarImages(AToolbar: TToolbar; AImages: TImageList);
+procedure SetToolbarImages(AToolbar: TToolbar; AImages: TImageList; HorizPadding: integer; VertPadding: integer);
 begin
   AToolbar.Images := AImages;
-  AToolbar.ButtonWidth:= AImages.Width+5;
-  AToolbar.ButtonHeight:= AImages.Height+4;
+  AToolbar.ButtonWidth:= AImages.Width+HorizPadding;
+  AToolbar.ButtonHeight:= AImages.Height+VertPadding;
 end;
 
 function GetResourceString(AFilename: string): string;

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, LCLType, BGRABitmap, BGRABitmapTypes,
-  BGRALayerOriginal, BGRAGraphics, LCVectorOriginal,
+  BGRALayerOriginal, BGRAGraphics, LCVectorOriginal, LCVectorialFill,
   UTool, UImageType, ULayerAction, LCVectorRectShapes,
   BGRAGradientOriginal, UStateType;
 
@@ -16,22 +16,25 @@ type
 function ToolSplineModeFromShape(AShape: TVectorShape): TToolSplineMode;
 
 type
+  TFitMode = (fmNever, fmIfChange, fmAlways);
+
+type
   { TVectorialTool }
 
   TVectorialTool = class(TGenericTool)
   private
+    function GetEditor: TBGRAOriginalEditor;
     function GetIsHandDrawing: boolean;
     function GetIsIdle: boolean;
   protected
     FLayerWasEmpty: boolean;
     FShape: TVectorShape;
+    FLastDraftUpdate: Boolean;
     FSwapColor: boolean;
     FQuickDefine: Boolean;
     FQuickDefineStartPoint, FQuickDefineEndPoint: TPointF;
-    FQuickSquare: boolean;
     FPreviousUpdateBounds, FPreviousEditorBounds: TRect;
     FEditor: TBGRAOriginalEditor;
-    FShiftState: TShiftState;
     FRightDown, FLeftDown: boolean;
     FLastPos: TPointF;
     FLastShapeTransform: TAffineMatrix;
@@ -39,19 +42,24 @@ type
     function AlwaysRasterizeShape: boolean; virtual;
     function CreateShape: TVectorShape; virtual; abstract;
     function UseOriginal: boolean; virtual;
+    function HasBrush: boolean; virtual;
     function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; {%H-}ADraft: boolean): TRect; virtual;
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
-    procedure AssignShapeStyle(AMatrix: TAffineMatrix); virtual;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); virtual;
+    function GetManagerShapeOptions: TShapeOptions; virtual;
     procedure QuickDefineShape(AStart,AEnd: TPointF); virtual;
-    function RoundCoordinate(ptF: TPointF): TPointF; virtual;
+    function RoundCoordinate(constref ptF: TPointF): TPointF; virtual;
     function GetIsSelectingTool: boolean; override;
     function UpdateShape(toolDest: TBGRABitmap): TRect; virtual;
+    function PreferDraftUpdate: boolean;
     function VectorTransform(APixelCentered: boolean): TAffineMatrix;
     procedure UpdateCursor(ACursor: TOriginalEditorCursor);
     function FixLayerOffset: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF; rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF): TRect; override;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
+    function DoToolKeyDown(var key: Word): TRect; override;
+    function DoToolKeyUp(var key: Word): TRect; override;
     procedure ShapeChange({%H-}ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff); virtual;
     procedure ShapeEditingChange({%H-}ASender: TObject); virtual;
     procedure ShapeRemoveQuery({%H-}ASender: TObject; var AHandled: boolean);
@@ -62,16 +70,25 @@ type
     procedure UpdateUseOriginal;
     function ReplaceLayerAndAddShape(out ARect: TRect): TCustomImageDifference; virtual;
     procedure ShapeValidated; virtual;
+    function ForeGradTexMode: TVectorShapeUsermode; virtual;
+    function BackGradTexMode: TVectorShapeUsermode; virtual;
+    function ShapeForeFill: TVectorialFill; virtual;
+    function ShapeBackFill: TVectorialFill; virtual;
+    function ForeFitMode: TFitMode;
+    function BackFitMode: TFitMode;
+    function GetIsForeEditGradTexPoints: boolean; override;
+    function GetIsBackEditGradTexPoints: boolean; override;
+    function GetGridMatrix: TAffineMatrix; virtual;
+    property Editor: TBGRAOriginalEditor read GetEditor;
   public
     function ValidateShape: TRect;
     function CancelShape: TRect;
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
-    function ToolKeyDown(var key: Word): TRect; override;
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
-    function ToolKeyUp(var key: Word): TRect; override;
     function ToolCommand(ACommand: TToolCommand): boolean; override;
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
+    function SuggestGradientBox: TAffineBox; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
     property IsIdle: boolean read GetIsIdle;
     property IsHandDrawing: boolean read GetIsHandDrawing;
@@ -83,7 +100,6 @@ type
   TEditShapeMode = (esmNone, esmSelection, esmGradient, esmOtherOriginal, esmShape, esmNoShape);
   TEditShapeTool = class(TGenericTool)
   protected
-    FShiftState: TShiftState;
     FDownHandled,FRectEditorCapture,FLayerOriginalCapture,
     FLeftButton,FRightButton: boolean;
     FLastPos: TPointF;
@@ -96,11 +112,14 @@ type
     FIsEditingGradient: boolean;
     procedure RetrieveLightPosition;
     procedure UpdateToolManagerFromShape(AShape: TVectorShape);
+    procedure UpdateDraftMode;
     procedure BindOriginalEvent(ABind: boolean);
     procedure SelectShape({%H-}ASender: TObject; AShape: TVectorShape; {%H-}APreviousShape: TVectorShape);
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF; rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF): TRect; override;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
+    function DoToolKeyDown(var key: Word): TRect; override;
+    function DoToolKeyUp(var key: Word): TRect; override;
     procedure UpdateSnap(AEditor: TBGRAOriginalEditor);
     function GetAction: TLayerAction; override;
     function DoGetToolDrawingLayer: TBGRABitmap; override;
@@ -121,29 +140,41 @@ type
     function FixLayerOffset: boolean; override;
     function GetCurrentSplineMode: TToolSplineMode;
     procedure SetCurrentSplineMode(AMode: TToolSplineMode);
-    function IsGradientShape(AShape: TVectorShape): boolean;
     function ConvertToSpline: boolean;
     function GetEditMode: TEditShapeMode;
     function InvalidEditMode: boolean;
+    function ForeGradTexMode: TVectorShapeUsermode; virtual;
+    function BackGradTexMode: TVectorShapeUsermode; virtual;
+    function ShapeForeFill: TVectorialFill; virtual;
+    function ShapeBackFill: TVectorialFill; virtual;
+    function ForeFitMode: TFitMode;
+    function BackFitMode: TFitMode;
+    function GetIsForeEditGradTexPoints: boolean; override;
+    function GetIsBackEditGradTexPoints: boolean; override;
+    function GetAllowedBackFillTypes: TVectorialFillTypes; override;
+    function GetStatusText: string; override;
   public
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
     function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
-    function ToolKeyDown(var key: Word): TRect; override;
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
-    function ToolKeyUp(var key: Word): TRect; override;
     function ToolUp: TRect; override;
     function ToolCommand(ACommand: TToolCommand): boolean; override;
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
+    function SuggestGradientBox: TAffineBox; override;
     property CurrentSplineMode: TToolSplineMode read GetCurrentSplineMode write SetCurrentSplineMode;
   end;
 
+procedure AssignFill(ATarget, ASource: TVectorialFill; const ABox: TAffineBox; AFitMode: TFitMode);
+function GetShapeStatusText(AShape: TVectorShape; const AMatrix: TAffineMatrix): string;
+function GetGradientStatusText(AGradient: TBGRALayerGradientOriginal; const AMatrix: TAffineMatrix): string;
+
 implementation
 
-uses LazPaintType, LCVectorPolyShapes, LCVectorTextShapes, LCVectorialFill, BGRASVGOriginal,
+uses LazPaintType, LCVectorPolyShapes, LCVectorTextShapes, BGRASVGOriginal,
   ULoading, BGRATransform, math, UImageDiff, Controls, BGRAPen, UResourceStrings, ugraph,
-  LCScaleDPI, LCVectorClipboard, BGRAGradientScanner, UClipboard;
+  LCScaleDPI, LCVectorClipboard, BGRAGradientScanner, UClipboard, BGRAUTF8;
 
 const PointSize = 6;
 
@@ -200,6 +231,113 @@ begin
   end;
 end;
 
+procedure AssignFill(ATarget, ASource: TVectorialFill; const ABox: TAffineBox; AFitMode: TFitMode);
+var
+  temp: TVectorialFill;
+  change: Boolean;
+begin
+  if ASource.IsFullyTransparent then ATarget.Clear else
+  begin
+    change := ((ATarget.FillType = vftGradient) and (ASource.FillType = vftGradient) and
+       (ATarget.Gradient.GradientType <> ASource.Gradient.GradientType) and
+       not ([ATarget.Gradient.GradientType,ASource.Gradient.GradientType] <= [gtRadial,gtDiamond,gtAngular])) or
+      ((ATarget.FillType = vftTexture) and (ASource.FillType = vftTexture) and
+       (ATarget.TextureRepetition <> ASource.TextureRepetition));
+    if ((AFitMode = fmIfChange) and change) or (AFitMode = fmAlways)
+        or (ATarget.FillType <> ASource.FillType) then
+    begin
+      temp := ATarget.Duplicate;
+      temp.AssignExceptGeometry(ASource);
+      temp.FitGeometry(ABox);
+      ATarget.Assign(temp);
+      temp.Free;
+    end else
+      ATarget.AssignExceptGeometry(ASource);
+  end;
+end;
+
+function GetShapeStatusText(AShape: TVectorShape; const AMatrix: TAffineMatrix): string;
+var
+  orig, xa, ya, corner1, corner2: TPointF;
+  overline: string4;
+  i, nb: Integer;
+  rF: TRectF;
+begin
+  if AShape is TEllipseShape then
+    with TEllipseShape(AShape) do
+    begin
+      orig := AMatrix*Origin;
+      xa := AMatrix*XAxis;
+      ya := AMatrix*YAxis;
+      result := 'x = '+FloatToStrF(orig.x,ffFixed,6,1)+'|y = '+FloatToStrF(orig.y,ffFixed,6,1)+'|'+
+      'rx = '+FloatToStrF(VectLen(xa-orig),ffFixed,6,1)+'|ry = '+FloatToStrF(VectLen(ya-orig),ffFixed,6,1)
+    end
+  else if AShape is TCustomRectShape then
+    with TCustomRectShape(AShape) do
+    begin
+      orig := AMatrix*Origin;
+      xa := AMatrix*XAxis;
+      ya := AMatrix*YAxis;
+      corner1 := orig-(xa-orig)-(ya-orig);
+      corner2 := xa + (ya-orig);
+      result := 'x1 = '+FloatToStrF(corner1.x,ffFixed,6,1)+'|y1 = '+FloatToStrF(corner1.y,ffFixed,6,1)+'|'+
+      'x2 = '+FloatToStrF(corner2.x,ffFixed,6,1)+'|y2 = '+FloatToStrF(corner2.y,ffFixed,6,1)+'|'+
+      'Δx = '+FloatToStrF(VectLen(xa-orig)*2,ffFixed,6,1)+'|Δy = '+FloatToStrF(VectLen(ya-orig)*2,ffFixed,6,1);
+    end
+  else if AShape is TCustomPolypointShape then
+    with TCustomPolypointShape(AShape) do
+    begin
+      result := 'count = ';
+      nb := 0;
+      for i := 0 to PointCount-1 do
+        if Points[i].IsEmpty then
+        begin
+          if nb > 0 then result += inttostr(nb)+', ';
+          nb := 0;
+        end else inc(nb);
+      result += inttostr(nb);
+      if not Center.IsEmpty then
+      begin
+        orig := AMatrix*Center;
+        overline := UnicodeCharToUTF8($0305);
+        result += '|x'+overline+' = '+FloatToStrF(orig.x,ffFixed,6,1);
+        result += '|y'+overline+' = '+FloatToStrF(orig.y,ffFixed,6,1);
+      end;
+      if (Usermode = vsuCreate) and (PointCount > 0) then
+      begin
+        xa := AMatrix*Points[PointCount-1];
+        result += '|x = '+FloatToStrF(xa.x,ffFixed,6,1);
+        result += '|y = '+FloatToStrF(xa.y,ffFixed,6,1);
+      end else
+      if HoverPoint <> -1 then
+      begin
+        xa := AMatrix*Points[HoverPoint];
+        result += '|x = '+FloatToStrF(xa.x,ffFixed,6,1);
+        result += '|y = '+FloatToStrF(xa.y,ffFixed,6,1);
+      end else
+      begin
+        rF := GetPointBounds(AMatrix);
+        result += '|Δx = '+FloatToStrF(rF.Width,ffFixed,6,1);
+        result += '|Δy = '+FloatToStrF(rF.Height,ffFixed,6,1);
+      end;
+    end else
+      result := '';
+end;
+
+function GetGradientStatusText(AGradient: TBGRALayerGradientOriginal; const AMatrix: TAffineMatrix): string;
+var
+  orig, xa: TPointF;
+begin
+  with AGradient do
+  begin
+    orig := AMatrix*Origin;
+    xa := AMatrix*XAxis;
+    result := 'x1 = '+FloatToStrF(orig.x,ffFixed,6,1)+'|y1 = '+FloatToStrF(orig.y,ffFixed,6,1)+'|'+
+      'x2 = '+FloatToStrF(xa.x,ffFixed,6,1)+'|y2 = '+FloatToStrF(xa.y,ffFixed,6,1)+'|'+
+      'Δx = '+FloatToStrF(abs(xa.x-orig.x),ffFixed,6,1)+'|Δy = '+FloatToStrF(abs(xa.y-orig.y),ffFixed,6,1);
+  end;
+end;
+
 { TEditShapeTool }
 
 procedure TEditShapeTool.SelectShape(ASender: TObject; AShape: TVectorShape;
@@ -241,93 +379,75 @@ var
 begin
   m := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
   zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2;
-  if IsGradientShape(AShape) then
+  if AShape.Usermode in [vsuEditBackFill, vsuEditPenFill] then
+    AShape.Usermode := vsuEdit;
+  opt := Manager.ShapeOptions;
+  if AShape.Fields*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
   begin
-    Manager.ForeColor := AShape.BackFill.Gradient.StartColor;
-    Manager.BackColor := AShape.BackFill.Gradient.EndColor;
-    Manager.GradientType:= AShape.BackFill.Gradient.GradientType;
-    Manager.GradientColorspace:= AShape.BackFill.Gradient.ColorInterpolation;
-    Manager.GradientSine:= AShape.BackFill.Gradient.Repetition = grSine;
-    Manager.SetTexture(nil);
-    AShape.Usermode := vsuEditBackFill;
+    if AShape.BackFill.FillType = vftNone then
+    begin;
+      exclude(opt,toFillShape);
+      doFill := false;
+    end
+    else
+    begin
+      include(opt,toFillShape);
+      doFill := true;
+    end;
+    ps := BGRAToPenStyle(AShape.PenStyle);
+    if (ps = psClear) or (AShape.PenFill.FillType = vftNone) then
+    begin
+      exclude(opt,toDrawShape);
+      doDraw := false;
+    end
+    else
+    begin
+      include(opt,toDrawShape);
+      Manager.PenStyle := ps;
+      doDraw := true;
+    end;
   end else
   begin
-    if AShape.Usermode in [vsuEditBackFill, vsuEditPenFill] then
-      AShape.Usermode := vsuEdit;
-    opt := Manager.ShapeOptions;
-    if AShape.Fields*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
-    begin
-      if AShape.BackFill.FillType = vftNone then
-      begin;
-        exclude(opt,toFillShape);
-        doFill := false;
-      end
-      else
-      begin
-        include(opt,toFillShape);
-        doFill := true;
-      end;
-      ps := BGRAToPenStyle(AShape.PenStyle);
-      if (ps = psClear) or (AShape.PenFill.FillType = vftNone) then
-      begin
-        exclude(opt,toDrawShape);
-        doDraw := false;
-      end
-      else
-      begin
-        include(opt,toDrawShape);
-        Manager.PenStyle := ps;
-        doDraw := true;
-      end;
-    end else
-    begin
-      doDraw := vsfPenFill in AShape.Fields;
-      doFill := vsfBackFill in AShape.Fields;
-    end;
-
-    if doDraw then
-    begin
-      case AShape.PenFill.FillType of
-        vftSolid: Manager.ForeColor := AShape.PenFill.SolidColor;
-        vftNone: Manager.ForeColor := BGRA(Manager.ForeColor.red,
-          Manager.ForeColor.green,Manager.ForeColor.blue,0);
-      end;
-    end;
-    if doFill then
-    begin
-      case AShape.BackFill.FillType of
-        vftSolid: Manager.BackColor := AShape.BackFill.SolidColor;
-        vftNone: Manager.BackColor := BGRA(Manager.BackColor.red,
-          Manager.BackColor.green,Manager.BackColor.blue,0);
-      end;
-    end;
-    if doFill and (AShape.BackFill.FillType = vftTexture) then
-      Manager.SetTexture(AShape.BackFill.Texture,AShape.BackFill.TextureOpacity)
-    else if doDraw and (AShape.PenFill.FillType = vftTexture) then
-      Manager.SetTexture(AShape.PenFill.Texture,AShape.PenFill.TextureOpacity)
-    else
-      Manager.SetTexture(nil);
-
-    if toDrawShape in opt then
-    begin
-      if vsfPenWidth in AShape.Fields then Manager.PenWidth := AShape.PenWidth*zoom;
-      if vsfJoinStyle in AShape.Fields then Manager.JoinStyle:= AShape.JoinStyle;
-      if AShape is TCustomPolypointShape then
-      begin
-        if TCustomPolypointShape(AShape).Closed then
-          include(opt, toCloseShape)
-        else
-          exclude(opt, toCloseShape);
-        Manager.LineCap := TCustomPolypointShape(AShape).LineCap;
-        Manager.ArrowSize := TCustomPolypointShape(AShape).ArrowSize;
-        Manager.ArrowStart := TCustomPolypointShape(AShape).ArrowStartKind;
-        Manager.ArrowEnd := TCustomPolypointShape(AShape).ArrowEndKind;
-      end;
-      if AShape is TCurveShape then
-        Manager.SplineStyle := TCurveShape(AShape).SplineStyle;
-    end;
-    Manager.ShapeOptions := opt;
+    doDraw := vsfPenFill in AShape.Fields;
+    doFill := vsfBackFill in AShape.Fields;
   end;
+
+  if doDraw then
+  begin
+    if AShape.PenFill.FillType = vftNone then
+      Manager.ForeColor := BGRA(Manager.ForeColor.red,
+        Manager.ForeColor.green,Manager.ForeColor.blue,0)
+    else
+      Manager.ForeFill.Assign(AShape.PenFill);
+  end;
+  if doFill then
+  begin
+    if AShape.BackFill.FillType = vftNone then
+      Manager.BackColor := BGRA(Manager.BackColor.red,
+        Manager.BackColor.green,Manager.BackColor.blue,0)
+    else
+      Manager.BackFill.Assign(AShape.BackFill);
+  end;
+
+  if toDrawShape in opt then
+  begin
+    if vsfPenWidth in AShape.Fields then Manager.PenWidth := AShape.PenWidth*zoom;
+    if vsfJoinStyle in AShape.Fields then Manager.JoinStyle:= AShape.JoinStyle;
+    if AShape is TCustomPolypointShape then
+    begin
+      if TCustomPolypointShape(AShape).Closed then
+        include(opt, toCloseShape)
+      else
+        exclude(opt, toCloseShape);
+      Manager.LineCap := TCustomPolypointShape(AShape).LineCap;
+      Manager.ArrowSize := TCustomPolypointShape(AShape).ArrowSize;
+      Manager.ArrowStart := TCustomPolypointShape(AShape).ArrowStartKind;
+      Manager.ArrowEnd := TCustomPolypointShape(AShape).ArrowEndKind;
+    end;
+    if AShape is TCurveShape then
+      Manager.SplineStyle := TCurveShape(AShape).SplineStyle;
+  end;
+  Manager.ShapeOptions := opt;
 
   if AShape is TTextShape then
   with TTextShape(AShape) do
@@ -335,15 +455,14 @@ begin
     Manager.TextPhong := PenPhong;
     Manager.LightPosition := m*LightPosition;
     Manager.PhongShapeAltitude := round(AltitudePercent);
-    Manager.ToolTextAlign:= ParagraphAlignment;
+    Manager.TextAlign:= ParagraphAlignment;
     Manager.SetTextFont(FontName,round(FontEmHeight*zoom*72/Manager.Image.DPI),FontStyle);
     Manager.TextShadow:= false;
     if OutlineFill.FillType = vftNone then
       Manager.SetTextOutline(false, Manager.TextOutlineWidth) else
     begin
       Manager.SetTextOutline(true, OutlineWidth);
-      if OutlineFill.FillType = vftSolid then
-        Manager.BackColor := OutlineFill.SolidColor;
+      Manager.BackFill.Assign(OutlineFill);
     end;
   end;
 
@@ -354,6 +473,15 @@ begin
     Manager.LightPosition:= LightPosition;
     Manager.PhongShapeAltitude:= round(ShapeAltitudePercent);
     Manager.PhongShapeBorderSize:= round(BorderSizePercent);
+  end;
+end;
+
+procedure TEditShapeTool.UpdateDraftMode;
+begin
+  case GetEditMode of
+  esmShape: Manager.Image.DraftOriginal:= GetVectorOriginal.PreferDraftMode(Manager.Image.CurrentState.LayeredBitmap.OriginalEditor, GetOriginalTransform);
+  esmNoShape: Manager.Image.DraftOriginal:= false;
+  else Manager.Image.DraftOriginal:= FLeftButton or FRightButton;
   end;
 end;
 
@@ -393,7 +521,6 @@ var
   ptView: TPointF;
 begin
   Result:= EmptyRect;
-  Manager.Image.DraftOriginal := true;
   FRightButton:= rightBtn;
   FLeftButton:= not rightBtn;
   FRectEditorCapture:= false;
@@ -404,7 +531,7 @@ begin
   begin
     ptView := FRectEditor.Matrix*ptF;
     UpdateSnap(FRectEditor);
-    FRectEditor.MouseDown(rightBtn, FShiftState, ptView.X,ptView.Y, cur, handled);
+    FRectEditor.MouseDown(rightBtn, ShiftState, ptView.X,ptView.Y, cur, handled);
     Cursor := OriginalCursorToCursor(cur);
     if handled then
     begin
@@ -418,7 +545,7 @@ begin
     BindOriginalEvent(true);
     try
       UpdateSnap(Manager.Image.CurrentState.LayeredBitmap.OriginalEditor);
-      Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, FShiftState, ptF.X,ptF.Y, cur, handled);
+      Manager.Image.CurrentState.LayeredBitmap.MouseDown(rightBtn, ShiftState, ptF.X,ptF.Y, cur, handled);
     finally
       BindOriginalEvent(false);
     end;
@@ -440,13 +567,15 @@ var
 begin
   FLastPos := ptF;
   Result:= EmptyRect;
+  UpdateDraftMode;
+
   case GetEditMode of
   esmGradient, esmShape, esmNoShape:
     begin
       BindOriginalEvent(true);
       try
         UpdateSnap(Manager.Image.CurrentState.LayeredBitmap.OriginalEditor);
-        Manager.Image.CurrentState.LayeredBitmap.MouseMove(FShiftState, ptF.X,ptF.Y, cur, handled);
+        Manager.Image.CurrentState.LayeredBitmap.MouseMove(ShiftState, ptF.X,ptF.Y, cur, handled);
       finally
         BindOriginalEvent(false);
       end;
@@ -457,7 +586,7 @@ begin
     begin
       ptView := FRectEditor.Matrix*ptF;
       UpdateSnap(FRectEditor);
-      FRectEditor.MouseMove(FShiftState, ptView.X,ptView.Y, cur, handled);
+      FRectEditor.MouseMove(ShiftState, ptView.X,ptView.Y, cur, handled);
       Cursor := OriginalCursorToCursor(cur);
       if handled then
       begin
@@ -473,126 +602,75 @@ var
   doDraw, doFill: Boolean;
   m: TAffineMatrix;
   zoom: Single;
+  gradBox: TAffineBox;
 begin
   case GetEditMode of
   esmShape:
     with GetVectorOriginal do
     try
       BindOriginalEvent(true);
+      gradBox := SelectedShape.SuggestGradientBox(AffineMatrixIdentity);
       m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
       zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2;
-      if IsGradientShape(SelectedShape) then
+      if SelectedShape.Fields*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
       begin
-        SelectedShape.BackFill.Gradient.StartColor := Manager.ForeColor;
-        SelectedShape.BackFill.Gradient.EndColor := Manager.BackColor;
-        SelectedShape.BackFill.Gradient.GradientType := Manager.GradientType;
-        SelectedShape.BackFill.Gradient.ColorInterpolation := Manager.GradientColorspace;
-        if (SelectedShape.BackFill.Gradient.Repetition in[grSine,grPad]) or
-          Manager.GradientSine then
+        doDraw := toDrawShape in Manager.ShapeOptions;
+        doFill := toFillShape in Manager.ShapeOptions;
+
+        if doDraw then
+          SelectedShape.PenStyle := PenStyleToBGRA(Manager.PenStyle)
+        else
+          SelectedShape.PenStyle := ClearPenStyle;
+
+        if vsfPenWidth in SelectedShape.Fields then SelectedShape.PenWidth := Manager.PenWidth*zoom;
+        if vsfJoinStyle in SelectedShape.Fields then SelectedShape.JoinStyle := Manager.JoinStyle;
+        if SelectedShape is TCustomPolypointShape then
         begin
-          if Manager.GradientSine then
-            SelectedShape.BackFill.Gradient.Repetition := grSine
-          else
-            SelectedShape.BackFill.Gradient.Repetition := grPad;
+          TCustomPolypointShape(SelectedShape).Closed := toCloseShape in Manager.ShapeOptions;
+          if not TCustomPolypointShape(SelectedShape).Closed then
+          begin
+            TCustomPolypointShape(SelectedShape).LineCap:= Manager.LineCap;
+            TCustomPolypointShape(SelectedShape).ArrowSize:= Manager.ArrowSize;
+            TCustomPolypointShape(SelectedShape).ArrowStartKind:= Manager.ArrowStart;
+            TCustomPolypointShape(SelectedShape).ArrowEndKind:= Manager.ArrowEnd;
+          end;
         end;
+        if SelectedShape is TCurveShape then
+          TCurveShape(SelectedShape).SplineStyle:= Manager.SplineStyle;
       end else
       begin
-        if SelectedShape.Fields*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
-        begin
-          doDraw := toDrawShape in Manager.ShapeOptions;
-          doFill := toFillShape in Manager.ShapeOptions;
+        doDraw := vsfPenFill in SelectedShape.Fields;
+        doFill := vsfBackFill in SelectedShape.Fields;
+      end;
+      if doFill then AssignFill(SelectedShape.BackFill, Manager.BackFill, gradBox, BackFitMode)
+      else if vsfBackFill in SelectedShape.Fields then
+          SelectedShape.BackFill.Clear;
+      if doDraw then AssignFill(SelectedShape.PenFill, Manager.ForeFill, gradBox, ForeFitMode);
 
-          if doDraw then
-            SelectedShape.PenStyle := PenStyleToBGRA(Manager.PenStyle)
-          else
-            SelectedShape.PenStyle := ClearPenStyle;
-
-          if vsfPenWidth in SelectedShape.Fields then SelectedShape.PenWidth := Manager.PenWidth*zoom;
-          if vsfJoinStyle in SelectedShape.Fields then SelectedShape.JoinStyle := Manager.JoinStyle;
-          if SelectedShape is TCustomPolypointShape then
-          begin
-            TCustomPolypointShape(SelectedShape).Closed := toCloseShape in Manager.ShapeOptions;
-            if not TCustomPolypointShape(SelectedShape).Closed then
-            begin
-              TCustomPolypointShape(SelectedShape).LineCap:= Manager.LineCap;
-              TCustomPolypointShape(SelectedShape).ArrowSize:= Manager.ArrowSize;
-              TCustomPolypointShape(SelectedShape).ArrowStartKind:= Manager.ArrowStart;
-              TCustomPolypointShape(SelectedShape).ArrowEndKind:= Manager.ArrowEnd;
-            end;
-          end;
-          if SelectedShape is TCurveShape then
-            TCurveShape(SelectedShape).SplineStyle:= Manager.SplineStyle;
+      if SelectedShape is TTextShape then
+      with TTextShape(SelectedShape) do
+      begin
+        PenPhong := Manager.TextPhong;
+        LightPosition := m*Manager.LightPosition;
+        AltitudePercent := Manager.PhongShapeAltitude;
+        ParagraphAlignment := Manager.TextAlign;
+        FontName:= Manager.TextFontName;
+        FontEmHeight:= Manager.TextFontSize*zoom*Manager.Image.DPI/72;
+        FontStyle := Manager.TextFontStyle;
+        if Manager.TextOutline then
+        begin
+          OutlineWidth := Manager.TextOutlineWidth;
+          AssignFill(OutLineFill, Manager.BackFill, gradBox, BackFitMode);
         end else
-        begin
-          doDraw := vsfPenFill in SelectedShape.Fields;
-          doFill := vsfBackFill in SelectedShape.Fields;
-        end;
-        if doFill then
-        begin
-          if Assigned(Manager.GetTexture) then
-          begin
-            if SelectedShape.BackFill.FillType = vftTexture then
-            begin
-              SelectedShape.BackFill.SetTexture(Manager.GetTexture,
-                SelectedShape.BackFill.TextureMatrix,Manager.TextureOpacity,
-                SelectedShape.BackFill.TextureRepetition);
-            end else
-            if SelectedShape.BackFill.FillType <> vftGradient then
-              SelectedShape.BackFill.SetTexture(Manager.GetTexture, AffineMatrixIdentity,
-                    Manager.TextureOpacity);
-          end else
-          begin
-            if SelectedShape.BackFill.FillType <> vftGradient then
-              SelectedShape.BackFill.SetSolid(Manager.BackColor);
-          end;
-        end else
-          if vsfBackFill in SelectedShape.Fields then
-            SelectedShape.BackFill.Clear;
-        if doDraw then
-        begin
-          if Assigned(Manager.GetTexture) and not doFill then
-          begin
-            if SelectedShape.PenFill.FillType = vftTexture then
-            begin
-              SelectedShape.PenFill.SetTexture(Manager.GetTexture,
-                SelectedShape.PenFill.TextureMatrix,Manager.TextureOpacity,
-                SelectedShape.PenFill.TextureRepetition);
-            end else
-            if SelectedShape.PenFill.FillType <> vftGradient then
-              SelectedShape.PenFill.SetTexture(Manager.GetTexture, AffineMatrixIdentity,
-                    Manager.TextureOpacity);
-          end else
-          begin
-            if SelectedShape.PenFill.FillType <> vftGradient then
-              SelectedShape.PenFill.SetSolid(Manager.ForeColor);
-          end;
-        end;
-        if SelectedShape is TTextShape then
-        with TTextShape(SelectedShape) do
-        begin
-          PenPhong := Manager.TextPhong;
-          LightPosition := m*Manager.LightPosition;
-          AltitudePercent := Manager.PhongShapeAltitude;
-          ParagraphAlignment := Manager.ToolTextAlign;
-          FontName:= Manager.TextFontName;
-          FontEmHeight:= Manager.TextFontSize*zoom*Manager.Image.DPI/72;
-          FontStyle := Manager.TextFontStyle;
-          if Manager.TextOutline then
-          begin
-            OutlineWidth := Manager.TextOutlineWidth;
-            if OutlineFill.FillType in[vftNone,vftSolid] then
-              OutlineFill.SetSolid(Manager.BackColor);
-          end else
-            OutlineFill.Clear;
-        end;
-        if SelectedShape is TPhongShape then
-        with TPhongShape(SelectedShape) do
-        begin
-          ShapeKind := Manager.PhongShapeKind;
-          LightPosition := Manager.LightPosition;
-          ShapeAltitudePercent := Manager.PhongShapeAltitude;
-          BorderSizePercent := Manager.PhongShapeBorderSize;
-        end;
+          OutlineFill.Clear;
+      end;
+      if SelectedShape is TPhongShape then
+      with TPhongShape(SelectedShape) do
+      begin
+        ShapeKind := Manager.PhongShapeKind;
+        LightPosition := Manager.LightPosition;
+        ShapeAltitudePercent := Manager.PhongShapeAltitude;
+        BorderSizePercent := Manager.PhongShapeBorderSize;
       end;
     finally
       BindOriginalEvent(false);
@@ -600,19 +678,9 @@ begin
   esmGradient:
     try
       BindOriginalEvent(true);
-      with GetGradientOriginal do
-      begin
-        StartColor := Manager.ForeColor;
-        EndColor := Manager.BackColor;
-        GradientType:= Manager.GradientType;
-        if (Repetition in [grSine,grPad]) or Manager.GradientSine then
-        begin
-          if Manager.GradientSine then
-            Repetition := grSine
-          else
-            Repetition := grPad;
-        end;
-        ColorInterpolation := Manager.GradientColorspace;
+      case Manager.BackFill.FillType of
+      vftGradient: GetGradientOriginal.AssignExceptGeometry(Manager.BackFill.Gradient);
+      vftSolid: GetGradientOriginal.SetColors(Manager.BackFill.SolidColor, Manager.BackFill.SolidColor);
       end;
     finally
       BindOriginalEvent(false);
@@ -624,7 +692,7 @@ end;
 procedure TEditShapeTool.UpdateSnap(AEditor: TBGRAOriginalEditor);
 begin
   if Assigned(AEditor) then
-    AEditor.GridActive := ssCtrl in FShiftState;
+    AEditor.GridActive := ssSnap in ShiftState;
 end;
 
 function TEditShapeTool.GetAction: TLayerAction;
@@ -722,7 +790,7 @@ begin
   if not IsEditing then
   begin
     with Manager.Image.SelectionMaskBounds do
-      FSelectionRectUntransformed := rectF(Left,Top,Right,Bottom);
+      FSelectionRectUntransformed := rectF(Left-0.5, Top-0.5, Right-0.5, Bottom-0.5);
     FSelectionRect := CreateRect(FSelectionRectUntransformed, Manager.Image.SelectionTransform);
   end;
 end;
@@ -802,25 +870,23 @@ function TEditShapeTool.GetContextualToolbars: TContextualToolbars;
 var
   shape: TVectorShape;
 begin
-  Result:= [ctColor,ctTexture];
+  Result:= [ctPenFill, ctBackFill];
   case GetEditMode of
   esmShape:
     begin
       shape := GetVectorOriginal.SelectedShape;
       if shape is TRectShape then result := result + [ctShape,ctPenWidth,ctPenStyle,ctJoinStyle]
       else if shape is TEllipseShape then result := result + [ctShape,ctPenWidth,ctPenStyle]
-      else if shape is TCurveShape then result := result + [ctShape,ctPenWidth,ctPenStyle,ctLineCap,ctSplineStyle]
-      else if shape is TPolylineShape then result := result + [ctShape,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap]
+      else if shape is TCurveShape then result := result + [ctShape,ctCloseShape,ctPenWidth,ctPenStyle,ctLineCap,ctSplineStyle]
+      else if shape is TPolylineShape then result := result + [ctShape,ctCloseShape,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap]
       else if shape is TPhongShape then result := result + [ctPhong,ctAltitude]
       else if shape is TTextShape then
       begin
         result := result + [ctText];
         if TTextShape(shape).PenPhong then include(result, ctAltitude);
       end;
-      if IsGradientShape(shape) then
-        result := result - [ctShape,ctTexture,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap] + [ctGradient];
     end;
-  esmGradient: result := [ctColor,ctGradient];
+  esmGradient: result := [ctBackFill];
   end;
 end;
 
@@ -871,7 +937,7 @@ begin
         FRectEditor.PointSize := DoScaleX(PointSize,OriginalDPI);
       end;
       FRectEditor.Clear;
-      FRectEditor.Matrix := viewMatrix;
+      FRectEditor.Matrix := AffineMatrixTranslation(-0.5,-0.5)*viewMatrix*AffineMatrixTranslation(0.5,0.5);
       if Assigned(FOriginalRect) then FOriginalRect.ConfigureEditor(FRectEditor);
       if Assigned(FSelectionRect) then FSelectionRect.ConfigureEditor(FRectEditor);
       if Assigned(VirtualScreen) then
@@ -926,13 +992,6 @@ begin
   end;
 end;
 
-function TEditShapeTool.IsGradientShape(AShape: TVectorShape): boolean;
-begin
-  result := (vsfBackFill in AShape.Fields) and (AShape.BackFill.FillType = vftGradient) and
-        (not (vsfPenFill in AShape.Fields) or (AShape.PenFill.FillType = vftNone)) and
-        (not (vsfOutlineFill in AShape.Fields) or (AShape.OutlineFill.FillType = vftNone));
-end;
-
 function TEditShapeTool.ConvertToSpline: boolean;
 var
   shapeBefore: TVectorShape;
@@ -980,6 +1039,85 @@ begin
     result := false;
 end;
 
+function TEditShapeTool.ForeGradTexMode: TVectorShapeUsermode;
+begin
+  result := vsuEditPenFill;
+end;
+
+function TEditShapeTool.BackGradTexMode: TVectorShapeUsermode;
+begin
+  if (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape is TTextShape) then
+    result := vsuEditOutlineFill
+  else
+    result := vsuEditBackFill;
+end;
+
+function TEditShapeTool.ShapeForeFill: TVectorialFill;
+begin
+  if GetEditMode = esmShape then result := GetVectorOriginal.SelectedShape.PenFill
+  else result := nil;
+end;
+
+function TEditShapeTool.ShapeBackFill: TVectorialFill;
+begin
+  if GetEditMode = esmShape then
+  begin
+    if GetVectorOriginal.SelectedShape is TTextShape then
+      result := GetVectorOriginal.SelectedShape.OutlineFill
+    else
+      result := GetVectorOriginal.SelectedShape.BackFill;
+  end
+  else result := nil;
+end;
+
+function TEditShapeTool.ForeFitMode: TFitMode;
+begin
+  if IsForeEditGradTexPoints then result := fmNever
+  else result := fmIfChange;
+end;
+
+function TEditShapeTool.BackFitMode: TFitMode;
+begin
+  if IsBackEditGradTexPoints then result := fmNever
+  else result := fmIfChange;
+end;
+
+function TEditShapeTool.GetIsForeEditGradTexPoints: boolean;
+begin
+  result := (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape.Usermode = ForeGradTexMode);
+end;
+
+function TEditShapeTool.GetIsBackEditGradTexPoints: boolean;
+begin
+  result := (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape.Usermode = BackGradTexMode);
+end;
+
+function TEditShapeTool.GetAllowedBackFillTypes: TVectorialFillTypes;
+begin
+  if GetEditMode = esmGradient then
+    result := [vftGradient] else
+    Result:=inherited GetAllowedBackFillTypes;
+end;
+
+function TEditShapeTool.GetStatusText: string;
+var
+  m: TAffineMatrix;
+begin
+  m := AffineMatrixTranslation(-0.5, -0.5) *
+       Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] *
+       AffineMatrixTranslation(0.5, 0.5);
+
+  if (GetEditMode = esmShape) and Assigned(GetVectorOriginal.SelectedShape) then
+    result := GetShapeStatusText(GetVectorOriginal.SelectedShape, m) else
+  if (GetEditMode = esmSelection) and Assigned(FSelectionRect) then
+    result := GetShapeStatusText(FSelectionRect, AffineMatrixIdentity) else
+  if (GetEditMode = esmOtherOriginal) and Assigned(FOriginalRect) then
+    result := GetShapeStatusText(FOriginalRect, AffineMatrixIdentity) else
+  if (GetEditMode = esmGradient) then
+    result := GetGradientStatusText(GetGradientOriginal, m) else
+    Result:=inherited GetStatusText;
+end;
+
 constructor TEditShapeTool.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
@@ -999,28 +1137,12 @@ begin
     UpdateToolManagerFromShape(GetVectorOriginal.SelectedShape);
 end;
 
-function TEditShapeTool.ToolKeyDown(var key: Word): TRect;
+function TEditShapeTool.DoToolKeyDown(var key: Word): TRect;
 var
   handled: boolean;
   keyUtf8: TUTF8Char;
 begin
   Result:= EmptyRect;
-  if (Key = VK_SNAP) or (Key = VK_SNAP2) then Key := VK_CONTROL;
-  if key = VK_SHIFT then
-  begin
-    include(FShiftState, ssShift);
-    key := 0;
-  end else
-  if key = VK_CONTROL then
-  begin
-    include(FShiftState, ssCtrl);
-    key := 0;
-  end else
-  if key = VK_MENU then
-  begin
-    include(FShiftState, ssAlt);
-    key := 0;
-  end else
   if (Key = VK_SPACE) and (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape is TTextShape) then
   begin
     keyUtf8:= ' ';
@@ -1032,7 +1154,7 @@ begin
     begin
       BindOriginalEvent(true);
       try
-        Manager.Image.CurrentState.LayeredBitmap.KeyDown(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
+        Manager.Image.CurrentState.LayeredBitmap.KeyDown(ShiftState, LCLKeyToSpecialKey(key, ShiftState), handled);
         if handled then key := 0 else
         begin
           if (key = VK_DELETE) and Assigned(GetVectorOriginal.SelectedShape) then
@@ -1095,37 +1217,19 @@ begin
   end;
 end;
 
-function TEditShapeTool.ToolKeyUp(var key: Word): TRect;
+function TEditShapeTool.DoToolKeyUp(var key: Word): TRect;
 var
   handled: boolean;
 begin
   Result:= EmptyRect;
-  if (Key = VK_SNAP) or (Key = VK_SNAP2) then Key := VK_CONTROL;
-  if key = VK_SHIFT then
+  if GetEditMode in [esmShape,esmNoShape] then
   begin
-    exclude(FShiftState, ssShift);
-    key := 0;
-  end else
-  if key = VK_CONTROL then
-  begin
-    exclude(FShiftState, ssCtrl);
-    key := 0;
-  end else
-  if key = VK_MENU then
-  begin
-    exclude(FShiftState, ssAlt);
-    key := 0;
-  end else
-  begin
-    if GetEditMode in [esmShape,esmNoShape] then
-    begin
-      BindOriginalEvent(true);
-      try
-        Manager.Image.CurrentState.LayeredBitmap.KeyUp(FShiftState, LCLKeyToSpecialKey(key, FShiftState), handled);
-        if handled then key := 0;
-      finally
-        BindOriginalEvent(false);
-      end;
+    BindOriginalEvent(true);
+    try
+      Manager.Image.CurrentState.LayeredBitmap.KeyUp(ShiftState, LCLKeyToSpecialKey(key, ShiftState), handled);
+      if handled then key := 0;
+    finally
+      BindOriginalEvent(false);
     end;
   end;
 end;
@@ -1141,13 +1245,12 @@ begin
   Result:= EmptyRect;
   if FLeftButton or FRightButton then
   begin
-    Manager.Image.DraftOriginal := false;
     handled := false;
     if not handled and FRectEditorCapture and Assigned(FRectEditor) then
     begin
       ptView := FRectEditor.Matrix*FLastPos;
       UpdateSnap(FRectEditor);
-      FRectEditor.MouseUp(FRightButton, FShiftState, ptView.X,ptView.Y, cur, handled);
+      FRectEditor.MouseUp(FRightButton, ShiftState, ptView.X,ptView.Y, cur, handled);
       Cursor := OriginalCursorToCursor(cur);
       if handled then
       begin
@@ -1163,7 +1266,7 @@ begin
     begin
       BindOriginalEvent(true);
       try
-        Manager.Image.CurrentState.LayeredBitmap.MouseUp(FRightButton, FShiftState, FLastPos.X,FLastPos.Y, cur, handled);
+        Manager.Image.CurrentState.LayeredBitmap.MouseUp(FRightButton, ShiftState, FLastPos.X,FLastPos.Y, cur, handled);
         if handled then
         begin
           Cursor := OriginalCursorToCursor(cur);
@@ -1196,16 +1299,20 @@ begin
     begin
       case GetEditMode of
       esmShape, esmNoShape:
+        if not FDownHandled then
         begin
           m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
           zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2/Manager.Image.ZoomFactor;
           BindOriginalEvent(true);
           try
-            GetVectorOriginal.MouseClick(m*FLastPos, DoScaleX(PointSize, OriginalDPI)*zoom);
+            if GetVectorOriginal.MouseClick(m*FLastPos, DoScaleX(PointSize, OriginalDPI)*zoom) then
+            begin
+              handled := true;
+              result := OnlyRenderChange;
+            end;
           finally
             BindOriginalEvent(false);
           end;
-          if Assigned(GetVectorOriginal.SelectedShape) then handled := true;
         end;
       esmGradient:
         begin
@@ -1225,7 +1332,7 @@ begin
         begin
           with Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex].
             GetRenderBounds(InfiniteRect, AffineMatrixIdentity) do
-            FOriginalRectUntransformed := rectF(Left,Top,Right,Bottom);
+            FOriginalRectUntransformed := rectF(Left-0.5, Top-0.5, Right-0.5, Bottom-0.5);
           FOriginalRect := CreateRect(FOriginalRectUntransformed,
             Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
           FOriginalLayerId:= Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
@@ -1239,14 +1346,7 @@ begin
       if not FIsEditingGradient then
       begin
         FIsEditingGradient:= true;
-        with GetGradientOriginal do
-        begin
-          Manager.ForeColor := StartColor;
-          Manager.BackColor := EndColor;
-          Manager.GradientType := GradientType;
-          Manager.GradientSine := (Repetition = grSine);
-          Manager.GradientColorspace := ColorInterpolation;
-        end;
+        Manager.BackFill.SetGradient(GetGradientOriginal, false);
         Manager.UpdateContextualToolbars;
         handled := true;
         result := OnlyRenderChange;
@@ -1254,6 +1354,8 @@ begin
     end;
     FLeftButton:= false;
     FRightButton:= false;
+    if Manager.Image.DraftOriginal then
+      UpdateDraftMode;
   end;
 end;
 
@@ -1285,7 +1387,7 @@ begin
     begin
       BindOriginalEvent(true);
       try
-        PasteShapesFromClipboard(GetVectorOriginal, GetOriginalTransform);
+        PasteShapesFromClipboard(GetVectorOriginal, GetOriginalTransform, Manager.Image.VisibleArea);
       finally
         BindOriginalEvent(false);
       end;
@@ -1311,6 +1413,14 @@ begin
           tcAlignLeft..tcAlignBottom: AlignShape(GetVectorOriginal.SelectedShape, ACommand,
                        Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex],
                        rect(0,0,Manager.Image.Width,Manager.Image.Height));
+          tcForeEditGradTexPoints: if GetVectorOriginal.SelectedShape.Usermode = ForeGradTexMode then
+                                    GetVectorOriginal.SelectedShape.Usermode := vsuEdit else
+                                    GetVectorOriginal.SelectedShape.Usermode := ForeGradTexMode;
+          tcBackEditGradTexPoints: if GetVectorOriginal.SelectedShape.Usermode = BackGradTexMode then
+                                    GetVectorOriginal.SelectedShape.Usermode := vsuEdit else
+                                    GetVectorOriginal.SelectedShape.Usermode := BackGradTexMode;
+          tcForeAdjustToShape: ShapeForeFill.FitGeometry(SuggestGradientBox);
+          tcBackAdjustToShape: ShapeBackFill.FitGeometry(SuggestGradientBox);
           tcShapeToSpline: result := ConvertToSpline;
           else result := false;
         end;
@@ -1320,6 +1430,7 @@ begin
     esmGradient:
       begin
         case ACommand of
+          tcBackAdjustToShape: GetGradientOriginal.FitGeometry(SuggestGradientBox);
           tcCut,tcCopy: begin
             s := TRectShape.Create(nil);
             try
@@ -1396,7 +1507,13 @@ end;
 function TEditShapeTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
-  tcCut,tcCopy,tcDelete: result:= GetEditMode in[esmShape,esmOtherOriginal,esmGradient];
+  tcCut,tcCopy,tcDelete: result:= GetEditMode in [esmShape,esmOtherOriginal,esmGradient];
+  tcForeAdjustToShape: result := GetEditMode = esmShape;
+  tcBackAdjustToShape: result := GetEditMode in [esmShape,esmGradient];
+  tcForeEditGradTexPoints: result := (GetEditMode = esmShape) and
+                     (ForeGradTexMode in GetVectorOriginal.SelectedShape.Usermodes);
+  tcBackEditGradTexPoints: result := (GetEditMode = esmShape) and
+                     (BackGradTexMode in GetVectorOriginal.SelectedShape.Usermodes);
   tcShapeToSpline: result:= (GetEditMode = esmShape)
                             and TCurveShape.CanCreateFrom(GetVectorOriginal.SelectedShape);
   tcAlignLeft..tcAlignBottom: result:= GetEditMode in [esmShape, esmOtherOriginal, esmSelection];
@@ -1408,6 +1525,14 @@ begin
   else
     result := false;
   end;
+end;
+
+function TEditShapeTool.SuggestGradientBox: TAffineBox;
+begin
+  if GetEditMode = esmShape then
+    result := GetVectorOriginal.SelectedShape.SuggestGradientBox(AffineMatrixIdentity)
+  else
+    result:= inherited SuggestGradientBox;
 end;
 
 { TVectorialTool }
@@ -1435,8 +1560,8 @@ var
   newEditorBounds, r: TRect;
 begin
   toolDest := GetToolDrawingLayer;
-  with (FEditor.Matrix*PointF(toolDest.Width,toolDest.Height)) do
-    newEditorBounds := FEditor.GetRenderBounds(rect(0,0,ceil(x),ceil(y)));
+  with (Editor.Matrix*PointF(toolDest.Width,toolDest.Height)) do
+    newEditorBounds := Editor.GetRenderBounds(rect(0,0,ceil(x),ceil(y)));
   r := RectUnion(FPreviousEditorBounds,newEditorBounds);
   if not r.IsEmpty then
   begin
@@ -1460,32 +1585,18 @@ begin
 end;
 
 function TVectorialTool.GetStatusText: string;
-var
-  corner1, corner2: TPointF;
 begin
   if Assigned(FShape) then
-  begin
-    if FShape is TEllipseShape then
-      with TEllipseShape(FShape) do
-        result := 'x = '+FloatToStrF(Origin.x,ffFixed,6,1)+'|y = '+FloatToStrF(Origin.y,ffFixed,6,1)+'|'+
-        'rx = '+FloatToStrF(VectLen(XAxis-Origin),ffFixed,6,1)+'|ry = '+FloatToStrF(VectLen(YAxis-Origin),ffFixed,6,1)
-    else if FShape is TCustomRectShape then
-      with TCustomRectShape(FShape) do
-      begin
-        corner1 := Origin-(XAxis-Origin)-(YAxis-Origin);
-        corner2 := XAxis + (YAxis-Origin);
-        result := 'x1 = '+FloatToStrF(corner1.x,ffFixed,6,1)+'|y1 = '+FloatToStrF(corner1.y,ffFixed,6,1)+'|'+
-        'x2 = '+FloatToStrF(corner2.x,ffFixed,6,1)+'|y2 = '+FloatToStrF(corner2.y,ffFixed,6,1)+'|'+
-        'Δx = '+FloatToStrF(VectLen(XAxis-Origin)*2,ffFixed,6,1)+'|Δy = '+FloatToStrF(VectLen(YAxis-Origin)*2,ffFixed,6,1);
-      end;
-  end
-  else
-    Result:=inherited GetStatusText;
+    result := GetShapeStatusText(FShape, VectorTransform(True))
+    else Result:=inherited GetStatusText;
 end;
 
 function TVectorialTool.SlowShape: boolean;
 begin
-  result := false;
+  if Assigned(FShape) then
+    result := FShape.GetIsSlow(VectorTransform(false))
+  else
+    result := false;
 end;
 
 procedure TVectorialTool.QuickDefineEnd;
@@ -1535,6 +1646,75 @@ begin
   //nothing
 end;
 
+function TVectorialTool.ForeGradTexMode: TVectorShapeUsermode;
+begin
+  if FSwapColor then result := vsuEditBackFill else
+    result := vsuEditPenFill;
+end;
+
+function TVectorialTool.BackGradTexMode: TVectorShapeUsermode;
+begin
+  if FSwapColor then result := vsuEditPenFill else
+    result := vsuEditBackFill;
+end;
+
+function TVectorialTool.ShapeForeFill: TVectorialFill;
+begin
+  if Assigned(FShape) then
+  begin
+    if FSwapColor then result := FShape.BackFill else
+      result := FShape.PenFill;
+  end else
+    result := nil;
+end;
+
+function TVectorialTool.ShapeBackFill: TVectorialFill;
+begin
+  if Assigned(FShape) then
+  begin
+    if FSwapColor then result := FShape.PenFill else
+      result := FShape.BackFill;
+  end else
+    result := nil;
+end;
+
+function TVectorialTool.ForeFitMode: TFitMode;
+begin
+  if IsForeEditGradTexPoints then result := fmNever
+  else result := fmIfChange;
+end;
+
+function TVectorialTool.BackFitMode: TFitMode;
+begin
+  if IsBackEditGradTexPoints then result := fmNever
+  else result := fmIfChange;
+end;
+   
+function TVectorialTool.GetIsForeEditGradTexPoints: boolean;
+begin
+  result := Assigned(FShape) and (FShape.Usermode = ForeGradTexMode);
+end;
+
+function TVectorialTool.GetIsBackEditGradTexPoints: boolean;
+begin
+  result := Assigned(FShape) and (FShape.Usermode = BackGradTexMode);
+end;
+
+function TVectorialTool.GetGridMatrix: TAffineMatrix;
+begin
+  if Manager.Image.ZoomFactor > DoScaleX(35, OriginalDPI)/10 then
+    result := AffineMatrixScale(0.5,0.5)
+  else
+  begin
+    if Assigned(FShape) and
+         (not (vsfPenFill in FShape.Fields) or
+           (FShape.PenFill.IsFullyTransparent)) then
+      result := AffineMatrixTranslation(0.5, 0.5)
+    else
+      result := AffineMatrixIdentity;
+  end;
+end;
+
 function TVectorialTool.ValidateShape: TRect;
 var
   layerId: LongInt;
@@ -1567,12 +1747,12 @@ begin
         Manager.Image.ImageMayChange(changeBounds);
       end;
       FreeAndNil(FShape);
-      FEditor.Clear;
+      Editor.Clear;
     end else
     begin
       ValidateActionPartially;
       FreeAndNil(FShape);
-      FEditor.Clear;
+      Editor.Clear;
     end;
     Cursor := crDefault;
     result := OnlyRenderChange;
@@ -1586,9 +1766,15 @@ function TVectorialTool.CancelShape: TRect;
 begin
   CancelActionPartially;
   FreeAndNil(FShape);
-  FEditor.Clear;
+  Editor.Clear;
   Cursor := crDefault;
   result := OnlyRenderChange;
+end;
+
+function TVectorialTool.GetEditor: TBGRAOriginalEditor;
+begin
+  FEditor.GridActive := ssSnap in ShiftState;
+  result := FEditor;
 end;
 
 function TVectorialTool.GetIsHandDrawing: boolean;
@@ -1611,6 +1797,11 @@ begin
   result := FUseOriginal;
 end;
 
+function TVectorialTool.HasBrush: boolean;
+begin
+  result := (toFillShape in GetManagerShapeOptions) or not (ctShape in GetContextualToolbars);
+end;
+
 function TVectorialTool.GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; ADraft: boolean): TRect;
 begin
   with FShape.GetRenderBounds(ADestBounds,AMatrix,[]) do
@@ -1622,26 +1813,25 @@ begin
   FShape.Render(ADest,AMatrix,ADraft);
 end;
 
-procedure TVectorialTool.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TVectorialTool.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 var
   f: TVectorShapeFields;
   zoom: Single;
+  gradBox: TAffineBox;
+  fitMode: TFitMode;
 begin
   zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
   f:= FShape.Fields;
+  gradBox := FShape.SuggestGradientBox(AffineMatrixIdentity);
   if vsfPenFill in f then
   begin
-    if Manager.ShapeOptionDraw then
+    if HasPen then
     begin
-      if (not (vsfBackFill in f) or not Manager.ShapeOptionFill) and (Manager.GetTexture <> nil) then
-        FShape.PenFill.SetTexture(Manager.GetTexture,AMatrix,Manager.TextureOpacity)
+      if AAlwaysFit then fitMode := fmAlways else fitMode := ForeFitMode;
+      if FSwapColor then
+        AssignFill(FShape.PenFill, Manager.BackFill, gradBox, fitMode)
       else
-      begin
-        if FSwapColor then
-          FShape.PenFill.SetSolid(Manager.BackColor)
-        else
-          FShape.PenFill.SetSolid(Manager.ForeColor);
-      end;
+        AssignFill(FShape.PenFill, Manager.ForeFill, gradBox, fitMode);
     end else
       FShape.PenFill.Clear;
   end;
@@ -1650,20 +1840,21 @@ begin
   if vsfJoinStyle in f then FShape.JoinStyle:= Manager.JoinStyle;
   if vsfBackFill in f then
   begin
-    if Manager.ShapeOptionFill then
+    if HasBrush then
     begin
-      if Manager.GetTexture <> nil then
-        FShape.BackFill.SetTexture(Manager.GetTexture,AffineMatrixIdentity,Manager.TextureOpacity)
+      if AAlwaysFit then fitMode := fmAlways else fitMode := BackFitMode;
+      if FSwapColor then
+        AssignFill(FShape.BackFill, Manager.ForeFill, gradBox, fitMode)
       else
-      begin
-        if FSwapColor then
-          FShape.BackFill.SetSolid(Manager.ForeColor)
-        else
-          FShape.BackFill.SetSolid(Manager.BackColor);
-      end;
+        AssignFill(FShape.BackFill, Manager.BackFill, gradBox, fitMode);
     end else
       FShape.BackFill.Clear;
   end;
+end;
+
+function TVectorialTool.GetManagerShapeOptions: TShapeOptions;
+begin
+  result := Manager.ShapeOptions;
 end;
 
 procedure TVectorialTool.QuickDefineShape(AStart, AEnd: TPointF);
@@ -1671,9 +1862,9 @@ begin
   FShape.QuickDefine(AStart, AEnd);
 end;
 
-function TVectorialTool.RoundCoordinate(ptF: TPointF): TPointF;
+function TVectorialTool.RoundCoordinate(constref ptF: TPointF): TPointF;
 begin
-  if not Manager.ShapeOptionDraw or
+  if not (toDrawShape in GetManagerShapeOptions) or
     (Assigned(FShape) and not (vsfPenFill in FShape.Fields)) then
     result := PointF(floor(ptF.x)+0.5,floor(ptF.y)+0.5)
   else
@@ -1689,19 +1880,26 @@ function TVectorialTool.UpdateShape(toolDest: TBGRABitmap): TRect;
 var
   newBounds: TRect;
   oldClip: TRect;
-  draft: Boolean;
   matrix: TAffineMatrix;
 begin
   result := FPreviousUpdateBounds;
   RestoreBackupDrawingLayer;
   matrix := VectorTransform(false);
-  draft := (FRightDown or FLeftDown) and SlowShape;
-  newBounds := GetCustomShapeBounds(toolDest.ClipRect,matrix,draft);
+  FLastDraftUpdate := PreferDraftUpdate;
+  newBounds := GetCustomShapeBounds(toolDest.ClipRect,matrix,FLastDraftUpdate);
   result := RectUnion(result, newBounds);
   oldClip := toolDest.IntersectClip(newBounds);
-  DrawCustomShape(toolDest,matrix,draft);
+  DrawCustomShape(toolDest,matrix,FLastDraftUpdate);
   toolDest.ClipRect := oldClip;
   FPreviousUpdateBounds := newBounds;
+end;
+
+function TVectorialTool.PreferDraftUpdate: boolean;
+begin
+  if Assigned(FShape) then
+    result := (FEditor.IsMovingPoint or FShape.IsFollowingMouse or FQuickDefine) and SlowShape
+  else
+    result := false;
 end;
 
 function TVectorialTool.VectorTransform(APixelCentered: boolean): TAffineMatrix;
@@ -1738,12 +1936,13 @@ begin
     FLastPos := AffineMatrixTranslation(X,Y)*ptF;
   if Assigned(FShape) then
   begin
-    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
-    FEditor.MouseDown(rightBtn, FShiftState, viewPt.X,viewPt.Y, cur, handled);
+    viewPt := Editor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
+    Editor.MouseDown(rightBtn, ShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
     begin
       shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
-      FShape.MouseDown(rightBtn, FShiftState, shapePt.X,shapePt.Y, cur, handled);
+      If Editor.GridActive then shapePt := Editor.SnapToGrid(shapePt, false);
+      FShape.MouseDown(rightBtn, ShiftState, shapePt.X,shapePt.Y, cur, handled);
     end;
     UpdateCursor(cur);
     if handled then exit
@@ -1782,8 +1981,8 @@ begin
         FShape.Transform(FLastShapeTransform);
         shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
         handled := false;
-        FShape.MouseMove(FShiftState, shapePt.X,shapePt.Y, cur, handled);
-        AssignShapeStyle(FLastShapeTransform);
+        FShape.MouseMove(ShiftState, shapePt.X,shapePt.Y, cur, handled);
+        AssignShapeStyle(FLastShapeTransform, true);
       FShape.EndUpdate;
       FShape.OnChange:= @ShapeChange;
       FShape.OnEditingChange:=@ShapeEditingChange;
@@ -1804,12 +2003,13 @@ var
   handled: boolean;
   cur: TOriginalEditorCursor;
 begin
+  Editor.GridMatrix := GetGridMatrix;
   with LayerOffset do
     FLastPos := AffineMatrixTranslation(X,Y)*ptF;
   if FQuickDefine then
   begin
     FQuickDefineEndPoint := RoundCoordinate(ptF);
-    if FQuickSquare then
+    if ssShift in ShiftState then
     begin
       s := FQuickDefineEndPoint-FQuickDefineStartPoint;
       avg := sqrt(abs(s.x*s.y));
@@ -1820,17 +2020,18 @@ begin
       QuickDefineShape(FQuickDefineStartPoint, FQuickDefineEndPoint);
       FLastShapeTransform := AffineMatrixInverse(VectorTransform(false));
       FShape.Transform(FLastShapeTransform);
-      AssignShapeStyle(FLastShapeTransform);
+      AssignShapeStyle(FLastShapeTransform, true);
     FShape.EndUpdate;
     result := OnlyRenderChange;
   end else
   begin
-    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
-    FEditor.MouseMove(FShiftState, viewPt.X,viewPt.Y, cur, handled);
+    viewPt := Editor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
+    Editor.MouseMove(ShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
     begin
       shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
-      FShape.MouseMove(FShiftState, shapePt.X,shapePt.Y, cur, handled);
+      If Editor.GridActive then shapePt := Editor.SnapToGrid(shapePt, false);
+      FShape.MouseMove(ShiftState, shapePt.X,shapePt.Y, cur, handled);
     end;
     UpdateCursor(cur);
     if handled then result := OnlyRenderChange
@@ -1843,7 +2044,7 @@ begin
   if Assigned(FShape) then
   begin
     FShape.BeginUpdate;
-    AssignShapeStyle(FLastShapeTransform);
+    AssignShapeStyle(FLastShapeTransform, false);
     FShape.EndUpdate;
   end;
   result := EmptyRect;
@@ -1855,7 +2056,7 @@ begin
   UpdateUseOriginal;
   FPreviousUpdateBounds := EmptyRect;
   FEditor := TVectorOriginalEditor.Create(nil);
-  FEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
+  FEditor.GridMatrix := GetGridMatrix;
   FEditor.Focused := true;
   FPreviousEditorBounds := EmptyRect;
   FLastShapeTransform := AffineMatrixIdentity;
@@ -1877,49 +2078,25 @@ begin
     QuickDefineEnd;
   end else
   begin
-    viewPt := FEditor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
-    FEditor.MouseUp(wasRight, FShiftState, viewPt.X,viewPt.Y, cur, handled);
+    viewPt := Editor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
+    Editor.MouseUp(wasRight, ShiftState, viewPt.X,viewPt.Y, cur, handled);
     if not handled and Assigned(FShape) then
     begin
       shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
-      FShape.MouseUp(wasRight, FShiftState, shapePt.X,shapePt.Y, cur, handled);
+      FShape.MouseUp(wasRight, ShiftState, shapePt.X,shapePt.Y, cur, handled);
     end;
     UpdateCursor(cur);
     result := EmptyRect;
   end;
-  if SlowShape and Assigned(FShape) then
+  if (FLastDraftUpdate and not PreferDraftUpdate) and Assigned(FShape) then
     result := UpdateShape(GetToolDrawingLayer);
 end;
 
-function TVectorialTool.ToolKeyDown(var key: Word): TRect;
+function TVectorialTool.DoToolKeyDown(var key: Word): TRect;
 var
   handled: boolean;
 begin
   result := EmptyRect;
-  if (Key = VK_SNAP) or (Key = VK_SNAP2) then Key := VK_CONTROL;
-  if Key = VK_SHIFT then
-  begin
-    if FQuickDefine then
-    begin
-      FQuickSquare:= true;
-      Key := 0;
-    end else
-    begin
-      Include(FShiftState, ssShift);
-      Key := 0;
-    end;
-  end else
-  if Key = VK_CONTROL then
-  begin
-    Include(FShiftState, ssCtrl);
-    if not FQuickDefine then FEditor.GridActive := true;
-    Key := 0;
-  end else
-  if (Key = VK_MENU) and not FQuickDefine then
-  begin
-    Include(FShiftState, ssAlt);
-    Key := 0;
-  end else
   if (Key = VK_RETURN) and not FQuickDefine and
     Assigned(FShape) then
   begin
@@ -1933,8 +2110,8 @@ begin
     Key := 0;
   end else
   begin
-    FEditor.KeyDown(FShiftState, LCLKeyToSpecialKey(Key, FShiftState), handled);
-    if not handled and Assigned(FShape) then FShape.KeyDown(FShiftState, LCLKeyToSpecialKey(Key, FShiftState), handled);
+    Editor.KeyDown(ShiftState, LCLKeyToSpecialKey(Key, ShiftState), handled);
+    if not handled and Assigned(FShape) then FShape.KeyDown(ShiftState, LCLKeyToSpecialKey(Key, ShiftState), handled);
     if handled then Key := 0;
   end;
 end;
@@ -1944,45 +2121,19 @@ var
   handled: boolean;
 begin
   result := EmptyRect;
-  FEditor.KeyPress(key, handled);
+  Editor.KeyPress(key, handled);
   if not handled and Assigned(FShape) then FShape.KeyPress(key, handled);
   if handled then Key := #0;
 end;
 
-function TVectorialTool.ToolKeyUp(var key: Word): TRect;
+function TVectorialTool.DoToolKeyUp(var key: Word): TRect;
 var
   handled: boolean;
 begin
   result := EmptyRect;
-  if (Key = VK_SNAP) or (Key = VK_SNAP2) then Key := VK_CONTROL;
-  if Key = VK_SHIFT then
-  begin
-    if FQuickDefine then
-    begin
-      FQuickSquare:= false;
-      Key := 0;
-    end else
-    begin
-      Exclude(FShiftState, ssShift);
-      Key := 0;
-    end;
-  end else
-  if Key = VK_CONTROL then
-  begin
-    Exclude(FShiftState, ssCtrl);
-    if not FQuickDefine then FEditor.GridActive := false;
-    Key := 0;
-  end else
-  if (Key = VK_MENU) and not FQuickDefine then
-  begin
-    Exclude(FShiftState, ssAlt);
-    Key := 0;
-  end else
-  begin
-    FEditor.KeyUp(FShiftState, LCLKeyToSpecialKey(Key, FShiftState), handled);
-    if not handled and Assigned(FShape) then FShape.KeyUp(FShiftState, LCLKeyToSpecialKey(Key, FShiftState), handled);
-    if handled then Key := 0;
-  end;
+  Editor.KeyUp(ShiftState, LCLKeyToSpecialKey(Key, ShiftState), handled);
+  if not handled and Assigned(FShape) then FShape.KeyUp(ShiftState, LCLKeyToSpecialKey(Key, ShiftState), handled);
+  if handled then Key := 0;
 end;
 
 function TVectorialTool.ToolCommand(ACommand: TToolCommand): boolean;
@@ -2003,6 +2154,20 @@ begin
         Action.NotifyChange(toolDest, r);
         result := true;
       end;
+  tcForeAdjustToShape: if Assigned(FShape) then ShapeForeFill.FitGeometry(SuggestGradientBox);
+  tcBackAdjustToShape: if Assigned(FShape) then ShapeBackFill.FitGeometry(SuggestGradientBox);
+  tcForeEditGradTexPoints: if Assigned(FShape) and not FQuickDefine then
+                          begin
+                            if FShape.Usermode = ForeGradTexMode then
+                              FShape.Usermode := vsuEdit else
+                              FShape.Usermode := ForeGradTexMode;
+                          end;
+  tcBackEditGradTexPoints: if Assigned(FShape) and not FQuickDefine then
+                          begin
+                            if FShape.Usermode = BackGradTexMode then
+                              FShape.Usermode := vsuEdit else
+                              FShape.Usermode := BackGradTexMode;
+                          end;
   tcFinish: begin
               toolDest := GetToolDrawingLayer;
               r := ValidateShape;
@@ -2027,6 +2192,11 @@ begin
   case ACommand of
   tcCopy,tcCut: Result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape);
   tcFinish: result := not IsIdle;
+  tcForeAdjustToShape, tcBackAdjustToShape: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine;
+  tcForeEditGradTexPoints: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine and
+                            (vsuEditPenFill in FShape.Usermodes) and not (FShape.Usermode = vsuCreate);
+  tcBackEditGradTexPoints: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine and
+                            (vsuEditPenFill in FShape.Usermodes) and not (FShape.Usermode = vsuCreate);
   tcShapeToSpline: result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape)
                             and TCurveShape.CanCreateFrom(FShape);
   tcAlignLeft..tcAlignBottom: Result:= not FQuickDefine and Assigned(FShape);
@@ -2034,6 +2204,14 @@ begin
           and not AlwaysRasterizeShape and Manager.Image.SelectionMaskEmpty and not FLayerWasEmpty;
   else result := false;
   end;
+end;
+
+function TVectorialTool.SuggestGradientBox: TAffineBox;
+begin
+  if Assigned(FShape) then
+    result := FShape.SuggestGradientBox(AffineMatrixIdentity)
+  else
+    result:= inherited SuggestGradientBox;
 end;
 
 function TVectorialTool.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
@@ -2050,18 +2228,18 @@ begin
       xAxis := BitmapToVirtualScreen(PointF(1,0));
       yAxis := BitmapToVirtualScreen(PointF(0,1));
     end;
-    FEditor.Matrix := AffineMatrix(xAxis-orig,yAxis-orig,orig)*VectorTransform(true);
-    FEditor.Clear;
-    FEditor.PointSize := DoScaleX(PointSize, OriginalDPI);
-    if Assigned(FShape) then FShape.ConfigureEditor(FEditor);
+    Editor.Matrix := AffineMatrix(xAxis-orig,yAxis-orig,orig)*VectorTransform(true);
+    Editor.Clear;
+    Editor.PointSize := DoScaleX(PointSize, OriginalDPI);
+    if Assigned(FShape) then FShape.ConfigureEditor(Editor);
     if Assigned(VirtualScreen) then
-      Result:= FEditor.Render(VirtualScreen, rect(0,0,VirtualScreen.Width,VirtualScreen.Height))
+      Result:= Editor.Render(VirtualScreen, rect(0,0,VirtualScreen.Width,VirtualScreen.Height))
     else
-      Result:= FEditor.GetRenderBounds(rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
+      Result:= Editor.GetRenderBounds(rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
   end else
   begin
     result := EmptyRect;
-    FEditor.Clear;
+    Editor.Clear;
   end;
   FPreviousEditorBounds := result;
 end;

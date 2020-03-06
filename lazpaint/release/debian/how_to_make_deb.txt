@@ -1,12 +1,20 @@
-0) Copy this folder 'debian' somewhere, maybe in your /home/lainz/Documentos/. Replace 'lainz' with your username.
+To make the DEB file:
+- make sure the version and changelog are up-to-date (you can use the releaser to increase the version number)
+- compile the program in release mode for the current CPU (32 bit or 64 bit)
+- open a shell in this debian folder and run ./makedeb.sh
+- the created DEB file is ready
 
-1) Change the version number in the file linux[32/64]/DEBIAN/control with a text editor, ensure that has the proper architecture (i386 / amd64 / all).
+Alternatively, you can make it by hands:
 
-2) Update the changelog with the differences with previous version
+1) Make sure the version and changelog are up-to-date (you can use the releaser to increase the version number)
 
-3) Copy binary, models, i18n and readme in the folder /usr/share/lazpaint.
+2) Depending on the target CPU, copy the folder 'lazpaint32' or 'lazpaint64' somewhere, maybe in your /home/lainz/Documentos/. Replace 'lainz' with your username.
 
-4) Right click in the folder 'deb' and open terminal, then run this command:
+3) Copy files in the folder /usr/share/lazpaint:
+- from the ../bin folder, copy binary, models, i18n and readme
+- from the../../.., copy scripts folder
+
+4) Right click in the folder 'debian' and open terminal, then run this command:
 - A) dpkg-deb --build linux32
 - B) dpkg-deb --build linux64
 
@@ -14,12 +22,12 @@ Note: if you have folder permissions wrong try this:
   chmod -R 775 ../debian
 
 5) Change the name of the deb file to include version:
-- A) linux32.deb to lazpaint?version?_linux32.deb
-- B) linux64.deb to lazpaint?version?_linux64.deb
+- A) linux32.deb to lazpaint$VERSION_linux32.deb
+- B) linux64.deb to lazpaint$VERSION_linux64.deb
 
-6) Test the package:
-- A) sudo dpkg -i lazpaint?version?_linux32.deb
-- B) sudo dpkg -i lazpaint?version?_linux64.deb
+6) To test the package, open it in the file explorer or run it manually:
+- A) sudo dpkg -i lazpaint$VERSION_linux32.deb
+- B) sudo dpkg -i lazpaint$VERSION_linux64.deb
 
 7) To remove the package:
 - sudo dpkg -r lazpaint

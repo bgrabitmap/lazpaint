@@ -6,21 +6,22 @@ interface
 
 uses classes, LazpaintType, uresourcestrings;
 
-procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved: boolean);
+procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved, quitQuery: boolean);
 function ParamStrUTF8(AIndex: integer): string;
 
 implementation
 
 uses
   SysUtils, BGRAUTF8, LazFileUtils, BGRABitmap, BGRABitmapTypes, Dialogs, uparse,
-  UImage, UImageAction, ULayerAction;
+  UImage, UImageAction, ULayerAction, UScripting, UPython;
 
 function ParamStrUTF8(AIndex: integer): string;
 begin
   result := SysToUTF8(ParamStr(AIndex)); //not perfect
 end;
 
-procedure InternalProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved: boolean; AImageActions: TImageActions);
+procedure InternalProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList;
+  out errorEncountered, fileSaved, quitQuery: boolean; AImageActions: TImageActions);
 var
   commandPrefix: set of char;
   InputFilename:string;
@@ -45,9 +46,120 @@ var
   gt: TGradientType;
   o1,o2: TPointF;
   layerAction: TLayerAction;
+  enableScript: Boolean;
+
+  function DoGradient: boolean;
+  begin
+    //c1, c2: TBGRAPixel; gtype: TGradientType; o1, o2: TPointF;
+    funcParams := SimpleParseFuncParam(CommandStr);
+    if length(funcParams)<>13 then
+    begin
+      instance.ShowError('Gradient','"Gradient" '+StringReplace(rsExpectNParameters,'N','13',[])+'red1,green1,blue1,alpha1,red2,green2,blue2,alpha2,type,x1,y1,x2,y2');
+      errorEncountered := true;
+      exit(false);
+    end;
+    val(funcParams[0],c1.red,errPos);
+    val(funcParams[1],c1.green,errPos);
+    val(funcParams[2],c1.blue,errPos);
+    val(funcParams[3],c1.alpha,errPos);
+    val(funcParams[4],c2.red,errPos);
+    val(funcParams[5],c2.green,errPos);
+    val(funcParams[6],c2.blue,errPos);
+    val(funcParams[7],c2.alpha,errPos);
+    gt := StrToGradientType(funcParams[8]);
+    val(funcParams[9],o1.x,errPos);
+    val(funcParams[10],o1.y,errPos);
+    val(funcParams[11],o2.x,errPos);
+    val(funcParams[12],o2.y,errPos);
+    layerAction := instance.Image.CreateAction(true);
+    layerAction.DrawingLayer.GradientFill(0,0,
+      instance.Image.Width,instance.Image.Height,
+      c1,c2,gt,o1,o2,dmDrawWithTransparency,True,False);
+    layerAction.Validate;
+    FreeAndNil(layerAction);
+    result := true;
+  end;
+
+  function DoOpacity: boolean;
+  begin
+    funcParams := SimpleParseFuncParam(CommandStr);
+    if length(funcParams)<>1 then
+    begin
+      instance.ShowError('Opacity','"Opacity" ' + rsExpect1Parameter+CommandStr);
+      errorEncountered := true;
+      exit(false);
+    end;
+    val(funcParams[0],opacity,errPos);
+    if (errPos <> 0) then
+    begin
+      instance.ShowError('Opacity',rsInvalidOpacity+CommandStr);
+      errorEncountered := true;
+      exit(false);
+    end;
+    layerAction := instance.Image.CreateAction(true);
+    layerAction.DrawingLayer.ApplyGlobalOpacity(opacity);
+    layerAction.Validate;
+    FreeAndNil(layerAction);
+    result := true;
+  end;
+
+  function DoResample: boolean;
+  begin
+    funcParams := SimpleParseFuncParam(CommandStr);
+    if length(funcParams)<>2 then
+    begin
+      instance.ShowError('Resample','"Resample" ' + rsExpect2Parameters+CommandStr);
+      errorEncountered := true;
+      exit(false);
+    end;
+    val(funcParams[0],w,errPos);
+    val(funcParams[1],h,errPos);
+    if (errPos <> 0) or (w <= 0) or (h <= 0) then
+    begin
+      instance.ShowError('Resample',rsInvalidResampleSize+CommandStr);
+      errorEncountered := true;
+      exit(false);
+    end;
+    instance.Image.Resample(w,h,rfHalfCosine);
+    result := true;
+  end;
+
+  function DoNew: boolean;
+  begin
+    funcParams := SimpleParseFuncParam(CommandStr);
+    if length(funcParams)<>2 then
+    begin
+      instance.ShowError('New','"New" ' + rsExpect2Parameters+CommandStr);
+      errorEncountered := true;
+      exit(false);
+    end;
+    val(funcParams[0],w,errPos);
+    val(funcParams[1],h,errPos);
+    if (errPos <> 0) or (w <= 0) or (h <= 0) then
+    begin
+      instance.ShowError('New',rsInvalidSizeForNew+CommandStr);
+      errorEncountered := true;
+      exit(false);
+    end;
+    instance.Image.Assign(instance.MakeNewBitmapReplacement(w,h,BGRAPixelTransparent),True,False);
+    result := true;
+  end;
+
+  function NextAsFuncParam: boolean;
+  begin
+    inc(i);
+    CommandStr := commandsUTF8[i];
+    if (length(CommandStr) >= 1) and (CommandStr[1] in commandPrefix) then
+    begin
+      instance.ShowError('Command line','Expecting parameters but command found');
+      exit(false);
+    end;
+    result := true;
+  end;
 
 begin
   fileSaved := True;
+  quitQuery:= false;
   errorEncountered := false;
   if commandsUTF8.count = 0 then exit;
 
@@ -72,8 +184,11 @@ begin
   end;
 
   fileSaved := false;
-  for i := iStart to commandsUTF8.count-1 do
+  i := iStart-1;
+  while i < commandsUTF8.count-1 do
   begin
+    inc(i);
+
     CommandStr := commandsUTF8[i];
     if (length(CommandStr) >= 1) and (CommandStr[1] in commandPrefix) then
     begin
@@ -81,7 +196,7 @@ begin
       Filter := StrToPictureFilter(CommandStr);
       if Filter <> pfNone then
       begin
-        if not instance.ExecuteFilter(Filter,True) then
+        if instance.ExecuteFilter(Filter,True) <> srOk then
         begin
           instance.ShowError(CommandStr, rsUnableToApplyFilter+CommandStr);
           errorEncountered := true;
@@ -96,94 +211,27 @@ begin
         if LowerCmd='smartzoom3' then AImageActions.SmartZoom3 else
         if LowerCmd='rotatecw' then AImageActions.RotateCW else
         if LowerCmd='rotateccw' then AImageActions.RotateCCW else
-        if copy(lowerCmd,1,9)='gradient(' then
+        if copy(lowerCmd,1,9)='gradient(' then begin if not DoGradient then exit end else
+        if lowerCmd = 'gradient' then begin if not NextAsFuncParam or not DoGradient then exit end else
+        if copy(lowerCmd,1,8)='opacity(' then begin if not DoOpacity then exit end else
+        if lowerCmd = 'opacity' then begin if not NextAsFuncParam or not DoOpacity then exit end else
+        if copy(lowerCmd,1,9)='resample(' then begin if not DoResample then exit end else
+        if lowerCmd = 'resample' then begin if not NextAsFuncParam or not DoResample then exit end else
+        if copy(lowerCmd,1,4)='new(' then begin if not DoNew then exit end else
+        if lowerCmd = 'new' then begin if not NextAsFuncParam or not DoNew then exit end else
+        if lowerCmd = 'script' then
         begin
-          //c1, c2: TBGRAPixel; gtype: TGradientType; o1, o2: TPointF;
-          funcParams := SimpleParseFuncParam(CommandStr);
-          if length(funcParams)<>13 then
-          begin
-            instance.ShowError('Gradient','"Gradient" '+StringReplace(rsExpectNParameters,'N','13',[])+'red1,green1,blue1,alpha1,red2,green2,blue2,alpha2,type,x1,y1,x2,y2');
-            errorEncountered := true;
-            exit;
-          end;
-          val(funcParams[0],c1.red,errPos);
-          val(funcParams[1],c1.green,errPos);
-          val(funcParams[2],c1.blue,errPos);
-          val(funcParams[3],c1.alpha,errPos);
-          val(funcParams[4],c2.red,errPos);
-          val(funcParams[5],c2.green,errPos);
-          val(funcParams[6],c2.blue,errPos);
-          val(funcParams[7],c2.alpha,errPos);
-          gt := StrToGradientType(funcParams[8]);
-          val(funcParams[9],o1.x,errPos);
-          val(funcParams[10],o1.y,errPos);
-          val(funcParams[11],o2.x,errPos);
-          val(funcParams[12],o2.y,errPos);
-          layerAction := instance.Image.CreateAction(true);
-          layerAction.DrawingLayer.GradientFill(0,0,
-            instance.Image.Width,instance.Image.Height,
-            c1,c2,gt,o1,o2,dmDrawWithTransparency,True,False);
-          layerAction.Validate;
-          FreeAndNil(layerAction);
+          enableScript := true;
         end else
-        if copy(lowerCmd,1,8)='opacity(' then
+        if lowerCmd = 'scriptbasedir' then
         begin
-          funcParams := SimpleParseFuncParam(CommandStr);
-          if length(funcParams)<>1 then
-          begin
-            instance.ShowError('Opacity','"Opacity" ' + rsExpect1Parameter+CommandStr);
-            errorEncountered := true;
-            exit;
-          end;
-          val(funcParams[0],opacity,errPos);
-          if (errPos <> 0) then
-          begin
-            instance.ShowError('Opacity',rsInvalidOpacity+CommandStr);
-            errorEncountered := true;
-            exit;
-          end;
-          layerAction := instance.Image.CreateAction(true);
-          layerAction.DrawingLayer.ApplyGlobalOpacity(opacity);
-          layerAction.Validate;
-          FreeAndNil(layerAction);
+          if not NextAsFuncParam then exit;
+          CustomScriptDirectory:= ChompPathDelim(ExpandFileNameUTF8(commandStr));
         end else
-        if copy(lowerCmd,1,9)='resample(' then
+        if lowerCmd = 'quit' then
         begin
-          funcParams := SimpleParseFuncParam(CommandStr);
-          if length(funcParams)<>2 then
-          begin
-            instance.ShowError('Resample','"Resample" ' + rsExpect2Parameters+CommandStr);
-            errorEncountered := true;
-            exit;
-          end;
-          val(funcParams[0],w,errPos);
-          val(funcParams[1],h,errPos);
-          if (errPos <> 0) or (w <= 0) or (h <= 0) then
-          begin
-            instance.ShowError('Resample',rsInvalidResampleSize+CommandStr);
-            errorEncountered := true;
-            exit;
-          end;
-          instance.Image.Resample(w,h,rfHalfCosine);
-        end else
-        if copy(lowerCmd,1,4)='new(' then
-        begin
-          funcParams := SimpleParseFuncParam(CommandStr);
-          if length(funcParams)<>2 then
-          begin
-            instance.ShowError('New','"New" ' + rsExpect2Parameters+CommandStr);
-            errorEncountered := true;
-            exit;
-          end;
-          val(funcParams[0],w,errPos);
-          val(funcParams[1],h,errPos);
-          if (errPos <> 0) or (w <= 0) or (h <= 0) then
-          begin
-            instance.ShowError('New',rsInvalidSizeForNew+CommandStr);
-            errorEncountered := true;
-            exit;
-          end;
-          instance.Image.Assign(instance.MakeNewBitmapReplacement(w,h,BGRAPixelTransparent),True,False);
+          quitQuery:= true;
+          exit;
         end else
         if Copy(CommandStr,1,4) <> 'psn_' then //ignore mac parameter
         begin
@@ -193,16 +241,34 @@ begin
         end;
       end;
     end else
+    if enableScript then
     begin
+      ForcePathDelims(commandStr);
+      if (CompareText(ExtractFileExt(CommandStr), '.py') <> 0) then
+      begin
+        instance.ShowError('Command line', rsFileExtensionNotSupported + ' ('+ExtractFileExt(commandStr)+')');
+        errorEncountered:= true;
+        exit;
+      end;
+      if not FileExistsUTF8(commandStr) and
+        (pos(PathDelim, commandStr) = 0) then
+        commandStr := TPythonScript.DefaultScriptDirectory + PathDelim + commandStr;
+      if not instance.RunScript(commandStr) then exit;
+      enableScript := false;
+    end else
+    begin
+      ForcePathDelims(CommandStr);
       OutputFilename := CommandStr;
+      instance.StartSavingImage(OutputFilename);
       try
-         instance.Image.SaveToFileUTF8(OutputFilename)
+        instance.Image.SaveToFileUTF8(OutputFilename)
       except
         on ex: Exception do
         begin
           instance.ShowError(rsSave, rsUnableToSaveFile+OutputFilename);
         end;
       end;
+      instance.EndSavingImage;
       fileSaved:= true;
       exit;
     end;
@@ -210,11 +276,12 @@ begin
 
 end;
 
-procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved: boolean);
+procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList;
+  out errorEncountered, fileSaved, quitQuery: boolean);
 var imageActions: TImageActions;
 begin
   imageActions := TImageActions.Create(instance);
-  InternalProcessCommands(instance,commandsUTF8,errorEncountered,fileSaved,imageActions);
+  InternalProcessCommands(instance, commandsUTF8, errorEncountered, fileSaved, quitQuery, imageActions);
   imageActions.Free;
 end;
 

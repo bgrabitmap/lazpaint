@@ -217,6 +217,7 @@ end;
 function TFColorIntensity.ShowModal(AInstance: TLazPaintCustomInstance;
   AMode: TColorIntensityMode; AParameters: TVariableSet): integer;
 var topmostInfo: TTopMostInfo;
+  f, s: Double;
 begin
   FMode := AMode;
   try
@@ -232,11 +233,15 @@ begin
   end;
   try
     FInstance := AInstance;
-    if AParameters.IsDefined('Factor') and AParameters.IsDefined('Shift') then
+    if AParameters.Booleans['Validate'] then
     begin
+      if AParameters.IsDefined('Factor') then f := AParameters.Floats['Factor']
+      else f := ChosenFactor;
+      if AParameters.IsDefined('Shift') then s := AParameters.Floats['Shift']
+      else s := ChosenShift;
       case FMode of
-        ciIntensity: FilterIntensity(FFilterConnector, AParameters.Floats['Factor'],AParameters.Floats['Shift']);
-        ciLightness: FilterLightness(FFilterConnector, AParameters.Floats['Factor'],AParameters.Floats['Shift']);
+        ciIntensity: FilterIntensity(FFilterConnector, f,s);
+        ciLightness: FilterLightness(FFilterConnector, f,s);
       end;
       FFilterConnector.ValidateAction;
       result := mrOk;

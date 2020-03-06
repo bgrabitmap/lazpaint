@@ -5,12 +5,12 @@ unit LazPaintType;
 interface
 
 uses
-  Classes, SysUtils, Inifiles, BGRABitmap, BGRABitmapTypes, uconfig, uimage, utool, Forms, BGRALayers, Graphics, Menus,
-  uscripting, Dialogs, Controls
+  Classes, SysUtils, Inifiles, BGRABitmap, BGRABitmapTypes, UConfig, UImage, UTool, Forms, BGRALayers, Graphics, Menus,
+  UScripting, Dialogs, Controls
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
-  LazPaintVersion = 7000700;
+  LazPaintVersion = 7000800;
 
   function LazPaintVersionStr: string;
 
@@ -99,6 +99,7 @@ type
      c: TPointF;
      rx,ry: single;
   end;
+  ArrayOfLayerId = array of integer;
 
 const
   OnlyRenderChange : TRect = (left:-32768;top:-32768;right:0;bottom:0);
@@ -107,7 +108,8 @@ function IsOnlyRenderChange(const ARect:TRect): boolean;
 
 type
     ArrayOfBGRABitmap = array of TBGRABitmap;
-    TColorTarget = (ctForeColor, ctBackColor);
+    TColorTarget = (ctForeColorSolid, ctForeColorStartGrad, ctForeColorEndGrad,
+                    ctBackColorSolid, ctBackColorStartGrad, ctBackColorEndGrad);
     TFlipOption = (foAuto, foWholePicture, foSelection, foCurrentLayer);
 
     PImageEntry = ^TImageEntry;
@@ -117,7 +119,7 @@ type
     TImageEntry = object
       bmp: TBGRABitmap;
       bpp: integer;
-      frameIndex: integer;
+      frameIndex, frameCount: integer;
       isDuplicate: boolean;
       class function Empty: TImageEntry; static;
       class function NewFrameIndex: integer; static;
@@ -138,6 +140,7 @@ type
      defined: boolean;
      toolboxHidden, choosecolorHidden, layerstackHidden, imagelistHidden: NativeInt;
   end;
+  TCheckFunction = function: boolean of object;
 
   { TLazPaintCustomInstance }
 
@@ -177,6 +180,8 @@ type
 
     function GetChooseColorHeight: integer; virtual; abstract;
     function GetChooseColorWidth: integer; virtual; abstract;
+    procedure SetChooseColorHeight(AValue: integer); virtual; abstract;
+    procedure SetChooseColorWidth(AValue: integer); virtual; abstract;
     function GetChooseColorVisible: boolean; virtual; abstract;
     procedure SetChooseColorVisible(const AValue: boolean); virtual; abstract;
     function GetChooseColorTarget: TColorTarget; virtual; abstract;
@@ -210,13 +215,17 @@ type
 
     constructor Create; virtual; abstract;
     constructor Create(AEmbedded: boolean); virtual; abstract;
+    procedure StartLoadingImage(AFilename: string); virtual; abstract;
+    procedure EndLoadingImage; virtual; abstract;
+    procedure StartSavingImage(AFilename: string); virtual; abstract;
+    procedure EndSavingImage; virtual; abstract;
     procedure SaveMainWindowPosition; virtual; abstract;
     procedure RestoreMainWindowPosition; virtual; abstract;
     procedure Donate; virtual; abstract;
     procedure UseConfig(ini: TInifile); virtual; abstract;
     procedure AssignBitmap(bmp: TBGRABitmap); virtual; abstract;
     procedure EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStream = nil; ATitle: String = ''; AOnRun: TLazPaintInstanceEvent = nil; AOnExit: TLazPaintInstanceEvent = nil; ABlackAndWhite : boolean = false); virtual; abstract;
-    procedure EditTexture; virtual; abstract;
+    function EditTexture(ASource: TBGRABitmap): TBGRABitmap; virtual; abstract;
     procedure EditSelection; virtual; abstract;
     function ProcessCommandLine: boolean; virtual; abstract;
     function ProcessCommands(commands: TStringList): boolean; virtual; abstract;
@@ -230,28 +239,34 @@ type
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); virtual; abstract;
     procedure NotifyStackChange; virtual; abstract;
     function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; virtual; abstract;
-    function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): boolean; virtual; abstract;
+    function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): TScriptResult; virtual; abstract;
+    function RunScript(AFilename: string): boolean; virtual; abstract;
+    procedure AdjustChooseColorHeight; virtual; abstract;
     procedure ColorFromFChooseColor; virtual; abstract;
     procedure ColorToFChooseColor; virtual; abstract;
-    function ShowSaveOptionDlg(AParameters: TVariableSet; AOutputFilenameUTF8: string): boolean; virtual; abstract;
-    function ShowColorIntensityDlg(AParameters: TVariableSet): boolean; virtual; abstract;
-    function ShowColorLightnessDlg(AParameters: TVariableSet): boolean; virtual; abstract;
-    function ShowShiftColorsDlg(AParameters: TVariableSet): boolean; virtual; abstract;
-    function ShowColorizeDlg(AParameters: TVariableSet): boolean; virtual; abstract;
-    function ShowColorCurvesDlg(AParameters: TVariableSet): boolean; virtual; abstract;
-    function ShowRadialBlurDlg(AFilterConnector: TObject;blurType:TRadialBlurType; ACaption: string = ''):boolean; virtual; abstract;
-    function ShowMotionBlurDlg(AFilterConnector: TObject):boolean; virtual; abstract;
-    function ShowCustomBlurDlg(AFilterConnector: TObject):boolean; virtual; abstract;
-    function ShowEmbossDlg(AFilterConnector: TObject):boolean; virtual; abstract;
-    function ShowRainDlg(AFilterConnector: TObject):boolean; virtual; abstract;
-    function ShowPixelateDlg(AFilterConnector: TObject):boolean; virtual; abstract;
-    function ShowNoiseFilterDlg(AFilterConnector: TObject):boolean; virtual; abstract;
-    function ShowTwirlDlg(AFilterConnector: TObject):boolean; virtual; abstract;
-    function ShowWaveDisplacementDlg(AFilterConnector: TObject):boolean; virtual; abstract;
-    function ShowPhongFilterDlg(AFilterConnector: TObject): boolean; virtual; abstract;
-    function ShowFunctionFilterDlg(AFilterConnector: TObject): boolean; virtual; abstract;
-    function ShowSharpenDlg(AFilterConnector: TObject):boolean; virtual; abstract;
-    function ShowPosterizeDlg(AParameters: TVariableSet):boolean; virtual; abstract;
+    procedure ExitColorEditor; virtual; abstract;
+    function GetColor(ATarget: TColorTarget): TBGRAPixel;
+    procedure SetColor(ATarget: TColorTarget; AColor: TBGRAPixel);
+    function ShowSaveOptionDlg(AParameters: TVariableSet; AOutputFilenameUTF8: string;
+                               ASkipOptions: boolean; AExport: boolean): boolean; virtual; abstract;
+    function ShowColorIntensityDlg(AParameters: TVariableSet): TScriptResult; virtual; abstract;
+    function ShowColorLightnessDlg(AParameters: TVariableSet): TScriptResult; virtual; abstract;
+    function ShowShiftColorsDlg(AParameters: TVariableSet): TScriptResult; virtual; abstract;
+    function ShowColorizeDlg(AParameters: TVariableSet): TScriptResult; virtual; abstract;
+    function ShowColorCurvesDlg(AParameters: TVariableSet): TScriptResult; virtual; abstract;
+    function ShowRadialBlurDlg(AFilterConnector: TObject; blurType:TRadialBlurType; ACaption: string = ''): TScriptResult; virtual; abstract;
+    function ShowMotionBlurDlg(AFilterConnector: TObject): TScriptResult; virtual; abstract;
+    function ShowCustomBlurDlg(AFilterConnector: TObject): TScriptResult; virtual; abstract;
+    function ShowEmbossDlg(AFilterConnector: TObject): TScriptResult; virtual; abstract;
+    function ShowRainDlg(AFilterConnector: TObject): TScriptResult; virtual; abstract;
+    function ShowPixelateDlg(AFilterConnector: TObject): TScriptResult; virtual; abstract;
+    function ShowNoiseFilterDlg(AFilterConnector: TObject): TScriptResult; virtual; abstract;
+    function ShowTwirlDlg(AFilterConnector: TObject): TScriptResult; virtual; abstract;
+    function ShowWaveDisplacementDlg(AFilterConnector: TObject): TScriptResult; virtual; abstract;
+    function ShowPhongFilterDlg(AFilterConnector: TObject): TScriptResult; virtual; abstract;
+    function ShowFunctionFilterDlg(AFilterConnector: TObject): TScriptResult; virtual; abstract;
+    function ShowSharpenDlg(AFilterConnector: TObject): TScriptResult; virtual; abstract;
+    function ShowPosterizeDlg(AParameters: TVariableSet): TScriptResult; virtual; abstract;
     procedure ShowPrintDlg; virtual; abstract;
     function OpenImage (FileName: string; AddToRecent: Boolean= True): boolean; virtual; abstract;
     procedure AddToImageList(const FileNames: array of String); virtual; abstract;
@@ -268,13 +283,13 @@ type
     function ShowNewImageDlg(out bitmap: TBGRABitmap):boolean; virtual; abstract;
     function ShowResampleDialog(AParameters: TVariableSet):boolean; virtual; abstract;
     procedure UpdateWindows; virtual; abstract;
-    procedure ApplyDocking; virtual; abstract;
+    procedure Wait(ACheckActive: TCheckFunction; ADelayMs: integer); virtual; abstract;
     procedure AddColorToPalette(AColor: TBGRAPixel); virtual; abstract;
     procedure RemoveColorFromPalette(AColor: TBGRAPixel); virtual; abstract;
 
     property BlackAndWhite: boolean read FBlackAndWhite write SetBlackAndWhite;
 
-    procedure ScrollLayerStackOnItem(AIndex: integer); virtual; abstract;
+    procedure ScrollLayerStackOnItem(AIndex: integer; ADelayedUpdate: boolean = true); virtual; abstract;
     function MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap; virtual; abstract;
     procedure ChooseTool(Tool : TPaintToolType); virtual; abstract;
     function GetOnlineUpdater: TLazPaintCustomOnlineUpdater; virtual;
@@ -289,8 +304,8 @@ type
 
     procedure MoveChooseColorTo(X,Y: integer); virtual; abstract;
     property ChooseColorVisible: boolean read GetChooseColorVisible write SetChooseColorVisible;
-    property ChooseColorWidth: integer read GetChooseColorWidth;
-    property ChooseColorHeight: integer read GetChooseColorHeight;
+    property ChooseColorWidth: integer read GetChooseColorWidth write SetChooseColorWidth;
+    property ChooseColorHeight: integer read GetChooseColorHeight write SetChooseColorHeight;
 
     procedure MoveLayerWindowTo(X,Y: integer); virtual; abstract;
     property LayerWindowWidth: integer read GetLayerWindowWidth write SetLayerWindowWidth;
@@ -338,10 +353,12 @@ procedure SetWindowFullHeight(AForm: TForm; AHeight: integer);
 procedure SetWindowFullSize(AForm: TForm; AWidth,AHeight: integer);
 procedure SetWindowTopLeftCorner(AForm: TForm; X,Y: integer);
 function GetWindowTopLeftCorner(AForm: TForm): TPoint;
+function PascalToCSSCase(AIdentifier: string): string;
+function CSSToPascalCase(AIdentifier: string): string;
 
 implementation
 
-uses LCLType, BGRAUTF8, LCLIntf, FileUtil, UResourceStrings;
+uses LCLType, BGRAUTF8, LCLIntf, FileUtil, UResourceStrings, LCVectorialFill;
 
 function LazPaintVersionStr: string;
 var numbers: TStringList;
@@ -369,7 +386,7 @@ const
   LazPaintProcessorInfo = ' (32-bit)';
 {$ENDIF}
 begin
-  result := LazPaintVersionStr + LazPaintProcessorInfo;
+  result := LazPaintVersionStr {$IFDEF DEBUG} + ' Beta'{$ENDIF} + LazPaintProcessorInfo;
 end;
 
 function IsOnlyRenderChange(const ARect: TRect): boolean;
@@ -521,13 +538,40 @@ begin
   result := Point(AForm.Left,AForm.Top);
 end;
 
+function PascalToCSSCase(AIdentifier: string): string;
+var
+  i: Integer;
+begin
+  result := AIdentifier;
+  for i := length(result) downto 1 do
+    if result[i] <> lowercase(result[i]) then
+    begin
+      result[i] := lowercase(result[i]);
+      if i > 1 then Insert('-', result, i);
+    end;
+end;
+
+function CSSToPascalCase(AIdentifier: string): string;
+var
+  i: Integer;
+begin
+  result := AIdentifier;
+  for i := length(result) downto 1 do
+  begin
+    if (i = 1) or (result[i-1] = '-') then
+      result[i] := upcase(result[i]) else
+    if result[i] = '-' then delete(result, i, 1);
+  end;
+end;
+
 { TImageEntry }
 
 class function TImageEntry.Empty: TImageEntry;
 begin
   result.bmp := nil;
   result.bpp := 0;
-  result.frameIndex := 0;
+  result.frameIndex := -1;
+  result.frameCount := 0;
   result.isDuplicate:= false;
 end;
 
@@ -598,6 +642,47 @@ end;
 function TLazPaintCustomInstance.GetZoomFactor: single;
 begin
   result := 1;
+end;
+
+function TLazPaintCustomInstance.GetColor(ATarget: TColorTarget): TBGRAPixel;
+begin
+  case ATarget of
+    ctForeColorSolid: result := ToolManager.ForeColor;
+    ctForeColorStartGrad: if ToolManager.ForeFill.FillType = vftGradient then
+                            result := ToolManager.ForeFill.Gradient.StartColor
+                          else result := ToolManager.ForeColor;
+    ctForeColorEndGrad: if ToolManager.ForeFill.FillType = vftGradient then
+                          result := ToolManager.ForeFill.Gradient.EndColor
+                        else result := ToolManager.ForeColor;
+    ctBackColorSolid: result := ToolManager.BackColor;
+    ctBackColorStartGrad: if ToolManager.BackFill.FillType = vftGradient then
+                            result := ToolManager.BackFill.Gradient.StartColor
+                          else result := ToolManager.BackColor;
+    ctBackColorEndGrad: if ToolManager.BackFill.FillType = vftGradient then
+                          result := ToolManager.BackFill.Gradient.EndColor
+                        else result := ToolManager.BackColor;
+  else
+    result := BGRAPixelTransparent;
+  end;
+end;
+
+procedure TLazPaintCustomInstance.SetColor(ATarget: TColorTarget;
+  AColor: TBGRAPixel);
+begin
+  case ATarget of
+    ctForeColorSolid: if ToolManager.ForeFill.FillType = vftSolid then
+                        ToolManager.ForeColor := AColor;
+    ctForeColorStartGrad: if ToolManager.ForeFill.FillType = vftGradient then
+                            ToolManager.ForeFill.Gradient.StartColor := AColor;
+    ctForeColorEndGrad: if ToolManager.ForeFill.FillType = vftGradient then
+                          ToolManager.ForeFill.Gradient.EndColor := AColor;
+    ctBackColorSolid: if ToolManager.BackFill.FillType = vftSolid then
+                        ToolManager.BackColor := AColor;
+    ctBackColorStartGrad: if ToolManager.BackFill.FillType = vftGradient then
+                            ToolManager.BackFill.Gradient.StartColor := AColor;
+    ctBackColorEndGrad: if ToolManager.BackFill.FillType = vftGradient then
+                          ToolManager.BackFill.Gradient.EndColor := AColor;
+  end;
 end;
 
 procedure TLazPaintCustomInstance.SetBlackAndWhite(AValue: boolean);

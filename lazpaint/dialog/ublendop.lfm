@@ -192,6 +192,7 @@ object FBlendOp: TFBlendOp
     Color = clBtnFace
     Items.Strings = (
       'DarkOverlay'
+      'LinearMultiplySaturation'
       'Additive'
       'LinearNegation'
       'Negation'
@@ -204,6 +205,7 @@ object FBlendOp: TFBlendOp
       'Difference'
       'Subtract'
       'Xor'
+      'Mask'
     )
     ItemHeight = 80
     OnDblClick = ListBox_BlendDblClick

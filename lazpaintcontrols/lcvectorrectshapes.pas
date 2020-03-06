@@ -75,7 +75,7 @@ type
     procedure SetFixedRatio(AValue: single);
     procedure EnsureRatio(ACenterX,ACenterY: single);
   public
-    procedure QuickDefine(const APoint1,APoint2: TPointF); override;
+    procedure QuickDefine(constref APoint1,APoint2: TPointF); override;
     function SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox; override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -202,7 +202,7 @@ type
 
 implementation
 
-uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math, LCVectorialFill;
+uses BGRAPen, BGRAGraphics, BGRAFillInfo, BGRAPath, math, LCVectorialFill, LCResourceString;
 
 { TPhongShapeDiff }
 
@@ -798,7 +798,7 @@ begin
   result := true;
 end;
 
-procedure TCustomRectShape.QuickDefine(const APoint1, APoint2: TPointF);
+procedure TCustomRectShape.QuickDefine(constref APoint1, APoint2: TPointF);
 begin
   BeginUpdate(TCustomRectShapeDiff);
   FOrigin := (APoint1+APoint2)*0.5;
@@ -934,7 +934,9 @@ begin
         totalSurface := penSurface;
     end else
       totalSurface := backSurface;
-    result := (totalSurface > 800*600) or ((totalSurface > 320*240) and (BackFill.IsSlow(AMatrix) or (BackFill.FillType = vftGradient)));
+    result := (totalSurface > 800*600) or
+              ((backSurface > 320*240) and BackVisible and BackFill.IsSlow(AMatrix)) or
+              ((penSurface > 320*240) and PenVisible and PenFill.IsSlow(AMatrix));
   end;
 end;
 
@@ -1374,7 +1376,9 @@ begin
         totalSurface := penSurface;
     end else
       totalSurface := backSurface;
-    result := (totalSurface > 640*480) or ((totalSurface > 320*240) and BackFill.IsSlow(AMatrix));
+    result := (totalSurface > 640*480) or
+              ((backSurface > 320*240) and BackVisible and BackFill.IsSlow(AMatrix)) or
+              ((penSurface > 320*240) and PenVisible and PenFill.IsSlow(AMatrix));
   end;
 end;
 
@@ -1527,7 +1531,7 @@ begin
   inherited ConfigureCustomEditor(AEditor);
   idxLight := AEditor.AddPoint(FLightPosition, @OnMoveLightPos, true);
   if AEditor is TVectorOriginalEditor then
-    TVectorOriginalEditor(AEditor).AddLabel(idxLight, LightPositionCaption, taCenter, tlTop);
+    TVectorOriginalEditor(AEditor).AddLabel(idxLight, rsLightPosition, taCenter, tlTop);
 end;
 
 procedure TPhongShape.MouseDown(RightButton: boolean; Shift: TShiftState; X,

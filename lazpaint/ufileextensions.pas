@@ -41,7 +41,7 @@ implementation
 
 uses Masks, LazUTF8, UResourceStrings, BGRASVG,
      BGRALayerOriginal, BGRASVGOriginal, BGRAGradientOriginal,
-     LCVectorOriginal, LCVectorShapes;
+     LCVectorOriginal, LCVectorShapes, URaw;
 
 function GetSelectedFilterExtensions(const Filter: string;
   FilterIndex: integer; ARemoveLeadingDot: boolean): TStringList;
@@ -319,8 +319,11 @@ initialization
   RegisterPicExt('Scalable Vector Graphic','svg', [eoReadable]);
   RegisterPicExt('Targa','tga', [eoReadable,eoWritable]);
   RegisterPicExt('Tiff','tif;tiff', [eoReadable,eoWritable]);
+  RegisterPicExt('WebP','webp', [eoReadable,eoWritable]);
   RegisterPicExt('X PixMap','xpm', [eoReadable,eoWritable]);
+  RegisterPicExt('Portable Any Map', 'pbm;pgm;ppm', [eoReadable]);
   RegisterPicExt('X Window','xwd', [eoReadable]);
+  RegisterPicExt('Raw',AllRawExtensions, [eoReadable]);
 
 end.
 

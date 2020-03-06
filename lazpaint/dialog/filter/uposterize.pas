@@ -29,19 +29,20 @@ type
     FInitializing: boolean;
     FFilterConnector: TFilterConnector;
     procedure OnTryStopAction({%H-}sender: TFilterConnector);
+    procedure InitParams;
     procedure PreviewNeeded;
     { private declarations }
   public
     { public declarations }
   end;
 
-function ShowPosterizeDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet):boolean;
+function ShowPosterizeDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult;
 
 implementation
 
-uses LCScaleDPI, UMac, UColorFilters;
+uses BGRABitmapTypes, LCScaleDPI, UMac, UColorFilters;
 
-function ShowPosterizeDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): boolean;
+function ShowPosterizeDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult;
 var FPosterize: TFPosterize;
   topmostInfo: TTopMostInfo;
 begin
@@ -53,13 +54,26 @@ begin
     on ex: exception do
     begin
       AInstance.ShowError('ShowPosterizeDlg',ex.Message);
-      result := false;
+      result := srException;
       exit;
     end;
   end;
   topmostInfo := AInstance.HideTopmost;
   try
-    result := FPosterize.ShowModal = mrOK;
+    if Assigned(FPosterize.FFilterConnector.Parameters) and
+       FPosterize.FFilterConnector.Parameters.Booleans['Validate'] then
+    begin
+      FPosterize.InitParams;
+      FPosterize.PreviewNeeded;
+      FPosterize.FFilterConnector.ValidateAction;
+      result := srOk;
+    end else
+    begin
+      if FPosterize.ShowModal = mrOK then
+        result := srOk
+      else
+        result := srCancelledByUser;
+    end;
   finally
     AInstance.ShowTopmost(topmostInfo);
     FPosterize.FFilterConnector.OnTryStopAction := nil;
@@ -93,10 +107,7 @@ end;
 
 procedure TFPosterize.FormShow(Sender: TObject);
 begin
-  FInitializing := true;
-  SpinEdit_Levels.Value := FFilterConnector.LazPaintInstance.Config.DefaultPosterizeLevels;
-  CheckBox_ByLightness.Checked := FFilterConnector.LazPaintInstance.Config.DefaultPosterizeByLightness;
-  FInitializing := false;
+  InitParams;
   PreviewNeeded;
   Top := FFilterConnector.LazPaintInstance.MainFormBounds.Top;
 end;
@@ -111,25 +122,37 @@ begin
   if self.visible then Close;
 end;
 
+procedure TFPosterize.InitParams;
+begin
+  FInitializing := true;
+  if Assigned(FFilterConnector.Parameters) and
+     FFilterConnector.Parameters.IsDefined('Levels') then
+    SpinEdit_Levels.Value := FFilterConnector.Parameters.Integers['Levels']
+  else
+    SpinEdit_Levels.Value := FFilterConnector.LazPaintInstance.Config.DefaultPosterizeLevels;
+  if Assigned(FFilterConnector.Parameters) and
+     FFilterConnector.Parameters.IsDefined('ByLightness') then
+    CheckBox_ByLightness.Checked := FFilterConnector.Parameters.Booleans['ByLightness']
+  else
+    CheckBox_ByLightness.Checked := FFilterConnector.LazPaintInstance.Config.DefaultPosterizeByLightness;
+  FInitializing := false;
+end;
+
 procedure TFPosterize.PreviewNeeded;
 var params:TVariableSet;
   levels: integer;
 
   procedure AddPosterize(AChannel :string);
   var
-    XList,YList: TScriptVariableReference;
+    pointList: TScriptVariableReference;
     i: integer;
   begin
     with params.AddSubset(AChannel) do
     begin
       Booleans['Posterize'] := true;
-      XList := AddFloatList('X');
-      YList := AddFloatList('Y');
+      pointList := AddPointList('Points');
       for i := 0 to levels-1 do
-      begin
-        AppendFloat(XList, i/levels);
-        AppendFloat(YList, i/(levels-1));
-      end;
+        AppendPoint(pointList, PointF(i/levels, i/(levels-1)));
     end;
   end;
 

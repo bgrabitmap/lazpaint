@@ -19,6 +19,7 @@ resourcestring
   rsLazPaint = 'LazPaint';
   rsScript = 'Script';
   rsFunctionNotDefined = 'The function %1 is not defined.';
+  rsPythonUnexpectedVersion = 'Expected python version %1 but %2 found.';
   rsOpening='Opening';
   rsLoading='Loading';
   rsRecentDirectories='Recent directories:';
@@ -30,6 +31,7 @@ resourcestring
   rsEnterLayerName='Enter layer name:';
   rsFileExtensionNotSupported='This file extension is not supported.';
   rsFileFormatNotRecognized='The file format has not been recognized.';
+  rsErrorDecodingRaw='Error decoding raw image.';
   rsErrorLoadingOriginal='Error while loading original however layer can be rasterized.';
   rsRasterLayer = 'Raster layer';
   rsTransformedRasterLayer = 'Transformed raster layer';
@@ -85,7 +87,10 @@ resourcestring
   rsHoldKeyRestrictRotation = 'Hold %1 to restrict rotation angle';
   rsHoldKeysScaleMode = 'Hold %1 or %2 to scale';
   rsCurveModeHint = 'Press S or X to set the curve mode of the last point';
+  rsSelectBlendOperation = 'Select blend operation';
   rsBlendOpNotUsedForBackground = 'The blend operation is applied only if there is a layer underneath';
+  rsZoomLayerStackIn = 'Zoom layer stack in';
+  rsZoomLayerStackOut = 'Zoom layer stack out';
   rsRightClickForSource = 'Use RIGHT click to define source';
 
   rsFileCannotBeEmpty = 'File cannot be empty';
@@ -95,6 +100,7 @@ resourcestring
 
   rsRepeatImage='Repeat image';
   rsCanvasSize='Canvas size';
+  rsResamplingImage='Resampling image...';
 
   rsRed='Red';
   rsGreen='Green';
@@ -157,6 +163,8 @@ resourcestring
   rsExpectNParameters='expects N parameters : ';
   rsExpect1Parameter='expects one parameter : ';
   rsExpect2Parameters='expects two parameters : ';
+  rsInvalidParameters='Invalid parameters';
+  rsException='An exception was encountered';
 
   rsPercent='%';
   rsPx='px';
@@ -169,9 +177,11 @@ resourcestring
   rsNo='No';
   rsOkay='Okay';
   rsCancel='Cancel';
+  rsCancelledByUser='Cancelled by user';
   rsNoAndProceedToNext='Do not save and open another file';
   rsInformation='Information';
   rsError='Error';
+  rsEndWithoutMatchingBegin = 'End without matching begin';
   rsThereAreNoCheckedItems='There are no checked items. Check some items or add some new ones.';
   rsThereIsNoFileNameGivenForThisFileUseSaveAs='There is no file name given for this file. Use "Save as..." from the main menu.';
   rsFileNotFound='File not found!';
@@ -181,6 +191,7 @@ resourcestring
   rsOpenFilesAsLayers='Open files as layers in a single image';
   rsTooManyLayers='Too many layers';
   rsTooManyShapesInLayer='Too many shapes in layer';
+  rsTooManyActions='Too many actions';
   rsCannotDrawShapeOnSVGLayer='Cannot draw shape on SVG layer';
   rsAddToImageList='Add files to the image processing list';
   rsOpenFirstFileOnly='Open the first file only';
@@ -226,7 +237,16 @@ resourcestring
   rsShowPalette = 'Show palette';
   rsPaletteOptions = 'Palette options';
 
+function RemoveTrail(ACaption: string): string;
+
 implementation
+
+function RemoveTrail(ACaption: string): string;
+begin
+  result := Trim(ACaption);
+  while (result<>'') and (result[length(result)] in[' ',':','.','?','!']) do
+    delete(result,length(result),1);
+end;
 
 function ApplyShortcutStr(ACaption, AShortcut: string): string;
 var idxPar: integer;

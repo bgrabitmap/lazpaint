@@ -8,22 +8,16 @@ uses
   Classes, SysUtils, BGRABitmapTypes;
 
 const
-  ScriptKeywords : array[1..40] of string = ('var','procedure','function','and',
-    'or','xor','not','true','false','if','then','case','begin','end','of',
-    'exit','new','class','is','const','div','do','downto','to','else','for',
-    'in','mod','nil','object','record','repeat','self','shl','shr','string',
-    'unit','until','uses','while');
-  ScriptSymbols : array[1..38] of string = ('+','-','*','/','=','<','>','[',']',
-  '.',',','(',')',':','^','@','{','}','$','#','&','%','<<','>>','**','<>','><',
-  '<=','>=',':=','+=','-=','*=','/=','(*','*)','//','..');
-
   VariableDefinitionToken : string = ':';
   TrueToken : string = 'True';
   FalseToken : string = 'False';
-  NilToken : string = 'Nil';
+  UndefinedToken : string = 'None';
   CharToken1 : string = 'Chr';
   CharToken2 : string = 'Char';
-  StringDelimiter: string = '"';
+  StringDelimiter1 = '"';
+  StringDelimiter2 = '''';
+  EscapePrefix = '\';
+  StringDelimiters = [StringDelimiter1, StringDelimiter2];
   IdentifierCharStart: set of char = ['a'..'z','A'..'Z','_',#128..#255];
   IdentifierCharMiddle: set of char = ['a'..'z','A'..'Z','_',#128..#255,'0'..'9'];
   IgnoredWhitespaces : set of char = [#9,#13,#10,' '];
@@ -37,16 +31,17 @@ type
   TInterpretationError = (ieTooManyClosingBrackets, ieEndingQuoteNotFound, ieOpeningBracketNotFound, ieClosingBracketNotFound,
                           ieConstantExpressionExpected, ieUnexpectedChar, ieInvalidNumber, ieInvalidColor, ieInvalidBoolean,
                           ieDuplicateIdentifier, ieUnexpectedOpeningBracketKind, ieUnexpectedClosingBracketKind,
-                          ieUnknownListType, ieMissingValue);
+                          ieUnknownListType, ieMissingValue, ieTooManyValues);
   TInterpretationErrors = set of TInterpretationError;
-  TScriptVariableType = (svtUndefined, svtObject, svtFloat, svtInteger, svtBoolean, svtString, svtPixel, svtSubset,
-                         svtFloatList, svtIntList, svtBoolList, svtStrList, svtPixList, svtObjectList);
+  TScriptVariableType = (svtUndefined, svtFloat, svtInteger, svtPoint, svtBoolean, svtString, svtPixel, svtSubset,
+                         svtFloatList, svtIntList, svtPointList, svtBoolList, svtStrList, svtPixList);
   TScriptFunctionExceptionHandler = procedure(AFunctionName: string; AException: Exception) of object;
 
   TParsedLitteral = record
     valueType: TScriptVariableType;
     valueFloat: double;
     valueInt: TScriptInteger;
+    valuePoint: TPoint3D;
     valueBool: boolean;
     valueStr: string;
     valuePixel: TBGRAPixel;
@@ -57,40 +52,60 @@ type
     varType: TScriptVariableType;
     case TScriptVariableType of
       svtFloat: (valueFloat: double);
-      svtInteger,svtObject: (valueInt: TScriptInteger);
+      svtInteger: (valueInt: TScriptInteger);
+      svtPoint: (valuePoint: TPoint3D);
       svtBoolean: (valueBool: boolean);
       svtPixel: (valuePix: TBGRAPixel);
-      svtUndefined: (valueBytes: packed array[0..7] of byte);
+      svtUndefined: (valueBytes: packed array[0..11] of byte);
   end;
 
 const
-  ScriptVariableListTypes : set of TScriptVariableType = [svtFloatList, svtIntList, svtBoolList, svtStrList, svtPixList, svtObjectList];
-  ScriptScalarListTypes : set of TScriptVariableType = [svtFloatList, svtIntList, svtPixList, svtObjectList];
-  ScalarListElementSize : array[svtFloatList..svtObjectList] of NativeInt =
-    (sizeof(double), sizeof(TScriptInteger), 0, 0, sizeof(TBGRAPixel), sizeof(TScriptInteger));
-  ListElementType : array[svtFloatList..svtObjectList] of TScriptVariableType =
-    (svtFloat, svtInteger, svtBoolean, svtString, svtPixel, svtObject);
-  EmptyListExpression : array[svtFloatList..svtObjectList] of string =
-    ('[~0.0]', '[~0]', '[~False]', '[~""]','[~#000]','[~Nil]');
+  ScriptVariableListTypes : set of TScriptVariableType = [svtFloatList, svtIntList, svtPointList, svtBoolList, svtStrList, svtPixList];
+  ScriptScalarListTypes : set of TScriptVariableType = [svtFloatList, svtIntList, svtPointList, svtPixList];
+  ScriptScalarTypes : set of TScriptVariableType = [svtFloat, svtInteger, svtPoint, svtBoolean, svtPixel];
+  ScalarListElementSize : array[svtFloatList..svtPixList] of NativeInt =
+    (sizeof(double), sizeof(TScriptInteger), sizeof(TPoint3D), 0, 0, sizeof(TBGRAPixel));
+  ListElementType : array[svtFloatList..svtPixList] of TScriptVariableType =
+    (svtFloat, svtInteger, svtPoint, svtBoolean, svtString, svtPixel);
+  EmptyListExpression : array[svtFloatList..svtPixList] of string =
+    ('[~0.0]', '[~0]', '[(0.0,0.0)]', '[~False]', '[~""]','[~#000]');
+  InterpretationErrorToStr: array[TInterpretationError] of string =
+    ('Too many closing brackets', 'Ending quote not found',
+     'Opening bracket not found', 'Closing bracket not found',
+     'Constant expression expected', 'Unexpected char',
+     'Invalid number', 'Invalid color', 'Invalid boolean',
+     'Duplicate identifier', 'Unexpected opening bracket kind',
+     'Unexpected closing bracket kind',
+     'Unknown list type', 'Missing value', 'Too many values');
 
 function ScriptQuote(const S: string): string;
 function ScriptUnquote(const S: string): string;
+function UnescapeString(const S: string): string;
 function TryScriptUnquote(const S: String; out unquotedS: string): TInterpretationErrors;
-function FloatToStrUS(AValue: double): string;
-function ScalarToStr(AVarType: TScriptVariableType; var AValue): string;
+function FloatToStrUS(AValue: double; AExplicitDot: boolean = true): string;
+function ScalarToStr(AVarType: TScriptVariableType; const AValue): string;
 function ParseLitteral(var cur: integer; expr: string; var errors: TInterpretationErrors): TParsedLitteral;
 function ParseListType(s: string): TScriptVariableType;
 function FloatToPixel(AValue: double): TBGRAPixel;
 function IntToPixel(AValue: TScriptInteger): TBGRAPixel;
+function PixelToInt(AValue: TBGRAPixel): TScriptInteger;
+function InterpretationErrorsToStr(AErrors: TInterpretationErrors): string;
+function ScriptGuidToStr(const AGuid: TGuid): string;
+function ScriptStrToGuid(AValue: string): TGuid;
 
 implementation
 
+uses BGRAUTF8;
+
 {$i quote.inc}
 
-function FloatToStrUS(AValue: double): string;
+function FloatToStrUS(AValue: double; AExplicitDot: boolean = true): string;
 var idxE,idxPt,beforeE,afterE: integer;
 begin
-  str(AValue,result);
+  if frac(AValue) = 0 then
+    str(AValue:15:0, result)
+  else
+    str(AValue,result);
   result := trim(result);
   idxE := pos('E',result);
   idxPt := pos('.',result);
@@ -131,17 +146,23 @@ begin
   end;
   idxE := pos('E',result);
   idxPt := pos('.',result);
-  if (idxE = 0) and (idxPt = 0) then result := result+'.0';
+  if AExplicitDot and (idxE = 0) and (idxPt = 0) then result := result+'.0';
 end;
 
-function ScalarToStr(AVarType: TScriptVariableType; var AValue): string;
+function ScalarToStr(AVarType: TScriptVariableType; const AValue): string;
 begin
   case AVarType of
     svtFloat: result := FloatToStrUS(double(AValue));
     svtInteger: result := IntToStr(TScriptInteger(AValue));
-    svtPixel: result := '#'+BGRAToStr(TBGRAPixel(AValue));
+    svtPoint: with TPoint3D(AValue) do
+              begin
+                if z <> EmptySingle then
+                  result := '(' + FloatToStrUS(x, false)+', '+FloatToStrUS(y, false)+', '+FloatToStrUS(z, false)+')'
+                else
+                  result := '(' + FloatToStrUS(x, false)+', '+FloatToStrUS(y, false)+')';
+              end;
+    svtPixel: result := '#'+BGRAToStr(TBGRAPixel(AValue), nil,0,true);
     svtBoolean: result := BoolToStr(Boolean(AValue),TrueToken,FalseToken);
-    svtObject: if TScriptInteger(AValue) = 0 then result := NilToken else result := 'Object';
   else raise exception.Create('Not a scalar type');
   end;
 end;
@@ -150,7 +171,7 @@ function ParseLitteral(var cur: integer; expr: string; var errors: TInterpretati
 var startIdentifier: integer;
     inIdentifier, notConstant: boolean;
     inBracket: integer;
-    isString, isBoolean: boolean;
+    isString, isBoolean, isUndefined: boolean;
   procedure CheckIdentifier;
   var idStr: string;
   begin
@@ -165,6 +186,11 @@ var startIdentifier: integer;
       if inBracket = 0 then isBoolean := true;
     end
     else
+    if (CompareText(idStr,UndefinedToken) = 0) then
+    begin
+      if inBracket = 0 then isUndefined := true;
+    end
+    else
       notConstant := true;
   end;
 
@@ -173,13 +199,14 @@ var
   valueStr: string;
   start: integer;
   unquotedStr: string;
-  inQuote, inNumber, inPixel: boolean;
+  inQuote: char;
+  inNumber, inPixel: boolean;
   isNumber, isPixel: boolean;
   valueInt: TScriptInteger;
   valueFloat: double;
   valueBool: boolean;
   valuePixel: TBGRAPixel;
-  errPos: integer;
+  errPos,coordIndex,posComma: integer;
   missingFlag,errorFlag: boolean;
 begin
   result.valueType := svtUndefined;
@@ -187,14 +214,9 @@ begin
   result.valueInt := 0;
   result.valuePixel := BGRAPixelTransparent;
   result.valueBool:= false;
-  if CompareText(trim(expr),NilToken) = 0 then
-  begin
-    result.valueType := svtObject;
-    exit;
-  end;
   start := cur;
   inBracket:= 0;
-  inQuote:= false;
+  inQuote:= #0;
   inIdentifier:= false;
   inNumber:= false;
   inPixel:= false;
@@ -203,13 +225,14 @@ begin
   isBoolean:= false;
   isNumber:= false;
   isPixel := false;
+  isUndefined := false;
   startIdentifier:= 1; //initialize
   notConstant:= false;
   while cur <= length(expr) do
   begin
-    if inQuote then
+    if inQuote<>#0 then
     begin
-      if expr[cur] = StringDelimiter then inQuote := false else
+      if expr[cur] = inQuote then inQuote := #0 else
       if expr[cur] in[#13,#10] then
       begin
         errors += [ieEndingQuoteNotFound];
@@ -241,9 +264,9 @@ begin
           dec(inBracket);
           if inBracket < 0 then errors += [ieTooManyClosingBrackets];
         end else
-        if expr[cur] = StringDelimiter then
+        if expr[cur] in StringDelimiters then
         begin
-          inQuote := true;
+          inQuote := expr[cur];
           if inBracket = 0 then isString:= true;
         end else
         if expr[cur] in IdentifierCharStart then
@@ -264,7 +287,7 @@ begin
           if inBracket = 0 then IsPixel:= true;
         end
         else
-        if expr[cur] = ',' then break;
+        if (expr[cur] in[',','}']) and (inBracket = 0) then break;
       end;
     end;
     previousChar:= expr[cur];
@@ -273,10 +296,14 @@ begin
   if inNumber then inNumber:= false;
   if inPixel then inPixel := false;
   if inIdentifier then CheckIdentifier;
-  if inQuote then errors += [ieEndingQuoteNotFound];
+  if inQuote<>#0 then errors += [ieEndingQuoteNotFound];
   if inBracket > 0 then errors += [ieClosingBracketNotFound];
   if notConstant then errors += [ieConstantExpressionExpected];
   valueStr := Trim(copy(expr,start,cur-start));
+  if isUndefined then
+  begin
+    result.valueType := svtUndefined;
+  end else
   if isString then
   begin
     errors := errors + TryScriptUnquote(valueStr, unquotedStr);
@@ -325,11 +352,45 @@ begin
       result.valuePixel := valuePixel;
     end;
   end else
+  if (length(valueStr)>=2) and (valueStr[1] = '(') and (valueStr[length(valueStr)] = ')') then
+  begin
+    result.valuePoint:= Point3D(0,0,EmptySingle);
+    valueStr := trim(copy(valueStr,2,length(valueStr)-2));
+    coordIndex := 0;
+    while valueStr<>'' do
+    begin
+      if coordIndex >= 3 then
+      begin
+        errors := errors + [ieTooManyValues];
+        break;
+      end;
+      posComma := pos(',', valueStr);
+      if posComma > 0 then
+        val(copy(valueStr,1,posComma-1),valueFloat,errPos)
+      else
+        val(valueStr,valueFloat,errPos);
+      if errPos <> 0 then
+      begin
+        errors := errors + [ieInvalidNumber];
+        break;
+      end;
+      case coordIndex of
+        0: result.valuePoint.x := valueFloat;
+        1: result.valuePoint.y := valueFloat;
+        2: result.valuePoint.z := valueFloat;
+      end;
+      inc(coordIndex);
+      if posComma = 0 then valueStr := ''
+      else delete(valueStr, 1, posComma);
+    end;
+    if coordIndex >= 2 then
+      result.valueType:= svtPoint;
+  end else
     errors := errors + [ieConstantExpressionExpected];
 end;
 
 function ParseListType(s: string): TScriptVariableType;
-var cur,start: integer;
+var cur,start,inPar: integer;
   inQuote: boolean;
   firstVal: TParsedLitteral;
   errors: TInterpretationErrors;
@@ -340,6 +401,7 @@ begin
   if (cur <= length(s)) and (s[cur]='~') then inc(cur);
   while (cur <= length(s)) and (s[cur] in IgnoredWhitespaces) do inc(cur);
   inQuote:= false;
+  inPar := 0;
   start := cur;
   while (cur <= length(s)) do
   begin
@@ -349,7 +411,12 @@ begin
     end else
     begin
       if s[cur]='"' then inQuote:= true else
-      if s[cur] in ['[',']',','] then break;
+      if s[cur]='(' then inc(inPar) else
+      if s[cur]=')' then
+      begin
+        if inPar > 0 then dec(inPar) else break;
+      end else
+      if (inPar = 0) and (s[cur] in ['[',']',',']) then break;
     end;
     inc(cur);
   end;
@@ -360,10 +427,15 @@ begin
   case firstval.valueType of
   svtBoolean: result := svtBoolList;
   svtFloat: result := svtFloatList;
+  svtPoint: result := svtPointList;
   svtInteger: result := svtIntList;
   svtPixel: result := svtPixList;
   svtString: result := svtStrList;
-  svtObject: result := svtObjectList;
+  svtUndefined:
+    begin
+      include(errors, ieUnknownListType);
+      result := svtUndefined;
+    end
   else
     result := svtUndefined;
   end;
@@ -385,6 +457,37 @@ begin
   if AValue <= 0 then result := BGRABlack else
   if AValue >= 255 then result := BGRAWhite else
     result := BGRA(AValue,AValue,AValue,255);
+end;
+
+function PixelToInt(AValue: TBGRAPixel): TScriptInteger;
+begin
+  result := AValue.ToGrayscale.green;
+end;
+
+function InterpretationErrorsToStr(AErrors: TInterpretationErrors): string;
+var
+  e: TInterpretationError;
+begin
+  result := '';
+  for e := low(TInterpretationError) to high(TInterpretationError) do
+    if e in AErrors then
+    begin
+      if result <> '' then result += ', ';
+      result += InterpretationErrorToStr[e];
+    end;
+end;
+
+function ScriptGuidToStr(const AGuid: TGuid): string;
+begin
+  result := LowerCase(GUIDToString(AGuid));
+  if (length(result)>0) and (result[1]='{') and (result[length(result)]='}') then
+    result := copy(result,2,length(result)-2);
+end;
+
+function ScriptStrToGuid(AValue: string): TGuid;
+begin
+  if not TryStringToGUID('{'+AValue+'}', result) then
+    result := GUID_NULL;
 end;
 
 end.

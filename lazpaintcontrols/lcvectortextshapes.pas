@@ -136,7 +136,7 @@ type
     procedure InsertUnicodeValue;
   public
     constructor Create(AContainer: TVectorOriginal); override;
-    procedure QuickDefine(const APoint1,APoint2: TPointF); override;
+    procedure QuickDefine(constref APoint1,APoint2: TPointF); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     destructor Destroy; override;
@@ -152,7 +152,7 @@ type
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
-    function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
+    function PointInShape({%H-}APoint: TPointF; {%H-}ARadius: single): boolean; overload; override;
     function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; override;
     function GetGenericCost: integer; override;
     procedure MouseMove({%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
@@ -193,7 +193,7 @@ implementation
 
 uses BGRATransform, BGRAText, BGRAVectorize, LCVectorialFill, math,
   BGRAUTF8, BGRAUnicode, Graphics, Clipbrd, LCLType, LCLIntf,
-  BGRAGradients, BGRACustomTextFX;
+  BGRAGradients, BGRACustomTextFX, LCResourceString;
 
 function FontStyleToStr(AStyle: TFontStyles): string;
 begin
@@ -962,7 +962,7 @@ begin
   FLightPosition := PointF(0,0);
 end;
 
-procedure TTextShape.QuickDefine(const APoint1, APoint2: TPointF);
+procedure TTextShape.QuickDefine(constref APoint1, APoint2: TPointF);
 var minSize: single;
   p2: TPointF;
 begin
@@ -1173,7 +1173,7 @@ begin
   begin
     idxLight := AEditor.AddPoint(FLightPosition, @OnMoveLightPos, true);
     if AEditor is TVectorOriginalEditor then
-      TVectorOriginalEditor(AEditor).AddLabel(idxLight, LightPositionCaption, taCenter, tlTop);
+      TVectorOriginalEditor(AEditor).AddLabel(idxLight, rsLightPosition, taCenter, tlTop);
   end;
 end;
 
@@ -1693,7 +1693,11 @@ end;
 procedure TTextShape.KeyUp(Shift: TShiftState; Key: TSpecialKey;
   var AHandled: boolean);
 begin
-  if (Key in[skCtrl,skShift]) and FEnteringUnicode then InsertUnicodeValue;
+  if (Key in[skCtrl,skShift]) and FEnteringUnicode then
+  begin
+    InsertUnicodeValue;
+    AHandled := true;
+  end;
 end;
 
 procedure TTextShape.SetFontNameAndStyle(AFontName: string;

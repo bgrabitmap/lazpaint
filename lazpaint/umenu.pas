@@ -27,16 +27,21 @@ type
     FImageList: TImageList;
     procedure IconSizeItemClick(Sender: TObject);
     procedure IconSizeMenuClick(Sender: TObject);
+    procedure Script_Click(Sender: TObject);
     procedure SetDarkTheme(AValue: boolean);
   protected
     FInstance: TLazPaintCustomInstance;
+    FInstalledScripts: TStringList;
     procedure AddMenus(AMenu: TMenuItem; AActionList: TActionList; AActionsCommaText: string; AIndex: integer = -1); overload;
     procedure AddMenus(AMenuName: string; AActionsCommaText: string); overload;
+    procedure AddInstalledScripts(AMenu: TMenuItem; AIndex: integer = -1);
     procedure ApplyShortcuts;
     procedure ActionShortcut(AName: string; AShortcut: TUTF8Char);
     procedure ApplyTheme;
+    function GetIndividualToolbarHeight: integer;
   public
     constructor Create(AInstance: TLazPaintCustomInstance; AActionList: TActionList);
+    destructor Destroy; override;
     procedure PredefinedMainMenus(const AMainMenus: array of TMenuItem);
     procedure Toolbars(const AToolbars: array of TPanel; AToolbarBackground: TPanel);
     procedure CycleTool(var ATool: TPaintToolType; var AShortCut: TUTF8Char);
@@ -51,8 +56,9 @@ type
 implementation
 
 uses UResourceStrings, BGRAUTF8, LCScaleDPI, ComCtrls, Graphics,
-  StdCtrls, BGRAText, math, udarktheme, BCTrackbarUpdown, BCTypes,
-  ugraph, BCComboBox, BGRABitmapTypes;
+  StdCtrls, BGRAText, math, udarktheme,
+  ugraph, BGRABitmapTypes, LCVectorialFillControl,
+  UPython;
 
 { TMainFormMenu }
 
@@ -65,6 +71,19 @@ begin
   iconSize := FInstance.Config.DefaultIconSize(0);
   for i := 0 to menu.Count-1 do
     menu.Items[i].Checked := (menu.Items[i].Tag = iconSize);
+end;
+
+procedure TMainFormMenu.Script_Click(Sender: TObject);
+var
+  item: TMenuItem;
+  scriptIndex: integer;
+begin
+  if Assigned(FInstalledScripts) then
+  begin
+    item := Sender as TMenuItem;
+    scriptIndex := item.Tag;
+    FInstance.RunScript(FInstalledScripts[scriptIndex]);
+  end;
 end;
 
 procedure TMainFormMenu.SetDarkTheme(AValue: boolean);
@@ -122,6 +141,11 @@ begin
     begin
       AIndex := -1;
       Continue;
+    end;
+    if actions[i]='InstalledScripts' then
+    begin
+      AddInstalledScripts(AMenu, AIndex);
+      continue;
     end;
     item := TMenuItem.Create(nil);
     if trim(actions[i]) = '-' then
@@ -215,6 +239,58 @@ begin
     end;
 end;
 
+procedure TMainFormMenu.AddInstalledScripts(AMenu: TMenuItem; AIndex: integer);
+var
+  path, fullname, header, title: String;
+  searchRec: TSearchRec;
+  t: textFile;
+  item: TMenuItem;
+  items: TStringList;
+  i: Integer;
+begin
+  if FInstalledScripts = nil then FInstalledScripts := TStringList.Create;
+  path := TPythonScript.DefaultScriptDirectory;
+  if FindFirstUTF8(path+PathDelim+'*.py', faAnyFile, searchRec)=0 then
+  begin
+    items := TStringList.Create;
+    items.Sorted := true;
+    try
+      repeat
+        fullname := path+PathDelim+searchRec.Name;
+        if FileExistsUTF8(fullname) then
+        begin
+          assignFile(t, fullname);
+          reset(t);
+          readln(t, header);
+          closefile(t);
+          if header.StartsWith('#') then
+          begin
+            title := header.Substring(1).Trim;
+            item := TMenuItem.Create(AMenu);
+            item.Caption := title;
+            item.Tag := FInstalledScripts.Add(fullname);
+            item.OnClick:=@Script_Click;
+            items.AddObject(title, item);
+          end;
+        end;
+      until FindNextUTF8(searchRec)<>0;
+    finally
+      FindCloseUTF8(searchRec);
+      for i := 0 to items.Count-1 do
+      begin
+        if AIndex = -1 then
+          AMenu.Add(TMenuItem(items.Objects[i]))
+        else
+        begin
+          AMenu.Insert(AIndex, TMenuItem(items.Objects[i]));
+          inc(AIndex);
+        end;
+      end;
+      items.Free;
+    end;
+  end;
+end;
+
 procedure TMainFormMenu.ActionShortcut(AName: string; AShortcut: TUTF8Char);
 var foundAction: TBasicAction;
   ShortcutStr: string;
@@ -240,40 +316,6 @@ begin
     begin
       DarkThemeInstance.Apply(FToolbars[i].tb, DarkTheme);
       for j := 0 to ControlCount-1 do
-        if Controls[j] is TToolBar then
-        begin
-          if FDarkTheme then
-          begin
-            Controls[j].Color := clDarkBtnFace;
-            TToolbar(Controls[j]).OnPaintButton:= @DarkThemeInstance.ToolBarPaintButton;
-          end
-          else
-          begin
-            Controls[j].Color := clBtnFace;
-            TToolbar(Controls[j]).OnPaintButton:= nil;
-          end;
-        end else
-        if Controls[j] is TBCComboBox then
-          BCAssignSystemStyle(TBCComboBox(Controls[j]), FDarkTheme, 0.50) else
-        if Controls[j] is TBCTrackbarUpdown then
-        begin
-          if FDarkTheme then
-          begin
-            TBCTrackbarUpdown(Controls[j]).Border.Color := clDarkPanelShadow;
-            TBCTrackbarUpdown(Controls[j]).Background.Color := clDarkEditableFace;
-            TBCTrackbarUpdown(Controls[j]).ButtonBackground.Style:= bbsColor;
-            TBCTrackbarUpdown(Controls[j]).ButtonBackground.Color:= $a0a0a0;
-            Controls[j].Font.Color := clLightText;
-          end
-          else
-          begin
-            TBCTrackbarUpdown(Controls[j]).Border.Color := MergeBGRA(ColorToBGRA(clWindowText),ColorToBGRA(clBtnFace));
-            TBCTrackbarUpdown(Controls[j]).Background.Color := clWindow;
-            TBCTrackbarUpdown(Controls[j]).ButtonBackground.Style:= bbsColor;
-            TBCTrackbarUpdown(Controls[j]).ButtonBackground.Color:= clBtnFace;
-            Controls[j].Font.Color := clWindowText;
-          end;
-        end else
         if Controls[j] is TLabel then
         begin
           if (Controls[j].Name = 'Label_CurrentZoom') then
@@ -288,12 +330,6 @@ begin
               Controls[j].Color := clWindow;
               Controls[j].Font.Color := clWindowText;
             end;
-          end else
-          begin
-            if FDarkTheme then
-              Controls[j].Font.Color := clLightText
-            else
-              Controls[j].Font.Color := clBlack;
           end;
         end;
     end;
@@ -307,11 +343,22 @@ begin
   end;
 end;
 
+function TMainFormMenu.GetIndividualToolbarHeight: integer;
+begin
+  result := DoScaleY(26,OriginalDPI);
+end;
+
 constructor TMainFormMenu.Create(AInstance: TLazPaintCustomInstance; AActionList: TActionList);
 begin
   FInstance := AInstance;
   FActionList := AActionList;
   FToolbarsHeight := 0;
+end;
+
+destructor TMainFormMenu.Destroy;
+begin
+  FInstalledScripts.Free;
+  inherited Destroy;
 end;
 
 procedure TMainFormMenu.PredefinedMainMenus(const AMainMenus: array of TMenuItem);
@@ -339,9 +386,7 @@ begin
         if (Controls[j].Name = 'Label_Coordinates') or
            (Controls[j].Name = 'Label_CurrentZoom') or
            (Controls[j].Name = 'Label_CurrentDiff') then
-          Controls[j].Font.Height := -Controls[j].Height*55 div ScreenInfo.PixelsPerInchY
-        else
-          Controls[j].Font.Height := -Controls[j].Height*50 div ScreenInfo.PixelsPerInchY;
+          Controls[j].Font.Height := -DoScaleY(12, OriginalDPI);
       end;
     end;
   end;
@@ -379,8 +424,8 @@ begin
   with FActionList.Actions[i] as TAction do
     if (Caption = '') and (Hint <> '') then Caption := Hint;
 
-  AddMenus('MenuFile',   'FileNew,FileOpen,LayerFromFile,FileChooseEntry,FileReload,MenuRecentFiles,-,FileSave,FileSaveAsInSameFolder,FileSaveAs,-,FileImport3D,-,FilePrint,-,'+ImageBrowser+'FileRememberSaveFormat,ForgetDialogAnswers,MenuLanguage,*');
-  AddMenus('MenuEdit',   'EditUndo,EditRedo,-,EditCut,EditCopy,EditPaste,EditPasteAsNew,EditPasteAsNewLayer,EditDeleteSelection,-,EditMoveUp,EditMoveToFront,EditMoveDown,EditMoveToBack,EditShapeAlign,EditShapeToCurve,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect');
+  AddMenus('MenuFile',   'FileNew,FileOpen,LayerFromFile,FileChooseEntry,FileReload,MenuRecentFiles,-,FileSave,FileSaveAsInSameFolder,FileSaveAs,FileExport,-,FileImport3D,-,FilePrint,-,'+ImageBrowser+'FileRememberSaveFormat,ForgetDialogAnswers,MenuLanguage,*');
+  AddMenus('MenuEdit',   'EditUndo,EditRedo,-,EditCut,EditCopy,EditPaste,EditPasteAsNew,EditPasteAsNewLayer,EditDeleteSelection,-,EditMoveUp,EditMoveToFront,EditMoveDown,EditMoveToBack,EditShapeAlign,EditShapeToCurve');
   AddMenus('MenuSelect', 'EditSelection,FileLoadSelection,FileSaveSelectionAs,-,EditSelectAll,EditInvertSelection,EditSelectionFit,EditDeselect,-,ToolSelectRect,ToolSelectEllipse,ToolSelectPoly,ToolSelectSpline,-,ToolMoveSelection,ToolRotateSelection,SelectionHorizontalFlip,SelectionVerticalFlip,-,ToolSelectPen,ToolMagicWand');
   AddMenus('MenuView',   'ViewGrid,ViewZoomOriginal,ViewZoomIn,ViewZoomOut,ViewZoomFit,-,ViewToolBox,ViewColors,ViewPalette,ViewLayerStack,ViewImageList,ViewStatusBar,-,*,-,ViewDarkTheme,ViewWorkspaceColor,MenuIconSize');
   AddMenus('MenuImage',  'ImageCrop,ImageCropLayer,ImageFlatten,MenuRemoveTransparency,-,ImageNegative,ImageLinearNegative,ImageSwapRedBlue,-,ImageChangeCanvasSize,ImageRepeat,-,ImageResample,ImageSmartZoom3,-,ImageRotateCW,ImageRotateCCW,ImageHorizontalFlip,ImageVerticalFlip');
@@ -388,8 +433,9 @@ begin
   AddMenus('MenuFilter', 'MenuRadialBlur,FilterBlurMotion,FilterBlurCustom,FilterPixelate,-,FilterSharpen,FilterSmooth,FilterNoise,FilterMedian,FilterClearType,FilterClearTypeInverse,FilterFunction,-,FilterContour,FilterEmboss,FilterPhong,-,FilterSphere,FilterTwirl,FilterWaveDisplacement,FilterCylinder');
   AddMenus('MenuRadialBlur',  'FilterBlurBox,FilterBlurFast,FilterBlurRadial,FilterBlurCorona,FilterBlurDisk');
   AddMenus('MenuColors', 'ColorCurves,ColorPosterize,ColorColorize,ColorShiftColors,FilterComplementaryColor,ColorIntensity,-,ColorLightness,FilterNegative,FilterLinearNegative,FilterNormalize,FilterGrayscale');
-  AddMenus('MenuTool',   'ToolHand,ToolHotSpot,ToolColorPicker,-,ToolPen,ToolBrush,ToolEraser,ToolFloodFill,ToolClone,-,ToolEditShape,ToolRect,ToolEllipse,ToolPolygon,ToolSpline,ToolGradient,ToolPhong,ToolText,-,ToolDeformation,ToolTextureMapping');
+  AddMenus('MenuTool',   'ToolHand,ToolHotSpot,ToolColorPicker,-,ToolPen,ToolBrush,ToolEraser,ToolFloodFill,ToolClone,-,ToolEditShape,ToolRect,ToolEllipse,ToolPolyline,ToolOpenedCurve,ToolPolygon,ToolSpline,ToolGradient,ToolPhong,ToolText,-,ToolDeformation,ToolTextureMapping');
   AddMenus('MenuRender', 'RenderPerlinNoise,RenderCyclicPerlinNoise,-,RenderWater,RenderCustomWater,RenderSnowPrint,RenderWood,RenderWoodVertical,RenderMetalFloor,RenderPlastik,RenderStone,RenderRoundStone,RenderMarble,RenderCamouflage,-,RenderClouds,FilterRain');
+  AddMenus('MenuScript', 'FileRunScript,-,InstalledScripts');
   AddMenus('MenuHelp',   'HelpIndex,-,HelpAbout');
   for i := 0 to high(FMainMenus) do
     if FMainMenus[i].Count = 0 then FMainMenus[i].visible := false;
@@ -399,7 +445,7 @@ begin
   if Assigned(FImageList) then
     FActionList.Images := FImageList;
 
-  tbHeightOrig := DoScaleY(26,OriginalDPI);
+  tbHeightOrig := GetIndividualToolbarHeight;
   tbHeight := tbHeightOrig;
   for i := 0 to high(FToolbars) do
   with FToolbars[i].tb do
@@ -414,6 +460,11 @@ begin
         if assigned(FImageList) then TToolbar(Controls[j]).Images := FImageList;
         TToolbar(Controls[j]).ButtonWidth := TToolbar(Controls[j]).Images.Width+ScaleX(6, 96);
         TToolbar(Controls[j]).ButtonHeight := TToolbar(Controls[j]).Images.Height+ScaleY(6, 96);
+      end else
+      if Controls[j] is TLCVectorialFillControl then
+      begin
+        if assigned(FImageList) then
+          TLCVectorialFillControl(Controls[j]).ToolIconSize:= FImageList.Height;
       end;
     end;
   end;
@@ -429,8 +480,12 @@ begin
 end;
 
 procedure TMainFormMenu.ArrangeToolbars(ClientWidth: integer);
-var i,j,k,curx,cury,maxh, w, minNextX, delta: integer; tb: TPanel;
+var i,j,k,curx,cury,maxh, w, minNextX, delta,
+  tbNormalHeight: integer;
+  tb: TPanel;
+  vfc: TLCVectorialFillControl;
 begin
+   tbNormalHeight := GetIndividualToolbarHeight;
    curx := 0;
    cury := 0;
    maxh := 0;
@@ -443,7 +498,15 @@ begin
        for j := 0 to tb.ControlCount-1 do
        begin
          tb.Controls[j].Top := 1;
-         tb.Controls[j].Height := tb.Height-3;
+         if tb.Controls[j] is TLCVectorialFillControl then
+         begin
+           vfc := TLCVectorialFillControl(tb.Controls[j]);
+           if tb.Height < vfc.PreferredSize.cy then
+             vfc.Height := vfc.ToolIconSize + vfc.VerticalPadding
+           else
+             vfc.Height := vfc.PreferredSize.cy;
+         end else
+           tb.Controls[j].Height := tbNormalHeight-3;
          if tb.Controls[j] is TToolBar then
          begin
            minNextX := MaxLongInt;
@@ -458,11 +521,11 @@ begin
        end;
      end;
 
-     w := 2;
+     w := DoScaleX(4, OriginalDPI);
      for j := 0 to tb.ControlCount-1 do
        if tb.Controls[j].Visible then
          w := max(w, tb.Controls[j].Left + tb.Controls[j].Width);
-     w += 2;
+     w += DoScaleX(4, OriginalDPI);
      tb.Width := w;
 
      if tb.Visible then
@@ -477,6 +540,7 @@ begin
        tb.Top := cury;
        inc(curx, tb.Width);
        if tb.Height > maxh then maxh := tb.Height;
+       maxh := min(maxh, tbNormalHeight);
      end else
      begin
        //hide fix for Gtk
@@ -517,6 +581,8 @@ begin
   ActionShortcut('ToolEditShape','J');
   ActionShortcut('ToolRect','U');
   ActionShortcut('ToolEllipse','U');
+  ActionShortcut('ToolPolyline','L');
+  ActionShortcut('ToolOpenedCurve','N');
   ActionShortcut('ToolPolygon','D');
   ActionShortcut('ToolSpline','D');
   ActionShortcut('ToolFloodfill','G');

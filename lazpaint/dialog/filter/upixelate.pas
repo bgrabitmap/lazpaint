@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
   StdCtrls, Spin, ExtCtrls, BGRABitmap, LazPaintType, LCScaleDPI,
-  ufilterconnector;
+  UFilterConnector, UScripting;
 
 type
 
@@ -33,28 +33,41 @@ type
     FInitializing: boolean;
     FFilterConnector: TFilterConnector;
     function ComputeFilteredLayer: TBGRABitmap;
+    procedure InitParams;
     procedure PreviewNeeded;
   public
   end;
 
-function ShowPixelateDlg(AFilterConnector: TObject):boolean;
+function ShowPixelateDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
 uses umac, BGRABitmapTypes, uresourcestrings, ugraph;
 
-function ShowPixelateDlg(AFilterConnector: TObject):boolean;
+function ShowPixelateDlg(AFilterConnector: TObject): TScriptResult;
 var
   FPixelate: TFPixelate;
 begin
-  result := false;
   FPixelate:= TFPixelate.create(nil);
   FPixelate.FFilterConnector := AFilterConnector as TFilterConnector;
   try
     if FPixelate.FFilterConnector.ActiveLayer <> nil then
-      result:= (FPixelate.showModal = mrOk)
+    begin
+      if Assigned(FPixelate.FFilterConnector.Parameters) and
+        FPixelate.FFilterConnector.Parameters.Booleans['Validate'] then
+      begin
+        FPixelate.InitParams;
+        FPixelate.PreviewNeeded;
+        FPixelate.FFilterConnector.ValidateAction;
+        result := srOk;
+      end else
+      begin
+        if FPixelate.showModal = mrOk then result := srOk
+        else result := srCancelledByUser;
+      end;
+    end
     else
-      result := false;
+      result := srException;
   finally
     FPixelate.free;
   end;
@@ -80,10 +93,18 @@ begin
 end;
 
 procedure TFPixelate.Button_OKClick(Sender: TObject);
+var
+  qualityStr: TCaption;
 begin
   FFilterConnector.ValidateAction;
   FFilterConnector.LazPaintInstance.Config.SetDefaultPixelateSize(SpinEdit_PixelSize.Value);
-  FFilterConnector.LazPaintInstance.Config.SetDefaultPixelateQuality(ComboBox_Quality.Text);
+  qualityStr := ComboBox_Quality.Text;
+  if qualityStr = rsFast then qualityStr := 'Fast' else
+  if qualityStr = rsLinear then qualityStr := 'Linear' else
+  if qualityStr = rsMitchell then qualityStr := 'Mitchell' else
+  if qualityStr = rsSpline then qualityStr := 'Spline' else
+    qualityStr := '';
+  FFilterConnector.LazPaintInstance.Config.SetDefaultPixelateQuality(qualityStr);
   ModalResult := mrOK;
 end;
 
@@ -94,10 +115,7 @@ end;
 
 procedure TFPixelate.FormShow(Sender: TObject);
 begin
-  FInitializing := true;
-  SpinEdit_PixelSize.Value := FFilterConnector.LazPaintInstance.Config.DefaultPixelateSize;
-  ComboBox_Quality.ItemIndex := ComboBox_Quality.Items.IndexOf(FFilterConnector.LazPaintInstance.Config.DefaultPixelateQuality);
-  FInitializing := false;
+  InitParams;
   PreviewNeeded;
   Top := FFilterConnector.LazPaintInstance.MainFormBounds.Top;
 end;
@@ -110,6 +128,33 @@ end;
 function TFPixelate.ComputeFilteredLayer: TBGRABitmap;
 begin
   result := DoPixelate(FFilterConnector.BackupLayer,SpinEdit_PixelSize.Value,ComboBox_Quality.Text);
+end;
+
+procedure TFPixelate.InitParams;
+var
+  qualityStr: String;
+begin
+  FInitializing := true;
+  if Assigned(FFilterConnector.Parameters) and
+    FFilterConnector.Parameters.IsDefined('PixelSize') then
+    SpinEdit_PixelSize.Value := FFilterConnector.Parameters.Integers['PixelSize']
+  else
+    SpinEdit_PixelSize.Value := FFilterConnector.LazPaintInstance.Config.DefaultPixelateSize;
+
+  if Assigned(FFilterConnector.Parameters) and
+    FFilterConnector.Parameters.IsDefined('Quality') then
+    qualityStr := FFilterConnector.Parameters.Strings['Quality']
+  else
+    qualityStr := FFilterConnector.LazPaintInstance.Config.DefaultPixelateQuality;
+
+  if qualityStr = 'Fast' then qualityStr := rsFast else
+  if qualityStr = 'Linear' then qualityStr := rsLinear else
+  if qualityStr = 'Mitchell' then qualityStr := rsMitchell else
+  if qualityStr = 'Spline' then qualityStr := rsSpline else
+    qualityStr := '';
+
+  ComboBox_Quality.ItemIndex := ComboBox_Quality.Items.IndexOf(qualityStr);
+  FInitializing := false;
 end;
 
 procedure TFPixelate.PreviewNeeded;

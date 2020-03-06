@@ -1,0 +1,171 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: lcresourcestring.rsadjusttoshape
+msgid "Adjust to shape"
+msgstr "Aanpassen aan vorm"
+
+#: lcresourcestring.rscigsbnegative
+msgid "Corr. HSL CCW"
+msgstr "Corr. kleurtint linksom"
+
+#: lcresourcestring.rscigsbpositive
+msgid "Corr. HSL CW"
+msgstr "Corr. kleurtint rechtsom"
+
+#: lcresourcestring.rscilinearhslnegative
+msgid "HSL CCW"
+msgstr "Kleurtint linksom"
+
+#: lcresourcestring.rscilinearhslpositive
+msgid "HSL CW"
+msgstr "Kleurtint rechtsom"
+
+#: lcresourcestring.rscilinearrgb
+msgid "RGB"
+msgstr "RGB"
+
+#: lcresourcestring.rscistdrgb
+msgid "sRGB"
+msgstr "sRGB"
+
+#: lcresourcestring.rscolor
+msgid "Color"
+msgstr "Kleur"
+
+#: lcresourcestring.rscolorinterpolation
+msgid "Color interpolation"
+msgstr "Kleurinterpolatie"
+
+#: lcresourcestring.rseditgradtexpoints
+msgid "Edit gradient/texture points"
+msgstr "Verloop/textuurpunten bewerken"
+
+#: lcresourcestring.rsendopacity
+msgid "End opacity"
+msgstr "Einde opaciteit"
+
+#: lcresourcestring.rsgradientangular
+msgid "Angular"
+msgstr "Hoek"
+
+#: lcresourcestring.rsgradientdiamond
+msgid "Diamond"
+msgstr "Diamand"
+
+#: lcresourcestring.rsgradientfill
+msgid "Gradient fill"
+msgstr "Verloop"
+
+#: lcresourcestring.rsgradientlinear
+msgid "Linear"
+msgstr "Lineair"
+
+#: lcresourcestring.rsgradientradial
+msgid "Radial"
+msgstr "Radiaal"
+
+#: lcresourcestring.rsgradientreflected
+msgid "Reflected"
+msgstr "Gereflecteerd"
+
+#: lcresourcestring.rsgradientrepetition
+msgid "Gradient repetition"
+msgstr "Verloopherhaling"
+
+#: lcresourcestring.rsgrpad
+msgid "Pad"
+msgstr "Opvullen"
+
+#: lcresourcestring.rsgrreflect
+msgid "Reflect"
+msgstr "Weerspiegelen"
+
+#: lcresourcestring.rsgrrepeat
+msgid "Repeat"
+msgstr "Herhalen"
+
+#: lcresourcestring.rsgrsine
+msgid "Sine"
+msgstr "Sinusvormig"
+
+#: lcresourcestring.rsincompatibletype
+msgid "Incompatible type"
+msgstr "Onverenigbaar type"
+
+#: lcresourcestring.rsindexoutofbounds
+msgid "Index out of bounds"
+msgstr "Index valt buiten de grenzen"
+
+#: lcresourcestring.rslightposition
+msgid "Light position"
+msgstr "Lichtpositie"
+
+#: lcresourcestring.rsloadtexture
+msgid "Load texture"
+msgstr "Textuur laden"
+
+#: lcresourcestring.rsnofill
+msgid "No fill"
+msgstr "Geen vulling"
+
+#: lcresourcestring.rsnottexturefill
+msgid "It is not a texture fill"
+msgstr "Het is geen textuurvulling"
+
+#: lcresourcestring.rsopacity
+msgid "Opacity"
+msgstr "Dekking"
+
+#: lcresourcestring.rspreview
+msgid "Preview"
+msgstr "Voorbeeld"
+
+#: lcresourcestring.rsshapeclassnotspecified
+msgid "Shape class not specified"
+msgstr "Vormklasse niet gespecificeerd"
+
+#: lcresourcestring.rsshapenotfound
+msgid "Shape not found"
+msgstr "Vorm niet gevonden"
+
+#: lcresourcestring.rssolidcolor
+msgid "Solid color"
+msgstr "Monochroom"
+
+#: lcresourcestring.rsstartopacity
+msgid "Start opacity"
+msgstr "Start dekking"
+
+#: lcresourcestring.rsswapcolors
+msgid "Swap colors"
+msgstr "Kleur wisselen"
+
+#: lcresourcestring.rstexturefill
+msgid "Texture fill"
+msgstr "Textuur"
+
+#: lcresourcestring.rstexturerepetition
+msgid "Texture repetition"
+msgstr "Textuur herhaling"
+
+#: lcresourcestring.rstrnone
+msgid "No repetition"
+msgstr "Geen herhaling"
+
+#: lcresourcestring.rstrrepeatboth
+msgid "Repeat both"
+msgstr "Beide herhalen"
+
+#: lcresourcestring.rstrrepeatx
+msgid "Repeat X"
+msgstr "X herhalen"
+
+#: lcresourcestring.rstrrepeaty
+msgid "Repeat Y"
+msgstr "Y herhalen"
+
+#: lcresourcestring.rsunknownshapeclass
+msgid "Unknown shape class \"%1\""
+msgstr "Onbekende vormklasse \"%1\""
+

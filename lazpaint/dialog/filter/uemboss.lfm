@@ -17,7 +17,6 @@ object FEmboss: TFEmboss
   ClientWidth = 148
   Font.Height = -12
   OnCreate = FormCreate
-  OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poMainFormCenter
   LCLVersion = '1.6.0.4'

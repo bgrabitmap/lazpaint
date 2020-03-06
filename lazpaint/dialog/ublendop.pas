@@ -82,6 +82,7 @@ var lColor: TBGRAPixel;
   idx: integer;
   fullPatternName, attr: string;
   i: integer;
+  ratio: single;
 begin
   fullPatternName:= APattern;
   for i := 0 to high(FPatterns) do
@@ -101,7 +102,7 @@ begin
     result := GetBitmapThumbnail(PatternOver,AWidth,AHeight,BGRAPixelTransparent,ACheckers) as TBGRABitmap;
   end else
   begin
-    result := TBGRABitmap.Create(FComputedWidth,FComputedHeight,BGRABlack);
+    result := TBGRABitmap.Create(AWidth,AHeight, BGRABlack);
     lColor := BGRAWhite;
     idx := pos('.',APattern);
     if idx <> 0 then
@@ -371,6 +372,7 @@ begin
     w := ARect.Right-ARect.Left;
     h := ARect.Bottom-ARect.Top;
     background := TBGRABitmap.Create(w,h,ColorToBGRA(ColorToRGB(clBtnFace)));
+    background.DrawCheckers(background.ClipRect, ImageCheckersColor1, ImageCheckersColor2);
     preview := GetPattern(w,h,ListBox_PatternUnder.Items[ListBox_PatternUnder.ItemIndex],False).Duplicate as TBGRABitmap;
     over := GetPattern(w,h,ListBox_PatternOver.Items[ListBox_PatternOver.ItemIndex],False);
     preview.BlendImageOver(0,0,over,StrToBlendOperation(BlendStr));

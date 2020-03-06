@@ -5,8 +5,9 @@ unit UImageAction;
 interface
 
 uses
-  Classes, SysUtils, LazPaintType, BGRABitmap, UImage, UTool, UScripting,
-  ULayerAction, UImageType, BGRABitmapTypes, BGRALayerOriginal, BGRASVGOriginal;
+  Classes, SysUtils, FPimage, LazPaintType, BGRABitmap, UImage, UTool,
+  UScripting, ULayerAction, UImageType, BGRABitmapTypes, BGRALayerOriginal,
+  BGRASVGOriginal;
 
 type
 
@@ -21,19 +22,45 @@ type
     procedure ChooseTool(ATool: TPaintToolType);
     procedure RegisterScripts(ARegister: Boolean);
     function GenericScriptFunction(AVars: TVariableSet): TScriptResult;
+    function ScriptGetAllLayersId(AVars: TVariableSet): TScriptResult;
+    function ScriptGetLayerIndex(AVars: TVariableSet): TScriptResult;
+    function ScriptImageMoveLayerIndex(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerFromFile(AVars: TVariableSet): TScriptResult;
+    function ScriptImageGetRegistry(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerGetId(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerGetRegistry(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerSaveAs(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerAddNew(AVars: TVariableSet): TScriptResult;
+    function ScriptImageSetRegistry(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerSetRegistry(AVars: TVariableSet): TScriptResult;
+    function ScriptPasteAsNewLayer(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerDuplicate(AVars: TVariableSet): TScriptResult;
+    function ScriptPutImage(AVars: TVariableSet): TScriptResult;
+    function ScriptGetImage(AVars: TVariableSet): TScriptResult;
+    function ScriptLayerFill(AVars: TVariableSet): TScriptResult;
+    function ScriptGetFrameIndex(AVars: TVariableSet): TScriptResult;
     procedure ReleaseSelection;
+    function ScriptSelectLayerIndex(AVars: TVariableSet): TScriptResult;
+    function ScriptClearAlpha(AVars: TVariableSet): TScriptResult;
+    function ScriptFillBackground(AVars: TVariableSet): TScriptResult;
   public
     constructor Create(AInstance: TLazPaintCustomInstance);
     destructor Destroy; override;
     procedure ClearAlpha;
     procedure FillBackground;
+    procedure ClearAlpha(AColor: TBGRAPixel);
+    procedure FillBackground(AColor: TBGRAPixel);
     function SmartZoom3: boolean;
     procedure Undo;
     procedure Redo;
+    procedure DoBegin;
+    function DoEnd: boolean;
     procedure SetCurrentBitmap(bmp: TBGRABitmap; AUndoable: boolean;
       ACaption: string = ''; AOpacity: byte = 255);
     procedure CropToSelectionAndLayer;
     procedure CropToSelection;
+    procedure Flatten;
     procedure HorizontalFlip(AOption: TFlipOption);
     procedure VerticalFlip(AOption: TFlipOption);
     procedure RotateCW;
@@ -49,22 +76,26 @@ type
     procedure DeleteSelection;
     procedure RemoveSelection;
     procedure Paste;
-    procedure PasteAsNewLayer;
+    function PasteAsNewLayer: integer;
     procedure SelectAll;
     procedure SelectionFit;
-    procedure NewLayer; overload;
-    function NewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation): boolean; overload;
-    function NewLayer(ALayer: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): boolean; overload;
-    procedure DuplicateLayer;
+    function NewLayer: boolean; overload;
+    function NewLayer(ALayer: TBGRABitmap; AName: string; ABlendOp: TBlendOperation; AOpacity: byte = 255): boolean; overload;
+    function NewLayer(ALayer: TBGRABitmap; AName: string; AOffset: TPoint; ABlendOp: TBlendOperation; AOpacity: byte = 255): boolean; overload;
+    function NewLayer(ALayer: TBGRALayerCustomOriginal; AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix; AOpacity: byte = 255): boolean; overload;
+    function DuplicateLayer: boolean;
     procedure RasterizeLayer;
     procedure MergeLayerOver;
-    procedure RemoveLayer;
+    function RemoveLayer: boolean;
     procedure EditSelection(ACallback: TModifyImageCallback);
     procedure Import3DObject(AFilenameUTF8: string);
-    function TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
+    function GetPixel(X,Y: Integer): TBGRAPixel;
+    function PutImage(X,Y: integer; AImage: TBGRACustomBitmap; AMode: TDrawMode; AOpacity: byte): boolean;
+    function LayerFill(AColor: TBGRAPixel; AMode: TDrawMode): boolean;
+    function TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): ArrayOfLayerId;
     function AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string): boolean;
     function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string): boolean;
-    function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string; AMatrix: TAffineMatrix): boolean;
+    function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string; AMatrix: TAffineMatrix; ABlendOp: TBlendOperation = boTransparent; AOpacity: byte = 255): boolean;
     function LoadSelection(AFilenameUTF8: string; ALoadedImage: PImageEntry = nil): boolean;
     property Image: TLazPaintImage read GetImage;
     property ToolManager: TToolManager read GetToolManager;
@@ -75,7 +106,8 @@ implementation
 
 uses Controls, Dialogs, UResourceStrings, UObject3D,
      ULoadImage, UGraph, UClipboard, Types, BGRAGradientOriginal,
-     BGRATransform, ULoading, math, LCVectorClipboard;
+     BGRATransform, ULoading, math, LCVectorClipboard, LCVectorOriginal,
+     BGRALayers, BGRAUTF8, UFileSystem;
 
 { TImageActions }
 
@@ -106,38 +138,77 @@ procedure TImageActions.RegisterScripts(ARegister: Boolean);
 var Scripting: TScriptContext;
 begin
   Scripting := FInstance.ScriptContext;
+  Scripting.RegisterScriptFunction('ImageCrop',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageCropLayer',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageFlatten',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageClearAlpha',@ScriptClearAlpha,ARegister);
+  Scripting.RegisterScriptFunction('ImageFillBackground',@ScriptFillBackground,ARegister);
+  Scripting.RegisterScriptFunction('ImageSmartZoom3',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageHorizontalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageVerticalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('SelectionHorizontalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('SelectionVerticalFlip',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('ImageSmartZoom3',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('ImageCropLayer',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('ImageClearAlpha',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('ImageCrop',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('ImageFillBackground',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageRotateCW',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageRotateCCW',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageLinearNegative',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageNegative',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageSwapRedBlue',@GenericScriptFunction,ARegister);
+
   Scripting.RegisterScriptFunction('EditUndo',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditRedo',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('EditDoBegin',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('EditDoEnd',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditInvertSelection',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditDeselect',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditCopy',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditCut',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditDeleteSelection',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditPaste',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('EditPasteAsNewLayer',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('EditPasteAsNewLayer',@ScriptPasteAsNewLayer,ARegister);
   Scripting.RegisterScriptFunction('EditSelectAll',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('EditSelectionFit',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('IsSelectionMaskEmpty',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('IsSelectionLayerEmpty',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('IsLayerEmpty',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('IsLayerTransparent',@GenericScriptFunction,ARegister);
+
   Scripting.RegisterScriptFunction('LayerHorizontalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerVerticalFlip',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('LayerAddNew',@GenericScriptFunction,ARegister);
-  Scripting.RegisterScriptFunction('LayerDuplicate',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerGetId',@ScriptLayerGetId,ARegister);
+  Scripting.RegisterScriptFunction('LayerGetName',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerGetOpacity',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerGetBlendOp',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerGetVisible',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerSelectId',@ScriptLayerSelectId,ARegister);
+  Scripting.RegisterScriptFunction('LayerSetName',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerSetOpacity',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerSetBlendOp',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerSetVisible',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerAddNew',@ScriptLayerAddNew,ARegister);
+  Scripting.RegisterScriptFunction('LayerFromFile',@ScriptLayerFromFile,ARegister);
+  Scripting.RegisterScriptFunction('LayerSaveAs',@ScriptLayerSaveAs,ARegister);
+  Scripting.RegisterScriptFunction('LayerDuplicate',@ScriptLayerDuplicate,ARegister);
   Scripting.RegisterScriptFunction('LayerRasterize',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerMergeOver',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('LayerRemoveCurrent',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('LayerGetRegistry',@ScriptLayerGetRegistry,ARegister);
+  Scripting.RegisterScriptFunction('LayerSetRegistry',@ScriptLayerSetRegistry,ARegister);
+  Scripting.RegisterScriptFunction('ImageGetRegistry',@ScriptImageGetRegistry,ARegister);
+  Scripting.RegisterScriptFunction('ImageSetRegistry',@ScriptImageSetRegistry,ARegister);
+  Scripting.RegisterScriptFunction('ImageMoveLayerIndex',@ScriptImageMoveLayerIndex,ARegister);
+  Scripting.RegisterScriptFunction('GetLayerIndex',@ScriptGetLayerIndex,ARegister);
+  Scripting.RegisterScriptFunction('GetAllLayersId',@ScriptGetAllLayersId,ARegister);
+  Scripting.RegisterScriptFunction('SelectLayerIndex',@ScriptSelectLayerIndex,ARegister);
+  Scripting.RegisterScriptFunction('GetLayerCount',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('GetFrameIndex',@ScriptGetFrameIndex,ARegister);
+  Scripting.RegisterScriptFunction('GetFrameCount',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('GetPixel',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('GetImageWidth',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('GetImageHeight',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('GetImageSize',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('PutImage',@ScriptPutImage,ARegister);
+  Scripting.RegisterScriptFunction('GetImage',@ScriptGetImage,ARegister);
+  Scripting.RegisterScriptFunction('LayerFill',@ScriptLayerFill,ARegister);
 end;
 
 constructor TImageActions.Create(AInstance: TLazPaintCustomInstance);
@@ -166,9 +237,8 @@ begin
   //those script functions are the same as the menu actions
   if f = 'ImageSmartZoom3' then SmartZoom3 else
   if f = 'ImageCropLayer' then CropToSelectionAndLayer else
-  if f = 'ImageClearAlpha' then ClearAlpha else
   if f = 'ImageCrop' then CropToSelection else
-  if f = 'ImageFillBackground' then FillBackground else
+  if f = 'ImageFlatten' then Flatten else
   if f = 'ImageRotateCW' then RotateCW else
   if f = 'ImageRotateCCW' then RotateCCW else
   if f = 'ImageLinearNegative' then LinearNegativeAll else
@@ -176,38 +246,442 @@ begin
   if f = 'ImageSwapRedBlue' then SwapRedBlueAll else
   if f = 'EditUndo' then Undo else
   if f = 'EditRedo' then Redo else
+  if f = 'EditDoBegin' then DoBegin else
+  if f = 'EditDoEnd' then AVars.Booleans['Result'] := DoEnd else
   if f = 'EditInvertSelection' then InvertSelection else
   if f = 'EditDeselect' then Deselect else
   if f = 'EditCopy' then CopySelection else
   if f = 'EditCut' then CutSelection else
   if f = 'EditDeleteSelection' then DeleteSelection else
   if f = 'EditPaste' then Paste else
-  if f = 'EditPasteAsNewLayer' then PasteAsNewLayer else
   if f = 'EditSelectAll' then SelectAll else
   if f = 'EditSelectionFit' then SelectionFit else
+  if f = 'IsSelectionMaskEmpty' then AVars.Booleans['Result'] := Image.SelectionMaskEmpty else
+  if f = 'IsSelectionLayerEmpty' then AVars.Booleans['Result'] := Image.SelectionLayerIsEmpty else
+  if f = 'IsLayerEmpty' then AVars.Booleans['Result'] := Image.CurrentLayerEmpty else
+  if f = 'IsLayerTransparent' then AVars.Booleans['Result'] := Image.CurrentLayerTransparent else
   if f = 'LayerHorizontalFlip' then HorizontalFlip(foCurrentLayer) else
   if f = 'LayerVerticalFlip' then VerticalFlip(foCurrentLayer) else
-  if f = 'LayerAddNew' then NewLayer else
-  if f = 'LayerDuplicate' then DuplicateLayer else
+  if f = 'LayerGetName' then AVars.Strings['Result'] := Image.LayerName[Image.CurrentLayerIndex] else
+  if f = 'LayerGetOpacity' then AVars.Integers['Result'] := Image.LayerOpacity[Image.CurrentLayerIndex] else
+  if f = 'LayerGetBlendOp' then AVars.Strings['Result'] := BlendOperationStr[Image.BlendOperation[Image.CurrentLayerIndex]] else
+  if f = 'LayerGetVisible' then AVars.Booleans['Result'] := Image.LayerVisible[Image.CurrentLayerIndex] else
+  if f = 'LayerSetName' then Image.LayerName[Image.CurrentLayerIndex] := AVars.Strings['Name'] else
+  if f = 'LayerSetOpacity' then Image.LayerOpacity[Image.CurrentLayerIndex] := min(255, max(0, AVars.Integers['Opacity'])) else
+  if f = 'LayerSetBlendOp' then Image.BlendOperation[Image.CurrentLayerIndex] := StrToBlendOperation(AVars.Strings['BlendOp']) else
+  if f = 'LayerSetVisible' then Image.LayerVisible[Image.CurrentLayerIndex] := AVars.Booleans['Visible'] else
   if f = 'LayerRasterize' then RasterizeLayer else
   if f = 'LayerMergeOver' then MergeLayerOver else
-  if f = 'LayerRemoveCurrent' then RemoveLayer else
+  if f = 'LayerRemoveCurrent' then begin if not RemoveLayer then result := srException end else
+  if f = 'GetLayerCount' then AVars.Integers['Result']:= Image.NbLayers else
+  if f = 'GetFrameCount' then AVars.Integers['Result']:= Image.FrameCount else
+  if f = 'GetPixel' then AVars.Pixels['Result']:= GetPixel(AVars.Integers['X'],AVars.Integers['Y']) else
+  if f = 'GetImageSize' then AVars.Points2D['Result']:= PointF(Image.Width,Image.Height) else
+  if f = 'GetImageWidth' then AVars.Integers['Result']:= Image.Width else
+  if f = 'GetImageHeight' then AVars.Integers['Result']:= Image.Height else
     result := srFunctionNotDefined;
 end;
 
+function TImageActions.ScriptGetAllLayersId(AVars: TVariableSet): TScriptResult;
+var
+  idList: TScriptVariableReference;
+  i: Integer;
+begin
+  idList := AVars.AddGuidList('Result');
+  for i := 0 to Image.NbLayers-1 do
+    if not AVars.AppendGuid(idList, Image.LayerGuid[i]) then
+      exit(srException);
+  result := srOk;
+end;
+
+function TImageActions.ScriptGetLayerIndex(AVars: TVariableSet): TScriptResult;
+var
+  idx: Integer;
+  layerGuid: TGUID;
+begin
+  if AVars.IsDefined('LayerId') then
+  begin
+    if not TryStringToGUID('{'+AVars.Strings['LayerId']+'}', layerGuid) then
+      exit(srInvalidParameters);
+    idx := Image.GetLayerIndexByGuid(layerGuid);
+    if idx <> -1 then
+      AVars.Integers['Result']:= idx+1
+    else
+      AVars.Remove('Result');
+  end else
+    AVars.Integers['Result']:= Image.CurrentLayerIndex+1;
+  result := srOk;
+end;
+
+function TImageActions.ScriptImageMoveLayerIndex(AVars: TVariableSet): TScriptResult;
+begin
+  try
+    Image.MoveLayer(AVars.Integers['FromIndex']-1, AVars.Integers['ToIndex']-1);
+    result := srOk;
+  except
+    on ex:exception do
+      result := srException;
+  end;
+end;
+
+function TImageActions.ScriptLayerFromFile(AVars: TVariableSet): TScriptResult;
+var
+  ids: ArrayOfLayerId;
+  i: Integer;
+  guidList: TScriptVariableReference;
+begin
+  if not AVars.IsDefined('FileName') then exit(srInvalidParameters) else
+  begin
+    ids := TryAddLayerFromFile(AVars.Strings['FileName']);
+    if length(ids) = 0 then exit(srException) else
+    begin
+      if not AVars.IgnoreResult then
+      begin
+        guidList := AVars.AddGuidList('Result');
+        for i := 0 to high(ids) do
+          AVars.AppendGuid(guidList, Image.LayerGuid[Image.GetLayerIndexById(ids[i])]);
+      end;
+      exit(srOk);
+    end;
+  end;
+end;
+
+function TImageActions.ScriptImageGetRegistry(AVars: TVariableSet): TScriptResult;
+var
+  identifier: String;
+begin
+  identifier := AVars.Strings['Identifier'];
+  if length(identifier)=0 then exit(srInvalidParameters);
+  AVars.Strings['Result'] := Image.GetRegistry(identifier);
+  result := srOk;
+end;
+
+function TImageActions.ScriptLayerGetId(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Guids['Result'] := Image.LayerGuid[Image.CurrentLayerIndex];
+  result := srOk;
+end;
+
+function TImageActions.ScriptLayerGetRegistry(AVars: TVariableSet): TScriptResult;
+var
+  identifier: String;
+begin
+  identifier := AVars.Strings['Identifier'];
+  if length(identifier)=0 then exit(srInvalidParameters);
+  AVars.Strings['Result'] := Image.GetLayerRegistry(Image.CurrentLayerIndex, identifier);
+  result := srOk;
+end;
+
+function TImageActions.ScriptLayerSaveAs(AVars: TVariableSet): TScriptResult;
+var
+  name, ext: String;
+  layerCopy: TBGRABitmap;
+  layerIdx: Integer;
+  writer: TFPCustomImageWriter;
+  imgFormat: TBGRAImageFormat;
+begin
+  name := AVars.Strings['FileName'];
+  if AVars.Strings['Format'] = '' then
+    imgFormat := SuggestImageFormat(name)
+  else
+    imgFormat := SuggestImageFormat(AVars.Strings['Format']);
+  if imgFormat = ifUnknown then imgFormat := ifPng;
+  ext := UTF8LowerCase(ExtractFileExt(name));
+  if ext = '.tmp' then
+  begin
+    layerCopy := TBGRABitmap.Create(Image.Width, Image.Height);
+    writer := CreateBGRAImageWriter(imgFormat, true);
+    try
+      layerIdx := Image.CurrentLayerIndex;
+      layerCopy.PutImage(Image.LayerOffset[layerIdx].x, Image.LayerOffset[layerIdx].y,
+        Image.LayerBitmap[layerIdx], dmSet);
+      layerCopy.SaveToFileUTF8(name, writer);
+      result := srOk;
+      AVars.Strings['Result'] := name;
+    except
+      on ex: Exception do
+      begin
+        FInstance.ShowError(rsSave, ex.Message);
+        result := srException;
+      end;
+    end;
+    layerCopy.Free;
+    writer.Free;
+  end else
+    exit(srInvalidParameters);
+end;
+
+function TImageActions.ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
+var
+  idx: Integer;
+  layerGuid: TGUID;
+begin
+  layerGuid := AVars.Guids['Id'];
+  if layerGuid = GUID_NULL then exit(srInvalidParameters);
+  idx := Image.GetLayerIndexByGuid(layerGuid);
+  if idx = -1 then exit(srInvalidParameters)
+  else if not Image.SetCurrentLayerByIndex(idx) then exit(srException)
+  else exit(srOk);
+end;
+
+function TImageActions.ScriptLayerAddNew(AVars: TVariableSet): TScriptResult;
+begin
+  if not NewLayer then result := srException
+  else
+  begin
+    if not AVars.IgnoreResult then
+      AVars.Guids['Result'] := Image.LayerGuid[Image.CurrentLayerIndex];
+    result := srOk;
+  end;
+end;
+
+function TImageActions.ScriptImageSetRegistry(AVars: TVariableSet): TScriptResult;
+var
+  identifier: String;
+begin
+  identifier := AVars.Strings['Identifier'];
+  if length(identifier)=0 then exit(srInvalidParameters);
+  if not AVars.IsDefined('Value') then exit(srInvalidParameters);
+  Image.SetRegistry(identifier, AVars.Strings['Value']);
+  result := srOk;
+end;
+
+function TImageActions.ScriptLayerSetRegistry(AVars: TVariableSet): TScriptResult;
+var
+  identifier: String;
+begin
+  identifier := AVars.Strings['Identifier'];
+  if length(identifier)=0 then exit(srInvalidParameters);
+  if not AVars.IsDefined('Value') then exit(srInvalidParameters);
+  Image.SetLayerRegistry(Image.CurrentLayerIndex, identifier, AVars.Strings['Value']);
+  result := srOk;
+end;
+
+function TImageActions.ScriptPasteAsNewLayer(AVars: TVariableSet): TScriptResult;
+var
+  id, idx: Integer;
+begin
+  id := PasteAsNewLayer;
+  if (id >= 0) and not AVars.IgnoreResult then
+  begin
+    idx := Image.GetLayerIndexById(id);
+    AVars.Guids['Result'] := Image.LayerGuid[idx];
+  end
+  else AVars.Remove('Result');
+  result := srOk;
+end;
+
+function TImageActions.ScriptLayerDuplicate(AVars: TVariableSet): TScriptResult;
+begin
+  if not DuplicateLayer then result := srException else
+  begin
+    if not AVars.IgnoreResult then
+      AVars.Guids['Result'] := Image.LayerGuid[Image.CurrentLayerIndex];
+    result := srOk;
+  end;
+end;
+
+function TImageActions.ScriptPutImage(AVars: TVariableSet): TScriptResult;
+var
+  x, y, width, height, opacity, yb, dataPos, xb: integer;
+  dataStr, modeStr: String;
+  mode: TDrawMode;
+  bmp: TBGRABitmap;
+  p: PBGRAPixel;
+
+  function HexDigit(APos: integer): byte;
+  begin
+    result := ord(dataStr[APos]);
+    if result < ord('0') then result := 0
+    else if result <= ord('9') then dec(result, ord('0'))
+    else if result < ord('A') then result := 9
+    else if result <= ord('F') then result := result - ord('A') + 10
+    else result := 15;
+  end;
+
+  function HexValue(APos: integer): byte;
+  begin
+    result := (HexDigit(APos) shl 4) + HexDigit(APos+1);
+  end;
+
+begin
+  x := AVars.Integers['X'];
+  y := AVars.Integers['Y'];
+  width := AVars.Integers['Width'];
+  height := AVars.Integers['Height'];
+  dataStr := AVars.Strings['Data'];
+  modeStr := AVars.Strings['Mode'];
+  opacity := AVars.Integers['Opacity'];
+  case modeStr of
+  'dmDrawWithTransparency': mode := dmDrawWithTransparency;
+  'dmLinearBlend': mode := dmLinearBlend;
+  'dmSet': mode := dmSet;
+  'dmSetExceptTransparent': mode := dmSetExceptTransparent;
+  'dmXor': mode := dmXor;
+  else exit(srInvalidParameters);
+  end;
+  if (opacity < 0) or (opacity > 255) then exit(srInvalidParameters);
+  if length(dataStr)<>width*height*8 then exit(srInvalidParameters);
+
+  if (width = 0) or (height = 0) then exit(srOk);
+  if opacity = 0 then exit(srOk);
+  bmp := TBGRABitmap.Create(width,height);
+  try
+    dataPos := 1;
+    for yb := 0 to height-1 do
+    begin
+      p := bmp.ScanLine[yb];
+      for xb := 0 to width-1 do
+      begin
+        p^.alpha := HexValue(dataPos+6);
+        if p^.alpha = 0 then p^ := BGRAPixelTransparent
+        else
+        begin
+          p^.red := HexValue(dataPos);
+          p^.green := HexValue(dataPos+2);
+          p^.blue := HexValue(dataPos+4);
+        end;
+        inc(dataPos,8);
+        inc(p);
+      end;
+    end;
+    bmp.InvalidateBitmap;
+
+    if PutImage(x,y,bmp,mode,opacity) then
+    begin
+      result := srOk;
+      FInstance.UpdateWindows;
+    end
+    else
+      result := srException;
+  finally
+    bmp.Free;
+  end;
+end;
+
+function TImageActions.ScriptGetImage(AVars: TVariableSet): TScriptResult;
+var
+  str: string;
+  strPos: integer;
+
+  procedure writeStrHex(AValue: byte);
+  const digits : array[0..15] of char = '0123456789ABCDEF';
+  begin
+    str[strPos] := digits[AValue shr 4];
+    str[strPos+1] := digits[AValue and 15];
+    inc(strPos, 2);
+  end;
+
+var
+  x, y, width, height, yb, xb: Integer;
+  copy, img: TBGRABitmap;
+  ofs: TPoint;
+  p: PBGRAPixel;
+
+
+begin
+  if not AVars.IsDefined('X') then
+    x := 0 else x := AVars.Integers['X'];
+  if not AVars.IsDefined('Y') then
+    y := 0 else y := AVars.Integers['Y'];
+  if not AVars.IsDefined('Width') then
+    width := Image.Width-x else width := AVars.Integers['Width'];
+  if not AVars.IsDefined('Height') then
+    height := Image.Height-y else height := AVars.Integers['Height'];
+  if (width > MaxImageWidth) or (height > MaxImageHeight) then exit(srException);
+  if Image.SelectionLayerIsEmpty then
+  begin
+    copy := TBGRABitmap.Create(width, height);
+    ofs := Image.LayerOffset[Image.CurrentLayerIndex];
+    copy.PutImage(ofs.X, ofs.Y, Image.LayerBitmap[Image.CurrentLayerIndex], dmSet);
+    img := copy
+  end else
+  begin
+    copy := nil;
+    img := Image.SelectionLayerReadonly;
+  end;
+  try
+    setlength(str, img.width*img.height*8);
+    strPos := 1;
+    for yb := 0 to img.Height-1 do
+    begin
+      p := img.ScanLine[yb];
+      for xb := img.Width-1 downto 0 do
+      begin
+        writeStrHex(p^.red);
+        writeStrHex(p^.green);
+        writeStrHex(p^.blue);
+        writeStrHex(p^.alpha);
+        inc(p);
+      end;
+    end;
+  finally
+    copy.Free;
+  end;
+  AVars.Strings['Result'] := str;
+  result := srOk;
+end;
+
+function TImageActions.ScriptLayerFill(AVars: TVariableSet): TScriptResult;
+var
+  modeStr: String;
+  mode: TDrawMode;
+begin
+  modeStr := AVars.Strings['Mode'];
+  case modeStr of
+  'dmDrawWithTransparency': mode := dmDrawWithTransparency;
+  'dmLinearBlend': mode := dmLinearBlend;
+  'dmSet': mode := dmSet;
+  'dmSetExceptTransparent': mode := dmSetExceptTransparent;
+  'dmXor': mode := dmXor;
+  else exit(srInvalidParameters);
+  end;
+  if LayerFill(AVars.Pixels['Color'], mode) then
+  begin
+    result := srOk;
+    FInstance.UpdateWindows;
+  end
+  else
+    result := srException;
+end;
+
+function TImageActions.ScriptGetFrameIndex(AVars: TVariableSet): TScriptResult;
+begin
+  if Image.FrameIndex <> -1 then
+    AVars.Integers['Result']:= Image.FrameIndex+1
+  else
+    AVars.Remove('Result');
+  result := srOk;
+end;
+
 procedure TImageActions.ClearAlpha;
-var c: TBGRAPixel;
-    n: integer;
+var
+  c: TBGRAPixel;
+begin
+  c := ToolManager.BackColor;
+  c.alpha := 255;
+  ClearAlpha(c);
+end;
+
+procedure TImageActions.FillBackground;
+var
+  c: TBGRAPixel;
+begin
+  c := ToolManager.BackColor;
+  c.alpha := 255;
+  FillBackground(c);
+end;
+
+procedure TImageActions.ClearAlpha(AColor: TBGRAPixel);
+var n: integer;
     p: PBGRAPixel;
     LayerAction: TLayerAction;
 begin
   if not Image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    c := ToolManager.BackColor;
-    c.alpha := 255;
     LayerAction := Image.CreateAction(true);
-    LayerAction.SelectedImageLayer.ReplaceColor(BGRAPixelTransparent,c);
+    LayerAction.SelectedImageLayer.ReplaceColor(BGRAPixelTransparent, AColor);
     p := LayerAction.SelectedImageLayer.Data;
     for n := LayerAction.SelectedImageLayer.NbPixels-1 downto 0 do
     begin
@@ -224,22 +698,19 @@ begin
   LayerAction.Free;
 end;
 
-procedure TImageActions.FillBackground;
+procedure TImageActions.FillBackground(AColor: TBGRAPixel);
 var tempBmp: TBGRABitmap;
-    c: TBGRAPixel;
     LayerAction: TLayerAction;
     y: Integer;
 begin
   if not Image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    c := ToolManager.BackColor;
-    c.alpha := 255;
     LayerAction := Image.CreateAction(True);
     tempBmp := TBGRABitmap.Create(LayerAction.SelectedImageLayer.Width,1);
     for y := 0 to LayerAction.SelectedImageLayer.Height-1 do
     begin
-       tempBmp.Fill(c);
+       tempBmp.Fill(AColor);
        tempBmp.PutImage(0,-y,LayerAction.SelectedImageLayer,dmDrawWithTransparency);
        LayerAction.SelectedImageLayer.PutImage(0,y,tempBmp,dmSet);
     end;
@@ -292,7 +763,7 @@ end;
 procedure TImageActions.Redo;
 begin
   try
-    if CurrentTool in[ptTextureMapping,ptLayerMapping,ptMoveSelection,ptRotateSelection] then
+    if CurrentTool in[ptLayerMapping,ptMoveSelection,ptRotateSelection] then
       ChooseTool(ptHand);
     if image.CanRedo then
     begin
@@ -304,6 +775,23 @@ begin
     on ex:Exception do
       FInstance.ShowError('Redo',ex.Message);
   end;
+end;
+
+procedure TImageActions.DoBegin;
+begin
+  if CurrentTool in[ptMoveSelection,ptRotateSelection] then ChooseTool(ptHand);
+  if ToolManager.ToolProvideCommand(tcFinish) then ToolManager.ToolCommand(tcFinish);
+  Image.DoBegin;
+end;
+
+function TImageActions.DoEnd: boolean;
+var
+  found: boolean;
+begin
+  if CurrentTool in[ptMoveSelection,ptRotateSelection] then ChooseTool(ptHand);
+  if ToolManager.ToolProvideCommand(tcFinish) then ToolManager.ToolCommand(tcFinish);
+  Image.DoEnd(found, result);
+  if not found then raise exception.Create(rsEndWithoutMatchingBegin);
 end;
 
 procedure TImageActions.Import3DObject(AFilenameUTF8: string);
@@ -324,6 +812,60 @@ begin
   end;
 end;
 
+function TImageActions.GetPixel(X, Y: Integer): TBGRAPixel;
+var
+  ofs: TPoint;
+begin
+  ofs := Image.LayerOffset[Image.CurrentLayerIndex];
+  result := Image.LayerBitmap[Image.CurrentLayerIndex].GetPixel(X-ofs.X,y-ofs.Y);
+end;
+
+function TImageActions.PutImage(X, Y: integer; AImage: TBGRACustomBitmap;
+  AMode: TDrawMode; AOpacity: byte): boolean;
+var
+  LayerAction: TLayerAction;
+begin
+  result := false;
+  if not Image.CheckNoAction then exit;
+  LayerAction := nil;
+  try
+    LayerAction := Image.CreateAction(true);
+    LayerAction.ChangeBoundsNotified:= true;
+    LayerAction.SelectedImageLayer.PutImage(X,Y,AImage,AMode,AOpacity);
+    LayerAction.NotifyChange(LayerAction.SelectedImageLayer, RectWithSize(X,Y,AImage.Width,AImage.Height));
+    LayerAction.Validate;
+    result := true;
+  except
+    on ex:Exception do
+      FInstance.ShowError('PutImage',ex.Message);
+  end;
+  LayerAction.Free;
+end;
+
+function TImageActions.LayerFill(AColor: TBGRAPixel; AMode: TDrawMode): boolean;
+var
+  LayerAction: TLayerAction;
+begin
+  if (AColor.alpha=0) and (AMode in[dmDrawWithTransparency,dmLinearBlend]) then exit(true);
+  result := false;
+  if not Image.CheckNoAction then exit;
+  LayerAction := nil;
+  try
+    LayerAction := Image.CreateAction(true);
+    LayerAction.ChangeBoundsNotified:= true;
+    LayerAction.SelectedImageLayer.Fill(AColor, AMode);
+    LayerAction.NotifyChange(LayerAction.SelectedImageLayer,
+        rect(0,0,LayerAction.SelectedImageLayer.Width,
+              LayerAction.SelectedImageLayer.Height));
+    LayerAction.Validate;
+    result := true;
+  except
+    on ex:Exception do
+      FInstance.ShowError('LayerFill',ex.Message);
+  end;
+  LayerAction.Free;
+end;
+
 function TImageActions.LoadSelection(AFilenameUTF8: string; ALoadedImage: PImageEntry = nil): boolean;
 var
   newSelection: TBGRABitmap;
@@ -340,7 +882,7 @@ begin
     else
       newSelection := LoadFlatImageUTF8(AFilenameUTF8).bmp;
     newSelection.InplaceGrayscale;
-    if not (CurrentTool in[ptDeformation,ptTextureMapping,ptLayerMapping,ptMoveSelection,ptRotateSelection]) then
+    if not (CurrentTool in[ptDeformation,ptLayerMapping,ptMoveSelection,ptRotateSelection]) then
       ChooseTool(ptMoveSelection);
 
     if Image.CheckNoAction then
@@ -372,7 +914,7 @@ begin
       FInstance.ShowMessage(rsCrop, rsEmptySelection);
       exit;
     end;
-    if (CurrentTool in[ptRotateSelection,ptMoveSelection,ptDeformation,ptTextureMapping,ptLayerMapping]) then
+    if (CurrentTool in[ptRotateSelection,ptMoveSelection,ptDeformation,ptLayerMapping]) then
       ChooseTool(ptHand);
     partial := image.MakeCroppedLayer;
     if partial <> nil then
@@ -492,6 +1034,12 @@ begin
   end;
 end;
 
+procedure TImageActions.Flatten;
+begin
+  ChooseTool(ptHand);
+  image.Flatten;
+end;
+
 procedure TImageActions.SetCurrentBitmap(bmp: TBGRABitmap; AUndoable : boolean;
   ACaption: string; AOpacity: byte);
 begin
@@ -503,14 +1051,32 @@ begin
   end;
 end;
 
-function TImageActions.TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): boolean;
+function TImageActions.TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: TBGRABitmap = nil): ArrayOfLayerId;
+
+  function ComputeStretchMatrix(ASourceWidth, ASourceHeight: single): TAffineMatrix;
+  var
+    ratio: Single;
+  begin
+    ratio := max(ASourceWidth/Image.Width, ASourceHeight/Image.Height);
+    result := AffineMatrixTranslation(-ASourceWidth/2, -ASourceHeight/2);
+    if ratio > 1 then result := AffineMatrixScale(1/ratio, 1/ratio)*result;
+    result := AffineMatrixTranslation(Image.Width/2, Image.Height/2)*result;
+  end;
+
 var
   newPicture: TBGRABitmap;
   svgOrig: TBGRALayerSVGOriginal;
-  ratio: Single;
   m: TAffineMatrix;
+  ofsF: TPointF;
+  ext: String;
+  layeredBmp: TBGRACustomLayeredBitmap;
+  bmpOrig: TBGRALayerImageOriginal;
+  s: TStream;
+  i: Integer;
+  doFound, somethingDone: boolean;
+
 begin
-  result := false;
+  result := nil;
   if not AbleToLoadUTF8(AFilenameUTF8) then
   begin
     FInstance.ShowMessage(rsOpen,rsFileExtensionNotSupported);
@@ -518,27 +1084,91 @@ begin
     exit;
   end;
   try
-    if Image.DetectImageFormat(AFilenameUTF8) = ifSvg then
+    case Image.DetectImageFormat(AFilenameUTF8) of
+    ifSvg:
     begin
       svgOrig := LoadSVGOriginalUTF8(AFilenameUTF8);
-      ratio := max(svgOrig.Width/Image.Width, svgOrig.Height/Image.Height);
-      m := AffineMatrixTranslation(-svgOrig.Width/2,-svgOrig.Height/2);
-      if ratio > 1 then m := AffineMatrixScale(1/ratio,1/ratio)*m;
-      m := AffineMatrixTranslation(Image.Width/2,Image.Height/2)*m;
+      m := ComputeStretchMatrix(svgOrig.Width, svgOrig.Height);
       AddLayerFromOriginal(svgOrig, ExtractFileName(AFilenameUTF8), m);
+      setlength(result, 1);
+      result[0] := Image.LayerId[image.CurrentLayerIndex];
       FreeAndNil(ALoadedImage);
-    end else
-    begin
-      if Assigned(ALoadedImage) then
-      begin
-        newPicture := ALoadedImage;
-        ALoadedImage := nil;
-      end
-      else
-        newPicture := LoadFlatImageUTF8(AFilenameUTF8).bmp;
-      AddLayerFromBitmap(newPicture, ExtractFileName(AFilenameUTF8));
     end;
-
+    ifLazPaint, ifOpenRaster, ifPaintDotNet, ifPhoxo:
+    begin
+      ext := UTF8LowerCase(ExtractFileExt(AFilenameUTF8));
+      layeredBmp := TryCreateLayeredBitmapReader(ext);
+      try
+        s := FileManager.CreateFileStream(AFilenameUTF8, fmOpenRead or fmShareDenyWrite);
+        try
+          if Assigned(FInstance) then FInstance.StartLoadingImage(AFilenameUTF8);
+          try
+            layeredBmp.LoadFromStream(s);
+          finally
+            if Assigned(FInstance) then FInstance.EndLoadingImage;
+          end;
+          m := ComputeStretchMatrix(layeredBmp.Width, layeredBmp.Height);
+          try
+            Image.DoBegin;
+            for i := 0 to layeredBmp.NbLayers-1 do
+            begin
+              if (layeredBmp.LayerOriginalGuid[i] <> GUID_NULL) and
+                 layeredBmp.LayerOriginalKnown[i] then
+              begin
+                if not AddLayerFromOriginal(layeredBmp.LayerOriginal[i].Duplicate,
+                  layeredBmp.LayerName[i], m*layeredBmp.LayerOriginalMatrix[i],
+                  layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
+              end else
+              begin
+                if IsAffineMatrixTranslation(m) then
+                begin
+                  ofsF := m*PointF(layeredBmp.LayerOffset[i].x, layeredBmp.LayerOffset[i].y);
+                  if not NewLayer(layeredBmp.GetLayerBitmapCopy(i), layeredBmp.LayerName[i],
+                           Point(round(ofsF.X), round(ofsF.Y)),
+                           layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
+                end else
+                begin
+                  bmpOrig := TBGRALayerImageOriginal.Create;
+                  bmpOrig.AssignImage(layeredBmp.GetLayerBitmapDirectly(i));
+                  if not AddLayerFromOriginal(bmpOrig, layeredBmp.LayerName[i],
+                    m * AffineMatrixTranslation(layeredBmp.LayerOffset[i].x, layeredBmp.LayerOffset[i].y),
+                    layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
+                end;
+              end;
+              setlength(result, length(result)+1);
+              result[high(result)] := Image.LayerId[image.CurrentLayerIndex];
+            end;
+          finally
+            image.DoEnd(doFound, somethingDone);
+          end;
+        finally
+          s.Free;
+        end;
+      finally
+        layeredBmp.Free;
+      end;
+    end
+    else
+      begin
+        if Assigned(ALoadedImage) then
+        begin
+          newPicture := ALoadedImage;
+          ALoadedImage := nil;
+        end
+        else
+        begin
+          if Assigned(FInstance) then FInstance.StartLoadingImage(AFilenameUTF8);
+          try
+            newPicture := LoadFlatImageUTF8(AFilenameUTF8).bmp;
+          finally
+            if Assigned(FInstance) then FInstance.EndLoadingImage;
+          end;
+        end;
+        AddLayerFromBitmap(newPicture, ExtractFileName(AFilenameUTF8));
+        setlength(result, 1);
+        result[0] := Image.LayerId[image.CurrentLayerIndex];
+      end;
+    end;
   except
     on ex: Exception do
     begin
@@ -555,7 +1185,7 @@ var
 begin
   if (ABitmap <> nil) and (ABitmap.Width > 0) and (ABitmap.Height > 0) then
   begin
-    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,
+    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,
          ptLayerMapping,ptEditShape] then
       ChooseTool(ptHand);
     if image.CheckNoAction then
@@ -608,17 +1238,17 @@ begin
 end;
 
 function TImageActions.AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal;
-  AName: string; AMatrix: TAffineMatrix): boolean;
+  AName: string; AMatrix: TAffineMatrix; ABlendOp: TBlendOperation; AOpacity: byte): boolean;
 begin
   if AOriginal <> nil then
   begin
-    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,ptTextureMapping,
+    if CurrentTool in [ptDeformation,ptRotateSelection,ptMoveSelection,
          ptLayerMapping,ptEditShape] then
       ChooseTool(ptHand);
     if image.CheckNoAction then
     begin
       if not Image.SelectionMaskEmpty then ReleaseSelection;
-      result := NewLayer(AOriginal, AName, boTransparent, AMatrix);
+      result := NewLayer(AOriginal, AName, ABlendOp, AMatrix, AOpacity);
     end else
     begin
       AOriginal.Free;
@@ -867,9 +1497,38 @@ var
 begin
   if image.SelectionMaskEmpty then exit;
   layeraction := image.CreateAction(true, true);
+  layeraction.ChangeBoundsNotified:= true;
   layeraction.ReleaseSelection;
   layeraction.Validate;
   layeraction.Free;
+end;
+
+function TImageActions.ScriptSelectLayerIndex(AVars: TVariableSet): TScriptResult;
+var
+  index: Int64;
+begin
+  index := AVars.Integers['Index'];
+  if (AVars.Integers['Index'] < 1) or (AVars.Integers['Index'] > Image.NbLayers) then exit(srInvalidParameters);
+  if not Image.SetCurrentLayerByIndex(index-1) then result := srException
+  else result := srOk;
+end;
+
+function TImageActions.ScriptClearAlpha(AVars: TVariableSet): TScriptResult;
+begin
+  if AVars.IsDefined('BackColor') then
+    ClearAlpha(AVars.Pixels['BackColor'])
+  else
+    ClearAlpha;
+  result := srOk;
+end;
+
+function TImageActions.ScriptFillBackground(AVars: TVariableSet): TScriptResult;
+begin
+  if AVars.IsDefined('BackColor') then
+    FillBackground(AVars.Pixels['BackColor'])
+  else
+    FillBackground;
+  result := srOk;
 end;
 
 procedure TImageActions.Paste;
@@ -916,20 +1575,32 @@ begin
   end;
 end;
 
-procedure TImageActions.PasteAsNewLayer;
+function TImageActions.PasteAsNewLayer: integer;
 var partial: TBGRABitmap;
+  orig: TVectorOriginal;
 begin
+  result := -1;
   try
-    partial := GetBitmapFromClipboard;
-    if partial<>nil then
+    if ClipboardHasShapes then
     begin
-      if partial.NbPixels <> 0 then
+      orig := TVectorOriginal.Create;
+      PasteShapesFromClipboard(orig, AffineMatrixIdentity, EmptyRectF);
+      if AddLayerFromOriginal(orig, '') then
+        result := Image.LayerId[Image.CurrentLayerIndex];
+    end else
+    begin
+      partial := GetBitmapFromClipboard;
+      if partial<>nil then
       begin
-        AddLayerFromBitmap(partial,'');
-        ChooseTool(ptMoveLayer);
-      end
-      else
-        partial.Free;
+        if partial.NbPixels <> 0 then
+        begin
+          AddLayerFromBitmap(partial,'');
+          ChooseTool(ptMoveLayer);
+          result := Image.LayerId[Image.CurrentLayerIndex];
+        end
+        else
+          partial.Free;
+      end else
     end;
   except
     on ex:Exception do
@@ -1003,7 +1674,7 @@ begin
   end;
 end;
 
-procedure TImageActions.NewLayer;
+function TImageActions.NewLayer: boolean;
 {var top: TTopMostInfo;
     res: integer;}
 begin
@@ -1016,24 +1687,46 @@ begin
   end;}
   if image.NbLayers < MaxLayersToAdd then
   begin
-    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
       ChooseTool(ptHand);
     ToolManager.ToolCloseDontReopen;
     Image.AddNewLayer;
     ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
+    result := true;
+  end else
+    result := false;
+end;
+
+function TImageActions.NewLayer(ALayer: TBGRABitmap; AName: string;
+  ABlendOp: TBlendOperation; AOpacity: byte): boolean;
+begin
+  if image.NbLayers < MaxLayersToAdd then
+  begin
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
+      ChooseTool(ptHand);
+    ToolManager.ToolCloseDontReopen;
+    Image.AddNewLayer(ALayer, AName, ABlendOp, AOpacity);
+    ToolManager.ToolOpen;
+    FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
+    result := true;
+  end else
+  begin
+    FInstance.ShowMessage(rsLayers, rsTooManyLayers);
+    ALayer.Free;
+    result := false;
   end;
 end;
 
 function TImageActions.NewLayer(ALayer: TBGRABitmap; AName: string;
-  ABlendOp: TBlendOperation): boolean;
+  AOffset: TPoint; ABlendOp: TBlendOperation; AOpacity: byte): boolean;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
-    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
       ChooseTool(ptHand);
     ToolManager.ToolCloseDontReopen;
-    Image.AddNewLayer(ALayer, AName, ABlendOp);
+    Image.AddNewLayer(ALayer, AName, AOffset, ABlendOp, AOpacity);
     ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
     result := true;
@@ -1046,14 +1739,14 @@ begin
 end;
 
 function TImageActions.NewLayer(ALayer: TBGRALayerCustomOriginal;
-  AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix): boolean;
+  AName: string; ABlendOp: TBlendOperation; AMatrix: TAffineMatrix; AOpacity: byte): boolean;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
-    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
       ChooseTool(ptHand);
     ToolManager.ToolCloseDontReopen;
-    Image.AddNewLayer(ALayer, AName, ABlendOp, AMatrix);
+    Image.AddNewLayer(ALayer, AName, ABlendOp, AMatrix, AOpacity);
     ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
     result := true;
@@ -1065,18 +1758,20 @@ begin
   end;
 end;
 
-procedure TImageActions.DuplicateLayer;
+function TImageActions.DuplicateLayer: boolean;
 begin
   if image.NbLayers < MaxLayersToAdd then
   begin
     Image.DuplicateLayer;
     FInstance.ScrollLayerStackOnItem(Image.CurrentLayerIndex);
-  end;
+    result := true;
+  end else
+    result := false;
 end;
 
 procedure TImageActions.RasterizeLayer;
 begin
-  if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+  if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
     ChooseTool(ptHand);
   ToolManager.ToolCloseDontReopen;
   Image.RasterizeLayer;
@@ -1094,19 +1789,20 @@ begin
   end;
 end;
 
-procedure TImageActions.RemoveLayer;
+function TImageActions.RemoveLayer: boolean;
 var idx: integer;
 begin
   if (Image.CurrentLayerIndex <> -1) and (Image.NbLayers > 1) then
   begin
     idx := Image.CurrentLayerIndex;
-    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptTextureMapping,ptDeformation] then
+    if CurrentTool in[ptMoveLayer,ptRotateLayer,ptZoomLayer,ptLayerMapping,ptDeformation] then
       ChooseTool(ptHand);
     ToolManager.ToolCloseDontReopen;
     Image.RemoveLayer;
     ToolManager.ToolOpen;
     FInstance.ScrollLayerStackOnItem(idx);
-  end;
+    result := true;
+  end else result := false;
 end;
 
 procedure TImageActions.EditSelection(ACallback: TModifyImageCallback);

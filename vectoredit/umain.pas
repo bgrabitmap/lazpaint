@@ -114,7 +114,6 @@ type
     BCPanelToolbar: TBCPanel;
     ToolImageList48: TBGRAImageList;
     BGRAVirtualScreen1: TBGRAVirtualScreen;
-    ColorDialog1: TColorDialog;
     OpenDialog1: TOpenDialog;
     OpenPictureDialog1: TOpenPictureDialog;
     SaveDialog1: TSaveDialog;
@@ -212,6 +211,7 @@ type
     FFullIconHeight: integer;
     FVectorImageList: TBGRAImageList;
     procedure ComboBoxSplineStyleClick(Sender: TObject);
+    function GetOriginalZoomFactor: single;
     function GetOutlineWidth: single;
     function GetPenStyle: TBGRAPenStyle;
     function GetPenWidth: single;
@@ -320,6 +320,7 @@ type
     property currentTool: TPaintTool read FCurrentTool write SetCurrentTool;
     property joinStyle: TPenJoinStyle read FPenJoinStyle write SetPenJoinStyle;
     property phongShapeKind: TPhongShapeKind read FPhongShapeKind write SetPhongShapeKind;
+    property originalZoomFactor: single read GetOriginalZoomFactor;
     property zoomFactor: single read GetZoomFactor write SetZoomFactor;
     property vectorOriginal: TVectorOriginal read GetVectorOriginal;
     property vectorLayerIndex: integer read FVectorLayerIndex write SetVectorLayerIndex;
@@ -863,7 +864,7 @@ begin
         vectorOriginal.SelectShape(addedShape);
         currentTool:= ptHand;
       end else
-        vectorOriginal.MouseClick(newStartPoint);
+        vectorOriginal.MouseClick(newStartPoint, DoScaleX(6, 96)/zoomFactor*originalZoomFactor);
       justDown:= false;
     end
     else if Assigned(newShape) and (Button = newButton) then
@@ -1088,6 +1089,14 @@ begin
     with btn.ClientToScreen(Point(0,btn.Height)) do
       FSplineStyleMenu.PopUp(X,Y);
   end;
+end;
+
+function TForm1.GetOriginalZoomFactor: single;
+var
+  m: TAffineMatrix;
+begin
+  m := vectorTransform;
+  result := (VectLen(PointF(m[1,1],m[2,1]))+VectLen(PointF(m[1,2],m[2,2])))/2;
 end;
 
 function TForm1.GetOutlineWidth: single;
@@ -2293,14 +2302,14 @@ end;
 procedure TForm1.DoCopy;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
-    CopyShapesToClipboard([vectorOriginal.SelectedShape]);
+    CopyShapesToClipboard([vectorOriginal.SelectedShape], vectorTransform);
 end;
 
 procedure TForm1.DoCut;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
   begin
-    if CopyShapesToClipboard([vectorOriginal.SelectedShape]) then
+    if CopyShapesToClipboard([vectorOriginal.SelectedShape], vectorTransform) then
       vectorOriginal.SelectedShape.Remove;
   end;
 end;
@@ -2308,7 +2317,7 @@ end;
 procedure TForm1.DoPaste;
 begin
   if Assigned(vectorOriginal) then
-    PasteShapesFromClipboard(vectorOriginal);
+    PasteShapesFromClipboard(vectorOriginal, vectorTransform);
 end;
 
 procedure TForm1.DoDelete;

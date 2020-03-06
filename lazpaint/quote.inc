@@ -6,9 +6,110 @@ begin
     raise exception.create('Invalid quoted string (error '+inttostr(integer(errors))+')');
 end;
 
+function UnescapeString(const S: string): string;
+const HexDigit = ['0'..'9','a'..'f','A'..'F'];
+  OctDigit = ['0'..'7'];
+var
+  outputpos: integer;
+
+  procedure put(c: char);
+  begin
+    if outputpos > length(result) then
+      setlength(result, length(result)*2+1);
+    result[outputpos] := c;
+    inc(outputpos);
+  end;
+  procedure putStr(s: string);
+  var
+    j: Integer;
+  begin
+    for j := 1 to length(s) do
+      put(s[j]);
+  end;
+  function CheckHex(AFrom,ATo: integer): boolean;
+  var
+    j: Integer;
+  begin
+    if ATo > length(s) then exit(false);
+    for j := AFrom to ATo do
+      if not (s[j] in HexDigit) then exit(false);
+    result := true;
+  end;
+  function CheckOct(AFrom,ATo: integer): boolean;
+  var
+    j: Integer;
+  begin
+    if ATo > length(s) then exit(false);
+    for j := AFrom to ATo do
+      if not (s[j] in OctDigit) then exit(false);
+    result := true;
+  end;
+  function OctToInt(s: string): integer;
+  var
+    j: Integer;
+  begin
+    result := 0;
+    for j := 1 to length(s) do
+      result := (result shl 3)+ord(s[j])-ord('0');
+  end;
+
+var
+  i: Integer;
+  escaping: boolean;
+
+begin
+  setlength(result, length(s));
+  escaping := false;
+  outputpos := 1;
+  i := 1;
+  while i <= length(s) do
+  begin
+    if escaping then
+    begin
+      case s[i] of
+        '\','''','"': put(s[i]);
+        'a': put(#7);
+        'b': put(#8);
+        'f': put(#12);
+        'n': put(#10);
+        'r': put(#13);
+        't': put(#9);
+        'v': put(#11);
+        '0'..'7': if CheckOct(i+1,i+3) then
+             begin
+               putstr(UnicodeCharToUTF8(OctToInt(copy(s,i+1,2))));
+               inc(i,3);
+             end else putstr('\'+s[i]);
+        'x': if CheckHex(i+1,i+2) then
+             begin
+               putstr(UnicodeCharToUTF8(StrToInt('$'+copy(s,i+1,2))));
+               inc(i,2);
+             end else putstr('\'+s[i]);
+        'u': if CheckHex(i+1,i+4) then
+             begin
+               putstr(UnicodeCharToUTF8(StrToInt('$'+copy(s,i+1,4))));
+               inc(i,4);
+             end else putstr('\'+s[i]);
+        'U': if CheckHex(i+1,i+8) then
+             begin
+               putstr(UnicodeCharToUTF8(StrToInt('$'+copy(s,i+1,8))));
+               inc(i,8);
+             end else putstr('\'+s[i]);
+         else putstr('\'+s[i]);
+      end;
+      escaping := false;
+    end else
+    if s[i] = '\' then escaping := true
+    else put(s[i]);
+    inc(i);
+  end;
+  setlength(result, outputpos-1);
+end;
+
 function TryScriptUnquote(const S: String; out unquotedS: string): TInterpretationErrors;
 var curPos,quoteStart,idStart: integer; idStr, charCodeStr: string;
   charFuncStep: (fsNone, fsWaitOpenBracket, fsCharCodeParam, fsWaitCloseBraket);
+  escaping: Boolean;
 
   procedure AppendChar;
   var errPos: integer;
@@ -74,29 +175,28 @@ begin
           charCodeStr := charCodeStr+s[CurPos];
       end;
     end else
-    if s[curPos] = StringDelimiter then
+    if s[curPos] in StringDelimiters then
     begin
       quoteStart := curPos;
+      escaping := false;
       inc(curPos);
       while true do
       begin
         if curPos <= length(s) then
         begin
-          if s[curPos]=StringDelimiter then
+          if not escaping then
           begin
-            unquotedS:= unquotedS+copy(s,quoteStart+1,curPos-quoteStart-1);
-            inc(curPos);
-            if (curPos <= length(s)) and (s[curPos]=StringDelimiter) then
-            begin
-              unquotedS:= unquotedS+StringDelimiter;
-              quoteStart := curPos;
-            end
+            if s[curPos]=EscapePrefix then
+              escaping := true
             else
+            if s[curPos]=s[quoteStart] then
             begin
-              quoteStart := curPos-1;
+              unquotedS:= unquotedS+UnescapeString(copy(s,quoteStart+1,curPos-quoteStart-1));
+              inc(curPos);
               break;
             end;
-          end;
+          end else
+            escaping := false;
           inc(curPos);
         end else
         begin
@@ -125,65 +225,45 @@ end;
 
 function ScriptQuote(const S: string): string;
 const
-  NonPrintableChars = [#0,#7..#13,#26,#27];
+  StringDelimiter = StringDelimiter1;
+  EscapeChars = [#0,#7..#13,#26,#27,'\',StringDelimiter];
 var i, j, count: integer;
-  inQuote: boolean;
-
-  procedure EnterQuote;
-  begin
-    if not inQuote then
-    begin
-      If result <> '' then result := result + ' & ';
-      result := result+StringDelimiter;
-      inQuote := true;
-    end;
-  end;
 
   procedure FlushChars;
   var NbFlush: integer;
   begin
     NbFlush := i - j - 1;
     if NbFlush <= 0 then exit;
-    EnterQuote;
     result := result + copy(S, 1 + j, NbFlush);
     j := i;
   end;
 
-  procedure LeaveQuote;
-  begin
-    if inQuote then
-    begin
-      result := result+StringDelimiter;
-      inQuote := false;
-    end;
-  end;
-
 begin
-  result := '';
-  inQuote := false;
+  result := StringDelimiter;
   count := length(s);
   i := 0;
   j := 0;
-  while i < count do begin
+  while i < count do
+  begin
      i := i + 1;
-     if s[i] in NonPrintableChars then
+     if s[i] in EscapeChars then
      begin
        FlushChars;
-       LeaveQuote;
-       If result <> '' then result := result + ' & ';
-       result := result+'Chr('+IntToStr(Ord(s[i]))+')';
+       case s[i] of
+         #7: result += '\a';
+         #8: result += '\b';
+         #9: result += '\t';
+         #10: result += '\n';
+         #11: result += '\v';
+         #12: result += '\f';
+         #13: result += '\r';
+         ' '..#127: result += '\'+s[i];
+         else result += '\x'+IntToHex(ord(s[i]),2);
+       end;
        j := i;
      end;
-     if S[i] = StringDelimiter then begin
-        FlushChars;
-        result := result+ StringDelimiter+StringDelimiter;
-        end ;
-     end ;
-  if i <> j then
-  begin
-     EnterQuote;
-     result := result + copy(S, 1 + j, i - j);
   end;
-  LeaveQuote;
-  if result = '' then result := StringDelimiter+StringDelimiter;
+  if i <> j then
+    result := result + copy(S, 1 + j, i - j);
+  result += StringDelimiter;
 end;

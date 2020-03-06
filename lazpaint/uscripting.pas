@@ -10,6 +10,10 @@ uses
 type
   TVariableSet = class;
   TScriptResult = (srOk, srInvalidParameters, srCancelledByUser, srException, srFunctionNotDefined);
+
+function ScriptResultToStr(AResult: TScriptResult; AFunction: string): string;
+
+type
   TScriptFunction = function(AVars: TVariableSet): TScriptResult of object;
   TScriptVariableReference = record
     variableSet: TVariableSet;
@@ -44,9 +48,11 @@ type
     function GetBooleanByName(const AName: string): boolean;
     function GetCount: NativeInt;
     function GetFloatByName(const AName: string): double;
+    function GetGuidByName(const AName: string): TGuid;
     function GetIntegerByName(const AName: string): TScriptInteger;
-    function GetObjectByName(const AName: string): TScriptInteger;
     function GetPixelByName(const AName: string): TBGRAPixel;
+    function GetPoint2DByName(const AName: string): TPointF;
+    function GetPoint3DByName(const AName: string): TPoint3D;
     function GetStringByName(const AName: string): string;
     function GetSubsetByName(const AName: string): TVariableSet;
     function GetListByName(const AName: string): string;
@@ -54,10 +60,12 @@ type
     function GetVarName(AIndex: integer): string;
     procedure SetBooleanByName(const AName: string; AValue: boolean);
     procedure SetFloatByName(const AName: string; AValue: double);
+    procedure SetGuidByName(const AName: string; const AValue: TGuid);
     procedure SetIntegerByName(const AName: string; AValue: TScriptInteger);
-    procedure SetObjectByName(const AName: string; AValue: TScriptInteger);
     procedure SetListByName(const AName: string; AValue: string);
     procedure SetPixelByName(const AName: string; AValue: TBGRAPixel);
+    procedure SetPoint2DByName(const AName: string; AValue: TPointF);
+    procedure SetPoint3DByName(const AName: string; AValue: TPoint3D);
     procedure SetStringByName(const AName: string; AValue: string);
     procedure SetSubSetByName(const AName: string; AValue: TVariableSet);
     function GetStrListAsString(AIndex: NativeInt): string;
@@ -66,26 +74,31 @@ type
     function AddScalar(const AName: string; AType: TScriptVariableType): boolean;
     function AddScalarList(const AName: string; AType: TScriptVariableType): TScriptVariableReference;
   public
-    FunctionRedirected: boolean;
+    FunctionRedirected, IgnoreResult: boolean;
     constructor Create(AFunctionName: string);
     constructor Create(AFunctionName: string; AVariablesAsString: string);
     function LoadFromVariablesAsString(AVariablesAsString: string): TInterpretationErrors;
+    function Remove(const AName: string): boolean;
+    function Remove(var ADest: TScriptVariableReference): boolean;
     destructor Destroy; override;
     function AddFloat(const AName: string; AValue: double): boolean;
     function AddInteger(const AName: string; AValue: TScriptInteger): boolean;
-    function AddObject(const AName: string; AValue: TScriptInteger): boolean;
+    function AddPoint(const AName: string; AValue: TPoint3D): boolean; overload;
+    function AddPoint(const AName: string; AValue: TPointF): boolean; overload;
     function AddBoolean(const AName: string; AValue: boolean): boolean;
     function AddPixel(const AName: string; const AValue: TBGRAPixel): boolean;
     function AddString(const AName: string; AValue: string): boolean;
+    function AddGuid(const AName: string; const AValue: TGuid): boolean;
     function AddSubset(const AName: string; AValue: TVariableSet): boolean;
     function AddSubset(const AName: string): TVariableSet;
     function AddList(const AName: string; AListExpr: string): TInterpretationErrors;
     function AddBooleanList(const AName: string): TScriptVariableReference;
     function AddIntegerList(const AName: string): TScriptVariableReference;
-    function AddObjectList(const AName: string): TScriptVariableReference;
     function AddFloatList(const AName: string): TScriptVariableReference;
+    function AddPointList(const AName: string): TScriptVariableReference;
     function AddPixelList(const AName: string): TScriptVariableReference;
     function AddStringList(const AName: string): TScriptVariableReference;
+    function AddGuidList(const AName: string): TScriptVariableReference;
     function GetVariable(const AName: string): TScriptVariableReference;
     function IsDefined(const AName: string): boolean;
     class procedure ClearList(const ADest: TScriptVariableReference); static;
@@ -95,32 +108,44 @@ type
     class function AppendInteger(const ADest: TScriptVariableReference; AValue: TScriptInteger): boolean; overload; static;
     class function AssignInteger(const ADest: TScriptVariableReference; AValue: TScriptInteger): boolean; overload; static;
     class function AssignIntegerAt(const ADest: TScriptVariableReference; AIndex: NativeInt; AValue: TScriptInteger): boolean; static;
-    class function AppendObject(const ADest: TScriptVariableReference; AValue: TScriptInteger): boolean; overload; static;
-    class function AssignObject(const ADest: TScriptVariableReference; AValue: TScriptInteger): boolean; overload; static;
-    class function AssignObjectAt(const ADest: TScriptVariableReference; AIndex: NativeInt; AValue: TScriptInteger): boolean; static;
+    class function AppendPoint(const ADest: TScriptVariableReference; const AValue: TPoint3D): boolean; overload; static;
+    class function AssignPoint(const ADest: TScriptVariableReference; const AValue: TPoint3D): boolean; overload; static;
+    class function AssignPointAt(const ADest: TScriptVariableReference; AIndex: NativeInt; const AValue: TPoint3D): boolean; overload; static;
+    class function AppendPoint(const ADest: TScriptVariableReference; const AValue: TPointF): boolean; overload; static;
+    class function AssignPoint(const ADest: TScriptVariableReference; const AValue: TPointF): boolean; overload; static;
+    class function AssignPointAt(const ADest: TScriptVariableReference; AIndex: NativeInt; const AValue: TPointF): boolean; overload; static;
     class function AppendBoolean(const ADest: TScriptVariableReference; AValue: boolean): boolean; overload; static;
     class function AssignBoolean(const ADest: TScriptVariableReference; AValue: boolean): boolean; overload; static;
     class function AppendString(const ADest: TScriptVariableReference; AValue: string): boolean; overload; static;
     class function AssignString(const ADest: TScriptVariableReference; AValue: string): boolean; overload; static;
+    class function AppendGuid(const ADest: TScriptVariableReference; const AValue: TGuid): boolean; overload; static;
+    class function AssignGuid(const ADest: TScriptVariableReference; const AValue: TGuid): boolean; overload; static;
     class function AppendPixel(const ADest: TScriptVariableReference; const AValue: TBGRAPixel): boolean; overload; static;
     class function AssignPixel(const ADest: TScriptVariableReference; const AValue: TBGRAPixel): boolean; overload; static;
     class function AssignList(const ADest: TScriptVariableReference; AListExpr: string): TInterpretationErrors; static;
     class function AssignVariable(const ADest, ASource: TScriptVariableReference): boolean; static;
     class function IsReferenceDefined(const AReference: TScriptVariableReference): boolean; static;
+    class function IsList(const AReference: TScriptVariableReference): boolean; static;
+    class function IsSubSet(const AReference: TScriptVariableReference): boolean; static;
     class function GetFloat(const ASource: TScriptVariableReference) : double; static;
     class function GetInteger(const ASource: TScriptVariableReference) : TScriptInteger; static;
-    class function GetObject(const ASource: TScriptVariableReference) : TScriptInteger; static;
+    class function GetPoint2D(const ASource: TScriptVariableReference) : TPointF; static;
+    class function GetPoint3D(const ASource: TScriptVariableReference) : TPoint3D; static;
     class function GetBoolean(const ASource: TScriptVariableReference) : boolean; static;
     class function GetString(const ASource: TScriptVariableReference) : string; static;
+    class function GetGuid(const ASource: TScriptVariableReference) : TGuid; static;
     class function GetPixel(const ASource: TScriptVariableReference) : TBGRAPixel; static;
     class function GetSubset(const ASource: TScriptVariableReference) : TVariableSet; static;
     class function GetList(const ASource: TScriptVariableReference) : string; static;
     class function GetListCount(const ASource: TScriptVariableReference) : NativeInt; static;
     class function GetFloatAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : double; static;
     class function GetIntegerAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : TScriptInteger; static;
-    class function GetObjectAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : TScriptInteger; static;
+    class function GetPoint2DAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : TPointF; static;
+    class function GetPoint3DAt(const ASource: TScriptVariableReference; AIndex: NativeInt): TPoint3D; static;
+    class function GetPoint3DAt(const ASource: TScriptVariableReference; AIndex: NativeInt; ADefaultZ: single): TPoint3D; static;
     class function GetBooleanAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : boolean; static;
     class function GetStringAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : string; static;
+    class function GetGuidAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : TGuid; static;
     class function GetPixelAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : TBGRAPixel; static;
     class function RemoveAt(const ASource: TScriptVariableReference; AIndex: NativeInt) : boolean; static;
     function Duplicate: TVariableSet;
@@ -131,12 +156,14 @@ type
     property VariablesAsString: string read GetVariablesAsString;
     property Floats[const AName: string]: double read GetFloatByName write SetFloatByName;
     property Integers[const AName: string]: TScriptInteger read GetIntegerByName write SetIntegerByName;
-    property Objects[const AName: string]: TScriptInteger read GetObjectByName write SetObjectByName;
+    property Points2D[const AName: string]: TPointF read GetPoint2DByName write SetPoint2DByName;
+    property Points3D[const AName: string]: TPoint3D read GetPoint3DByName write SetPoint3DByName;
     property Booleans[const AName: string]: boolean read GetBooleanByName write SetBooleanByName;
     property Strings[const AName: string]: string read GetStringByName write SetStringByName;
     property Pixels[const AName: string]: TBGRAPixel read GetPixelByName write SetPixelByName;
     property Subsets[const AName: string]: TVariableSet read GetSubsetByName write SetSubSetByName;
     property Lists[const AName: string]: string read GetListByName write SetListByName;
+    property Guids[const AName: string]: TGuid read GetGuidByName write SetGuidByName;
   end;
 
   { TScriptContext }
@@ -171,7 +198,19 @@ type
 
 implementation
 
-uses Dialogs;
+uses Dialogs, UResourceStrings;
+
+function ScriptResultToStr(AResult: TScriptResult; AFunction: string): string;
+begin
+  case AResult of
+    srOk: result := rsOkay;
+    srInvalidParameters: result := rsInvalidParameters;
+    srCancelledByUser: result := rsCancelledByUser;
+    srException: result := rsException;
+    srFunctionNotDefined: result := StringReplace(rsFunctionNotDefined,'%1','"'+AFunction+'"',[]);
+    else result := rsInternalError;
+  end;
+end;
 
 { TScriptContext }
 
@@ -257,7 +296,10 @@ begin
       IsRecording := Recording and ((FCallScriptFunctionLevel = 0) or (Assigned(FRecordingFunctionParameters) and ARedirection));
       f := FScriptFunctions[i].handler;
       if Assigned(AParameters) then v := AParameters else
-         v := TVariableSet.Create(FScriptFunctions[i].name);
+      begin
+        v := TVariableSet.Create(FScriptFunctions[i].name);
+        v.IgnoreResult:= true;
+      end;
       previousFunctionParameters := FRecordingFunctionParameters;
       if IsRecording then
       begin
@@ -304,8 +346,16 @@ end;
 { TVariableSet }
 
 function TVariableSet.GetCount: NativeInt;
+var
+  i: Integer;
 begin
-  result := FNbScalars+FNbStrings+FNbBoolLists+FNbScalarLists+FNbStrLists+FNbSubsets;
+  result := 0;
+  for i := 0 to FNbScalars-1 do if FScalars[i].name <> '' then inc(result);
+  for i := 0 to FNbStrings-1 do if FStrings[i].name <> '' then inc(result);
+  for i := 0 to FNbBoolLists-1 do if FBoolLists[i].name <> '' then inc(result);
+  for i := 0 to FNbScalarLists-1 do if FScalarLists[i].name <> '' then inc(result);
+  for i := 0 to FNbStrLists-1 do if FStrLists[i].name <> '' then inc(result);
+  for i := 0 to FNbSubsets-1 do if FSubsets[i].name <> '' then inc(result);
 end;
 
 function TVariableSet.GetBooleanByName(const AName: string): boolean;
@@ -318,19 +368,29 @@ begin
   result := GetFloat(GetVariable(AName));
 end;
 
+function TVariableSet.GetGuidByName(const AName: string): TGuid;
+begin
+  result := ScriptStrToGuid(Strings[AName]);
+end;
+
 function TVariableSet.GetIntegerByName(const AName: string): TScriptInteger;
 begin
   result := GetInteger(GetVariable(AName));
 end;
 
-function TVariableSet.GetObjectByName(const AName: string): TScriptInteger;
-begin
-  result := GetObject(GetVariable(AName));
-end;
-
 function TVariableSet.GetPixelByName(const AName: string): TBGRAPixel;
 begin
   result := GetPixel(GetVariable(AName));
+end;
+
+function TVariableSet.GetPoint2DByName(const AName: string): TPointF;
+begin
+  result := GetPoint2D(GetVariable(AName));
+end;
+
+function TVariableSet.GetPoint3DByName(const AName: string): TPoint3D;
+begin
+  result := GetPoint3D(GetVariable(AName));
 end;
 
 function TVariableSet.GetStringByName(const AName: string): string;
@@ -389,21 +449,47 @@ begin
 end;
 
 function TVariableSet.GetVarName(AIndex: integer): string;
+var
+  i: Integer;
 begin
   if AIndex < 0 then raise exception.Create('Index out of bounds');
 
-  if AIndex < FNbScalars then exit(FScalars[AIndex].name)
-  else dec(AIndex, FNbScalars);
-  if AIndex < FNbStrings then exit(FStrings[AIndex].name)
-  else dec(AIndex, FNbStrings);
-  if AIndex < FNbBoolLists then exit(FBoolLists[AIndex].name)
-  else dec(AIndex, FNbBoolLists);
-  if AIndex < FNbScalarLists then exit(FScalarLists[AIndex].name)
-  else dec(AIndex, FNbScalarLists);
-  if AIndex < FNbStrLists then exit(FStrLists[AIndex].name)
-  else dec(AIndex, FNbStrLists);
-  if AIndex < FNbSubsets then exit(FSubsets[AIndex].name)
-  else dec(AIndex, FNbSubsets);
+  for i := 0 to FNbScalars-1 do
+    if FScalars[i].name <> '' then
+    begin
+      if AIndex = 0 then exit(FScalars[AIndex].name)
+      else dec(AIndex);
+    end;
+  for i := 0 to FNbStrings-1 do
+    if FStrings[i].name <> '' then
+    begin
+      if AIndex = 0 then exit(FStrings[AIndex].name)
+      else dec(AIndex);
+    end;
+  for i := 0 to FNbBoolLists-1 do
+    if FBoolLists[i].name <> '' then
+    begin
+      if AIndex = 0 then exit(FBoolLists[AIndex].name)
+      else dec(AIndex);
+    end;
+  for i := 0 to FNbScalarLists-1 do
+    if FScalarLists[i].name <> '' then
+    begin
+      if AIndex = 0 then exit(FScalarLists[AIndex].name)
+      else dec(AIndex);
+    end;
+  for i := 0 to FNbStrLists-1 do
+    if FStrLists[i].name <> '' then
+    begin
+      if AIndex = 0 then exit(FStrLists[AIndex].name)
+      else dec(AIndex);
+    end;
+  for i := 0 to FNbSubsets-1 do
+    if FSubsets[i].name <> '' then
+    begin
+      if AIndex = 0 then exit(FSubsets[AIndex].name)
+      else dec(AIndex);
+    end;
 
   raise exception.Create('Index out of bounds');
 end;
@@ -417,16 +503,23 @@ var varName: string;
     subsetStr: string;
     s: TVariableSet;
     start: integer;
-    inQuote: boolean;
+    inQuote: char;
+    escaping: boolean;
   begin
     if cur > length(expr) then exit;
     start := cur;
-    inQuote := false;
+    inQuote := #0;
     inSubset := 0;
+    escaping := true;
     repeat
-      if inQuote then
+      if inQuote <> #0 then
       begin
-        if expr[cur] = StringDelimiter then inQuote:= false;
+        if not escaping then
+        begin
+          if expr[cur] = inQuote then inQuote:= #0 else
+          if expr[cur] = '\' then escaping := true;
+        end else
+          escaping := false;
       end else
       begin
         if expr[cur] = '{' then
@@ -439,11 +532,11 @@ var varName: string;
           dec(inSubset);
           if inSubset = 0 then break;
         end
-        else if expr[cur] = StringDelimiter then inQuote:= true;
+        else if expr[cur] in StringDelimiters then inQuote:= expr[cur];
       end;
       inc(cur);
     until cur > length(expr);
-    if inQuote then result += [ieEndingQuoteNotFound];
+    if inQuote <> #0 then result += [ieEndingQuoteNotFound];
     subsetStr := copy(expr,start,cur-start);
     s := TVariableSet.Create('');
     result += s.LoadFromVariablesAsString(subsetStr);
@@ -455,16 +548,23 @@ var varName: string;
   var inBracket: integer;
     listStr: string;
     start: integer;
-    inQuote: boolean;
+    inQuote: char;
+    escaping: boolean;
   begin
     if cur > length(expr) then exit;
     start := cur;
-    inQuote := false;
+    inQuote := #0;
     inBracket := 0;
+    escaping := false;
     repeat
-      if inQuote then
+      if inQuote <> #0 then
       begin
-        if expr[cur] = StringDelimiter then inQuote:= false;
+        if not escaping then
+        begin
+          if expr[cur] = inQuote then inQuote:= #0 else
+          if expr[cur] = '\' then escaping := true;
+        end else
+          escaping := false;
       end else
       begin
         if expr[cur] in['(','['] then
@@ -478,16 +578,16 @@ var varName: string;
           dec(inBracket);
           if inBracket = 0 then
           begin
-            inc(cur);
             if expr[cur] <> ']' then result += [ieUnexpectedClosingBracketKind];
+            inc(cur);
             break;
           end;
         end
-        else if expr[cur] = StringDelimiter then inQuote:= true;
+        else if expr[cur] in StringDelimiters then inQuote:= expr[cur];
       end;
       inc(cur);
     until cur > length(expr);
-    if inQuote then result += [ieEndingQuoteNotFound];
+    if inQuote <> #0 then result += [ieEndingQuoteNotFound];
     listStr := copy(expr,start,cur-start);
     AddList(varName, listStr);
   end;
@@ -502,6 +602,8 @@ begin
   while idxEq <> 0 do
   begin
     varName := trim(copy(AVariablesAsString,1,idxEq-1));
+    if (length(varName)>=2) and (varName[1]='''') and (varName[length(varName)]='''') then
+      varName := UnescapeString(Copy(varName,2,length(varName)-2));
     cur := idxEq+2;
     while (cur <= length(AVariablesAsString)) and (AVariablesAsString[cur] in IgnoredWhitespaces) do inc(cur);
     if (cur <= length(AVariablesAsString)) and (AVariablesAsString[cur]='{') then
@@ -515,6 +617,7 @@ begin
       case litteral.valueType of
         svtInteger: if not AddInteger(varName,litteral.valueInt) then result := result + [ieDuplicateIdentifier];
         svtFloat: if not AddFloat(varName,litteral.valueFloat) then result := result + [ieDuplicateIdentifier];
+        svtPoint: if not AddPoint(varName,litteral.valuePoint) then result := result + [ieDuplicateIdentifier];
         svtString: if not AddString(varName, litteral.valueStr) then result := result + [ieDuplicateIdentifier];
         svtBoolean: if not AddBoolean(varName,litteral.valueBool) then result := result + [ieDuplicateIdentifier];
         svtPixel: if not AddPixel(varName,litteral.valuePixel) then result := result + [ieDuplicateIdentifier];
@@ -524,6 +627,59 @@ begin
     delete(AVariablesAsString,1,cur-1);
     idxEq := pos(VariableDefinitionToken,AVariablesAsString);
   end;
+end;
+
+function TVariableSet.Remove(const AName: string): boolean;
+var
+  v: TScriptVariableReference;
+begin
+  v := GetVariable(AName);
+  if not IsReferenceDefined(v) then result := false
+  else result := Remove(v);
+end;
+
+function TVariableSet.Remove(var ADest: TScriptVariableReference): boolean;
+begin
+  if ADest.variableType in ScriptScalarTypes then
+  begin
+    FScalars[ADest.variableIndex].name:= '';
+    FScalars[ADest.variableIndex].varType:= svtUndefined;
+  end else
+  if ADest.variableType in ScriptScalarListTypes then
+  begin
+    FScalarLists[ADest.variableIndex].name:= '';
+    FScalarLists[ADest.variableIndex].varType:= svtUndefined;
+    FScalarLists[ADest.variableIndex].count := 0;
+    FScalarLists[ADest.variableIndex].size := 0;
+    ReallocMem(FScalarLists[ADest.variableIndex].list, 0);
+  end else
+  if ADest.variableType = svtString then
+  begin
+    FStrings[ADest.variableIndex].name:= '';
+    FStrings[ADest.variableIndex].value:= '';
+  end else
+  if ADest.variableType = svtStrList then
+  begin
+    FStrLists[ADest.variableIndex].name:= '';
+    FStrLists[ADest.variableIndex].list:= nil;
+    FStrLists[ADest.variableIndex].count:= 0;
+  end else
+  if ADest.variableType = svtBoolList then
+  begin
+    FBoolLists[ADest.variableIndex].name:= '';
+    FreeAndNil(FBoolLists[ADest.variableIndex].list);
+    FBoolLists[ADest.variableIndex].count:= 0;
+  end else
+  if IsSubSet(ADest) then
+  begin
+    FSubsets[ADest.variableIndex].name:= '';
+    FreeAndNil(FSubsets[ADest.variableIndex].value);
+  end else
+    exit(false);
+  ADest.variableType:= svtUndefined;
+  ADest.variableIndex:= -1;
+  ADest.variableSet := nil;
+  result := true;
 end;
 
 procedure TVariableSet.SetBooleanByName(const AName: string; AValue: boolean);
@@ -540,19 +696,21 @@ begin
   if IsReferenceDefined(v) then AssignFloat(v,AValue) else AddFloat(AName,AValue);
 end;
 
+procedure TVariableSet.SetGuidByName(const AName: string; const AValue: TGuid);
+var
+  guidStr: String;
+begin
+  guidStr := LowerCase(GUIDToString(AValue));
+  if (length(guidStr)>0) and (guidStr[1]='{') and (guidStr[length(guidStr)]='}') then
+    guidStr := copy(guidStr,2,length(guidStr)-2);
+  Strings[AName] := guidStr;
+end;
+
 procedure TVariableSet.SetIntegerByName(const AName: string; AValue: TScriptInteger);
 var v: TScriptVariableReference;
 begin
   v := GetVariable(AName);
   if IsReferenceDefined(v) then AssignInteger(v,AValue) else AddInteger(AName,AValue);
-end;
-
-procedure TVariableSet.SetObjectByName(const AName: string;
-  AValue: TScriptInteger);
-var v: TScriptVariableReference;
-begin
-  v := GetVariable(AName);
-  if IsReferenceDefined(v) then AssignObject(v,AValue) else AddObject(AName,AValue);
 end;
 
 procedure TVariableSet.SetListByName(const AName: string; AValue: string);
@@ -567,6 +725,20 @@ var v: TScriptVariableReference;
 begin
   v := GetVariable(AName);
   if IsReferenceDefined(v) then AssignPixel(v,AValue) else AddPixel(AName,AValue);
+end;
+
+procedure TVariableSet.SetPoint2DByName(const AName: string; AValue: TPointF);
+var v: TScriptVariableReference;
+begin
+  v := GetVariable(AName);
+  if IsReferenceDefined(v) then AssignPoint(v,AValue) else AddPoint(AName,AValue);
+end;
+
+procedure TVariableSet.SetPoint3DByName(const AName: string; AValue: TPoint3D);
+var v: TScriptVariableReference;
+begin
+  v := GetVariable(AName);
+  if IsReferenceDefined(v) then AssignPoint(v,AValue) else AddPoint(AName,AValue);
 end;
 
 procedure TVariableSet.SetStringByName(const AName: string; AValue: string);
@@ -639,7 +811,7 @@ end;
 function TVariableSet.AddScalar(const AName: string; AType: TScriptVariableType
   ): boolean;
 begin
-  if IsDefined(AName) then
+  if IsDefined(AName) or (AName = '') then
   begin
     result := false;
     exit;
@@ -658,7 +830,7 @@ end;
 function TVariableSet.AddScalarList(const AName: string;
   AType: TScriptVariableType): TScriptVariableReference;
 begin
-  if IsDefined(AName) then
+  if IsDefined(AName) or (AName = '') then
   begin
     result.variableSet := nil;
     result.variableType := svtUndefined;
@@ -719,11 +891,15 @@ begin
   if result then FScalars[FNbScalars-1].valueInt := AValue;
 end;
 
-function TVariableSet.AddObject(const AName: string; AValue: TScriptInteger
-  ): boolean;
+function TVariableSet.AddPoint(const AName: string; AValue: TPoint3D): boolean;
 begin
-  result := AddScalar(AName, svtObject);
-  if result then FScalars[FNbScalars-1].valueInt := AValue;
+  result := AddScalar(AName, svtPoint);
+  if result then FScalars[FNbScalars-1].valuePoint := AValue;
+end;
+
+function TVariableSet.AddPoint(const AName: string; AValue: TPointF): boolean;
+begin
+  result := AddPoint(AName, Point3D(AValue.X, AValue.Y, EmptySingle));
 end;
 
 function TVariableSet.AddBoolean(const AName: string; AValue: boolean): boolean;
@@ -740,7 +916,7 @@ end;
 
 function TVariableSet.AddString(const AName: string; AValue: string): boolean;
 begin
-  if IsDefined(AName) then
+  if IsDefined(AName) or (AName = '') then
   begin
     result := false;
     exit;
@@ -756,10 +932,15 @@ begin
   result := true;
 end;
 
+function TVariableSet.AddGuid(const AName: string; const AValue: TGuid): boolean;
+begin
+  result := AddString(AName, ScriptGuidToStr(AValue));
+end;
+
 function TVariableSet.AddSubset(const AName: string; AValue: TVariableSet
   ): boolean;
 begin
-  if IsDefined(AName) then
+  if IsDefined(AName) or (AName = '') then
   begin
     result := false;
     exit;
@@ -789,7 +970,7 @@ function TVariableSet.AddList(const AName: string; AListExpr: string): TInterpre
 var listType: TScriptVariableType;
   ref: TScriptVariableReference;
 begin
-  if IsDefined(AName) then
+  if IsDefined(AName) or (AName = '') then
   begin
     result := [ieDuplicateIdentifier];
     exit;
@@ -813,7 +994,7 @@ end;
 function TVariableSet.AddBooleanList(const AName: string
   ): TScriptVariableReference;
 begin
-  if IsDefined(AName) then
+  if IsDefined(AName) or (AName = '') then
   begin
     result.variableSet := nil;
     result.variableType := svtUndefined;
@@ -840,16 +1021,16 @@ begin
   result := AddScalarList(AName, svtIntList);
 end;
 
-function TVariableSet.AddObjectList(const AName: string
-  ): TScriptVariableReference;
-begin
-  result := AddScalarList(AName, svtObjectList);
-end;
-
 function TVariableSet.AddFloatList(const AName: string
   ): TScriptVariableReference;
 begin
   result := AddScalarList(AName, svtFloatList);
+end;
+
+function TVariableSet.AddPointList(const AName: string
+  ): TScriptVariableReference;
+begin
+  result := AddScalarList(AName, svtPointList);
 end;
 
 function TVariableSet.AddPixelList(const AName: string
@@ -861,7 +1042,7 @@ end;
 function TVariableSet.AddStringList(const AName: string
   ): TScriptVariableReference;
 begin
-  if IsDefined(AName) then
+  if IsDefined(AName) or (AName = '') then
   begin
     result.variableSet := nil;
     result.variableType := svtUndefined;
@@ -881,57 +1062,66 @@ begin
   inc(FNbStrLists);
 end;
 
+function TVariableSet.AddGuidList(const AName: string
+  ): TScriptVariableReference;
+begin
+  result := AddStringList(AName);
+end;
+
 function TVariableSet.GetVariable(const AName: string): TScriptVariableReference;
 var i: NativeInt;
 begin
-  for i := 0 to FNbScalars-1 do
-    if CompareText(AName, FScalars[i].name)= 0 then
-    begin
-      result.variableSet := self;
-      result.variableType := FScalars[i].varType;
-      result.variableIndex := i;
-      exit;
-    end;
-  for i := 0 to FNbStrLists-1 do
-    if CompareText(AName, FStrLists[i].name)= 0 then
-    begin
-      result.variableSet := self;
-      result.variableType := svtStrList;
-      result.variableIndex := i;
-      exit;
-    end;
-  for i := 0 to FNbBoolLists-1 do
-    if CompareText(AName, FBoolLists[i].name)= 0 then
-    begin
-      result.variableSet := self;
-      result.variableType := svtBoolList;
-      result.variableIndex := i;
-      exit;
-    end;
-  for i := 0 to FNbScalarLists-1 do
-    if CompareText(AName, FScalarLists[i].name)= 0 then
-    begin
-      result.variableSet := self;
-      result.variableType := FScalarLists[i].varType;
-      result.variableIndex := i;
-      exit;
-    end;
-  for i := 0 to FNbStrings-1 do
-    if CompareText(AName, FStrings[i].name)= 0 then
-    begin
-      result.variableSet := self;
-      result.variableType := svtString;
-      result.variableIndex := i;
-      exit;
-    end;
-  for i := 0 to FNbSubsets-1 do
-    if CompareText(AName, FSubsets[i].name)= 0 then
-    begin
-      result.variableSet := self;
-      result.variableType := svtSubset;
-      result.variableIndex := i;
-      exit;
-    end;
+  if AName <> '' then
+  begin
+    for i := 0 to FNbScalars-1 do
+      if CompareText(AName, FScalars[i].name)= 0 then
+      begin
+        result.variableSet := self;
+        result.variableType := FScalars[i].varType;
+        result.variableIndex := i;
+        exit;
+      end;
+    for i := 0 to FNbStrLists-1 do
+      if CompareText(AName, FStrLists[i].name)= 0 then
+      begin
+        result.variableSet := self;
+        result.variableType := svtStrList;
+        result.variableIndex := i;
+        exit;
+      end;
+    for i := 0 to FNbBoolLists-1 do
+      if CompareText(AName, FBoolLists[i].name)= 0 then
+      begin
+        result.variableSet := self;
+        result.variableType := svtBoolList;
+        result.variableIndex := i;
+        exit;
+      end;
+    for i := 0 to FNbScalarLists-1 do
+      if CompareText(AName, FScalarLists[i].name)= 0 then
+      begin
+        result.variableSet := self;
+        result.variableType := FScalarLists[i].varType;
+        result.variableIndex := i;
+        exit;
+      end;
+    for i := 0 to FNbStrings-1 do
+      if CompareText(AName, FStrings[i].name)= 0 then
+      begin
+        result.variableSet := self;
+        result.variableType := svtString;
+        result.variableIndex := i;
+        exit;
+      end;
+    for i := 0 to FNbSubsets-1 do
+      if CompareText(AName, FSubsets[i].name)= 0 then
+      begin
+        result.variableSet := self;
+        result.variableType := svtSubset;
+        result.variableIndex := i;
+        exit;
+      end;
+  end;
   result.variableSet := nil;
   result.variableType := svtUndefined;
   result.variableIndex := -1;
@@ -946,16 +1136,18 @@ class procedure TVariableSet.ClearList(const ADest: TScriptVariableReference);
 begin
   if ADest.variableSet <> nil then
   begin
+    if ADest.variableType in ScriptScalarListTypes then
+      with ADest.variableSet.FScalarLists[ADest.variableIndex] do
+      begin
+        count := 0;
+        size := 0;
+        freemem(list);
+        list := nil;
+      end
+    else
     case ADest.variableType of
       svtBoolList: with ADest.variableSet.FBoolLists[ADest.variableIndex] do
                    begin count := 0; list.Size := 0; end;
-      svtIntList,svtFloatList,svtPixList: with ADest.variableSet.FScalarLists[ADest.variableIndex] do
-                    begin
-                      count := 0;
-                      size := 0;
-                      freemem(list);
-                      list := nil;
-                    end;
       svtStrList: with ADest.variableSet.FStrLists[ADest.variableIndex] do
                   begin count := 0; list := nil; end;
     end;
@@ -1097,52 +1289,84 @@ begin
   result := true;
 end;
 
-class function TVariableSet.AppendObject(const ADest: TScriptVariableReference;
-  AValue: TScriptInteger): boolean;
+class function TVariableSet.AppendPoint(const ADest: TScriptVariableReference;
+  const AValue: TPoint3D): boolean;
 begin
   result := false;
   if ADest.variableSet = nil then exit;
-  if ADest.variableType = svtObjectList then
+  case ADest.variableType of
+    svtPointList:
       with ADest.variableSet.FScalarLists[ADest.variableIndex] do
       begin
         if count = ListMaxLength then exit;
         if size = count then
         begin
           if count = 0 then size := 4 else size := count*2;
-          ReAllocMem(list,size*sizeof(TScriptInteger));
+          ReAllocMem(list,size*sizeof(TPoint3D));
         end;
-        (PScriptInteger(list)+count)^ := AValue;
+        (PPoint3D(list)+count)^ := AValue;
         inc(count);
         result := true;
       end;
-end;
-
-class function TVariableSet.AssignObject(const ADest: TScriptVariableReference;
-  AValue: TScriptInteger): boolean;
-begin
-  result := false;
-  if ADest.variableSet = nil then exit;
-  if ADest.variableType = svtObject then
-  begin
-    ADest.variableSet.FScalars[ADest.variableIndex].valueInt := AValue;
-    result := true;
+    svtStrList: result := AppendString(ADest, ScalarToStr(svtPoint, AValue));
   end;
 end;
 
-class function TVariableSet.AssignObjectAt(
+class function TVariableSet.AssignPoint(const ADest: TScriptVariableReference;
+  const AValue: TPoint3D): boolean;
+begin
+  if ADest.variableSet = nil then
+  begin
+    result := false;
+    exit;
+  end;
+  case ADest.variableType of
+    svtPoint: ADest.variableSet.FScalars[ADest.variableIndex].valuePoint := AValue;
+    svtString: ADest.variableSet.FStrings[ADest.variableIndex].value := ScalarToStr(svtPoint, AValue);
+    else
+    begin
+      result := false;
+      exit;
+    end;
+  end;
+  result := true;
+end;
+
+class function TVariableSet.AssignPointAt(
   const ADest: TScriptVariableReference; AIndex: NativeInt;
-  AValue: TScriptInteger): boolean;
+  const AValue: TPoint3D): boolean;
 begin
   result := false;
   if (ADest.variableSet = nil) or (AIndex < 0) then exit;
   if not (Adest.variableType in ScriptVariableListTypes) then exit;
   if AIndex >= GetListCount(ADest) then exit;
-  if ADest.variableType = svtObjectList then
-  begin
-      with ADest.variableSet.FScalarLists[ADest.variableIndex] do
-            (PScriptInteger(list)+AIndex)^ := AValue;
-      result := true;
+  case ADest.variableType of
+    svtPointList: with ADest.variableSet.FScalarLists[ADest.variableIndex] do
+                    (PPoint3D(list)+AIndex)^ := AValue;
+    svtStrList: with ADest.variableSet.FStrLists[ADest.variableIndex] do
+                    list[AIndex] := ScalarToStr(svtPoint, AValue);
+    else exit;
   end;
+  result := true;
+end;
+
+class function TVariableSet.AppendPoint(const ADest: TScriptVariableReference;
+  const AValue: TPointF): boolean;
+begin
+  result := AppendPoint(ADest, Point3D(AValue.X, AValue.y, EmptySingle));
+end;
+
+class function TVariableSet.AssignPoint(const ADest: TScriptVariableReference;
+  const AValue: TPointF): boolean;
+begin
+  result := AssignPoint(ADest, Point3D(AValue.X, AValue.y, EmptySingle));
+end;
+
+class function TVariableSet.AssignPointAt(
+  const ADest: TScriptVariableReference; AIndex: NativeInt;
+  const AValue: TPointF): boolean;
+begin
+  result := AssignPointAt(ADest, AIndex, Point3D(AValue.X, AValue.y, EmptySingle));
 end;
 
 class function TVariableSet.AppendBoolean(
@@ -1297,6 +1521,18 @@ begin
   result := true;
 end;
 
+class function TVariableSet.AppendGuid(const ADest: TScriptVariableReference;
+  const AValue: TGuid): boolean;
+begin
+  result := AppendString(ADest, ScriptGuidToStr(AValue));
+end;
+
+class function TVariableSet.AssignGuid(const ADest: TScriptVariableReference;
+  const AValue: TGuid): boolean;
+begin
+  result := AssignString(ADest, ScriptGuidToStr(AValue));
+end;
+
 class function TVariableSet.AppendPixel(const ADest: TScriptVariableReference;
   const AValue: TBGRAPixel): boolean;
 begin
@@ -1345,7 +1581,9 @@ class function TVariableSet.AssignList(const ADest: TScriptVariableReference;
   AListExpr: string): TInterpretationErrors;
 var
   tilde,expectingValue: boolean;
-  inQuote: boolean;
+  inQuote: char;
+  inPar: integer;
+  escaping: boolean;
   start,cur: integer;
 
   procedure AppendValue(AValue: string);
@@ -1359,9 +1597,9 @@ var
       svtBoolean: AppendBoolean(ADest, litteral.valueBool);
       svtInteger: AppendInteger(ADest, litteral.valueInt);
       svtFloat: AppendFloat(ADest, litteral.valueFloat);
+      svtPoint: AppendPoint(ADest, litteral.valuePoint);
       svtString: AppendString(ADest, litteral.valueStr);
       svtPixel: AppendPixel(ADest, litteral.valuePixel);
-      svtObject: AppendObject(ADest, litteral.valueInt);
     end;
   end;
 
@@ -1383,20 +1621,33 @@ begin
   end else
     cur := 1;
   tilde := false;
-  inQuote:= false;
+  inQuote:= #0;
+  inPar := 0;
+  escaping := false;
   start := 0;
   expectingValue := false;
   while cur <= length(AListExpr) do
   begin
-    if inQuote then
+    if inQuote <> #0 then
     begin
-      if AListExpr[cur]=StringDelimiter then inQuote:= false;
+      if not escaping then
+      begin
+        if AListExpr[cur]=inQuote then inQuote:= #0 else
+        if AListExpr[cur]='\' then escaping := true;
+      end else
+        escaping := false;
     end else
     if (start = 0) and (AListExpr[cur]='~') then tilde := true else
     begin
       if (start = 0) and not (AListExpr[cur] in IgnoredWhitespaces) then start := cur;
-      if AListExpr[cur] = StringDelimiter then inQuote:=true else
-      if AListExpr[cur]=',' then
+      if AListExpr[cur] in StringDelimiters then inQuote:= AListExpr[cur] else
+      if AListExpr[cur] = '(' then inc(inPar) else
+      if AListExpr[cur] = ')' then
+      begin
+        if inPar > 0 then dec(inPar)
+        else include(result, ieTooManyClosingBrackets);
+      end else
+      if (AListExpr[cur]=',') and (inPar = 0) then
       begin
         if start = 0 then result += [ieMissingValue]
         else
@@ -1437,6 +1688,7 @@ begin
       svtBoolList: for i := 0 to sourceCount-1 do AppendBoolean(ADest, GetBooleanAt(ASource,i));
       svtIntList: for i := 0 to sourceCount-1 do AppendInteger(ADest, GetIntegerAt(ASource,i));
       svtFloatList: for i := 0 to sourceCount-1 do AppendFloat(ADest, GetFloatAt(ASource,i));
+      svtPointList: for i := 0 to sourceCount-1 do AppendPoint(ADest, GetPoint3DAt(ASource,i));
       svtPixList: for i := 0 to sourceCount-1 do AppendPixel(ADest, GetPixelAt(ASource,i));
       svtStrList: for i := 0 to sourceCount-1 do AppendString(ADest, GetStringAt(ASource,i));
     end;
@@ -1444,7 +1696,8 @@ begin
   if ADest.variableType = ASource.variableType then //no conversion
   begin
     case ASource.variableType of
-      svtBoolean,svtFloat,svtInteger,svtPixel: ADest.variableSet.FScalars[ADest.variableIndex].valueBytes := ASource.variableSet.FScalars[ASource.variableIndex].valueBytes;
+      svtBoolean, svtFloat, svtInteger, svtPixel, svtPoint:
+        ADest.variableSet.FScalars[ADest.variableIndex].valueBytes := ASource.variableSet.FScalars[ASource.variableIndex].valueBytes;
       svtString: ADest.variableSet.FStrings[ADest.variableIndex].value := ASource.variableSet.FStrings[ASource.variableIndex].value;
       svtSubset: ADest.variableSet.FSubsets[ASource.variableIndex].value.CopyValuesTo(ASource.variableSet.FSubsets[ASource.variableIndex].value);
       else
@@ -1460,6 +1713,7 @@ begin
     svtBoolean: AssignBoolean(ADest, ASource.variableSet.FScalars[ASource.variableIndex].valueBool);
     svtFloat: AssignFloat(ADest, ASource.variableSet.FScalars[ASource.variableIndex].valueFloat);
     svtInteger: AssignInteger(ADest, ASource.variableSet.FScalars[ASource.variableIndex].valueInt);
+    svtPoint: AssignPoint(ADest, ASource.variableSet.FScalars[ASource.variableIndex].valuePoint);
     svtPixel: AssignPixel(ADest, ASource.variableSet.FScalars[ASource.variableIndex].valuePix);
     svtString: AssignString(ADest, ASource.variableSet.FStrings[ASource.variableIndex].value);
     else
@@ -1477,6 +1731,18 @@ begin
   result := AReference.variableIndex <> -1;
 end;
 
+class function TVariableSet.IsList(const AReference: TScriptVariableReference
+  ): boolean;
+begin
+  result := AReference.variableType in ScriptVariableListTypes;
+end;
+
+class function TVariableSet.IsSubSet(const AReference: TScriptVariableReference
+  ): boolean;
+begin
+  result := AReference.variableType = svtSubset;
+end;
+
 class function TVariableSet.GetFloat(const ASource: TScriptVariableReference
   ): double;
 var {%H-}errPos: integer;
@@ -1490,6 +1756,14 @@ begin
       end;
       svtInteger: begin
         result := ASource.variableSet.FScalars[ASource.variableIndex].valueInt;
+        exit;
+      end;
+      svtPixel: begin
+        result := PixelToInt(ASource.variableSet.FScalars[ASource.variableIndex].valuePix);
+        exit;
+      end;
+      svtBoolean: begin
+        result := integer(ASource.variableSet.FScalars[ASource.variableIndex].valueBool);
         exit;
       end;
       svtString: begin
@@ -1512,6 +1786,18 @@ begin
         result := ASource.variableSet.FScalars[ASource.variableIndex].valueInt;
         exit;
       end;
+      svtFloat: begin
+        result := round(ASource.variableSet.FScalars[ASource.variableIndex].valueFloat);
+        exit;
+      end;
+      svtBoolean: begin
+        result := integer(ASource.variableSet.FScalars[ASource.variableIndex].valueBool);
+        exit;
+      end;
+      svtPixel: begin
+        result := PixelToInt(ASource.variableSet.FScalars[ASource.variableIndex].valuePix);
+        exit;
+      end;
       svtString: begin
         val(ASource.variableSet.FStrings[ASource.variableIndex].value, result, errPos);
         exit;
@@ -1521,18 +1807,26 @@ begin
   result := 0;
 end;
 
-class function TVariableSet.GetObject(const ASource: TScriptVariableReference
-  ): TScriptInteger;
+class function TVariableSet.GetPoint2D(const ASource: TScriptVariableReference
+  ): TPointF;
+begin
+  with GetPoint3D(ASource) do
+    result := PointF(x,y);
+end;
+
+class function TVariableSet.GetPoint3D(const ASource: TScriptVariableReference
+  ): TPoint3D;
 begin
   if ASource.variableSet <> nil then
   begin
-    if ASource.variableType = svtObject then
-    begin
-        result := ASource.variableSet.FScalars[ASource.variableIndex].valueInt;
+    case ASource.variableType of
+      svtPoint: begin
+        result := ASource.variableSet.FScalars[ASource.variableIndex].valuePoint;
         exit;
+      end;
     end;
   end;
-  result := 0;
+  result := Point3D(0,0,EmptySingle);
 end;
 
 class function TVariableSet.GetBoolean(const ASource: TScriptVariableReference
@@ -1554,31 +1848,31 @@ begin
   result := false;
 end;
 
-class function TVariableSet.GetString(const ASource: TScriptVariableReference
-  ): string;
+class function TVariableSet.GetString(const ASource: TScriptVariableReference): string;
 begin
+  result := '';
   if ASource.variableSet <> nil then
   begin
+    if ASource.variableType in ScriptScalarTypes then
+      result := ScalarToStr(ASource.variableType, ASource.variableSet.FScalars[ASource.variableIndex].valueBytes)
+    else if ASource.variableType in ScriptScalarListTypes then
+      result := ASource.variableSet.GetScalarListAsString(ASource.variableIndex)
+    else
     case ASource.variableType of
-      svtInteger: begin
-        result := IntToStr(ASource.variableSet.FScalars[ASource.variableIndex].valueInt);
-        exit;
-      end;
-      svtString: begin
-        result := ASource.variableSet.FStrings[ASource.variableIndex].value;
-        exit;
-      end;
-      svtPixel: begin
-        result := BGRAToStr(ASource.variableSet.FScalars[ASource.variableIndex].valuePix);
-        exit;
-      end;
+      svtString: result := ASource.variableSet.FStrings[ASource.variableIndex].value;
+      svtBoolList: result := ASource.variableSet.GetBoolListAsString(ASource.variableIndex);
+      svtStrList: result := ASource.variableSet.GetStrListAsString(ASource.variableIndex);
     end;
   end;
-  result := '';
 end;
 
-class function TVariableSet.GetPixel(const ASource: TScriptVariableReference
-  ): TBGRAPixel;
+class function TVariableSet.GetGuid(const ASource: TScriptVariableReference
+  ): TGuid;
+begin
+  result := ScriptStrToGuid(GetString(ASource));
+end;
+
+class function TVariableSet.GetPixel(const ASource: TScriptVariableReference): TBGRAPixel;
 begin
   if ASource.variableSet <> nil then
   begin
@@ -1628,9 +1922,11 @@ class function TVariableSet.GetList(const ASource: TScriptVariableReference
 begin
   if ASource.variableSet <> nil then
   begin
+    if ASource.variableType in ScriptScalarListTypes then
+      result := ASource.variableSet.GetScalarListAsString(ASource.variableIndex)
+    else
     case ASource.variableType of
       svtBoolList: result := ASource.variableSet.GetBoolListAsString(ASource.variableIndex);
-      svtFloatList,svtIntList,svtPixList: result := ASource.variableSet.GetScalarListAsString(ASource.variableIndex);
       svtStrList: result := ASource.variableSet.GetStrListAsString(ASource.variableIndex);
     else
       result := '';
@@ -1643,9 +1939,11 @@ class function TVariableSet.GetListCount(const ASource: TScriptVariableReference
 begin
   if ASource.variableSet <> nil then
   begin
+    if ASource.variableType in ScriptScalarListTypes then
+      result := ASource.variableSet.FScalarLists[ASource.variableIndex].count
+    else
     case ASource.variableType of
       svtBoolList: result := ASource.variableSet.FBoolLists[ASource.variableIndex].count;
-      svtFloatList,svtIntList,svtPixList: result := ASource.variableSet.FScalarLists[ASource.variableIndex].count;
       svtStrList: result := ASource.variableSet.FStrLists[ASource.variableIndex].count;
     else
       result := 0;
@@ -1691,6 +1989,7 @@ begin
       if AIndex >= count then exit;
       case ASource.variableType of
         svtIntList: result := (PScriptInteger(list)+AIndex)^;
+        svtFloatList: result := round((PDouble(list)+AIndex)^);
       end;
     end else
   if ASource.variableType = svtStrList then
@@ -1701,10 +2000,26 @@ begin
     end;
 end;
 
-class function TVariableSet.GetObjectAt(
-  const ASource: TScriptVariableReference; AIndex: NativeInt): TScriptInteger;
+class function TVariableSet.GetPoint2DAt(
+  const ASource: TScriptVariableReference; AIndex: NativeInt): TPointF;
+var
+  result3D: TPoint3D;
 begin
-  result := 0;
+  result3D := GetPoint3DAt(ASource, AIndex);
+  result := PointF(result3D.x, result3D.y);
+end;
+
+class function TVariableSet.GetPoint3DAt(
+  const ASource: TScriptVariableReference; AIndex: NativeInt): TPoint3D;
+begin
+  result := GetPoint3DAt(ASource, AIndex, EmptySingle);
+end;
+
+class function TVariableSet.GetPoint3DAt(
+  const ASource: TScriptVariableReference; AIndex: NativeInt; ADefaultZ: single
+  ): TPoint3D;
+begin
+  result := Point3D(0,0, ADefaultZ);
   if (ASource.variableSet = nil) or (AIndex < 0) then exit;
   if not (ASource.variableType in ScriptVariableListTypes) then exit;
   if ASource.variableType in ScriptScalarListTypes then
@@ -1712,7 +2027,10 @@ begin
     begin
       if AIndex >= count then exit;
       case ASource.variableType of
-        svtObjectList: result := (PScriptInteger(list)+AIndex)^;
+        svtPointList: begin
+          result := (PPoint3D(list)+AIndex)^;
+          if result.z = EmptySingle then result.z := ADefaultZ;
+        end;
       end;
     end;
 end;
@@ -1760,6 +2078,12 @@ begin
       if AIndex >= count then exit;
       result := list[AIndex];
     end;
+end;
+
+class function TVariableSet.GetGuidAt(const ASource: TScriptVariableReference;
+  AIndex: NativeInt): TGuid;
+begin
+  result := ScriptStrToGuid(GetStringAt(ASource, AIndex));
 end;
 
 class function TVariableSet.GetPixelAt(const ASource: TScriptVariableReference;

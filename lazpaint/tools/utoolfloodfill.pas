@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, UTool, UToolVectorial, BGRABitmap, BGRABitmapTypes,
-  BGRAGradientOriginal, BGRALayerOriginal, LCVectorOriginal, UStateType;
+  BGRAGradientOriginal, BGRALayerOriginal, LCVectorOriginal, UStateType, LCVectorialFill;
 
 type
 
@@ -14,7 +14,6 @@ type
 
   TToolFloodFill = class(TGenericTool)
   protected
-    penColor: TBGRAPixel;
     function GetIsSelectingTool: boolean; override;
   public
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; {%H-}ptF: TPointF;
@@ -28,11 +27,12 @@ type
   protected
     function CreateShape: TVectorShape; override;
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
-    procedure AssignShapeStyle({%H-}AMatrix: TAffineMatrix); override;
+    procedure AssignShapeStyle({%H-}AMatrix: TAffineMatrix; {%H-}AAlwaysFit: boolean); override;
     procedure QuickDefineShape(AStart,AEnd: TPointF); override;
     function SlowShape: boolean; override;
     function GetStatusText: string; override;
     function ReplaceLayerAndAddShape(out ARect: TRect): TCustomImageDifference; override;
+    function GetAllowedBackFillTypes: TVectorialFillTypes; override;
   public
     function GetContextualToolbars: TContextualToolbars; override;
   end;
@@ -40,7 +40,7 @@ type
 implementation
 
 uses ugraph, LazPaintType, BGRAGradientScanner, LCVectorRectShapes,
-  BGRATransform, UImageDiff;
+  BGRATransform, UImageDiff, BGRAPen;
 
 { TToolGradient }
 
@@ -58,19 +58,10 @@ begin
   FShape.BackFill.Gradient.Render(ADest,AMatrix,ADraft,dmDrawWithTransparency);
 end;
 
-procedure TToolGradient.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TToolGradient.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 begin
-  with FShape.BackFill.Gradient do
-  begin
-    StartColor := Manager.ForeColor;
-    EndColor := Manager.BackColor;
-    GradientType := Manager.GradientType;
-    ColorInterpolation := Manager.GradientColorspace;
-    if Manager.GradientSine then
-      Repetition := grSine
-    else
-      Repetition := grPad;
-  end;
+  if Manager.BackFill.FillType = vftGradient then
+    FShape.BackFill.AssignExceptGeometry(Manager.BackFill);
 end;
 
 procedure TToolGradient.QuickDefineShape(AStart, AEnd: TPointF);
@@ -83,14 +74,8 @@ end;
 function TToolGradient.GetStatusText: string;
 begin
   if Assigned(FShape) then
-  begin
-    with FShape.BackFill.Gradient do
-      result := 'x1 = '+FloatToStrF(Origin.x,ffFixed,6,1)+'|y1 = '+FloatToStrF(Origin.y,ffFixed,6,1)+'|'+
-      'x2 = '+FloatToStrF(XAxis.x,ffFixed,6,1)+'|y2 = '+FloatToStrF(XAxis.y,ffFixed,6,1)+'|'+
-      'Δx = '+FloatToStrF(abs(XAxis.x-Origin.x),ffFixed,6,1)+'|Δy = '+FloatToStrF(abs(XAxis.y-Origin.y),ffFixed,6,1);
-  end
-  else
-    Result:=inherited GetStatusText;
+    result := GetGradientStatusText(FShape.BackFill.Gradient, VectorTransform(True))
+    else Result:= inherited GetStatusText;
 end;
 
 function TToolGradient.ReplaceLayerAndAddShape(out ARect: TRect): TCustomImageDifference;
@@ -107,9 +92,14 @@ begin
     Result:= inherited ReplaceLayerAndAddShape(ARect);
 end;
 
+function TToolGradient.GetAllowedBackFillTypes: TVectorialFillTypes;
+begin
+  result := [vftGradient];
+end;
+
 function TToolGradient.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor, ctGradient];
+  Result:= [ctBackFill];
 end;
 
 function TToolGradient.SlowShape: boolean;
@@ -127,30 +117,58 @@ end;
 function TToolFloodFill.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 var
-   floodFillMask,floodFillTex: TBGRABitmap;
+  b: TUniversalBrush;
+  f: TVectorialFill;
+  orig: TBGRALayerCustomOriginal;
+  diff: TCustomImageDifference;
+  rectShape: TRectShape;
+  homogeneous: Boolean;
 begin
-  if rightBtn then penColor := Manager.BackColor else penColor := Manager.ForeColor;
-  if Manager.GetTextureAfterAlpha <> nil then
+  homogeneous := toolDest.Equals(toolDest.GetPixel(0,0));
+  if Manager.Image.SelectionMaskEmpty and homogeneous then
   begin
-    floodFillMask := TBGRABitmap.Create(toolDest.Width,toolDest.Height,BGRABlack);
-    floodFillTex := Manager.GetTextureAfterAlpha.GetPart(rect(0,0,toolDest.Width,toolDest.Height)) as TBGRABitmap;
-    toolDest.ParallelFloodFill(pt.X,pt.Y,floodFillMask,BGRAWhite,fmSet,Manager.ToolTolerance);
-    floodFillTex.ApplyMask(floodFillMask);
-    toolDest.PutImage(0,0,floodFillTex,dmDrawWithTransparency);
-    floodFillMask.Free;
-    floodFillTex.Free;
+    CancelAction;
+    if rightBtn then f := Manager.BackFill.Duplicate
+    else f := Manager.ForeFill.Duplicate;
+    try
+      f.ApplyOpacity(Manager.GetPressureB);
+      f.FitGeometry(SuggestGradientBox);
+      case f.FillType of
+      vftGradient: orig := f.Gradient.Duplicate;
+      else
+        begin
+          orig := TVectorOriginal.Create;
+          rectShape := TRectShape.Create(nil);
+          rectShape.QuickDefine(PointF(-0.5,-0.5), PointF(Manager.Image.Width-0.5,Manager.Image.Height-0.5));
+          rectShape.PenStyle := ClearPenStyle;
+          rectShape.BackFill.Assign(f);
+          TVectorOriginal(orig).AddShape(rectShape);
+        end;
+      end;
+      diff := TReplaceLayerByCustomOriginalDifference.Create(Manager.Image.CurrentState,
+                    Manager.Image.CurrentLayerIndex, false, orig);
+      Manager.Image.AddUndo(diff);
+      Manager.Image.ImageMayChangeCompletely;
+    finally
+      f.Free;
+    end;
   end else
-    if Manager.ToolFloodFillOptionProgressive then
-      toolDest.FloodFill(pt.X,pt.Y,penColor,fmProgressive,Manager.ToolTolerance) else
-        toolDest.FloodFill(pt.X,pt.Y,penColor,fmDrawWithTransparency,Manager.ToolTolerance);
-  Action.NotifyChange(toolDest, rect(0,0,toolDest.Width,toolDest.Height));
-  ValidateAction;
+  begin
+    if rightBtn then b := GetBackUniversalBrush
+    else b := GetForeUniversalBrush;
+    if homogeneous then toolDest.Fill(b)
+      else toolDest.FloodFill(pt.X, pt.Y, b,
+                    ffProgressive in Manager.FloodFillOptions, Manager.Tolerance*$101);
+    ReleaseUniversalBrushes;
+    Action.NotifyChange(toolDest, rect(0,0,toolDest.Width,toolDest.Height));
+    ValidateAction;
+  end;
   result := OnlyRenderChange;
 end;
 
 function TToolFloodFill.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctTolerance];
+  Result:= [ctPenFill,ctBackFill,ctTolerance];
 end;
 
 initialization

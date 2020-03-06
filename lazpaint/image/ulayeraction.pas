@@ -247,7 +247,7 @@ begin
       FPrediff.Add(layerOfsDiff);
     end;
   end;
-  if AApplySelectionTransformBefore then
+  if AApplySelectionTransformBefore and not IsAffineMatrixIdentity(CurrentState.SelectionTransform) then
   begin
     selTransfDiff := CurrentState.ComputeSelectionTransformDifference;
     if selTransfDiff.IsIdentity then FreeAndNil(selTransfDiff)
@@ -580,13 +580,17 @@ begin
   begin
     if FBackupSelectionLayerDefined then
     begin
-      CurrentState.DiscardSelectionLayerBounds;
+      if ChangeBoundsNotified then
+        CurrentState.DiscardSelectionLayerBounds(FSelectionLayerChangedArea)
+        else CurrentState.DiscardSelectionLayerBoundsCompletely;
       if CurrentState.SelectionLayerEmpty then
         CurrentState.ReplaceSelectionLayer(nil,True);
     end;
     if FBackupSelectionMaskDefined then
     begin
-      CurrentState.DiscardSelectionMaskBounds;
+      if ChangeBoundsNotified then
+        CurrentState.DiscardSelectionMaskBounds(FSelectionMaskChangedArea)
+        else CurrentState.DiscardSelectionMaskBoundsCompletely;
       if CurrentState.SelectionMaskEmpty then
         CurrentState.RemoveSelection;
     end;

@@ -1,0 +1,182 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: Lazpaint 7.0.7\n"
+"POT-Creation-Date: 2020-02-29 23:18+0800\n"
+"PO-Revision-Date: 2020-03-01 13:30+0800\n"
+"Last-Translator: backdream <backdream@yeah.net>\n"
+"Language-Team: backdream (backdream@yeah.net)\n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_CN\n"
+"X-Generator: Poedit 2.3\n"
+
+#: lcresourcestring.rsadjusttoshape
+msgid "Adjust to shape"
+msgstr "调整到形状"
+
+#: lcresourcestring.rscigsbnegative
+#, fuzzy
+msgid "Corr. HSL CCW"
+msgstr "逆时针校正色调"
+
+#: lcresourcestring.rscigsbpositive
+#, fuzzy
+msgid "Corr. HSL CW"
+msgstr "顺时针校正色调"
+
+#: lcresourcestring.rscilinearhslnegative
+msgid "HSL CCW"
+msgstr "逆时针色调"
+
+#: lcresourcestring.rscilinearhslpositive
+msgid "HSL CW"
+msgstr "顺时针色调"
+
+#: lcresourcestring.rscilinearrgb
+msgid "RGB"
+msgstr "RGB"
+
+#: lcresourcestring.rscistdrgb
+msgid "sRGB"
+msgstr "sRGB"
+
+#: lcresourcestring.rscolor
+msgid "Color"
+msgstr "颜色"
+
+#: lcresourcestring.rscolorinterpolation
+msgid "Color interpolation"
+msgstr "颜色插值"
+
+#: lcresourcestring.rseditgradtexpoints
+msgid "Edit gradient/texture points"
+msgstr "编辑渐变/纹理点"
+
+#: lcresourcestring.rsendopacity
+msgid "End opacity"
+msgstr "终止透明度"
+
+#: lcresourcestring.rsgradientangular
+msgid "Angular"
+msgstr "角"
+
+#: lcresourcestring.rsgradientdiamond
+msgid "Diamond"
+msgstr "钻石"
+
+#: lcresourcestring.rsgradientfill
+msgid "Gradient fill"
+msgstr "渐变填充"
+
+#: lcresourcestring.rsgradientlinear
+msgid "Linear"
+msgstr "线性"
+
+#: lcresourcestring.rsgradientradial
+msgid "Radial"
+msgstr "径向"
+
+#: lcresourcestring.rsgradientreflected
+msgid "Reflected"
+msgstr "反射"
+
+#: lcresourcestring.rsgradientrepetition
+msgid "Gradient repetition"
+msgstr "渐变重复"
+
+#: lcresourcestring.rsgrpad
+msgid "Pad"
+msgstr "衬垫"
+
+#: lcresourcestring.rsgrreflect
+msgid "Reflect"
+msgstr "反射"
+
+#: lcresourcestring.rsgrrepeat
+msgid "Repeat"
+msgstr "重复"
+
+#: lcresourcestring.rsgrsine
+msgid "Sine"
+msgstr "正弦"
+
+#: lcresourcestring.rsincompatibletype
+msgid "Incompatible type"
+msgstr "不兼容的类型"
+
+#: lcresourcestring.rsindexoutofbounds
+msgid "Index out of bounds"
+msgstr "索引超出边界"
+
+#: lcresourcestring.rslightposition
+msgid "Light position"
+msgstr "灯光位置"
+
+#: lcresourcestring.rsloadtexture
+msgid "Load texture"
+msgstr "加载纹理"
+
+#: lcresourcestring.rsnofill
+msgid "No fill"
+msgstr "无填充"
+
+#: lcresourcestring.rsnottexturefill
+msgid "It is not a texture fill"
+msgstr "它不是纹理填充"
+
+#: lcresourcestring.rsopacity
+msgid "Opacity"
+msgstr "透明度"
+
+#: lcresourcestring.rspreview
+msgid "Preview"
+msgstr "预览"
+
+#: lcresourcestring.rsshapeclassnotspecified
+msgid "Shape class not specified"
+msgstr "未指定形状类"
+
+#: lcresourcestring.rsshapenotfound
+msgid "Shape not found"
+msgstr "未找到形状"
+
+#: lcresourcestring.rssolidcolor
+msgid "Solid color"
+msgstr "纯色"
+
+#: lcresourcestring.rsstartopacity
+msgid "Start opacity"
+msgstr "起始透明度"
+
+#: lcresourcestring.rsswapcolors
+msgid "Swap colors"
+msgstr "交换颜色"
+
+#: lcresourcestring.rstexturefill
+msgid "Texture fill"
+msgstr "纹理填充"
+
+#: lcresourcestring.rstexturerepetition
+msgid "Texture repetition"
+msgstr "纹理重复"
+
+#: lcresourcestring.rstrnone
+msgid "No repetition"
+msgstr "无重复"
+
+#: lcresourcestring.rstrrepeatboth
+msgid "Repeat both"
+msgstr "重复两者"
+
+#: lcresourcestring.rstrrepeatx
+msgid "Repeat X"
+msgstr "重复 X"
+
+#: lcresourcestring.rstrrepeaty
+msgid "Repeat Y"
+msgstr "重复 Y"
+
+#: lcresourcestring.rsunknownshapeclass
+msgid "Unknown shape class \"%1\""
+msgstr "未知形状类 \"%1\""

@@ -57,7 +57,7 @@ implementation
 uses LazFileUtils, Dialogs,
     UTranslation, UFileSystem;
 
-const OnlineResourcesURL = 'http://lazpaint.sourceforge.net/';
+const OnlineResourcesURL = 'https://gitcdn.link/repo/bgrabitmap/lazpaint/master/lazpaint/release/stable/';
 
 function GetNumericPart(s: string): string;
 var

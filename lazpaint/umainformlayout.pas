@@ -12,7 +12,7 @@ type
   TOnPictureAreaChange = procedure(ASender: TObject; ANewArea: TRect) of object;
   TToolWindowDocking = (twNone, twWindow, twLeft, twTop, twRight, twBottom);
   TLayoutStage = (lsAfterTopToolbar, lsAfterDockedToolBox, lsAfterPaletteToolbar,
-               lsAfterStatusBar);
+               lsAfterDockedControlsPanel, lsAfterStatusBar);
 
   { TMainFormLayout }
 
@@ -32,11 +32,15 @@ type
     FStatusBar: TStatusBar;
     FStatusText: string;
     FDarkTheme: boolean;
+    FDockedControlsPanel: TPanel;
+    FDockedChooseColorSplitter: TSplitter;
     function GetPaletteVisible: boolean;
     function GetPopupToolbox: TPopupMenu;
     function GetStatusBarVisible: boolean;
     function GetStatusText: string;
     function GetToolBoxVisible: boolean;
+    procedure ToolboxGroupMainButton_MouseMove(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X,
+      {%H-}Y: Integer);
     procedure SetDarkTheme(AValue: boolean);
     procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
     procedure SetPaletteVisible(AValue: boolean);
@@ -46,21 +50,40 @@ type
     procedure SetToolBoxDocking(AValue: TToolWindowDocking);
     procedure SetToolBoxVisible(AValue: boolean);
     function GetDefaultToolboxDocking: TToolWindowDocking;
+    procedure ToolboxGroupButton_Click(Sender: TObject);
+    procedure ToolboxGroupTimer_Timer(Sender: TObject);
+    procedure ToolboxGroupToolbarButton_MouseEnter(Sender: TObject);
+    procedure ToolboxGroupToolbarButton_MouseLeave(Sender: TObject);
+    procedure ToolboxSimpleButton_Click(Sender: TObject);
   protected
     FLastWorkArea: TRect;
+    FDockedToolboxGroup: array of record
+        Button: TToolButton;
+        Panel: TPanel;
+        Toolbar: TToolBar;
+        Timer: TTimer;
+      end;
     function GetWorkArea: TRect; override;
     function GetWorkAreaAt(AStage: TLayoutStage): TRect;
     procedure RaisePictureAreaChange;
     procedure DoArrange;
     procedure ApplyTheme;
+    function DockedControlsPanelWidth: integer;
+    procedure ApplyThemeToDockedToolboxGroup(AGroupIndex: integer);
+    procedure ShowToolboxGroup(AGroupIndex: integer);
+    procedure HideToolboxGroup(AGroupIndex: integer);
+    procedure HideToolboxGroups;
   public
     constructor Create(AForm: TForm);
     destructor Destroy; override;
     procedure Arrange;
     procedure DockedToolBoxAddButton(AAction: TBasicAction);
+    procedure DockedToolBoxAddGroup(AActions: array of TBasicAction);
     procedure DockedToolBoxSetImages(AImages: TImageList);
     procedure AddColorToPalette(AColor : TBGRAPixel);
     procedure RemoveColorFromPalette(AColor : TBGRAPixel);
+    procedure AddDockedControl(AControl: TControl);
+    procedure RemoveDockedControl(AControl: TControl);
     property Menu: TMainFormMenu read FMenu write FMenu;
     property ToolBoxDocking: TToolWindowDocking read FToolBoxDocking write SetToolBoxDocking;
     property ToolBoxVisible: boolean read GetToolBoxVisible write SetToolBoxVisible;
@@ -79,7 +102,7 @@ function StrToToolWindowDocking(AValue: string): TToolWindowDocking;
 
 implementation
 
-uses Graphics, Toolwin, math, udarktheme;
+uses Graphics, Toolwin, math, UDarkTheme, LCScaleDPI;
 
 function ToolWindowDockingToStr(AValue: TToolWindowDocking): string;
 begin
@@ -118,7 +141,7 @@ end;
 constructor TMainFormLayout.Create(AForm: TForm);
 begin
   FForm := AForm;
-  FPanelToolBox := TPanel.Create(FForm);
+  FPanelToolBox := TPanel.Create(nil);
   FPanelToolBox.BevelInner := bvNone;
   FPanelToolBox.BevelOuter := bvNone;
   FPanelToolBox.Width := 20;
@@ -134,23 +157,30 @@ begin
   FDockedToolBoxToolBar.Cursor := crArrow;
   FPanelToolBox.InsertControl(FDockedToolBoxToolBar);
   FForm.InsertControl(FPanelToolBox);
+
   FPaletteToolbar := TPaletteToolbar.Create;
   FPaletteToolbar.DarkTheme:= DarkTheme;
+  FPaletteToolbar.OnVisibilityChangedByUser:= @PaletteVisibilityChangedByUser;
   FPaletteToolbar.Container := FForm;
-  FPaletteToolbar.OnVisibilityChangedByUser:=@PaletteVisibilityChangedByUser;
-  FStatusBar := TStatusBar.Create(FForm);
+
+  FDockedControlsPanel := TPanel.Create(nil);
+  FDockedControlsPanel.Visible := false;
+  FForm.InsertControl(FDockedControlsPanel);
+
+  FStatusBar := TStatusBar.Create(nil);
   FStatusBar.SizeGrip := false;
   FStatusBar.Align := alNone;
   FStatusBar.Visible := false;
-  ApplyTheme;
   FForm.InsertControl(FStatusBar);
+
+  ApplyTheme;
 end;
 
 destructor TMainFormLayout.Destroy;
 begin
+  FreeAndNil(FDockedControlsPanel);
   FreeAndNil(FStatusBar);
   FreeAndNil(FPaletteToolbar);
-  FForm.RemoveControl(FPanelToolBox);
   FreeAndNil(FPanelToolBox);
   FreeAndNil(FMenu);
   inherited Destroy;
@@ -175,6 +205,15 @@ end;
 function TMainFormLayout.GetToolBoxVisible: boolean;
 begin
   result := LazPaintInstance.ToolboxVisible;
+end;
+
+procedure TMainFormLayout.ToolboxGroupMainButton_MouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+var
+  button: TToolButton;
+begin
+  button := Sender as TToolButton;
+  ShowToolboxGroup(button.Tag);
 end;
 
 procedure TMainFormLayout.SetDarkTheme(AValue: boolean);
@@ -269,6 +308,8 @@ begin
     until false;
     if FStatusBar.SimplePanel <> false then
       FStatusBar.SimplePanel := false;
+    while FStatusBar.Panels.Count > elems.Count do
+      FStatusBar.Panels.Delete(FStatusBar.Panels.Count-1);
     while FStatusBar.Panels.Count < elems.Count do
       with FStatusBar.Panels.Add do
         Width := FStatusBar.Height*10;
@@ -296,6 +337,61 @@ begin
   result := StrToToolWindowDocking(FLazPaintInstance.Config.DefaultToolboxDocking);
 end;
 
+procedure TMainFormLayout.ToolboxGroupButton_Click(Sender: TObject);
+var
+  button: TToolButton;
+  tb: TToolBar;
+  groupIndex: integer;
+begin
+  button := Sender as TToolButton;
+  tb := button.Parent as TToolBar;
+  groupIndex := tb.Tag;
+  FDockedToolboxGroup[groupIndex].Button.Action := button.Action;
+end;
+
+procedure TMainFormLayout.ToolboxGroupTimer_Timer(Sender: TObject);
+var
+  groupIdx: integer;
+begin
+  groupIdx := (Sender as TTimer).Tag;
+  HideToolboxGroup(groupIdx);
+end;
+
+procedure TMainFormLayout.ToolboxGroupToolbarButton_MouseEnter(Sender: TObject);
+var
+  button: TToolButton;
+  groupIndex: integer;
+  tb: TToolBar;
+begin
+  button := Sender as TToolButton;
+  tb := button.Parent as TToolbar;
+  groupIndex := tb.Tag;
+  FDockedToolboxGroup[groupIndex].Timer.Enabled := false;
+end;
+
+procedure TMainFormLayout.ToolboxGroupToolbarButton_MouseLeave(Sender: TObject);
+var
+  button: TToolButton;
+  groupIndex: integer;
+  tb: TToolBar;
+begin
+  button := Sender as TToolButton;
+  tb := button.Parent as TToolbar;
+  groupIndex := tb.Tag;
+  FDockedToolboxGroup[groupIndex].Timer.Enabled := true;
+end;
+
+procedure TMainFormLayout.ToolboxSimpleButton_Click(Sender: TObject);
+var
+  i: Integer;
+begin
+  for i := 0 to high(FDockedToolboxGroup) do
+  begin
+    FDockedToolboxGroup[i].Panel.Visible:= false;
+    FDockedToolboxGroup[i].Timer.Enabled:= false;
+  end;
+end;
+
 function TMainFormLayout.GetWorkArea: TRect;
 begin
   result := GetWorkAreaAt(high(TLayoutStage));
@@ -316,6 +412,9 @@ begin
   if PaletteVisible then result.Right -= FPaletteToolbar.Width;
   if AStage = lsAfterPaletteToolbar then exit;
 
+  if FDockedControlsPanel.ControlCount > 0 then result.Right -= DockedControlsPanelWidth;
+  if AStage = lsAfterDockedControlsPanel then exit;
+
   if StatusBarVisible then result.Bottom -= FStatusBar.Height;
   if AStage = lsAfterStatusBar then exit;
 end;
@@ -328,8 +427,10 @@ end;
 
 procedure TMainFormLayout.DoArrange;
 var nbY,nbX,w,i: integer;
+  updateChooseColorHeight: Boolean;
 begin
-  FMenu.ArrangeToolbars(FForm.ClientWidth);
+  if Assigned(FMenu) then
+    FMenu.ArrangeToolbars(FForm.ClientWidth);
   if FToolBoxDocking in [twLeft,twRight] then
   begin
     with GetWorkAreaAt(lsAfterTopToolbar) do
@@ -347,16 +448,44 @@ begin
       FPanelToolBox.Width := w;
       if FToolBoxDocking = twLeft then FPanelToolBox.Left:= Left
       else FPanelToolBox.Left:= Right-FPanelToolBox.Width;
+      for i := 0 to FDockedToolBoxToolBar.ButtonCount-1 do
+        FDockedToolBoxToolBar.Buttons[i].Top := i*FDockedToolBoxToolBar.ButtonHeight;
     end;
-    FPanelToolBox.Visible := true;
+    if not FPanelToolBox.Visible then
+    begin
+      FPanelToolBox.Visible := true;
+      FPanelToolBox.SendToBack;
+    end;
   end else
     FPanelToolBox.Visible := false;
   if PaletteVisible then
     with GetWorkAreaAt(lsAfterDockedToolBox) do
       FPaletteToolbar.SetBounds(Right - FPaletteToolbar.Width,Top,FPaletteToolbar.Width,Bottom-Top);
-  if StatusBarVisible then
+  if FDockedControlsPanel.ControlCount > 0 then
   begin
     with GetWorkAreaAt(lsAfterPaletteToolbar) do
+    begin
+      w := DockedControlsPanelWidth;
+      updateChooseColorHeight := (FDockedControlsPanel.Width <> w) or not FDockedControlsPanel.Visible;
+      FDockedControlsPanel.SetBounds(Right - w, Top, w, Bottom - Top);
+      for i := 0 to FDockedControlsPanel.ControlCount-1 do
+        if FDockedControlsPanel.Controls[i].Name = 'ChooseColorControl' then
+        begin
+          FDockedControlsPanel.Controls[i].Width := w - integer(FDockedControlsPanel.BevelOuter <> bvNone)*FDockedControlsPanel.BevelWidth*2 - FDockedControlsPanel.ChildSizing.LeftRightSpacing*2;
+          if updateChooseColorHeight then
+            LazPaintInstance.AdjustChooseColorHeight;
+        end;
+    end;
+    if not FDockedControlsPanel.Visible then
+    begin
+      FDockedControlsPanel.Visible:= true;
+      FDockedControlsPanel.SendToBack;
+    end;
+  end else
+    FDockedControlsPanel.Visible:= false;
+  if StatusBarVisible then
+  begin
+    with GetWorkAreaAt(lsAfterDockedControlsPanel) do
       FStatusBar.SetBounds(Left,Bottom-FStatusBar.Height,Right-Left,FStatusBar.Height);
     if not FStatusBar.SimplePanel then
     begin
@@ -364,12 +493,18 @@ begin
       for i := 0 to FStatusBar.Panels.Count-1 do
         FStatusBar.Panels[i].Width := w;
     end;
-    FStatusBar.Visible := true;
+    if not FStatusBar.Visible then
+    begin
+      FStatusBar.Visible := true;
+      FStatusBar.SendToBack;
+    end;
   end
   else FStatusBar.Visible := false;
 end;
 
 procedure TMainFormLayout.ApplyTheme;
+var
+  bevelOfs, newSpacing, delta, i: Integer;
 begin
   if DarkTheme then
   begin
@@ -387,6 +522,79 @@ begin
     FDockedToolBoxToolBar.OnPaint := nil;
     FDockedToolBoxToolBar.OnPaintButton:= nil;
   end;
+  DarkThemeInstance.Apply(FDockedControlsPanel, DarkTheme, false);
+  bevelOfs := integer(FDockedControlsPanel.BevelOuter <> bvNone)*FDockedControlsPanel.BevelWidth;
+  newSpacing := DoScaleX(2, OriginalDPI) - bevelOfs;
+  delta := FDockedControlsPanel.ChildSizing.LeftRightSpacing - newSpacing;
+  FDockedControlsPanel.ChildSizing.LeftRightSpacing:= newSpacing;
+  FDockedControlsPanel.ChildSizing.TopBottomSpacing:= newSpacing;
+  FDockedControlsPanel.Width := FDockedControlsPanel.Width + delta*2;
+  for i := 0 to High(FDockedToolboxGroup) do
+    ApplyThemeToDockedToolboxGroup(i);
+end;
+
+function TMainFormLayout.DockedControlsPanelWidth: integer;
+var
+  w, i, bevelOfs: Integer;
+begin
+  w := 0;
+  if FDockedControlsPanel.ControlCount > 0 then
+  begin
+    for i := 0 to FDockedControlsPanel.ControlCount-1 do
+      w := max(w, FDockedControlsPanel.Controls[i].Tag);
+    bevelOfs := integer(FDockedControlsPanel.BevelOuter <> bvNone)*FDockedControlsPanel.BevelWidth;
+    inc(w, (FDockedControlsPanel.ChildSizing.LeftRightSpacing + bevelOfs)*2);
+  end;
+  result := w;
+end;
+
+procedure TMainFormLayout.ApplyThemeToDockedToolboxGroup(AGroupIndex: integer);
+var
+  panel: TPanel;
+  spacing: Integer;
+begin
+  panel := FDockedToolboxGroup[AGroupIndex].panel;
+  DarkThemeInstance.Apply(panel, DarkTheme);
+  spacing := DoScaleX(2, OriginalDPI) - integer(panel.BevelOuter <> bvNone)*panel.BevelWidth;
+  panel.ChildSizing.LeftRightSpacing:= spacing;
+  panel.ChildSizing.TopBottomSpacing:= spacing;
+end;
+
+procedure TMainFormLayout.ShowToolboxGroup(AGroupIndex: integer);
+var
+  panel: TPanel;
+  button: TToolButton;
+  tb: TToolBar;
+  i: Integer;
+begin
+  for i := 0 to high(FDockedToolboxGroup) do
+    if i <> AGroupIndex then
+    begin
+      FDockedToolboxGroup[i].Panel.Visible:= false;
+      FDockedToolboxGroup[i].Timer.Enabled:= false;
+    end;
+  button := FDockedToolboxGroup[AGroupIndex].Button;
+  tb := FDockedToolboxGroup[AGroupIndex].Toolbar;
+  panel := FDockedToolboxGroup[AGroupIndex].Panel;
+  panel.Left := button.Left + button.Width + tb.Left + FPanelToolBox.Left;
+  panel.Top := button.Top + tb.Top + FPanelToolBox.Top - DoScaleX(4, OriginalDPI);
+  panel.Visible := true;
+  FDockedToolboxGroup[AGroupIndex].Timer.Enabled:= false;
+  FDockedToolboxGroup[AGroupIndex].Timer.Enabled:= true;
+end;
+
+procedure TMainFormLayout.HideToolboxGroup(AGroupIndex: integer);
+begin
+  FDockedToolboxGroup[AGroupIndex].Panel.Visible:= false;
+  FDockedToolboxGroup[AGroupIndex].Timer.Enabled := false;
+end;
+
+procedure TMainFormLayout.HideToolboxGroups;
+var
+  i: Integer;
+begin
+  for i := 0 to High(FDockedToolboxGroup) do
+    HideToolboxGroup(i);
 end;
 
 procedure TMainFormLayout.Arrange;
@@ -394,6 +602,7 @@ var picAreaBeforeArrange,newPicArea: TRect;
 begin
   picAreaBeforeArrange := WorkArea;
   DoArrange;
+  HideToolboxGroups;
   newPicArea := WorkArea;
   if (newPicArea.Left <> picAreaBeforeArrange.Left) or
      (newPicArea.Top <> picAreaBeforeArrange.Top) or
@@ -407,7 +616,8 @@ begin
     RaisePictureAreaChange;
     FLastWorkArea := newPicArea;
   end;
-  FMenu.RepaintToolbar;
+  if Assigned(FMenu) then
+    FMenu.RepaintToolbar;
 end;
 
 procedure TMainFormLayout.DockedToolBoxAddButton(AAction: TBasicAction);
@@ -417,13 +627,81 @@ begin
   button.Parent := FDockedToolBoxToolBar;
   button.Action := AAction;
   button.Style := tbsButton;
+  button.OnClick:=@ToolboxSimpleButton_Click;
+end;
+
+procedure TMainFormLayout.DockedToolBoxAddGroup(AActions: array of TBasicAction);
+var button: TToolButton;
+  panel: TPanel;
+  tb: TToolBar;
+  i, groupIdx: Integer;
+  timer: TTimer;
+begin
+  if length(AActions) = 0 then exit else
+  if length(AActions) = 1 then DockedToolBoxAddButton(AActions[0]) else
+  begin
+    groupIdx := Length(FDockedToolboxGroup);
+    setlength(FDockedToolboxGroup, length(FDockedToolboxGroup)+1);
+
+    button := TToolButton.Create(FDockedToolBoxToolBar);
+    button.Parent := FDockedToolBoxToolBar;
+    button.Action := AActions[0];
+    button.Style := tbsButton;
+    button.OnMouseMove:=@ToolboxGroupMainButton_MouseMove;
+    button.Tag := groupIdx;
+    FDockedToolboxGroup[groupIdx].Button := button;
+
+    panel := TPanel.Create(FForm);
+    panel.Visible:= false;
+    panel.AutoSize:= true;
+    panel.Parent := FForm;
+    FDockedToolboxGroup[groupIdx].Panel := panel;
+
+    tb := TToolBar.Create(panel);
+    tb.Tag := groupIdx;
+    tb.EdgeBorders:= [];
+    tb.AutoSize:= true;
+    tb.Parent := panel;
+    tb.Images := FDockedToolBoxToolBar.Images;
+    tb.ButtonWidth := FDockedToolBoxToolBar.ButtonWidth;
+    tb.ButtonHeight := FDockedToolBoxToolBar.ButtonHeight;
+    FDockedToolboxGroup[groupIdx].Toolbar := tb;
+
+    ApplyThemeToDockedToolboxGroup(groupIdx);
+
+    for i := 0 to high(AActions) do
+    begin
+      button := TToolButton.Create(tb);
+      button.Parent := tb;
+      button.Action := AActions[i];
+      button.Style := tbsButton;
+      button.OnClick:= @ToolboxGroupButton_Click;
+      button.OnMouseEnter:=@ToolboxGroupToolbarButton_MouseEnter;
+      button.OnMouseLeave:=@ToolboxGroupToolbarButton_MouseLeave;
+    end;
+
+    timer := TTimer.Create(FForm);
+    timer.Tag := groupIdx;
+    timer.Interval:= 2000;
+    timer.Enabled:= false;
+    timer.OnTimer:=@ToolboxGroupTimer_Timer;
+    FDockedToolboxGroup[groupIdx].Timer := timer;
+  end;
 end;
 
 procedure TMainFormLayout.DockedToolBoxSetImages(AImages: TImageList);
+var
+  i: Integer;
 begin
   FDockedToolBoxToolBar.Images := AImages;
   FDockedToolBoxToolBar.ButtonWidth := Max(AImages.Width+4, 23);
   FDockedToolBoxToolBar.ButtonHeight := Max(AImages.Height+4, 22);
+  for i := 0 to high(FDockedToolboxGroup) do
+  begin
+    FDockedToolboxGroup[i].Toolbar.Images := AImages;
+    FDockedToolboxGroup[i].Toolbar.ButtonWidth := FDockedToolBoxToolBar.ButtonWidth;
+    FDockedToolboxGroup[i].Toolbar.ButtonHeight := FDockedToolBoxToolBar.ButtonHeight;
+  end;
 end;
 
 procedure TMainFormLayout.AddColorToPalette(AColor: TBGRAPixel);
@@ -434,6 +712,43 @@ end;
 procedure TMainFormLayout.RemoveColorFromPalette(AColor: TBGRAPixel);
 begin
   FPaletteToolbar.RemoveColor(AColor);
+end;
+
+procedure TMainFormLayout.AddDockedControl(AControl: TControl);
+begin
+  if not FDockedControlsPanel.ContainsControl(AControl) then
+  begin
+    AControl.Tag := AControl.Width;
+    if AControl.Name = 'ChooseColorControl' then
+      AControl.Align:= alTop
+    else
+      AControl.Align:= alClient;
+    FDockedControlsPanel.InsertControl(AControl);
+
+    if (AControl.Name = 'ChooseColorControl') and not Assigned(FDockedChooseColorSplitter) then
+    begin
+      FDockedChooseColorSplitter := TSplitter.Create(FDockedControlsPanel);
+      FDockedChooseColorSplitter.Align := alTop;
+      FDockedChooseColorSplitter.Height := DoScaleY(8, OriginalDPI);
+      FDockedChooseColorSplitter.MinSize:= DoScaleY(85, OriginalDPI);
+      FDockedChooseColorSplitter.Top := AControl.Height;
+      FDockedControlsPanel.InsertControl(FDockedChooseColorSplitter);
+    end;
+  end;
+end;
+
+procedure TMainFormLayout.RemoveDockedControl(AControl: TControl);
+begin
+  if FDockedControlsPanel.ContainsControl(AControl) then
+  begin
+    if (AControl.Name = 'ChooseColorControl') and Assigned(FDockedChooseColorSplitter) then
+    begin
+      FDockedControlsPanel.RemoveControl(FDockedChooseColorSplitter);
+      FreeAndNil(FDockedChooseColorSplitter);
+    end;
+    FDockedControlsPanel.RemoveControl(AControl);
+    AControl.Align:= alNone;
+  end;
 end;
 
 end.

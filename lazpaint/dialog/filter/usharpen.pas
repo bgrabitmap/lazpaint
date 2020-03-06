@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, Spin, ExtCtrls, UFilterConnector;
+  StdCtrls, Spin, ExtCtrls, UFilterConnector, UScripting;
 
 type
   TSharpenMode = (smSharpen);
@@ -31,16 +31,17 @@ type
     FMode :TSharpenMode;
     FInitializing: boolean;
     FFilterConnector: TFilterConnector;
+    procedure InitParams;
     procedure PreviewNeeded;
   end;
 
-function ShowSharpenDlg(AFilterConnector: TObject; AMode : TSharpenMode):boolean;
+function ShowSharpenDlg(AFilterConnector: TObject; AMode : TSharpenMode): TScriptResult;
 
 implementation
 
 uses LCScaleDPI, UMac, LazPaintType, BGRABitmap, BGRABitmapTypes;
 
-function ShowSharpenDlg(AFilterConnector: TObject; AMode : TSharpenMode): boolean;
+function ShowSharpenDlg(AFilterConnector: TObject; AMode : TSharpenMode): TScriptResult;
 var FSharpen: TFSharpen;
 begin
   FSharpen := TFSharpen.Create(nil);
@@ -52,12 +53,23 @@ begin
     on ex: exception do
     begin
       (AFilterConnector as TFilterConnector).LazPaintInstance.ShowError('ShowSharpenDlg',ex.Message);
-      result := false;
+      result := srException;
       exit;
     end;
   end;
   try
-    result := FSharpen.ShowModal = mrOK;
+    if Assigned(FSharpen.FFilterConnector.Parameters) and
+      FSharpen.FFilterConnector.Parameters.Booleans['Validate'] then
+    begin
+      FSharpen.InitParams;
+      FSharpen.PreviewNeeded;
+      FSharpen.FFilterConnector.ValidateAction;
+      result := srOk;
+    end else
+    begin
+      if FSharpen.ShowModal = mrOK then
+        result := srOk else result := srCancelledByUser;
+    end;
   finally
     FSharpen.FFilterConnector.OnTryStopAction := nil;
     FSharpen.Free;
@@ -78,9 +90,7 @@ end;
 procedure TFSharpen.FormShow(Sender: TObject);
 var idxSlash: integer;
 begin
-  FInitializing := true;
-  SpinEdit_Amount.Value := round(FFilterConnector.LazPaintInstance.Config.DefaultSharpenAmount*100);
-  FInitializing := false;
+  InitParams;
   PreviewNeeded;
   idxSlash:= Pos('/',Caption);
   if idxSlash <> 0 then
@@ -106,6 +116,16 @@ end;
 procedure TFSharpen.OnTryStopAction(sender: TFilterConnector);
 begin
   if self.visible then Close;
+end;
+
+procedure TFSharpen.InitParams;
+begin
+  FInitializing := true;
+  if Assigned(FFilterConnector.Parameters) and FFilterConnector.Parameters.IsDefined('Amount') then
+    SpinEdit_Amount.Value := round(FFilterConnector.Parameters.Floats['Amount']*100)
+  else
+     SpinEdit_Amount.Value := round(FFilterConnector.LazPaintInstance.Config.DefaultSharpenAmount*100);
+  FInitializing := false;
 end;
 
 procedure TFSharpen.PreviewNeeded;

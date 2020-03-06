@@ -1,0 +1,171 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: lcresourcestring.rsadjusttoshape
+msgid "Adjust to shape"
+msgstr "Justera efter figur"
+
+#: lcresourcestring.rscigsbnegative
+msgid "Corr. HSL CCW"
+msgstr "Justera HSL CCW"
+
+#: lcresourcestring.rscigsbpositive
+msgid "Corr. HSL CW"
+msgstr "Justera HSL CW"
+
+#: lcresourcestring.rscilinearhslnegative
+msgid "HSL CCW"
+msgstr "HSL CCW"
+
+#: lcresourcestring.rscilinearhslpositive
+msgid "HSL CW"
+msgstr "HSL CW"
+
+#: lcresourcestring.rscilinearrgb
+msgid "RGB"
+msgstr "RGB"
+
+#: lcresourcestring.rscistdrgb
+msgid "sRGB"
+msgstr "sRGB"
+
+#: lcresourcestring.rscolor
+msgid "Color"
+msgstr "Färg"
+
+#: lcresourcestring.rscolorinterpolation
+msgid "Color interpolation"
+msgstr "Färginterpolering"
+
+#: lcresourcestring.rseditgradtexpoints
+msgid "Edit gradient/texture points"
+msgstr "Redigera gradient / texturpunkter"
+
+#: lcresourcestring.rsendopacity
+msgid "End opacity"
+msgstr "Slutopacitet"
+
+#: lcresourcestring.rsgradientangular
+msgid "Angular"
+msgstr "Vinklad"
+
+#: lcresourcestring.rsgradientdiamond
+msgid "Diamond"
+msgstr "Diamant"
+
+#: lcresourcestring.rsgradientfill
+msgid "Gradient fill"
+msgstr "Gradient"
+
+#: lcresourcestring.rsgradientlinear
+msgid "Linear"
+msgstr "Linjär"
+
+#: lcresourcestring.rsgradientradial
+msgid "Radial"
+msgstr "Cirkulär"
+
+#: lcresourcestring.rsgradientreflected
+msgid "Reflected"
+msgstr "Speglad"
+
+#: lcresourcestring.rsgradientrepetition
+msgid "Gradient repetition"
+msgstr "Gradient upprepning"
+
+#: lcresourcestring.rsgrpad
+msgid "Pad"
+msgstr "Utfyllnad"
+
+#: lcresourcestring.rsgrreflect
+msgid "Reflect"
+msgstr "Reflektera"
+
+#: lcresourcestring.rsgrrepeat
+msgid "Repeat"
+msgstr "Upprepa"
+
+#: lcresourcestring.rsgrsine
+msgid "Sine"
+msgstr "Sinus"
+
+#: lcresourcestring.rsincompatibletype
+msgid "Incompatible type"
+msgstr "Inkompatibel typ"
+
+#: lcresourcestring.rsindexoutofbounds
+msgid "Index out of bounds"
+msgstr "Index utanför gränsvärdena"
+
+#: lcresourcestring.rslightposition
+msgid "Light position"
+msgstr "Ljusposition"
+
+#: lcresourcestring.rsloadtexture
+msgid "Load texture"
+msgstr "Ladda textur"
+
+#: lcresourcestring.rsnofill
+msgid "No fill"
+msgstr "Ingen fyllning"
+
+#: lcresourcestring.rsnottexturefill
+msgid "It is not a texture fill"
+msgstr "Är inte en texturfyllning"
+
+#: lcresourcestring.rsopacity
+msgid "Opacity"
+msgstr "Opacitet"
+
+#: lcresourcestring.rspreview
+msgid "Preview"
+msgstr "Förhandsvisning"
+
+#: lcresourcestring.rsshapeclassnotspecified
+msgid "Shape class not specified"
+msgstr "Figurklass ej specificerad"
+
+#: lcresourcestring.rsshapenotfound
+msgid "Shape not found"
+msgstr "Kunde inte hitta figur"
+
+#: lcresourcestring.rssolidcolor
+msgid "Solid color"
+msgstr "Enhetlig färg"
+
+#: lcresourcestring.rsstartopacity
+msgid "Start opacity"
+msgstr "Startopacitet"
+
+#: lcresourcestring.rsswapcolors
+msgid "Swap colors"
+msgstr "Växla färger"
+
+#: lcresourcestring.rstexturefill
+msgid "Texture fill"
+msgstr "Texturfyllning"
+
+#: lcresourcestring.rstexturerepetition
+msgid "Texture repetition"
+msgstr "Upprepa textur"
+
+#: lcresourcestring.rstrnone
+msgid "No repetition"
+msgstr "Upprepa inte"
+
+#: lcresourcestring.rstrrepeatboth
+msgid "Repeat both"
+msgstr "Upprepa båda"
+
+#: lcresourcestring.rstrrepeatx
+msgid "Repeat X"
+msgstr "Upprepa X"
+
+#: lcresourcestring.rstrrepeaty
+msgid "Repeat Y"
+msgstr "Upprepa Y"
+
+#: lcresourcestring.rsunknownshapeclass
+msgid "Unknown shape class \"%1\""
+msgstr "Okänd figurklass \"%1\""
+

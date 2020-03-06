@@ -1,37 +1,37 @@
 object FColorize: TFColorize
   Left = 476
-  Height = 140
+  Height = 174
   Top = 173
   Width = 489
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Colorize'
-  ClientHeight = 140
+  ClientHeight = 174
   ClientWidth = 489
   Font.Height = -12
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '2.0.2.0'
   object Label_Hue: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 10
-    Width = 23
+    Width = 24
     Caption = 'Hue'
     ParentColor = False
   end
   object Label_Colorness: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 48
-    Width = 53
+    Width = 57
     Caption = 'Colorness'
     ParentColor = False
   end
   object TrackBar_Hue: TTrackBar
     Left = 69
-    Height = 30
+    Height = 38
     Top = 8
     Width = 328
     OnChange = TrackBar_Change
@@ -40,7 +40,7 @@ object FColorize: TFColorize
   end
   object TrackBar_Saturation: TTrackBar
     Left = 69
-    Height = 30
+    Height = 38
     Top = 44
     Width = 328
     OnChange = TrackBar_Change
@@ -50,7 +50,7 @@ object FColorize: TFColorize
   object Button_OK: TButton
     Left = 173
     Height = 22
-    Top = 109
+    Top = 143
     Width = 59
     Anchors = [akLeft, akBottom]
     Caption = 'OK'
@@ -62,7 +62,7 @@ object FColorize: TFColorize
   object Button_Cancel: TButton
     Left = 237
     Height = 22
-    Top = 109
+    Top = 143
     Width = 72
     Anchors = [akLeft, akBottom]
     Cancel = True
@@ -72,11 +72,10 @@ object FColorize: TFColorize
   end
   object FloatSpinEdit_Hue: TFloatSpinEdit
     Left = 408
-    Height = 23
+    Height = 27
     Top = 7
     Width = 72
     DecimalPlaces = 1
-    Increment = 1
     MaxValue = 360
     MinValue = 0
     OnChange = FloatSpinEdit_HueChange
@@ -85,11 +84,10 @@ object FColorize: TFColorize
   end
   object FloatSpinEdit_Saturation: TFloatSpinEdit
     Left = 408
-    Height = 23
+    Height = 27
     Top = 43
     Width = 72
     DecimalPlaces = 3
-    Increment = 1
     MaxValue = 1
     MinValue = 0
     OnChange = FloatSpinEdit_SaturationChange
@@ -98,53 +96,68 @@ object FColorize: TFColorize
   end
   object CheckBox_GSBA: TCheckBox
     Left = 8
-    Height = 19
+    Height = 23
     Top = 80
-    Width = 168
+    Width = 197
     Caption = 'Corrected hue and lightness'
     OnChange = CheckBox_GSBAChange
     TabOrder = 6
   end
-  object Label_Preset: TLabel
-    Left = 184
-    Height = 16
-    Top = 83
-    Width = 80
-    Alignment = taRightJustify
-    AutoSize = False
-    Caption = 'Preset'
-    ParentColor = False
-  end
-  object Combo_Preset: TComboBox
-    Left = 272
-    Height = 23
-    Top = 80
-    Width = 154
-    ItemHeight = 15
-    OnChange = Combo_PresetChange
-    Style = csDropDownList
+  object Panel1: TPanel
+    Left = 8
+    Height = 32
+    Top = 104
+    Width = 474
+    Anchors = [akTop, akLeft, akRight]
+    BevelOuter = bvNone
+    ChildSizing.Layout = cclTopToBottomThenLeftToRight
+    ClientHeight = 32
+    ClientWidth = 474
     TabOrder = 7
-  end
-  object ToolBar8: TToolBar
-    Left = 432
-    Height = 24
-    Top = 80
-    Width = 48
-    Align = alNone
-    EdgeBorders = []
-    Images = FMain.ImageList1
-    TabOrder = 8
-    object ToolButton23: TToolButton
-      Left = 1
-      Top = 0
-      ImageIndex = 81
-      OnClick = ToolButton23Click
+    object Label_Preset: TLabel
+      Left = 0
+      Height = 15
+      Top = 7
+      Width = 37
+      AutoSize = False
+      BorderSpacing.Right = 6
+      BorderSpacing.CellAlignVertical = ccaCenter
+      Caption = 'Preset'
+      ParentColor = False
     end
-    object ToolButton1: TToolButton
-      Left = 24
+    object Combo_Preset: TComboBox
+      Left = 43
+      Height = 29
       Top = 0
-      ImageIndex = 39
-      OnClick = ToolButton1Click
+      Width = 100
+      BorderSpacing.Right = 6
+      BorderSpacing.CellAlignVertical = ccaCenter
+      ItemHeight = 0
+      OnChange = Combo_PresetChange
+      Style = csDropDownList
+      TabOrder = 0
+    end
+    object ToolBar_AddRemove: TToolBar
+      Left = 149
+      Height = 22
+      Top = 3
+      Width = 47
+      Align = alNone
+      BorderSpacing.CellAlignVertical = ccaCenter
+      EdgeBorders = []
+      TabOrder = 1
+      object ToolButton_Add: TToolButton
+        Left = 1
+        Top = 0
+        ImageIndex = 81
+        OnClick = ToolButton_AddClick
+      end
+      object ToolButton_Remove: TToolButton
+        Left = 24
+        Top = 0
+        ImageIndex = 39
+        OnClick = ToolButton_RemoveClick
+      end
     end
   end
 end

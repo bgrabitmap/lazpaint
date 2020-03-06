@@ -1,196 +1,413 @@
 object FFilterFunction: TFFilterFunction
   Left = 437
-  Height = 241
+  Height = 365
   Top = 135
-  Width = 430
+  Width = 645
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Apply function'
-  ClientHeight = 241
-  ClientWidth = 430
+  ClientHeight = 365
+  ClientWidth = 645
+  DesignTimePPI = 144
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '2.0.2.0'
   object Button_OK: TButton
-    Left = 137
-    Height = 22
-    Top = 210
-    Width = 59
+    Left = 218
+    Height = 33
+    Top = 318
+    Width = 88
     Anchors = [akLeft, akBottom]
     Caption = 'OK'
     Default = True
     Enabled = False
     OnClick = Button_OKClick
+    ParentFont = False
     TabOrder = 0
   end
   object Button_Cancel: TButton
-    Left = 201
-    Height = 22
-    Top = 210
-    Width = 73
+    Left = 314
+    Height = 33
+    Top = 318
+    Width = 110
     Anchors = [akLeft, akBottom]
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
     OnClick = Button_CancelClick
+    ParentFont = False
     TabOrder = 1
   end
   object Label_AlphaEquals: TLabel
-    Left = 20
-    Height = 16
-    Top = 157
-    Width = 4
+    AnchorSideTop.Control = Edit_Alpha
+    AnchorSideTop.Side = asrCenter
+    Left = 24
+    Height = 24
+    Top = 275
+    Width = 6
     Caption = '.'
     ParentColor = False
+    ParentFont = False
   end
   object Edit_Alpha: TEdit
-    Left = 67
-    Height = 23
-    Top = 154
-    Width = 348
+    AnchorSideLeft.Control = Label_AlphaEquals
+    AnchorSideLeft.Side = asrBottom
+    Left = 30
+    Height = 36
+    Top = 269
+    Width = 594
+    Anchors = [akLeft, akRight, akBottom]
     OnChange = Edit_AlphaChange
+    ParentFont = False
     TabOrder = 2
   end
-  object CheckBox_GSBA: TCheckBox
-    Left = 9
-    Height = 19
-    Top = 181
-    Width = 168
-    Anchors = [akLeft, akBottom]
-    Caption = 'Corrected hue and lightness'
-    OnChange = CheckBox_GSBAChange
-    TabOrder = 3
-  end
   object PageControl_Color: TPageControl
-    Left = 8
-    Height = 120
-    Top = 31
-    Width = 416
+    Left = 12
+    Height = 204
+    Top = 46
+    Width = 624
     ActivePage = TabSheet_RGB
+    ParentFont = False
     TabIndex = 0
-    TabOrder = 4
+    TabOrder = 3
     OnChange = PageControl_ColorChange
     object TabSheet_RGB: TTabSheet
       Caption = 'RGB'
-      ClientHeight = 92
-      ClientWidth = 408
-      object Label_RedEquals: TLabel
-        Left = 9
-        Height = 16
-        Top = 9
-        Width = 4
-        Caption = '.'
-        ParentColor = False
-      end
-      object Edit_Red: TEdit
-        Left = 56
-        Height = 23
+      ChildSizing.LeftRightSpacing = 6
+      ChildSizing.TopBottomSpacing = 6
+      ChildSizing.VerticalSpacing = 6
+      ChildSizing.EnlargeHorizontal = crsScaleChilds
+      ChildSizing.ControlsPerLine = 1
+      ClientHeight = 166
+      ClientWidth = 614
+      ParentFont = False
+      object PanelRGB: TPanel
+        Left = 12
+        Height = 120
         Top = 6
-        Width = 347
-        OnChange = Edit_RedChange
+        Width = 596
+        Align = alClient
+        BevelOuter = bvNone
+        ChildSizing.HorizontalSpacing = 6
+        ChildSizing.VerticalSpacing = 6
+        ChildSizing.EnlargeHorizontal = crsScaleChilds
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 1
+        ClientHeight = 120
+        ClientWidth = 596
         TabOrder = 0
+        object Edit_Red: TEdit
+          Left = 0
+          Height = 36
+          Top = 0
+          Width = 596
+          AutoSize = False
+          OnChange = Edit_RedChange
+          ParentFont = False
+          TabOrder = 0
+        end
+        object Edit_Green: TEdit
+          Left = 0
+          Height = 36
+          Top = 42
+          Width = 596
+          AutoSize = False
+          OnChange = Edit_GreenChange
+          ParentFont = False
+          TabOrder = 1
+        end
+        object Edit_Blue: TEdit
+          Left = 0
+          Height = 36
+          Top = 84
+          Width = 596
+          AutoSize = False
+          OnChange = Edit_BlueChange
+          ParentFont = False
+          TabOrder = 2
+        end
       end
-      object Edit_Green: TEdit
-        Left = 56
-        Height = 23
-        Top = 34
-        Width = 347
-        OnChange = Edit_GreenChange
+      object CheckBox_Gamma: TCheckBox
+        Left = 6
+        Height = 28
+        Top = 132
+        Width = 602
+        Align = alBottom
+        Caption = 'Gamma correction'
+        OnChange = CheckBox_GammaChange
+        ParentFont = False
         TabOrder = 1
       end
-      object Label_GreenEquals: TLabel
-        Left = 9
-        Height = 16
-        Top = 37
-        Width = 4
-        Caption = '.'
-        ParentColor = False
-      end
-      object Label_BlueEquals: TLabel
-        Left = 9
-        Height = 16
-        Top = 65
-        Width = 4
-        Caption = '.'
-        ParentColor = False
-      end
-      object Edit_Blue: TEdit
-        Left = 56
-        Height = 23
-        Top = 62
-        Width = 347
-        OnChange = Edit_BlueChange
+      object PanelLabelRGB: TPanel
+        Left = 6
+        Height = 120
+        Top = 6
+        Width = 6
+        Align = alLeft
+        AutoSize = True
+        BevelOuter = bvNone
+        ChildSizing.VerticalSpacing = 6
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 1
+        ClientHeight = 120
+        ClientWidth = 6
         TabOrder = 2
+        object Label_RedEquals: TLabel
+          Left = 0
+          Height = 24
+          Top = 0
+          Width = 6
+          Caption = '.'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label_GreenEquals: TLabel
+          Left = 0
+          Height = 24
+          Top = 30
+          Width = 6
+          Caption = '.'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label_BlueEquals: TLabel
+          Left = 0
+          Height = 24
+          Top = 60
+          Width = 6
+          Caption = '.'
+          ParentColor = False
+          ParentFont = False
+        end
       end
     end
     object TabSheet_HSL: TTabSheet
       Caption = 'HSL'
-      ClientHeight = 92
-      ClientWidth = 408
-      object Label_HueEquals: TLabel
-        Left = 9
-        Height = 16
-        Top = 9
-        Width = 4
-        Caption = '.'
-        ParentColor = False
-      end
-      object Edit_Hue: TEdit
-        Left = 84
-        Height = 23
+      ChildSizing.LeftRightSpacing = 6
+      ChildSizing.TopBottomSpacing = 6
+      ChildSizing.VerticalSpacing = 6
+      ClientHeight = 166
+      ClientWidth = 614
+      ParentFont = False
+      object PanelHSL: TPanel
+        Left = 12
+        Height = 120
         Top = 6
-        Width = 319
-        OnChange = Edit_HueChange
+        Width = 596
+        Align = alClient
+        BevelOuter = bvNone
+        ChildSizing.HorizontalSpacing = 6
+        ChildSizing.VerticalSpacing = 6
+        ChildSizing.EnlargeHorizontal = crsScaleChilds
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 1
+        ClientHeight = 120
+        ClientWidth = 596
         TabOrder = 0
+        object Edit_Hue: TEdit
+          Left = 0
+          Height = 36
+          Top = 0
+          Width = 596
+          AutoSize = False
+          OnChange = Edit_HueChange
+          ParentFont = False
+          TabOrder = 0
+        end
+        object Edit_Saturation: TEdit
+          Left = 0
+          Height = 36
+          Top = 42
+          Width = 596
+          AutoSize = False
+          OnChange = Edit_SaturationChange
+          ParentFont = False
+          TabOrder = 1
+        end
+        object Edit_Lightness: TEdit
+          Left = 0
+          Height = 36
+          Top = 84
+          Width = 596
+          AutoSize = False
+          OnChange = Edit_LightnessChange
+          ParentFont = False
+          TabOrder = 2
+        end
       end
-      object Edit_Saturation: TEdit
-        Left = 84
-        Height = 23
-        Top = 34
-        Width = 319
-        OnChange = Edit_SaturationChange
+      object CheckBox_GSBA: TCheckBox
+        Left = 6
+        Height = 28
+        Top = 132
+        Width = 602
+        Align = alBottom
+        Caption = 'Corrected hue and lightness'
+        OnChange = CheckBox_GSBAChange
+        ParentFont = False
         TabOrder = 1
       end
-      object Label_SaturationEquals: TLabel
-        Left = 9
-        Height = 16
-        Top = 37
-        Width = 4
-        Caption = '.'
-        ParentColor = False
-      end
-      object Label_LightnessEquals: TLabel
-        Left = 9
-        Height = 16
-        Top = 65
-        Width = 4
-        Caption = '.'
-        ParentColor = False
-      end
-      object Edit_Lightness: TEdit
-        Left = 84
-        Height = 23
-        Top = 62
-        Width = 319
-        OnChange = Edit_LightnessChange
+      object PanelLabelHSL: TPanel
+        Left = 6
+        Height = 120
+        Top = 6
+        Width = 6
+        Align = alLeft
+        AutoSize = True
+        BevelOuter = bvNone
+        ChildSizing.VerticalSpacing = 6
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 1
+        ClientHeight = 120
+        ClientWidth = 6
         TabOrder = 2
+        object Label_HueEquals: TLabel
+          Left = 0
+          Height = 24
+          Top = 0
+          Width = 6
+          Caption = '.'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label_SaturationEquals: TLabel
+          Left = 0
+          Height = 24
+          Top = 30
+          Width = 6
+          Caption = '.'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label_LightnessEquals: TLabel
+          Left = 0
+          Height = 24
+          Top = 60
+          Width = 6
+          Caption = '.'
+          ParentColor = False
+          ParentFont = False
+        end
+      end
+    end
+    object TabSheet_Lab: TTabSheet
+      Caption = 'Lab'
+      ChildSizing.LeftRightSpacing = 6
+      ChildSizing.TopBottomSpacing = 6
+      ChildSizing.VerticalSpacing = 6
+      ClientHeight = 166
+      ClientWidth = 614
+      object PanelLab: TPanel
+        Left = 12
+        Height = 154
+        Top = 6
+        Width = 596
+        Align = alClient
+        BevelOuter = bvNone
+        ChildSizing.HorizontalSpacing = 6
+        ChildSizing.VerticalSpacing = 6
+        ChildSizing.EnlargeHorizontal = crsScaleChilds
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 1
+        ClientHeight = 154
+        ClientWidth = 596
+        TabOrder = 0
+        object Edit_L: TEdit
+          Left = 0
+          Height = 36
+          Top = 0
+          Width = 596
+          AutoSize = False
+          OnChange = Edit_LChange
+          ParentFont = False
+          TabOrder = 0
+        end
+        object Edit_a: TEdit
+          Left = 0
+          Height = 36
+          Top = 42
+          Width = 596
+          AutoSize = False
+          OnChange = Edit_aChange
+          ParentFont = False
+          TabOrder = 1
+        end
+        object Edit_b: TEdit
+          Left = 0
+          Height = 36
+          Top = 84
+          Width = 596
+          AutoSize = False
+          OnChange = Edit_bChange
+          ParentFont = False
+          TabOrder = 2
+        end
+      end
+      object PanelLabelLab: TPanel
+        Left = 6
+        Height = 154
+        Top = 6
+        Width = 6
+        Align = alLeft
+        AutoSize = True
+        BevelOuter = bvNone
+        ChildSizing.VerticalSpacing = 6
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 1
+        ClientHeight = 154
+        ClientWidth = 6
+        TabOrder = 1
+        object Label_LEquals: TLabel
+          Left = 0
+          Height = 24
+          Top = 0
+          Width = 6
+          Caption = '.'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label_aEquals: TLabel
+          Left = 0
+          Height = 24
+          Top = 30
+          Width = 6
+          Caption = '.'
+          ParentColor = False
+          ParentFont = False
+        end
+        object Label_bEquals: TLabel
+          Left = 0
+          Height = 24
+          Top = 60
+          Width = 6
+          Caption = '.'
+          ParentColor = False
+          ParentFont = False
+        end
       end
     end
   end
   object Label_Variables: TLabel
-    Left = 9
-    Height = 16
-    Top = 8
-    Width = 54
+    Left = 14
+    Height = 24
+    Top = 12
+    Width = 104
     Caption = 'Variables :'
     ParentColor = False
+    ParentFont = False
   end
   object Timer1: TTimer
     Enabled = False
     Interval = 30
     OnTimer = Timer1Timer
-    left = 200
-    top = 40
+    left = 300
+    top = 60
+  end
+  object Timer_AdjustVerticalSize: TTimer
+    Interval = 20
+    OnTimer = Timer_AdjustVerticalSizeTimer
+    left = 452
+    top = 25
   end
 end

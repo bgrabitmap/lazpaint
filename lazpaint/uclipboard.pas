@@ -2,7 +2,7 @@ unit UClipboard;
 
 {$mode objfpc}{$H+}
 {$IFDEF DEBUG}
-  {$DEFINE DEBUG_CLIPBOARD}
+  { $DEFINE DEBUG_CLIPBOARD}
 {$ENDIF}
 
 {$DEFINE HTML_CLIPBOARD_FORMAT}

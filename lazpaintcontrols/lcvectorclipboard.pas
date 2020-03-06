@@ -5,13 +5,15 @@ unit LCVectorClipboard;
 interface
 
 uses
-  Classes, SysUtils, Clipbrd, LCLType, LCVectorOriginal, BGRATransform;
+  Classes, SysUtils, Clipbrd, LCLType, LCVectorOriginal, BGRATransform, BGRABitmapTypes;
 
 function CopyShapesToClipboard(AShapes: array of TVectorShape; const AMatrix: TAffineMatrix): boolean;
-procedure PasteShapesFromClipboard(ATargetContainer: TVectorOriginal; const ATargetMatrix: TAffineMatrix);
+procedure PasteShapesFromClipboard(ATargetContainer: TVectorOriginal; const ATargetMatrix: TAffineMatrix; const ABounds: TRectF);
 function ClipboardHasShapes: boolean;
 
 implementation
+
+uses math;
 
 var
   vectorClipboardFormat : TClipboardFormat;
@@ -44,13 +46,15 @@ begin
   end;
 end;
 
-procedure PasteShapesFromClipboard(ATargetContainer: TVectorOriginal; const ATargetMatrix: TAffineMatrix);
+procedure PasteShapesFromClipboard(ATargetContainer: TVectorOriginal; const ATargetMatrix: TAffineMatrix; const ABounds: TRectF);
 var
   tempContainer: TVectorOriginal;
   mem: TMemoryStream;
   i: Integer;
   pastedShape: TVectorShape;
-  invMatrix: TAffineMatrix;
+  invMatrix, m: TAffineMatrix;
+  pastedBounds: TRectF;
+  ofs: TPointF;
 begin
   if not IsAffineMatrixInversible(ATargetMatrix) then exit;
   invMatrix := AffineMatrixInverse(ATargetMatrix);
@@ -63,10 +67,27 @@ begin
       begin
         mem.Position:= 0;
         tempContainer.LoadFromStream(mem);
+        pastedBounds := EmptyRectF;
+        ofs := PointF(0, 0);
+        if not ABounds.IsEmpty then
+        begin
+          for i := 0 to tempContainer.ShapeCount-1 do
+            pastedBounds := pastedBounds.Union(pastedBounds,
+              tempContainer.Shape[i].GetAlignBounds(InfiniteRect, AffineMatrixIdentity), true);
+          if (pastedBounds.Left < ABounds.Left) and (pastedBounds.Right < ABounds.Right) then
+            ofs.x := ceil(ABounds.Left - pastedBounds.Left) else
+          if (pastedBounds.Right > ABounds.Right) and (pastedBounds.Left > ABounds.Left) then
+            ofs.x := floor(ABounds.Right - pastedBounds.Right);
+          if (pastedBounds.Top < ABounds.Top) and (pastedBounds.Bottom < ABounds.Bottom) then
+            ofs.y := ceil(ABounds.Top - pastedBounds.Top) else
+          if (pastedBounds.Bottom > ABounds.Bottom) and (pastedBounds.Top > ABounds.Top) then
+            ofs.y := floor(ABounds.Bottom - pastedBounds.Bottom);
+        end;
+        m := invMatrix*AffineMatrixTranslation(ofs.x,ofs.y);
         for i := 0 to tempContainer.ShapeCount-1 do
         begin
           pastedShape := tempContainer.Shape[i].Duplicate;
-          pastedShape.Transform(invMatrix);
+          pastedShape.Transform(m);
           ATargetContainer.AddShape(pastedShape);
           if i = tempContainer.ShapeCount-1 then
             ATargetContainer.SelectShape(pastedShape);

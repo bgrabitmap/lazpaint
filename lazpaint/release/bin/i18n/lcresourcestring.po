@@ -1,0 +1,171 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: lcresourcestring.rsadjusttoshape
+msgid "Adjust to shape"
+msgstr ""
+
+#: lcresourcestring.rscigsbnegative
+msgid "Corr. HSL CCW"
+msgstr ""
+
+#: lcresourcestring.rscigsbpositive
+msgid "Corr. HSL CW"
+msgstr ""
+
+#: lcresourcestring.rscilinearhslnegative
+msgid "HSL CCW"
+msgstr ""
+
+#: lcresourcestring.rscilinearhslpositive
+msgid "HSL CW"
+msgstr ""
+
+#: lcresourcestring.rscilinearrgb
+msgid "RGB"
+msgstr ""
+
+#: lcresourcestring.rscistdrgb
+msgid "sRGB"
+msgstr ""
+
+#: lcresourcestring.rscolor
+msgid "Color"
+msgstr ""
+
+#: lcresourcestring.rscolorinterpolation
+msgid "Color interpolation"
+msgstr ""
+
+#: lcresourcestring.rseditgradtexpoints
+msgid "Edit gradient/texture points"
+msgstr ""
+
+#: lcresourcestring.rsendopacity
+msgid "End opacity"
+msgstr ""
+
+#: lcresourcestring.rsgradientangular
+msgid "Angular"
+msgstr ""
+
+#: lcresourcestring.rsgradientdiamond
+msgid "Diamond"
+msgstr ""
+
+#: lcresourcestring.rsgradientfill
+msgid "Gradient fill"
+msgstr ""
+
+#: lcresourcestring.rsgradientlinear
+msgid "Linear"
+msgstr ""
+
+#: lcresourcestring.rsgradientradial
+msgid "Radial"
+msgstr ""
+
+#: lcresourcestring.rsgradientreflected
+msgid "Reflected"
+msgstr ""
+
+#: lcresourcestring.rsgradientrepetition
+msgid "Gradient repetition"
+msgstr ""
+
+#: lcresourcestring.rsgrpad
+msgid "Pad"
+msgstr ""
+
+#: lcresourcestring.rsgrreflect
+msgid "Reflect"
+msgstr ""
+
+#: lcresourcestring.rsgrrepeat
+msgid "Repeat"
+msgstr ""
+
+#: lcresourcestring.rsgrsine
+msgid "Sine"
+msgstr ""
+
+#: lcresourcestring.rsincompatibletype
+msgid "Incompatible type"
+msgstr ""
+
+#: lcresourcestring.rsindexoutofbounds
+msgid "Index out of bounds"
+msgstr ""
+
+#: lcresourcestring.rslightposition
+msgid "Light position"
+msgstr ""
+
+#: lcresourcestring.rsloadtexture
+msgid "Load texture"
+msgstr ""
+
+#: lcresourcestring.rsnofill
+msgid "No fill"
+msgstr ""
+
+#: lcresourcestring.rsnottexturefill
+msgid "It is not a texture fill"
+msgstr ""
+
+#: lcresourcestring.rsopacity
+msgid "Opacity"
+msgstr ""
+
+#: lcresourcestring.rspreview
+msgid "Preview"
+msgstr ""
+
+#: lcresourcestring.rsshapeclassnotspecified
+msgid "Shape class not specified"
+msgstr ""
+
+#: lcresourcestring.rsshapenotfound
+msgid "Shape not found"
+msgstr ""
+
+#: lcresourcestring.rssolidcolor
+msgid "Solid color"
+msgstr ""
+
+#: lcresourcestring.rsstartopacity
+msgid "Start opacity"
+msgstr ""
+
+#: lcresourcestring.rsswapcolors
+msgid "Swap colors"
+msgstr ""
+
+#: lcresourcestring.rstexturefill
+msgid "Texture fill"
+msgstr ""
+
+#: lcresourcestring.rstexturerepetition
+msgid "Texture repetition"
+msgstr ""
+
+#: lcresourcestring.rstrnone
+msgid "No repetition"
+msgstr ""
+
+#: lcresourcestring.rstrrepeatboth
+msgid "Repeat both"
+msgstr ""
+
+#: lcresourcestring.rstrrepeatx
+msgid "Repeat X"
+msgstr ""
+
+#: lcresourcestring.rstrrepeaty
+msgid "Repeat Y"
+msgstr ""
+
+#: lcresourcestring.rsunknownshapeclass
+msgid "Unknown shape class \"%1\""
+msgstr ""
+

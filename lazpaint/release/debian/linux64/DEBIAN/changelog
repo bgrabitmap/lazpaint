@@ -108,3 +108,40 @@ lazpaint (7.0.7) stable; urgency=low
 
 -- circular <circular@operamail.com>  Wed, 10 Oct 2019 17:37:00 +0100
 
+lazpaint (7.0.8) unstable; urgency=low
+
+  * rendering optimizations to reduce slowdown with big images
+  * read support for Portable Any Map (PBM, PGM, PPM)
+  * read/write support for WebP images using libwebp
+  * read support for RAW images using dcraw
+  * fix loading PDN images
+  * show progress of loading/saving/actions on layered images
+  * scripting in Python
+  * scripts provided: color overlay, drop shadow, split/merge channels...
+  * vectorial tools: gradient and texture fill for vectorial shapes
+  * paste vector shapes within visible bounds
+  * tools: align to pixels when image is not zoomed
+  * tools: grouping of items in toolbar
+  * added polyline and opened curve tool
+  * pen tool: SHIFT click to retrieve color, ALT+wheel to change width
+  * selection pen tool: add antialiasing option
+  * color picker: SHIFT click to retrieve color of flattened image
+  * eraser tool: added lighten, darken and sharpen modes
+  * floodfill tool: makes vector original on an empty layer
+  * edit shape tool: show shape information
+  * polygon tool: highlight hovered point, arrows to move points
+  * palette: indicate last added color in palette
+  * palette: fix scroll bug
+  * color window resizable
+  * color and layer windows dockable to main window
+  * adjust more windows to system DPI
+  * adjust curves: show source histograms
+  * filter function: optimize, add Lab colorspace, add min/max/avg
+  * blend operations: add Saturation (HSL) and Mask blend operation
+  * added Kabyle language
+  * updated Swedish translation
+  * fixes for image browser
+  * command line: parenthesis optional to make it Linux-friendly 
+
+-- circular <circular@operamail.com>  Fri, 6 Mar 2020 18:32:00 +0100
+

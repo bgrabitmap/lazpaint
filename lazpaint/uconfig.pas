@@ -47,12 +47,16 @@ type
     procedure FinalizeRecentFiles;
     function DefaultRememberStartupTargetDirectory: boolean;
     procedure SetRememberStartupTargetDirectory(AValue: boolean);
+    function DefaultRememberStartupExportDirectory: boolean;
+    procedure SetRememberStartupExportDirectory(AValue: boolean);
     function DefaultRememberStartupSourceDirectory: boolean;
     procedure SetRememberStartupSourceDirectory(AValue: boolean);
     function DefaultStartupSourceDirectory: string;
     procedure SetStartupSourceDirectory(AValue: string);
     function DefaultStartupTargetDirectory: string;
     procedure SetStartupTargetDirectory(AValue: string);
+    function DefaultStartupExportDirectory: string;
+    procedure SetStartupExportDirectory(AValue: string);
     function DefaultRememberSaveFormat: boolean;
     procedure SetRememberSaveFormat(AValue: boolean);
     function DefaultSaveExtensions: string;
@@ -61,6 +65,8 @@ type
     procedure SetBrushes(ABrushes: TStringList);
     function DefaultJpegQuality: integer;
     procedure SetDefaultJpegQuality(value: integer);
+    function DefaultWebPLossless: boolean;
+    procedure SetDefaultWebPLossless(value: boolean);
     function DefaultSaveOptionDialogMaximized: boolean;
     procedure SetDefaultSaveOptionDialogMaximized(value: boolean);
 
@@ -94,6 +100,8 @@ type
     procedure SetDefaultBrushDirectory(value: string);
     function DefaultPaletteDirectory: string;
     procedure SetDefaultPaletteDirectory(value: string);
+    function DefaultScriptDirectory: string;
+    procedure SetDefaultScriptDirectory(value: string);
 
     function DefaultIconSize(defaultValue: integer): integer;
     procedure SetDefaultIconSize(value: integer);
@@ -138,6 +146,8 @@ type
     procedure SetDefaultColorWindowPosition(value: TRect);
     function DefaultLayerWindowPosition: TRect;
     procedure SetDefaultLayerWindowPosition(value: TRect);
+    function DefaultLayerStackZoom: single;
+    procedure SetDefaultLayerStackZoom(value: single);
     function DefaultToolboxWindowPosition: TRect;
     procedure SetDefaultToolboxWindowPosition(value: TRect);
     function DefaultToolboxDocking: string;
@@ -148,6 +158,10 @@ type
     procedure SetDefaultBrowseWindowMaximized(value: boolean);
     function DefaultBrowseWindowPosition: TRect;
     procedure SetDefaultBrowseWindowPosition(value: TRect);
+    function DefaultPreviewDialogMaximized: boolean;
+    procedure SetDefaultPreviewDialogMaximized(value: boolean);
+    function DefaultPreviewDialogPosition: TRect;
+    procedure SetDefaultPreviewDialogPosition(value: TRect);
 
     function DefaultPaletteToolbarVisible: boolean;
     procedure SetDefaultPaletteToolbarVisible(value: boolean);
@@ -184,6 +198,10 @@ type
     function DefaultToolBackColor: TBGRAPixel;
     procedure SetDefaultToolForeColor(value: TBGRAPixel);
     procedure SetDefaultToolBackColor(value: TBGRAPixel);
+    function DefaultToolForeGradient: string;
+    function DefaultToolBackGradient: string;
+    procedure SetDefaultToolForeGradient(value: string);
+    procedure SetDefaultToolBackGradient(value: string);
     function DefaultToolPenWidth: single;
     procedure SetDefaultToolPenWidth(value: single);
     function DefaultToolEraserWidth: single;
@@ -203,7 +221,7 @@ type
     function DefaultToolTextShadow: boolean;
     procedure SetDefaultToolTextShadow(value: boolean);
     function DefaultToolTextFont: TFont;
-    procedure SetDefaultToolTextFont(AFont: TFont);
+    procedure SetDefaultToolTextFont(AName: string; ASize: single; AStyle: TFontStyles);
     function DefaultToolTextBlur: single;
     procedure SetDefaultToolTextBlur(value: single);
     function DefaultToolTextShadowOffsetX: integer;
@@ -538,6 +556,16 @@ begin
   iniOptions.WriteString('Window','LayerWindowPosition',RectToStr(value));
 end;
 
+function TLazPaintConfig.DefaultLayerStackZoom: single;
+begin
+  result := iniOptions.ReadFloat('Window', 'LayerStackZoom', EmptySingle);
+end;
+
+procedure TLazPaintConfig.SetDefaultLayerStackZoom(value: single);
+begin
+  iniOptions.WriteFloat('Window', 'LayerStackZoom', value);
+end;
+
 function TLazPaintConfig.DefaultToolboxWindowPosition: TRect;
 begin
   result := StrToRect(iniOptions.ReadString('Window','ToolboxWindowPosition',''));
@@ -586,6 +614,26 @@ end;
 procedure TLazPaintConfig.SetDefaultBrowseWindowPosition(value: TRect);
 begin
   iniOptions.WriteString('Window','BrowseWindowPosition',RectToStr(value));
+end;
+
+function TLazPaintConfig.DefaultPreviewDialogMaximized: boolean;
+begin
+  result := iniOptions.ReadBool('Window','PreviewDialogMaximized',false);
+end;
+
+procedure TLazPaintConfig.SetDefaultPreviewDialogMaximized(value: boolean);
+begin
+  iniOptions.WriteBool('Window','PreviewDialogMaximized',value);
+end;
+
+function TLazPaintConfig.DefaultPreviewDialogPosition: TRect;
+begin
+  result := StrToRect(iniOptions.ReadString('Window','PreviewDialogPosition',''));
+end;
+
+procedure TLazPaintConfig.SetDefaultPreviewDialogPosition(value: TRect);
+begin
+  iniOptions.WriteString('Window','PreviewDialogPosition',RectToStr(value));
 end;
 
 function TLazPaintConfig.DefaultPaletteToolbarVisible: boolean;
@@ -670,7 +718,7 @@ end;
 
 function TLazPaintConfig.DefaultUndoRedoToolbarVisible: boolean;
 begin
-  result := iniOptions.ReadBool('Toolbar','UndoRedoToolbar',false);
+  result := iniOptions.ReadBool('Toolbar','UndoRedoToolbar',true);
 end;
 
 procedure TLazPaintConfig.SetDefaultUndoRedoToolbarVisible(value: boolean);
@@ -759,6 +807,26 @@ end;
 procedure TLazPaintConfig.SetDefaultToolBackColor(value: TBGRAPixel);
 begin
   iniOptions.WriteString('Tool','BackColor',BGRAToStr(value));
+end;
+
+function TLazPaintConfig.DefaultToolForeGradient: string;
+begin
+  result := iniOptions.ReadString('Tool','ForeGradient','');
+end;
+
+function TLazPaintConfig.DefaultToolBackGradient: string;
+begin
+  result := iniOptions.ReadString('Tool','BackGradient','');
+end;
+
+procedure TLazPaintConfig.SetDefaultToolForeGradient(value: string);
+begin
+  iniOptions.WriteString('Tool','ForeGradient',value);
+end;
+
+procedure TLazPaintConfig.SetDefaultToolBackGradient(value: string);
+begin
+  iniOptions.WriteString('Tool','BackGradient',value);
 end;
 
 function TLazPaintConfig.DefaultToolPenWidth: single;
@@ -865,17 +933,16 @@ begin
   result := tempFont;
 end;
 
-procedure TLazPaintConfig.SetDefaultToolTextFont(AFont: TFont);
+procedure TLazPaintConfig.SetDefaultToolTextFont(AName: string; ASize: single;
+  AStyle: TFontStyles);
 begin
-  tempFont.Assign(AFont);
-
-  iniOptions.WriteString('Tool','TextFontName',tempFont.Name);
-  iniOptions.WriteInteger('Tool','TextFontHeight',tempFont.Height);
-  iniOptions.WriteInteger('Tool','TextFontSize',tempFont.Size);
-  iniOptions.WriteBool('Tool','TextFontBold',fsBold in tempFont.Style);
-  iniOptions.WriteBool('Tool','TextFontItalic',fsItalic in tempFont.Style);
-  iniOptions.WriteBool('Tool','TextFontStrikeOut',fsStrikeOut in tempFont.Style);
-  iniOptions.WriteBool('Tool','TextFontUnderline',fsUnderline in tempFont.Style);
+  iniOptions.WriteString('Tool','TextFontName',AName);
+  iniOptions.WriteInteger('Tool','TextFontSize',round(ASize));
+  iniOptions.DeleteKey('Tool','TextFontHeight');
+  iniOptions.WriteBool('Tool','TextFontBold',fsBold in AStyle);
+  iniOptions.WriteBool('Tool','TextFontItalic',fsItalic in AStyle);
+  iniOptions.WriteBool('Tool','TextFontStrikeOut',fsStrikeOut in AStyle);
+  iniOptions.WriteBool('Tool','TextFontUnderline',fsUnderline in AStyle);
 end;
 
 function TLazPaintConfig.DefaultToolTextBlur: single;
@@ -1293,6 +1360,16 @@ begin
   iniOptions.WriteBool('Startup', 'RememberTargetDirectory', AValue);
 end;
 
+function TLazPaintConfig.DefaultRememberStartupExportDirectory: boolean;
+begin
+  result := iniOptions.ReadBool('Startup', 'RememberExportDirectory', false);
+end;
+
+procedure TLazPaintConfig.SetRememberStartupExportDirectory(AValue: boolean);
+begin
+  iniOptions.WriteBool('Startup', 'RememberExportDirectory', AValue);
+end;
+
 function TLazPaintConfig.DefaultRememberStartupSourceDirectory: boolean;
 begin
   result := iniOptions.ReadBool('Startup', 'RememberSourceDirectory', false);
@@ -1321,6 +1398,16 @@ end;
 procedure TLazPaintConfig.SetStartupTargetDirectory(AValue: string);
 begin
   iniOptions.WriteString('Startup', 'TargetDirectory', AValue);
+end;
+
+function TLazPaintConfig.DefaultStartupExportDirectory: string;
+begin
+  result := iniOptions.ReadString('Startup', 'ExportDirectory', '');
+end;
+
+procedure TLazPaintConfig.SetStartupExportDirectory(AValue: string);
+begin
+  iniOptions.WriteString('Startup', 'ExportDirectory', AValue);
 end;
 
 function TLazPaintConfig.DefaultRememberSaveFormat: boolean;
@@ -1361,6 +1448,16 @@ end;
 procedure TLazPaintConfig.SetDefaultJpegQuality(value: integer);
 begin
   iniOptions.WriteInteger('General','JpegQuality',value);
+end;
+
+function TLazPaintConfig.DefaultWebPLossless: boolean;
+begin
+  result := iniOptions.ReadBool('General','WebPLossless',true);
+end;
+
+procedure TLazPaintConfig.SetDefaultWebPLossless(value: boolean);
+begin
+  iniOptions.WriteBool('General','WebPLossless',value);
 end;
 
 function TLazPaintConfig.DefaultSaveOptionDialogMaximized: boolean;
@@ -1561,6 +1658,16 @@ end;
 procedure TLazPaintConfig.SetDefaultPaletteDirectory(value: string);
 begin
   iniOptions.WriteString('General','PaletteDirectory',ChompPathDelim(value))
+end;
+
+function TLazPaintConfig.DefaultScriptDirectory: string;
+begin
+  result := iniOptions.ReadString('General','ScriptDirectory','');
+end;
+
+procedure TLazPaintConfig.SetDefaultScriptDirectory(value: string);
+begin
+  iniOptions.WriteString('General','ScriptDirectory',ChompPathDelim(value))
 end;
 
 function TLazPaintConfig.DefaultIconSize(defaultValue: integer): integer;

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, UImage, ULayerAction, UImageType, Forms,
-  LazPaintType, BGRABitmap, uscripting;
+  LazPaintType, BGRABitmap, BGRABitmapTypes, uscripting;
 
 type
   TFilterConnector = class;
@@ -43,8 +43,8 @@ type
     procedure ValidateAction;
     procedure InvalidateActiveLayer; overload;
     procedure InvalidateActiveLayer(ARect: TRect); overload;
-    procedure PutImage(AFilteredLayer: TBGRABitmap; AMayBeColored: boolean; AOwner: boolean);
-    procedure PutImage(AFilteredLayer: TBGRABitmap; AModifiedRect: TRect; AMayBeColored: boolean; AOwner: boolean);
+    procedure PutImage(AFilteredLayer: TBGRABitmap; AMayBeColored: boolean; AOwner: boolean; ADrawMode: TDrawMode = dmSet);
+    procedure PutImage(AFilteredLayer: TBGRABitmap; AModifiedRect: TRect; AMayBeColored: boolean; AOwner: boolean; ADrawMode: TDrawMode = dmSet);
     procedure RestoreBackup;
     property BackupLayer: TBGRABitmap read GetBackupLayer;
     property CurrentSelection: TBGRABitmap read GetCurrentSelection;
@@ -59,7 +59,7 @@ type
 
 implementation
 
-uses Types, BGRABitmapTypes;
+uses Types;
 
 { TFilterConnector }
 
@@ -206,13 +206,13 @@ begin
   end;
 end;
 
-procedure TFilterConnector.PutImage(AFilteredLayer: TBGRABitmap; AMayBeColored: boolean; AOwner: boolean);
+procedure TFilterConnector.PutImage(AFilteredLayer: TBGRABitmap; AMayBeColored: boolean; AOwner: boolean; ADrawMode: TDrawMode);
 begin
-  PutImage(AFilteredLayer,FWorkArea,AMayBeColored,AOwner);
+  PutImage(AFilteredLayer,FWorkArea,AMayBeColored,AOwner,ADrawMode);
 end;
 
 procedure TFilterConnector.PutImage(AFilteredLayer: TBGRABitmap;
-  AModifiedRect: TRect; AMayBeColored: boolean; AOwner: boolean);
+  AModifiedRect: TRect; AMayBeColored: boolean; AOwner: boolean; ADrawMode: TDrawMode);
 var AMine: boolean;
   imgRect: TRect;
 begin
@@ -237,7 +237,7 @@ begin
       end;
       ApplySelectionMaskOn(AFilteredLayer);
     end;
-    ActiveLayer.PutImagePart(AModifiedRect.Left,AModifiedRect.Top,AFilteredLayer,AModifiedRect,dmSet);
+    ActiveLayer.PutImagePart(AModifiedRect.Left,AModifiedRect.Top,AFilteredLayer,AModifiedRect,ADrawMode);
     if AMine then AFilteredLayer.Free;
     imgRect := AModifiedRect;
     with ActiveLayerOffset do

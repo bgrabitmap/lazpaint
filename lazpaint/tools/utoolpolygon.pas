@@ -26,6 +26,7 @@ type
   TToolEllipse = class(TVectorialTool)
   protected
     function CreateShape: TVectorShape; override;
+    function GetGridMatrix: TAffineMatrix; override;
   public
     function GetContextualToolbars: TContextualToolbars; override;
   end;
@@ -36,13 +37,29 @@ type
   protected
     initiallyClosed : boolean;
     function CreateShape: TVectorShape; override;
-    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
+    function ShouldCloseShape: boolean; virtual;
+    procedure UpdateManagerCloseShape({%H-}AClose: boolean); virtual;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     procedure UpdateUserMode; virtual;
     procedure ShapeValidated; override;
+    function DoToolKeyDown(var key: Word): TRect; override;
+    function RoundCoordinate(constref ptF: TPointF): TPointF; override;
   public
     function ToolUp: TRect; override;
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
-    function ToolKeyDown(var key: Word): TRect; override;
+    function GetContextualToolbars: TContextualToolbars; override;
+  end;
+
+  { TToolPolyline }
+
+  TToolPolyline = class(TToolPolygon)
+  protected
+    function ShouldCloseShape: boolean; override;
+    procedure UpdateManagerCloseShape({%H-}AClose: boolean); override;
+    function GetManagerShapeOptions: TShapeOptions; override;
+    function HasBrush: boolean; override;
+  public
+    function HasPen: boolean; override;
     function GetContextualToolbars: TContextualToolbars; override;
   end;
 
@@ -57,7 +74,7 @@ type
     procedure SetCurrentMode(AValue: TToolSplineMode);
   protected
     function CreateShape: TVectorShape; override;
-    procedure AssignShapeStyle(AMatrix: TAffineMatrix); override;
+    procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     procedure UpdateUserMode; override;
   public
     constructor Create(AManager: TToolManager); override;
@@ -66,9 +83,86 @@ type
     property CurrentMode: TToolSplineMode read GetCurrentMode write SetCurrentMode;
   end;
 
+  { TToolOpenedCurve }
+
+  TToolOpenedCurve = class(TToolSpline)
+  protected
+    function ShouldCloseShape: boolean; override;
+    procedure UpdateManagerCloseShape({%H-}AClose: boolean); override;
+    function GetManagerShapeOptions: TShapeOptions; override;
+    function HasBrush: boolean; override;
+  public
+    function HasPen: boolean; override;
+    function GetContextualToolbars: TContextualToolbars; override;
+  end;
+
 implementation
 
-uses LazPaintType, LCVectorRectShapes, LCVectorPolyShapes;
+uses LazPaintType, LCVectorRectShapes, LCVectorPolyShapes, BGRATransform;
+
+{ TToolOpenedCurve }
+
+function TToolOpenedCurve.ShouldCloseShape: boolean;
+begin
+  result := false;
+end;
+
+procedure TToolOpenedCurve.UpdateManagerCloseShape(AClose: boolean);
+begin
+  //nothing
+end;
+
+function TToolOpenedCurve.GetManagerShapeOptions: TShapeOptions;
+begin
+  Result:= manager.ShapeOptions - [toFillShape] + [toDrawShape];
+end;
+
+function TToolOpenedCurve.HasPen: boolean;
+begin
+  Result:= true;
+end;
+
+function TToolOpenedCurve.HasBrush: boolean;
+begin
+  Result:= false;
+end;
+
+function TToolOpenedCurve.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= inherited GetContextualToolbars - [ctShape, ctCloseShape];
+end;
+
+{ TToolPolyline }
+
+function TToolPolyline.ShouldCloseShape: boolean;
+begin
+  result := false;
+end;
+
+procedure TToolPolyline.UpdateManagerCloseShape(AClose: boolean);
+begin
+  //nothing
+end;
+
+function TToolPolyline.GetManagerShapeOptions: TShapeOptions;
+begin
+  Result:= manager.ShapeOptions - [toFillShape] + [toDrawShape];
+end;
+
+function TToolPolyline.HasPen: boolean;
+begin
+  Result:= true;
+end;
+
+function TToolPolyline.HasBrush: boolean;
+begin
+  Result:= false;
+end;
+
+function TToolPolyline.GetContextualToolbars: TContextualToolbars;
+begin
+  Result:= inherited GetContextualToolbars - [ctShape, ctCloseShape];
+end;
 
 { TToolEllipse }
 
@@ -77,9 +171,14 @@ begin
   result := TEllipseShape.Create(nil);
 end;
 
+function TToolEllipse.GetGridMatrix: TAffineMatrix;
+begin
+  Result:= AffineMatrixScale(0.5, 0.5);
+end;
+
 function TToolEllipse.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctPenStyle];
+  Result:= [ctPenFill,ctBackFill,ctShape,ctPenWidth,ctPenStyle];
 end;
 
 { TToolRectangle }
@@ -91,7 +190,7 @@ end;
 
 function TToolRectangle.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctPenStyle,ctJoinStyle];
+  Result:= [ctPenFill,ctBackFill,ctShape,ctPenWidth,ctPenStyle,ctJoinStyle];
 end;
 
 { TToolSpline }
@@ -144,9 +243,9 @@ begin
   end;
 end;
 
-procedure TToolSpline.AssignShapeStyle(AMatrix: TAffineMatrix);
+procedure TToolSpline.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 begin
-  inherited AssignShapeStyle(AMatrix);
+  inherited AssignShapeStyle(AMatrix, AAlwaysFit);
   TCurveShape(FShape).SplineStyle:= Manager.SplineStyle;
 end;
 
@@ -172,7 +271,7 @@ end;
 
 function TToolSpline.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctPenStyle,ctLineCap,ctSplineStyle];
+  Result:= [ctPenFill,ctBackFill,ctShape,ctCloseShape,ctPenWidth,ctPenStyle,ctLineCap,ctSplineStyle];
 end;
 
 { TToolPolygon }
@@ -180,13 +279,30 @@ end;
 function TToolPolygon.CreateShape: TVectorShape;
 begin
   result := TPolylineShape.Create(nil);
-  initiallyClosed := toCloseShape in Manager.ShapeOptions;
+  initiallyClosed := ShouldCloseShape;
 end;
 
-procedure TToolPolygon.AssignShapeStyle(AMatrix: TAffineMatrix);
+function TToolPolygon.ShouldCloseShape: boolean;
 begin
-  inherited AssignShapeStyle(AMatrix);
-  TCustomPolypointShape(FShape).Closed := toCloseShape in Manager.ShapeOptions;
+  result := toCloseShape in Manager.ShapeOptions;
+end;
+
+procedure TToolPolygon.UpdateManagerCloseShape(AClose: boolean);
+var
+  opt: TShapeOptions;
+begin
+  opt := Manager.ShapeOptions;
+  if AClose then
+    include(opt, toCloseShape)
+  else
+    exclude(opt, toCloseShape);
+  Manager.ShapeOptions:= opt;
+end;
+
+procedure TToolPolygon.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
+begin
+  inherited AssignShapeStyle(AMatrix, AAlwaysFit);
+  TCustomPolypointShape(FShape).Closed := ShouldCloseShape;
   TCustomPolypointShape(FShape).ArrowStartKind := Manager.ArrowStart;
   TCustomPolypointShape(FShape).ArrowEndKind := Manager.ArrowEnd;
   TCustomPolypointShape(FShape).ArrowSize := Manager.ArrowSize;
@@ -203,24 +319,14 @@ end;
 procedure TToolPolygon.ShapeValidated;
 begin
   inherited ShapeValidated;
-  if not initiallyClosed then
-    Manager.ShapeOptions := Manager.ShapeOptions - [toCloseShape];
+  if not initiallyClosed then UpdateManagerCloseShape(False);
 end;
 
 function TToolPolygon.ToolUp: TRect;
-var
-  opt: TShapeOptions;
 begin
   Result:=inherited ToolUp;
   if Assigned(FShape) then
-  begin
-    opt := Manager.ShapeOptions;
-    if (FShape as TCustomPolypointShape).Closed then
-      include(opt, toCloseShape)
-    else
-      exclude(opt, toCloseShape);
-    Manager.ShapeOptions:= opt;
-  end;
+    UpdateManagerCloseShape((FShape as TCustomPolypointShape).Closed);
 end;
 
 function TToolPolygon.ToolKeyPress(var key: TUTF8Char): TRect;
@@ -239,7 +345,7 @@ begin
     Result:=inherited ToolKeyPress(key);
 end;
 
-function TToolPolygon.ToolKeyDown(var key: Word): TRect;
+function TToolPolygon.DoToolKeyDown(var key: Word): TRect;
 begin
   if (key = VK_RETURN) and Assigned(FShape)
    and (FShape.Usermode = vsuCreate) then
@@ -249,12 +355,20 @@ begin
     key := 0;
     exit;
   end else
-    Result:=inherited ToolKeyDown(key);
+    Result:=inherited DoToolKeyDown(key);
+end;
+
+function TToolPolygon.RoundCoordinate(constref ptF: TPointF): TPointF;
+begin
+  If Editor.GridActive then
+    result := Editor.SnapToGrid(ptF, false)
+  else
+    result := ptF;
 end;
 
 function TToolPolygon.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctColor,ctTexture,ctShape,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap];
+  Result:= [ctPenFill,ctBackFill,ctShape,ctCloseShape,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap];
 end;
 
 initialization
@@ -263,6 +377,8 @@ initialization
   RegisterTool(ptEllipse,TToolEllipse);
   RegisterTool(ptPolygon,TToolPolygon);
   RegisterTool(ptSpline,TToolSpline);
+  RegisterTool(ptPolyline,TToolPolyline);
+  RegisterTool(ptOpenedCurve,TToolOpenedCurve);
 
 end.
 

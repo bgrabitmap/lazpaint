@@ -1,16 +1,16 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: 0.9.27 beta\n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: 2009-04-24 19:20+0800\n"
-"Last-Translator: XY.Chen <chenxinyv@gmail.com>、Liu Sizhuang <chinatslsz@hotmail.com>(2008-06-15)\n"
-"Language-Team: \n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Project-Id-Version: Lazpaint 7.0.7\n"
+"POT-Creation-Date: 2020-02-29 23:18+0800\n"
+"PO-Revision-Date: 2020-03-01 10:10+0800\n"
+"Last-Translator: backdream <backdream@yeah.net>\n"
+"Language-Team: backdream (backdream@yeah.net)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: Chinese\n"
-"X-Poedit-Country: CHINA\n"
-"X-Poedit-SourceCharset: utf-8\n"
+"Language: zh_CN\n"
+"X-Generator: Poedit 2.3\n"
 
 #: lclstrconsts.hhshelpbrowsernotexecutable
 msgid "Browser %s%s%s not executable."
@@ -42,11 +42,11 @@ msgstr "浏览框里的宏 %s 将被 URL 所替代."
 
 #: lclstrconsts.ifsalt
 msgid "Alt"
-msgstr ""
+msgstr "Alt"
 
 #: lclstrconsts.ifsctrl
 msgid "Ctrl"
-msgstr ""
+msgstr "Ctrl"
 
 #: lclstrconsts.ifsvk_accept
 msgid "Accept"
@@ -89,16 +89,16 @@ msgstr "删除"
 #: lclstrconsts.ifsvk_down
 msgctxt "lclstrconsts.ifsvk_down"
 msgid "Down"
-msgstr ""
+msgstr "向下"
 
 #: lclstrconsts.ifsvk_end
 msgctxt "lclstrconsts.ifsvk_end"
 msgid "End"
-msgstr ""
+msgstr "末尾"
 
 #: lclstrconsts.ifsvk_escape
 msgid "Escape"
-msgstr ""
+msgstr "退出"
 
 #: lclstrconsts.ifsvk_execute
 msgid "Execute"
@@ -106,11 +106,11 @@ msgstr "执行"
 
 #: lclstrconsts.ifsvk_final
 msgid "Final"
-msgstr ""
+msgstr "结束"
 
 #: lclstrconsts.ifsvk_hanja
 msgid "Hanja"
-msgstr ""
+msgstr "Hanja"
 
 #: lclstrconsts.ifsvk_help
 msgid "Help"
@@ -119,20 +119,20 @@ msgstr "帮助"
 #: lclstrconsts.ifsvk_home
 msgctxt "lclstrconsts.ifsvk_home"
 msgid "Home"
-msgstr ""
+msgstr "主页"
 
 #: lclstrconsts.ifsvk_insert
 msgctxt "lclstrconsts.ifsvk_insert"
 msgid "Insert"
-msgstr ""
+msgstr "插入"
 
 #: lclstrconsts.ifsvk_junja
 msgid "Junja"
-msgstr ""
+msgstr "Junja"
 
 #: lclstrconsts.ifsvk_kana
 msgid "Kana"
-msgstr ""
+msgstr "Kana"
 
 #: lclstrconsts.ifsvk_lbutton
 msgid "Mouse Button Left"
@@ -163,7 +163,7 @@ msgstr "模式更改"
 #: lclstrconsts.ifsvk_next
 msgctxt "lclstrconsts.ifsvk_next"
 msgid "Next"
-msgstr ""
+msgstr "下一个"
 
 #: lclstrconsts.ifsvk_nonconvert
 msgid "Nonconvert"
@@ -188,7 +188,7 @@ msgstr "打印"
 #: lclstrconsts.ifsvk_prior
 msgctxt "lclstrconsts.ifsvk_prior"
 msgid "Prior"
-msgstr ""
+msgstr "之前"
 
 #: lclstrconsts.ifsvk_rbutton
 msgid "Mouse Button Right"
@@ -217,7 +217,7 @@ msgstr "选择"
 
 #: lclstrconsts.ifsvk_shift
 msgid "Shift"
-msgstr ""
+msgstr "转换"
 
 #: lclstrconsts.ifsvk_snapshot
 msgid "Snapshot"
@@ -230,7 +230,7 @@ msgstr "空格键"
 #: lclstrconsts.ifsvk_tab
 msgctxt "lclstrconsts.ifsvk_tab"
 msgid "Tab"
-msgstr ""
+msgstr "制表"
 
 #: lclstrconsts.ifsvk_unknown
 msgid "Unknown"
@@ -243,7 +243,7 @@ msgstr "上"
 
 #: lclstrconsts.liscannotexecute
 msgid "can not execute %s"
-msgstr ""
+msgstr "无法执行 %s"
 
 #: lclstrconsts.lislclresourcesnotfound
 msgctxt "lclstrconsts.lislclresourcesnotfound"
@@ -252,7 +252,7 @@ msgstr "未找到资源 %s"
 
 #: lclstrconsts.lisprogramfilenotfound
 msgid "program file not found %s"
-msgstr ""
+msgstr "未找到程序文件 %s"
 
 #: lclstrconsts.rs3ddkshadowcolorcaption
 msgid "3D Dark Shadow"
@@ -284,7 +284,7 @@ msgstr "引用程序工作区"
 
 #: lclstrconsts.rsaquacolorcaption
 msgid "Aqua"
-msgstr ""
+msgstr "水"
 
 #: lclstrconsts.rsbackgroundcolorcaption
 msgid "Desktop"
@@ -353,15 +353,15 @@ msgstr "大小写敏感"
 
 #: lclstrconsts.rscontrolclasscantcontainchildclass
 msgid "Control of class '%s' can't have control of class '%s' as a child"
-msgstr ""
+msgstr "控件类 \"%s\" 没有名为 \"%s\" 的子控件类"
 
 #: lclstrconsts.rscontrolhasnoparentwindow
 msgid "Control '%s' has no parent window"
-msgstr ""
+msgstr "控件 \"%s\" 没有父窗口"
 
 #: lclstrconsts.rscreamcolorcaption
 msgid "Cream"
-msgstr ""
+msgstr "奶油"
 
 #: lclstrconsts.rscreatinggdbcatchableerror
 msgid "Creating gdb catchable error:"
@@ -414,7 +414,7 @@ msgstr "编辑"
 
 #: lclstrconsts.rsentirescope
 msgid "Search entire file"
-msgstr ""
+msgstr "搜索整个文件"
 
 #: lclstrconsts.rserror
 msgctxt "lclstrconsts.rserror"
@@ -423,11 +423,11 @@ msgstr "错误"
 
 #: lclstrconsts.rserrorcreatingdevicecontext
 msgid "Error creating device context for %s.%s"
-msgstr ""
+msgstr "为 %s.%s 创建设备上下文时出错"
 
 #: lclstrconsts.rserrorinlcl
 msgid "ERROR in LCL: "
-msgstr ""
+msgstr "LCL 中的错误："
 
 #: lclstrconsts.rserroroccurredinataddressframe
 msgid "Error occurred in %s at %sAddress %s%s Frame %s"
@@ -515,7 +515,7 @@ msgstr "查找更多"
 
 #: lclstrconsts.rsfirstrecordhint
 msgid "First"
-msgstr ""
+msgstr "第一个"
 
 #: lclstrconsts.rsfixedcolstoobig
 msgid "FixedCols can't be >= ColCount"
@@ -551,7 +551,7 @@ msgstr "--gdk-no-debug flags  关闭 GDK 跟踪/调试信息."
 
 #: lclstrconsts.rsgif
 msgid "Graphics Interchange Format"
-msgstr ""
+msgstr "图形交换格式"
 
 #: lclstrconsts.rsgoptionfatalwarnings
 msgid "--g-fatal-warnings    Warnings and errors generated by Gtk+/GDK will halt the application."
@@ -567,7 +567,7 @@ msgstr "非活动标题颜色渐变"
 
 #: lclstrconsts.rsgraphic
 msgid "Graphic"
-msgstr ""
+msgstr "图形"
 
 #: lclstrconsts.rsgraycolorcaption
 msgid "Gray"
@@ -619,7 +619,7 @@ msgstr "--gtk-module module   启动时载入指定模块"
 
 #: lclstrconsts.rsgtkoptionname
 msgid "--name programe       Set program name to \"progname\". If not specified, program name will be set to ParamStrUTF8(0)."
-msgstr ""
+msgstr "--name programe       将程序名称设置为\"progname\"。如果未指定，程序名称将设置为 ParamStrUTF8（0）。"
 
 #: lclstrconsts.rsgtkoptionnodebug
 msgid "--gtk-no-debug flags  Turn off specific Gtk+ trace/debug messages."
@@ -635,7 +635,7 @@ msgstr "--no-xshm             禁止使用 X 共享内存扩展。"
 
 #: lclstrconsts.rsgtkoptionsync
 msgid "--sync                Call XSynchronize (display, True) after the Xserver connection has been established. This makes debugging X protocol errors easier, because X request buffering will be disabled and X errors will be received immediately after the protocol request that generated the error has been processed by the X server."
-msgstr ""
+msgstr "--sync                建立 Xserver 连接后调用 X同步（display, True）。因为 X 请求缓冲将被禁用，X 错误将在 X 服务器处理生成错误的协议请求后立即收到，更容易调试 X 协议错误。"
 
 #: lclstrconsts.rshelpalreadyregistered
 msgid "%s: Already registered"
@@ -723,7 +723,7 @@ msgstr "高亮文本"
 
 #: lclstrconsts.rshotlightcolorcaption
 msgid "Hot Light"
-msgstr ""
+msgstr "高光"
 
 #: lclstrconsts.rsicns
 msgid "Mac OS X Icon"
@@ -818,11 +818,11 @@ msgstr "%s 已经与 %s 相关联"
 
 #: lclstrconsts.rsjpeg
 msgid "Joint Picture Expert Group"
-msgstr ""
+msgstr "联合图片专家组"
 
 #: lclstrconsts.rslastrecordhint
 msgid "Last"
-msgstr ""
+msgstr "最后"
 
 #: lclstrconsts.rslimecolorcaption
 msgid "Lime"
@@ -879,7 +879,7 @@ msgstr "确定(&O)"
 
 #: lclstrconsts.rsmbopen
 msgid "&Open"
-msgstr ""
+msgstr "打开(&O)"
 
 #: lclstrconsts.rsmbretry
 msgid "&Retry"
@@ -887,11 +887,11 @@ msgstr "重试(&R)"
 
 #: lclstrconsts.rsmbsave
 msgid "&Save"
-msgstr ""
+msgstr "保存(&S)"
 
 #: lclstrconsts.rsmbunlock
 msgid "&Unlock"
-msgstr ""
+msgstr "解锁(&U)"
 
 #: lclstrconsts.rsmbyes
 msgid "&Yes"
@@ -924,7 +924,7 @@ msgstr "菜单文本"
 
 #: lclstrconsts.rsmodified
 msgid "  modified "
-msgstr "已更改"
+msgstr " 已更改"
 
 #: lclstrconsts.rsmoneygreencolorcaption
 msgid "Money Green"
@@ -932,7 +932,7 @@ msgstr "钱青"
 
 #: lclstrconsts.rsmtauthentication
 msgid "Authentication"
-msgstr ""
+msgstr "认证"
 
 #: lclstrconsts.rsmtconfirmation
 msgid "Confirmation"
@@ -1027,95 +1027,95 @@ msgstr "紫"
 
 #: lclstrconsts.rsqtoptiondograb
 msgid "-dograb (only under X11), running under a debugger can cause an implicit -nograb, use -dograb to override. Need QT_DEBUG."
-msgstr ""
+msgstr "-dograb（仅在 X11 下），在调试器下运行可能会导致隐式 -nograb，使用 -dograb 重写。需要QT_DEBUG."
 
 #: lclstrconsts.rsqtoptiongraphicsstyle
 msgid "-graphicssystem param, sets the backend to be used for on-screen widgets and QPixmaps. Available options are native, raster and opengl. OpenGL is still unstable."
-msgstr ""
+msgstr "-graphicssystem 参数，设置后端用于屏幕小部件和 QPixmaps。可用选项为本机、栅格和OpenGL。OpenGL 仍然不稳定。"
 
 #: lclstrconsts.rsqtoptionnograb
 msgid "-nograb, tells Qt that it must never grab the mouse or the keyboard. Need QT_DEBUG."
-msgstr ""
+msgstr "-nograb，告知 Qt 不获取鼠标或键盘。需要QT_DEBUG"
 
 #: lclstrconsts.rsqtoptionreverse
 msgid "-reverse, sets the application's layout direction to Qt::RightToLeft."
-msgstr ""
+msgstr "-reverse，将应用程序的布局方向设置为 Qt::RightToLeft。"
 
 #: lclstrconsts.rsqtoptionsession
 msgid "-session session, restores the application from an earlier session."
-msgstr ""
+msgstr "-session 会话，从较早的会话还原应用程序。"
 
 #: lclstrconsts.rsqtoptionstyle
 msgid "-style style or -style=style, sets the application GUI style. Possible values are motif, windows, and platinum. If you compiled Qt with additional styles or have additional styles as plugins these will be available to the -style  command line option. NOTE: Not all styles are available on all platforms. If style param does not exist Qt will start an application with default common style (windows)."
-msgstr ""
+msgstr "-style style 或 -style=style, 设置应用程序 GUI 样式。可能的值是图案、窗口和铂金。如果您编译了具有其他样式的 Qt 或具有其他样式作为插件，这些样式将可用于 -style 命令行选项。注： 并非所有样式在所有平台上都可用。如果样式参数不存在，Qt 将启动具有默认公共样式（窗口）的应用程序。"
 
 #: lclstrconsts.rsqtoptionstylesheet
 msgid "-stylesheet stylesheet or -stylesheet=stylesheet, sets the application Style Sheet. The value must be a path to a file that contains the Style Sheet. Note: Relative URLs in the Style Sheet file are relative to the Style Sheet file's path."
-msgstr ""
+msgstr "-stylesheet stylesheet 或 -stylesheet=stylesheet, 设置应用程序样式表。该值必须包含样式表的文件的路径。注意：样式表文件中的相对 URL 与样式表文件的路径相关。"
 
 #: lclstrconsts.rsqtoptionsync
 msgid "-sync (only under X11), switches to synchronous mode for debugging."
-msgstr ""
+msgstr "-sync（仅在 X11 下），切换到同步模式进行调试。"
 
 #: lclstrconsts.rsqtoptionwidgetcount
 msgid "-widgetcount, prints debug message at the end about number of widgets left undestroyed and maximum number of widgets existed at the same time."
-msgstr ""
+msgstr "-widgetcount，结束时打印调试消息，包括未销毁的小部件数量和同一时间存在的最大小部件数量。"
 
 #: lclstrconsts.rsqtoptionx11bgcolor
 msgid "-bg or -background color, sets the default background color and an application palette (light and dark shades are calculated)."
-msgstr ""
+msgstr "-bg 或 -background color，设置默认背景颜色和应用程序调色板（浅色和深色）。"
 
 #: lclstrconsts.rsqtoptionx11btncolor
 msgid "-btn or -button color, sets the default button color."
-msgstr ""
+msgstr "-btn or -button color, 设置按钮默认颜色."
 
 #: lclstrconsts.rsqtoptionx11cmap
 msgid "-cmap, causes the application to install a private color map on an 8-bit display."
-msgstr ""
+msgstr "-cmap，使应用程序在 8 位显示器上安装私有颜色映射。"
 
 #: lclstrconsts.rsqtoptionx11display
 msgid "-display display, sets the X display (default is $DISPLAY)."
-msgstr ""
+msgstr "-display display, 设置 X display (默认为 $DISPLAY)."
 
 #: lclstrconsts.rsqtoptionx11fgcolor
 msgid "-fg or -foreground color, sets the default foreground color."
-msgstr ""
+msgstr "-fg or -foreground color, 设置默认前景色."
 
 #: lclstrconsts.rsqtoptionx11font
 msgid "-fn or -font font, defines the application font. The font should be specified using an X logical font description."
-msgstr ""
+msgstr "-fn or -font font, 定义应用程序字体。应使用 X 逻辑字体说明指定字体。"
 
 #: lclstrconsts.rsqtoptionx11geometry
 msgid "-geometry geometry, sets the client geometry of the first window that is shown."
-msgstr ""
+msgstr "-geometry geometry, 设置显示的第一个窗口的客户端几何形状。"
 
 #: lclstrconsts.rsqtoptionx11im
 msgid "-im, sets the input method server (equivalent to setting the XMODIFIERS environment variable)."
-msgstr ""
+msgstr "-im, 设置输入方法服务器（相当于设置 XMODIFIERS 环境变量）。"
 
 #: lclstrconsts.rsqtoptionx11inputstyle
 msgid "-inputstyle, defines how the input is inserted into the given widget, e.g. onTheSpot makes the input appear directly in the widget, while overTheSpot makes the input appear in a box floating over the widget and is not inserted until the editing is done."
-msgstr ""
+msgstr "-inputstyle, 定义输入如何插入到给定的小部件中，例如 onTheSpot 使输入直接显示在小部件中，而 overTheSpot 使输入显示在小部件上浮动的框中，直到编辑完成才插入。"
 
 #: lclstrconsts.rsqtoptionx11name
 msgid "-name name, sets the application name."
-msgstr ""
+msgstr "-name name, 设置应用程序名称。"
 
 #: lclstrconsts.rsqtoptionx11ncols
 msgid "-ncols count, limits the number of colors allocated in the color cube on an 8-bit display, if the application is using the QApplication::ManyColor color specification. If count is 216 then a 6x6x6 color cube is used (i.e. 6 levels of red, 6 of green, and 6 of blue); for other values, a cube approximately proportional to a 2x3x1 cube is used."
-msgstr ""
+msgstr "-ncols count, 如果应用程序使用 QApplication::ManyColor 颜色规范，则限制在 8 位显示屏上分配的颜色多维数据集中分配的颜色数。如果计数为 216，则使用 6x6x6 颜色立方体（即 6 级红色、6 级绿色和 6 级蓝色）;对于其他值，使用与 2x3x1 多维数据集大致成正比的多维数据集。"
 
 #: lclstrconsts.rsqtoptionx11title
 msgid "-title title, sets the application title."
-msgstr ""
+msgstr "-title title, 设置应用程序标题。"
 
 #: lclstrconsts.rsqtoptionx11visual
 msgid "-visual TrueColor, forces the application to use a TrueColor visual on an 8-bit display."
-msgstr ""
+msgstr "-visual TrueColor, 强制应用程序在 8 位显示器上使用 TrueColor 视觉对象。"
 
 #: lclstrconsts.rsrasterimageendupdate
 msgid "Endupdate while no update in progress"
-msgstr ""
+msgstr "未进行更新时结束更新"
 
 #: lclstrconsts.rsrasterimagesaveinupdate
 msgid "Cannot save image while update in progress"
@@ -1123,7 +1123,7 @@ msgstr "处理更新时候不能保存图片"
 
 #: lclstrconsts.rsrasterimageupdateall
 msgid "Cannot begin update all when canvas only update in progress"
-msgstr ""
+msgstr "当画布更新正在进行时，无法开始更新全部"
 
 #: lclstrconsts.rsredcolorcaption
 msgid "Red"
@@ -1184,7 +1184,7 @@ msgstr "文本"
 
 #: lclstrconsts.rstiff
 msgid "Tagged Image File Format"
-msgstr ""
+msgstr "标签图像文件格式"
 
 #: lclstrconsts.rsunabletoloaddefaultfont
 msgid "Unable to load default font"
@@ -1200,11 +1200,11 @@ msgstr "未知图形文件后缀"
 
 #: lclstrconsts.rsunknownpictureformat
 msgid "Unknown picture format"
-msgstr ""
+msgstr "未知图片格式"
 
 #: lclstrconsts.rsunsupportedbitmapformat
 msgid "Unsupported bitmap format."
-msgstr "未支持的位图格式"
+msgstr "未支持的位图格式."
 
 #: lclstrconsts.rsunsupportedclipboardformat
 msgid "Unsupported clipboard format: %s"
@@ -1212,23 +1212,23 @@ msgstr "未支持的剪贴板格式: %s"
 
 #: lclstrconsts.rswarningunreleaseddcsdump
 msgid " WARNING: There are %d unreleased DCs, a detailed dump follows:"
-msgstr ""
+msgstr "警告： 有 %d 未发布的 DC，详细转储如下："
 
 #: lclstrconsts.rswarningunreleasedgdiobjectsdump
 msgid " WARNING: There are %d unreleased GDIObjects, a detailed dump follows:"
-msgstr ""
+msgstr "警告： 有 %d 未发布的 GDI 对象，详细的转储如下："
 
 #: lclstrconsts.rswarningunreleasedmessagesinqueue
 msgid " WARNING: There are %d messages left in the queue! I'll free them"
-msgstr ""
+msgstr "警告： 队列中还剩下 %d 消息！我会释放他们"
 
 #: lclstrconsts.rswarningunreleasedtimerinfos
 msgid " WARNING: There are %d TimerInfo structures left, I'll free them"
-msgstr ""
+msgstr "警告： 还剩下 %d TimerInfo 结构，我将释放它们"
 
 #: lclstrconsts.rswarningunremovedpaintmessages
 msgid " WARNING: There are %s unremoved LM_PAINT/LM_GtkPAINT message links left."
-msgstr ""
+msgstr "警告： 剩余 %s 未删除LM_PAINT/LM_GtkPAINT消息链接。"
 
 #: lclstrconsts.rswhitecolorcaption
 msgid "White"
@@ -1312,46 +1312,46 @@ msgstr "子菜单不在菜单中"
 
 #: lclstrconsts.smkcalt
 msgid "Alt+"
-msgstr ""
+msgstr "Alt+"
 
 #: lclstrconsts.smkcbksp
 msgid "BkSp"
-msgstr ""
+msgstr "BkSp"
 
 #: lclstrconsts.smkcctrl
 msgid "Ctrl+"
-msgstr ""
+msgstr "Ctrl+"
 
 #: lclstrconsts.smkcdel
 msgid "Del"
-msgstr ""
+msgstr "Del"
 
 #: lclstrconsts.smkcdown
 msgctxt "lclstrconsts.smkcdown"
 msgid "Down"
-msgstr ""
+msgstr "下"
 
 #: lclstrconsts.smkcend
 msgctxt "lclstrconsts.smkcend"
 msgid "End"
-msgstr ""
+msgstr "末尾"
 
 #: lclstrconsts.smkcenter
 msgid "Enter"
-msgstr ""
+msgstr "Enter"
 
 #: lclstrconsts.smkcesc
 msgid "Esc"
-msgstr ""
+msgstr "Esc"
 
 #: lclstrconsts.smkchome
 msgctxt "lclstrconsts.smkchome"
 msgid "Home"
-msgstr ""
+msgstr "主页"
 
 #: lclstrconsts.smkcins
 msgid "Ins"
-msgstr ""
+msgstr "Ins"
 
 #: lclstrconsts.smkcleft
 msgctxt "lclstrconsts.smkcleft"
@@ -1360,15 +1360,15 @@ msgstr "左"
 
 #: lclstrconsts.smkcmeta
 msgid "Meta+"
-msgstr ""
+msgstr "Meta+"
 
 #: lclstrconsts.smkcpgdn
 msgid "PgDn"
-msgstr ""
+msgstr "PgDn"
 
 #: lclstrconsts.smkcpgup
 msgid "PgUp"
-msgstr ""
+msgstr "PgUp"
 
 #: lclstrconsts.smkcright
 msgctxt "lclstrconsts.smkcright"
@@ -1377,16 +1377,16 @@ msgstr "右"
 
 #: lclstrconsts.smkcshift
 msgid "Shift+"
-msgstr ""
+msgstr "Shift+"
 
 #: lclstrconsts.smkcspace
 msgid "Space"
-msgstr ""
+msgstr "Space"
 
 #: lclstrconsts.smkctab
 msgctxt "lclstrconsts.smkctab"
 msgid "Tab"
-msgstr ""
+msgstr "制表"
 
 #: lclstrconsts.smkcup
 msgctxt "lclstrconsts.smkcup"
@@ -1395,7 +1395,7 @@ msgstr "上"
 
 #: lclstrconsts.snomdiform
 msgid "No MDI form present."
-msgstr "没有 MDI 窗体出现"
+msgstr "没有 MDI 窗体出现."
 
 #: lclstrconsts.snotimers
 msgid "No timers available"
@@ -1432,4 +1432,3 @@ msgstr "错误的标识符：期望 %s 但是找到了 %s"
 #: lclstrconsts.sparwrongtokentype
 msgid "Wrong token type: %s expected but %s found"
 msgstr "错误的标识符类型：期望 %s 但是找到了 %s"
-

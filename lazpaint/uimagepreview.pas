@@ -100,7 +100,7 @@ type
 implementation
 
 uses FPimage, BGRAReadJpeg, BGRAOpenRaster, BGRAPaintNet, BGRAReadLzp, Dialogs, UNewimage,
-  LCLType, BGRAPhoxo, BGRASVG, math;
+  LCLType, BGRAPhoxo, BGRASVG, math, URaw, UImage;
 
 { TImagePreview }
 
@@ -110,7 +110,8 @@ begin
   result := (FImageFormat in[ifJpeg,     {compression loss}
                              ifLazPaint, {layer loss}
                              ifOpenRaster,
-                             ifPhoxo])
+                             ifPhoxo,
+                             ifPaintDotNet])
          or (FAnimate and Assigned(FAnimatedGif) and (FAnimatedGif.Count > 1)); {frame loss}
 end;
 
@@ -639,6 +640,7 @@ begin
   if (index < 0) or (index >= GetEntryCount) then
     raise exception.Create('Index out of bounds');
   result := TImageEntry.Empty;
+  result.frameCount:= EntryCount;
   try
     if Assigned(FIconCursor) then
     begin
@@ -687,6 +689,8 @@ begin
   if (AEntry.frameIndex < 0) or (AEntry.frameIndex > GetEntryCount) then
     raise exception.Create('Index out of bounds');
   if Filename = '' then raise exception.create('Filename undefined');
+
+  AEntry.frameCount:= GetEntryCount;
 
   if Assigned(FTiff) then
   begin
@@ -844,6 +848,19 @@ begin
     try
       source := FileManager.CreateFileStream(FFilename, fmOpenRead or fmShareDenyWrite);
       FImageFormat := DetectFileFormat(source,ExtractFileExt(FFilename));
+      if IsRawFilename(FFilename) then
+      begin
+        try
+          FSingleImage := GetRawStreamImage(source);
+          FImageNbLayers := 1;
+        except
+          on ex: Exception do
+          begin
+            FLoadError:= ex.Message;
+            FreeAndNil(FSingleImage);
+          end;
+        end;
+      end else
       case FImageFormat of
       ifGif:
         begin
@@ -917,8 +934,9 @@ begin
       ifSvg:
         begin
           svg := TBGRASVG.Create(source);
-          FSingleImage := TBGRABitmap.Create(ceil(svg.WidthAsPixel),ceil(svg.HeightAsPixel));
-          svg.Draw(FSingleImage.Canvas2d,0,0);
+          with ComputeAcceptableImageSize(ceil(svg.WidthAsPixel),ceil(svg.HeightAsPixel)) do
+            FSingleImage := TBGRABitmap.Create(cx,cy);
+          svg.StretchDraw(FSingleImage.Canvas2d,0,0,FSingleImage.Width,FSingleImage.Height);
           svg.Free;
           FImageNbLayers:= 1;
         end
@@ -1024,6 +1042,7 @@ begin
               LazPaintInstance.Image.FrameIndex := TImageEntry.NewFrameIndex;
             LazPaintInstance.Image.OnImageChanged.NotifyObservers;
           end;
+          dec(LazPaintInstance.Image.FrameCount);
         except on ex: Exception do
           begin
             FileManager.CancelStreamAndFree(outputStream);
@@ -1142,6 +1161,7 @@ var tx,ty,bpp: integer; back: TBGRAPixel;
 begin
   FinishUpdatePreview;
   result := TImageEntry.Empty;
+  result.frameCount := GetEntryCount;
 
   if Assigned(FIconCursor) then
   begin
@@ -1200,6 +1220,7 @@ begin
   if Assigned(FSingleImage) then
   begin
     result.bmp := FSingleImage;
+    result.frameIndex:= 0;
     FSingleImage := nil;
   end else
   if Assigned(FAnimatedGif) then
