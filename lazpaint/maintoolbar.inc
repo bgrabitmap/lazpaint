@@ -438,7 +438,12 @@ procedure TFMain.UpdateTextOutlineToolbar;
 begin
   Tool_TextOutline.Down := ToolManager.TextOutline;
   SpinEdit_TextOutlineWidth.Value := round(ToolManager.TextOutlineWidth*PenWidthFactor);
-  SpinEdit_TextOutlineWidth.Enabled:= ToolManager.TextOutline;
+  if SpinEdit_TextOutlineWidth.Visible <> ToolManager.TextOutline then
+  begin
+    Label_OutlineWidth.Visible := ToolManager.TextOutline;
+    SpinEdit_TextOutlineWidth.Visible := ToolManager.TextOutline;
+    QueryArrange;
+  end;
 end;
 
 procedure TFMain.UpdateTextPhongToolbar;

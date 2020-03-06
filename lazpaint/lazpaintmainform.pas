@@ -1159,8 +1159,8 @@ begin
       Panel_Tool,Panel_PenFill,Panel_SwapColor,Panel_BackFill,Panel_ColorDiff,Panel_Grid,
       Panel_ShapeOption,Panel_PenWidth,Panel_PenStyle,Panel_JoinStyle,
       Panel_CloseShape,Panel_LineCap,Panel_Aliasing,
-      Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_Text,Panel_TextShadow,Panel_TextOutline,
-      Panel_PhongShape,Panel_Altitude,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio],Panel_ToolbarBackground);
+      Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_Text,Panel_Altitude,Panel_TextShadow,Panel_TextOutline,
+      Panel_PhongShape,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio],Panel_ToolbarBackground);
     m.ImageList := LazPaintInstance.Icons[ScaleY(16, 96)];
     m.Apply;
     FLayout.Menu := m;
