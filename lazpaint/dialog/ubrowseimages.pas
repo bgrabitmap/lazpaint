@@ -68,6 +68,7 @@ type
     function OnDeleteConfirmation({%H-}AForm:TForm; const AFiles: array of string; AContained: boolean): boolean;
   private
     function GetCurrentDirectory: string;
+    function GetCurrentFullname: string;
     procedure SetCurrentDirectory(AValue: string);
     function AdaptExtension: boolean;
     procedure ShellListView1SelectionChanged(Sender: TObject);
@@ -134,6 +135,7 @@ type
     procedure DeleteSelectedFiles;
     procedure SelectFile(AName: string);
     procedure PreviewValidate({%H-}ASender: TObject);
+    property CurrentFullname: string read GetCurrentFullname;
     property CurrentDirectory: string read GetCurrentDirectory write SetCurrentDirectory;
   public
     { public declarations }
@@ -709,6 +711,11 @@ begin
   result := DirectoryEdit1.Text;
 end;
 
+function TFBrowseImages.GetCurrentFullname: string;
+begin
+  result := IncludeTrailingPathDelimiter(trim(CurrentDirectory))+Edit_Filename.Text;
+end;
+
 procedure TFBrowseImages.SetCurrentDirectory(AValue: string);
 begin
   DirectoryEdit1.Text := AValue;
@@ -717,7 +724,8 @@ end;
 
 function TFBrowseImages.AdaptExtension: boolean;
 begin
-  If (ExtractFileExt(Edit_Filename.Text) <> '') and (ComboBox_FileExtension.ItemIndex > 0) then
+  If (Trim(Edit_Filename.Text) <> '') and (ComboBox_FileExtension.ItemIndex > 0) and not
+    FileManager.IsDirectory(CurrentFullname) then
   begin
     Edit_Filename.Text := ApplySelectedFilterExtension(Edit_Filename.Text, '?|'+CurrentExtensionFilter,1);
     result := true;
@@ -1065,10 +1073,12 @@ begin
     if IsSaveDialog and (Trim(Edit_Filename.Text)<>'') and (CurrentDirectory <> ':') and
       FileManager.IsDirectory(trim(CurrentDirectory)) then
     begin
-      FFilename:= IncludeTrailingPathDelimiter(trim(CurrentDirectory))+Edit_Filename.Text;
+      FFilename:= CurrentFullname;
       if (ExtractFileExt(FFilename)='') then
       begin
-        if not AdaptExtension then
+        if AdaptExtension then
+          FFilename:= CurrentFullname
+        else
           if DefaultExtension <> '' then
             FFilename += DefaultExtension;
       end;
