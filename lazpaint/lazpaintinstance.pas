@@ -294,6 +294,8 @@ end;
 
 procedure TLazPaintInstance.StartSavingImage(AFilename: string);
 begin
+  Screen.Cursor := crHourGlass;
+  UpdateWindows;
   FSavingFilename:= AFilename;
   if not FInCommandLine then
     BGRALayers.RegisterSavingHandler(@OnLayeredBitmapSaveStartHandler,@OnLayeredBitmapSaveProgressHandler,@OnLayeredBitmapSavedHandler);
@@ -304,6 +306,8 @@ begin
   BGRALayers.UnregisterSavingHandler(@OnLayeredBitmapSaveStartHandler,@OnLayeredBitmapSaveProgressHandler,@OnLayeredBitmapSavedHandler);
   FreeAndNil(FLoadingLayers);
   FSavingFilename:= '';
+  Screen.Cursor := crDefault;
+  UpdateWindows;
 end;
 
 procedure TLazPaintInstance.Donate;

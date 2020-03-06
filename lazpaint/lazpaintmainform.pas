@@ -1698,7 +1698,9 @@ begin
       try
         if SuggestImageFormat(Image.currentFilenameUTF8) in [ifIco,ifCur,ifTiff,ifGif] then
         begin
+           LazPaintInstance.StartSavingImage(Image.currentFilenameUTF8);
            Image.UpdateMultiImage;
+           LazPaintInstance.EndSavingImage;
            AVars.Strings['Result'] := Image.currentFilenameUTF8;
            result := srOk;
         end
