@@ -82,6 +82,7 @@ var lColor: TBGRAPixel;
   idx: integer;
   fullPatternName, attr: string;
   i: integer;
+  ratio: single;
 begin
   fullPatternName:= APattern;
   for i := 0 to high(FPatterns) do
@@ -101,7 +102,7 @@ begin
     result := GetBitmapThumbnail(PatternOver,AWidth,AHeight,BGRAPixelTransparent,ACheckers) as TBGRABitmap;
   end else
   begin
-    result := TBGRABitmap.Create(FComputedWidth,FComputedHeight,BGRABlack);
+    result := TBGRABitmap.Create(AWidth,AHeight, BGRABlack);
     lColor := BGRAWhite;
     idx := pos('.',APattern);
     if idx <> 0 then
