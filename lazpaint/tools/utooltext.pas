@@ -246,7 +246,7 @@ end;
 
 function TToolText.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctFill,ctText];
+  Result:= [ctPenFill,ctBackFill,ctText];
   if Manager.TextPhong then include(result, ctAltitude);
 end;
 

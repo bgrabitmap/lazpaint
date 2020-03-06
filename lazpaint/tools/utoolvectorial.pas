@@ -870,7 +870,7 @@ function TEditShapeTool.GetContextualToolbars: TContextualToolbars;
 var
   shape: TVectorShape;
 begin
-  Result:= [ctFill];
+  Result:= [ctPenFill, ctBackFill];
   case GetEditMode of
   esmShape:
     begin

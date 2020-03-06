@@ -168,7 +168,7 @@ end;
 
 function TToolFloodFill.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctFill,ctTolerance];
+  Result:= [ctPenFill,ctBackFill,ctTolerance];
 end;
 
 initialization

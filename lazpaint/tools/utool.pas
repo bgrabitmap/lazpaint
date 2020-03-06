@@ -35,7 +35,7 @@ const
 function StrToPaintToolType(const s: ansistring): TPaintToolType;
 
 type
-  TContextualToolbar = (ctFill, ctBackFill, ctPenWidth, ctPenStyle, ctAliasing, ctShape, ctEraserOption, ctTolerance,
+  TContextualToolbar = (ctPenFill, ctBackFill, ctPenWidth, ctPenStyle, ctAliasing, ctShape, ctEraserOption, ctTolerance,
     ctDeformation, ctCloseShape, ctLineCap, ctJoinStyle, ctSplineStyle, ctText, ctTextShadow,
     ctPhong, ctAltitude, ctPerspective, ctBrush, ctRatio);
   TContextualToolbars = set of TContextualToolbar;
@@ -1172,7 +1172,7 @@ end;
 
 function TGenericTool.GetContextualToolbars: TContextualToolbars;
 begin
-  result := [ctFill];
+  result := [ctPenFill, ctBackFill];
 end;
 
 function TGenericTool.GetToolDrawingLayer: TBGRABitmap;
@@ -3023,14 +3023,17 @@ begin
   end
   else
   begin
-    contextualToolbars := [ctFill];
+    contextualToolbars := [ctPenFill, ctBackFill];
     hasPen := false;
   end;
 
-  if ctBackFill in contextualToolbars then
-    OrResult(SetControlsVisible(FillControls, True, 'Panel_BackFill'))
+  if (ctBackFill in contextualToolbars) and not (ctPenFill in contextualToolbars) then
+    OrResult(SetControlsVisible(FillControls, True, 'Panel_BackFill')) else
+  if (ctPenFill in contextualToolbars) and not (ctBackFill in contextualToolbars) then
+    OrResult(SetControlsVisible(FillControls, True, 'Panel_PenFill'))
   else
-    OrResult(SetControlsVisible(FillControls, ctFill in contextualToolbars));
+    OrResult(SetControlsVisible(FillControls, (ctPenFill in contextualToolbars) and (ctBackFill in contextualToolbars)));
+
   OrResult(SetControlsVisible(BrushControls, ctBrush in contextualToolbars));
   OrResult(SetControlsVisible(ShapeControls, ctShape in contextualToolbars));
   OrResult(SetControlsVisible(PenWidthControls, (ctPenWidth in contextualToolbars) and hasPen));
