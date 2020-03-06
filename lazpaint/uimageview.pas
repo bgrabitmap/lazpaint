@@ -160,7 +160,7 @@ begin
 
   if not Assigned(FVirtualScreen) then
     FVirtualScreen := TBGRABitmap.Create(FLastPictureParameters.virtualScreenArea.Right-FLastPictureParameters.virtualScreenArea.Left,
-                                        FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top);
+                                        FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top, WorkspaceColor);
 
   if picParamWereDefined then FVirtualScreen.ClipRect := GetRenderUpdateRectVS(False);
   Image.ResetRenderUpdateRect;
