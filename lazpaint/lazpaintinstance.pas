@@ -1462,17 +1462,20 @@ begin
   if Assigned(FLayerStack) and (AInfo.layerstackHidden > 0) then
   begin
     FLayerStack.Show;
+    FLayerStack.BringToFront;
     FLayerStack.InvalidateStack(False);
     dec(FTopMostInfo.layerstackHidden);
   end;
   if Assigned(FChooseColor) and (AInfo.choosecolorHidden > 0) then
   begin
     FChooseColor.Show;
+    FChooseColor.BringToFront;
     dec(FTopMostInfo.choosecolorHidden);
   end;
   if Assigned(FFormToolbox) and (AInfo.toolboxHidden > 0) then
   begin
     FFormToolbox.Show;
+    FFormToolbox.BringToFront;
     dec(FTopMostInfo.toolboxHidden);
   end;
 end;
