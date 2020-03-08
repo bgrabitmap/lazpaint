@@ -22,10 +22,12 @@ type
     FFontEmHeightBefore: single;
     FFontNameBefore: string;
     FFontStyleBefore: TFontStyles;
+    FAliasedBefore: boolean;
     FFontBidiModeAfter: TFontBidiMode;
     FFontEmHeightAfter: single;
     FFontNameAfter: string;
     FFontStyleAfter: TFontStyles;
+    FAliasedAfter: boolean;
   public
     constructor Create(AStartShape: TVectorShape); override;
     procedure ComputeDiff(AEndShape: TVectorShape); override;
@@ -79,6 +81,7 @@ type
 
   TTextShape = class(TCustomRectShape)
   private
+    FAliased: boolean;
     FAltitudePercent: single;
     FPenPhong: boolean;
     FLightPosition: TPointF;
@@ -99,6 +102,7 @@ type
     function GetParagraphAlignment: TAlignment;
     procedure OnMoveLightPos({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF;
       {%H-}AShift: TShiftState);
+    procedure SetAliased(AValue: boolean);
     procedure SetAltitudePercent(AValue: single);
     procedure SetPenPhong(AValue: boolean);
     procedure SetFontBidiMode(AValue: TFontBidiMode);
@@ -181,6 +185,7 @@ type
     property PenPhong: boolean read FPenPhong write SetPenPhong;
     property LightPosition: TPointF read FLightPosition write SetLightPosition;
     property AltitudePercent: single read FAltitudePercent write SetAltitudePercent;
+    property Aliased: boolean read FAliased write SetAliased;
   end;
 
 function FontStyleToStr(AStyle: TFontStyles): string;
@@ -420,6 +425,7 @@ begin
     FFontEmHeightBefore:= FFontEmHeight;
     FFontNameBefore:= FFontName;
     FFontStyleBefore:= FFontStyle;
+    FAliasedBefore := FAliased;
   end;
 end;
 
@@ -431,6 +437,7 @@ begin
     FFontEmHeightAfter:= FFontEmHeight;
     FFontNameAfter:= FFontName;
     FFontStyleAfter:= FFontStyle;
+    FAliasedAfter := FAliased;
   end;
 end;
 
@@ -443,6 +450,7 @@ begin
     FFontEmHeight := FFontEmHeightAfter;
     FFontName := FFontNameAfter;
     FFontStyle := FFontStyleAfter;
+    FAliased := FAliasedAfter;
     if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
     EndUpdate;
   end;
@@ -457,6 +465,7 @@ begin
     FFontEmHeight := FFontEmHeightBefore;
     FFontName := FFontNameBefore;
     FFontStyle := FFontStyleBefore;
+    FAliased := FAliasedBefore;
     if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
     EndUpdate;
   end;
@@ -471,6 +480,7 @@ begin
   FFontEmHeightAfter := next.FFontEmHeightAfter;
   FFontNameAfter := next.FFontNameAfter;
   FFontStyleAfter := next.FFontStyleAfter;
+  FAliasedAfter := next.FAliasedAfter;
 end;
 
 function TTextShapeFontDiff.IsIdentity: boolean;
@@ -478,7 +488,8 @@ begin
   result := (FFontBidiModeBefore = FFontBidiModeAfter) and
     (FFontEmHeightBefore = FFontEmHeightAfter) and
     (FFontNameBefore = FFontNameAfter) and
-    (FFontStyleBefore = FFontStyleAfter);
+    (FFontStyleBefore = FFontStyleAfter) and
+    (FAliasedBefore = FAliasedAfter);
 end;
 
 { TTextShape }
@@ -545,6 +556,14 @@ procedure TTextShape.OnMoveLightPos(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
 begin
   LightPosition := ANewCoord;
+end;
+
+procedure TTextShape.SetAliased(AValue: boolean);
+begin
+  if FAliased=AValue then Exit;
+  BeginUpdate(TTextShapeFontDiff);
+  FAliased:=AValue;
+  EndUpdate;
 end;
 
 procedure TTextShape.SetAltitudePercent(AValue: single);
@@ -960,6 +979,7 @@ begin
   FPenPhong:= false;
   FAltitudePercent:= DefaultAltitudePercent;
   FLightPosition := PointF(0,0);
+  FAliased := false;
 end;
 
 procedure TTextShape.QuickDefine(constref APoint1, APoint2: TPointF);
@@ -1019,6 +1039,8 @@ begin
   end else
     SetDefaultFont;
 
+  Aliased := AStorage.Bool['aliased'];
+
   phongObj := AStorage.OpenObject('pen-phong');
   PenPhong := Assigned(phongObj);
   if PenPhong then
@@ -1064,6 +1086,7 @@ begin
   font.RawString['bidi'] := FontBidiModeToStr(FontBidiMode);
   font.RawString['style'] := FontStyleToStr(FontStyle);
   font.Free;
+  AStorage.Bool['aliased'] := Aliased;
 
   if PenPhong then
   begin
@@ -1283,7 +1306,7 @@ begin
     ctx := tmpTransf.Canvas2D;
     ctx.transform(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m);
     ctx.fillMode := fmWinding;
-    ctx.antialiasing:= not ADraft;
+    ctx.antialiasing:= not ADraft and not Aliased;
     ctx.beginPath;
     tl.PathText(ctx);
     ctx.resetTransform;
@@ -1366,7 +1389,7 @@ begin
     ADest.PutImage(transfRect.Left, transfRect.Top, tmpTransf, dmDrawWithTransparency);
   end else
   begin
-    if ADraft then rf := rfBox else rf := rfHalfCosine;
+    if ADraft or Aliased then rf := rfBox else rf := rfHalfCosine;
     if storeImage then
       tmpTransf := TBGRABitmap.Create(transfRect.Width,transfRect.Height)
     else

@@ -447,7 +447,6 @@ begin
     if AShape is TCurveShape then
       Manager.SplineStyle := TCurveShape(AShape).SplineStyle;
   end;
-  Manager.ShapeOptions := opt;
 
   if AShape is TTextShape then
   with TTextShape(AShape) do
@@ -464,7 +463,11 @@ begin
       Manager.SetTextOutline(true, OutlineWidth);
       Manager.BackFill.Assign(OutlineFill);
     end;
+    if Aliased then
+      include(opt,toAliasing)
+      else exclude(opt,toAliasing);
   end;
+  Manager.ShapeOptions := opt;
 
   if AShape is TPhongShape then
   with TPhongShape(AShape) do
@@ -663,6 +666,7 @@ begin
           AssignFill(OutLineFill, Manager.BackFill, gradBox, BackFitMode);
         end else
           OutlineFill.Clear;
+        Aliased := Manager.ShapeOptionAliasing;
       end;
       if SelectedShape is TPhongShape then
       with TPhongShape(SelectedShape) do
@@ -882,7 +886,7 @@ begin
       else if shape is TPhongShape then result := result + [ctPhong,ctAltitude]
       else if shape is TTextShape then
       begin
-        result := result + [ctText];
+        result := result + [ctText,ctAliasing];
         if TTextShape(shape).PenPhong then include(result, ctAltitude);
       end;
     end;

@@ -160,6 +160,7 @@ begin
     FontEmHeight:= zoom*Manager.TextFontSize*Manager.Image.DPI/72;
     FontName:= Manager.TextFontName;
     FontStyle:= Manager.TextFontStyle;
+    Aliased := Manager.ShapeOptionAliasing;
     gradBox := self.SuggestGradientBox;
 
     if AAlwaysFit then fitMode := fmAlways else fitMode := ForeFitMode;
@@ -246,7 +247,7 @@ end;
 
 function TToolText.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctPenFill,ctBackFill,ctText];
+  Result:= [ctPenFill,ctBackFill,ctText,ctAliasing];
   if Manager.TextPhong then include(result, ctAltitude);
 end;
 
