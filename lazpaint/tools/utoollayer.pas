@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, UTool, BGRABitmap, BGRABitmapTypes,
   BGRATransform, BGRALayers, ULayerAction, UImageDiff,
-  UImageType;
+  UImageType, UStateType;
 
 type
   { TToolMoveLayer }
@@ -570,17 +570,22 @@ end;
 procedure TToolTransformLayer.ValidateTransform;
 var
   transform: TAffineMatrix;
+  layerIdx: Integer;
+  invTransformDiff: TCustomImageDifference;
+  r: TRect;
 begin
   if FOriginalInit then
   begin
     if Assigned(FBackupLayer) then
     begin
-      transform := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
-      Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] := FInitialOriginalMatrix;
-      Manager.Image.CurrentState.LayeredBitmap.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] := transform;
-      Manager.Image.CurrentState.LayeredBitmap.RenderLayerFromOriginal(Manager.Image.CurrentLayerIndex);
+      layerIdx := Manager.Image.CurrentLayerIndex;
+      transform := Manager.Image.LayerOriginalMatrix[layerIdx];
+      invTransformDiff := Manager.Image.CurrentState.ComputeLayerMatrixDifference(layerIdx,
+                          transform, FInitialOriginalMatrix);
       FBackupLayer.nextMatrix := transform;
+      Manager.Image.AddUndo(invTransformDiff);
       Manager.Image.AddUndo(FBackupLayer);
+      Manager.Image.CurrentState.LayeredBitmap.RenderLayerFromOriginalIfNecessary(layerIdx, false, r);
       FBackupLayer := nil;
     end;
     FOriginalInit := false;
