@@ -228,9 +228,9 @@ object FMain: TFMain
     Left = 608
     Height = 36
     Top = 144
-    Width = 98
+    Width = 105
     ClientHeight = 36
-    ClientWidth = 98
+    ClientWidth = 105
     Font.Height = -12
     ParentColor = False
     ParentFont = False
@@ -252,7 +252,7 @@ object FMain: TFMain
       Height = 20
       Hint = 'Pen width'
       Top = 2
-      Width = 46
+      Width = 53
       AllowNegativeValues = False
       BarExponent = 1
       Increment = 1
@@ -718,9 +718,9 @@ object FMain: TFMain
     Left = 608
     Height = 36
     Top = 8
-    Width = 72
+    Width = 75
     ClientHeight = 36
-    ClientWidth = 72
+    ClientWidth = 75
     Font.Height = -12
     ParentColor = False
     ParentFont = False
@@ -731,7 +731,7 @@ object FMain: TFMain
       Height = 20
       Hint = 'Coordinates'
       Top = 2
-      Width = 62
+      Width = 66
       Alignment = taCenter
       AutoSize = False
       Caption = '9999x9999'
