@@ -751,8 +751,10 @@ type
 
     function GetCurrentPressure: single;
     function GetDarkTheme: boolean;
+    function GetUpdatingPopup: boolean;
     function GetUseImageBrowser: boolean;
     procedure SetDarkTheme(AValue: boolean);
+    procedure SetUpdatingPopup(AValue: boolean);
     procedure UpdateStatusText;
     procedure CreateToolbarElements;
     function GetCurrentToolAction: TAction;
@@ -889,6 +891,7 @@ type
     property CurrentPressure: single read GetCurrentPressure;
     property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
     property Initialized: boolean read FInitialized;
+    property UpdatingPopup: boolean read GetUpdatingPopup write SetUpdatingPopup;
   end;
 
 implementation
@@ -4590,6 +4593,11 @@ begin
   end;
 end;
 
+procedure TFMain.SetUpdatingPopup(AValue: boolean);
+begin
+  FImageView.UpdatingPopup := AValue;
+end;
+
 function TFMain.GetCurrentPressure: single;
 begin
   if Assigned(FTablet) and FTablet.Present and FTablet.Entering and (FTablet.Max > 0) then
@@ -4602,6 +4610,11 @@ function TFMain.GetDarkTheme: boolean;
 begin
   if Assigned(FLayout) then result := FLayout.DarkTheme
   else result := false;
+end;
+
+function TFMain.GetUpdatingPopup: boolean;
+begin
+  result := FImageView.UpdatingPopup;
 end;
 
 function TFMain.GetScriptContext: TScriptContext;

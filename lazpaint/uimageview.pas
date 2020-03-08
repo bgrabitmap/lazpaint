@@ -16,6 +16,7 @@ type
   TImageView = class
   protected
     FVirtualScreen : TBGRABitmap;
+    FUpdatingPopup: boolean;
     FPenCursorVisible: boolean;
     FPenCursorPos,FPenCursorPosBefore: TVSCursorPosition;
     FQueryPaintVirtualScreen: boolean;
@@ -73,6 +74,7 @@ type
     property ShowSelection: boolean read FShowSelection write SetShowSelection;
     property WorkspaceColor: TColor read GetWorkspaceColor;
     property PictureCoordsDefined: boolean read GetPictureCoordsDefined;
+    property UpdatingPopup: boolean read FUpdatingPopup write FUpdatingPopup;
   end;
 
 implementation
@@ -159,29 +161,36 @@ begin
     FreeAndNil(FVirtualScreen);
 
   if not Assigned(FVirtualScreen) then
+  begin
     FVirtualScreen := TBGRABitmap.Create(FLastPictureParameters.virtualScreenArea.Right-FLastPictureParameters.virtualScreenArea.Left,
                                         FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top, WorkspaceColor);
-
-  if picParamWereDefined then FVirtualScreen.ClipRect := GetRenderUpdateRectVS(False);
-  Image.ResetRenderUpdateRect;
-
-  if not FVirtualScreen.ClipRect.IsEmpty then
+  end else
   begin
-    renderRect := FLastPictureParameters.scaledArea;
-    OffsetRect(renderRect, -FLastPictureParameters.virtualScreenArea.Left,
-                           -FLastPictureParameters.virtualScreenArea.Top);
-
-    DrawThumbnailCheckers(FVirtualScreen,renderRect,Image.IsIconCursor);
-
-    //draw image (with merged selection)
-    FVirtualScreen.StretchPutImage(renderRect,Image.RenderedImage,dmDrawWithTransparency);
-    if (Zoom.Factor > DoScaleX(MinZoomForGrid, OriginalDPI)) and LazPaintInstance.GridVisible then
-      DrawGrid(FVirtualScreen,FLastPictureParameters.zoomFactorX,FLastPictureParameters.zoomFactorY,
-         FLastPictureParameters.originInVS.X,FLastPictureParameters.originInVS.Y);
-
-    DrawSelectionHighlight(renderRect);
+    if picParamWereDefined then FVirtualScreen.ClipRect := GetRenderUpdateRectVS(False);
   end;
-  FVirtualScreen.NoClip;
+
+  if not FUpdatingPopup then
+  begin
+    Image.ResetRenderUpdateRect;
+
+    if not FVirtualScreen.ClipRect.IsEmpty then
+    begin
+      renderRect := FLastPictureParameters.scaledArea;
+      OffsetRect(renderRect, -FLastPictureParameters.virtualScreenArea.Left,
+                             -FLastPictureParameters.virtualScreenArea.Top);
+
+      DrawThumbnailCheckers(FVirtualScreen,renderRect,Image.IsIconCursor);
+
+      //draw image (with merged selection)
+      FVirtualScreen.StretchPutImage(renderRect,Image.RenderedImage,dmDrawWithTransparency);
+      if (Zoom.Factor > DoScaleX(MinZoomForGrid, OriginalDPI)) and LazPaintInstance.GridVisible then
+        DrawGrid(FVirtualScreen,FLastPictureParameters.zoomFactorX,FLastPictureParameters.zoomFactorY,
+           FLastPictureParameters.originInVS.X,FLastPictureParameters.originInVS.Y);
+
+      DrawSelectionHighlight(renderRect);
+    end;
+    FVirtualScreen.NoClip;
+  end;
 
   //show tools info
   LazPaintInstance.ToolManager.RenderTool(FVirtualScreen);

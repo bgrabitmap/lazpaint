@@ -165,12 +165,14 @@ begin
 
   FDockedControlsPanel := TPanel.Create(nil);
   FDockedControlsPanel.Visible := false;
+  FDockedControlsPanel.Anchors:= [akRight,akTop,akBottom];
   FForm.InsertControl(FDockedControlsPanel);
 
   FStatusBar := TStatusBar.Create(nil);
   FStatusBar.SizeGrip := false;
   FStatusBar.Align := alNone;
   FStatusBar.Visible := false;
+  FStatusBar.Anchors := [akLeft,akRight,akBottom];
   FForm.InsertControl(FStatusBar);
 
   ApplyTheme;
@@ -446,8 +448,15 @@ begin
       w := FDockedToolBoxToolBar.ButtonWidth * nbX+2;
       FDockedToolBoxToolBar.Width := w;
       FPanelToolBox.Width := w;
-      if FToolBoxDocking = twLeft then FPanelToolBox.Left:= Left
-      else FPanelToolBox.Left:= Right-FPanelToolBox.Width;
+      if FToolBoxDocking = twLeft then
+      begin
+        FPanelToolBox.Left:= Left;
+        FPanelToolBox.Anchors:= [akLeft,akTop,akBottom];
+      end else
+      begin
+        FPanelToolBox.Left:= Right-FPanelToolBox.Width;
+        FPanelToolBox.Anchors:= [akRight,akTop,akBottom];
+      end;
       for i := 0 to FDockedToolBoxToolBar.ButtonCount-1 do
         FDockedToolBoxToolBar.Buttons[i].Top := i*FDockedToolBoxToolBar.ButtonHeight;
     end;

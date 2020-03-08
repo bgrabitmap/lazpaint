@@ -657,8 +657,13 @@ var
   delay: Integer;
 begin
   if AProgressPercent < 100 then delay := 10000 else delay := 1000;
-  MessagePopup(rsActionInProgress+'... '+inttostr(AProgressPercent)+'%', delay);
-  UpdateWindows;
+  if Assigned(FMain) then FMain.UpdatingPopup:= true;
+  try
+    MessagePopup(rsActionInProgress+'... '+inttostr(AProgressPercent)+'%', delay);
+    UpdateWindows;
+  finally
+    if Assigned(FMain) then FMain.UpdatingPopup:= false;
+  end;
 end;
 
 function TLazPaintInstance.GetInitialized: boolean;
@@ -796,8 +801,13 @@ procedure TLazPaintInstance.OnLayeredBitmapLoadStartHandler(AFilenameUTF8: strin
 begin
   if FLoadingLayers = nil then FLoadingLayers := TFLoading.Create(nil);
   if (AFilenameUTF8 = '<Stream>') and (FLoadingFilename <> '') then AFilenameUTF8 := FLoadingFilename;
-  FLoadingLayers.ShowMessage(rsOpening+' ' +AFilenameUTF8+'...');
-  UpdateWindows;
+  if Assigned(FMain) then FMain.UpdatingPopup:= true;
+  try
+    FLoadingLayers.ShowMessage(rsOpening+' ' +AFilenameUTF8+'...');
+    UpdateWindows;
+  finally
+    if Assigned(FMain) then FMain.UpdatingPopup:= false;
+  end;
 end;
 
 procedure TLazPaintInstance.OnLayeredBitmapLoadProgressHandler(
@@ -805,8 +815,13 @@ procedure TLazPaintInstance.OnLayeredBitmapLoadProgressHandler(
 begin
   if FLoadingLayers <> nil then
   begin
-    FLoadingLayers.ShowMessage(rsLoading+' (' +inttostr(APercentage)+'%)');
-    UpdateWindows;
+    if Assigned(FMain) then FMain.UpdatingPopup:= true;
+    try
+      FLoadingLayers.ShowMessage(rsLoading+' (' +inttostr(APercentage)+'%)');
+      UpdateWindows;
+    finally
+      if Assigned(FMain) then FMain.UpdatingPopup:= false;
+    end;
   end;
 end;
 
@@ -814,8 +829,13 @@ procedure TLazPaintInstance.OnLayeredBitmapLoadedHandler;
 begin
   if FLoadingLayers <> nil then
   begin
-    FreeAndNil(FLoadingLayers);
-    UpdateWindows;
+    if Assigned(FMain) then FMain.UpdatingPopup:= true;
+    try
+      FreeAndNil(FLoadingLayers);
+      UpdateWindows;
+    finally
+      if Assigned(FMain) then FMain.UpdatingPopup:= false;
+    end;
   end;
 end;
 
@@ -823,8 +843,13 @@ procedure TLazPaintInstance.OnLayeredBitmapSavedHandler();
 begin
   if FLoadingLayers <> nil then
   begin
-    FreeAndNil(FLoadingLayers);
-    UpdateWindows;
+    if Assigned(FMain) then FMain.UpdatingPopup:= true;
+    try
+      FreeAndNil(FLoadingLayers);
+      UpdateWindows;
+    finally
+      if Assigned(FMain) then FMain.UpdatingPopup:= false;
+    end;
   end;
 end;
 
@@ -833,8 +858,13 @@ procedure TLazPaintInstance.OnLayeredBitmapSaveProgressHandler(
 begin
   if FLoadingLayers <> nil then
   begin
-    FLoadingLayers.ShowMessage(rsSave+' (' +inttostr(APercentage)+'%)');
-    UpdateWindows;
+    if Assigned(FMain) then FMain.UpdatingPopup:= true;
+    try
+      FLoadingLayers.ShowMessage(rsSave+' (' +inttostr(APercentage)+'%)');
+      UpdateWindows;
+    finally
+      if Assigned(FMain) then FMain.UpdatingPopup:= false;
+    end;
   end;
 end;
 
@@ -843,8 +873,13 @@ procedure TLazPaintInstance.OnLayeredBitmapSaveStartHandler(
 begin
   if FLoadingLayers = nil then FLoadingLayers := TFLoading.Create(nil);
   if (AFilenameUTF8 = '<Stream>') and (FSavingFilename <> '') then AFilenameUTF8 := FSavingFilename;
-  FLoadingLayers.ShowMessage(rsSave+' ' +AFilenameUTF8+'...');
-  UpdateWindows;
+  if Assigned(FMain) then FMain.UpdatingPopup:= true;
+  try
+    FLoadingLayers.ShowMessage(rsSave+' ' +AFilenameUTF8+'...');
+    UpdateWindows;
+  finally
+    if Assigned(FMain) then FMain.UpdatingPopup:= false;
+  end;
 end;
 
 procedure TLazPaintInstance.PythonBusy(Sender: TObject);

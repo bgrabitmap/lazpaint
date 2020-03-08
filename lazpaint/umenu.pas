@@ -557,6 +557,7 @@ begin
      FToolbarBackground.Left := 0;
      FToolbarBackground.width := ClientWidth;
      FToolbarBackground.Height := FToolbarsHeight;
+     FToolbarBackground.Anchors:= [akLeft,akTop,akRight];
      FToolbarBackground.Visible := true;
    end;
 end;
