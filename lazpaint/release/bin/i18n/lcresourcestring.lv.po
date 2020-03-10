@@ -1,9 +1,19 @@
 msgid ""
-msgstr "Content-Type: text/plain; charset=UTF-8"
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Kārlis Kalviškis <karlo@lu.lv>\n"
+"Language-Team: \n"
+"Language: lv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.2.1\n"
 
 #: lcresourcestring.rsadjusttoshape
 msgid "Adjust to shape"
-msgstr ""
+msgstr "Pielāgot objektam"
 
 #: lcresourcestring.rscigsbnegative
 msgid "Corr. HSL CCW"
@@ -35,19 +45,19 @@ msgstr "Krāsa"
 
 #: lcresourcestring.rscolorinterpolation
 msgid "Color interpolation"
-msgstr ""
+msgstr "Krāsu pārejas veids"
 
 #: lcresourcestring.rseditgradtexpoints
 msgid "Edit gradient/texture points"
-msgstr ""
+msgstr "Labot izvietojuma punktus"
 
 #: lcresourcestring.rsendopacity
 msgid "End opacity"
-msgstr ""
+msgstr "Beigu redzamība"
 
 #: lcresourcestring.rsgradientangular
 msgid "Angular"
-msgstr ""
+msgstr "Leņķiska"
 
 #: lcresourcestring.rsgradientdiamond
 msgid "Diamond"
@@ -71,19 +81,19 @@ msgstr "Spoguļveida"
 
 #: lcresourcestring.rsgradientrepetition
 msgid "Gradient repetition"
-msgstr ""
+msgstr "Toņu pārejas atkārtošanās"
 
 #: lcresourcestring.rsgrpad
 msgid "Pad"
-msgstr ""
+msgstr "Aizpilda"
 
 #: lcresourcestring.rsgrreflect
 msgid "Reflect"
-msgstr ""
+msgstr "Spoguļskats"
 
 #: lcresourcestring.rsgrrepeat
 msgid "Repeat"
-msgstr ""
+msgstr "Atkārtojas"
 
 #: lcresourcestring.rsgrsine
 msgid "Sine"
@@ -91,11 +101,11 @@ msgstr "Viļnveida"
 
 #: lcresourcestring.rsincompatibletype
 msgid "Incompatible type"
-msgstr ""
+msgstr "Nesaderīgs veids"
 
 #: lcresourcestring.rsindexoutofbounds
 msgid "Index out of bounds"
-msgstr ""
+msgstr "Vērtība ārpus atļautā"
 
 #: lcresourcestring.rslightposition
 msgid "Light position"
@@ -107,11 +117,11 @@ msgstr "Ielasīt virsmas rakstu"
 
 #: lcresourcestring.rsnofill
 msgid "No fill"
-msgstr ""
+msgstr "Bez pildījuma"
 
 #: lcresourcestring.rsnottexturefill
 msgid "It is not a texture fill"
-msgstr ""
+msgstr "Nav aizpildīts ar rakstu"
 
 #: lcresourcestring.rsopacity
 msgid "Opacity"
@@ -123,19 +133,19 @@ msgstr "Priekšskatīt"
 
 #: lcresourcestring.rsshapeclassnotspecified
 msgid "Shape class not specified"
-msgstr ""
+msgstr "Nav norādīta objekta klase"
 
 #: lcresourcestring.rsshapenotfound
 msgid "Shape not found"
-msgstr ""
+msgstr "Objekts netika atrasts"
 
 #: lcresourcestring.rssolidcolor
 msgid "Solid color"
-msgstr ""
+msgstr "Viendabīga krāsa"
 
 #: lcresourcestring.rsstartopacity
 msgid "Start opacity"
-msgstr ""
+msgstr "Sākuma redzamība"
 
 #: lcresourcestring.rsswapcolors
 msgid "Swap colors"
@@ -143,29 +153,28 @@ msgstr "Apmainīt krāsas vietām"
 
 #: lcresourcestring.rstexturefill
 msgid "Texture fill"
-msgstr ""
+msgstr "Aizpildīt ar rakstu"
 
 #: lcresourcestring.rstexturerepetition
 msgid "Texture repetition"
-msgstr ""
+msgstr "Raksta atkārtošana"
 
 #: lcresourcestring.rstrnone
 msgid "No repetition"
-msgstr ""
+msgstr "Neatkārtot"
 
 #: lcresourcestring.rstrrepeatboth
 msgid "Repeat both"
-msgstr ""
+msgstr "Atkārtot abējādi"
 
 #: lcresourcestring.rstrrepeatx
 msgid "Repeat X"
-msgstr ""
+msgstr "Atkārtot uz sāniem"
 
 #: lcresourcestring.rstrrepeaty
 msgid "Repeat Y"
-msgstr ""
+msgstr "Atkārtot uz augšu/leju"
 
 #: lcresourcestring.rsunknownshapeclass
 msgid "Unknown shape class \"%1\""
-msgstr ""
-
+msgstr "Nepazīstama objekta klase \"%1\""
