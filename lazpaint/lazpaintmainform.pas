@@ -3930,6 +3930,11 @@ begin
     btnRightDown := false;
     if ToolManager.ToolUp then PaintPictureNow;
   end;
+  if not (ssMiddle in Shift) and btnMiddleDown then
+  begin
+    btnMiddleDown := false;
+    if ToolManager.ToolUp then PaintPictureNow;
+  end;
   if not btnLeftDown and not btnRightDown then
   begin
     CanCompressOrUpdateStack := true;
