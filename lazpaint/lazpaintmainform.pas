@@ -1032,8 +1032,13 @@ begin
   FreeAndNil(FBrowseImages);
   FreeAndNil(FBrowseTextures);
   FreeAndNil(FBrowseBrushes);
-  if Assigned(FSaveImage) and Config.DefaultRememberSaveFormat then
-    Config.SetSaveExtensions(FSaveImage.DefaultExtensions);
+  if Config.DefaultRememberSaveFormat then
+  begin
+    if Assigned(FSaveImage) and Config.DefaultRememberSaveFormat and Config.DefaultUseImageBrowser then
+      Config.SetSaveExtensions(FSaveImage.DefaultExtensions)
+    else
+      Config.SetSaveExtensions(GetExtensionFilterByIndex([eoWritable], SavePictureDialog1.FilterIndex));
+  end;
   FreeAndNil(FSaveImage);
   FreeAndNil(FSaveSelection);
 
@@ -1068,6 +1073,16 @@ begin
   if Config.DefaultRememberStartupSourceDirectory then
     FLoadInitialDir := Config.DefaultStartupSourceDirectory;
   FileRememberSaveFormat.Checked:= Config.DefaultRememberSaveFormat;
+
+  if Config.DefaultRememberSaveFormat then
+  begin
+    SavePictureDialog1.FilterIndex := GetExtensionFilterIndex([eoWritable], Config.DefaultSaveExtensions);
+    ExportPictureDialog.FilterIndex:= SavePictureDialog1.FilterIndex;
+  end else
+  begin
+    SavePictureDialog1.FilterIndex := 1;
+    ExportPictureDialog.FilterIndex:= 1;
+  end;
 
   FImageView := TImageView.Create(LazPaintInstance, Zoom,
                 {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture.Canvas{$ELSE}self.Canvas{$ENDIF});

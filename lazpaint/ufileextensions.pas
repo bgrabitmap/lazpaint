@@ -29,6 +29,8 @@ function GetSelectedFilterExtensions(const Filter: string; FilterIndex: integer;
 function ApplySelectedFilterExtension(const FileName: string; const Filter: string; FilterIndex: integer): string;
 
 function GetExtensionFilter(AOption: TExtensionOptions; ADisplayPrefix: string = '*.'): string;
+function GetExtensionFilterIndex(AOption: TExtensionOptions; AExtensions: string): integer;
+function GetExtensionFilterByIndex(AOption: TExtensionOptions; AIndex: integer): string;
 
 procedure RegisterPicExt(AName: string; AExtensionsWithoutDot: string; AOptions: TExtensionOptions);
 
@@ -137,6 +139,35 @@ begin
     result := rsAllSupportedFiletypes + ' (' + ADisplayPrefix+ '*)|' + allExtFilter + result
   else
     result := rsAllSupportedFiletypes + ' (' + allExtWithoutDot + ')|' + allExtFilter + result;
+end;
+
+function GetExtensionFilterIndex(AOption: TExtensionOptions; AExtensions: string): integer;
+var
+  i: Integer;
+begin
+  result := 2;
+  for i := 0 to high(PictureFileExtensions) do
+    if (PictureFileExtensions[i].options * AOption = AOption) and
+     (PictureFileExtensions[i].filterForAllCases <> '') then
+    begin
+      if PictureFileExtensions[i].filterForAllCases = AExtensions then exit;
+      inc(result);
+    end;
+  result := 1;
+end;
+
+function GetExtensionFilterByIndex(AOption: TExtensionOptions; AIndex: integer): string;
+var curIndex, i: integer;
+begin
+  curIndex := 2;
+  for i := 0 to high(PictureFileExtensions) do
+    if (PictureFileExtensions[i].options * AOption = AOption) and
+     (PictureFileExtensions[i].filterForAllCases <> '') then
+    begin
+      if curIndex = AIndex then exit(PictureFileExtensions[i].filterForAllCases);
+      inc(curIndex);
+    end;
+  result := '*.*';
 end;
 
 function GetBit(Value: QWord; Index: Byte): Boolean;
