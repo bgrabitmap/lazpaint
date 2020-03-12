@@ -333,7 +333,7 @@
     <RequiredPackages Count="5">
       <Item1>
         <PackageName Value="BGRABitmapPack"/>
-        <MinVersion Major="10" Minor="6" Release="5" Valid="True"/>
+        <MinVersion Major="10" Minor="7" Valid="True"/>
       </Item1>
       <Item2>
         <PackageName Value="bgracontrols"/>
