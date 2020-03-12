@@ -29,6 +29,9 @@ type
     FileExport: TAction;
     ExportPictureDialog: TSaveDialog;
     MenuScript: TMenuItem;
+    Panel_Donate: TPanel;
+    ToolButton_Donate: TToolButton;
+    ToolBar25: TToolBar;
     ToolOpenedCurve: TAction;
     ToolPolyline: TAction;
     FileRunScript: TAction;
@@ -536,6 +539,7 @@ type
     procedure GridNb_SpinEditChange(Sender: TObject; AByUser: boolean);
     procedure TimerArrangeTimer(Sender: TObject);
     procedure TimerHideFillTimer(Sender: TObject);
+    procedure ToolButton_DonateClick(Sender: TObject);
     procedure VectorialFill_TextureClick(Sender: TObject);
     procedure PaintBox_PenPreviewPaint(Sender: TObject);
     procedure PaintBox_PictureMouseDown(Sender: TObject; Button: TMouseButton;
@@ -1178,7 +1182,7 @@ begin
       Panel_ShapeOption,Panel_PenWidth,Panel_PenStyle,Panel_JoinStyle,
       Panel_CloseShape,Panel_LineCap,Panel_Aliasing,
       Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_Text,Panel_Altitude,Panel_TextShadow,Panel_TextOutline,
-      Panel_PhongShape,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio],Panel_ToolbarBackground);
+      Panel_PhongShape,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio,Panel_Donate],Panel_ToolbarBackground);
     m.ImageList := LazPaintInstance.Icons[ScaleY(16, 96)];
     m.Apply;
     FLayout.Menu := m;

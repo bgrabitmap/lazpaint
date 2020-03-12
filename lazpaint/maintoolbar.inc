@@ -321,6 +321,7 @@ begin
   ToolManager.FillControls.Add(Panel_ColorDiff);
   ToolManager.BrushControls.Add(Panel_Brush);
   ToolManager.RatioControls.Add(Panel_Ratio);
+  ToolManager.DonateControls.Add(Panel_Donate);
 end;
 
 procedure TFMain.UpdateToolOptions;
@@ -735,6 +736,11 @@ begin
   VectorialFill_Back.Height := VectorialFill_Back.ToolIconSize + VectorialFill_Back.VerticalPadding;
   Panel_PenFill.Height := Panel_SwapColor.Height;
   Panel_BackFill.Height := Panel_SwapColor.Height;
+end;
+
+procedure TFMain.ToolButton_DonateClick(Sender: TObject);
+begin
+  LazPaintInstance.Donate;
 end;
 
 procedure TFMain.SpinEdit_GridNbExit(Sender: TObject);

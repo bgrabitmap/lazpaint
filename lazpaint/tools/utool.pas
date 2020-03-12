@@ -421,7 +421,7 @@ type
     CloseShapeControls, LineCapControls, DeformationControls,
     TextControls, TextShadowControls, PhongControls, AltitudeControls,
     PerspectiveControls,FillControls,
-    BrushControls, RatioControls: TList;
+    BrushControls, RatioControls, DonateControls: TList;
 
     constructor Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider;
       ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction = nil;
@@ -2777,6 +2777,7 @@ begin
   FillControls := TList.Create;
   BrushControls := TList.Create;
   RatioControls := TList.Create;
+  DonateControls := TList.Create;
 
   FCurrentToolType := ptHand;
   FCurrentTool := PaintTools[ptHand].Create(Self);
@@ -2808,6 +2809,7 @@ begin
   FillControls.Free;
   BrushControls.Free;
   RatioControls.Free;
+  DonateControls.Free;
 
   for i := 0 to BrushCount do
     BrushAt[i].Free;
@@ -3054,6 +3056,7 @@ begin
   OrResult(SetControlsVisible(AltitudeControls, ctAltitude in contextualToolbars));
   OrResult(SetControlsVisible(PerspectiveControls, ctPerspective in contextualToolbars));
   OrResult(SetControlsVisible(RatioControls, ctRatio in contextualToolbars));
+  OrResult(SetControlsVisible(DonateControls, FCurrentToolType = ptHand));
 
   if result and Assigned(FOnToolbarChanged) then FOnToolbarChanged(self);
 end;

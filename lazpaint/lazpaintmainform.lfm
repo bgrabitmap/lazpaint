@@ -214,7 +214,7 @@ object FMain: TFMain
       Height = 20
       Hint = 'Color difference'
       Top = 1
-      Width = 34
+      Width = 36
       Alignment = taCenter
       AutoSize = False
       Caption = '100%'
@@ -3116,6 +3116,38 @@ object FMain: TFMain
       ToolIconSize = 16
       VerticalPadding = 4
       AllowedFillTypes = [vftSolid, vftGradient, vftTexture]
+    end
+  end
+  object Panel_Donate: TPanel
+    Left = 479
+    Height = 36
+    Top = 248
+    Width = 44
+    ClientHeight = 36
+    ClientWidth = 44
+    Font.Height = -12
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 32
+    object ToolBar25: TToolBar
+      Left = 1
+      Height = 22
+      Top = 1
+      Width = 24
+      Align = alNone
+      AutoSize = True
+      EdgeBorders = []
+      Font.Height = -12
+      Images = ImageList16
+      ParentFont = False
+      TabOrder = 0
+      object ToolButton_Donate: TToolButton
+        Left = 1
+        Hint = 'Donate...'
+        Top = 0
+        ImageIndex = 110
+        OnClick = ToolButton_DonateClick
+      end
     end
   end
   object ImageList16: TBGRAImageList
