@@ -2711,9 +2711,11 @@ begin
   RegisterScriptFunctions(True);
 
   FForeFill := TVectorialFill.Create;
+  FForeFill.TransparentMode := tmAlphaZeroOnly;
   FForeFill.SolidColor := BGRABlack;
   FForeFill.OnChange:=@ForeFillChange;
   FBackFill := TVectorialFill.Create;
+  FBackFill.TransparentMode := tmAlphaZeroOnly;
   FBackFill.SolidColor := CSSSkyBlue;
   FBackFill.OnChange:=@BackFillChange;
   FForeLastGradient:= TBGRALayerGradientOriginal.Create;

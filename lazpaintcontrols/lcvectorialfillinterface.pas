@@ -904,7 +904,7 @@ end;
 
 procedure TVectorialFillInterface.SetSolidColor(AValue: TBGRAPixel);
 begin
-  if FSolidColor=AValue then Exit;
+  if FSolidColor.EqualsExactly(AValue) then Exit;
   FSolidColor:=AValue;
   UpdateShapeSolidColor;
   If FillType = vftSolid then Changed;
@@ -957,7 +957,7 @@ end;
 
 procedure TVectorialFillInterface.SetGradEndColor(AValue: TBGRAPixel);
 begin
-  if CompareMem(@FGradEndColor,@AValue,sizeof(TBGRAPixel)) then Exit;
+  if FGradEndColor.EqualsExactly(AValue) then Exit;
   FGradEndColor:=AValue;
   UpdateGradientParams;
   if FillType = vftGradient then Changed;
@@ -965,7 +965,7 @@ end;
 
 procedure TVectorialFillInterface.SetGradStartColor(AValue: TBGRAPixel);
 begin
-  if CompareMem(@FGradStartColor,@AValue,sizeof(TBGRAPixel)) then Exit;
+  if FGradStartColor.EqualsExactly(AValue) then Exit;
   FGradStartColor:=AValue;
   UpdateGradientParams;
   if FillType = vftGradient then Changed;
