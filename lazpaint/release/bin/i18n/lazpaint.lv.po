@@ -3124,6 +3124,10 @@ msgstr "Bezgalība"
 msgid "Information"
 msgstr "Informācija"
 
+#: uresourcestrings.rsdownload
+msgid "Download"
+msgstr "Lejupielādēt"
+
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
 msgid "Intensity"
@@ -3382,7 +3386,7 @@ msgid "px"
 msgstr "pikseļi"
 
 #: uresourcestrings.rspythonunexpectedversion
-msgid "Expected python version %1 but %2 found."
+msgid "Expected Python version %1 but %2 found."
 msgstr "Pitona %1 versijas vietā atrasta %2."
 
 #: uresourcestrings.rsramdisk

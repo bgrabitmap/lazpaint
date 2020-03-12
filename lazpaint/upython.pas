@@ -200,11 +200,11 @@ procedure TPythonScript.Run(AScriptFilename: UTF8String;
   APythonVersion: integer);
 begin
   FLinePrefix := '';
-  if PythonVersionMajor <> APythonVersion then
+//  if PythonVersionMajor <> APythonVersion then
     raise exception.Create(
       StringReplace( StringReplace(rsPythonUnexpectedVersion,
         '%1',inttostr(APythonVersion),[]),
-        '%2',inttostr(PythonVersionMajor),[]) );
+        '%2',inttostr(PythonVersionMajor),[]) + #9 + rsDownload + #9 + 'https://www.python.org');
   FFirstOutput:= true;
   AutomationEnvironment.Values['PYTHONPATH'] := DefaultScriptDirectory;
   try

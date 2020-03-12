@@ -693,9 +693,21 @@ end;
 
 procedure TLazPaintCustomInstance.ShowMessage(ACaption: string; AMessage: string; ADlgType: TMsgDlgType = mtInformation);
 var top: TTopMostInfo;
+  elems: TStringList;
+  res: TModalResult;
 begin
   top := HideTopmost;
-  QuestionDlg(ACaption,AMessage,ADlgType,[mrOk,rsOkay],'');
+  elems := TStringList.Create;
+  elems.Delimiter:= #9;
+  elems.StrictDelimiter:= true;
+  elems.DelimitedText:= AMessage;
+  if (elems.Count = 3) and (elems[1] = rsDownload) then
+  begin
+    res := QuestionDlg(ACaption,elems[0],ADlgType,[mrOk,rsDownload,mrCancel,rsCancel],'');
+    if res = mrOk then OpenURL(elems[2]);
+  end else
+    QuestionDlg(ACaption,AMessage,ADlgType,[mrOk,rsOkay],'');
+  elems.Free;
   ShowTopmost(top);
 end;
 
