@@ -1276,7 +1276,6 @@ end;
 procedure TLazPaintInstance.SetFullscreen(AValue: boolean);
 begin
   if (AValue = FFullscreen) or not MainFormVisible or (FMain.WindowState = wsMinimized) then exit;
-  if AValue then DockLayersAndColors:= false;
   FFullscreen := AValue;
   if AValue then
   begin
