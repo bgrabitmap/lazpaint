@@ -471,9 +471,14 @@ procedure TVectorialFill.GradientChange(ASender: TObject; ABounds: PRectF; var A
 var
   fillDiff: TVectorialFillGradientDiff;
 begin
+  if Assigned(FDiff) then
+  begin
+    FreeAndNil(ADiff);
+    exit;
+  end;
   if Assigned(OnChange) then
   begin
-    if Assigned(FDiff) then
+    if Assigned(ADiff) then
     begin
       fillDiff := TVectorialFillGradientDiff.Create(ADiff as TBGRAGradientOriginalDiff);
       ADiff := nil;
