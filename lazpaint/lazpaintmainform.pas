@@ -738,7 +738,6 @@ type
     FShowSelectionNormal: boolean;
     FLazPaintInstance: TLazPaintCustomInstance;
     Config: TLazPaintConfig;
-    FImageActions: TImageActions;
     StartDirectory: string;
     previousToolImg: integer;
     currentToolLabel: string;
@@ -755,6 +754,7 @@ type
 
     function GetCurrentPressure: single;
     function GetDarkTheme: boolean;
+    function GetImageAction: TImageActions;
     function GetUpdatingPopup: boolean;
     function GetUseImageBrowser: boolean;
     procedure SetDarkTheme(AValue: boolean);
@@ -896,6 +896,7 @@ type
     property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
     property Initialized: boolean read FInitialized;
     property UpdatingPopup: boolean read GetUpdatingPopup write SetUpdatingPopup;
+    property ImageAction: TImageActions read GetImageAction;
   end;
 
 implementation
@@ -1000,7 +1001,6 @@ begin
   end;
   FLayout.ToolBoxPopup := nil;
   RegisterScripts(False);
-  FreeAndNil(FImageActions);
 
   If Assigned(ToolManager) then
   begin
@@ -1091,7 +1091,6 @@ begin
   FImageView := TImageView.Create(LazPaintInstance, Zoom,
                 {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture.Canvas{$ELSE}self.Canvas{$ENDIF});
 
-  FImageActions := TImageActions.Create(LazPaintInstance);
   LazPaintInstance.EmbeddedResult := mrNone;
 
   Image.OnSelectedLayerIndexChanged:= @PictureSelectedLayerIndexChanged;
@@ -1126,7 +1125,7 @@ begin
   InitToolbarElements;
 
   Image.CurrentFilenameUTF8 := '';
-  FImageActions.SetCurrentBitmap(TBGRABitmap.Create(Config.DefaultImageWidth,Config.DefaultImageHeight,Config.DefaultImageBackgroundColor), false);
+  ImageAction.SetCurrentBitmap(TBGRABitmap.Create(Config.DefaultImageWidth,Config.DefaultImageHeight,Config.DefaultImageBackgroundColor), false);
   image.ClearUndo;
   image.SetSavedFlag(0, -1, 0);
 
@@ -2038,7 +2037,7 @@ begin
   end;
   if Open3DObjectDialog.Execute then
   begin
-    FImageActions.Import3DObject(Open3DObjectDialog.FileName);
+    ImageAction.Import3DObject(Open3DObjectDialog.FileName);
     Config.SetDefault3dObjectDirectory(ExtractFilePath(Open3DObjectDialog.FileName));
   end;
   LazPaintInstance.ShowTopmost(topmostInfo);
@@ -2101,7 +2100,7 @@ begin
       end;
     end;
   end;
-  if FImageActions.LoadSelection(selectionFileName, @loadedImage) then
+  if ImageAction.LoadSelection(selectionFileName, @loadedImage) then
   begin
     FSaveSelectionInitialFilename := selectionFileName;
     if Assigned(Scripting.RecordingFunctionParameters) then
@@ -2336,11 +2335,11 @@ begin
                   for i := 0 to high(loadedLayers) do
                   if Assigned(loadedLayers[i].bmp) then
                   begin
-                    FImageActions.AddLayerFromBitmap(loadedLayers[i].bmp,ExtractFileName(loadedLayers[i].filename));
+                    ImageAction.AddLayerFromBitmap(loadedLayers[i].bmp,ExtractFileName(loadedLayers[i].filename));
                     loadedLayers[i].bmp := nil;
                   end else
                   begin
-                    FImageActions.AddLayerFromOriginal(loadedLayers[i].orig,ExtractFileName(loadedLayers[i].filename));
+                    ImageAction.AddLayerFromOriginal(loadedLayers[i].orig,ExtractFileName(loadedLayers[i].filename));
                     loadedLayers[i].orig := nil;
                   end;
                 end;
@@ -2569,13 +2568,13 @@ begin
   begin
     if Assigned(loadedImage) and (length(chosenFiles)=1) then
     begin
-      layerLoaded := length(FImageActions.TryAddLayerFromFile(chosenFiles[0], loadedImage)) > 0;
+      layerLoaded := length(ImageAction.TryAddLayerFromFile(chosenFiles[0], loadedImage)) > 0;
     end else
     begin
       FreeAndNil(loadedImage);
       for i := 0 to high(chosenFiles) do
         begin
-          if length(FImageActions.TryAddLayerFromFile(chosenFiles[i])) > 0 then
+          if length(ImageAction.TryAddLayerFromFile(chosenFiles[i])) > 0 then
             layerLoaded := true;
         end;
     end;
@@ -3113,7 +3112,7 @@ begin
                     end
                     else
                     begin
-                      FImageActions.RemoveSelection;
+                      ImageAction.RemoveSelection;
                       texMapBounds := newTexture.GetImageBounds;
                       BGRAReplace(newTexture, newTexture.GetPart(texMapBounds));
                       ToolManager.BackFill.SetTexture(newTexture, AffineMatrixIdentity,
@@ -3214,7 +3213,7 @@ begin
                   mrYes:
                     begin
                       ToolManager.ToolCloseDontReopen;
-                      FImageActions.RetrieveSelection;
+                      ImageAction.RetrieveSelection;
                       ToolManager.ToolOpen;
                     end;
                 end;
@@ -4634,6 +4633,11 @@ function TFMain.GetDarkTheme: boolean;
 begin
   if Assigned(FLayout) then result := FLayout.DarkTheme
   else result := false;
+end;
+
+function TFMain.GetImageAction: TImageActions;
+begin
+  result := TImageActions(LazPaintInstance.ImageAction);
 end;
 
 function TFMain.GetUpdatingPopup: boolean;

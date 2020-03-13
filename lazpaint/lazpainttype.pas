@@ -174,6 +174,7 @@ type
 
     function GetConfig: TLazPaintConfig; virtual; abstract;
     function GetImage: TLazPaintImage; virtual; abstract;
+    function GetImageAction: TObject; virtual; abstract;
     function GetToolManager: TToolManager; virtual; abstract;
     procedure SetBlackAndWhite(AValue: boolean); virtual;
     function GetZoomFactor: single; virtual;
@@ -321,6 +322,7 @@ type
     property ChooseColorTarget: TColorTarget read GetChooseColorTarget write setChooseColorTarget;
     property Config: TLazPaintConfig read GetConfig;
     property Image: TLazPaintImage read GetImage;
+    property ImageAction: TObject read GetImageAction;
     property ZoomFactor: single read GetZoomFactor;
     property ToolManager: TToolManager read GetToolManager;
     property Embedded: boolean read GetEmbedded;

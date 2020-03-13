@@ -278,11 +278,8 @@ end;
 
 procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList;
   out errorEncountered, fileSaved, quitQuery: boolean);
-var imageActions: TImageActions;
 begin
-  imageActions := TImageActions.Create(instance);
-  InternalProcessCommands(instance, commandsUTF8, errorEncountered, fileSaved, quitQuery, imageActions);
-  imageActions.Free;
+  InternalProcessCommands(instance, commandsUTF8, errorEncountered, fileSaved, quitQuery, TImageActions(instance.ImageAction));
 end;
 
 end.

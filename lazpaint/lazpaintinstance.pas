@@ -14,7 +14,7 @@ uses
   UColorintensity, UShiftColors, UColorize, uadjustcurves,
   UCustomblur, uimagelist,
 
-  ULoading, UImage, UTool, uconfig, IniFiles, UResourceStrings, UScripting,
+  ULoading, UImage, UImageAction, UTool, uconfig, IniFiles, UResourceStrings, UScripting,
   UScriptType;
 
 const
@@ -85,6 +85,7 @@ type
     FGridVisible: boolean;
     FConfig: TLazPaintConfig;
     FImage: TLazPaintImage;
+    FImageAction: TImageActions;
     FToolManager : TToolManager;
     FEmbedded: boolean;
     FDestroying: boolean;
@@ -138,6 +139,7 @@ type
     procedure SetChooseColorTarget(const AValue: TColorTarget); override;
     function GetConfig: TLazPaintConfig; override;
     function GetImage: TLazPaintImage; override;
+    function GetImageAction: TImageActions; override;
     function GetToolManager: TToolManager; override;
     procedure CreateLayerStack;
     procedure CreateToolBox;
@@ -259,7 +261,7 @@ uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8,
 
      URadialBlur, UMotionBlur, UEmboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, UPixelate, unoisefilter, ufilters,
-     UImageAction, USharpen, uposterize, UPhongFilter, UFilterFunction,
+     USharpen, uposterize, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
 
      ugraph, LCScaleDPI, ucommandline, uabout, UPython, UVolatileScrollBar;
@@ -424,6 +426,7 @@ begin
   FToolManager.OnFillChanged:= @ToolFillChanged;
   FSelectionEditConfig := nil;
   FTextureEditConfig := nil;
+  FImageAction := TImageActions.Create(self);
 end;
 
 procedure TLazPaintInstance.FormsNeeded;
@@ -464,6 +467,11 @@ end;
 function TLazPaintInstance.GetImage: TLazPaintImage;
 begin
   Result:= FImage;
+end;
+
+function TLazPaintInstance.GetImageAction: TImageActions;
+begin
+  result := FImageAction;
 end;
 
 function TLazPaintInstance.GetToolManager: TToolManager;
@@ -1109,11 +1117,9 @@ begin
 end;
 
 procedure TLazPaintInstance.AssignBitmap(bmp: TBGRABitmap);
-var imageActions: TimageActions;
 begin
-  imageActions := TImageActions.Create(self);
-  imageActions.SetCurrentBitmap(bmp.Duplicate as TBGRABitmap, False);
-  imageActions.Free;
+  if Assigned(FImageAction) then
+    FImageAction.SetCurrentBitmap(bmp.Duplicate as TBGRABitmap, False);
 end;
 
 procedure TLazPaintInstance.EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStream; ATitle: String; AOnRun: TLazPaintInstanceEvent; AOnExit: TLazPaintInstanceEvent; ABlackAndWhite: boolean);
@@ -1173,16 +1179,13 @@ begin
 end;
 
 procedure TLazPaintInstance.EditSelection;
-var imageActions: TimageActions;
 begin
-  imageActions := TImageActions.Create(self);
   try
-    imageActions.EditSelection(@EditSelectionHandler);
+    TImageActions(ImageAction).EditSelection(@EditSelectionHandler);
   except
     on ex: Exception do
       ShowError('EditSelection',ex.Message);
   end;
-  imageActions.Free;
 end;
 
 function TLazPaintInstance.EditTexture(ASource: TBGRABitmap): TBGRABitmap;
@@ -1393,6 +1396,7 @@ end;
 
 destructor TLazPaintInstance.Destroy;
 begin
+  FreeAndNil(FImageAction);
   RegisterScripts(False);
 
   FDestroying := true;
