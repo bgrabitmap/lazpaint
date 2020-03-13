@@ -82,7 +82,8 @@ function TToolGradient.ReplaceLayerAndAddShape(out ARect: TRect): TCustomImageDi
 var
   gradientOrig: TBGRALayerCustomOriginal;
 begin
-  if Manager.Image.CurrentLayerEmpty then
+  if (FShape.BackFill.FillType = vftGradient) and
+    (Manager.Image.CurrentLayerEmpty or FShape.BackFill.Gradient.IsOpaque) then
   begin
     gradientOrig := FShape.BackFill.Gradient.Duplicate;
     result := TReplaceLayerByCustomOriginalDifference.Create(Manager.Image.CurrentState,
