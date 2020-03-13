@@ -484,6 +484,7 @@ type
     procedure SetDeformationGridSize(ASize: TSize);
 
     property Image: TLazPaintImage read FImage;
+    property Scripting: TScriptContext read FScriptContext;
     property BlackAndWhite: boolean read FBlackAndWhite write FBlackAndWhite;
     property CurrentTool: TGenericTool read FCurrentTool;
     property ToolCurrentCursorPos: TPointF read FToolCurrentCursorPos;

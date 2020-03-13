@@ -218,6 +218,8 @@ type
     function SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox; virtual;
     function PointInShape(APoint: TPointF): boolean; overload; virtual; abstract;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; virtual; abstract;
+    function PointInBack(APoint: TPointF): boolean; overload; virtual;
+    function PointInPen(APoint: TPointF): boolean; overload; virtual;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); virtual; abstract;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); virtual;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); virtual;
@@ -1958,6 +1960,16 @@ var
 begin
   rF := GetRenderBounds(InfiniteRect, AMatrix, [rboAssumeBackFill]);
   result := TAffineBox.AffineBox(rF);
+end;
+
+function TVectorShape.PointInBack(APoint: TPointF): boolean;
+begin
+  result := false;
+end;
+
+function TVectorShape.PointInPen(APoint: TPointF): boolean;
+begin
+  result := false;
 end;
 
 procedure TVectorShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);

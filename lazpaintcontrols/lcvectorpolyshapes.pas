@@ -145,6 +145,8 @@ type
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
+    function PointInBack(APoint: TPointF): boolean; overload; override;
+    function PointInPen(APoint: TPointF): boolean; overload; override;
     function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
@@ -1286,6 +1288,38 @@ begin
   pts := GetCurve(AffineMatrixIdentity);
   pts := ComputeStrokeEnvelope(pts, Closed, ARadius*2);
   result := IsPointInPolygon(pts, APoint, true);
+end;
+
+function TPolylineShape.PointInBack(APoint: TPointF): boolean;
+var
+  pts: ArrayOfTPointF;
+  scan: TBGRACustomScanner;
+begin
+  if BackVisible then
+  begin
+    pts := GetCurve(AffineMatrixIdentity);
+    result := IsPointInPolygon(pts, APoint, true);
+    if result and (BackFill.FillType = vftTexture) then
+    begin
+      scan := BackFill.CreateScanner(AffineMatrixIdentity, false);
+      if scan.ScanAt(APoint.X,APoint.Y).alpha = 0 then result := false;
+      scan.Free;
+    end;
+  end else
+    result := false;
+end;
+
+function TPolylineShape.PointInPen(APoint: TPointF): boolean;
+var
+  pts: ArrayOfTPointF;
+begin
+  if BackVisible then
+  begin
+    pts := GetCurve(AffineMatrixIdentity);
+    pts := ComputeStroke(pts, Closed, AffineMatrixIdentity);
+    result := IsPointInPolygon(pts, APoint, true);
+  end else
+    result := false;
 end;
 
 function TPolylineShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;

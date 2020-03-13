@@ -157,6 +157,7 @@ type
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape({%H-}APoint: TPointF; {%H-}ARadius: single): boolean; overload; override;
+    function PointInPen(APoint: TPointF): boolean; overload; override;
     function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; override;
     function GetGenericCost: integer; override;
     procedure MouseMove({%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
@@ -198,7 +199,7 @@ implementation
 
 uses BGRATransform, BGRAText, BGRAVectorize, LCVectorialFill, math,
   BGRAUTF8, BGRAUnicode, Graphics, Clipbrd, LCLType, LCLIntf,
-  BGRAGradients, BGRACustomTextFX, LCResourceString;
+  BGRAGradients, BGRACustomTextFX, LCResourceString, BGRAFillInfo;
 
 function FontStyleToStr(AStyle: TFontStyles): string;
 begin
@@ -1494,6 +1495,22 @@ end;
 
 function TTextShape.PointInShape(APoint: TPointF; ARadius: single): boolean;
 begin
+  result := false;
+end;
+
+function TTextShape.PointInPen(APoint: TPointF): boolean;
+var
+  tl: TBidiTextLayout;
+  pt: TPointF;
+  i: Integer;
+begin
+  if not GetAffineBox(AffineMatrixIdentity,true).Contains(APoint) then
+    exit(false);
+  SetGlobalMatrix(AffineMatrixIdentity);
+  tl := GetTextLayout;
+  pt := AffineMatrixInverse(GetUntransformedMatrix)*APoint;
+  for i := 0 to tl.PartCount-1 do
+    if tl.PartAffineBox[i].Contains(pt) then exit(true);
   result := false;
 end;
 

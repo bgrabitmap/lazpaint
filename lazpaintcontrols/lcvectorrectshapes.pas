@@ -105,6 +105,8 @@ type
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
+    function PointInBack(APoint: TPointF): boolean; overload; override;
+    function PointInPen(APoint: TPointF): boolean; overload; override;
     function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
@@ -124,6 +126,8 @@ type
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
+    function PointInBack(APoint: TPointF): boolean; overload; override;
+    function PointInPen(APoint: TPointF): boolean; overload; override;
     function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
@@ -190,6 +194,7 @@ type
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
+    function PointInBack(APoint: TPointF): boolean; overload; override;
     function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     function GetGenericCost: integer; override;
     procedure Transform(const AMatrix: TAffineMatrix); override;
@@ -1111,6 +1116,38 @@ begin
   else result := false;
 end;
 
+function TRectShape.PointInBack(APoint: TPointF): boolean;
+var
+  box: TAffineBox;
+  scan: TBGRACustomScanner;
+begin
+  if BackVisible then
+  begin
+    box := GetAffineBox(AffineMatrixIdentity, true);
+    result := box.Contains(APoint);
+    if result and (BackFill.FillType = vftTexture) then
+    begin
+      scan := BackFill.CreateScanner(AffineMatrixIdentity, false);
+      if scan.ScanAt(APoint.X,APoint.Y).alpha = 0 then result := false;
+      scan.Free;
+    end;
+  end else
+    result := false;
+end;
+
+function TRectShape.PointInPen(APoint: TPointF): boolean;
+var
+  pts: ArrayOfTPointF;
+begin
+  if PenVisible then
+  begin
+    pts := GetAffineBox(AffineMatrixIdentity, true).AsPolygon;
+    pts := ComputeStroke(pts,true, AffineMatrixIdentity);
+    result:= IsPointInPolygon(pts, APoint, true);
+  end else
+    result := false;
+end;
+
 class function TRectShape.StorageClassName: RawByteString;
 begin
   result := 'rect';
@@ -1351,6 +1388,38 @@ begin
   begin
     pts := ComputeEllipse(FOrigin, FXAxis, FYAxis);
     pts := ComputeStrokeEnvelope(pts, true, ARadius*2);
+    result:= IsPointInPolygon(pts, APoint, true);
+  end else
+    result := false;
+end;
+
+function TEllipseShape.PointInBack(APoint: TPointF): boolean;
+var
+  pts: ArrayOfTPointF;
+  scan: TBGRACustomScanner;
+begin
+  if BackVisible then
+  begin
+    pts := ComputeEllipse(FOrigin, FXAxis, FYAxis);
+    result:= IsPointInPolygon(pts, APoint, true);
+    if result and (BackFill.FillType = vftTexture) then
+    begin
+      scan := BackFill.CreateScanner(AffineMatrixIdentity, false);
+      if scan.ScanAt(APoint.X,APoint.Y).alpha = 0 then result := false;
+      scan.Free;
+    end;
+  end else
+    result := false;
+end;
+
+function TEllipseShape.PointInPen(APoint: TPointF): boolean;
+var
+  pts: ArrayOfTPointF;
+begin
+  if PenVisible then
+  begin
+    pts := ComputeEllipse(FOrigin, FXAxis, FYAxis);
+    pts := ComputeStroke(pts,true, AffineMatrixIdentity);
     result:= IsPointInPolygon(pts, APoint, true);
   end else
     result := false;
@@ -1758,6 +1827,19 @@ begin
     result:= IsPointInPolygon(pts, APoint, true);
   end
     else result := false;
+end;
+
+function TPhongShape.PointInBack(APoint: TPointF): boolean;
+var
+  scan: TBGRACustomScanner;
+begin
+  result := PointInShape(APoint);
+  if result and (BackFill.FillType = vftTexture) then
+  begin
+    scan := BackFill.CreateScanner(AffineMatrixIdentity, false);
+    if scan.ScanAt(APoint.X,APoint.Y).alpha = 0 then result := false;
+    scan.Free;
+  end;
 end;
 
 function TPhongShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
