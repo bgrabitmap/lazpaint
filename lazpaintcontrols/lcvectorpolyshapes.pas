@@ -118,7 +118,7 @@ type
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
-    procedure Transform(const AMatrix: TAffineMatrix); override;
+    procedure TransformFrame(const AMatrix: TAffineMatrix); override;
     class function Usermodes: TVectorShapeUsermodes; override;
     class function DefaultArrowSize: TPointF;
     property Points[AIndex:integer]: TPointF read GetPoint write SetPoint;
@@ -141,7 +141,7 @@ type
     function BackVisible: boolean;
   public
     class function Fields: TVectorShapeFields; override;
-    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
@@ -1147,7 +1147,7 @@ begin
     FCenterPointEditorIndex := -1;
 end;
 
-procedure TCustomPolypointShape.Transform(const AMatrix: TAffineMatrix);
+procedure TCustomPolypointShape.TransformFrame(const AMatrix: TAffineMatrix);
 var
   i: Integer;
   m: TAffineMatrix;
@@ -1156,7 +1156,6 @@ begin
   m := MatrixForPixelCentered(AMatrix);
   for i := 0 to PointCount-1 do
     FPoints[i].coord := m*FPoints[i].coord;
-  inherited Transform(AMatrix);
   EndUpdate;
 end;
 

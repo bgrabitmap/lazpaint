@@ -121,7 +121,6 @@ type
     procedure DoOnChange(ABoundsBefore: TRectF; ADiff: TVectorShapeDiff); override;
     procedure SetGlobalMatrix(AMatrix: TAffineMatrix);
     function PenVisible(AAssumePenFill: boolean = false): boolean;
-    function AllowShearTransform: boolean; override;
     function ShowArrows: boolean; override;
     function GetTextLayout: TBidiTextLayout;
     function GetFontRenderer: TBGRACustomFontRenderer;
@@ -153,7 +152,7 @@ type
     class function StorageClassName: RawByteString; override;
     class function Usermodes: TVectorShapeUsermodes; override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
-    procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape({%H-}APoint: TPointF; {%H-}ARadius: single): boolean; overload; override;
@@ -173,6 +172,7 @@ type
     function DeleteSelection: boolean;
     function GetAlignBounds(const {%H-}ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
     procedure Transform(const AMatrix: TAffineMatrix); override;
+    function AllowShearTransform: boolean; override;
     property HasSelection: boolean read GetHasSelection;
     property CanPasteSelection: boolean read GetCanPasteSelection;
     property Text: string read FText write SetText;

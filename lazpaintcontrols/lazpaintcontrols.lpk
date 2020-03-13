@@ -21,7 +21,7 @@
       </Linking>
     </CompilerOptions>
     <Version Minor="1"/>
-    <Files Count="12">
+    <Files Count="13">
       <Item1>
         <Filename Value="lctoolbars.pas"/>
         <UnitName Value="LCToolbars"/>
@@ -71,6 +71,10 @@
         <Filename Value="lcresourcestring.pas"/>
         <UnitName Value="LCResourceString"/>
       </Item12>
+      <Item13>
+        <Filename Value="lcvectormultishape.pas"/>
+        <UnitName Value="lcvectormultishape"/>
+      </Item13>
     </Files>
     <i18n>
       <EnableI18N Value="True"/>

@@ -62,10 +62,9 @@ type
     procedure OnMoveXYNegCornerAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXNegYNegCornerAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; {%H-}APointIndex: integer; {%H-}AShift: TShiftState);
-    procedure UpdateFillMatrixFromRect;
+    procedure UpdateFillFromRectDiff;
     function GetCornerPositition: single; virtual; abstract;
     function GetOrthoRect(AMatrix: TAffineMatrix; out ARect: TRectF): boolean;
-    function AllowShearTransform: boolean; virtual;
     function ShowArrows: boolean; virtual;
     procedure SetOrigin(AValue: TPointF);
     function GetHeight: single;
@@ -82,7 +81,7 @@ type
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; {%H-}AOptions: TRenderBoundsOptions = []): TRectF; override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     function GetAffineBox(const AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
-    procedure Transform(const AMatrix: TAffineMatrix); override;
+    procedure TransformFrame(const AMatrix: TAffineMatrix); override;
     procedure AlignTransform(const AMatrix: TAffineMatrix); override;
     property Origin: TPointF read FOrigin write SetOrigin;
     property XAxis: TPointF read FXAxis write SetXAxis;
@@ -101,7 +100,7 @@ type
     function GetCornerPositition: single; override;
   public
     class function Fields: TVectorShapeFields; override;
-    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
@@ -122,7 +121,7 @@ type
     constructor Create(AContainer: TVectorOriginal); override;
     class function Fields: TVectorShapeFields; override;
     function GetAlignBounds(const {%H-}ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
-    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
@@ -177,8 +176,6 @@ type
     procedure SetShapeKind(AValue: TPhongShapeKind);
     function BackVisible: boolean;
     function GetEnvelope: ArrayOfTPointF;
-  protected
-    function AllowShearTransform: boolean; override;
   public
     constructor Create(AContainer: TVectorOriginal); override;
     destructor Destroy; override;
@@ -190,7 +187,7 @@ type
     procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
-    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
@@ -198,6 +195,7 @@ type
     function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     function GetGenericCost: integer; override;
     procedure Transform(const AMatrix: TAffineMatrix); override;
+    function AllowShearTransform: boolean; override;
     class function StorageClassName: RawByteString; override;
     property ShapeKind: TPhongShapeKind read FShapeKind write SetShapeKind;
     property LightPosition: TPointF read FLightPosition write SetLightPosition;
@@ -359,8 +357,7 @@ begin
   FOrigin := AValue;
   FXAxis := t*FXAxis;
   FYAxis := t*FYAxis;
-  if vsfBackFill in Fields then BackFill.Transform(t);
-  if vsfPenFill in Fields then PenFill.Transform(t);
+  TransformFill(t, False);
   EndUpdate;
 end;
 
@@ -504,7 +501,7 @@ begin
     end;
   end;
   EnsureRatio(-AFactor,0);
-  UpdateFillMatrixFromRect;
+  UpdateFillFromRectDiff;
   EndUpdate;
 end;
 
@@ -543,7 +540,7 @@ begin
     end;
   end;
   EnsureRatio(0,-AFactor);
-  UpdateFillMatrixFromRect;
+  UpdateFillFromRectDiff;
   EndUpdate;
 end;
 
@@ -603,7 +600,7 @@ begin
     end;
   end;
   EnsureRatio(-AFactorX,-AFactorY);
-  UpdateFillMatrixFromRect;
+  UpdateFillFromRectDiff;
   EndUpdate;
 end;
 
@@ -724,18 +721,15 @@ begin
   FMatrixBackup := AffineMatrix(FXAxis-FOrigin, FYAxis-FOrigin, FOrigin);
 end;
 
-procedure TCustomRectShape.UpdateFillMatrixFromRect;
+procedure TCustomRectShape.UpdateFillFromRectDiff;
 var
   newMatrix, matrixDiff: TAffineMatrix;
 begin
   newMatrix := AffineMatrix(FXAxis-FOrigin, FYAxis-FOrigin, FOrigin);
   if IsAffineMatrixInversible(newMatrix) and IsAffineMatrixInversible(FMatrixBackup) then
   begin
-    if vsfBackFill in Fields then
-    begin
-      matrixDiff := newMatrix*AffineMatrixInverse(FMatrixBackup);
-      BackFill.Transform(matrixDiff);
-    end;
+    matrixDiff := newMatrix*AffineMatrixInverse(FMatrixBackup);
+    TransformFill(matrixDiff, True);
     FMatrixBackup := newMatrix;
   end;
 end;
@@ -752,7 +746,7 @@ begin
       FXAxis - (FYAxis - FOrigin), FYAxis - (FXAxis - FOrigin));
 end;
 
-procedure TCustomRectShape.Transform(const AMatrix: TAffineMatrix);
+procedure TCustomRectShape.TransformFrame(const AMatrix: TAffineMatrix);
 var
   m: TAffineMatrix;
 begin
@@ -761,7 +755,6 @@ begin
   FOrigin := m*FOrigin;
   FXAxis := m*FXAxis;
   FYAxis := m*FYAxis;
-  inherited Transform(AMatrix);
   EndUpdate;
 end;
 
@@ -791,11 +784,6 @@ begin
     ARect := EmptyRectF;
     exit(false);
   end;
-end;
-
-function TCustomRectShape.AllowShearTransform: boolean;
-begin
-  result := true;
 end;
 
 function TCustomRectShape.ShowArrows: boolean;

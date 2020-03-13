@@ -212,8 +212,8 @@ type
     procedure FillFit;
     procedure QuickDefine(constref APoint1,APoint2: TPointF); virtual; abstract;
     //one of the two Render functions must be overriden
-    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
-    procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
+    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; virtual;
+    procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); overload; virtual;
     function GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; virtual; abstract;
     function SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox; virtual;
     function PointInShape(APoint: TPointF): boolean; overload; virtual; abstract;
@@ -245,6 +245,9 @@ type
     function GetGenericCost: integer; virtual;
     function GetUsedTextures: ArrayOfBGRABitmap; virtual;
     procedure Transform(const AMatrix: TAffineMatrix); virtual;
+    procedure TransformFrame(const AMatrix: TAffineMatrix); virtual; abstract;
+    procedure TransformFill(const AMatrix: TAffineMatrix; ABackOnly: boolean); virtual;
+    function AllowShearTransform: boolean; virtual;
     class function Fields: TVectorShapeFields; virtual;
     class function Usermodes: TVectorShapeUsermodes; virtual;
     class function PreferPixelCentered: boolean; virtual;
@@ -1281,8 +1284,8 @@ var
 begin
   if IsAffineMatrixIdentity(AMatrix) then exit;
   BeginUpdate;
-  if vsfBackFill in Fields then BackFill.Transform(AMatrix);
-  if vsfPenFill in Fields then PenFill.Transform(AMatrix);
+  TransformFrame(AMatrix);
+  TransformFill(AMatrix, False);
   zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
   if vsfPenWidth in Fields then PenWidth := zoom*PenWidth;
   if vsfOutlineFill in Fields then OutlineWidth := zoom*OutlineWidth;
@@ -1564,6 +1567,23 @@ end;
 function TVectorShape.GetIsFollowingMouse: boolean;
 begin
   result := false;
+end;
+
+procedure TVectorShape.TransformFill(const AMatrix: TAffineMatrix; ABackOnly: boolean);
+begin
+  BeginUpdate;
+  if vsfBackFill in Fields then BackFill.Transform(AMatrix);
+  if not ABackOnly then
+  begin
+    if vsfPenFill in Fields then PenFill.Transform(AMatrix);
+    if vsfOutlineFill in Fields then OutlineFill.Transform(AMatrix);
+  end;
+  EndUpdate;
+end;
+
+function TVectorShape.AllowShearTransform: boolean;
+begin
+  result := true;
 end;
 
 function TVectorShape.GetIsFront: boolean;
