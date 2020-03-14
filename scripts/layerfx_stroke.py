@@ -1,4 +1,4 @@
-# Layer stroke
+# Layer effect > Stroke
 from lazpaint import dialog
 
 try:

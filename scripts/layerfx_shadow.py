@@ -1,4 +1,4 @@
-# Layer shadow
+# Layer effect > Drop shadow
 from lazpaint import dialog
 
 try:

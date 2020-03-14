@@ -1,4 +1,4 @@
-# Split RGB channels
+# Channels > Split HSL
 from lazpaint import image, dialog, layer, filters
 
 # check if it is a channel
@@ -21,22 +21,20 @@ if layer.get_registry("split-channels-id") is not None:
 image.do_begin()
 channels = []
 if layer_transparent:
-  channels.append({"name": "Alpha", "channel": "A", "red": "alpha", "green": "alpha", "blue": "alpha", "alpha": "255"})
-channels.append({"name": "Red", "channel": "R", "red": "red", "green": "0", "blue": "0", "alpha": "255"})
-channels.append({"name": "Green", "channel": "G", "red": "0", "green": "green", "blue": "0", "alpha": "255"})
-channels.append({"name": "Blue", "channel": "B", "red": "0", "green": "0", "blue": "blue", "alpha": "255"})
+  channels.append({"name": "Alpha", "channel": "A", "hue": "0", "saturation": "0", "lightness": "alpha", "alpha": "255", "blend": layer.BLEND_MASK})
+channels.append({"name": "Saturation", "channel": "S", "hue": "0", "saturation": "0", "lightness": "saturation", "alpha": "255", "blend": layer.BLEND_LINEAR_MULTIPLY_SATURATION})
+channels.append({"name": "Lightness", "channel": "L", "hue": "0", "saturation": "0", "lightness": "lightness", "alpha": "255", "blend": layer.BLEND_HARD_LIGHT})
+channels.append({"name": "Hue", "channel": "H", "hue": "hue", "saturation": "1", "lightness": "0.5", "alpha": "255", "blend": layer.BLEND_DRAW})
 
 channels_id = [] 
 for ch in channels:
   layer.select_id(layer_id)
   layer.duplicate()
-  filters.filter_function(red = ch["red"], green = ch["green"], blue = ch["blue"], alpha = ch["alpha"], gamma_correction = False)
+  filters.filter_function(hue = ch["hue"], saturation = ch["saturation"], lightness = ch["lightness"], alpha = ch["alpha"], gamma_correction = False)
   layer.set_name(ch["name"] + " channel")
   layer.set_opacity(layer_opacity)
-  if ch["channel"] == "A":
-    layer.set_blend_op(layer.BLEND_MASK)
-  elif ch != channels[-1]:
-    layer.set_blend_op(layer.BLEND_LIGHTEN)
+  if ch["channel"] != channels[-1]:
+    layer.set_blend_op(ch["blend"])
   layer.set_registry("split-channel", ch["channel"])
   layer.set_registry("split-source-id", layer_id)
   channels_id.append(layer.get_id())

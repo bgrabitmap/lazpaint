@@ -240,6 +240,47 @@ begin
 end;
 
 procedure TMainFormMenu.AddInstalledScripts(AMenu: TMenuItem; AIndex: integer);
+
+  procedure AddScriptRec(AMenu: TMenuItem; var AIndex: integer; AItem: TMenuItem);
+  var
+    posSub, j, subIndex: integer;
+    sectionName: String;
+    sectionItem: TMenuItem;
+  begin
+    posSub := pos('>', AItem.Caption);
+    if posSub > 0 then
+    begin
+      sectionName := copy(AItem.Caption, 1, posSub-1);
+      AItem.Caption := copy(AItem.Caption, posSub+1, length(AItem.Caption) - posSub);
+      subIndex := -1;
+      for j := 0 to AMenu.Count-1 do
+        if AMenu.Items[j].Caption = sectionName then
+        begin
+          AddScriptRec(AMenu.Items[j], subIndex, AItem);
+          exit;
+        end;
+      sectionItem := TMenuItem.Create(AMenu);
+      sectionItem.Caption := sectionName;
+      if AIndex = -1 then
+        AMenu.Add(sectionItem)
+      else
+      begin
+        AMenu.Insert(AIndex, sectionItem);
+        inc(AIndex);
+      end;
+      AddScriptRec(sectionItem, subIndex, AItem);
+      exit;
+    end;
+
+    if AIndex = -1 then
+      AMenu.Add(AItem)
+    else
+    begin
+      AMenu.Insert(AIndex, AItem);
+      inc(AIndex);
+    end;
+  end;
+
 var
   path, fullname, header, title: String;
   searchRec: TSearchRec;
@@ -266,6 +307,8 @@ begin
           if header.StartsWith('#') then
           begin
             title := header.Substring(1).Trim;
+            title := StringReplace(title, ' >', '>', [rfReplaceAll]);
+            title := StringReplace(title, '> ', '>', [rfReplaceAll]);
             item := TMenuItem.Create(AMenu);
             item.Caption := title;
             item.Tag := FInstalledScripts.Add(fullname);
@@ -277,15 +320,7 @@ begin
     finally
       FindCloseUTF8(searchRec);
       for i := 0 to items.Count-1 do
-      begin
-        if AIndex = -1 then
-          AMenu.Add(TMenuItem(items.Objects[i]))
-        else
-        begin
-          AMenu.Insert(AIndex, TMenuItem(items.Objects[i]));
-          inc(AIndex);
-        end;
-      end;
+        AddScriptRec(AMenu, AIndex, TMenuItem(items.Objects[i]));
       items.Free;
     end;
   end;

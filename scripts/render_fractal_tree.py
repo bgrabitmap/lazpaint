@@ -1,4 +1,4 @@
-# Render fractal tree
+# Render > Fractal tree
 from lazpaint import tools, image, layer, dialog
 import math, random
 

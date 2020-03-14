@@ -1,4 +1,4 @@
-# Color overlay
+# Layer effect > Color overlay
 from lazpaint import image, colors, layer, filters
 
 color = colors.show_dialog(layer.get_registry("overlay-color"))
