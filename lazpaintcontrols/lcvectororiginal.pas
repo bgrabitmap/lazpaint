@@ -1972,11 +1972,16 @@ begin
 end;
 
 destructor TVectorShape.Destroy;
+var
+  i: Integer;
 begin
   FreeAndNil(FStroker);
   FreeAndNil(FPenFill);
   FreeAndNil(FBackFill);
   FreeAndNil(FOutlineFill);
+  if Assigned(FDiffs) then
+    for i := 0 to FDiffs.Count-1 do
+      FDiffs[i].Free;
   FreeAndNil(FDiffs);
   inherited Destroy;
 end;
