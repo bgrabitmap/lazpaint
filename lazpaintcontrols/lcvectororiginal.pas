@@ -1307,6 +1307,7 @@ end;
 
 procedure TVectorShape.SetJoinStyle(AValue: TPenJoinStyle);
 begin
+  if Stroker.JoinStyle = AValue then exit;
   BeginUpdate(TVectorShapeCommonDiff);
   Stroker.JoinStyle := AValue;
   EndUpdate;
