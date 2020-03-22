@@ -1076,7 +1076,8 @@ var
   r: TRect;
 begin
   r := FCurrentState.LayeredBitmap.RenderOriginalIfNecessary(AOriginal.Guid, FDraftOriginal);
-  ImageMayChange(r, false);
+  if r.IsEmpty then OnImageChanged.NotifyObservers
+  else ImageMayChange(r, false);
   if Assigned(ADiff) then
   begin
     AddUndo(TVectorOriginalEmbeddedDifference.Create(CurrentState,AOriginal.Guid,ADiff,r));
