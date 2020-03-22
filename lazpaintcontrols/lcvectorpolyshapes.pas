@@ -136,9 +136,6 @@ type
   { TPolylineShape }
 
   TPolylineShape = class(TCustomPolypointShape)
-  protected
-    function PenVisible(AAssumePenFill: boolean = false): boolean;
-    function BackVisible: boolean;
   public
     class function Fields: TVectorShapeFields; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
@@ -1161,16 +1158,6 @@ end;
 
 { TPolylineShape }
 
-function TPolylineShape.PenVisible(AAssumePenFill: boolean): boolean;
-begin
-  result := (PenWidth>0) and not IsClearPenStyle(PenStyle) and (not PenFill.IsFullyTransparent or AAssumePenFill);
-end;
-
-function TPolylineShape.BackVisible: boolean;
-begin
-  result := not BackFill.IsFullyTransparent;
-end;
-
 class function TPolylineShape.Fields: TVectorShapeFields;
 begin
   Result:= [vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill];
@@ -1182,9 +1169,9 @@ var
   pts: array of TPointF;
   backScan, penScan: TBGRACustomScanner;
 begin
-  if not BackVisible and not PenVisible then exit;
+  if not GetBackVisible and not GetPenVisible then exit;
   pts := GetCurve(AMatrix);
-  if BackVisible then
+  if GetBackVisible then
   begin
     if BackFill.FillType = vftSolid then backScan := nil
     else backScan := BackFill.CreateScanner(AMatrix, ADraft);
@@ -1204,7 +1191,7 @@ begin
 
     backScan.Free;
   end;
-  if PenVisible then
+  if GetPenVisible then
   begin
     if PenFill.FillType = vftSolid then penScan := nil
     else penScan := PenFill.CreateScanner(AMatrix, ADraft);
@@ -1233,12 +1220,12 @@ var
   xMargin, yMargin: single;
   fillBounds, penBounds: TRectF;
 begin
-  if not (BackVisible or (rboAssumeBackFill in AOptions)) and not PenVisible(rboAssumePenFill in AOptions) then
+  if not (GetBackVisible or (rboAssumeBackFill in AOptions)) and not GetPenVisible(rboAssumePenFill in AOptions) then
     result:= EmptyRectF
   else
   begin
     pts := GetCurve(AMatrix);
-    if PenVisible(rboAssumePenFill in AOptions) then
+    if GetPenVisible(rboAssumePenFill in AOptions) then
     begin
       if (JoinStyle = pjsRound) and (ArrowStartKind = akNone) and (ArrowEndKind = akNone) then
       begin
@@ -1251,7 +1238,7 @@ begin
         result.Bottom += yMargin;
       end else
       begin
-        if BackVisible or (rboAssumeBackFill in AOptions) then fillBounds := GetPointsBoundsF(pts)
+        if GetBackVisible or (rboAssumeBackFill in AOptions) then fillBounds := GetPointsBoundsF(pts)
         else fillBounds := EmptyRectF;
         pts := ComputeStroke(pts, Closed, AMatrix);
         penBounds := GetPointsBoundsF(pts);
@@ -1268,10 +1255,10 @@ function TPolylineShape.PointInShape(APoint: TPointF): boolean;
 var
   pts: ArrayOfTPointF;
 begin
-  if not BackVisible and not PenVisible then exit(false);
+  if not GetBackVisible and not GetPenVisible then exit(false);
   pts := GetCurve(AffineMatrixIdentity);
-  if BackVisible and IsPointInPolygon(pts, APoint, true) then exit(true);
-  if PenVisible then
+  if GetBackVisible and IsPointInPolygon(pts, APoint, true) then exit(true);
+  if GetPenVisible then
   begin
     pts := ComputeStroke(pts, Closed, AffineMatrixIdentity);
     if IsPointInPolygon(pts, APoint, true) then exit(true);
@@ -1283,7 +1270,7 @@ function TPolylineShape.PointInShape(APoint: TPointF; ARadius: single): boolean;
 var
   pts: ArrayOfTPointF;
 begin
-  if not BackVisible and not PenVisible then exit(false);
+  if not GetBackVisible and not GetPenVisible then exit(false);
   pts := GetCurve(AffineMatrixIdentity);
   pts := ComputeStrokeEnvelope(pts, Closed, ARadius*2);
   result := IsPointInPolygon(pts, APoint, true);
@@ -1294,7 +1281,7 @@ var
   pts: ArrayOfTPointF;
   scan: TBGRACustomScanner;
 begin
-  if BackVisible then
+  if GetBackVisible then
   begin
     pts := GetCurve(AffineMatrixIdentity);
     result := IsPointInPolygon(pts, APoint, true);
@@ -1312,7 +1299,7 @@ function TPolylineShape.PointInPen(APoint: TPointF): boolean;
 var
   pts: ArrayOfTPointF;
 begin
-  if BackVisible then
+  if GetBackVisible then
   begin
     pts := GetCurve(AffineMatrixIdentity);
     pts := ComputeStroke(pts, Closed, AffineMatrixIdentity);
@@ -1328,13 +1315,13 @@ var pts: ArrayOfTPointF;
   backSurface: Single;
   penLength, zoomFactor, penSurface, totalSurface: single;
 begin
-  if not PenVisible and not BackVisible or (PointCount = 0) then exit(false);
+  if not GetPenVisible and not GetBackVisible or (PointCount = 0) then exit(false);
 
   setlength(pts, PointCount);
   for i := 0 to high(pts) do
     pts[i] := AMatrix * Points[i];
 
-  if PenVisible then
+  if GetPenVisible then
   begin
     penLength := 0;
     zoomFactor := max(VectLen(AMatrix[1,1],AMatrix[2,1]), VectLen(AMatrix[1,2],AMatrix[2,2]));
@@ -1354,14 +1341,14 @@ begin
     penSurface := penLength*PenWidth*zoomFactor;
   end else penSurface := 0;
 
-  if BackVisible then
+  if GetBackVisible then
   begin
     ptsBounds := GetPointsBoundsF(pts);
     backSurface := ptsBounds.Width*ptsBounds.Height;
   end else
     backSurface := 0;
 
-  if PenVisible and BackVisible then totalSurface := backSurface+penSurface/2
+  if GetPenVisible and GetBackVisible then totalSurface := backSurface+penSurface/2
   else totalSurface := backSurface+penSurface;
 
   Result:= (PointCount > 40) or

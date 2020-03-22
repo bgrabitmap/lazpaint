@@ -205,6 +205,9 @@ type
     procedure AddFillDiffHandler(AFill: TVectorialFill; ADiff: TCustomVectorialFillDiff);
     function GetDiffHandler(AClass: TVectorShapeDiffAny): TVectorShapeDiff;
     function GetIsFollowingMouse: boolean; virtual;
+    function GetPenVisible(AAssumePenFill: boolean = False): boolean; virtual;
+    function GetPenVisibleNow: boolean;
+    function GetBackVisible: boolean; virtual;
   public
     constructor Create(AContainer: TVectorOriginal); virtual;
     class function CreateFromStorage(AStorage: TBGRACustomOriginalStorage; AContainer: TVectorOriginal): TVectorShape;
@@ -273,6 +276,8 @@ type
     property Id: integer read FId write SetId;
     property IsFollowingMouse: boolean read GetIsFollowingMouse;
     property IsUpdating: boolean read GetIsUpdating;
+    property BackVisible: boolean read GetBackVisible;
+    property PenVisible: boolean read GetPenVisibleNow;
   end;
   TVectorShapes = specialize TFPGList<TVectorShape>;
   TVectorShapeAny = class of TVectorShape;
@@ -1577,6 +1582,26 @@ end;
 function TVectorShape.GetIsFollowingMouse: boolean;
 begin
   result := false;
+end;
+
+function TVectorShape.GetPenVisible(AAssumePenFill: boolean): boolean;
+var
+  f: TVectorShapeFields;
+begin
+  f := Fields;
+  result := (vsfPenFill in f) and (not PenFill.IsFullyTransparent or AAssumePenFill);
+  if result and (vsfPenWidth in f) then result := result and (PenWidth>0);
+  if result and (vsfPenStyle in f) then result := result and not IsClearPenStyle(PenStyle);
+end;
+
+function TVectorShape.GetPenVisibleNow: boolean;
+begin
+  result := GetPenVisible(False);
+end;
+
+function TVectorShape.GetBackVisible: boolean;
+begin
+  result := (vsfBackFill in Fields) and not BackFill.IsFullyTransparent;
 end;
 
 procedure TVectorShape.TransformFill(const AMatrix: TAffineMatrix; ABackOnly: boolean);

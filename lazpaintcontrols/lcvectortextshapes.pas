@@ -120,7 +120,6 @@ type
     FGlobalMatrix: TAffineMatrix;
     procedure DoOnChange(ABoundsBefore: TRectF; ADiff: TVectorShapeDiff); override;
     procedure SetGlobalMatrix(AMatrix: TAffineMatrix);
-    function PenVisible(AAssumePenFill: boolean = false): boolean;
     function ShowArrows: boolean; override;
     function GetTextLayout: TBidiTextLayout;
     function GetFontRenderer: TBGRACustomFontRenderer;
@@ -729,11 +728,6 @@ procedure TTextShape.SetGlobalMatrix(AMatrix: TAffineMatrix);
 begin
   if AMatrix = FGlobalMatrix then exit;
   FGlobalMatrix := AMatrix;
-end;
-
-function TTextShape.PenVisible(AAssumePenFill: boolean): boolean;
-begin
-  result := not PenFill.IsFullyTransparent or AAssumePenFill;
 end;
 
 function TTextShape.AllowShearTransform: boolean;
@@ -1469,7 +1463,7 @@ var
   u: TPointF;
   lenU, margin: Single;
 begin
-  if (PenVisible(rboAssumePenFill in AOptions) or HasOutline) and
+  if (GetPenVisible(rboAssumePenFill in AOptions) or HasOutline) and
     (Text <> '') then
   begin
     ab := GetAffineBox(AMatrix, false);
