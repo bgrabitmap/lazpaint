@@ -391,7 +391,8 @@ type
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
     function CreateEditor: TBGRAOriginalEditor; override;
-    function GetRenderBounds(ADestRect: TRect; {%H-}AMatrix: TAffineMatrix): TRect; override;
+    function GetRenderBounds(ADestRect: TRect; {%H-}AMatrix: TAffineMatrix): TRect; overload; override;
+    function GetRenderBounds(ADestRect: TRect; {%H-}AMatrix: TAffineMatrix; AStartIndex, AEndIndex: integer): TRect; overload;
     function GetAlignBounds(ADestRect: TRect; {%H-}AMatrix: TAffineMatrix): TRect;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -2713,7 +2714,7 @@ end;
 
 function TVectorOriginal.PreferDraftMode(AEditor: TBGRAOriginalEditor; const AMatrix: TAffineMatrix): boolean;
 begin
-  if Assigned(SelectedShape) then
+  if Assigned(SelectedShape) and Assigned(AEditor) then
   begin
     result := (AEditor.IsMovingPoint or SelectedShape.IsFollowingMouse) and
               SelectedShape.GetIsSlow(AMatrix);
@@ -2843,6 +2844,12 @@ end;
 
 function TVectorOriginal.GetRenderBounds(ADestRect: TRect;
   AMatrix: TAffineMatrix): TRect;
+begin
+  result := GetRenderBounds(ADestRect, AMatrix, 0, ShapeCount-1);
+end;
+
+function TVectorOriginal.GetRenderBounds(ADestRect: TRect;
+  AMatrix: TAffineMatrix; AStartIndex, AEndIndex: integer): TRect;
 var
   area, shapeArea: TRectF;
   i: Integer;
@@ -2852,7 +2859,7 @@ var
 begin
   area:= EmptyRectF;
   useStorage := Assigned(RenderStorage) and (RenderStorage.AffineMatrix['last-matrix']=AMatrix);
-  for i:= 0 to FShapes.Count-1 do
+  for i:= AStartIndex to AEndIndex do
   begin
     if useStorage then
     begin
