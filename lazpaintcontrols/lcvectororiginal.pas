@@ -1924,6 +1924,7 @@ end;
 
 procedure TVectorShape.SetPenStyle(AValue: TBGRAPenStyle);
 begin
+  if PenStyleEqual(AValue, Stroker.CustomPenStyle) then exit;
   BeginUpdate(TVectorShapeCommonDiff);
   Stroker.CustomPenStyle := AValue;
   EndUpdate;
