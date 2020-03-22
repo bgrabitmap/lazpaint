@@ -162,6 +162,7 @@ type
     FFillBeforeChangeBounds: TRectF;
     function GetIsBack: boolean;
     function GetIsFront: boolean;
+    function GetIsUpdating: boolean;
     procedure SetContainer(AValue: TVectorOriginal);
     function GetFill(var AFillVariable: TVectorialFill): TVectorialFill;
     procedure SetFill(var AFillVariable: TVectorialFill; AValue: TVectorialFill; AUpdate: boolean);
@@ -201,6 +202,7 @@ type
     procedure RetrieveRenderStorage(AMatrix: TAffineMatrix; out ARenderBounds: TRect; out AImage: TBGRABitmap);
     function CanHaveRenderStorage: boolean;
     function AddDiffHandler(AClass: TVectorShapeDiffAny): TVectorShapeDiff;
+    procedure AddFillDiffHandler(AFill: TVectorialFill; ADiff: TCustomVectorialFillDiff);
     function GetDiffHandler(AClass: TVectorShapeDiffAny): TVectorShapeDiff;
     function GetIsFollowingMouse: boolean; virtual;
   public
@@ -270,6 +272,7 @@ type
     property IsRemoving: boolean read FRemoving;
     property Id: integer read FId write SetId;
     property IsFollowingMouse: boolean read GetIsFollowingMouse;
+    property IsUpdating: boolean read GetIsUpdating;
   end;
   TVectorShapes = specialize TFPGList<TVectorShape>;
   TVectorShapeAny = class of TVectorShape;
@@ -1496,6 +1499,11 @@ begin
   FContainer:=AValue;
 end;
 
+function TVectorShape.GetIsUpdating: boolean;
+begin
+  result := FUpdateCount > 0;
+end;
+
 function TVectorShape.GetFill(var AFillVariable: TVectorialFill): TVectorialFill;
 begin
   if AFillVariable = nil then
@@ -1737,13 +1745,13 @@ end;
 procedure TVectorShape.FillChange(ASender: TObject; var ADiff: TCustomVectorialFillDiff);
 var
   field: TVectorShapeField;
-  h: TVectorShapeCommonFillDiff;
   r: TRectF;
 begin
   r := FFillBeforeChangeBounds;
   FFillBeforeChangeBounds := EmptyRectF;
   if FFillChangeWithoutUpdate then exit;
-  if FUpdateCount=0 then
+  //if shape is not being updating, send the fill diff as such
+  if not IsUpdating then
   begin
     inc(FRenderIteration);
     if ASender = FPenFill then field := vsfPenFill
@@ -1762,31 +1770,7 @@ begin
     end else
       DoOnChange(r, nil);
   end else
-  if (FUpdateCount>0) and Assigned(ADiff) then
-  begin
-    if GetDiffHandler(TVectorShapeCommonFillDiff)=nil then
-    begin
-      h := AddDiffHandler(TVectorShapeCommonFillDiff) as TVectorShapeCommonFillDiff;
-      if Assigned(h) then
-      begin
-        if ASender = FPenFill then
-        begin
-          if h.FStartPenFill=nil then h.FStartPenFill := TVectorialFill.Create;
-          ADiff.Unapply(h.FStartPenFill)
-        end
-        else if ASender = FBackFill then
-        begin
-          if h.FStartBackFill=nil then h.FStartBackFill := TVectorialFill.Create;
-          ADiff.Unapply(h.FStartBackFill);
-        end
-        else if ASender = FOutlineFill then
-        begin
-          if h.FStartOutlineFill=nil then h.FStartOutlineFill := TVectorialFill.Create;
-          ADiff.Unapply(h.FStartOutlineFill);
-        end;
-      end;
-    end;
-  end;
+    AddFillDiffHandler(ASender as TVectorialFill, ADiff);
 end;
 
 procedure TVectorShape.FillBeforeChange(ASender: TObject);
@@ -1861,7 +1845,7 @@ var
   i: Integer;
 begin
   result := nil;
-  if FUpdateCount <= 0 then
+  if not IsUpdating then
     raise exception.Create(errDiffHandlerOnlyDuringUpdate);
   if Assigned(FOnChange) then
   begin
@@ -1870,6 +1854,40 @@ begin
       if FDiffs[i] is AClass then exit(FDiffs[i]);
     result := AClass.Create(self);
     FDiffs.Add(result);
+  end;
+end;
+
+procedure TVectorShape.AddFillDiffHandler(AFill: TVectorialFill; ADiff: TCustomVectorialFillDiff);
+var
+  h: TVectorShapeCommonFillDiff;
+begin
+  if Assigned(AFill) and Assigned(ADiff) then
+  begin
+    //make sure there is a handler for fill diff
+    if GetDiffHandler(TVectorShapeCommonFillDiff)=nil then
+    begin
+      h := AddDiffHandler(TVectorShapeCommonFillDiff) as TVectorShapeCommonFillDiff;
+      if Assigned(h) then
+      begin
+        //handler is initialized with current fill that is already changed
+        //so we need to fix the start value using diff
+        if AFill = FPenFill then
+        begin
+          if h.FStartPenFill=nil then h.FStartPenFill := TVectorialFill.Create;
+          ADiff.Unapply(h.FStartPenFill)
+        end
+        else if AFill = FBackFill then
+        begin
+          if h.FStartBackFill=nil then h.FStartBackFill := TVectorialFill.Create;
+          ADiff.Unapply(h.FStartBackFill);
+        end
+        else if AFill = FOutlineFill then
+        begin
+          if h.FStartOutlineFill=nil then h.FStartOutlineFill := TVectorialFill.Create;
+          ADiff.Unapply(h.FStartOutlineFill);
+        end;
+      end;
+    end;
   end;
 end;
 
