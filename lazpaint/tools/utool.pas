@@ -3516,6 +3516,7 @@ begin
     FInTool := true;
     try
       FCurrentTool := PaintTools[FCurrentToolType].Create(self);
+      UpdateContextualToolbars;
     finally
       FInTool := false;
     end;
