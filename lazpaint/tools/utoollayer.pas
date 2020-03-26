@@ -197,9 +197,14 @@ begin
   begin
     if UseOriginal then
     begin
-      FLayerBounds := Manager.Image.LayerOriginal[idx].GetRenderBounds(
-                        Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
-                        AffineMatrixIdentity);
+      if Manager.Image.LayerOriginal[idx] is TVectorOriginal then
+        FLayerBounds := TVectorOriginal(Manager.Image.LayerOriginal[idx]).GetAlignBounds(
+                          Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
+                          AffineMatrixIdentity)
+      else
+        FLayerBounds := Manager.Image.LayerOriginal[idx].GetRenderBounds(
+                          Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
+                          AffineMatrixIdentity);
       if FLayerBounds.Left = -VeryBigValue then FLayerBounds.Left := 0;
       if FLayerBounds.Top = -VeryBigValue then FLayerBounds.Top := 0;
       if FLayerBounds.Right = VeryBigValue then FLayerBounds.Right := Manager.Image.Width;
@@ -722,9 +727,14 @@ begin
   begin
     if Manager.Image.LayerOriginalDefined[idx] then
     begin
-      FOriginalBounds := Manager.Image.LayerOriginal[idx].GetRenderBounds(
-                        Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
-                        AffineMatrixIdentity);
+      if Manager.Image.LayerOriginal[idx] is TVectorOriginal then
+        FOriginalBounds := TVectorOriginal(Manager.Image.LayerOriginal[idx]).GetAlignBounds(
+                          Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
+                          AffineMatrixIdentity)
+      else
+        FOriginalBounds := Manager.Image.LayerOriginal[idx].GetRenderBounds(
+                          Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
+                          AffineMatrixIdentity);
       if FOriginalBounds.Left = -VeryBigValue then FOriginalBounds.Left := 0;
       if FOriginalBounds.Top = -VeryBigValue then FOriginalBounds.Top := 0;
       if FOriginalBounds.Right = VeryBigValue then FOriginalBounds.Right := Manager.Image.Width;
