@@ -1177,6 +1177,14 @@ begin
           begin
             GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
             key := 0;
+          end else
+          if (key = VK_ESCAPE) and Assigned(GetVectorOriginal.SelectedShape) then
+          begin
+            if GetVectorOriginal.SelectedShape.Usermode = vsuEditText then
+              GetVectorOriginal.SelectedShape.Usermode := vsuEdit
+            else
+              GetVectorOriginal.DeselectShapes;
+            key := 0;
           end;
         end;
       finally
