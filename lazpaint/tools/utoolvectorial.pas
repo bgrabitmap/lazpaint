@@ -72,12 +72,16 @@ type
     procedure ShapeValidated; virtual;
     function ForeGradTexMode: TVectorShapeUsermode; virtual;
     function BackGradTexMode: TVectorShapeUsermode; virtual;
-    function ShapeForeFill: TVectorialFill; virtual;
-    function ShapeBackFill: TVectorialFill; virtual;
+    function OutlineGradTexMode: TVectorShapeUsermode; virtual;
     function ForeFitMode: TFitMode;
     function BackFitMode: TFitMode;
+    function OutlineFitMode: TFitMode;
+    function ManagerForeFill: TVectorialFill;
+    function ManagerBackFill: TVectorialFill;
+    function ManagerOutlineFill: TVectorialFill;
     function GetIsForeEditGradTexPoints: boolean; override;
     function GetIsBackEditGradTexPoints: boolean; override;
+    function GetIsOutlineEditGradTexPoints: boolean; override;
     function GetGridMatrix: TAffineMatrix; virtual;
     property Editor: TBGRAOriginalEditor read GetEditor;
   public
@@ -145,12 +149,13 @@ type
     function InvalidEditMode: boolean;
     function ForeGradTexMode: TVectorShapeUsermode; virtual;
     function BackGradTexMode: TVectorShapeUsermode; virtual;
-    function ShapeForeFill: TVectorialFill; virtual;
-    function ShapeBackFill: TVectorialFill; virtual;
+    function OutlineGradTexMode: TVectorShapeUsermode; virtual;
     function ForeFitMode: TFitMode;
     function BackFitMode: TFitMode;
+    function OutlineFitMode: TFitMode;
     function GetIsForeEditGradTexPoints: boolean; override;
     function GetIsBackEditGradTexPoints: boolean; override;
+    function GetIsOutlineEditGradTexPoints: boolean; override;
     function GetAllowedBackFillTypes: TVectorialFillTypes; override;
     function GetStatusText: string; override;
   public
@@ -376,45 +381,35 @@ var
   zoom: single;
   m: TAffineMatrix;
   doFill, doDraw: Boolean;
+  f: TVectorShapeFields;
 begin
   m := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
   zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2;
   if AShape.Usermode in [vsuEditBackFill, vsuEditPenFill] then
     AShape.Usermode := vsuEdit;
   opt := Manager.ShapeOptions;
-  if AShape.Fields*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
+  f := AShape.Fields;
+  doDraw := vsfPenFill in f;
+  doFill := vsfBackFill in f;
+  if vsfPenStyle in f then
   begin
-    if AShape.BackFill.FillType = vftNone then
-    begin;
-      exclude(opt,toFillShape);
-      doFill := false;
-    end
-    else
-    begin
-      include(opt,toFillShape);
-      doFill := true;
-    end;
-    ps := BGRAToPenStyle(AShape.PenStyle);
-    if (ps = psClear) or (AShape.PenFill.FillType = vftNone) then
-    begin
-      exclude(opt,toDrawShape);
-      doDraw := false;
-    end
-    else
-    begin
-      include(opt,toDrawShape);
-      Manager.PenStyle := ps;
-      doDraw := true;
-    end;
-  end else
-  begin
-    doDraw := vsfPenFill in AShape.Fields;
-    doFill := vsfBackFill in AShape.Fields;
-  end;
+    doDraw := AShape.PenVisible;
+    if doDraw then doFill := AShape.BackVisible;
 
+    if not doFill then
+      exclude(opt,toFillShape)
+      else include(opt,toFillShape);
+    if not doDraw then
+      exclude(opt,toDrawShape)
+      else
+      begin
+        include(opt,toDrawShape);
+        Manager.PenStyle := ps;
+      end;
+  end;
   if doDraw then
   begin
-    if AShape.PenFill.FillType = vftNone then
+    if not AShape.PenVisible then
       Manager.ForeColor := BGRA(Manager.ForeColor.red,
         Manager.ForeColor.green,Manager.ForeColor.blue,0)
     else
@@ -422,17 +417,23 @@ begin
   end;
   if doFill then
   begin
-    if AShape.BackFill.FillType = vftNone then
+    if not AShape.BackVisible then
       Manager.BackColor := BGRA(Manager.BackColor.red,
         Manager.BackColor.green,Manager.BackColor.blue,0)
     else
       Manager.BackFill.Assign(AShape.BackFill);
   end;
+  if not AShape.OutlineVisible then
+    Manager.SetTextOutline(false, Manager.TextOutlineWidth) else
+  begin
+    Manager.SetTextOutline(true, AShape.OutlineWidth*zoom);
+    Manager.OutlineFill.Assign(AShape.OutlineFill);
+  end;
 
   if toDrawShape in opt then
   begin
-    if vsfPenWidth in AShape.Fields then Manager.PenWidth := AShape.PenWidth*zoom;
-    if vsfJoinStyle in AShape.Fields then Manager.JoinStyle:= AShape.JoinStyle;
+    if vsfPenWidth in f then Manager.PenWidth := AShape.PenWidth*zoom;
+    if vsfJoinStyle in f then Manager.JoinStyle:= AShape.JoinStyle;
     if AShape is TCustomPolypointShape then
     begin
       if TCustomPolypointShape(AShape).Closed then
@@ -455,14 +456,8 @@ begin
     Manager.LightPosition := m*LightPosition;
     Manager.PhongShapeAltitude := round(AltitudePercent);
     Manager.TextAlign:= ParagraphAlignment;
-    Manager.SetTextFont(FontName,round(FontEmHeight*zoom*72/Manager.Image.DPI),FontStyle);
+    Manager.SetTextFont(FontName, FontEmHeight*zoom*72/Manager.Image.DPI, FontStyle);
     Manager.TextShadow:= false;
-    if OutlineFill.FillType = vftNone then
-      Manager.SetTextOutline(false, Manager.TextOutlineWidth) else
-    begin
-      Manager.SetTextOutline(true, OutlineWidth);
-      Manager.BackFill.Assign(OutlineFill);
-    end;
     if Aliased then
       include(opt,toAliasing)
       else exclude(opt,toAliasing);
@@ -606,52 +601,64 @@ var
   m: TAffineMatrix;
   zoom: Single;
   gradBox: TAffineBox;
+  f: TVectorShapeFields;
+  shape: TVectorShape;
 begin
+  shape := nil;
   case GetEditMode of
   esmShape:
-    with GetVectorOriginal do
     try
       BindOriginalEvent(true);
-      gradBox := SelectedShape.SuggestGradientBox(AffineMatrixIdentity);
+      shape := GetVectorOriginal.SelectedShape;
+      shape.BeginUpdate;
+      gradBox := shape.SuggestGradientBox(AffineMatrixIdentity);
       m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
       zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2;
-      if SelectedShape.Fields*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
+      f := shape.Fields;
+      if f*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
       begin
         doDraw := toDrawShape in Manager.ShapeOptions;
         doFill := toFillShape in Manager.ShapeOptions;
 
         if doDraw then
-          SelectedShape.PenStyle := PenStyleToBGRA(Manager.PenStyle)
+          shape.PenStyle := PenStyleToBGRA(Manager.PenStyle)
         else
-          SelectedShape.PenStyle := ClearPenStyle;
+          shape.PenStyle := ClearPenStyle;
 
-        if vsfPenWidth in SelectedShape.Fields then SelectedShape.PenWidth := Manager.PenWidth*zoom;
-        if vsfJoinStyle in SelectedShape.Fields then SelectedShape.JoinStyle := Manager.JoinStyle;
-        if SelectedShape is TCustomPolypointShape then
+        if doDraw and (vsfPenWidth in f) then shape.PenWidth := Manager.PenWidth*zoom;
+        if doDraw and (vsfJoinStyle in f) then shape.JoinStyle := Manager.JoinStyle;
+        if shape is TCustomPolypointShape then
         begin
-          TCustomPolypointShape(SelectedShape).Closed := toCloseShape in Manager.ShapeOptions;
-          if not TCustomPolypointShape(SelectedShape).Closed then
+          TCustomPolypointShape(shape).Closed := toCloseShape in Manager.ShapeOptions;
+          if not TCustomPolypointShape(shape).Closed then
           begin
-            TCustomPolypointShape(SelectedShape).LineCap:= Manager.LineCap;
-            TCustomPolypointShape(SelectedShape).ArrowSize:= Manager.ArrowSize;
-            TCustomPolypointShape(SelectedShape).ArrowStartKind:= Manager.ArrowStart;
-            TCustomPolypointShape(SelectedShape).ArrowEndKind:= Manager.ArrowEnd;
+            TCustomPolypointShape(shape).LineCap:= Manager.LineCap;
+            TCustomPolypointShape(shape).ArrowSize:= Manager.ArrowSize;
+            TCustomPolypointShape(shape).ArrowStartKind:= Manager.ArrowStart;
+            TCustomPolypointShape(shape).ArrowEndKind:= Manager.ArrowEnd;
           end;
         end;
-        if SelectedShape is TCurveShape then
-          TCurveShape(SelectedShape).SplineStyle:= Manager.SplineStyle;
+        if shape is TCurveShape then
+          TCurveShape(shape).SplineStyle:= Manager.SplineStyle;
       end else
       begin
-        doDraw := vsfPenFill in SelectedShape.Fields;
-        doFill := vsfBackFill in SelectedShape.Fields;
+        doDraw := vsfPenFill in f;
+        doFill := vsfBackFill in f;
       end;
-      if doFill then AssignFill(SelectedShape.BackFill, Manager.BackFill, gradBox, BackFitMode)
-      else if vsfBackFill in SelectedShape.Fields then
-          SelectedShape.BackFill.Clear;
-      if doDraw then AssignFill(SelectedShape.PenFill, Manager.ForeFill, gradBox, ForeFitMode);
+      if doFill then AssignFill(shape.BackFill, Manager.BackFill, gradBox, BackFitMode)
+      else if vsfBackFill in f then
+          shape.BackFill.Clear;
+      if doDraw then AssignFill(shape.PenFill, Manager.ForeFill, gradBox, ForeFitMode);
+      if (vsfOutlineWidth in f) and Manager.TextOutline then shape.OutlineWidth := Manager.TextOutlineWidth*zoom;
+      if vsfOutlineFill in f then
+      begin
+        if Manager.TextOutline then
+          AssignFill(shape.OutLineFill, Manager.OutLineFill, gradBox, OutlineFitMode)
+          else shape.OutlineFill.Clear;
+      end;
 
-      if SelectedShape is TTextShape then
-      with TTextShape(SelectedShape) do
+      if shape is TTextShape then
+      with TTextShape(shape) do
       begin
         PenPhong := Manager.TextPhong;
         LightPosition := m*Manager.LightPosition;
@@ -660,16 +667,10 @@ begin
         FontName:= Manager.TextFontName;
         FontEmHeight:= Manager.TextFontSize*zoom*Manager.Image.DPI/72;
         FontStyle := Manager.TextFontStyle;
-        if Manager.TextOutline then
-        begin
-          OutlineWidth := Manager.TextOutlineWidth;
-          AssignFill(OutLineFill, Manager.BackFill, gradBox, BackFitMode);
-        end else
-          OutlineFill.Clear;
         Aliased := Manager.ShapeOptionAliasing;
       end;
-      if SelectedShape is TPhongShape then
-      with TPhongShape(SelectedShape) do
+      if shape is TPhongShape then
+      with TPhongShape(shape) do
       begin
         ShapeKind := Manager.PhongShapeKind;
         LightPosition := Manager.LightPosition;
@@ -677,6 +678,7 @@ begin
         BorderSizePercent := Manager.PhongShapeBorderSize;
       end;
     finally
+      if Assigned(shape) then shape.EndUpdate;
       BindOriginalEvent(false);
     end;
   esmGradient:
@@ -725,7 +727,7 @@ begin
     Manager.Image.LayerMayChange(GetToolDrawingLayer,r);
   end;
   case GetEditMode of
-  esmShape: GetVectorOriginal.DeselectShape;
+  esmShape: GetVectorOriginal.DeselectShapes;
   esmGradient: FIsEditingGradient:= false;
   esmOtherOriginal: FreeAndNil(FOriginalRect);
   esmSelection: FreeAndNil(FSelectionRect);
@@ -866,23 +868,38 @@ end;
 
 destructor TEditShapeTool.Destroy;
 begin
-  StopEdit(False, False);
+  FreeAndNil(FOriginalRect);
+  FreeAndNil(FSelectionRect);
+  Manager.Image.CurrentState.LayeredBitmap.ClearEditor;
+  FreeAndNil(FRectEditor);
   inherited Destroy;
 end;
 
 function TEditShapeTool.GetContextualToolbars: TContextualToolbars;
 var
   shape: TVectorShape;
+  f: TVectorShapeFields;
 begin
   Result:= [ctPenFill, ctBackFill];
   case GetEditMode of
   esmShape:
     begin
       shape := GetVectorOriginal.SelectedShape;
-      if shape is TRectShape then result := result + [ctShape,ctPenWidth,ctPenStyle,ctJoinStyle]
-      else if shape is TEllipseShape then result := result + [ctShape,ctPenWidth,ctPenStyle]
-      else if shape is TCurveShape then result := result + [ctShape,ctCloseShape,ctPenWidth,ctPenStyle,ctLineCap,ctSplineStyle]
-      else if shape is TPolylineShape then result := result + [ctShape,ctCloseShape,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap]
+
+      f := shape.Fields;
+      if vsfPenWidth in f then result += [ctPenWidth];
+      if vsfPenStyle in f then result += [ctPenStyle];
+      if vsfJoinStyle in f then result += [ctJoinStyle];
+      if [vsfPenStyle,vsfPenFill,vsfBackFill] <= f then result += [ctShape];
+      if vsfOutlineFill in f then
+      begin
+        result += [ctOutlineFill];
+        if not (vsfBackFill in f) then result -= [ctBackFill];
+      end;
+      if vsfOutlineWidth in f then result += [ctOutlineWidth];
+
+      if shape is TCurveShape then result := result + [ctShape,ctCloseShape,ctLineCap,ctSplineStyle]
+      else if shape is TPolylineShape then result := result + [ctShape,ctCloseShape,ctLineCap]
       else if shape is TPhongShape then result := result + [ctPhong,ctAltitude]
       else if shape is TTextShape then
       begin
@@ -1010,7 +1027,7 @@ begin
     shapeAfter := TCurveShape.CreateFrom(orig, shapeBefore);
     shapeAfter.JoinStyle := pjsRound;
     orig.ReplaceShape(orig.IndexOfShape(shapeBefore), shapeAfter);
-    orig.SelectShape(shapeAfter);
+    orig.SelectShape(shapeAfter, False);
     result := true;
   end else
     result := false;
@@ -1050,28 +1067,12 @@ end;
 
 function TEditShapeTool.BackGradTexMode: TVectorShapeUsermode;
 begin
-  if (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape is TTextShape) then
-    result := vsuEditOutlineFill
-  else
-    result := vsuEditBackFill;
+  result := vsuEditBackFill;
 end;
 
-function TEditShapeTool.ShapeForeFill: TVectorialFill;
+function TEditShapeTool.OutlineGradTexMode: TVectorShapeUsermode;
 begin
-  if GetEditMode = esmShape then result := GetVectorOriginal.SelectedShape.PenFill
-  else result := nil;
-end;
-
-function TEditShapeTool.ShapeBackFill: TVectorialFill;
-begin
-  if GetEditMode = esmShape then
-  begin
-    if GetVectorOriginal.SelectedShape is TTextShape then
-      result := GetVectorOriginal.SelectedShape.OutlineFill
-    else
-      result := GetVectorOriginal.SelectedShape.BackFill;
-  end
-  else result := nil;
+  result := vsuEditOutlineFill;
 end;
 
 function TEditShapeTool.ForeFitMode: TFitMode;
@@ -1086,6 +1087,12 @@ begin
   else result := fmIfChange;
 end;
 
+function TEditShapeTool.OutlineFitMode: TFitMode;
+begin
+  if IsOutlineEditGradTexPoints then result := fmNever
+  else result := fmIfChange;
+end;
+
 function TEditShapeTool.GetIsForeEditGradTexPoints: boolean;
 begin
   result := (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape.Usermode = ForeGradTexMode);
@@ -1094,6 +1101,11 @@ end;
 function TEditShapeTool.GetIsBackEditGradTexPoints: boolean;
 begin
   result := (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape.Usermode = BackGradTexMode);
+end;
+
+function TEditShapeTool.GetIsOutlineEditGradTexPoints: boolean;
+begin
+  result := (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape.Usermode = OutlineGradTexMode);
 end;
 
 function TEditShapeTool.GetAllowedBackFillTypes: TVectorialFillTypes;
@@ -1134,7 +1146,7 @@ begin
   if not Manager.Image.SelectionMaskEmpty then
   begin
     if (GetCurrentLayerKind = lkVectorial) and Assigned(GetVectorOriginal.SelectedShape) then
-      GetVectorOriginal.DeselectShape;
+      GetVectorOriginal.DeselectShapes;
     DoEditSelection;
   end else
   if (GetCurrentLayerKind = lkVectorial) and Assigned(GetVectorOriginal.SelectedShape) then
@@ -1309,7 +1321,7 @@ begin
           zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2/Manager.Image.ZoomFactor;
           BindOriginalEvent(true);
           try
-            if GetVectorOriginal.MouseClick(m*FLastPos, DoScaleX(PointSize, OriginalDPI)*zoom) then
+            if GetVectorOriginal.MouseClick(m*FLastPos, DoScaleX(PointSize, OriginalDPI)*zoom, ssShift in ShiftState) then
             begin
               handled := true;
               result := OnlyRenderChange;
@@ -1423,8 +1435,9 @@ begin
           tcBackEditGradTexPoints: if GetVectorOriginal.SelectedShape.Usermode = BackGradTexMode then
                                     GetVectorOriginal.SelectedShape.Usermode := vsuEdit else
                                     GetVectorOriginal.SelectedShape.Usermode := BackGradTexMode;
-          tcForeAdjustToShape: ShapeForeFill.FitGeometry(SuggestGradientBox);
-          tcBackAdjustToShape: ShapeBackFill.FitGeometry(SuggestGradientBox);
+          tcForeAdjustToShape: GetVectorOriginal.SelectedShape.PenFill.FitGeometry(SuggestGradientBox);
+          tcBackAdjustToShape: GetVectorOriginal.SelectedShape.BackFill.FitGeometry(SuggestGradientBox);
+          tcOutlineAdjustToShape: GetVectorOriginal.SelectedShape.OutlineFill.FitGeometry(SuggestGradientBox);
           tcShapeToSpline: result := ConvertToSpline;
           else result := false;
         end;
@@ -1512,7 +1525,7 @@ function TEditShapeTool.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
   case ACommand of
   tcCut,tcCopy,tcDelete: result:= GetEditMode in [esmShape,esmOtherOriginal,esmGradient];
-  tcForeAdjustToShape: result := GetEditMode = esmShape;
+  tcForeAdjustToShape,tcOutlineAdjustToShape: result := GetEditMode = esmShape;
   tcBackAdjustToShape: result := GetEditMode in [esmShape,esmGradient];
   tcForeEditGradTexPoints: result := (GetEditMode = esmShape) and
                      (ForeGradTexMode in GetVectorOriginal.SelectedShape.Usermodes);
@@ -1652,34 +1665,32 @@ end;
 
 function TVectorialTool.ForeGradTexMode: TVectorShapeUsermode;
 begin
-  if FSwapColor then result := vsuEditBackFill else
+  if Assigned(FShape) and FSwapColor then
+  begin
+    if vsfBackFill in FShape.Fields then
+      result := vsuEditBackFill
+    else if vsfOutlineFill in FShape.Fields then
+      result := vsuEditOutlineFill
+    else
+      result := vsuEditPenFill;
+  end else
     result := vsuEditPenFill;
 end;
 
 function TVectorialTool.BackGradTexMode: TVectorShapeUsermode;
 begin
-  if FSwapColor then result := vsuEditPenFill else
+  if Assigned(FShape) and FSwapColor and (vsfPenFill in FShape.Fields) then
+    result := vsuEditPenFill
+  else
     result := vsuEditBackFill;
 end;
 
-function TVectorialTool.ShapeForeFill: TVectorialFill;
+function TVectorialTool.OutlineGradTexMode: TVectorShapeUsermode;
 begin
-  if Assigned(FShape) then
-  begin
-    if FSwapColor then result := FShape.BackFill else
-      result := FShape.PenFill;
-  end else
-    result := nil;
-end;
-
-function TVectorialTool.ShapeBackFill: TVectorialFill;
-begin
-  if Assigned(FShape) then
-  begin
-    if FSwapColor then result := FShape.PenFill else
-      result := FShape.BackFill;
-  end else
-    result := nil;
+  if Assigned(FShape) and FSwapColor and ([vsfPenFill,vsfBackFill]*FShape.Fields = [vsfPenFill]) then
+    result := vsuEditPenFill
+  else
+    result := vsuEditOutlineFill;
 end;
 
 function TVectorialTool.ForeFitMode: TFitMode;
@@ -1693,6 +1704,42 @@ begin
   if IsBackEditGradTexPoints then result := fmNever
   else result := fmIfChange;
 end;
+
+function TVectorialTool.OutlineFitMode: TFitMode;
+begin
+  if IsOutlineEditGradTexPoints then result := fmNever
+  else result := fmIfChange;
+end;
+
+function TVectorialTool.ManagerForeFill: TVectorialFill;
+begin
+  if Assigned(FShape) and FSwapColor then
+  begin
+    if vsfBackFill in FShape.Fields then
+      result := Manager.BackFill
+    else if vsfOutlineFill in FShape.Fields then
+      result := Manager.OutlineFill
+    else
+      result := Manager.ForeFill;
+  end else
+    result := Manager.ForeFill;
+end;
+
+function TVectorialTool.ManagerBackFill: TVectorialFill;
+begin
+  if Assigned(FShape) and FSwapColor and (vsfPenFill in FShape.Fields) then
+    result := Manager.ForeFill
+  else
+    result := Manager.BackFill;
+end;
+
+function TVectorialTool.ManagerOutlineFill: TVectorialFill;
+begin
+  if Assigned(FShape) and FSwapColor and ([vsfPenFill,vsfBackFill]*FShape.Fields = [vsfPenFill]) then
+    result := Manager.ForeFill
+  else
+    result := Manager.OutlineFill;
+end;
    
 function TVectorialTool.GetIsForeEditGradTexPoints: boolean;
 begin
@@ -1702,6 +1749,11 @@ end;
 function TVectorialTool.GetIsBackEditGradTexPoints: boolean;
 begin
   result := Assigned(FShape) and (FShape.Usermode = BackGradTexMode);
+end;
+
+function TVectorialTool.GetIsOutlineEditGradTexPoints: boolean;
+begin
+  result := Assigned(FShape) and (FShape.Usermode = OutlineGradTexMode);
 end;
 
 function TVectorialTool.GetGridMatrix: TAffineMatrix;
@@ -1825,17 +1877,14 @@ var
   fitMode: TFitMode;
 begin
   zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
-  f:= FShape.Fields;
+  f := FShape.Fields;
   gradBox := FShape.SuggestGradientBox(AffineMatrixIdentity);
   if vsfPenFill in f then
   begin
     if HasPen then
     begin
       if AAlwaysFit then fitMode := fmAlways else fitMode := ForeFitMode;
-      if FSwapColor then
-        AssignFill(FShape.PenFill, Manager.BackFill, gradBox, fitMode)
-      else
-        AssignFill(FShape.PenFill, Manager.ForeFill, gradBox, fitMode);
+      AssignFill(FShape.PenFill, ManagerForeFill, gradBox, fitMode)
     end else
       FShape.PenFill.Clear;
   end;
@@ -1847,13 +1896,21 @@ begin
     if HasBrush then
     begin
       if AAlwaysFit then fitMode := fmAlways else fitMode := BackFitMode;
-      if FSwapColor then
-        AssignFill(FShape.BackFill, Manager.ForeFill, gradBox, fitMode)
-      else
-        AssignFill(FShape.BackFill, Manager.BackFill, gradBox, fitMode);
+      AssignFill(FShape.BackFill, ManagerBackFill, gradBox, fitMode)
     end else
       FShape.BackFill.Clear;
   end;
+  if vsfOutlineFill in f then
+  begin
+    if Manager.TextOutline then
+    begin
+      if AAlwaysFit then fitMode := fmAlways else fitMode := OutlineFitMode;
+      AssignFill(FShape.OutlineFill, ManagerOutlineFill, gradBox, fitMode);
+    end else
+      FShape.OutlineFill.Clear;
+  end;
+  if (vsfOutlineWidth in f) and Manager.TextOutline then
+    FShape.OutlineWidth := zoom*Manager.TextOutlineWidth;
 end;
 
 function TVectorialTool.GetManagerShapeOptions: TShapeOptions;
@@ -2158,8 +2215,9 @@ begin
         Action.NotifyChange(toolDest, r);
         result := true;
       end;
-  tcForeAdjustToShape: if Assigned(FShape) then ShapeForeFill.FitGeometry(SuggestGradientBox);
-  tcBackAdjustToShape: if Assigned(FShape) then ShapeBackFill.FitGeometry(SuggestGradientBox);
+  tcForeAdjustToShape: if Assigned(FShape) then FShape.PenFill.FitGeometry(SuggestGradientBox);
+  tcBackAdjustToShape: if Assigned(FShape) then FShape.BackFill.FitGeometry(SuggestGradientBox);
+  tcOutlineAdjustToShape: if Assigned(FShape) then FShape.OutlineFill.FitGeometry(SuggestGradientBox);
   tcForeEditGradTexPoints: if Assigned(FShape) and not FQuickDefine then
                           begin
                             if FShape.Usermode = ForeGradTexMode then
@@ -2171,6 +2229,12 @@ begin
                             if FShape.Usermode = BackGradTexMode then
                               FShape.Usermode := vsuEdit else
                               FShape.Usermode := BackGradTexMode;
+                          end;
+  tcOutlineEditGradTexPoints: if Assigned(FShape) and not FQuickDefine then
+                          begin
+                            if FShape.Usermode = OutlineGradTexMode then
+                              FShape.Usermode := vsuEdit else
+                              FShape.Usermode := OutlineGradTexMode;
                           end;
   tcFinish: begin
               toolDest := GetToolDrawingLayer;
@@ -2196,7 +2260,8 @@ begin
   case ACommand of
   tcCopy,tcCut: Result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape);
   tcFinish: result := not IsIdle;
-  tcForeAdjustToShape, tcBackAdjustToShape: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine;
+  tcForeAdjustToShape, tcBackAdjustToShape, tcOutlineAdjustToShape:
+      result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine;
   tcForeEditGradTexPoints: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine and
                             (vsuEditPenFill in FShape.Usermodes) and not (FShape.Usermode = vsuCreate);
   tcBackEditGradTexPoints: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine and

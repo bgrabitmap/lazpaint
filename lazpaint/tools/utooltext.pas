@@ -28,10 +28,6 @@ type
     procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     procedure QuickDefineEnd; override;
     function RoundCoordinate(constref ptF: TPointF): TPointF; override;
-    function ForeGradTexMode: TVectorShapeUsermode; override;
-    function BackGradTexMode: TVectorShapeUsermode; override;
-    function ShapeForeFill: TVectorialFill; override;
-    function ShapeBackFill: TVectorialFill; override;
     function DoToolKeyDown(var key: Word): TRect; override;
   public
     constructor Create(AManager: TToolManager); override;
@@ -150,9 +146,8 @@ var
   r: TRect;
   toolDest: TBGRABitmap;
   zoom: Single;
-  gradBox: TAffineBox;
-  fitMode: TFitMode;
 begin
+  inherited AssignShapeStyle(AMatrix, AAlwaysFit);
   FMatrix := AMatrix;
   with TTextShape(FShape) do
   begin
@@ -161,27 +156,6 @@ begin
     FontName:= Manager.TextFontName;
     FontStyle:= Manager.TextFontStyle;
     Aliased := Manager.ShapeOptionAliasing;
-    gradBox := self.SuggestGradientBox;
-
-    if AAlwaysFit then fitMode := fmAlways else fitMode := ForeFitMode;
-    if FSwapColor then
-      AssignFill(FShape.PenFill, Manager.BackFill, gradBox, fitMode)
-    else
-      AssignFill(FShape.PenFill, Manager.ForeFill, gradBox, fitMode);
-
-    if Manager.TextOutline and (Manager.TextOutlineWidth>0) and
-       (Manager.BackColor.alpha > 0) then
-    begin
-      if AAlwaysFit then fitMode := fmAlways else fitMode := BackFitMode;
-      if FSwapColor then
-        AssignFill(FShape.OutlineFill, Manager.ForeFill, gradBox, fitMode)
-      else
-        AssignFill(FShape.OutlineFill, Manager.BackFill, gradBox, fitMode);
-      OutlineWidth := Manager.TextOutlineWidth;
-    end
-    else
-      OutlineFill.Clear;
-
     LightPosition := AMatrix*Manager.LightPosition;
     AltitudePercent:= Manager.PhongShapeAltitude;
     ParagraphAlignment:= Manager.TextAlign;
@@ -207,38 +181,6 @@ begin
   result := PointF(floor(ptF.x)+0.5,floor(ptF.y)+0.5);
 end;
 
-function TToolText.ForeGradTexMode: TVectorShapeUsermode;
-begin
-  if FSwapColor then result := vsuEditOutlineFill else
-    result := vsuEditPenFill;
-end;
-
-function TToolText.BackGradTexMode: TVectorShapeUsermode;
-begin
-  if FSwapColor then result := vsuEditPenFill else
-    result := vsuEditOutlineFill;
-end;
-
-function TToolText.ShapeForeFill: TVectorialFill;
-begin
-  if Assigned(FShape) then
-  begin
-    if FSwapColor then result := FShape.OutlineFill else
-      result := FShape.PenFill;
-  end else
-    result := nil;
-end;
-
-function TToolText.ShapeBackFill: TVectorialFill;
-begin
-  if Assigned(FShape) then
-  begin
-    if FSwapColor then result := FShape.PenFill else
-      result := FShape.OutlineFill;
-  end else
-    result := nil;
-end;
-
 constructor TToolText.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
@@ -247,7 +189,7 @@ end;
 
 function TToolText.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctPenFill,ctBackFill,ctText,ctAliasing];
+  Result:= [ctPenFill,ctText,ctOutlineFill,ctOutlineWidth,ctAliasing];
   if Manager.TextPhong then include(result, ctAltitude);
 end;
 

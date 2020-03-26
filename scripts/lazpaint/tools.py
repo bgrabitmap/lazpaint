@@ -240,11 +240,17 @@ def set_fore_color(color):
 def set_back_color(color):
   command.send("ToolSetBackColor", Color=color)
 
+def set_outline_color(color):
+  command.send("ToolSetOutlineColor", Color=color)
+
 def get_fore_color():
   return colors.str_to_RGBA(command.send("ToolGetForeColor?"))
 
 def get_back_color():
   return colors.str_to_RGBA(command.send("ToolGetBackColor?"))
+
+def get_outline_color():
+  return colors.str_to_RGBA(command.send("ToolGetOutlineColor?"))
 
 def set_eraser_mode(mode):
   command.send('ToolSetEraserMode', Mode=mode)
@@ -429,6 +435,30 @@ def set_back_gradient_repetition(repetition):
 def get_back_gradient_repetition():
   return command.send('ToolGetBackGradientRepetition?')
 
+def set_outline_gradient_type(gradient_type):
+  command.send('ToolSetOutlineGradientType', GradientType=gradient_type)
+
+def get_outline_gradient_type():
+  return command.send('ToolGetOutlineGradientType?')
+
+def set_outline_gradient_colors(colors: list):
+  command.send('ToolSetOutlineGradientColors', Colors=colors)
+
+def get_outline_gradient_colors() -> list:
+  return colors.str_to_RGBA(command.send('ToolGetOutlineGradientColors?'))
+
+def set_outline_gradient_interpolation(interpolation):
+  command.send('ToolSetOutlineGradientInterpolation', Interpolation=interpolation)
+
+def get_outline_gradient_interpolation():
+  return command.send('ToolGetOutlineGradientInterpolation?')
+
+def set_outline_gradient_repetition(repetition):
+  command.send('ToolSetOutlineGradientRepetition', Repetition=repetition)
+
+def get_outline_gradient_repetition():
+  return command.send('ToolGetOutlineGradientRepetition?')
+
 def set_fore_texture(file_name):
   command.send('ToolSetForeTexture', FileName=file_name)
 
@@ -458,6 +488,21 @@ def set_back_texture_opacity(opacity: int):
 
 def get_back_texture_opacity(): #-> int 0..255
   return command.send('ToolGetBackTextureOpacity?')
+
+def set_outline_texture(file_name):
+  command.send('ToolSetOutlineTexture', FileName=file_name)
+
+def set_outline_texture_repetition(repetition):
+  command.send('ToolSetOutlineTextureRepetition', Repetition=repetition)
+
+def get_outline_texture_repetition():
+  return command.send('ToolGetOutlineTextureRepetition?')
+
+def set_outline_texture_opacity(opacity: int):
+  command.send('ToolSetOutlineTextureOpacity', Opacity=opacity)
+
+def get_outline_texture_opacity(): #-> int 0..255
+  return command.send('ToolGetOutlineTextureOpacity?')
 
 def set_phong_shape_kind(kind):
   command.send('ToolSetPhongShapeKind', Kind=kind)

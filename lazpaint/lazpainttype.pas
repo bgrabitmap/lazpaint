@@ -109,7 +109,8 @@ function IsOnlyRenderChange(const ARect:TRect): boolean;
 type
     ArrayOfBGRABitmap = array of TBGRABitmap;
     TColorTarget = (ctForeColorSolid, ctForeColorStartGrad, ctForeColorEndGrad,
-                    ctBackColorSolid, ctBackColorStartGrad, ctBackColorEndGrad);
+                    ctBackColorSolid, ctBackColorStartGrad, ctBackColorEndGrad,
+                    ctOutlineColorSolid, ctOutlineColorStartGrad, ctOutlineColorEndGrad);
     TFlipOption = (foAuto, foWholePicture, foSelection, foCurrentLayer);
 
     PImageEntry = ^TImageEntry;
@@ -647,30 +648,40 @@ begin
 end;
 
 function TLazPaintCustomInstance.GetColor(ATarget: TColorTarget): TBGRAPixel;
+  function GetStartColor(AFill: TVectorialFill): TBGRAPixel;
+  begin
+    if AFill.FillType = vftGradient then
+      result := AFill.Gradient.StartColor
+      else result := AFill.AverageColor;
+  end;
+  function GetEndColor(AFill: TVectorialFill): TBGRAPixel;
+  begin
+    if AFill.FillType = vftGradient then
+      result := AFill.Gradient.EndColor
+      else result := AFill.AverageColor;
+  end;
+
 begin
   case ATarget of
-    ctForeColorSolid: result := ToolManager.ForeColor;
-    ctForeColorStartGrad: if ToolManager.ForeFill.FillType = vftGradient then
-                            result := ToolManager.ForeFill.Gradient.StartColor
-                          else result := ToolManager.ForeColor;
-    ctForeColorEndGrad: if ToolManager.ForeFill.FillType = vftGradient then
-                          result := ToolManager.ForeFill.Gradient.EndColor
-                        else result := ToolManager.ForeColor;
-    ctBackColorSolid: result := ToolManager.BackColor;
-    ctBackColorStartGrad: if ToolManager.BackFill.FillType = vftGradient then
-                            result := ToolManager.BackFill.Gradient.StartColor
-                          else result := ToolManager.BackColor;
-    ctBackColorEndGrad: if ToolManager.BackFill.FillType = vftGradient then
-                          result := ToolManager.BackFill.Gradient.EndColor
-                        else result := ToolManager.BackColor;
+    ctForeColorSolid: result := ToolManager.ForeFill.AverageColor;
+    ctForeColorStartGrad: result := GetStartColor(ToolManager.ForeFill);
+    ctForeColorEndGrad: result := GetEndColor(ToolManager.ForeFill);
+    ctBackColorSolid: result := ToolManager.BackFill.AverageColor;
+    ctBackColorStartGrad: result := GetStartColor(ToolManager.BackFill);
+    ctBackColorEndGrad: result := GetEndColor(ToolManager.BackFill);
+    ctOutlineColorSolid: result := ToolManager.OutlineFill.AverageColor;
+    ctOutlineColorStartGrad: result := GetStartColor(ToolManager.OutlineFill);
+    ctOutlineColorEndGrad: result := GetEndColor(ToolManager.OutlineFill);
   else
     result := BGRAPixelTransparent;
   end;
+  if BlackAndWhite then result := BGRAToGrayscale(result);
 end;
 
 procedure TLazPaintCustomInstance.SetColor(ATarget: TColorTarget;
   AColor: TBGRAPixel);
 begin
+  if BlackAndWhite then AColor := BGRAToGrayscale(AColor);
   case ATarget of
     ctForeColorSolid: if ToolManager.ForeFill.FillType = vftSolid then
                         ToolManager.ForeColor := AColor;
@@ -684,6 +695,12 @@ begin
                             ToolManager.BackFill.Gradient.StartColor := AColor;
     ctBackColorEndGrad: if ToolManager.BackFill.FillType = vftGradient then
                           ToolManager.BackFill.Gradient.EndColor := AColor;
+    ctOutlineColorSolid: if ToolManager.OutlineFill.FillType = vftSolid then
+                        ToolManager.OutlineColor := AColor;
+    ctOutlineColorStartGrad: if ToolManager.OutlineFill.FillType = vftGradient then
+                            ToolManager.OutlineFill.Gradient.StartColor := AColor;
+    ctOutlineColorEndGrad: if ToolManager.OutlineFill.FillType = vftGradient then
+                          ToolManager.OutlineFill.Gradient.EndColor := AColor;
   end;
 end;
 

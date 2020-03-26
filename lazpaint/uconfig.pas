@@ -196,12 +196,16 @@ type
     //tools
     function DefaultToolForeColor: TBGRAPixel;
     function DefaultToolBackColor: TBGRAPixel;
+    function DefaultToolOutlineColor: TBGRAPixel;
     procedure SetDefaultToolForeColor(value: TBGRAPixel);
     procedure SetDefaultToolBackColor(value: TBGRAPixel);
+    procedure SetDefaultToolOutlineColor(value: TBGRAPixel);
     function DefaultToolForeGradient: string;
     function DefaultToolBackGradient: string;
+    function DefaultToolOutlineGradient: string;
     procedure SetDefaultToolForeGradient(value: string);
     procedure SetDefaultToolBackGradient(value: string);
+    procedure SetDefaultToolOutlineGradient(value: string);
     function DefaultToolPenWidth: single;
     procedure SetDefaultToolPenWidth(value: single);
     function DefaultToolEraserWidth: single;
@@ -799,6 +803,11 @@ begin
   result := StrToBGRA(iniOptions.ReadString('Tool','BackColor','0080FFC0'));
 end;
 
+function TLazPaintConfig.DefaultToolOutlineColor: TBGRAPixel;
+begin
+  result := StrToBGRA(iniOptions.ReadString('Tool','OutlineColor','FF0000C0'));
+end;
+
 procedure TLazPaintConfig.SetDefaultToolForeColor(value: TBGRAPixel);
 begin
   iniOptions.WriteString('Tool','ForeColor',BGRAToStr(value));
@@ -807,6 +816,11 @@ end;
 procedure TLazPaintConfig.SetDefaultToolBackColor(value: TBGRAPixel);
 begin
   iniOptions.WriteString('Tool','BackColor',BGRAToStr(value));
+end;
+
+procedure TLazPaintConfig.SetDefaultToolOutlineColor(value: TBGRAPixel);
+begin
+  iniOptions.WriteString('Tool','OutlineColor',BGRAToStr(value));
 end;
 
 function TLazPaintConfig.DefaultToolForeGradient: string;
@@ -819,6 +833,11 @@ begin
   result := iniOptions.ReadString('Tool','BackGradient','');
 end;
 
+function TLazPaintConfig.DefaultToolOutlineGradient: string;
+begin
+  result := iniOptions.ReadString('Tool','OutlineGradient','');
+end;
+
 procedure TLazPaintConfig.SetDefaultToolForeGradient(value: string);
 begin
   iniOptions.WriteString('Tool','ForeGradient',value);
@@ -827,6 +846,11 @@ end;
 procedure TLazPaintConfig.SetDefaultToolBackGradient(value: string);
 begin
   iniOptions.WriteString('Tool','BackGradient',value);
+end;
+
+procedure TLazPaintConfig.SetDefaultToolOutlineGradient(value: string);
+begin
+  iniOptions.WriteString('Tool','OutlineGradient',value);
 end;
 
 function TLazPaintConfig.DefaultToolPenWidth: single;

@@ -13,7 +13,7 @@ uses
   Graphics, Dialogs, Menus, ExtDlgs, ComCtrls, ActnList, StdCtrls, ExtCtrls,
   Buttons, types, LCLType, BGRAImageList, BCTrackbarUpdown, BCComboBox, BCButton,
 
-  BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal, BGRAGradientScanner,
+  BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal, BGRAGradientScanner, BGRAGradientOriginal,
 
   LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, UZoom, UImageView,
   UImageObservation, UConfig, LCScaleDPI, UResourceStrings, UMenu, uscripting,
@@ -29,6 +29,7 @@ type
     FileExport: TAction;
     ExportPictureDialog: TSaveDialog;
     MenuScript: TMenuItem;
+    Panel_OutlineFill: TPanel;
     Panel_Donate: TPanel;
     ToolButton_Donate: TToolButton;
     ToolBar25: TToolBar;
@@ -58,6 +59,7 @@ type
     Tool_EraseSharpen: TToolButton;
     Tool_EraseLighten: TToolButton;
     Tool_EraseDarken: TToolButton;
+    VectorialFill_Outline: TLCVectorialFillControl;
     VectorialFill_Pen: TLCVectorialFillControl;
     VectorialFill_Back: TLCVectorialFillControl;
     Panel_BackFill: TPanel;
@@ -641,9 +643,7 @@ type
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure SpinEdit_PenWidthChange(Sender: TObject; AByUser: boolean);
     procedure Tool_CloseShapeClick(Sender: TObject);
-    procedure VectorialFill_BackChooseColor({%H-}ASender: TObject; AButton: TMouseButton;
-              AColorIndex: integer; var {%H-}AColorValue: TBGRAPixel; out AHandled: boolean);
-    procedure VectorialFill_PenChooseColor({%H-}ASender: TObject; AButton: TMouseButton;
+    procedure VectorialFill_ChooseColor({%H-}ASender: TObject; AButton: TMouseButton;
               AColorIndex: integer; var {%H-}AColorValue: TBGRAPixel; out AHandled: boolean);
     procedure SpinEdit_ArrowSizeChange(Sender: TObject; AByUser: boolean);
     procedure SpinEdit_ToleranceChange(Sender: TObject; AByUser: boolean);
@@ -688,20 +688,14 @@ type
     procedure ManagerToolbarChanged(Sender: TObject);
     procedure Perspective_RepeatClick(Sender: TObject);
     function ScriptShowColorDialog(AVars: TVariableSet): TScriptResult;
-    procedure VectorialFill_BackAdjustToShape(Sender: TObject);
-    procedure VectorialFill_BackChange(Sender: TObject);
-    procedure VectorialFill_BackEditGradTexPoints(Sender: TObject);
-    procedure VectorialFill_BackResize(Sender: TObject);
-    procedure VectorialFill_BackTypeChange(Sender: TObject);
-    procedure VectorialFill_PenAdjustToShape(Sender: TObject);
-    procedure VectorialFill_PenChange(Sender: TObject);
-    procedure VectorialFill_PenEditGradTexPoints(Sender: TObject);
-    procedure VectorialFill_PenResize(Sender: TObject);
-    procedure VectorialFill_PenTypeChange(Sender: TObject);
-    procedure VectorialFill_ShowBackFill(Sender: TObject; {%H-}Shift: TShiftState;
-      {%H-}X, {%H-}Y: Integer);
-    procedure VectorialFill_ShowPenFill(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X,
-      {%H-}Y: Integer);
+    procedure VectorialFill_Change(Sender: TObject);
+    procedure VectorialFill_TypeChange(Sender: TObject);
+    procedure VectorialFill_Resize(Sender: TObject);
+    procedure VectorialFill_EditGradTexPoints(Sender: TObject);
+    procedure VectorialFill_AdjustToShape(Sender: TObject);
+    procedure VectorialFill_ShowBackFill(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
+    procedure VectorialFill_ShowPenFill(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
+    procedure VectorialFill_ShowOutlineFill(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
   private
     { private declarations }
     FLayout: TMainFormLayout;
@@ -813,8 +807,7 @@ type
     function ShowColorDialogFor(ATarget: TColorTarget): boolean;
     procedure ShowPenPreview(ShouldRepaint: boolean= False);
     procedure HidePenPreview(ATimeMs: Integer = 300; AClearTime: boolean = false);
-    procedure ShowPenFill;
-    procedure ShowBackFill;
+    procedure ShowFill(AFillControl: TLCVectorialFillControl; APanel: TPanel);
     procedure HideFill(ATimeMs: Integer = 300; AClearTime: boolean = false);
     procedure OnPaintHandler;
     procedure OnImageChangedHandler({%H-}AEvent: TLazPaintImageObservationEvent);
@@ -1181,7 +1174,7 @@ begin
       Panel_ShapeOption,Panel_PenWidth,Panel_PenStyle,Panel_JoinStyle,
       Panel_CloseShape,Panel_LineCap,Panel_Aliasing,
       Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_Text,Panel_Altitude,Panel_TextShadow,Panel_TextOutline,
-      Panel_PhongShape,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio,Panel_Donate],Panel_ToolbarBackground);
+      Panel_OutlineFill,Panel_PhongShape,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio,Panel_Donate],Panel_ToolbarBackground);
     m.ImageList := LazPaintInstance.Icons[ScaleY(16, 96)];
     m.Apply;
     FLayout.Menu := m;

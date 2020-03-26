@@ -1117,7 +1117,7 @@ end;
 
 class function TTextShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenFill,vsfOutlineFill];
+  Result:= [vsfPenFill,vsfOutlineFill,vsfOutlineWidth];
 end;
 
 class function TTextShape.PreferPixelCentered: boolean;
@@ -1327,7 +1327,7 @@ begin
     if HasOutline then
     begin
       ctx := tmpTransf.Canvas2D;
-      ctx.lineWidth := OutlineWidth;
+      ctx.lineWidth := zoom*OutlineWidth;
       ctx.lineJoinLCL:= pjsRound;
       ctx.lineStyle(psSolid);
       if OutlineFill.FillType = vftSolid then

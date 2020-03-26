@@ -1,4 +1,31 @@
 procedure TFMain.CreateToolbarElements;
+
+  procedure InitVectorialFill(vf: TLCVectorialFillControl; grad: TBGRALayerGradientOriginal;
+      lbl: TLabel; pnl: TPanel; mouseMove: TMouseMoveEvent);
+  begin
+    vf.PopupMenu := nil;
+    vf.VerticalPadding:= DoScaleY(6, OriginalDPI);
+    vf.OnChooseColor :=  @VectorialFill_ChooseColor;
+    vf.OnTextureClick := @VectorialFill_TextureClick;
+    vf.OnFillChange:=    @VectorialFill_Change;
+    vf.AutoSize := False;
+    vf.OnFillTypeChange:=    @VectorialFill_TypeChange;
+    vf.OnAdjustToShape:=     @VectorialFill_AdjustToShape;
+    vf.OnEditGradTexPoints:= @VectorialFill_EditGradTexPoints;
+    vf.OnResize:= @VectorialFill_Resize;
+    with grad do
+    begin
+      vf.GradStartColor:= StartColor;
+      vf.GradEndColor:= EndColor;
+      vf.GradientType:= GradientType;
+      vf.GradRepetition:= Repetition;
+      vf.GradInterpolation:= ColorInterpolation;
+    end;
+    if Assigned(lbl) then lbl.OnMouseMove:= mouseMove;
+    pnl.OnMouseMove:= mouseMove;
+    vf.OnMouseMove:= mouseMove;
+  end;
+
 var
   ps: TPenStyle;
 begin
@@ -8,48 +35,12 @@ begin
   Panel_ToolbarBackground.PopupMenu := PopupToolbar;
   Perspective_Repeat.OnClick:=@Perspective_RepeatClick;
   Perspective_TwoPlanes.OnClick := @Perspective_TwoPlanesClick;
-  Panel_PenFill.PopupMenu := nil;
-  Panel_BackFill.PopupMenu := nil;
-  VectorialFill_Pen.VerticalPadding:= DoScaleY(6, OriginalDPI);
-  VectorialFill_Back.VerticalPadding:= DoScaleY(6, OriginalDPI);
-  VectorialFill_Pen.OnChooseColor := @VectorialFill_PenChooseColor;
-  VectorialFill_Back.OnChooseColor := @VectorialFill_BackChooseColor;
-  VectorialFill_Pen.OnTextureClick := @VectorialFill_TextureClick;
-  VectorialFill_Back.OnTextureClick := @VectorialFill_TextureClick;
-  VectorialFill_Pen.OnFillChange:=@VectorialFill_PenChange;
-  VectorialFill_Back.OnFillChange:=@VectorialFill_BackChange;
-  VectorialFill_Pen.AutoSize := False;
-  VectorialFill_Back.AutoSize := False;
-  VectorialFill_Pen.OnFillTypeChange:=@VectorialFill_PenTypeChange;
-  VectorialFill_Back.OnFillTypeChange:=@VectorialFill_BackTypeChange;
-  VectorialFill_Pen.OnAdjustToShape:=@VectorialFill_PenAdjustToShape;
-  VectorialFill_Back.OnAdjustToShape:=@VectorialFill_BackAdjustToShape;
-  VectorialFill_Pen.OnEditGradTexPoints:=@VectorialFill_PenEditGradTexPoints;
-  VectorialFill_Back.OnEditGradTexPoints:=@VectorialFill_BackEditGradTexPoints;
-  VectorialFill_Pen.OnResize:=@VectorialFill_PenResize;
-  VectorialFill_Back.OnResize:=@VectorialFill_BackResize;
-  with ToolManager.ForeLastGradient do
-  begin
-    VectorialFill_Pen.GradStartColor:= StartColor;
-    VectorialFill_Pen.GradEndColor:= EndColor;
-    VectorialFill_Pen.GradientType:= GradientType;
-    VectorialFill_Pen.GradRepetition:= Repetition;
-    VectorialFill_Pen.GradInterpolation:= ColorInterpolation;
-  end;
-  with ToolManager.BackLastGradient do
-  begin
-    VectorialFill_Back.GradStartColor:= StartColor;
-    VectorialFill_Back.GradEndColor:= EndColor;
-    VectorialFill_Back.GradientType:= GradientType;
-    VectorialFill_Back.GradRepetition:= Repetition;
-    VectorialFill_Back.GradInterpolation:= ColorInterpolation;
-  end;
-  Label_Pen.OnMouseMove:=@VectorialFill_ShowPenFill;
-  Panel_PenFill.OnMouseMove:=@VectorialFill_ShowPenFill;
-  VectorialFill_Pen.OnMouseMove:=@VectorialFill_ShowPenFill;
-  Label_Back.OnMouseMove:=@VectorialFill_ShowBackFill;
-  Panel_BackFill.OnMouseMove:=@VectorialFill_ShowBackFill;
-  VectorialFill_Back.OnMouseMove:=@VectorialFill_ShowBackFill;
+  InitVectorialFill(VectorialFill_Pen, ToolManager.ForeLastGradient, Label_Pen, Panel_PenFill, @VectorialFill_ShowPenFill);
+  VectorialFill_Pen.SolidColor := ToolManager.ForeColor;
+  InitVectorialFill(VectorialFill_Back, ToolManager.BackLastGradient, Label_Back, Panel_BackFill, @VectorialFill_ShowBackFill);
+  VectorialFill_Back.SolidColor := ToolManager.BackColor;
+  InitVectorialFill(VectorialFill_Outline, ToolManager.OutlineLastGradient, nil, Panel_OutlineFill, @VectorialFill_ShowOutlineFill);
+  VectorialFill_Outline.SolidColor := ToolManager.OutlineColor;
   Image_SwapColors.OnMouseDown := @Image_SwapColorsMouseDown;
   Tool_DrawShapeBorder.OnClick := @Tool_DrawShapeBorderClick;
   Tool_Aliasing.OnClick := @Tool_AliasingClick;
@@ -319,6 +310,7 @@ begin
   ToolManager.FillControls.Add(Panel_SwapColor);
   ToolManager.FillControls.Add(Panel_BackFill);
   ToolManager.FillControls.Add(Panel_ColorDiff);
+  ToolManager.OutlineFillControls.Add(Panel_OutlineFill);
   ToolManager.BrushControls.Add(Panel_Brush);
   ToolManager.RatioControls.Add(Panel_Ratio);
   ToolManager.DonateControls.Add(Panel_Donate);
@@ -562,10 +554,13 @@ begin
   UpdateAllowedFillTypes;
   VectorialFill_Pen.CanAdjustToShape := ToolManager.ToolProvideCommand(tcForeAdjustToShape);
   VectorialFill_Back.CanAdjustToShape := ToolManager.ToolProvideCommand(tcBackAdjustToShape);
+  VectorialFill_Outline.CanAdjustToShape := ToolManager.ToolProvideCommand(tcOutlineAdjustToShape);
   VectorialFill_Pen.CanEditGradTexPoints := ToolManager.ToolProvideCommand(tcForeEditGradTexPoints);
   VectorialFill_Back.CanEditGradTexPoints := ToolManager.ToolProvideCommand(tcBackEditGradTexPoints);
+  VectorialFill_Outline.CanEditGradTexPoints := ToolManager.ToolProvideCommand(tcOutlineEditGradTexPoints);
   VectorialFill_Pen.EditingGradTexPoints := ToolManager.IsForeEditGradTexPoints;
   VectorialFill_Back.EditingGradTexPoints := ToolManager.IsBackEditGradTexPoints;
+  VectorialFill_Outline.EditingGradTexPoints := ToolManager.IsOutlineEditGradTexPoints;
 end;
 
 procedure TFMain.QueryArrange;
@@ -734,8 +729,10 @@ begin
   TimerHideFill.Enabled := false;
   VectorialFill_Pen.Height := VectorialFill_Pen.ToolIconSize + VectorialFill_Pen.VerticalPadding;
   VectorialFill_Back.Height := VectorialFill_Back.ToolIconSize + VectorialFill_Back.VerticalPadding;
+  VectorialFill_Outline.Height := VectorialFill_Outline.ToolIconSize + VectorialFill_Outline.VerticalPadding;
   Panel_PenFill.Height := Panel_SwapColor.Height;
   Panel_BackFill.Height := Panel_SwapColor.Height;
+  Panel_OutlineFill.Height := Panel_SwapColor.Height;
 end;
 
 procedure TFMain.ToolButton_DonateClick(Sender: TObject);
@@ -818,20 +815,20 @@ begin
 end;
 
 procedure TFMain.UpdateChooseColors;
+  procedure UpdateFor(AFillControl: TLCVectorialFillControl; ATargetSolid, ATargetStart, ATargetEnd: TColorTarget);
+  begin
+    if (AFillControl.FillType = vftSolid) and
+       (LazPaintInstance.ChooseColorTarget in [ATargetStart, ATargetEnd]) then
+      LazPaintInstance.ChooseColorTarget := ATargetSolid else
+    if (AFillControl.FillType = vftGradient) and
+       (LazPaintInstance.ChooseColorTarget = ATargetSolid) then
+      LazPaintInstance.ChooseColorTarget := ATargetStart;
+  end;
+
 begin
-  if (VectorialFill_Back.FillType = vftSolid) and
-     (LazPaintInstance.ChooseColorTarget in [ctBackColorStartGrad,ctBackColorEndGrad]) then
-    LazPaintInstance.ChooseColorTarget := ctBackColorSolid else
-  if (VectorialFill_Back.FillType = vftGradient) and
-     (LazPaintInstance.ChooseColorTarget = ctBackColorSolid) then
-    LazPaintInstance.ChooseColorTarget := ctBackColorStartGrad else
-  if (VectorialFill_Pen.FillType = vftSolid) and
-     (LazPaintInstance.ChooseColorTarget in [ctForeColorStartGrad,ctForeColorEndGrad]) then
-    LazPaintInstance.ChooseColorTarget := ctForeColorSolid else
-  if (VectorialFill_Pen.FillType = vftGradient) and
-     (LazPaintInstance.ChooseColorTarget = ctForeColorSolid) then
-    LazPaintInstance.ChooseColorTarget := ctForeColorStartGrad else
-      LazPaintInstance.ColorToFChooseColor;
+  UpdateFor(VectorialFill_Back, ctBackColorSolid, ctBackColorStartGrad, ctBackColorEndGrad);
+  UpdateFor(VectorialFill_Pen, ctForeColorSolid, ctForeColorStartGrad, ctForeColorEndGrad);
+  UpdateFor(VectorialFill_Outline, ctOutlineColorSolid, ctOutlineColorStartGrad, ctOutlineColorEndGrad);
 end;
 
 procedure TFMain.UpdateAllowedFillTypes;
@@ -902,137 +899,107 @@ begin
   result := Assigned(ActiveControl) and (ActiveControl.Name = 'EColor');
 end;
 
-procedure TFMain.VectorialFill_BackChange(Sender: TObject);
+procedure TFMain.VectorialFill_EditGradTexPoints(Sender: TObject);
+begin
+  if Sender = VectorialFill_Pen then ToolManager.ToolCommand(tcForeEditGradTexPoints)
+  else if Sender = VectorialFill_Back then ToolManager.ToolCommand(tcBackEditGradTexPoints)
+  else if Sender = VectorialFill_Outline then ToolManager.ToolCommand(tcOutlineEditGradTexPoints);
+end;
+
+procedure TFMain.VectorialFill_AdjustToShape(Sender: TObject);
+begin
+  if Sender = VectorialFill_Pen then ToolManager.ToolCommand(tcForeAdjustToShape)
+  else if Sender = VectorialFill_Back then ToolManager.ToolCommand(tcBackAdjustToShape)
+  else if Sender = VectorialFill_Outline then ToolManager.ToolCommand(tcOutlineAdjustToShape);
+end;
+
+procedure TFMain.VectorialFill_Change(Sender: TObject);
 var
-  tempFill: TVectorialFill;
+  tempFill, targetFill: TVectorialFill;
+  vf: TLCVectorialFillControl;
 begin
   if FInFillChange then exit;
   FInFillChange:= true;
+  vf := Sender as TLCVectorialFillControl;
+  if vf = VectorialFill_Pen then targetFill := ToolManager.ForeFill
+  else if vf = VectorialFill_Back then targetFill := ToolManager.BackFill
+  else if vf = VectorialFill_Outline then targetFill := ToolManager.OutlineFill
+  else exit;
 
-  if ToolManager.BackFill.FillType <> VectorialFill_Back.FillType then
+  if targetFill.FillType <> vf.FillType then
   begin
     tempFill := TVectorialFill.Create;
-    VectorialFill_Back.UpdateFillExceptGeometry(tempFill);
+    vf.UpdateFillExceptGeometry(tempFill);
     tempFill.FitGeometry(ToolManager.SuggestGradientBox);
-    ToolManager.BackFill.Assign(tempFill);
+    targetFill.Assign(tempFill);
     tempFill.Free;
   end else
-    VectorialFill_Back.UpdateFillExceptGeometry(ToolManager.BackFill);
+    vf.UpdateFillExceptGeometry(targetFill);
 
   UpdateChooseColors;
   UpdateEditPicture;
   FInFillChange:= false;
 end;
 
-procedure TFMain.VectorialFill_BackEditGradTexPoints(Sender: TObject);
-begin
-  ToolManager.ToolCommand(tcBackEditGradTexPoints);
-end;
-
-procedure TFMain.VectorialFill_BackResize(Sender: TObject);
+procedure TFMain.VectorialFill_Resize(Sender: TObject);
 begin
   QueryArrange;
 end;
 
-procedure TFMain.VectorialFill_BackTypeChange(Sender: TObject);
-begin
-  DarkThemeInstance.Apply(VectorialFill_Back, DarkTheme);
-  VectorialFill_Back.Width := VectorialFill_Back.PreferredSize.cx;
-end;
-
-procedure TFMain.VectorialFill_BackAdjustToShape(Sender: TObject);
-begin
-  ToolManager.ToolCommand(tcBackAdjustToShape);
-end;
-
-procedure TFMain.VectorialFill_PenAdjustToShape(Sender: TObject);
-begin
-  ToolManager.ToolCommand(tcForeAdjustToShape);
-end;
-
-procedure TFMain.VectorialFill_PenChange(Sender: TObject);
+procedure TFMain.VectorialFill_TypeChange(Sender: TObject);
 var
-  tempFill: TVectorialFill;
+  vf: TLCVectorialFillControl;
 begin
-  if FInFillChange then exit;
-  FInFillChange:= true;
-
-  if ToolManager.ForeFill.FillType <> VectorialFill_Pen.FillType then
-  begin
-    tempFill := TVectorialFill.Create;
-    VectorialFill_Pen.UpdateFillExceptGeometry(tempFill);
-    tempFill.FitGeometry(ToolManager.SuggestGradientBox);
-    ToolManager.ForeFill.Assign(tempFill);
-    tempFill.Free;
-  end else
-    VectorialFill_Pen.UpdateFillExceptGeometry(ToolManager.ForeFill);
-
-  UpdateChooseColors;
-  UpdateEditPicture;
-  FInFillChange:= false;
+  vf := Sender as TLCVectorialFillControl;
+  DarkThemeInstance.Apply(vf, DarkTheme);
+  vf.Width := vf.PreferredSize.cx;
 end;
 
-procedure TFMain.VectorialFill_PenEditGradTexPoints(Sender: TObject);
+procedure TFMain.VectorialFill_ShowBackFill(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 begin
-  ToolManager.ToolCommand(tcForeEditGradTexPoints);
+  ShowFill(VectorialFill_Back, Panel_BackFill);
 end;
 
-procedure TFMain.VectorialFill_PenResize(Sender: TObject);
+procedure TFMain.VectorialFill_ShowPenFill(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 begin
-  QueryArrange;
+  ShowFill(VectorialFill_Pen, Panel_PenFill);
 end;
 
-procedure TFMain.VectorialFill_PenTypeChange(Sender: TObject);
+procedure TFMain.VectorialFill_ShowOutlineFill(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 begin
-  DarkThemeInstance.Apply(VectorialFill_Pen, DarkTheme);
-  VectorialFill_Pen.Width := VectorialFill_Pen.PreferredSize.cx;
+  ShowFill(VectorialFill_Outline, Panel_OutlineFill);
 end;
 
-procedure TFMain.VectorialFill_ShowBackFill(Sender: TObject;
-  Shift: TShiftState; X, Y: Integer);
-begin
-  ShowBackFill;
-end;
-
-procedure TFMain.VectorialFill_ShowPenFill(Sender: TObject; Shift: TShiftState;
-  X, Y: Integer);
-begin
-  ShowPenFill;
-end;
-
-procedure TFMain.VectorialFill_PenChooseColor(ASender: TObject; AButton: TMouseButton;
+procedure TFMain.VectorialFill_ChooseColor(ASender: TObject; AButton: TMouseButton;
   AColorIndex: integer; var AColorValue: TBGRAPixel; out AHandled: boolean);
 var
   target: TColorTarget;
 begin
-  AHandled := true;
-  case AColorIndex of
-    -1: target := ctForeColorSolid;
-    0: target := ctForeColorStartGrad;
-    1: target := ctForeColorEndGrad;
-    else exit;
-  end;
-  if LazPaintInstance.ChooseColorVisible and (AButton = mbLeft) then
-    LazPaintInstance.ChooseColorTarget := target
-  else
-  begin
-    if ShowColorDialogFor(target) then
-      AColorValue := LazPaintInstance.GetColor(target);
-  end;
-end;
+  AHandled := false;
+  if ASender = VectorialFill_Pen then
+    case AColorIndex of
+      -1: target := ctForeColorSolid;
+      0: target := ctForeColorStartGrad;
+      1: target := ctForeColorEndGrad;
+      else exit;
+    end
+  else if ASender = VectorialFill_Back then
+    case AColorIndex of
+      -1: target := ctBackColorSolid;
+      0: target := ctBackColorStartGrad;
+      1: target := ctBackColorEndGrad;
+      else exit;
+    end
+  else if ASender = VectorialFill_Outline then
+    case AColorIndex of
+      -1: target := ctOutlineColorSolid;
+      0: target := ctOutlineColorStartGrad;
+      1: target := ctOutlineColorEndGrad;
+      else exit;
+    end
+  else exit;
 
-procedure TFMain.VectorialFill_BackChooseColor(ASender: TObject; AButton: TMouseButton;
-  AColorIndex: integer; var AColorValue: TBGRAPixel; out AHandled: boolean);
-var
-  target: TColorTarget;
-begin
   AHandled := true;
-  case AColorIndex of
-    -1: target := ctBackColorSolid;
-    0: target := ctBackColorStartGrad;
-    1: target := ctBackColorEndGrad;
-    else exit;
-  end;
   if LazPaintInstance.ChooseColorVisible and (AButton = mbLeft) then
     LazPaintInstance.ChooseColorTarget := target
   else
@@ -1495,19 +1462,11 @@ begin
   end;
 end;
 
-procedure TFMain.ShowPenFill;
+procedure TFMain.ShowFill(AFillControl: TLCVectorialFillControl; APanel: TPanel);
 begin
-  VectorialFill_Pen.BringToFront;
-  VectorialFill_Pen.Height := VectorialFill_Pen.PreferredSize.cy;
-  Panel_PenFill.Height := VectorialFill_Pen.Top+VectorialFill_Pen.Height+DoScaleY(3, OriginalDPI);
-  HideFill(3000, true);
-end;
-
-procedure TFMain.ShowBackFill;
-begin
-  VectorialFill_Back.BringToFront;
-  VectorialFill_Back.Height := VectorialFill_Back.PreferredSize.cy;
-  Panel_BackFill.Height := VectorialFill_Back.Top+VectorialFill_Back.height+DoScaleY(3, OriginalDPI);
+  AFillControl.BringToFront;
+  AFillControl.Height := AFillControl.PreferredSize.cy;
+  APanel.Height := AFillControl.Top + AFillControl.Height + DoScaleY(3, OriginalDPI);
   HideFill(3000, true);
 end;
 

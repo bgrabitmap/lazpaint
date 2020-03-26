@@ -2304,7 +2304,7 @@ object FMain: TFMain
     end
   end
   object Panel_PerspectiveOption: TPanel
-    Left = 479
+    Left = 432
     Height = 36
     Top = 152
     Width = 65
@@ -2603,7 +2603,7 @@ object FMain: TFMain
     end
   end
   object Panel_Ratio: TPanel
-    Left = 288
+    Left = 272
     Height = 36
     Top = 152
     Width = 147
@@ -3119,9 +3119,9 @@ object FMain: TFMain
     end
   end
   object Panel_Donate: TPanel
-    Left = 479
+    Left = 512
     Height = 36
-    Top = 248
+    Top = 152
     Width = 44
     ClientHeight = 36
     ClientWidth = 44
@@ -3148,6 +3148,29 @@ object FMain: TFMain
         ImageIndex = 110
         OnClick = ToolButton_DonateClick
       end
+    end
+  end
+  object Panel_OutlineFill: TPanel
+    Left = 480
+    Height = 36
+    Top = 240
+    Width = 88
+    ClientHeight = 36
+    ClientWidth = 88
+    Font.Height = -12
+    ParentColor = False
+    ParentFont = False
+    PopupMenu = PopupToolbar
+    TabOrder = 33
+    object VectorialFill_Outline: TLCVectorialFillControl
+      Left = 2
+      Height = 40
+      Top = 1
+      Width = 80
+      AutoSize = True
+      ToolIconSize = 16
+      VerticalPadding = 4
+      AllowedFillTypes = [vftSolid, vftGradient, vftTexture]
     end
   end
   object ImageList16: TBGRAImageList

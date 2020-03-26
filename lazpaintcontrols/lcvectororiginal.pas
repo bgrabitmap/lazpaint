@@ -39,7 +39,7 @@ type
 
   TRenderBoundsOption = (rboAssumePenFill, rboAssumeBackFill);
   TRenderBoundsOptions = set of TRenderBoundsOption;
-  TVectorShapeField = (vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill, vsfOutlineFill);
+  TVectorShapeField = (vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill, vsfOutlineFill, vsfOutlineWidth);
   TVectorShapeFields = set of TVectorShapeField;
   TVectorShapeUsermode = (vsuEdit, vsuCreate, vsuEditPenFill, vsuEditBackFill, vsuEditOutlineFill,
                           vsuCurveSetAuto, vsuCurveSetCurve, vsuCurveSetAngle,
@@ -151,8 +151,6 @@ type
     FBoundsBeforeUpdate: TRectF;
     FPenFill, FBackFill, FOutlineFill: TVectorialFill;
     FStoreTexturePointer: boolean;
-    FPenWidth: single;
-    FOutlineWidth: single;
     FStroker: TBGRAPenStroker;
     FUsermode: TVectorShapeUsermode;
     FContainer: TVectorOriginal;
@@ -160,18 +158,19 @@ type
     FDiffs: TVectorShapeDiffList;
     FFillChangeWithoutUpdate: boolean;
     FFillBeforeChangeBounds: TRectF;
-    function GetIsBack: boolean;
-    function GetIsFront: boolean;
     function GetIsUpdating: boolean;
     procedure SetContainer(AValue: TVectorOriginal);
     function GetFill(var AFillVariable: TVectorialFill): TVectorialFill;
     procedure SetFill(var AFillVariable: TVectorialFill; AValue: TVectorialFill; AUpdate: boolean);
     procedure SetId(AValue: integer);
-    procedure SetOutlineWidth(AValue: single);
   protected
+    FPenWidth: single;
+    FOutlineWidth: single;
     procedure BeginEditingUpdate;
     procedure EndEditingUpdate;
     procedure DoOnChange(ABoundsBefore: TRectF; ADiff: TVectorShapeDiff); virtual;
+    function GetIsBack: boolean; virtual;
+    function GetIsFront: boolean; virtual;
     function GetPenColor: TBGRAPixel; virtual;
     function GetPenWidth: single; virtual;
     function GetPenStyle: TBGRAPenStyle; virtual;
@@ -179,13 +178,15 @@ type
     function GetBackFill: TVectorialFill; virtual;
     function GetPenFill: TVectorialFill; virtual;
     function GetOutlineFill: TVectorialFill; virtual;
+    function GetOutlineWidth: single; virtual;
     procedure SetPenColor(AValue: TBGRAPixel); virtual;
     procedure SetPenWidth(AValue: single); virtual;
     procedure SetPenStyle({%H-}AValue: TBGRAPenStyle); virtual;
-    procedure SetJoinStyle(AValue: TPenJoinStyle);
+    procedure SetJoinStyle(AValue: TPenJoinStyle); virtual;
     procedure SetBackFill(AValue: TVectorialFill); virtual;
     procedure SetPenFill(AValue: TVectorialFill); virtual;
     procedure SetOutlineFill(AValue: TVectorialFill); virtual;
+    procedure SetOutlineWidth(AValue: single); virtual;
     procedure SetUsermode(AValue: TVectorShapeUsermode); virtual;
     function LoadTexture(AStorage: TBGRACustomOriginalStorage; AName: string): TBGRABitmap;
     procedure SaveTexture(AStorage: TBGRACustomOriginalStorage; AName: string; AValue: TBGRABitmap);
@@ -194,7 +195,6 @@ type
     function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF; virtual;
     function ComputeStrokeEnvelope(APoints: ArrayOfTPointF; AClosed: boolean; AWidth: single): ArrayOfTPointF; virtual;
     function GetStroker: TBGRAPenStroker;
-    property Stroker: TBGRAPenStroker read GetStroker;
     procedure FillChange({%H-}ASender: TObject; var ADiff: TCustomVectorialFillDiff); virtual;
     procedure FillBeforeChange({%H-}ASender: TObject); virtual;
     procedure UpdateRenderStorage(ARenderBounds: TRect; AImage: TBGRACustomBitmap = nil);
@@ -208,6 +208,8 @@ type
     function GetPenVisible(AAssumePenFill: boolean = False): boolean; virtual;
     function GetPenVisibleNow: boolean;
     function GetBackVisible: boolean; virtual;
+    function GetOutlineVisible: boolean; virtual;
+    property Stroker: TBGRAPenStroker read GetStroker;
   public
     constructor Create(AContainer: TVectorOriginal); virtual;
     class function CreateFromStorage(AStorage: TBGRACustomOriginalStorage; AContainer: TVectorOriginal): TVectorShape;
@@ -266,7 +268,7 @@ type
     property OutlineFill: TVectorialFill read GetOutlineFill write SetOutlineFill;
     property PenWidth: single read GetPenWidth write SetPenWidth;
     property PenStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
-    property OutlineWidth: single read FOutlineWidth write SetOutlineWidth;
+    property OutlineWidth: single read GetOutlineWidth write SetOutlineWidth;
     property JoinStyle: TPenJoinStyle read GetJoinStyle write SetJoinStyle;
     property Usermode: TVectorShapeUsermode read FUsermode write SetUsermode;
     property Container: TVectorOriginal read FContainer write SetContainer;
@@ -278,6 +280,7 @@ type
     property IsUpdating: boolean read GetIsUpdating;
     property BackVisible: boolean read GetBackVisible;
     property PenVisible: boolean read GetPenVisibleNow;
+    property OutlineVisible: boolean read GetOutlineVisible;
   end;
   TVectorShapes = specialize TFPGList<TVectorShape>;
   TVectorShapeAny = class of TVectorShape;
@@ -1297,7 +1300,7 @@ begin
   TransformFill(AMatrix, False);
   zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
   if vsfPenWidth in Fields then PenWidth := zoom*PenWidth;
-  if vsfOutlineFill in Fields then OutlineWidth := zoom*OutlineWidth;
+  if vsfOutlineWidth in Fields then OutlineWidth := zoom*OutlineWidth;
   EndUpdate;
 end;
 
@@ -1511,6 +1514,11 @@ begin
   result := FUpdateCount > 0;
 end;
 
+function TVectorShape.GetOutlineWidth: single;
+begin
+  result := FOutlineWidth;
+end;
+
 function TVectorShape.GetFill(var AFillVariable: TVectorialFill): TVectorialFill;
 begin
   if AFillVariable = nil then
@@ -1602,6 +1610,12 @@ end;
 function TVectorShape.GetBackVisible: boolean;
 begin
   result := (vsfBackFill in Fields) and not BackFill.IsFullyTransparent;
+end;
+
+function TVectorShape.GetOutlineVisible: boolean;
+begin
+  result := (vsfOutlineFill in Fields) and not OutlineFill.IsFullyTransparent and
+            (not (vsfOutlineWidth in Fields) or (OutlineWidth > 0));
 end;
 
 procedure TVectorShape.TransformFill(const AMatrix: TAffineMatrix; ABackOnly: boolean);
@@ -1950,7 +1964,7 @@ end;
 
 procedure TVectorShape.SetPenStyle(AValue: TBGRAPenStyle);
 begin
-  if PenStyleEqual(AValue, Stroker.CustomPenStyle) then exit;
+  if PenStyleEqual(AValue, PenStyle) then exit;
   BeginUpdate(TVectorShapeCommonDiff);
   Stroker.CustomPenStyle := AValue;
   EndUpdate;
@@ -2077,11 +2091,8 @@ begin
       else JoinStyle := pjsMiter;
       end;
     if vsfBackFill in f then LoadFill(AStorage, 'back', FBackFill);
-    if vsfOutlineFill in f then
-    begin
-      LoadFill(AStorage, 'outline', FOutlineFill);
-      OutlineWidth := AStorage.FloatDef['outline-width', DefaultShapeOutlineWidth];
-    end;
+    if vsfOutlineFill in f then LoadFill(AStorage, 'outline', FOutlineFill);
+    if vsfOutlineWidth in f then OutlineWidth := AStorage.FloatDef['outline-width', DefaultShapeOutlineWidth];
     EndUpdate;
   end;
 end;
@@ -2103,13 +2114,16 @@ begin
     else AStorage.RawString['join-style'] := 'miter';
     end;
   if vsfBackFill in f then SaveFill(AStorage, 'back', FBackFill);
-  if vsfOutlineFill in f then
+  if OutlineVisible then
   begin
-    SaveFill(AStorage, 'outline', FOutlineFill);
-    if OutlineFill.FillType <> vftNone then
-      AStorage.Float['outline-width'] := FOutlineWidth
-    else
-      AStorage.RemoveAttribute('outline-width');
+    if vsfOutlineFill in f then SaveFill(AStorage, 'outline', FOutlineFill);
+    if vsfOutlineWidth in f then AStorage.Float['outline-width'] := FOutlineWidth
+    else AStorage.RemoveAttribute('outline-width');
+  end else
+  begin
+    AStorage.RemoveObject('outline-fill');
+    AStorage.RemoveAttribute('outline-color');
+    AStorage.RemoveAttribute('outline-width');
   end;
 end;
 
