@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, LCLType, BGRABitmap, BGRABitmapTypes,
   BGRALayerOriginal, BGRAGraphics, LCVectorOriginal, LCVectorialFill,
-  UTool, UImageType, ULayerAction, LCVectorRectShapes,
+  UTool, UImageType, ULayerAction, LCVectorRectShapes, LCVectorMultishape,
   BGRAGradientOriginal, UStateType;
 
 type
@@ -388,7 +388,7 @@ begin
   if AShape.Usermode in [vsuEditBackFill, vsuEditPenFill] then
     AShape.Usermode := vsuEdit;
   opt := Manager.ShapeOptions;
-  f := AShape.Fields;
+  f := AShape.MultiFields;
   doDraw := vsfPenFill in f;
   doFill := vsfBackFill in f;
   if vsfPenStyle in f then
@@ -614,7 +614,7 @@ begin
       gradBox := shape.SuggestGradientBox(AffineMatrixIdentity);
       m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
       zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2;
-      f := shape.Fields;
+      f := shape.MultiFields;
       if f*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
       begin
         doDraw := toDrawShape in Manager.ShapeOptions;
@@ -886,7 +886,7 @@ begin
     begin
       shape := GetVectorOriginal.SelectedShape;
 
-      f := shape.Fields;
+      f := shape.MultiFields;
       if vsfPenWidth in f then result += [ctPenWidth];
       if vsfPenStyle in f then result += [ctPenStyle];
       if vsfJoinStyle in f then result += [ctJoinStyle];
@@ -1763,7 +1763,7 @@ begin
   else
   begin
     if Assigned(FShape) and
-         (not (vsfPenFill in FShape.Fields) or
+         (not (vsfPenFill in FShape.MultiFields) or
            (FShape.PenFill.IsFullyTransparent)) then
       result := AffineMatrixTranslation(0.5, 0.5)
     else
@@ -1877,7 +1877,7 @@ var
   fitMode: TFitMode;
 begin
   zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
-  f := FShape.Fields;
+  f := FShape.MultiFields;
   gradBox := FShape.SuggestGradientBox(AffineMatrixIdentity);
   if vsfPenFill in f then
   begin
@@ -1926,7 +1926,7 @@ end;
 function TVectorialTool.RoundCoordinate(constref ptF: TPointF): TPointF;
 begin
   if not (toDrawShape in GetManagerShapeOptions) or
-    (Assigned(FShape) and not (vsfPenFill in FShape.Fields)) then
+    (Assigned(FShape) and not (vsfPenFill in FShape.MultiFields)) then
     result := PointF(floor(ptF.x)+0.5,floor(ptF.y)+0.5)
   else
     result := PointF(round(ptF.x),round(ptF.y));

@@ -22,8 +22,9 @@ function CopyShapesToClipboard(AShapes: array of TVectorShape; const AMatrix: TA
 var
   tempContainer: TVectorOriginal;
   mem: TMemoryStream;
-  i: Integer;
+  i, j: Integer;
   s: TVectorShape;
+  multiSel: IVectorMultishape;
 begin
   result:= false;
   if length(AShapes)=0 then exit;
@@ -32,9 +33,21 @@ begin
   try
     for i := 0 to high(AShapes) do
     begin
-      s := AShapes[i].Duplicate;
-      s.Transform(AMatrix);
-      tempContainer.AddShape(s);
+      if AShapes[i] is VectorMultiselectionFactory then
+      begin
+        multiSel := AShapes[i].GetAsMultishape;
+        for j := 0 to multiSel.ShapeCount-1 do
+        begin
+          s := multiSel.GetShape(j).Duplicate;
+          s.Transform(AMatrix);
+          tempContainer.AddShape(s);
+        end;
+      end else
+      begin
+        s := AShapes[i].Duplicate;
+        s.Transform(AMatrix);
+        tempContainer.AddShape(s);
+      end;
     end;
     tempContainer.SaveToStream(mem);
     Clipboard.Clear;
@@ -52,6 +65,7 @@ var
   mem: TMemoryStream;
   i: Integer;
   pastedShape: TVectorShape;
+  pastedShapes: TVectorShapes;
   invMatrix, m: TAffineMatrix;
   pastedBounds: TRectF;
   ofs: TPointF;
@@ -84,14 +98,17 @@ begin
             ofs.y := floor(ABounds.Bottom - pastedBounds.Bottom);
         end;
         m := invMatrix*AffineMatrixTranslation(ofs.x,ofs.y);
+        ATargetContainer.DeselectShapes;
+        pastedShapes := TVectorShapes.Create;
         for i := 0 to tempContainer.ShapeCount-1 do
         begin
           pastedShape := tempContainer.Shape[i].Duplicate;
           pastedShape.Transform(m);
-          ATargetContainer.AddShape(pastedShape);
-          if i = tempContainer.ShapeCount-1 then
-            ATargetContainer.SelectShape(pastedShape);
+          pastedShapes.Add(pastedShape);
         end;
+        ATargetContainer.AddShapes(pastedShapes);
+        ATargetContainer.SelectShapes(pastedShapes);
+        pastedShapes.Free;
       end;
     finally
       tempContainer.Free;

@@ -149,7 +149,7 @@ procedure AssignSelectShapeStyle(AShape: TVectorShape; ASwapColor: boolean);
 var
   f: TVectorShapeFields;
 begin
-  f:= AShape.Fields;
+  f:= AShape.MultiFields;
   if vsfPenFill in f then AShape.PenFill.Clear;
   if vsfPenStyle in f Then AShape.PenStyle := ClearPenStyle;
   if vsfBackFill in f then

@@ -172,7 +172,7 @@ begin
         ptOrig := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]) * ptF;
         for i := vectOrig.ShapeCount-1 downto 0 do
         begin
-          if (vsfPenFill in vectOrig.Shape[i].Fields) and
+          if (vsfPenFill in vectOrig.Shape[i].MultiFields) and
             vectOrig.Shape[i].PointInPen(ptOrig) then
           begin
             if not (vectOrig.Shape[i].PenFill.FillType = vftSolid) then break;
@@ -187,7 +187,7 @@ begin
             end;
             exit;
           end;
-          if (vsfBackFill in vectOrig.Shape[i].Fields) and
+          if (vsfBackFill in vectOrig.Shape[i].MultiFields) and
             vectOrig.Shape[i].PointInBack(ptOrig) then
           begin
             if not (vectOrig.Shape[i].BackFill.FillType = vftSolid) then break;
