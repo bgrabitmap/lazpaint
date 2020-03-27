@@ -1340,7 +1340,7 @@ begin
           zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2/Manager.Image.ZoomFactor;
           BindOriginalEvent(true);
           try
-            if GetVectorOriginal.MouseClick(m*FLastPos, DoScaleX(PointSize, OriginalDPI)*zoom, ssShift in ShiftState) then
+            if GetVectorOriginal.MouseClick(m*FLastPos, DoScaleX(PointSize, OriginalDPI)*zoom, ssCtrl in ShiftState) then
             begin
               handled := true;
               result := OnlyRenderChange;
