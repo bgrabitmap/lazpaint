@@ -40,7 +40,8 @@ type
     FLastShapeTransform: TAffineMatrix;
     FUseOriginal: boolean;
     function AlwaysRasterizeShape: boolean; virtual;
-    function CreateShape: TVectorShape; virtual; abstract;
+    function CreateShape: TVectorShape; virtual;
+    function ShapeClass: TVectorShapeAny; virtual; abstract;
     function UseOriginal: boolean; virtual;
     function HasBrush: boolean; virtual;
     function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; {%H-}ADraft: boolean): TRect; virtual;
@@ -93,6 +94,7 @@ type
     function ToolCommand(ACommand: TToolCommand): boolean; override;
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
     function SuggestGradientBox: TAffineBox; override;
+    function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction):TRect; override;
     property IsIdle: boolean read GetIsIdle;
     property IsHandDrawing: boolean read GetIsHandDrawing;
@@ -222,6 +224,35 @@ begin
   vsuCurveSetAuto: result := tsmCurveModeAuto;
   vsuCurveSetAngle: result := tsmCurveModeAngle;
   vsuCurveSetCurve: result := tsmCurveModeSpline;
+  end;
+end;
+
+function ContextualToolbarsFromShape(AShapeClass: TVectorShapeAny; AShape: TVectorShape): TContextualToolbars;
+var
+  f: TVectorShapeFields;
+begin
+  result:= [ctPenFill, ctBackFill];
+  if Assigned(AShape) then
+    f := AShape.MultiFields
+    else f := AShapeClass.Fields;
+  if vsfPenWidth in f then result += [ctPenWidth];
+  if vsfPenStyle in f then result += [ctPenStyle];
+  if vsfJoinStyle in f then result += [ctJoinStyle];
+  if [vsfPenStyle,vsfPenFill,vsfBackFill] <= f then result += [ctShape];
+  if vsfOutlineFill in f then
+  begin
+    result += [ctOutlineFill];
+    if not (vsfBackFill in f) then result -= [ctBackFill];
+  end;
+  if vsfOutlineWidth in f then result += [ctOutlineWidth];
+
+  if AShapeClass = TCurveShape then result := result + [ctShape,ctCloseShape,ctLineCap,ctSplineStyle]
+  else if AShapeClass = TPolylineShape then result := result + [ctShape,ctCloseShape,ctLineCap]
+  else if AShapeClass = TPhongShape then result := result + [ctPhong,ctAltitude]
+  else if AShapeClass = TTextShape then
+  begin
+    result := result + [ctText,ctAliasing];
+    if TTextShape(AShape).PenPhong then include(result, ctAltitude);
   end;
 end;
 
@@ -878,36 +909,16 @@ end;
 function TEditShapeTool.GetContextualToolbars: TContextualToolbars;
 var
   shape: TVectorShape;
-  f: TVectorShapeFields;
 begin
-  Result:= [ctPenFill, ctBackFill];
   case GetEditMode of
   esmShape:
     begin
       shape := GetVectorOriginal.SelectedShape;
-
-      f := shape.MultiFields;
-      if vsfPenWidth in f then result += [ctPenWidth];
-      if vsfPenStyle in f then result += [ctPenStyle];
-      if vsfJoinStyle in f then result += [ctJoinStyle];
-      if [vsfPenStyle,vsfPenFill,vsfBackFill] <= f then result += [ctShape];
-      if vsfOutlineFill in f then
-      begin
-        result += [ctOutlineFill];
-        if not (vsfBackFill in f) then result -= [ctBackFill];
-      end;
-      if vsfOutlineWidth in f then result += [ctOutlineWidth];
-
-      if shape is TCurveShape then result := result + [ctShape,ctCloseShape,ctLineCap,ctSplineStyle]
-      else if shape is TPolylineShape then result := result + [ctShape,ctCloseShape,ctLineCap]
-      else if shape is TPhongShape then result := result + [ctPhong,ctAltitude]
-      else if shape is TTextShape then
-      begin
-        result := result + [ctText,ctAliasing];
-        if TTextShape(shape).PenPhong then include(result, ctAltitude);
-      end;
+      result := ContextualToolbarsFromShape(TVectorShapeAny(shape.ClassType), shape);
     end;
   esmGradient: result := [ctBackFill];
+  else
+    Result:= [ctPenFill, ctBackFill];
   end;
 end;
 
@@ -1856,6 +1867,11 @@ begin
   result := false;
 end;
 
+function TVectorialTool.CreateShape: TVectorShape;
+begin
+  result := ShapeClass.Create(nil);
+end;
+
 function TVectorialTool.UseOriginal: boolean;
 begin
   result := FUseOriginal;
@@ -2289,6 +2305,11 @@ begin
     result := FShape.SuggestGradientBox(AffineMatrixIdentity)
   else
     result:= inherited SuggestGradientBox;
+end;
+
+function TVectorialTool.GetContextualToolbars: TContextualToolbars;
+begin
+  result := ContextualToolbarsFromShape(ShapeClass, FShape);
 end;
 
 function TVectorialTool.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,

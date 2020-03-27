@@ -25,6 +25,7 @@ type
 
   TToolGradient = class(TVectorialTool)
   protected
+    function ShapeClass: TVectorShapeAny; override;
     function CreateShape: TVectorShape; override;
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure AssignShapeStyle({%H-}AMatrix: TAffineMatrix; {%H-}AAlwaysFit: boolean); override;
@@ -44,9 +45,14 @@ uses ugraph, LazPaintType, BGRAGradientScanner, LCVectorRectShapes,
 
 { TToolGradient }
 
+function TToolGradient.ShapeClass: TVectorShapeAny;
+begin
+  result := TRectShape;
+end;
+
 function TToolGradient.CreateShape: TVectorShape;
 begin
-  result := TRectShape.Create(nil);
+  result := inherited CreateShape;
   result.PenFill.Clear;
   result.BackFill.SetGradient(TBGRALayerGradientOriginal.Create,true);
   result.Usermode := vsuEditBackFill;

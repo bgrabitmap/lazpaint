@@ -16,19 +16,15 @@ type
 
   TToolRectangle = class(TVectorialTool)
   protected
-    function CreateShape: TVectorShape; override;
-  public
-    function GetContextualToolbars: TContextualToolbars; override;
+    function ShapeClass: TVectorShapeAny; override;
   end;
 
   { TToolEllipse }
 
   TToolEllipse = class(TVectorialTool)
   protected
-    function CreateShape: TVectorShape; override;
+    function ShapeClass: TVectorShapeAny; override;
     function GetGridMatrix: TAffineMatrix; override;
-  public
-    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TToolPolygon }
@@ -36,6 +32,7 @@ type
   TToolPolygon = class(TVectorialTool)
   protected
     initiallyClosed : boolean;
+    function ShapeClass: TVectorShapeAny; override;
     function CreateShape: TVectorShape; override;
     function ShouldCloseShape: boolean; virtual;
     procedure UpdateManagerCloseShape({%H-}AClose: boolean); virtual;
@@ -47,7 +44,6 @@ type
   public
     function ToolUp: TRect; override;
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
-    function GetContextualToolbars: TContextualToolbars; override;
   end;
 
   { TToolPolyline }
@@ -73,13 +69,13 @@ type
     function GetCurrentMode: TToolSplineMode;
     procedure SetCurrentMode(AValue: TToolSplineMode);
   protected
+    function ShapeClass: TVectorShapeAny; override;
     function CreateShape: TVectorShape; override;
     procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     procedure UpdateUserMode; override;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
-    function GetContextualToolbars: TContextualToolbars; override;
     property CurrentMode: TToolSplineMode read GetCurrentMode write SetCurrentMode;
   end;
 
@@ -166,9 +162,9 @@ end;
 
 { TToolEllipse }
 
-function TToolEllipse.CreateShape: TVectorShape;
+function TToolEllipse.ShapeClass: TVectorShapeAny;
 begin
-  result := TEllipseShape.Create(nil);
+  result := TEllipseShape;
 end;
 
 function TToolEllipse.GetGridMatrix: TAffineMatrix;
@@ -176,21 +172,11 @@ begin
   Result:= AffineMatrixScale(0.5, 0.5);
 end;
 
-function TToolEllipse.GetContextualToolbars: TContextualToolbars;
-begin
-  Result:= [ctPenFill,ctBackFill,ctShape,ctPenWidth,ctPenStyle];
-end;
-
 { TToolRectangle }
 
-function TToolRectangle.CreateShape: TVectorShape;
+function TToolRectangle.ShapeClass: TVectorShapeAny;
 begin
-  result := TRectShape.Create(nil);
-end;
-
-function TToolRectangle.GetContextualToolbars: TContextualToolbars;
-begin
-  Result:= [ctPenFill,ctBackFill,ctShape,ctPenWidth,ctPenStyle,ctJoinStyle];
+  result := TRectShape;
 end;
 
 { TToolSpline }
@@ -207,6 +193,11 @@ begin
   if FCurrentMode = AValue then exit;
   FCurrentMode := AValue;
   UpdateUserMode;
+end;
+
+function TToolSpline.ShapeClass: TVectorShapeAny;
+begin
+  result := TCurveShape;
 end;
 
 procedure TToolSpline.UpdateUserMode;
@@ -233,8 +224,7 @@ end;
 
 function TToolSpline.CreateShape: TVectorShape;
 begin
-  result := TCurveShape.Create(nil);
-  result.Usermode := vsuCreate;
+  result := inherited CreateShape;
   TCurveShape(result).CosineAngle:= EasyBezierMinimumDotProduct;
   if not FCurveModeHintShown then
   begin
@@ -269,16 +259,16 @@ begin
   end;
 end;
 
-function TToolSpline.GetContextualToolbars: TContextualToolbars;
-begin
-  Result:= [ctPenFill,ctBackFill,ctShape,ctCloseShape,ctPenWidth,ctPenStyle,ctLineCap,ctSplineStyle];
-end;
-
 { TToolPolygon }
+
+function TToolPolygon.ShapeClass: TVectorShapeAny;
+begin
+  result := TPolylineShape;
+end;
 
 function TToolPolygon.CreateShape: TVectorShape;
 begin
-  result := TPolylineShape.Create(nil);
+  result := inherited CreateShape;
   initiallyClosed := ShouldCloseShape;
 end;
 
@@ -364,11 +354,6 @@ begin
     result := Editor.SnapToGrid(ptF, false)
   else
     result := ptF;
-end;
-
-function TToolPolygon.GetContextualToolbars: TContextualToolbars;
-begin
-  Result:= [ctPenFill,ctBackFill,ctShape,ctCloseShape,ctPenWidth,ctPenStyle,ctJoinStyle,ctLineCap];
 end;
 
 initialization
