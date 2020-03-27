@@ -56,6 +56,7 @@ type
     function ScriptImageCanvasSize(AVars: TVariableSet): TScriptResult;
     function ScriptImageRepeat(AVars: TVariableSet): TScriptResult;
     function ScriptImageResample(AParams: TVariableSet): TScriptResult;
+    function ScriptLazPaintGetVersion(AVars: TVariableSet): TScriptResult;
     function ScriptShowDirectoryDialog(AVars: TVariableSet): TScriptResult;
     procedure SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
     procedure ToolFillChanged(Sender: TObject);
@@ -369,6 +370,7 @@ begin
   ScriptContext.RegisterScriptFunction('ShowMessage',@ScriptShowMessage,ARegister);
   ScriptContext.RegisterScriptFunction('ShowDirectoryDialog',@ScriptShowDirectoryDialog,ARegister);
   ScriptContext.RegisterScriptFunction('InputBox',@ScriptInputBox,ARegister);
+  ScriptContext.RegisterScriptFunction('LazPaintGetVersion',@ScriptLazPaintGetVersion,ARegister);
 end;
 
 function TLazPaintInstance.ScriptFileGetTemporaryName(AVars: TVariableSet): TScriptResult;
