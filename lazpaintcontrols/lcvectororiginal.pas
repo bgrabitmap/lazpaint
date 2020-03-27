@@ -285,6 +285,7 @@ type
     function MultiFields: TVectorShapeFields; virtual;
     class function Fields: TVectorShapeFields; virtual;
     class function Usermodes: TVectorShapeUsermodes; virtual;
+    function MultiUsermodes: TVectorShapeUsermodes; virtual;
     class function PreferPixelCentered: boolean; virtual;
     class function CreateEmpty: boolean; virtual; //create shape even if empty?
     property OnChange: TShapeChangeEvent read FOnChange write FOnChange;
@@ -1588,6 +1589,17 @@ begin
   if vsfBackFill in Fields then result += [vsuEditBackFill];
   if vsfPenFill in Fields then result += [vsuEditPenFill];
   if vsfOutlineFill in Fields then result += [vsuEditOutlineFill];
+end;
+
+function TVectorShape.MultiUsermodes: TVectorShapeUsermodes;
+var
+  f: TVectorShapeFields;
+begin
+  result := [vsuEdit];
+  f := MultiFields;
+  if vsfBackFill in f then result += [vsuEditBackFill];
+  if vsfPenFill in f then result += [vsuEditPenFill];
+  if vsfOutlineFill in f then result += [vsuEditOutlineFill];
 end;
 
 class function TVectorShape.PreferPixelCentered: boolean;

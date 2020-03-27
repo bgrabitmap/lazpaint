@@ -1454,6 +1454,9 @@ begin
           tcBackEditGradTexPoints: if GetVectorOriginal.SelectedShape.Usermode = BackGradTexMode then
                                     GetVectorOriginal.SelectedShape.Usermode := vsuEdit else
                                     GetVectorOriginal.SelectedShape.Usermode := BackGradTexMode;
+          tcOutlineEditGradTexPoints: if GetVectorOriginal.SelectedShape.Usermode = OutlineGradTexMode then
+                                    GetVectorOriginal.SelectedShape.Usermode := vsuEdit else
+                                    GetVectorOriginal.SelectedShape.Usermode := OutlineGradTexMode;
           tcForeAdjustToShape: GetVectorOriginal.SelectedShape.PenFill.FitGeometry(SuggestGradientBox);
           tcBackAdjustToShape: GetVectorOriginal.SelectedShape.BackFill.FitGeometry(SuggestGradientBox);
           tcOutlineAdjustToShape: GetVectorOriginal.SelectedShape.OutlineFill.FitGeometry(SuggestGradientBox);
@@ -1547,9 +1550,11 @@ begin
   tcForeAdjustToShape,tcOutlineAdjustToShape: result := GetEditMode = esmShape;
   tcBackAdjustToShape: result := GetEditMode in [esmShape,esmGradient];
   tcForeEditGradTexPoints: result := (GetEditMode = esmShape) and
-                     (ForeGradTexMode in GetVectorOriginal.SelectedShape.Usermodes);
+                     (ForeGradTexMode in GetVectorOriginal.SelectedShape.MultiUsermodes);
   tcBackEditGradTexPoints: result := (GetEditMode = esmShape) and
-                     (BackGradTexMode in GetVectorOriginal.SelectedShape.Usermodes);
+                     (BackGradTexMode in GetVectorOriginal.SelectedShape.MultiUsermodes);
+  tcOutlineEditGradTexPoints: result := (GetEditMode = esmShape) and
+                     (OutlineGradTexMode in GetVectorOriginal.SelectedShape.MultiUsermodes);
   tcShapeToSpline: result:= (GetEditMode = esmShape)
                             and TCurveShape.CanCreateFrom(GetVectorOriginal.SelectedShape);
   tcAlignLeft..tcAlignBottom: result:= GetEditMode in [esmShape, esmOtherOriginal, esmSelection];
@@ -2287,9 +2292,11 @@ begin
   tcForeAdjustToShape, tcBackAdjustToShape, tcOutlineAdjustToShape:
       result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine;
   tcForeEditGradTexPoints: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine and
-                            (vsuEditPenFill in FShape.Usermodes) and not (FShape.Usermode = vsuCreate);
+                            (ForeGradTexMode in FShape.Usermodes) and not (FShape.Usermode = vsuCreate);
   tcBackEditGradTexPoints: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine and
-                            (vsuEditPenFill in FShape.Usermodes) and not (FShape.Usermode = vsuCreate);
+                            (BackGradTexMode in FShape.Usermodes) and not (FShape.Usermode = vsuCreate);
+  tcOutlineEditGradTexPoints: result := not IsSelectingTool and Assigned(FShape) and not FQuickDefine and
+                            (OutlineGradTexMode in FShape.Usermodes) and not (FShape.Usermode = vsuCreate);
   tcShapeToSpline: result:= not IsSelectingTool and not FQuickDefine and Assigned(FShape)
                             and TCurveShape.CanCreateFrom(FShape);
   tcAlignLeft..tcAlignBottom: Result:= not FQuickDefine and Assigned(FShape);
