@@ -206,38 +206,59 @@ begin
   end else
   if (Key = VK_ESCAPE) and Assigned(FShape) then
   begin
-    result := ValidateShape;
+    if FShape.Usermode = vsuEditText then
+      FShape.Usermode := vsuEdit
+    else
+      result := ValidateShape;
     Key := 0;
   end else
   if (Key = VK_RETURN) and Assigned(FShape) then
   begin
     handled := false;
     FShape.KeyDown(ShiftState, skReturn, handled);
-    if handled then Key := 0;
+    if not handled then ValidateShape;
+    Key := 0;
   end else
     Result:=inherited DoToolKeyDown(key);
 end;
 
 function TToolText.ToolCommand(ACommand: TToolCommand): boolean;
 begin
-  case ACommand of
-  tcCopy: Result:= Assigned(FShape) and TTextShape(FShape).CopySelection;
-  tcCut: Result:= Assigned(FShape) and TTextShape(FShape).CutSelection;
-  tcPaste: Result:= Assigned(FShape) and TTextShape(FShape).PasteSelection;
-  tcDelete: Result:= Assigned(FShape) and TTextShape(FShape).DeleteSelection;
+  if Assigned(FShape) and (FShape.Usermode = vsuEditText) then
+    case ACommand of
+    tcCopy: Result:= TTextShape(FShape).CopySelection;
+    tcCut: Result:= TTextShape(FShape).CutSelection;
+    tcPaste: Result:= TTextShape(FShape).PasteSelection;
+    tcDelete: Result:= TTextShape(FShape).DeleteSelection;
+    else
+      result := inherited ToolCommand(ACommand);
+    end
   else
-    result := inherited ToolCommand(ACommand);
-  end;
+    case ACommand of
+    tcDelete:
+      if Assigned(FShape) then
+      begin
+        CancelShape;
+        result := true;
+      end else result := false;
+    else result := inherited ToolCommand(ACommand);
+    end;
 end;
 
 function TToolText.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
-  case ACommand of
-  tcCopy,tcCut,tcDelete: result := Assigned(FShape) and TTextShape(FShape).HasSelection;
-  tcPaste: result := Assigned(FShape);
+  if Assigned(FShape) and (FShape.Usermode = vsuEditText) then
+    case ACommand of
+    tcCopy,tcCut,tcDelete: result := TTextShape(FShape).HasSelection;
+    tcPaste: result := true;
+    else
+      result := inherited ToolProvideCommand(ACommand);
+    end
   else
-    result := inherited ToolProvideCommand(ACommand);
-  end;
+    case ACommand of
+    tcDelete: result := Assigned(FShape);
+    else result := inherited ToolProvideCommand(ACommand);
+    end;
 end;
 
 initialization
