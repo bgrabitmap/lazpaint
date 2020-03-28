@@ -66,12 +66,17 @@ type
     function GetBackVisible: boolean; override;
     function GetOutlineVisible: boolean; override;
     procedure NotifySelectionChanged;
+    procedure InternalMoveToIndex(AFirst: integer);
   public
     constructor Create(AContainer: TVectorOriginal); override;
     class function StorageClassName: RawByteString; override;
     destructor Destroy; override;
     procedure BeginUpdate(ADiffHandler: TVectorShapeDiffAny=nil); override;
     procedure EndUpdate; override;
+    procedure BringToFront; override;
+    procedure SendToBack; override;
+    procedure MoveUp(APassNonIntersectingShapes: boolean); override;
+    procedure MoveDown(APassNonIntersectingShapes: boolean); override;
     procedure ClearShapes;
     procedure AddShape(AShape: TVectorShape);
     procedure RemoveShape(AShape: TVectorShape);
@@ -588,6 +593,21 @@ begin
     OnSelectionChange(self);
 end;
 
+procedure TVectorMultiselection.InternalMoveToIndex(AFirst: integer);
+var fromIndex, toIndex: array of integer;
+  i: Integer;
+begin
+  if Container = nil then exit;
+  setlength(fromIndex, ShapeCount);
+  setlength(toIndex, ShapeCount);
+  for i := 0 to ShapeCount-1 do
+  begin
+    fromIndex[i] := Container.IndexOfShape(FShapes[i]);
+    toIndex[i] := AFirst + i;
+  end;
+  Container.MoveShapeToIndex(fromIndex, toIndex);
+end;
+
 function TVectorMultiselection.GetCornerPositition: single;
 begin
   result := 1;
@@ -925,6 +945,67 @@ begin
   for i := 0 to FShapes.Count-1 do
     FShapes[i].EndUpdate;
   inherited EndUpdate;
+end;
+
+procedure TVectorMultiselection.BringToFront;
+begin
+  if Assigned(Container) then
+    InternalMoveToIndex(Container.ShapeCount - ShapeCount);
+end;
+
+procedure TVectorMultiselection.SendToBack;
+begin
+  InternalMoveToIndex(0);
+end;
+
+procedure TVectorMultiselection.MoveUp(APassNonIntersectingShapes: boolean);
+var
+  topIndex, i: Integer;
+  curBounds: TRectF;
+  touch: Boolean;
+begin
+  if Container = nil then exit;
+  topIndex := Container.IndexOfShape(FrontShape);
+  while topIndex < Container.ShapeCount-1 do
+  begin
+    inc(topIndex);
+    curBounds := Container.Shape[topIndex].GetAlignBounds(InfiniteRect, AffineMatrixIdentity);
+    if not APassNonIntersectingShapes then break;
+    touch := false;
+    for i := 0 to ShapeCount-1 do
+      if FShapes[i].GetAlignBounds(InfiniteRect, AffineMatrixIdentity).IntersectsWith(curBounds) then
+      begin
+        touch := true;
+        break;
+      end;
+    if touch then break;
+  end;
+  InternalMoveToIndex(topIndex + 1 - ShapeCount);
+end;
+
+procedure TVectorMultiselection.MoveDown(APassNonIntersectingShapes: boolean);
+var
+  bottomIndex, i: Integer;
+  curBounds: TRectF;
+  touch: Boolean;
+begin
+  if Container = nil then exit;
+  bottomIndex := Container.IndexOfShape(FrontShape);
+  while bottomIndex > 0 do
+  begin
+    dec(bottomIndex);
+    curBounds := Container.Shape[bottomIndex].GetAlignBounds(InfiniteRect, AffineMatrixIdentity);
+    if not APassNonIntersectingShapes then break;
+    touch := false;
+    for i := 0 to ShapeCount-1 do
+      if FShapes[i].GetAlignBounds(InfiniteRect, AffineMatrixIdentity).IntersectsWith(curBounds) then
+      begin
+        touch := true;
+        break;
+      end;
+    if touch then break;
+  end;
+  InternalMoveToIndex(bottomIndex);
 end;
 
 initialization

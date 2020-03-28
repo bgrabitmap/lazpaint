@@ -1,6 +1,7 @@
 unit LCVectorOriginal;
 
 {$mode objfpc}{$H+}
+{$modeswitch advancedrecords}
 
 interface
 
@@ -263,10 +264,10 @@ type
     procedure KeyDown({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); virtual;
     procedure KeyUp({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); virtual;
     procedure KeyPress({%H-}UTF8Key: string; var {%H-}AHandled: boolean); virtual;
-    procedure BringToFront;
-    procedure SendToBack;
-    procedure MoveUp(APassNonIntersectingShapes: boolean);
-    procedure MoveDown(APassNonIntersectingShapes: boolean);
+    procedure BringToFront; virtual;
+    procedure SendToBack; virtual;
+    procedure MoveUp(APassNonIntersectingShapes: boolean); virtual;
+    procedure MoveDown(APassNonIntersectingShapes: boolean); virtual;
     procedure Remove;
     procedure AlignHorizontally(AAlign: TAlignment; const AMatrix: TAffineMatrix; const ABounds: TRect); virtual;
     procedure AlignVertically(AAlign: TTextLayout; const AMatrix: TAffineMatrix; const ABounds: TRect); virtual;
@@ -354,9 +355,11 @@ type
 
   TVectorOriginalMoveShapeToIndexDiff = class(TBGRAOriginalDiff)
   protected
-    FFromIndex,FToIndex: integer;
+    FFromIndex,FToIndex: array of integer;
+    FShapeCount: integer;
+    procedure InternalMove(AOriginal: TBGRALayerCustomOriginal; AFromIndex,AToIndex: array of integer; ASendDiff: boolean);
   public
-    constructor Create(AFromIndex,AToIndex: integer);
+    constructor Create(AFromIndex,AToIndex: array of integer);
     procedure Apply(AOriginal: TBGRALayerCustomOriginal); overload; override;
     procedure Apply(AOriginal: TBGRALayerCustomOriginal; ASendDiff: boolean); overload;
     procedure Unapply(AOriginal: TBGRALayerCustomOriginal); override;
@@ -445,7 +448,8 @@ type
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     function IndexOfShape(AShape: TVectorShape): integer;
     function FindShapeById(AId: integer): TVectorShape;
-    procedure MoveShapeToIndex(AFromIndex: integer; AToIndex: integer);
+    procedure MoveShapeToIndex(AFromIndex, AToIndex: integer); overload;
+    procedure MoveShapeToIndex(AFromIndex, AToIndex: array of integer); overload;
     class function StorageClassName: RawByteString; override;
     property OnSelectShape: TVectorOriginalSelectShapeEvent read FOnSelectShape write FOnSelectShape;
     property SelectedShape: TVectorShape read FSelectedShape;
@@ -527,11 +531,77 @@ end;
 
 { TVectorOriginalMoveShapeToIndexDiff }
 
-constructor TVectorOriginalMoveShapeToIndexDiff.Create(AFromIndex,
-  AToIndex: integer);
+type
+  TMovedShape = record
+      shape: TVectorShape;
+      targetIndex: integer;
+      class operator =(const ms1, ms2: TMovedShape): boolean;
+    end;
+
+class operator TMovedShape.=(const ms1, ms2: TMovedShape): boolean;
 begin
-  FFromIndex:= AFromIndex;
-  FToIndex := AToIndex;
+  result := (ms1.shape = ms2.shape) and (ms1.targetIndex = ms2.targetIndex);
+end;
+
+function CompareMovedShapeTargetIndex(const ms1, ms2: TMovedShape): integer;
+begin
+  result := ms1.targetIndex - ms2.targetIndex;
+end;
+
+procedure TVectorOriginalMoveShapeToIndexDiff.InternalMove(AOriginal: TBGRALayerCustomOriginal; AFromIndex,
+  AToIndex: array of integer; ASendDiff: boolean);
+type
+  TMovedShapeList = specialize TFPGList<TMovedShape>;
+var
+  movedShapes: TMovedShapeList;
+  ms: TMovedShape;
+  r: TRectF;
+  i: Integer;
+  orig: TVectorOriginal;
+begin
+  if FShapeCount = 0 then exit;
+  orig := AOriginal as TVectorOriginal;
+  movedShapes := TMovedShapeList.Create;
+  for i := 0 to FShapeCount-1 do
+  begin
+    ms.shape := orig.Shape[AFromIndex[i]];
+    ms.targetIndex:= AToIndex[i];
+    movedShapes.Add(ms);
+  end;
+  movedShapes.Sort(@CompareMovedShapeTargetIndex);
+  if movedShapes[0].targetIndex > orig.IndexOfShape(movedShapes[0].shape) then
+  begin
+    for i := movedShapes.Count-1 downto 0 do
+      orig.FShapes.Move(orig.IndexOfShape(movedShapes[i].shape), movedShapes[i].targetIndex);
+  end else
+    for i := 0 to movedShapes.Count-1 do
+      orig.FShapes.Move(orig.IndexOfShape(movedShapes[i].shape), movedShapes[i].targetIndex);
+
+  orig.DiscardFrozenShapes;
+  r := EmptyRectF;
+  for i := 0 to movedShapes.Count-1 do
+    r := r.Union(movedShapes[i].shape.GetRenderBounds(InfiniteRect, AffineMatrixIdentity), true);
+  movedShapes.Free;
+
+  if ASendDiff then orig.NotifyChange(r,self)
+  else orig.NotifyChange(r);
+end;
+
+constructor TVectorOriginalMoveShapeToIndexDiff.Create(AFromIndex,
+  AToIndex: array of integer);
+var
+  i: Integer;
+begin
+  if length(AFromIndex) <> length(AToIndex) then
+    raise exception.Create('Dimension mismatch');
+  FShapeCount:= length(AFromIndex);
+  setlength(FFromIndex, FShapeCount);
+  setlength(FToIndex, FShapeCount);
+  for i := 0 to FShapeCount-1 do
+  begin
+    FFromIndex[i] := AFromIndex[i];
+    FToIndex[i] := AToIndex[i];
+  end;
 end;
 
 procedure TVectorOriginalMoveShapeToIndexDiff.Apply(
@@ -542,50 +612,53 @@ end;
 
 procedure TVectorOriginalMoveShapeToIndexDiff.Apply(
   AOriginal: TBGRALayerCustomOriginal; ASendDiff: boolean);
-var
-  movedShape: TVectorShape;
-  r: TRectF;
 begin
-  with (AOriginal as TVectorOriginal) do
-  begin
-    movedShape := FShapes[FFromIndex];
-    FShapes.Move(FFromIndex,FToIndex);
-    DiscardFrozenShapes;
-    r := movedShape.GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
-    if ASendDiff then NotifyChange(r,self)
-    else NotifyChange(r);
-  end;
+  InternalMove(AOriginal, FFromIndex, FToIndex, ASendDiff);
 end;
 
 procedure TVectorOriginalMoveShapeToIndexDiff.Unapply(
   AOriginal: TBGRALayerCustomOriginal);
-var
-  movedShape: TVectorShape;
 begin
-  with (AOriginal as TVectorOriginal) do
-  begin
-    movedShape := FShapes[FToIndex];
-    FShapes.Move(FToIndex,FFromIndex);
-    DiscardFrozenShapes;
-    NotifyChange(movedShape.GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
-  end;
+  InternalMove(AOriginal, FToIndex, FFromIndex, False);
 end;
 
 function TVectorOriginalMoveShapeToIndexDiff.CanAppend(ADiff: TBGRAOriginalDiff): boolean;
+var
+  other: TVectorOriginalMoveShapeToIndexDiff;
+  i: Integer;
 begin
-  result := (ADiff is TVectorOriginalMoveShapeToIndexDiff) and
-    (TVectorOriginalMoveShapeToIndexDiff(ADiff).FFromIndex = FToIndex);
+  if ADiff is TVectorOriginalMoveShapeToIndexDiff then
+  begin
+    other := TVectorOriginalMoveShapeToIndexDiff(ADiff);
+    if other.FShapeCount <> FShapeCount then exit(false);
+    for i := 0 to FShapeCount-1 do
+      if other.FFromIndex[i] <> FToIndex[i] then exit(false);
+    result := true;
+  end else
+    result := false;
 end;
 
 procedure TVectorOriginalMoveShapeToIndexDiff.Append(ADiff: TBGRAOriginalDiff);
+var
+  other: TVectorOriginalMoveShapeToIndexDiff;
+  i: Integer;
 begin
   if CanAppend(ADiff) then
-      FToIndex:= (ADiff as TVectorOriginalMoveShapeToIndexDiff).FToIndex;
+  begin
+    other := ADiff as TVectorOriginalMoveShapeToIndexDiff;
+    for i := 0 to FShapeCount-1 do
+      FToIndex[i] := other.FToIndex[i];
+  end;
 end;
 
 function TVectorOriginalMoveShapeToIndexDiff.IsIdentity: boolean;
+var
+  i: Integer;
 begin
-  result := (FFromIndex = FToIndex);
+  for i := 0 to FShapeCount-1 do
+    if FFromIndex[i] <> FToIndex[i] then
+      exit(false);
+  result := true;
 end;
 
 { TVectorShapeDiff }
@@ -2300,10 +2373,10 @@ begin
   idx := sourceIdx;
   if APassNonIntersectingShapes then
   begin
-    movedShapeBounds := self.GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+    movedShapeBounds := self.GetAlignBounds(InfiniteRect, AffineMatrixIdentity);
     while idx < Container.ShapeCount-2 do
     begin
-      otherShapeBounds := Container.Shape[idx+1].GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+      otherShapeBounds := Container.Shape[idx+1].GetAlignBounds(InfiniteRect, AffineMatrixIdentity);
       if movedShapeBounds.IntersectsWith(otherShapeBounds) then break;
       inc(idx);
     end;
@@ -2323,10 +2396,10 @@ begin
   idx := sourceIdx;
   if APassNonIntersectingShapes then
   begin
-    movedShapeBounds := self.GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+    movedShapeBounds := self.GetAlignBounds(InfiniteRect, AffineMatrixIdentity);
     while idx > 1 do
     begin
-      otherShapeBounds := Container.Shape[idx-1].GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+      otherShapeBounds := Container.Shape[idx-1].GetAlignBounds(InfiniteRect, AffineMatrixIdentity);
       if movedShapeBounds.IntersectsWith(otherShapeBounds) then break;
       dec(idx);
     end;
@@ -3454,11 +3527,17 @@ begin
   result := FShapes.IndexOf(AShape);
 end;
 
-procedure TVectorOriginal.MoveShapeToIndex(AFromIndex: integer; AToIndex: integer);
+procedure TVectorOriginal.MoveShapeToIndex(AFromIndex, AToIndex: integer);
+begin
+  MoveShapeToIndex([AFromIndex], [AToIndex]);
+end;
+
+procedure TVectorOriginal.MoveShapeToIndex(AFromIndex,
+  AToIndex: array of integer);
 var
   diff: TVectorOriginalMoveShapeToIndexDiff;
 begin
-  diff := TVectorOriginalMoveShapeToIndexDiff.Create(AFromIndex,AToIndex);
+  diff := TVectorOriginalMoveShapeToIndexDiff.Create(AFromIndex, AToIndex);
   if diff.IsIdentity then
   begin
     diff.Free;
