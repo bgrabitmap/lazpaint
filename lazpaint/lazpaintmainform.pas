@@ -811,6 +811,7 @@ type
     procedure HideFill(ATimeMs: Integer = 300; AClearTime: boolean = false);
     procedure OnPaintHandler;
     procedure OnImageChangedHandler({%H-}AEvent: TLazPaintImageObservationEvent);
+    procedure OnImageRenderChanged(sender: TObject);
     procedure LabelAutosize(ALabel: TLabel);
     procedure AskMergeSelection(ACaption: string);
     procedure ReleaseMouseButtons(Shift: TShiftState);
@@ -1152,6 +1153,7 @@ begin
   RegisterScripts(True);
 
   Image.OnImageChanged.AddObserver(@OnImageChangedHandler);
+  Image.OnImageRenderChanged := @OnImageRenderChanged;
   Image.OnQueryExitToolHandler := @OnQueryExitToolHandler;
   Image.Zoom := Zoom;
   UpdateWindowCaption;
@@ -4396,6 +4398,11 @@ begin
     MessagePopup(rsToolOnInvisibleLayer,5000);
   end;
   if AEvent.DelayedStackUpdate then FUpdateStackWhenIdle := true;
+end;
+
+procedure TFMain.OnImageRenderChanged(sender: TObject);
+begin
+  InvalidatePicture;
 end;
 
 procedure TFMain.UpdateEditPicture(ADelayed: boolean = false);

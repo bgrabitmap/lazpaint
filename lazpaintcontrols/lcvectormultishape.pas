@@ -321,8 +321,10 @@ begin
     contained.AppendForShape(ASender as TVectorShape, ADiff);
     ADiff.Free;
   end else
-    if Assigned(OnChange) then
+  begin
+    if not IsUpdating and Assigned(OnChange) then
       OnChange(self, ABounds, nil);
+  end;
 end;
 
 procedure TVectorMultiselection.UpdateFromShapes;

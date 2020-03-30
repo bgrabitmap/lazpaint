@@ -1605,10 +1605,7 @@ begin
     newEditorBounds := Editor.GetRenderBounds(rect(0,0,ceil(x),ceil(y)));
   r := RectUnion(FPreviousEditorBounds,newEditorBounds);
   if not r.IsEmpty then
-  begin
     Manager.Image.RenderMayChange(r,false);
-    Manager.Image.OnImageChanged.NotifyObservers;
-  end;
   FPreviousEditorBounds := newEditorBounds;
 end;
 

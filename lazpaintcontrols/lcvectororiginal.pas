@@ -2956,7 +2956,7 @@ begin
   else
   begin
     FSelectedShape := FMultiselection;
-    if not FMultiselection.GetAsMultishape.SetShapes(AShapes) then
+    if FMultiselection.GetAsMultishape.SetShapes(AShapes) then
       NotifyEditorChange;
   end;
 end;

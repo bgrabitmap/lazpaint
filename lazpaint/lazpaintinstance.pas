@@ -1038,7 +1038,6 @@ procedure TLazPaintInstance.SetGridVisible(const AValue: boolean);
 begin
   FGridVisible := AValue;
   Image.RenderMayChange(rect(0,0,Image.Width,Image.Height),True);
-  NotifyImageChange(False,EmptyRect);
 end;
 
 function TLazPaintInstance.GetChooseColorVisible: boolean;

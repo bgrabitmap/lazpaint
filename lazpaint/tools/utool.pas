@@ -198,6 +198,7 @@ type
     FSleepingToolType: TPaintToolType;
     FReturnValidatesHintShown: boolean;
     FOnToolChangedHandler: TOnToolChangedHandler;
+    FOnToolRenderChanged: TNotifyEvent;
     FOnToolbarChanged: TNotifyEvent;
     FOnPopupToolHandler: TOnPopupToolHandler;
 
@@ -491,7 +492,7 @@ type
     function IsOutlineEditGradTexPoints: boolean;
     procedure QueryExitTool;
 
-    procedure RenderTool(formBitmap: TBGRABitmap);
+    function RenderTool(formBitmap: TBGRABitmap): TRect;
     function GetRenderBounds(VirtualScreenWidth, VirtualScreenHeight: integer): TRect;
     function SuggestGradientBox: TAffineBox;
 
@@ -569,6 +570,7 @@ type
     property PerspectiveOptions: TPerspectiveOptions read FPerspectiveOptions write SetPerspectiveOptions;
 
     property OnToolChanged: TOnToolChangedHandler read FOnToolChangedHandler write FOnToolChangedHandler;
+    property OnToolRenderChanged: TNotifyEvent read FOnToolRenderChanged write FOnToolRenderChanged;
     property OnToolbarChanged: TNotifyEvent read FOnToolbarChanged write FOnToolbarChanged;
     property OnPopup: TOnPopupToolHandler read FOnPopupToolHandler write FOnPopupToolHandler;
     property OnEraserChanged: TNotifyEvent read FOnEraserChanged write FOnEraserChanged;
@@ -3147,11 +3149,11 @@ begin
     if not IsSelectingTool then
       Image.ReleaseEmptySelection;
 
-    Image.RenderMayChange(rect(0,0,Image.Width,Image.Height),True);
-
     UpdateContextualToolbars;
     If Assigned(FOnToolChangedHandler) then
       FOnToolChangedHandler(self, FCurrentToolType);
+    If Assigned(FOnToolRenderChanged) then
+      FOnToolRenderChanged(self);
   end;
   FShouldExitTool:= false;
 end;
@@ -3357,10 +3359,11 @@ begin
     FCurrentTool := FSleepingTool;
     FSleepingTool := nil;
     FCurrentToolType := FSleepingToolType;
-    Image.RenderMayChange(rect(0,0,Image.Width,Image.Height),True);
     UpdateContextualToolbars;
     If Assigned(FOnToolChangedHandler) then
       FOnToolChangedHandler(self, FCurrentToolType);
+    If Assigned(FOnToolRenderChanged) then
+      FOnToolRenderChanged(self);
   end;
 end;
 
@@ -3685,6 +3688,8 @@ begin
     try
       FCurrentTool := PaintTools[FCurrentToolType].Create(self);
       UpdateContextualToolbars;
+      If Assigned(FOnToolRenderChanged) then
+        FOnToolRenderChanged(self);
     finally
       FInTool := false;
     end;
@@ -3765,17 +3770,18 @@ begin
   FShouldExitTool:= true;
 end;
 
-procedure TToolManager.RenderTool(formBitmap: TBGRABitmap);
+function TToolManager.RenderTool(formBitmap: TBGRABitmap): TRect;
 begin
   if ToolCanBeUsed and Assigned(CurrentTool) and not FInTool then
   begin
     FInTool := true;
     try
-      Image.RenderMayChange(CurrentTool.Render(formBitmap,formBitmap.Width,formBitmap.Height, @InternalBitmapToVirtualScreen));
+      result := CurrentTool.Render(formBitmap,formBitmap.Width,formBitmap.Height, @InternalBitmapToVirtualScreen);
     finally
       FInTool := false;
     end;
-  end;
+  end else
+    result := EmptyRect;
 end;
 
 function TToolManager.GetRenderBounds(VirtualScreenWidth, VirtualScreenHeight: integer): TRect;

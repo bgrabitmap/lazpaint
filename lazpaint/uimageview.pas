@@ -36,7 +36,7 @@ type
     FZoom: TZoom;
     FPictureCanvas: TCanvas;
     function GetImage: TLazPaintImage;
-    function GetRenderUpdateRectVS(AIncludeLastToolState: boolean): TRect;
+    function GetRenderUpdateRectVS(AIncludeCurrentToolEditor: boolean): TRect;
     function GetFillSelectionHighlight: boolean;
     function GetPenCursorPosition: TVSCursorPosition;
     function GetWorkspaceColor: TColor;
@@ -48,6 +48,7 @@ type
     procedure SetFillSelectionHighlight(AValue: boolean);
     procedure SetShowSelection(AValue: boolean);
     procedure PictureSelectionChanged({%H-}sender: TLazPaintImage; const ARect: TRect);
+    procedure ToolManagerRenderChanged(Sender: TObject);
     procedure PaintVirtualScreenCursor({%H-}ACanvasOfs: TPoint; {%H-}AWorkArea: TRect; {%H-}AWinControlOfs: TPoint; {%H-}AWinControl: TWinControl);
     function GetRectToInvalidate(AInvalidateAll: boolean; AWorkArea: TRect): TRect;
     function GetPictureCoordsDefined: boolean;
@@ -108,6 +109,13 @@ end;
 function TImageView.GetPictureCoordsDefined: boolean;
 begin
   result := FLastPictureParameters.defined;
+end;
+
+procedure TImageView.ToolManagerRenderChanged(Sender: TObject);
+begin
+  if Assigned(FVirtualScreen) then
+    Image.RenderMayChange(LazPaintInstance.ToolManager.GetRenderBounds(
+                            FVirtualScreen.Width, FVirtualScreen.Height));
 end;
 
 function TImageView.GetImage: TLazPaintImage;
@@ -190,10 +198,10 @@ begin
       DrawSelectionHighlight(renderRect);
     end;
     FVirtualScreen.NoClip;
-  end;
 
-  //show tools info
-  LazPaintInstance.ToolManager.RenderTool(FVirtualScreen);
+    //show tools info
+    Image.RenderMayChange(LazPaintInstance.ToolManager.RenderTool(FVirtualScreen), false, false);
+  end;
 
   PaintVirtualScreenImplementation(ACanvasOfs, AWorkArea, AVSPart);
   Image.VisibleArea := TRectF.Intersect(rectF(FormToBitmap(AWorkArea.Left, AWorkArea.Top),
@@ -308,6 +316,7 @@ begin
   FSelectionHighlight := TSelectionHighlight.Create(Image);
   FShowSelection:= true;
   Image.OnSelectionChanged := @PictureSelectionChanged;
+  LazPaintInstance.ToolManager.OnToolRenderChanged:=@ToolManagerRenderChanged;
   LazPaintInstance.ToolManager.BitmapToVirtualScreen := @BitmapToVirtualScreen;
 end;
 
@@ -391,7 +400,7 @@ begin
   FLastPictureParameters.defined := false;
 end;
 
-function TImageView.GetRenderUpdateRectVS(AIncludeLastToolState: boolean): TRect;
+function TImageView.GetRenderUpdateRectVS(AIncludeCurrentToolEditor: boolean): TRect;
 const displayMargin = 1;
 begin
   result := Image.RenderUpdateRectInPicCoord;
@@ -409,7 +418,7 @@ begin
     end;
   end;
   result := RectUnion(result, Image.RenderUpdateRectInVSCoord);
-  if AIncludeLastToolState and Assigned(FVirtualScreen) then
+  if AIncludeCurrentToolEditor and Assigned(FVirtualScreen) then
     result := RectUnion(result, LazPaintInstance.ToolManager.GetRenderBounds(FVirtualScreen.Width,FVirtualScreen.Height));
 end;
 
