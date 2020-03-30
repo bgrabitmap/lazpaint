@@ -95,6 +95,7 @@ begin
   blurType := rbNormal;
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckFloatSpinEdit(SpinEdit_Radius);
+  SpinEdit_Radius.Constraints.MinWidth := DoScaleX(70, OriginalDPI);
 end;
 
 procedure TFRadialBlur.FormShow(Sender: TObject);

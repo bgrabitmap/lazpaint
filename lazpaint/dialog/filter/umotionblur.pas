@@ -218,6 +218,7 @@ begin
   InPaintBoxMouseMove := false;
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckFloatSpinEdit(SpinEdit_Distance);
+  SpinEdit_Distance.Constraints.MinWidth := DoScaleX(70, OriginalDPI);
 end;
 
 procedure TFMotionBlur.FormShow(Sender: TObject);
