@@ -407,7 +407,6 @@ end;
 
 procedure TEditShapeTool.UpdateToolManagerFromShape(AShape: TVectorShape);
 var
-  ps: TPenStyle;
   opt: TShapeOptions;
   zoom: single;
   m: TAffineMatrix;
@@ -435,7 +434,7 @@ begin
       else
       begin
         include(opt,toDrawShape);
-        Manager.PenStyle := ps;
+        Manager.PenStyle := BGRAToPenStyle(AShape.PenStyle);
       end;
   end;
   if doDraw then
