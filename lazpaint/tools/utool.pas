@@ -603,7 +603,7 @@ function ToolPopupMessageToStr(AMessage :TToolPopupMessage; AKey: Word = 0): str
 implementation
 
 uses UGraph, LCScaleDPI, LazPaintType, UCursors, BGRATextFX, ULoading, UResourceStrings,
-  BGRATransform, LCVectorOriginal, BGRASVGOriginal, math, ULoadImage;
+  BGRATransform, LCVectorOriginal, BGRASVGOriginal, math, ULoadImage, LCVectorTextShapes;
 
 function StrToPaintToolType(const s: ansistring): TPaintToolType;
 var pt: TPaintToolType;
@@ -2884,7 +2884,7 @@ begin
   FTextOutlineWidth := 2;
   FTextShadow := false;
   FTextFontSize := 10;
-  FTextFontName := 'Arial';
+  FTextFontName := TTextShape.DefaultFontName;
   FTextFontStyle:= [];
   FTextAlign := taLeftJustify;
   FTextPhong := False;
@@ -3478,6 +3478,7 @@ end;
 procedure TToolManager.SetTextFont(AName: string; ASize: single;
   AStyle: TFontStyles);
 begin
+  if AName = '' then AName := FTextFontName;
   if (FTextFontName <> AName) or
     (FTextFontSize <> ASize) or
     (FTextFontStyle <> AStyle) then

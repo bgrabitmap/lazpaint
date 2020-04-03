@@ -1127,7 +1127,7 @@ end;
 
 class function TTextShape.DefaultFontName: string;
 begin
-  result := {$IFDEF WINDOWS}'Arial'{$ELSE}{$IFDEF DARWIN}'Helvetica'{$ELSE}'FreeSans'{$ENDIF}{$ENDIF};
+  result := {$IFDEF WINDOWS}'Arial'{$ELSE}{$IFDEF DARWIN}'Helvetica'{$ELSE}'Liberation Sans'{$ENDIF}{$ENDIF};
 end;
 
 class function TTextShape.DefaultFontEmHeight: single;

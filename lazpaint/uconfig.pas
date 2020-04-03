@@ -946,7 +946,7 @@ end;
 function TLazPaintConfig.DefaultToolTextFont: TFont;
 var fontStyle: TFontStyles;
 begin
-  tempFont.Name := iniOptions.ReadString('Tool','TextFontName','Arial');
+  tempFont.Name := iniOptions.ReadString('Tool','TextFontName','');
   tempFont.Size := iniOptions.ReadInteger('Tool','TextFontSize',10);
   fontStyle := [];
   if iniOptions.ReadBool('Tool','TextFontBold',False) then fontStyle += [fsBold];
