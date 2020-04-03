@@ -1115,63 +1115,45 @@ function TGenericTool.ToolKeyDown(var key: Word): TRect;
 var
   key2: Word;
 begin
+  if key = VK_SHIFT then
+  begin
+    Include(FShiftState, ssShift);
+    //do not reset Key to preserve typing ^o or "o
+  end else
+  if (key = VK_MENU) then
+    Include(FShiftState, ssAlt);
+
   if (Key = VK_SNAP) or (Key = VK_SNAP2) then
   begin
     key2 := VK_CONTROL;
+    Include(FShiftState, ssSnap);
     result := DoToolKeyDown(key2);
     if key2 = 0 then key := 0;
   end else
     result := DoToolKeyDown(key);
-
-  if key = VK_SHIFT then
-  begin
-    Include(FShiftState, ssShift);
-    key := 0;
-  end else
-  if (Key = VK_SNAP) or (Key = VK_SNAP2) then
-  begin
-    Include(FShiftState, ssSnap);
-    key := 0;
-  end else
-  if (key = VK_MENU) then
-  begin
-    Include(FShiftState, ssAlt);
-    key := 0;
-  end;
 end;
 
 function TGenericTool.ToolKeyUp(var key: Word): TRect;
 var
-  handled: Boolean;
   key2: word;
 begin
   if (key = VK_SHIFT) and (ssShift in FShiftState) then
   begin
     Exclude(FShiftState, ssShift);
-    handled := true;
-  end else
-  if ((key = VK_SNAP) or (key = VK_SNAP2)) and (ssSnap in FShiftState) then
-  begin
-    Exclude(FShiftState, ssSnap);
-    handled := true;
+    //do not reset key to preserve typing ^o or "o
   end else
   if (key = VK_MENU) and (ssAlt in FShiftState) then
-  begin
     Exclude(FShiftState, ssAlt);
-    handled := true;
-  end else
-    handled := false;
 
   //propagate in all cases to know when keys are released for unicode input
   if (Key = VK_SNAP) or (Key = VK_SNAP2) then
   begin
     key2 := VK_CONTROL;
+    Exclude(FShiftState, ssSnap);
     result := DoToolKeyUp(key2);
     if key2 = 0 then key := 0;
   end else
     result := DoToolKeyUp(key);
-
-  if handled then key := 0;
 end;
 
 function TGenericTool.ToolKeyPress(var key: TUTF8Char): TRect;

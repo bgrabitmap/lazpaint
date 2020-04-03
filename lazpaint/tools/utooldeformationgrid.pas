@@ -74,6 +74,7 @@ type
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect;
       override;
     function DoToolKeyDown(var key: Word): TRect; override;
+    function DoToolKeyUp(var key: Word): TRect; override;
     function GetIsSelectingTool: boolean; override;
     function GetTexture: TBGRABitmap; virtual;
     function GetTextureRepetition: TTextureRepetition; virtual;
@@ -727,7 +728,16 @@ begin
       manager.QueryExitTool;
       key := 0;
     end;
-  end;
+  end else
+  if (Key = VK_SHIFT) or (Key = VK_MENU) then
+    UpdateBoundsMode(result);
+end;
+
+function TToolTextureMapping.DoToolKeyUp(var key: Word): TRect;
+begin
+  Result:= EmptyRect;
+  if (Key = VK_SHIFT) or (Key = VK_MENU) then
+    UpdateBoundsMode(result);
 end;
 
 function TToolTextureMapping.ToolUp: TRect;
