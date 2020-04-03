@@ -145,3 +145,31 @@ lazpaint (7.0.8) unstable; urgency=low
 
 -- circular <circular@operamail.com>  Fri, 6 Mar 2020 18:32:00 +0100
 
+lazpaint (7.0.9) unstable; urgency=low
+
+  * interface: less flickering during action progress
+  * interface: minor scaling improvements
+  * interface: ensure toolwindows in front when restoring app
+  * interface: dark theme for status bar
+  * interface: add Donate tool button
+  * interface: add Python download button if missing
+  * interface: separate color for background and outline
+  * interface: don't undock windows when going fullscreen
+  * interface: fix remember save file extension
+  * translation: added Latvian
+  * translation: completed Kabyle and Bulgarian
+  * tool: fix updating transparent colors
+  * tool: fix release of middle mouse button
+  * tool: optimize layer transform
+  * tool: added font aliasing option
+  * tool: replace layer by gradient if it is opaque
+  * tool: floodfill using vector if possible
+  * tool: fix gradient undo/redo
+  * tool: multiselection of shapes
+  * tool: fix text editor handling of keys
+  * script: sort in menus
+  * script: added inner shadow/light
+  * script: added version function
+
+-- circular <circular@operamail.com>  Fri, 3 Apr 2020 12:40:00 +0100
+

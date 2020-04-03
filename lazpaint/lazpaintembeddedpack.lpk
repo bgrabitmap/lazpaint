@@ -26,7 +26,7 @@
         </Debugging>
       </Linking>
     </CompilerOptions>
-    <Version Major="7" Release="8"/>
+    <Version Major="7" Release="9"/>
     <Files Count="94">
       <Item1>
         <Filename Value="lazpaintinstance.pas"/>
