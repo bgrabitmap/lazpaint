@@ -24,3 +24,5 @@ def send(command: str, **keywords):
   else:
     return
 
+def get_version(): # (major, minor, revision)
+  return send("LazPaintGetVersion?")

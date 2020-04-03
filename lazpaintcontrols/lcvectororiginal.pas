@@ -1,6 +1,7 @@
 unit LCVectorOriginal;
 
 {$mode objfpc}{$H+}
+{$modeswitch advancedrecords}
 
 interface
 
@@ -39,13 +40,14 @@ type
 
   TRenderBoundsOption = (rboAssumePenFill, rboAssumeBackFill);
   TRenderBoundsOptions = set of TRenderBoundsOption;
-  TVectorShapeField = (vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill, vsfOutlineFill);
+  TVectorShapeField = (vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill, vsfOutlineFill, vsfOutlineWidth);
   TVectorShapeFields = set of TVectorShapeField;
   TVectorShapeUsermode = (vsuEdit, vsuCreate, vsuEditPenFill, vsuEditBackFill, vsuEditOutlineFill,
                           vsuCurveSetAuto, vsuCurveSetCurve, vsuCurveSetAngle,
                           vsuEditText);
   TVectorShapeUsermodes = set of TVectorShapeUsermode;
   TVectorShape = class;
+  TVectorShapes = specialize TFPGList<TVectorShape>;
 
   { TVectorShapeDiff }
 
@@ -58,6 +60,16 @@ type
     procedure Append(ADiff: TVectorShapeDiff); virtual; abstract;
     function IsIdentity: boolean; virtual; abstract;
   end;
+
+  TCustomMultiSelectionDiff = class(TVectorShapeDiff)
+  protected
+    function GetShapeCount: integer; virtual; abstract;
+    function GetShapeId(AIndex: integer): integer; virtual; abstract;
+  public
+    property ShapeCount: integer read GetShapeCount;
+    property ShapeId[AIndex: integer]: integer read GetShapeId;
+  end;
+
   TVectorShapeDiffList = specialize TFPGList<TVectorShapeDiff>;
   TVectorShapeDiffAny = class of TVectorShapeDiff;
 
@@ -77,6 +89,7 @@ type
     function CanAppend(ADiff: TVectorShapeDiff): boolean; override;
     procedure Append(ADiff: TVectorShapeDiff); override;
     function IsIdentity: boolean; override;
+    function GetMultiselection: TCustomMultiSelectionDiff;
   end;
 
   { TVectorShapeEmbeddedFillDiff }
@@ -138,6 +151,20 @@ type
     function IsIdentity: boolean; override;
   end;
 
+  IVectorMultishape = interface
+    procedure ClearShapes;
+    procedure AddShape(AShape: TVectorShape);
+    procedure RemoveShape(AShape: TVectorShape);
+    function ContainsShape(AShape: TVectorShape): boolean;
+    function ShapeCount: integer;
+    function GetShape(AIndex: integer): TVectorShape;
+    function SetShapes(AShapes: TVectorShapes): boolean;
+    function FrontShape: TVectorShape;
+    function BackShape: TVectorShape;
+    procedure SetOnSelectionChange(AHandler: TNotifyEvent);
+    function GetOnSelectionChange: TNotifyEvent;
+  end;
+
   { TVectorShape }
 
   TVectorShape = class
@@ -151,8 +178,6 @@ type
     FBoundsBeforeUpdate: TRectF;
     FPenFill, FBackFill, FOutlineFill: TVectorialFill;
     FStoreTexturePointer: boolean;
-    FPenWidth: single;
-    FOutlineWidth: single;
     FStroker: TBGRAPenStroker;
     FUsermode: TVectorShapeUsermode;
     FContainer: TVectorOriginal;
@@ -160,17 +185,19 @@ type
     FDiffs: TVectorShapeDiffList;
     FFillChangeWithoutUpdate: boolean;
     FFillBeforeChangeBounds: TRectF;
-    function GetIsBack: boolean;
-    function GetIsFront: boolean;
+    function GetIsUpdating: boolean;
     procedure SetContainer(AValue: TVectorOriginal);
     function GetFill(var AFillVariable: TVectorialFill): TVectorialFill;
     procedure SetFill(var AFillVariable: TVectorialFill; AValue: TVectorialFill; AUpdate: boolean);
     procedure SetId(AValue: integer);
-    procedure SetOutlineWidth(AValue: single);
   protected
+    FPenWidth: single;
+    FOutlineWidth: single;
     procedure BeginEditingUpdate;
     procedure EndEditingUpdate;
     procedure DoOnChange(ABoundsBefore: TRectF; ADiff: TVectorShapeDiff); virtual;
+    function GetIsBack: boolean; virtual;
+    function GetIsFront: boolean; virtual;
     function GetPenColor: TBGRAPixel; virtual;
     function GetPenWidth: single; virtual;
     function GetPenStyle: TBGRAPenStyle; virtual;
@@ -178,13 +205,15 @@ type
     function GetBackFill: TVectorialFill; virtual;
     function GetPenFill: TVectorialFill; virtual;
     function GetOutlineFill: TVectorialFill; virtual;
+    function GetOutlineWidth: single; virtual;
     procedure SetPenColor(AValue: TBGRAPixel); virtual;
     procedure SetPenWidth(AValue: single); virtual;
     procedure SetPenStyle({%H-}AValue: TBGRAPenStyle); virtual;
-    procedure SetJoinStyle(AValue: TPenJoinStyle);
+    procedure SetJoinStyle(AValue: TPenJoinStyle); virtual;
     procedure SetBackFill(AValue: TVectorialFill); virtual;
     procedure SetPenFill(AValue: TVectorialFill); virtual;
     procedure SetOutlineFill(AValue: TVectorialFill); virtual;
+    procedure SetOutlineWidth(AValue: single); virtual;
     procedure SetUsermode(AValue: TVectorShapeUsermode); virtual;
     function LoadTexture(AStorage: TBGRACustomOriginalStorage; AName: string): TBGRABitmap;
     procedure SaveTexture(AStorage: TBGRACustomOriginalStorage; AName: string; AValue: TBGRABitmap);
@@ -193,7 +222,6 @@ type
     function ComputeStroke(APoints: ArrayOfTPointF; AClosed: boolean; AStrokeMatrix: TAffineMatrix): ArrayOfTPointF; virtual;
     function ComputeStrokeEnvelope(APoints: ArrayOfTPointF; AClosed: boolean; AWidth: single): ArrayOfTPointF; virtual;
     function GetStroker: TBGRAPenStroker;
-    property Stroker: TBGRAPenStroker read GetStroker;
     procedure FillChange({%H-}ASender: TObject; var ADiff: TCustomVectorialFillDiff); virtual;
     procedure FillBeforeChange({%H-}ASender: TObject); virtual;
     procedure UpdateRenderStorage(ARenderBounds: TRect; AImage: TBGRACustomBitmap = nil);
@@ -201,23 +229,31 @@ type
     procedure RetrieveRenderStorage(AMatrix: TAffineMatrix; out ARenderBounds: TRect; out AImage: TBGRABitmap);
     function CanHaveRenderStorage: boolean;
     function AddDiffHandler(AClass: TVectorShapeDiffAny): TVectorShapeDiff;
+    procedure AddFillDiffHandler(AFill: TVectorialFill; ADiff: TCustomVectorialFillDiff);
     function GetDiffHandler(AClass: TVectorShapeDiffAny): TVectorShapeDiff;
     function GetIsFollowingMouse: boolean; virtual;
+    function GetPenVisible(AAssumePenFill: boolean = False): boolean; virtual;
+    function GetPenVisibleNow: boolean;
+    function GetBackVisible: boolean; virtual;
+    function GetOutlineVisible: boolean; virtual;
+    property Stroker: TBGRAPenStroker read GetStroker;
   public
     constructor Create(AContainer: TVectorOriginal); virtual;
     class function CreateFromStorage(AStorage: TBGRACustomOriginalStorage; AContainer: TVectorOriginal): TVectorShape;
     destructor Destroy; override;
-    procedure BeginUpdate(ADiffHandler: TVectorShapeDiffAny=nil);
-    procedure EndUpdate;
+    procedure BeginUpdate(ADiffHandler: TVectorShapeDiffAny=nil); virtual;
+    procedure EndUpdate; virtual;
     procedure FillFit;
     procedure QuickDefine(constref APoint1,APoint2: TPointF); virtual; abstract;
     //one of the two Render functions must be overriden
-    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
-    procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); virtual;
+    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; virtual;
+    procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); overload; virtual;
     function GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; virtual; abstract;
     function SuggestGradientBox(AMatrix: TAffineMatrix): TAffineBox; virtual;
     function PointInShape(APoint: TPointF): boolean; overload; virtual; abstract;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; virtual; abstract;
+    function PointInBack(APoint: TPointF): boolean; overload; virtual;
+    function PointInPen(APoint: TPointF): boolean; overload; virtual;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); virtual; abstract;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); virtual;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); virtual;
@@ -228,10 +264,10 @@ type
     procedure KeyDown({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); virtual;
     procedure KeyUp({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); virtual;
     procedure KeyPress({%H-}UTF8Key: string; var {%H-}AHandled: boolean); virtual;
-    procedure BringToFront;
-    procedure SendToBack;
-    procedure MoveUp(APassNonIntersectingShapes: boolean);
-    procedure MoveDown(APassNonIntersectingShapes: boolean);
+    procedure BringToFront; virtual;
+    procedure SendToBack; virtual;
+    procedure MoveUp(APassNonIntersectingShapes: boolean); virtual;
+    procedure MoveDown(APassNonIntersectingShapes: boolean); virtual;
     procedure Remove;
     procedure AlignHorizontally(AAlign: TAlignment; const AMatrix: TAffineMatrix; const ABounds: TRect); virtual;
     procedure AlignVertically(AAlign: TTextLayout; const AMatrix: TAffineMatrix; const ABounds: TRect); virtual;
@@ -242,9 +278,15 @@ type
     function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; virtual;
     function GetGenericCost: integer; virtual;
     function GetUsedTextures: ArrayOfBGRABitmap; virtual;
+    function GetAsMultishape: IVectorMultishape; virtual;
     procedure Transform(const AMatrix: TAffineMatrix); virtual;
+    procedure TransformFrame(const AMatrix: TAffineMatrix); virtual; abstract;
+    procedure TransformFill(const AMatrix: TAffineMatrix; ABackOnly: boolean); virtual;
+    function AllowShearTransform: boolean; virtual;
+    function MultiFields: TVectorShapeFields; virtual;
     class function Fields: TVectorShapeFields; virtual;
     class function Usermodes: TVectorShapeUsermodes; virtual;
+    function MultiUsermodes: TVectorShapeUsermodes; virtual;
     class function PreferPixelCentered: boolean; virtual;
     class function CreateEmpty: boolean; virtual; //create shape even if empty?
     property OnChange: TShapeChangeEvent read FOnChange write FOnChange;
@@ -256,7 +298,7 @@ type
     property OutlineFill: TVectorialFill read GetOutlineFill write SetOutlineFill;
     property PenWidth: single read GetPenWidth write SetPenWidth;
     property PenStyle: TBGRAPenStyle read GetPenStyle write SetPenStyle;
-    property OutlineWidth: single read FOutlineWidth write SetOutlineWidth;
+    property OutlineWidth: single read GetOutlineWidth write SetOutlineWidth;
     property JoinStyle: TPenJoinStyle read GetJoinStyle write SetJoinStyle;
     property Usermode: TVectorShapeUsermode read FUsermode write SetUsermode;
     property Container: TVectorOriginal read FContainer write SetContainer;
@@ -265,8 +307,11 @@ type
     property IsRemoving: boolean read FRemoving;
     property Id: integer read FId write SetId;
     property IsFollowingMouse: boolean read GetIsFollowingMouse;
+    property IsUpdating: boolean read GetIsUpdating;
+    property BackVisible: boolean read GetBackVisible;
+    property PenVisible: boolean read GetPenVisibleNow;
+    property OutlineVisible: boolean read GetOutlineVisible;
   end;
-  TVectorShapes = specialize TFPGList<TVectorShape>;
   TVectorShapeAny = class of TVectorShape;
 
   TVectorOriginalSelectShapeEvent = procedure(ASender: TObject; AShape: TVectorShape; APreviousShape: TVectorShape) of object;
@@ -277,6 +322,7 @@ type
   protected
     FShapeIndex: integer;
     FShapeDiff: TVectorShapeDiff;
+    function GetShape(AOriginal: TBGRALayerCustomOriginal): TVectorShape;
   public
     constructor Create(AShapeIndex: integer; AShapeDiff: TVectorShapeDiff);
     destructor Destroy; override;
@@ -309,9 +355,11 @@ type
 
   TVectorOriginalMoveShapeToIndexDiff = class(TBGRAOriginalDiff)
   protected
-    FFromIndex,FToIndex: integer;
+    FFromIndex,FToIndex: array of integer;
+    FShapeCount: integer;
+    procedure InternalMove(AOriginal: TBGRALayerCustomOriginal; AFromIndex,AToIndex: array of integer; ASendDiff: boolean);
   public
-    constructor Create(AFromIndex,AToIndex: integer);
+    constructor Create(AFromIndex,AToIndex: array of integer);
     procedure Apply(AOriginal: TBGRALayerCustomOriginal); overload; override;
     procedure Apply(AOriginal: TBGRALayerCustomOriginal; ASendDiff: boolean); overload;
     procedure Unapply(AOriginal: TBGRALayerCustomOriginal); override;
@@ -325,15 +373,21 @@ type
   { TVectorOriginal }
 
   TVectorOriginal = class(TBGRALayerCustomOriginal)
+  private
+    procedure MultiSelection_SelectionChange(Sender: TObject);
   protected
     FShapes: TVectorShapes;
     FDeletedShapes: TVectorShapes;
     FSelectedShape: TVectorShape;
+    FMultiselection: TVectorShape;
     FFrozenShapesUnderSelection,
     FFrozenShapesOverSelection: TBGRABitmap;
+    FFrozenShapesUnderBounds,
+    FFrozenShapesOverBounds: TRect;
     FFrozenShapesRenderOffset: TPoint;
     FFrozenShapesComputed: boolean;
     FFrozenShapeMatrix: TAffineMatrix;
+    FUnfrozenRangeStart, FUnfrozenRangeEnd: integer;
     FOnSelectShape: TVectorOriginalSelectShapeEvent;
     FTextures: array of record
                  Bitmap: TBGRABitmap;
@@ -353,11 +407,11 @@ type
     procedure ClearTextures;
     function GetShapeCount: integer;
     function OpenShapeRenderStorage(AShapeIndex: integer; ACreate: boolean): TBGRACustomOriginalStorage;
-    function FindShapeById(AId: integer): TVectorShape;
     procedure DiscardUnusedRenderStorage;
     function InternalInsertShape(AShape: TVectorShape; AIndex: integer): TRectF;
     function InternalInsertShapeRange(AShapes: TVectorShapes; AIndex: integer): TRectF;
     function InternalDeleteShapeRange(AStartIndex,ACount: integer): TRectF;
+    function GetNewShapeId: integer;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -367,28 +421,35 @@ type
     procedure DiscardUnusedTextures;
     function AddShape(AShape: TVectorShape): integer; overload;
     function AddShape(AShape: TVectorShape; AUsermode: TVectorShapeUsermode): integer; overload;
+    function AddShapes(AShapes: TVectorShapes): integer;
     procedure InsertShape(AShape: TVectorShape; AIndex: integer);
-    procedure InsertShapeRange(AShapes: TVectorShapes; AIndex: integer);
+    procedure InsertShapes(AShapes: TVectorShapes; AIndex: integer);
     function RemoveShape(AShape: TVectorShape): boolean;
     procedure DeleteShape(AIndex: integer);
     procedure DeleteShapeRange(AStartIndex,ACount: integer);
     procedure ReplaceShape(AIndex: integer; ANewShape: TVectorShape);
     procedure ReplaceShapeRange(AStartIndex: integer; ACountBefore: integer; ANewShapes: TVectorShapes);
-    procedure SelectShape(AIndex: integer); overload;
-    procedure SelectShape(AShape: TVectorShape); overload;
-    procedure DeselectShape;
+    function SelectShapes(AShapes: TVectorShapes): boolean;
+    function SelectShape(AIndex: integer; AToggle: boolean = false): boolean; overload;
+    function SelectShape(AShape: TVectorShape; AToggle: boolean = false): boolean; overload;
+    function DeselectShapes: boolean;
+    procedure DeselectShape(AIndex: integer); overload;
+    procedure DeselectShape(AShape: TVectorShape); overload;
     function GetShapesCost: integer;
     function PreferDraftMode(AEditor: TBGRAOriginalEditor; const AMatrix: TAffineMatrix): boolean;
-    function MouseClick(APoint: TPointF; ARadius: single): boolean;
+    function MouseClick(APoint: TPointF; ARadius: single; AToggle: boolean): boolean;
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure ConfigureEditor(AEditor: TBGRAOriginalEditor); override;
     function CreateEditor: TBGRAOriginalEditor; override;
-    function GetRenderBounds(ADestRect: TRect; {%H-}AMatrix: TAffineMatrix): TRect; override;
+    function GetRenderBounds(ADestRect: TRect; {%H-}AMatrix: TAffineMatrix): TRect; overload; override;
+    function GetRenderBounds(ADestRect: TRect; {%H-}AMatrix: TAffineMatrix; AStartIndex, AEndIndex: integer): TRect; overload;
     function GetAlignBounds(ADestRect: TRect; {%H-}AMatrix: TAffineMatrix): TRect;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     function IndexOfShape(AShape: TVectorShape): integer;
-    procedure MoveShapeToIndex(AFromIndex: integer; AToIndex: integer);
+    function FindShapeById(AId: integer): TVectorShape;
+    procedure MoveShapeToIndex(AFromIndex, AToIndex: integer); overload;
+    procedure MoveShapeToIndex(AFromIndex, AToIndex: array of integer); overload;
     class function StorageClassName: RawByteString; override;
     property OnSelectShape: TVectorOriginalSelectShapeEvent read FOnSelectShape write FOnSelectShape;
     property SelectedShape: TVectorShape read FSelectedShape;
@@ -431,6 +492,9 @@ function MatrixForPixelCentered(const AMatrix: TAffineMatrix): TAffineMatrix;
 procedure RegisterVectorShape(AClass: TVectorShapeAny);
 function GetVectorShapeByStorageClassName(AName: string): TVectorShapeAny;
 
+var
+  VectorMultiselectionFactory: TVectorShapeAny;
+
 implementation
 
 uses math, BGRATransform, BGRAFillInfo, BGRAGraphics, BGRAPath, Types,
@@ -467,11 +531,77 @@ end;
 
 { TVectorOriginalMoveShapeToIndexDiff }
 
-constructor TVectorOriginalMoveShapeToIndexDiff.Create(AFromIndex,
-  AToIndex: integer);
+type
+  TMovedShape = record
+      shape: TVectorShape;
+      targetIndex: integer;
+      class operator =(const ms1, ms2: TMovedShape): boolean;
+    end;
+
+class operator TMovedShape.=(const ms1, ms2: TMovedShape): boolean;
 begin
-  FFromIndex:= AFromIndex;
-  FToIndex := AToIndex;
+  result := (ms1.shape = ms2.shape) and (ms1.targetIndex = ms2.targetIndex);
+end;
+
+function CompareMovedShapeTargetIndex(const ms1, ms2: TMovedShape): integer;
+begin
+  result := ms1.targetIndex - ms2.targetIndex;
+end;
+
+procedure TVectorOriginalMoveShapeToIndexDiff.InternalMove(AOriginal: TBGRALayerCustomOriginal; AFromIndex,
+  AToIndex: array of integer; ASendDiff: boolean);
+type
+  TMovedShapeList = specialize TFPGList<TMovedShape>;
+var
+  movedShapes: TMovedShapeList;
+  ms: TMovedShape;
+  r: TRectF;
+  i: Integer;
+  orig: TVectorOriginal;
+begin
+  if FShapeCount = 0 then exit;
+  orig := AOriginal as TVectorOriginal;
+  movedShapes := TMovedShapeList.Create;
+  for i := 0 to FShapeCount-1 do
+  begin
+    ms.shape := orig.Shape[AFromIndex[i]];
+    ms.targetIndex:= AToIndex[i];
+    movedShapes.Add(ms);
+  end;
+  movedShapes.Sort(@CompareMovedShapeTargetIndex);
+  if movedShapes[0].targetIndex > orig.IndexOfShape(movedShapes[0].shape) then
+  begin
+    for i := movedShapes.Count-1 downto 0 do
+      orig.FShapes.Move(orig.IndexOfShape(movedShapes[i].shape), movedShapes[i].targetIndex);
+  end else
+    for i := 0 to movedShapes.Count-1 do
+      orig.FShapes.Move(orig.IndexOfShape(movedShapes[i].shape), movedShapes[i].targetIndex);
+
+  orig.DiscardFrozenShapes;
+  r := EmptyRectF;
+  for i := 0 to movedShapes.Count-1 do
+    r := r.Union(movedShapes[i].shape.GetRenderBounds(InfiniteRect, AffineMatrixIdentity), true);
+  movedShapes.Free;
+
+  if ASendDiff then orig.NotifyChange(r,self)
+  else orig.NotifyChange(r);
+end;
+
+constructor TVectorOriginalMoveShapeToIndexDiff.Create(AFromIndex,
+  AToIndex: array of integer);
+var
+  i: Integer;
+begin
+  if length(AFromIndex) <> length(AToIndex) then
+    raise exception.Create('Dimension mismatch');
+  FShapeCount:= length(AFromIndex);
+  setlength(FFromIndex, FShapeCount);
+  setlength(FToIndex, FShapeCount);
+  for i := 0 to FShapeCount-1 do
+  begin
+    FFromIndex[i] := AFromIndex[i];
+    FToIndex[i] := AToIndex[i];
+  end;
 end;
 
 procedure TVectorOriginalMoveShapeToIndexDiff.Apply(
@@ -482,50 +612,53 @@ end;
 
 procedure TVectorOriginalMoveShapeToIndexDiff.Apply(
   AOriginal: TBGRALayerCustomOriginal; ASendDiff: boolean);
-var
-  movedShape: TVectorShape;
-  r: TRectF;
 begin
-  with (AOriginal as TVectorOriginal) do
-  begin
-    movedShape := FShapes[FFromIndex];
-    FShapes.Move(FFromIndex,FToIndex);
-    DiscardFrozenShapes;
-    r := movedShape.GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
-    if ASendDiff then NotifyChange(r,self)
-    else NotifyChange(r);
-  end;
+  InternalMove(AOriginal, FFromIndex, FToIndex, ASendDiff);
 end;
 
 procedure TVectorOriginalMoveShapeToIndexDiff.Unapply(
   AOriginal: TBGRALayerCustomOriginal);
-var
-  movedShape: TVectorShape;
 begin
-  with (AOriginal as TVectorOriginal) do
-  begin
-    movedShape := FShapes[FToIndex];
-    FShapes.Move(FToIndex,FFromIndex);
-    DiscardFrozenShapes;
-    NotifyChange(movedShape.GetRenderBounds(InfiniteRect, AffineMatrixIdentity));
-  end;
+  InternalMove(AOriginal, FToIndex, FFromIndex, False);
 end;
 
 function TVectorOriginalMoveShapeToIndexDiff.CanAppend(ADiff: TBGRAOriginalDiff): boolean;
+var
+  other: TVectorOriginalMoveShapeToIndexDiff;
+  i: Integer;
 begin
-  result := (ADiff is TVectorOriginalMoveShapeToIndexDiff) and
-    (TVectorOriginalMoveShapeToIndexDiff(ADiff).FFromIndex = FToIndex);
+  if ADiff is TVectorOriginalMoveShapeToIndexDiff then
+  begin
+    other := TVectorOriginalMoveShapeToIndexDiff(ADiff);
+    if other.FShapeCount <> FShapeCount then exit(false);
+    for i := 0 to FShapeCount-1 do
+      if other.FFromIndex[i] <> FToIndex[i] then exit(false);
+    result := true;
+  end else
+    result := false;
 end;
 
 procedure TVectorOriginalMoveShapeToIndexDiff.Append(ADiff: TBGRAOriginalDiff);
+var
+  other: TVectorOriginalMoveShapeToIndexDiff;
+  i: Integer;
 begin
   if CanAppend(ADiff) then
-      FToIndex:= (ADiff as TVectorOriginalMoveShapeToIndexDiff).FToIndex;
+  begin
+    other := ADiff as TVectorOriginalMoveShapeToIndexDiff;
+    for i := 0 to FShapeCount-1 do
+      FToIndex[i] := other.FToIndex[i];
+  end;
 end;
 
 function TVectorOriginalMoveShapeToIndexDiff.IsIdentity: boolean;
+var
+  i: Integer;
 begin
-  result := (FFromIndex = FToIndex);
+  for i := 0 to FShapeCount-1 do
+    if FFromIndex[i] <> FToIndex[i] then
+      exit(false);
+  result := true;
 end;
 
 { TVectorShapeDiff }
@@ -714,6 +847,44 @@ end;
 
 { TVectorOriginalShapeDiff }
 
+function TVectorOriginalShapeDiff.GetShape(AOriginal: TBGRALayerCustomOriginal): TVectorShape;
+
+  procedure UpdateMultiSelection(AOriginal: TVectorOriginal; AMultiDiff: TCustomMultiSelectionDiff);
+  var
+    i: Integer;
+    containedShapes: TVectorShapes;
+    s, s2: TVectorShape;
+  begin
+    containedShapes := TVectorShapes.Create;
+    for i := 0 to AMultiDiff.ShapeCount-1 do
+    begin
+      s2 := AOriginal.FindShapeById(AMultiDiff.ShapeId[i]);
+      if Assigned(s2) then containedShapes.Add(s2);
+    end;
+    AOriginal.SelectShapes(containedShapes);
+    containedShapes.Free;
+  end;
+
+var
+  multiDiff: TCustomMultiSelectionDiff;
+  orig: TVectorOriginal;
+
+begin
+  orig := (AOriginal as TVectorOriginal);
+  if FShapeIndex = -2 then
+  begin
+    result := orig.FMultiselection;
+    if FShapeDiff is TCustomMultiSelectionDiff then
+      UpdateMultiSelection(orig, TCustomMultiSelectionDiff(FShapeDiff)) else
+    if FShapeDiff is TVectorShapeComposedDiff then
+    begin
+      multiDiff := TVectorShapeComposedDiff(FShapeDiff).GetMultiselection;
+      if Assigned(multiDiff) then UpdateMultiSelection(orig, multiDiff);
+    end;
+  end else
+    result := orig.Shape[FShapeIndex];
+end;
+
 constructor TVectorOriginalShapeDiff.Create(AShapeIndex: integer;
   AShapeDiff: TVectorShapeDiff);
 begin
@@ -729,12 +900,12 @@ end;
 
 procedure TVectorOriginalShapeDiff.Apply(AOriginal: TBGRALayerCustomOriginal);
 begin
-  FShapeDiff.Apply((AOriginal as TVectorOriginal).Shape[FShapeIndex]);
+  FShapeDiff.Apply(GetShape(AOriginal));
 end;
 
 procedure TVectorOriginalShapeDiff.Unapply(AOriginal: TBGRALayerCustomOriginal);
 begin
-  FShapeDiff.Unapply((AOriginal as TVectorOriginal).Shape[FShapeIndex]);
+  FShapeDiff.Unapply(GetShape(AOriginal));
 end;
 
 function TVectorOriginalShapeDiff.CanAppend(ADiff: TBGRAOriginalDiff): boolean;
@@ -963,7 +1134,7 @@ begin
     result := true;
   end else
   begin
-    for i := 0 to high(FDiffs) do
+    for i := high(FDiffs) downto 0 do
       if FDiffs[i].CanAppend(ADiff) then exit(true);
     exit(false);
   end;
@@ -981,9 +1152,12 @@ begin
       Append(next.FDiffs[i]);
   end else
   begin
-    for i := 0 to high(FDiffs) do
+    for i := high(FDiffs) downto 0 do
       if FDiffs[i].CanAppend(ADiff) then
+      begin
         FDiffs[i].Append(ADiff);
+        exit;
+      end;
   end;
 end;
 
@@ -994,6 +1168,16 @@ begin
   for i := 0 to high(FDiffs) do
     if not FDiffs[i].IsIdentity then exit(false);
   result := true;
+end;
+
+function TVectorShapeComposedDiff.GetMultiselection: TCustomMultiSelectionDiff;
+var
+  i: Integer;
+begin
+  for i := 0 to high(FDiffs) do
+    if FDiffs[i] is TCustomMultiSelectionDiff then
+      exit(TCustomMultiSelectionDiff(FDiffs[i]));
+  result := nil;
 end;
 
 { TVectorOriginalEditor }
@@ -1178,7 +1362,7 @@ begin
 
     if (Key = skReturn) and ([ssShift,ssCtrl,ssAlt]*Shift = []) then
     begin
-      FOriginal.DeselectShape;
+      FOriginal.DeselectShapes;
       AHandled := true;
       exit;
     end else
@@ -1273,17 +1457,22 @@ begin
   setlength(result, nb);
 end;
 
+function TVectorShape.GetAsMultishape: IVectorMultishape;
+begin
+  result := nil;
+end;
+
 procedure TVectorShape.Transform(const AMatrix: TAffineMatrix);
 var
   zoom: Single;
 begin
   if IsAffineMatrixIdentity(AMatrix) then exit;
   BeginUpdate;
-  if vsfBackFill in Fields then BackFill.Transform(AMatrix);
-  if vsfPenFill in Fields then PenFill.Transform(AMatrix);
+  TransformFrame(AMatrix);
+  TransformFill(AMatrix, False);
   zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
   if vsfPenWidth in Fields then PenWidth := zoom*PenWidth;
-  if vsfOutlineFill in Fields then OutlineWidth := zoom*OutlineWidth;
+  if vsfOutlineWidth in Fields then OutlineWidth := zoom*OutlineWidth;
   EndUpdate;
 end;
 
@@ -1299,6 +1488,7 @@ end;
 
 procedure TVectorShape.SetJoinStyle(AValue: TPenJoinStyle);
 begin
+  if Stroker.JoinStyle = AValue then exit;
   BeginUpdate(TVectorShapeCommonDiff);
   Stroker.JoinStyle := AValue;
   EndUpdate;
@@ -1474,6 +1664,17 @@ begin
   if vsfOutlineFill in Fields then result += [vsuEditOutlineFill];
 end;
 
+function TVectorShape.MultiUsermodes: TVectorShapeUsermodes;
+var
+  f: TVectorShapeFields;
+begin
+  result := [vsuEdit];
+  f := MultiFields;
+  if vsfBackFill in f then result += [vsuEditBackFill];
+  if vsfPenFill in f then result += [vsuEditPenFill];
+  if vsfOutlineFill in f then result += [vsuEditOutlineFill];
+end;
+
 class function TVectorShape.PreferPixelCentered: boolean;
 begin
   result := true;
@@ -1489,6 +1690,16 @@ begin
   if FContainer=AValue then Exit;
   if Assigned(FContainer) then raise exception.Create(errContainerAlreadyAssigned);
   FContainer:=AValue;
+end;
+
+function TVectorShape.GetIsUpdating: boolean;
+begin
+  result := FUpdateCount > 0;
+end;
+
+function TVectorShape.GetOutlineWidth: single;
+begin
+  result := FOutlineWidth;
 end;
 
 function TVectorShape.GetFill(var AFillVariable: TVectorialFill): TVectorialFill;
@@ -1562,6 +1773,54 @@ end;
 function TVectorShape.GetIsFollowingMouse: boolean;
 begin
   result := false;
+end;
+
+function TVectorShape.GetPenVisible(AAssumePenFill: boolean): boolean;
+var
+  f: TVectorShapeFields;
+begin
+  f := Fields;
+  result := (vsfPenFill in f) and (not PenFill.IsFullyTransparent or AAssumePenFill);
+  if result and (vsfPenWidth in f) then result := result and (PenWidth>0);
+  if result and (vsfPenStyle in f) then result := result and not IsClearPenStyle(PenStyle);
+end;
+
+function TVectorShape.GetPenVisibleNow: boolean;
+begin
+  result := GetPenVisible(False);
+end;
+
+function TVectorShape.GetBackVisible: boolean;
+begin
+  result := (vsfBackFill in Fields) and not BackFill.IsFullyTransparent;
+end;
+
+function TVectorShape.GetOutlineVisible: boolean;
+begin
+  result := (vsfOutlineFill in Fields) and not OutlineFill.IsFullyTransparent and
+            (not (vsfOutlineWidth in Fields) or (OutlineWidth > 0));
+end;
+
+procedure TVectorShape.TransformFill(const AMatrix: TAffineMatrix; ABackOnly: boolean);
+begin
+  BeginUpdate;
+  if vsfBackFill in Fields then BackFill.Transform(AMatrix);
+  if not ABackOnly then
+  begin
+    if vsfPenFill in Fields then PenFill.Transform(AMatrix);
+    if vsfOutlineFill in Fields then OutlineFill.Transform(AMatrix);
+  end;
+  EndUpdate;
+end;
+
+function TVectorShape.AllowShearTransform: boolean;
+begin
+  result := true;
+end;
+
+function TVectorShape.MultiFields: TVectorShapeFields;
+begin
+  result := Fields;
 end;
 
 function TVectorShape.GetIsFront: boolean;
@@ -1715,13 +1974,13 @@ end;
 procedure TVectorShape.FillChange(ASender: TObject; var ADiff: TCustomVectorialFillDiff);
 var
   field: TVectorShapeField;
-  h: TVectorShapeCommonFillDiff;
   r: TRectF;
 begin
   r := FFillBeforeChangeBounds;
   FFillBeforeChangeBounds := EmptyRectF;
   if FFillChangeWithoutUpdate then exit;
-  if FUpdateCount=0 then
+  //if shape is not being updating, send the fill diff as such
+  if not IsUpdating then
   begin
     inc(FRenderIteration);
     if ASender = FPenFill then field := vsfPenFill
@@ -1740,31 +1999,7 @@ begin
     end else
       DoOnChange(r, nil);
   end else
-  if (FUpdateCount>0) and Assigned(ADiff) then
-  begin
-    if GetDiffHandler(TVectorShapeCommonFillDiff)=nil then
-    begin
-      h := AddDiffHandler(TVectorShapeCommonFillDiff) as TVectorShapeCommonFillDiff;
-      if Assigned(h) then
-      begin
-        if ASender = FPenFill then
-        begin
-          if h.FStartPenFill=nil then h.FStartPenFill := TVectorialFill.Create;
-          ADiff.Unapply(h.FStartPenFill)
-        end
-        else if ASender = FBackFill then
-        begin
-          if h.FStartBackFill=nil then h.FStartBackFill := TVectorialFill.Create;
-          ADiff.Unapply(h.FStartBackFill);
-        end
-        else if ASender = FOutlineFill then
-        begin
-          if h.FStartOutlineFill=nil then h.FStartOutlineFill := TVectorialFill.Create;
-          ADiff.Unapply(h.FStartOutlineFill);
-        end;
-      end;
-    end;
-  end;
+    AddFillDiffHandler(ASender as TVectorialFill, ADiff);
 end;
 
 procedure TVectorShape.FillBeforeChange(ASender: TObject);
@@ -1839,7 +2074,7 @@ var
   i: Integer;
 begin
   result := nil;
-  if FUpdateCount <= 0 then
+  if not IsUpdating then
     raise exception.Create(errDiffHandlerOnlyDuringUpdate);
   if Assigned(FOnChange) then
   begin
@@ -1848,6 +2083,40 @@ begin
       if FDiffs[i] is AClass then exit(FDiffs[i]);
     result := AClass.Create(self);
     FDiffs.Add(result);
+  end;
+end;
+
+procedure TVectorShape.AddFillDiffHandler(AFill: TVectorialFill; ADiff: TCustomVectorialFillDiff);
+var
+  h: TVectorShapeCommonFillDiff;
+begin
+  if Assigned(AFill) and Assigned(ADiff) then
+  begin
+    //make sure there is a handler for fill diff
+    if GetDiffHandler(TVectorShapeCommonFillDiff)=nil then
+    begin
+      h := AddDiffHandler(TVectorShapeCommonFillDiff) as TVectorShapeCommonFillDiff;
+      if Assigned(h) then
+      begin
+        //handler is initialized with current fill that is already changed
+        //so we need to fix the start value using diff
+        if AFill = FPenFill then
+        begin
+          if h.FStartPenFill=nil then h.FStartPenFill := TVectorialFill.Create;
+          ADiff.Unapply(h.FStartPenFill)
+        end
+        else if AFill = FBackFill then
+        begin
+          if h.FStartBackFill=nil then h.FStartBackFill := TVectorialFill.Create;
+          ADiff.Unapply(h.FStartBackFill);
+        end
+        else if AFill = FOutlineFill then
+        begin
+          if h.FStartOutlineFill=nil then h.FStartOutlineFill := TVectorialFill.Create;
+          ADiff.Unapply(h.FStartOutlineFill);
+        end;
+      end;
+    end;
   end;
 end;
 
@@ -1883,6 +2152,7 @@ end;
 
 procedure TVectorShape.SetPenStyle(AValue: TBGRAPenStyle);
 begin
+  if PenStyleEqual(AValue, PenStyle) then exit;
   BeginUpdate(TVectorShapeCommonDiff);
   Stroker.CustomPenStyle := AValue;
   EndUpdate;
@@ -1931,11 +2201,16 @@ begin
 end;
 
 destructor TVectorShape.Destroy;
+var
+  i: Integer;
 begin
   FreeAndNil(FStroker);
   FreeAndNil(FPenFill);
   FreeAndNil(FBackFill);
   FreeAndNil(FOutlineFill);
+  if Assigned(FDiffs) then
+    for i := 0 to FDiffs.Count-1 do
+      FDiffs[i].Free;
   FreeAndNil(FDiffs);
   inherited Destroy;
 end;
@@ -1958,6 +2233,16 @@ var
 begin
   rF := GetRenderBounds(InfiniteRect, AMatrix, [rboAssumeBackFill]);
   result := TAffineBox.AffineBox(rF);
+end;
+
+function TVectorShape.PointInBack(APoint: TPointF): boolean;
+begin
+  result := false;
+end;
+
+function TVectorShape.PointInPen(APoint: TPointF): boolean;
+begin
+  result := false;
 end;
 
 procedure TVectorShape.ConfigureEditor(AEditor: TBGRAOriginalEditor);
@@ -1994,11 +2279,8 @@ begin
       else JoinStyle := pjsMiter;
       end;
     if vsfBackFill in f then LoadFill(AStorage, 'back', FBackFill);
-    if vsfOutlineFill in f then
-    begin
-      LoadFill(AStorage, 'outline', FOutlineFill);
-      OutlineWidth := AStorage.FloatDef['outline-width', DefaultShapeOutlineWidth];
-    end;
+    if vsfOutlineFill in f then LoadFill(AStorage, 'outline', FOutlineFill);
+    if vsfOutlineWidth in f then OutlineWidth := AStorage.FloatDef['outline-width', DefaultShapeOutlineWidth];
     EndUpdate;
   end;
 end;
@@ -2020,13 +2302,16 @@ begin
     else AStorage.RawString['join-style'] := 'miter';
     end;
   if vsfBackFill in f then SaveFill(AStorage, 'back', FBackFill);
-  if vsfOutlineFill in f then
+  if OutlineVisible then
   begin
-    SaveFill(AStorage, 'outline', FOutlineFill);
-    if OutlineFill.FillType <> vftNone then
-      AStorage.Float['outline-width'] := FOutlineWidth
-    else
-      AStorage.RemoveAttribute('outline-width');
+    if vsfOutlineFill in f then SaveFill(AStorage, 'outline', FOutlineFill);
+    if vsfOutlineWidth in f then AStorage.Float['outline-width'] := FOutlineWidth
+    else AStorage.RemoveAttribute('outline-width');
+  end else
+  begin
+    AStorage.RemoveObject('outline-fill');
+    AStorage.RemoveAttribute('outline-color');
+    AStorage.RemoveAttribute('outline-width');
   end;
 end;
 
@@ -2088,10 +2373,10 @@ begin
   idx := sourceIdx;
   if APassNonIntersectingShapes then
   begin
-    movedShapeBounds := self.GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+    movedShapeBounds := self.GetAlignBounds(InfiniteRect, AffineMatrixIdentity);
     while idx < Container.ShapeCount-2 do
     begin
-      otherShapeBounds := Container.Shape[idx+1].GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+      otherShapeBounds := Container.Shape[idx+1].GetAlignBounds(InfiniteRect, AffineMatrixIdentity);
       if movedShapeBounds.IntersectsWith(otherShapeBounds) then break;
       inc(idx);
     end;
@@ -2111,10 +2396,10 @@ begin
   idx := sourceIdx;
   if APassNonIntersectingShapes then
   begin
-    movedShapeBounds := self.GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+    movedShapeBounds := self.GetAlignBounds(InfiniteRect, AffineMatrixIdentity);
     while idx > 1 do
     begin
-      otherShapeBounds := Container.Shape[idx-1].GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+      otherShapeBounds := Container.Shape[idx-1].GetAlignBounds(InfiniteRect, AffineMatrixIdentity);
       if movedShapeBounds.IntersectsWith(otherShapeBounds) then break;
       dec(idx);
     end;
@@ -2271,8 +2556,6 @@ begin
   if (AIndex < 0) or (AIndex > FShapes.Count) then
     raise exception.Create(rsIndexOutOfBounds);
   FShapes.Insert(AIndex, AShape);
-  inc(FLastShapeId);
-  AShape.Id := FLastShapeId;
   texs := AShape.GetUsedTextures;
   for i := 0 to high(texs) do AddTexture(texs[i]);
   AShape.OnChange := @OnShapeChange;
@@ -2313,8 +2596,7 @@ begin
     if Shape[i].FRemoving then
       raise exception.Create(errAlreadyRemovingShape);
   for i := AStartIndex to AStartIndex+ACount-1 do Shape[i].FRemoving := true;
-  for i := AStartIndex to AStartIndex+ACount-1 do
-    if Shape[i] = SelectedShape then DeselectShape;
+  for i := AStartIndex to AStartIndex+ACount-1 do DeselectShape(i);
   for i := AStartIndex+ACount-1 downto AStartIndex do
   begin
     s := Shape[i];
@@ -2329,9 +2611,24 @@ begin
   DiscardFrozenShapes;
 end;
 
+function TVectorOriginal.GetNewShapeId: integer;
+begin
+  inc(FLastShapeId);
+  result := FLastShapeId;
+end;
+
 function TVectorOriginal.GetShape(AIndex: integer): TVectorShape;
 begin
   result := FShapes[AIndex];
+end;
+
+procedure TVectorOriginal.MultiSelection_SelectionChange(Sender: TObject);
+begin
+  if FMultiselection = FSelectedShape then
+  begin
+    DiscardFrozenShapes;
+    NotifyEditorChange;
+  end;
 end;
 
 procedure TVectorOriginal.FreeDeletedShapes;
@@ -2346,11 +2643,15 @@ end;
 procedure TVectorOriginal.OnShapeChange(ASender: TObject; ABounds: TRectF; ADiff: TVectorShapeDiff);
 var
   embed: TVectorOriginalShapeDiff;
+  idxShape: Integer;
 begin
   if ASender <> FSelectedShape then DiscardFrozenShapes;
   if DiffExpected and Assigned(ADiff) then
   begin
-    embed := TVectorOriginalShapeDiff.Create(IndexOfShape(ASender as TVectorShape), ADiff);
+    if ASender = FMultiselection then
+      idxShape := -2
+      else idxShape := IndexOfShape(ASender as TVectorShape);
+    embed := TVectorOriginalShapeDiff.Create(idxShape, ADiff);
     ADiff := nil;
     NotifyChange(ABounds, embed);
   end else
@@ -2429,12 +2730,22 @@ begin
   FFrozenShapesComputed:= false;
   FLastTextureId:= EmptyTextureId;
   FLastShapeId:= 0;
+  if VectorMultiselectionFactory <> nil then
+  begin
+    FMultiselection := VectorMultiselectionFactory.Create(self);
+    FMultiselection.Id := -2;
+    FMultiselection.OnChange := @OnShapeChange;
+    FMultiselection.OnEditingChange := @OnShapeEditingChange;
+    FMultiselection.GetAsMultishape.SetOnSelectionChange(@MultiSelection_SelectionChange);
+  end
+    else FMultiselection := nil;
 end;
 
 destructor TVectorOriginal.Destroy;
 var
   i: Integer;
 begin
+  FMultiselection.Free;
   FSelectedShape := nil;
   for i := 0 to FShapes.Count-1 do
     FShapes[i].Free;
@@ -2453,7 +2764,7 @@ var
 begin
   if FShapes.Count > 0 then
   begin
-    FSelectedShape := nil;
+    DeselectShapes;
     for i := 0 to FShapes.Count-1 do
       FDeletedShapes.Add(FShapes[i]);
     FShapes.Clear;
@@ -2522,6 +2833,12 @@ begin
   SelectShape(result);
 end;
 
+function TVectorOriginal.AddShapes(AShapes: TVectorShapes): integer;
+begin
+  result := ShapeCount;
+  InsertShapes(AShapes, result);
+end;
+
 procedure TVectorOriginal.InsertShape(AShape: TVectorShape; AIndex: integer);
 var
   newShapes: TVectorShapes;
@@ -2532,7 +2849,7 @@ begin
   newShapes.Free;
 end;
 
-procedure TVectorOriginal.InsertShapeRange(AShapes: TVectorShapes;
+procedure TVectorOriginal.InsertShapes(AShapes: TVectorShapes;
   AIndex: integer);
 begin
   ReplaceShapeRange(AIndex, 0, AShapes);
@@ -2541,12 +2858,38 @@ end;
 function TVectorOriginal.RemoveShape(AShape: TVectorShape): boolean;
 var
   idx: LongInt;
+  multiSel: IVectorMultishape;
+  startIndex, endIndex, nextIndex, i, selCount: Integer;
 begin
   if AShape.FRemoving then exit(false);
-  idx := FShapes.IndexOf(AShape);
-  if idx = -1 then exit(false);
-  DeleteShapeRange(idx, 1);
-  result := true;
+  if (AShape = FMultiselection) and Assigned(FMultiselection) then
+  begin
+    multiSel := FMultiselection.GetAsMultishape;
+    selCount := multiSel.ShapeCount;
+    if selCount = 0 then exit;
+    endIndex := IndexOfShape(multiSel.GetShape(selCount-1));
+    startIndex := endIndex;
+    i := selCount-2;
+    while i >= 0 do
+    begin
+      nextIndex := IndexOfShape(multiSel.GetShape(i));
+      if nextIndex < startIndex-1 then
+      begin
+        DeleteShapeRange(startIndex, endIndex-startIndex+1);
+        endIndex := nextIndex;
+        startIndex := endIndex;
+      end else
+        startIndex := nextIndex;
+      dec(i);
+    end;
+    DeleteShapeRange(startIndex, endIndex-startIndex+1);
+  end else
+  begin
+    idx := FShapes.IndexOf(AShape);
+    if idx = -1 then exit(false);
+    DeleteShapeRange(idx, 1);
+    result := true;
+  end;
 end;
 
 procedure TVectorOriginal.DeleteShape(AIndex: integer);
@@ -2579,6 +2922,16 @@ var
 begin
   if (AStartIndex < 0) or (AStartIndex+ACountBefore > ShapeCount) then
     raise exception.Create(rsIndexOutOfBounds);
+
+  if Assigned(ANewShapes) then
+    for i := 0 to ANewShapes.Count-1 do
+      if ANewShapes[i] is VectorMultiselectionFactory then
+        raise exception.Create('Cannot add a multiselection as a shape');
+
+  if Assigned(ANewShapes) then
+    for i := 0 to ANewShapes.Count-1 do
+      ANewShapes[i].Id := GetNewShapeId;
+
   if DiffExpected then
   begin
     if ACountBefore > 0 then
@@ -2590,59 +2943,173 @@ begin
               -1,-1);
     removed.Free;
   end else diff := nil;
+
   rDelete := InternalDeleteShapeRange(AStartIndex, ACountBefore);
   rInsert := InternalInsertShapeRange(ANewShapes, AStartIndex);
   NotifyChange(TRectF.Union(rDelete,rInsert,True), diff);
 end;
 
-procedure TVectorOriginal.SelectShape(AIndex: integer);
+function TVectorOriginal.SelectShapes(AShapes: TVectorShapes): boolean;
 begin
-  if AIndex=-1 then SelectShape(nil)
+  if AShapes.Count = 0 then result := DeselectShapes
+  else if AShapes.Count = 1 then result := SelectShape(AShapes[0])
+  else
+  begin
+    FSelectedShape := FMultiselection;
+    if FMultiselection.GetAsMultishape.SetShapes(AShapes) then
+      NotifyEditorChange;
+  end;
+end;
+
+function TVectorOriginal.SelectShape(AIndex: integer; AToggle: boolean): boolean;
+begin
+  if AIndex=-1 then result := SelectShape(nil, AToggle)
   else
   begin
     if (AIndex < 0) or (AIndex >= FShapes.Count) then
       raise ERangeError.Create(rsIndexOutOfBounds);
-    SelectShape(FShapes[AIndex]);
+    result := SelectShape(FShapes[AIndex], AToggle);
   end;
 end;
 
-procedure TVectorOriginal.SelectShape(AShape: TVectorShape);
+function TVectorOriginal.SelectShape(AShape: TVectorShape; AToggle: boolean): boolean;
+var
+  prevSel, newSel: TVectorShape;
+  prevMode: TVectorShapeUsermode;
+  multiSel: IVectorMultishape;
+begin
+  result := false;
+  //when selecting nothing
+  if AShape = nil then
+  begin
+    if not AToggle then
+      result := DeselectShapes;
+    exit;
+  end;
+
+  //selecting current selection
+  if AShape = FSelectedShape then
+  begin
+    if AToggle then
+      result := DeselectShapes;
+    exit;
+  end;
+
+  //check selected shape exists
+  if AShape <> nil then
+    if FShapes.IndexOf(AShape)=-1 then
+      raise exception.Create(rsShapeNotFound);
+
+  //case of modifying multiselection
+  if (FSelectedShape = FMultiselection) and Assigned(FMultiselection) and AToggle then
+  begin
+    multiSel := FSelectedShape.GetAsMultishape;
+    if multiSel.ContainsShape(AShape) then
+    begin
+      multiSel.RemoveShape(AShape);
+      if multiSel.ShapeCount = 0 then
+      begin
+        FSelectedShape := nil;
+        exit(true);
+      end else
+      if multiSel.ShapeCount > 1 then
+        exit(true) else
+      begin
+        SelectShape(multiSel.GetShape(0));
+        exit(true);
+      end;
+    end else
+    begin
+      multiSel.AddShape(AShape);
+      exit(true);
+    end;
+  end;
+
+  //changing selection completely
+  prevSel := FSelectedShape;
+  if Assigned(prevSel) then
+  begin
+    prevMode := prevSel.Usermode;
+    prevSel.Usermode := vsuEdit;
+  end else
+    prevMode := vsuEdit;
+
+  //becomes a multiselection
+  if AToggle and (prevSel <> nil) and Assigned(FMultiselection) then
+  begin
+    multiSel := FMultiselection.GetAsMultishape;
+    multiSel.ClearShapes;
+    multiSel.AddShape(prevSel);
+    multiSel.AddShape(AShape);
+    newSel := FMultiselection;
+  end else
+  begin
+    //otherwise simple selection
+    newSel := AShape;
+  end;
+
+  //transfering user mode
+  if (prevMode = vsuEditBackFill) and (prevMode in newSel.Usermodes) and
+    newSel.BackFill.IsEditable then newSel.Usermode:= prevMode;
+  if (prevMode = vsuEditPenFill) and (prevMode in newSel.Usermodes) and
+    newSel.PenFill.IsEditable then newSel.Usermode:= prevMode;
+  if (prevMode = vsuEditOutlineFill) and (prevMode in newSel.Usermodes) and
+    newSel.OutlineFill.IsEditable then newSel.Usermode:= prevMode;
+  if (prevMode = vsuEditText) and (prevMode in newSel.Usermodes) then
+    newSel.Usermode := prevMode;
+
+  FSelectedShape := newSel;
+  DiscardFrozenShapes;
+  NotifyEditorChange;
+  if Assigned(FOnSelectShape) then
+    FOnSelectShape(self, FSelectedShape, prevSel);
+
+  if (prevSel = FMultiselection) and Assigned(FMultiselection) then
+    FMultiselection.GetAsMultishape.ClearShapes;
+end;
+
+function TVectorOriginal.DeselectShapes: boolean;
 var
   prev: TVectorShape;
-  prevMode: TVectorShapeUsermode;
 begin
-  if FSelectedShape <> AShape then
-  begin
-    if AShape <> nil then
-      if FShapes.IndexOf(AShape)=-1 then
-        raise exception.Create(rsShapeNotFound);
-    prev := FSelectedShape;
-    FSelectedShape := nil;
-    if Assigned(prev) then
-    begin
-      prevMode := prev.Usermode;
-      prev.Usermode := vsuEdit;
-    end else
-      prevMode := vsuEdit;
-    if Assigned(AShape) and (prevMode = vsuEditBackFill) and (prevMode in AShape.Usermodes) and
-       AShape.BackFill.IsEditable then AShape.Usermode:= prevMode;
-    if Assigned(AShape) and (prevMode = vsuEditPenFill) and (prevMode in AShape.Usermodes) and
-       AShape.PenFill.IsEditable then AShape.Usermode:= prevMode;
-    if Assigned(AShape) and (prevMode = vsuEditOutlineFill) and (prevMode in AShape.Usermodes) and
-       AShape.OutlineFill.IsEditable then AShape.Usermode:= prevMode;
-    if Assigned(AShape) and (prevMode = vsuEditText) and (prevMode in AShape.Usermodes) then
-      AShape.Usermode := prevMode;
-    FSelectedShape := AShape;
-    DiscardFrozenShapes;
-    NotifyEditorChange;
-    if Assigned(FOnSelectShape) then
-      FOnSelectShape(self, FSelectedShape, prev);
-  end;
+  if SelectedShape = nil then exit(false);
+
+  prev := SelectedShape;
+  SelectedShape.Usermode := vsuEdit;
+  FSelectedShape := nil;
+
+  if (prev = FMultiselection) and Assigned(FMultiselection) then
+    FMultiselection.GetAsMultishape.ClearShapes;
+
+  DiscardFrozenShapes;
+  NotifyEditorChange;
+
+  if Assigned(FOnSelectShape) then
+    FOnSelectShape(self, nil, prev);
+  result := true;
 end;
 
-procedure TVectorOriginal.DeselectShape;
+procedure TVectorOriginal.DeselectShape(AIndex: integer);
 begin
-  SelectShape(nil);
+  if (AIndex >= 0) and (AIndex < ShapeCount) then
+    DeselectShape(Shape[AIndex]);
+end;
+
+procedure TVectorOriginal.DeselectShape(AShape: TVectorShape);
+var
+  multiSel: IVectorMultishape;
+begin
+  if AShape = SelectedShape then DeselectShapes else
+  begin
+    if (SelectedShape = FMultiselection) and Assigned(FMultiselection) then
+    begin
+      multiSel := SelectedShape.GetAsMultishape;
+      if multiSel.ContainsShape(AShape) then
+        multiSel.RemoveShape(AShape);
+      if multiSel.ShapeCount = 1 then
+        SelectShape(multiSel.GetShape(0));
+    end;
+  end;
 end;
 
 function TVectorOriginal.GetShapesCost: integer;
@@ -2656,7 +3123,7 @@ end;
 
 function TVectorOriginal.PreferDraftMode(AEditor: TBGRAOriginalEditor; const AMatrix: TAffineMatrix): boolean;
 begin
-  if Assigned(SelectedShape) then
+  if Assigned(SelectedShape) and Assigned(AEditor) then
   begin
     result := (AEditor.IsMovingPoint or SelectedShape.IsFollowingMouse) and
               SelectedShape.GetIsSlow(AMatrix);
@@ -2664,7 +3131,7 @@ begin
     result := false;
 end;
 
-function TVectorOriginal.MouseClick(APoint: TPointF; ARadius: single): boolean;
+function TVectorOriginal.MouseClick(APoint: TPointF; ARadius: single; AToggle: boolean): boolean;
 var
   i: LongInt;
 begin
@@ -2673,7 +3140,7 @@ begin
     begin
       if SelectedShape <> FShapes[i] then
       begin
-        SelectShape(i);
+        SelectShape(i, AToggle);
         exit(true);
       end else
         exit(false);
@@ -2683,14 +3150,14 @@ begin
     begin
       if SelectedShape <> FShapes[i] then
       begin
-        SelectShape(i);
+        SelectShape(i, AToggle);
         exit(true);
       end else
         exit(false);
     end;
-  if SelectedShape <> nil then
+  if (SelectedShape <> nil) and not AToggle then
   begin
-    DeselectShape;
+    DeselectShapes;
     exit(true);
   end else
     exit(false);
@@ -2700,54 +3167,123 @@ procedure TVectorOriginal.Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMat
   ADraft: boolean);
 var
   i: Integer;
-  idxSelected: LongInt;
-  clipRectF,allRectF: TRectF;
+  idxSelected, newUnfrozenRangeStart, newUnfrozenRangeEnd: LongInt;
+  shapeRectF, clipRectF, allRectF: TRectF;
   mOfs: TAffineMatrix;
+  multiSel: IVectorMultishape;
+  ofsRange: TPoint;
+  oldClip: TRect;
 begin
-  if AMatrix <> FFrozenShapeMatrix then DiscardFrozenShapes;
-  idxSelected := FShapes.IndexOf(FSelectedShape);
-  if idxSelected = -1 then
+  if FSelectedShape <> FMultiselection then
   begin
-    FSelectedShape := nil;
-    DiscardFrozenShapes;
+    idxSelected := FShapes.IndexOf(FSelectedShape);
+    if idxSelected = -1 then
+    begin
+      FSelectedShape := nil;
+      newUnfrozenRangeStart := 0;
+      newUnfrozenRangeEnd := ShapeCount;
+    end else
+    begin
+      newUnfrozenRangeStart := idxSelected;
+      newUnfrozenRangeEnd := idxSelected+1;
+    end;
+  end else
+  begin
+    multiSel := FMultiselection.GetAsMultishape;
+    if multiSel.ShapeCount = 0 then
+    begin
+      FSelectedShape := nil;
+      newUnfrozenRangeStart := 0;
+      newUnfrozenRangeEnd := ShapeCount;
+    end;
+    newUnfrozenRangeStart := IndexOfShape(multiSel.BackShape);
+    newUnfrozenRangeEnd := IndexOfShape(multiSel.FrontShape)+1;
   end;
+  if (newUnfrozenRangeStart <> FUnfrozenRangeStart) or
+     (newUnfrozenRangeEnd <> FUnfrozenRangeEnd) or
+     (AMatrix <> FFrozenShapeMatrix) then
+    DiscardFrozenShapes;
   with ADest.ClipRect do
     clipRectF := RectF(Left,Top,Right,Bottom);
   mOfs := AffineMatrixTranslation(ARenderOffset.X,ARenderOffset.Y)*AMatrix;
   if FFrozenShapesComputed then
   begin
-    ADest.PutImage(ARenderOffset.X-FFrozenShapesRenderOffset.X,
-                   ARenderOffset.Y-FFrozenShapesRenderOffset.Y,
-                   FFrozenShapesUnderSelection, dmSet);
-    if FSelectedShape.GetRenderBounds(ADest.ClipRect, mOfs, []).IntersectsWith(clipRectF) then
-      FSelectedShape.Render(ADest, ARenderOffset, AMatrix, ADraft);
-    ADest.PutImage(ARenderOffset.X-FFrozenShapesRenderOffset.X,
-                   ARenderOffset.Y-FFrozenShapesRenderOffset.Y,
-                   FFrozenShapesOverSelection, dmDrawWithTransparency);
+    if Assigned(FFrozenShapesUnderSelection) then
+      ADest.PutImage(ARenderOffset.X-FFrozenShapesRenderOffset.X+FFrozenShapesUnderBounds.Left,
+                     ARenderOffset.Y-FFrozenShapesRenderOffset.Y+FFrozenShapesUnderBounds.Top,
+                     FFrozenShapesUnderSelection, dmSet);
+    for i := FUnfrozenRangeStart to FUnfrozenRangeEnd-1 do
+    begin
+      shapeRectF := FShapes[i].GetRenderBounds(ADest.ClipRect, mOfs, []);
+      if shapeRectF.IntersectsWith(clipRectF) then
+      begin
+        with shapeRectF do
+          oldClip := ADest.IntersectClip(rect(floor(Left), floor(Top), ceil(Right), ceil(Bottom)));
+        FShapes[i].Render(ADest, ARenderOffset, AMatrix, ADraft);
+        ADest.ClipRect := oldClip;
+      end;
+    end;
+    if Assigned(FFrozenShapesOverSelection) then
+      ADest.PutImage(ARenderOffset.X-FFrozenShapesRenderOffset.X+FFrozenShapesOverBounds.Left,
+                     ARenderOffset.Y-FFrozenShapesRenderOffset.Y+FFrozenShapesOverBounds.Top,
+                     FFrozenShapesOverSelection, dmDrawWithTransparency);
   end else
   begin
-    if idxSelected <> -1 then
+    if (newUnfrozenRangeStart > 0) or (newUnfrozenRangeEnd < ShapeCount) then
     begin
       allRectF := rectF(0,0,ADest.Width,ADest.Height);
-      if idxSelected > 0 then
+      FUnfrozenRangeStart := newUnfrozenRangeStart;
+      FUnfrozenRangeEnd := newUnfrozenRangeEnd;
+      if FUnfrozenRangeStart > 0 then
       begin
         FreeAndNil(FFrozenShapesUnderSelection);
-        FFrozenShapesUnderSelection := TBGRABitmap.Create(ADest.Width,ADest.Height);
-        for i:= 0 to idxSelected-1 do
-          if FShapes[i].GetRenderBounds(rect(0,0,ADest.Width,ADest.Height), mOfs, []).IntersectsWith(allRectF) then
-            FShapes[i].Render(FFrozenShapesUnderSelection, ARenderOffset, AMatrix, false);
-        ADest.PutImage(0,0,FFrozenShapesUnderSelection, dmSet);
+        FFrozenShapesUnderBounds := GetRenderBounds(rect(0,0,ADest.Width,ADest.Height), mOfs,
+                                      0, FUnfrozenRangeStart-1);
+        FFrozenShapesUnderBounds.Intersect(rect(0,0,ADest.Width,ADest.Height));
+        FFrozenShapesUnderSelection := TBGRABitmap.Create(FFrozenShapesUnderBounds.Width, FFrozenShapesUnderBounds.Height);
+        ofsRange := Point(ARenderOffset.X - FFrozenShapesUnderBounds.Left,
+                          ARenderOffset.Y - FFrozenShapesUnderBounds.Top);
+        for i:= 0 to FUnfrozenRangeStart-1 do
+        begin
+          shapeRectF := FShapes[i].GetRenderBounds(rect(0,0,ADest.Width,ADest.Height), mOfs, []);
+          if shapeRectF.IntersectsWith(allRectF) then
+          begin
+            shapeRectF.Offset(-FFrozenShapesUnderBounds.Left, -FFrozenShapesUnderBounds.Top);
+            with shapeRectF do
+              oldClip := FFrozenShapesUnderSelection.IntersectClip(rect(floor(Left), floor(Top), ceil(Right), ceil(Bottom)));
+            FShapes[i].Render(FFrozenShapesUnderSelection, ofsRange, AMatrix, false);
+            FFrozenShapesUnderSelection.ClipRect := oldClip;
+          end;
+        end;
+        ADest.PutImage(FFrozenShapesUnderBounds.Left, FFrozenShapesUnderBounds.Top,
+                       FFrozenShapesUnderSelection, dmSet);
       end;
-      if FSelectedShape.GetRenderBounds(ADest.ClipRect, mOfs, []).IntersectsWith(clipRectF) then
-        FSelectedShape.Render(ADest, ARenderOffset, AMatrix, ADraft);
-      if idxSelected < FShapes.Count-1 then
+      for i := FUnfrozenRangeStart to FUnfrozenRangeEnd-1 do
+        if FShapes[i].GetRenderBounds(ADest.ClipRect, mOfs, []).IntersectsWith(clipRectF) then
+          FShapes[i].Render(ADest, ARenderOffset, AMatrix, ADraft);
+      if FUnfrozenRangeEnd < FShapes.Count then
       begin
         FreeAndNil(FFrozenShapesOverSelection);
-        FFrozenShapesOverSelection := TBGRABitmap.Create(ADest.Width,ADest.Height);
-        for i:= idxSelected+1 to FShapes.Count-1 do
-          if FShapes[i].GetRenderBounds(rect(0,0,ADest.Width,ADest.Height), mOfs, []).IntersectsWith(allRectF) then
-            FShapes[i].Render(FFrozenShapesOverSelection, ARenderOffset, AMatrix, false);
-        ADest.PutImage(0,0,FFrozenShapesOverSelection, dmDrawWithTransparency);
+        FFrozenShapesOverBounds := GetRenderBounds(rect(0,0,ADest.Width,ADest.Height), AMatrix,
+                                     FUnfrozenRangeEnd, FShapes.Count-1);
+        FFrozenShapesOverBounds.Intersect(rect(0,0,ADest.Width,ADest.Height));
+        FFrozenShapesOverSelection := TBGRABitmap.Create(FFrozenShapesOverBounds.Width, FFrozenShapesOverBounds.Height);
+        ofsRange := Point(ARenderOffset.X - FFrozenShapesOverBounds.Left,
+                          ARenderOffset.Y - FFrozenShapesOverBounds.Top);
+        for i:= FUnfrozenRangeEnd to FShapes.Count-1 do
+        begin
+          shapeRectF := FShapes[i].GetRenderBounds(rect(0,0,ADest.Width,ADest.Height), mOfs, []);
+          if shapeRectF.IntersectsWith(allRectF) then
+          begin
+            shapeRectF.Offset(-FFrozenShapesOverBounds.Left, -FFrozenShapesOverBounds.Top);
+            with shapeRectF do
+              oldClip := FFrozenShapesOverSelection.IntersectClip(rect(floor(Left), floor(Top), ceil(Right), ceil(Bottom)));
+            FShapes[i].Render(FFrozenShapesOverSelection, ofsRange, AMatrix, false);
+            FFrozenShapesOverSelection.ClipRect := oldClip;
+          end;
+        end;
+        ADest.PutImage(FFrozenShapesOverBounds.Left, FFrozenShapesOverBounds.Top,
+                       FFrozenShapesOverSelection, dmDrawWithTransparency);
       end;
       FFrozenShapesRenderOffset := ARenderOffset;
       FFrozenShapesComputed := true;
@@ -2767,7 +3303,8 @@ begin
   inherited ConfigureEditor(AEditor);
   if Assigned(FSelectedShape) then
   begin
-    if FShapes.IndexOf(FSelectedShape)=-1 then
+    if (FShapes.IndexOf(FSelectedShape)=-1) and
+       (FSelectedShape <> FMultiselection) then
     begin
       FSelectedShape := nil;
       DiscardFrozenShapes;
@@ -2786,6 +3323,12 @@ end;
 
 function TVectorOriginal.GetRenderBounds(ADestRect: TRect;
   AMatrix: TAffineMatrix): TRect;
+begin
+  result := GetRenderBounds(ADestRect, AMatrix, 0, ShapeCount-1);
+end;
+
+function TVectorOriginal.GetRenderBounds(ADestRect: TRect;
+  AMatrix: TAffineMatrix; AStartIndex, AEndIndex: integer): TRect;
 var
   area, shapeArea: TRectF;
   i: Integer;
@@ -2795,7 +3338,7 @@ var
 begin
   area:= EmptyRectF;
   useStorage := Assigned(RenderStorage) and (RenderStorage.AffineMatrix['last-matrix']=AMatrix);
-  for i:= 0 to FShapes.Count-1 do
+  for i:= AStartIndex to AEndIndex do
   begin
     if useStorage then
     begin
@@ -2898,10 +3441,7 @@ begin
   end;
   for i := 0 to ShapeCount-1 do
     if Shape[i].Id = 0 then
-    begin
-      inc(FLastShapeId);
-      Shape[i].Id := FLastShapeId;
-    end;
+      Shape[i].Id := GetNewShapeId;
   NotifyChange;
 end;
 
@@ -2987,11 +3527,17 @@ begin
   result := FShapes.IndexOf(AShape);
 end;
 
-procedure TVectorOriginal.MoveShapeToIndex(AFromIndex: integer; AToIndex: integer);
+procedure TVectorOriginal.MoveShapeToIndex(AFromIndex, AToIndex: integer);
+begin
+  MoveShapeToIndex([AFromIndex], [AToIndex]);
+end;
+
+procedure TVectorOriginal.MoveShapeToIndex(AFromIndex,
+  AToIndex: array of integer);
 var
   diff: TVectorOriginalMoveShapeToIndexDiff;
 begin
-  diff := TVectorOriginalMoveShapeToIndexDiff.Create(AFromIndex,AToIndex);
+  diff := TVectorOriginalMoveShapeToIndexDiff.Create(AFromIndex, AToIndex);
   if diff.IsIdentity then
   begin
     diff.Free;

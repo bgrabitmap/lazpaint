@@ -204,7 +204,7 @@ begin
     raise exception.Create(
       StringReplace( StringReplace(rsPythonUnexpectedVersion,
         '%1',inttostr(APythonVersion),[]),
-        '%2',inttostr(PythonVersionMajor),[]) );
+        '%2',inttostr(PythonVersionMajor),[]) + #9 + rsDownload + #9 + 'https://www.python.org');
   FFirstOutput:= true;
   AutomationEnvironment.Values['PYTHONPATH'] := DefaultScriptDirectory;
   try

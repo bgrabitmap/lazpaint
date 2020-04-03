@@ -106,7 +106,7 @@ implementation
 
 uses Controls, Dialogs, UResourceStrings, UObject3D,
      ULoadImage, UGraph, UClipboard, Types, BGRAGradientOriginal,
-     BGRATransform, ULoading, math, LCVectorClipboard, LCVectorOriginal,
+     BGRATransform, ULoading, math, LCVectorClipboard, LCVectorOriginal, LCVectorRectShapes,
      BGRALayers, BGRAUTF8, UFileSystem;
 
 { TImageActions }
@@ -702,21 +702,43 @@ procedure TImageActions.FillBackground(AColor: TBGRAPixel);
 var tempBmp: TBGRABitmap;
     LayerAction: TLayerAction;
     y: Integer;
+    orig: TVectorOriginal;
+    ab: TAffineBox;
+    backRect: TRectShape;
 begin
   if not Image.CheckNoAction then exit;
   LayerAction := nil;
   try
-    LayerAction := Image.CreateAction(True);
-    tempBmp := TBGRABitmap.Create(LayerAction.SelectedImageLayer.Width,1);
-    for y := 0 to LayerAction.SelectedImageLayer.Height-1 do
+    if Image.LayerOriginalClass[Image.CurrentLayerIndex] = TVectorOriginal then
     begin
-       tempBmp.Fill(AColor);
-       tempBmp.PutImage(0,-y,LayerAction.SelectedImageLayer,dmDrawWithTransparency);
-       LayerAction.SelectedImageLayer.PutImage(0,y,tempBmp,dmSet);
+      Image.CurrentState.DiscardOriginalDiff := false;
+      try
+        orig := Image.LayerOriginal[Image.CurrentLayerIndex] as TVectorOriginal;
+        backRect := TRectShape.Create(nil);
+        ab := AffineMatrixInverse(Image.LayerOriginalMatrix[Image.CurrentLayerIndex]) *
+              TAffineBox.AffineBox(rectF(-0.5, -0.5, Image.Width-0.5, Image.Height-0.5));
+        backRect.Origin := ab.Center;
+        backRect.XAxis := backRect.Origin + (ab.TopRight - ab.TopLeft)*0.5;
+        backRect.YAxis := backRect.Origin + (ab.BottomLeft - ab.TopLeft)*0.5;
+        backRect.BackFill.SolidColor := AColor;
+        orig.InsertShape(backRect, 0);
+      finally
+        Image.CurrentState.DiscardOriginalDiff := true;
+      end;
+    end else
+    begin
+      LayerAction := Image.CreateAction(True);
+      tempBmp := TBGRABitmap.Create(LayerAction.SelectedImageLayer.Width,1);
+      for y := 0 to LayerAction.SelectedImageLayer.Height-1 do
+      begin
+         tempBmp.Fill(AColor);
+         tempBmp.PutImage(0,-y,LayerAction.SelectedImageLayer,dmDrawWithTransparency);
+         LayerAction.SelectedImageLayer.PutImage(0,y,tempBmp,dmSet);
+      end;
+      tempBmp.Free;
+      image.LayerMayChangeCompletely(LayerAction.SelectedImageLayer);
+      LayerAction.Validate;
     end;
-    tempBmp.Free;
-    image.LayerMayChangeCompletely(LayerAction.SelectedImageLayer);
-    LayerAction.Validate;
   except
     on ex:Exception do
       FInstance.ShowError('FillBackground',ex.Message);

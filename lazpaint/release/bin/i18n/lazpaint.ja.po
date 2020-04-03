@@ -3111,6 +3111,10 @@ msgstr ""
 msgid "Information"
 msgstr ""
 
+#: uresourcestrings.rsdownload
+msgid "Download"
+msgstr "ダウンロード"
+
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
 msgid "Intensity"
@@ -3358,7 +3362,7 @@ msgid "px"
 msgstr ""
 
 #: uresourcestrings.rspythonunexpectedversion
-msgid "Expected python version %1 but %2 found."
+msgid "Expected Python version %1 but %2 found."
 msgstr ""
 
 #: uresourcestrings.rsramdisk

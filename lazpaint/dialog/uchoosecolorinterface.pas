@@ -501,7 +501,7 @@ begin
 end;
 
 procedure TChooseColorInterface.DoSelect(X, Y: integer);
-var pix: TBGRAPixel;
+var pix, newColor: TBGRAPixel;
   newLight: Word;
 begin
   case FSelectZone of
@@ -518,10 +518,14 @@ begin
       pix := FColorCircle.bmpMaxlight.GetPixel(x-FColorCircle.Bounds.Left,y-FColorCircle.Bounds.top);
       if pix.alpha <> 0 then
       begin
-        FCurrentColor := BGRA(pix.Red,pix.Green,pix.Blue,FCurrentColor.Alpha);
-        ColorX := x-FColorCircle.Bounds.Left;
-        ColorY := y-FColorCircle.Bounds.top;
-        UpdateColorview(False, True, True);
+        newColor := BGRA(pix.Red,pix.Green,pix.Blue,FCurrentColor.Alpha);
+        if not FCurrentColor.EqualsExactly(newColor) then
+        begin
+          FCurrentColor := newColor;
+          ColorX := x-FColorCircle.Bounds.Left;
+          ColorY := y-FColorCircle.Bounds.top;
+          UpdateColorview(False, True, True);
+        end;
       end;
     end;
   szLightScale:
@@ -980,7 +984,7 @@ var newcolorlight: word;
 begin
    newcolorlight := ColorLightOf(value);
    newcurrentColor := ColorWithLight(value,$FFFF);
-   if (newcolorlight<>FColorLight) or (newcurrentcolor <> FCurrentColor) then
+   if (newcolorlight<>FColorLight) or not newcurrentcolor.EqualsExactly(FCurrentColor) then
    begin
      FColorLight := newcolorlight;
      FCurrentColor := newcurrentcolor;

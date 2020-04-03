@@ -14,7 +14,7 @@ uses
   UColorintensity, UShiftColors, UColorize, uadjustcurves,
   UCustomblur, uimagelist,
 
-  ULoading, UImage, UTool, uconfig, IniFiles, UResourceStrings, UScripting,
+  ULoading, UImage, UImageAction, UTool, uconfig, IniFiles, UResourceStrings, UScripting,
   UScriptType;
 
 const
@@ -56,6 +56,7 @@ type
     function ScriptImageCanvasSize(AVars: TVariableSet): TScriptResult;
     function ScriptImageRepeat(AVars: TVariableSet): TScriptResult;
     function ScriptImageResample(AParams: TVariableSet): TScriptResult;
+    function ScriptLazPaintGetVersion(AVars: TVariableSet): TScriptResult;
     function ScriptShowDirectoryDialog(AVars: TVariableSet): TScriptResult;
     procedure SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
     procedure ToolFillChanged(Sender: TObject);
@@ -85,6 +86,7 @@ type
     FGridVisible: boolean;
     FConfig: TLazPaintConfig;
     FImage: TLazPaintImage;
+    FImageAction: TImageActions;
     FToolManager : TToolManager;
     FEmbedded: boolean;
     FDestroying: boolean;
@@ -138,6 +140,7 @@ type
     procedure SetChooseColorTarget(const AValue: TColorTarget); override;
     function GetConfig: TLazPaintConfig; override;
     function GetImage: TLazPaintImage; override;
+    function GetImageAction: TImageActions; override;
     function GetToolManager: TToolManager; override;
     procedure CreateLayerStack;
     procedure CreateToolBox;
@@ -259,7 +262,7 @@ uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8,
 
      URadialBlur, UMotionBlur, UEmboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, UPixelate, unoisefilter, ufilters,
-     UImageAction, USharpen, uposterize, UPhongFilter, UFilterFunction,
+     USharpen, uposterize, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
 
      ugraph, LCScaleDPI, ucommandline, uabout, UPython, UVolatileScrollBar;
@@ -367,6 +370,7 @@ begin
   ScriptContext.RegisterScriptFunction('ShowMessage',@ScriptShowMessage,ARegister);
   ScriptContext.RegisterScriptFunction('ShowDirectoryDialog',@ScriptShowDirectoryDialog,ARegister);
   ScriptContext.RegisterScriptFunction('InputBox',@ScriptInputBox,ARegister);
+  ScriptContext.RegisterScriptFunction('LazPaintGetVersion',@ScriptLazPaintGetVersion,ARegister);
 end;
 
 function TLazPaintInstance.ScriptFileGetTemporaryName(AVars: TVariableSet): TScriptResult;
@@ -424,6 +428,7 @@ begin
   FToolManager.OnFillChanged:= @ToolFillChanged;
   FSelectionEditConfig := nil;
   FTextureEditConfig := nil;
+  FImageAction := TImageActions.Create(self);
 end;
 
 procedure TLazPaintInstance.FormsNeeded;
@@ -464,6 +469,11 @@ end;
 function TLazPaintInstance.GetImage: TLazPaintImage;
 begin
   Result:= FImage;
+end;
+
+function TLazPaintInstance.GetImageAction: TImageActions;
+begin
+  result := FImageAction;
 end;
 
 function TLazPaintInstance.GetToolManager: TToolManager;
@@ -657,8 +667,13 @@ var
   delay: Integer;
 begin
   if AProgressPercent < 100 then delay := 10000 else delay := 1000;
-  MessagePopup(rsActionInProgress+'... '+inttostr(AProgressPercent)+'%', delay);
-  UpdateWindows;
+  if Assigned(FMain) then FMain.UpdatingPopup:= true;
+  try
+    MessagePopup(rsActionInProgress+'... '+inttostr(AProgressPercent)+'%', delay);
+    UpdateWindows;
+  finally
+    if Assigned(FMain) then FMain.UpdatingPopup:= false;
+  end;
 end;
 
 function TLazPaintInstance.GetInitialized: boolean;
@@ -796,8 +811,13 @@ procedure TLazPaintInstance.OnLayeredBitmapLoadStartHandler(AFilenameUTF8: strin
 begin
   if FLoadingLayers = nil then FLoadingLayers := TFLoading.Create(nil);
   if (AFilenameUTF8 = '<Stream>') and (FLoadingFilename <> '') then AFilenameUTF8 := FLoadingFilename;
-  FLoadingLayers.ShowMessage(rsOpening+' ' +AFilenameUTF8+'...');
-  UpdateWindows;
+  if Assigned(FMain) then FMain.UpdatingPopup:= true;
+  try
+    FLoadingLayers.ShowMessage(rsOpening+' ' +AFilenameUTF8+'...');
+    UpdateWindows;
+  finally
+    if Assigned(FMain) then FMain.UpdatingPopup:= false;
+  end;
 end;
 
 procedure TLazPaintInstance.OnLayeredBitmapLoadProgressHandler(
@@ -805,8 +825,13 @@ procedure TLazPaintInstance.OnLayeredBitmapLoadProgressHandler(
 begin
   if FLoadingLayers <> nil then
   begin
-    FLoadingLayers.ShowMessage(rsLoading+' (' +inttostr(APercentage)+'%)');
-    UpdateWindows;
+    if Assigned(FMain) then FMain.UpdatingPopup:= true;
+    try
+      FLoadingLayers.ShowMessage(rsLoading+' (' +inttostr(APercentage)+'%)');
+      UpdateWindows;
+    finally
+      if Assigned(FMain) then FMain.UpdatingPopup:= false;
+    end;
   end;
 end;
 
@@ -814,8 +839,13 @@ procedure TLazPaintInstance.OnLayeredBitmapLoadedHandler;
 begin
   if FLoadingLayers <> nil then
   begin
-    FreeAndNil(FLoadingLayers);
-    UpdateWindows;
+    if Assigned(FMain) then FMain.UpdatingPopup:= true;
+    try
+      FreeAndNil(FLoadingLayers);
+      UpdateWindows;
+    finally
+      if Assigned(FMain) then FMain.UpdatingPopup:= false;
+    end;
   end;
 end;
 
@@ -823,8 +853,13 @@ procedure TLazPaintInstance.OnLayeredBitmapSavedHandler();
 begin
   if FLoadingLayers <> nil then
   begin
-    FreeAndNil(FLoadingLayers);
-    UpdateWindows;
+    if Assigned(FMain) then FMain.UpdatingPopup:= true;
+    try
+      FreeAndNil(FLoadingLayers);
+      UpdateWindows;
+    finally
+      if Assigned(FMain) then FMain.UpdatingPopup:= false;
+    end;
   end;
 end;
 
@@ -833,8 +868,13 @@ procedure TLazPaintInstance.OnLayeredBitmapSaveProgressHandler(
 begin
   if FLoadingLayers <> nil then
   begin
-    FLoadingLayers.ShowMessage(rsSave+' (' +inttostr(APercentage)+'%)');
-    UpdateWindows;
+    if Assigned(FMain) then FMain.UpdatingPopup:= true;
+    try
+      FLoadingLayers.ShowMessage(rsSave+' (' +inttostr(APercentage)+'%)');
+      UpdateWindows;
+    finally
+      if Assigned(FMain) then FMain.UpdatingPopup:= false;
+    end;
   end;
 end;
 
@@ -843,8 +883,13 @@ procedure TLazPaintInstance.OnLayeredBitmapSaveStartHandler(
 begin
   if FLoadingLayers = nil then FLoadingLayers := TFLoading.Create(nil);
   if (AFilenameUTF8 = '<Stream>') and (FSavingFilename <> '') then AFilenameUTF8 := FSavingFilename;
-  FLoadingLayers.ShowMessage(rsSave+' ' +AFilenameUTF8+'...');
-  UpdateWindows;
+  if Assigned(FMain) then FMain.UpdatingPopup:= true;
+  try
+    FLoadingLayers.ShowMessage(rsSave+' ' +AFilenameUTF8+'...');
+    UpdateWindows;
+  finally
+    if Assigned(FMain) then FMain.UpdatingPopup:= false;
+  end;
 end;
 
 procedure TLazPaintInstance.PythonBusy(Sender: TObject);
@@ -993,7 +1038,6 @@ procedure TLazPaintInstance.SetGridVisible(const AValue: boolean);
 begin
   FGridVisible := AValue;
   Image.RenderMayChange(rect(0,0,Image.Width,Image.Height),True);
-  NotifyImageChange(False,EmptyRect);
 end;
 
 function TLazPaintInstance.GetChooseColorVisible: boolean;
@@ -1074,11 +1118,9 @@ begin
 end;
 
 procedure TLazPaintInstance.AssignBitmap(bmp: TBGRABitmap);
-var imageActions: TimageActions;
 begin
-  imageActions := TImageActions.Create(self);
-  imageActions.SetCurrentBitmap(bmp.Duplicate as TBGRABitmap, False);
-  imageActions.Free;
+  if Assigned(FImageAction) then
+    FImageAction.SetCurrentBitmap(bmp.Duplicate as TBGRABitmap, False);
 end;
 
 procedure TLazPaintInstance.EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStream; ATitle: String; AOnRun: TLazPaintInstanceEvent; AOnExit: TLazPaintInstanceEvent; ABlackAndWhite: boolean);
@@ -1138,16 +1180,13 @@ begin
 end;
 
 procedure TLazPaintInstance.EditSelection;
-var imageActions: TimageActions;
 begin
-  imageActions := TImageActions.Create(self);
   try
-    imageActions.EditSelection(@EditSelectionHandler);
+    TImageActions(ImageAction).EditSelection(@EditSelectionHandler);
   except
     on ex: Exception do
       ShowError('EditSelection',ex.Message);
   end;
-  imageActions.Free;
 end;
 
 function TLazPaintInstance.EditTexture(ASource: TBGRABitmap): TBGRABitmap;
@@ -1241,7 +1280,6 @@ end;
 procedure TLazPaintInstance.SetFullscreen(AValue: boolean);
 begin
   if (AValue = FFullscreen) or not MainFormVisible or (FMain.WindowState = wsMinimized) then exit;
-  if AValue then DockLayersAndColors:= false;
   FFullscreen := AValue;
   if AValue then
   begin
@@ -1359,6 +1397,7 @@ end;
 
 destructor TLazPaintInstance.Destroy;
 begin
+  FreeAndNil(FImageAction);
   RegisterScripts(False);
 
   FDestroying := true;
@@ -1462,17 +1501,20 @@ begin
   if Assigned(FLayerStack) and (AInfo.layerstackHidden > 0) then
   begin
     FLayerStack.Show;
+    FLayerStack.BringToFront;
     FLayerStack.InvalidateStack(False);
     dec(FTopMostInfo.layerstackHidden);
   end;
   if Assigned(FChooseColor) and (AInfo.choosecolorHidden > 0) then
   begin
     FChooseColor.Show;
+    FChooseColor.BringToFront;
     dec(FTopMostInfo.choosecolorHidden);
   end;
   if Assigned(FFormToolbox) and (AInfo.toolboxHidden > 0) then
   begin
     FFormToolbox.Show;
+    FFormToolbox.BringToFront;
     dec(FTopMostInfo.toolboxHidden);
   end;
 end;

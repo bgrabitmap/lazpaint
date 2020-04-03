@@ -25,6 +25,7 @@ type
 
   TToolGradient = class(TVectorialTool)
   protected
+    function ShapeClass: TVectorShapeAny; override;
     function CreateShape: TVectorShape; override;
     procedure DrawCustomShape(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
     procedure AssignShapeStyle({%H-}AMatrix: TAffineMatrix; {%H-}AAlwaysFit: boolean); override;
@@ -40,13 +41,18 @@ type
 implementation
 
 uses ugraph, LazPaintType, BGRAGradientScanner, LCVectorRectShapes,
-  BGRATransform, UImageDiff, BGRAPen;
+  BGRATransform, UImageDiff, BGRAPen, UScripting, BGRABlend;
 
 { TToolGradient }
 
+function TToolGradient.ShapeClass: TVectorShapeAny;
+begin
+  result := TRectShape;
+end;
+
 function TToolGradient.CreateShape: TVectorShape;
 begin
-  result := TRectShape.Create(nil);
+  result := inherited CreateShape;
   result.PenFill.Clear;
   result.BackFill.SetGradient(TBGRALayerGradientOriginal.Create,true);
   result.Usermode := vsuEditBackFill;
@@ -82,7 +88,8 @@ function TToolGradient.ReplaceLayerAndAddShape(out ARect: TRect): TCustomImageDi
 var
   gradientOrig: TBGRALayerCustomOriginal;
 begin
-  if Manager.Image.CurrentLayerEmpty then
+  if (FShape.BackFill.FillType = vftGradient) and
+    (Manager.Image.CurrentLayerEmpty or FShape.BackFill.Gradient.IsOpaque) then
   begin
     gradientOrig := FShape.BackFill.Gradient.Duplicate;
     result := TReplaceLayerByCustomOriginalDifference.Create(Manager.Image.CurrentState,
@@ -123,47 +130,107 @@ var
   diff: TCustomImageDifference;
   rectShape: TRectShape;
   homogeneous: Boolean;
+  params: TVariableSet;
+  vectOrig: TVectorOriginal;
+  i: Integer;
+  ptOrig: TPointF;
+  newColor: TBGRAPixel;
 begin
+  result := OnlyRenderChange;
   homogeneous := toolDest.Equals(toolDest.GetPixel(0,0));
-  if Manager.Image.SelectionMaskEmpty and homogeneous then
+  if Manager.Image.SelectionMaskEmpty then
   begin
-    CancelAction;
-    if rightBtn then f := Manager.BackFill.Duplicate
-    else f := Manager.ForeFill.Duplicate;
-    try
-      f.ApplyOpacity(Manager.GetPressureB);
-      f.FitGeometry(SuggestGradientBox);
-      case f.FillType of
-      vftGradient: orig := f.Gradient.Duplicate;
-      else
+    if homogeneous then
+    begin
+      CancelAction;
+      if rightBtn then f := Manager.BackFill.Duplicate
+      else f := Manager.ForeFill.Duplicate;
+      try
+        f.ApplyOpacity(Manager.GetPressureB);
+        f.FitGeometry(SuggestGradientBox);
+        case f.FillType of
+        vftGradient: orig := f.Gradient.Duplicate;
+        else
+          begin
+            orig := TVectorOriginal.Create;
+            rectShape := TRectShape.Create(nil);
+            rectShape.QuickDefine(PointF(-0.5,-0.5), PointF(Manager.Image.Width-0.5,Manager.Image.Height-0.5));
+            rectShape.PenStyle := ClearPenStyle;
+            rectShape.BackFill.Assign(f);
+            TVectorOriginal(orig).AddShape(rectShape);
+          end;
+        end;
+        diff := TReplaceLayerByCustomOriginalDifference.Create(Manager.Image.CurrentState,
+                      Manager.Image.CurrentLayerIndex, false, orig);
+        Manager.Image.AddUndo(diff);
+        Manager.Image.ImageMayChangeCompletely;
+      finally
+        f.Free;
+      end;
+      exit;
+    end else
+    if GetCurrentLayerKind = lkVectorial then
+    begin
+      if rightBtn then f := Manager.BackFill else f := Manager.ForeFill;
+      if f.FillType = vftSolid then
+      begin
+        vectOrig := TVectorOriginal(Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex]);
+        ptOrig := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]) * ptF;
+        for i := vectOrig.ShapeCount-1 downto 0 do
         begin
-          orig := TVectorOriginal.Create;
-          rectShape := TRectShape.Create(nil);
-          rectShape.QuickDefine(PointF(-0.5,-0.5), PointF(Manager.Image.Width-0.5,Manager.Image.Height-0.5));
-          rectShape.PenStyle := ClearPenStyle;
-          rectShape.BackFill.Assign(f);
-          TVectorOriginal(orig).AddShape(rectShape);
+          if (vsfPenFill in vectOrig.Shape[i].MultiFields) and
+            vectOrig.Shape[i].PointInPen(ptOrig) then
+          begin
+            if not (vectOrig.Shape[i].PenFill.FillType = vftSolid) then break;
+            CancelAction;
+            Manager.Image.CurrentState.DiscardOriginalDiff:= false;
+            try
+              newColor := vectOrig.Shape[i].PenFill.SolidColor;
+              DrawPixelsInline(@newColor, f.SolidColor, 1);
+              vectOrig.Shape[i].PenFill.SetSolid(newColor);
+            finally
+              Manager.Image.CurrentState.DiscardOriginalDiff:= true;
+            end;
+            exit;
+          end;
+          if (vsfBackFill in vectOrig.Shape[i].MultiFields) and
+            vectOrig.Shape[i].PointInBack(ptOrig) then
+          begin
+            if not (vectOrig.Shape[i].BackFill.FillType = vftSolid) then break;
+            CancelAction;
+            Manager.Image.CurrentState.DiscardOriginalDiff:= false;
+            try
+              newColor := vectOrig.Shape[i].BackFill.SolidColor;
+              DrawPixelsInline(@newColor, f.SolidColor, 1);
+              vectOrig.Shape[i].BackFill.SetSolid(newColor);
+            finally
+              Manager.Image.CurrentState.DiscardOriginalDiff:= true;
+            end;
+            exit;
+          end;
+        end;
+        if (toolDest.GetPixel(pt.X,pt.Y).alpha = 0)
+          and Assigned(Manager.Scripting) then
+        begin
+          CancelAction;
+          params := TVariableSet.Create('ImageFillBackground');
+          params.Pixels['BackColor'] := f.SolidColor;
+          Manager.Scripting.CallScriptFunction(params);
+          params.Free;
+          exit;
         end;
       end;
-      diff := TReplaceLayerByCustomOriginalDifference.Create(Manager.Image.CurrentState,
-                    Manager.Image.CurrentLayerIndex, false, orig);
-      Manager.Image.AddUndo(diff);
-      Manager.Image.ImageMayChangeCompletely;
-    finally
-      f.Free;
     end;
-  end else
-  begin
-    if rightBtn then b := GetBackUniversalBrush
-    else b := GetForeUniversalBrush;
-    if homogeneous then toolDest.Fill(b)
-      else toolDest.FloodFill(pt.X, pt.Y, b,
-                    ffProgressive in Manager.FloodFillOptions, Manager.Tolerance*$101);
-    ReleaseUniversalBrushes;
-    Action.NotifyChange(toolDest, rect(0,0,toolDest.Width,toolDest.Height));
-    ValidateAction;
   end;
-  result := OnlyRenderChange;
+
+  if rightBtn then b := GetBackUniversalBrush
+  else b := GetForeUniversalBrush;
+  if homogeneous then toolDest.Fill(b)
+    else toolDest.FloodFill(pt.X, pt.Y, b,
+                  ffProgressive in Manager.FloodFillOptions, Manager.Tolerance*$101);
+  ReleaseUniversalBrushes;
+  Action.NotifyChange(toolDest, rect(0,0,toolDest.Width,toolDest.Height));
+  ValidateAction;
 end;
 
 function TToolFloodFill.GetContextualToolbars: TContextualToolbars;

@@ -19,7 +19,7 @@ resourcestring
   rsLazPaint = 'LazPaint';
   rsScript = 'Script';
   rsFunctionNotDefined = 'The function %1 is not defined.';
-  rsPythonUnexpectedVersion = 'Expected python version %1 but %2 found.';
+  rsPythonUnexpectedVersion = 'Expected Python version %1 but %2 found.';
   rsOpening='Opening';
   rsLoading='Loading';
   rsRecentDirectories='Recent directories:';
@@ -180,6 +180,7 @@ resourcestring
   rsCancelledByUser='Cancelled by user';
   rsNoAndProceedToNext='Do not save and open another file';
   rsInformation='Information';
+  rsDownload='Download';
   rsError='Error';
   rsEndWithoutMatchingBegin = 'End without matching begin';
   rsThereAreNoCheckedItems='There are no checked items. Check some items or add some new ones.';

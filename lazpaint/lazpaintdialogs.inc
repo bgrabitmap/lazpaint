@@ -206,6 +206,17 @@ begin
       result := srCancelledByUser;
 end;
 
+function TLazPaintInstance.ScriptLazPaintGetVersion(AVars: TVariableSet): TScriptResult;
+var
+  resList: TScriptVariableReference;
+begin
+  resList := AVars.AddIntegerList('Result');
+  AVars.AppendInteger(resList, LazPaintVersion div 1000000);
+  AVars.AppendInteger(resList, (LazPaintVersion div 10000) mod 100);
+  AVars.AppendInteger(resList, (LazPaintVersion div 100) mod 100);
+  result := srOk;
+end;
+
 function TLazPaintInstance.ScriptShowDirectoryDialog(AVars: TVariableSet): TScriptResult;
 var
   chosenDir: string;

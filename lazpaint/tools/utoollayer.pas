@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, UTool, BGRABitmap, BGRABitmapTypes,
   BGRATransform, BGRALayers, ULayerAction, UImageDiff,
-  UImageType;
+  UImageType, UStateType;
 
 type
   { TToolMoveLayer }
@@ -197,9 +197,14 @@ begin
   begin
     if UseOriginal then
     begin
-      FLayerBounds := Manager.Image.LayerOriginal[idx].GetRenderBounds(
-                        Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
-                        AffineMatrixIdentity);
+      if Manager.Image.LayerOriginal[idx] is TVectorOriginal then
+        FLayerBounds := TVectorOriginal(Manager.Image.LayerOriginal[idx]).GetAlignBounds(
+                          Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
+                          AffineMatrixIdentity)
+      else
+        FLayerBounds := Manager.Image.LayerOriginal[idx].GetRenderBounds(
+                          Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
+                          AffineMatrixIdentity);
       if FLayerBounds.Left = -VeryBigValue then FLayerBounds.Left := 0;
       if FLayerBounds.Top = -VeryBigValue then FLayerBounds.Top := 0;
       if FLayerBounds.Right = VeryBigValue then FLayerBounds.Right := Manager.Image.Width;
@@ -570,17 +575,22 @@ end;
 procedure TToolTransformLayer.ValidateTransform;
 var
   transform: TAffineMatrix;
+  layerIdx: Integer;
+  invTransformDiff: TCustomImageDifference;
+  r: TRect;
 begin
   if FOriginalInit then
   begin
     if Assigned(FBackupLayer) then
     begin
-      transform := Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex];
-      Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] := FInitialOriginalMatrix;
-      Manager.Image.CurrentState.LayeredBitmap.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex] := transform;
-      Manager.Image.CurrentState.LayeredBitmap.RenderLayerFromOriginal(Manager.Image.CurrentLayerIndex);
+      layerIdx := Manager.Image.CurrentLayerIndex;
+      transform := Manager.Image.LayerOriginalMatrix[layerIdx];
+      invTransformDiff := Manager.Image.CurrentState.ComputeLayerMatrixDifference(layerIdx,
+                          transform, FInitialOriginalMatrix);
       FBackupLayer.nextMatrix := transform;
+      Manager.Image.AddUndo(invTransformDiff);
       Manager.Image.AddUndo(FBackupLayer);
+      Manager.Image.CurrentState.LayeredBitmap.RenderLayerFromOriginalIfNecessary(layerIdx, false, r);
       FBackupLayer := nil;
     end;
     FOriginalInit := false;
@@ -717,9 +727,14 @@ begin
   begin
     if Manager.Image.LayerOriginalDefined[idx] then
     begin
-      FOriginalBounds := Manager.Image.LayerOriginal[idx].GetRenderBounds(
-                        Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
-                        AffineMatrixIdentity);
+      if Manager.Image.LayerOriginal[idx] is TVectorOriginal then
+        FOriginalBounds := TVectorOriginal(Manager.Image.LayerOriginal[idx]).GetAlignBounds(
+                          Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
+                          AffineMatrixIdentity)
+      else
+        FOriginalBounds := Manager.Image.LayerOriginal[idx].GetRenderBounds(
+                          Rect(-VeryBigValue,-VeryBigValue,VeryBigValue,VeryBigValue),
+                          AffineMatrixIdentity);
       if FOriginalBounds.Left = -VeryBigValue then FOriginalBounds.Left := 0;
       if FOriginalBounds.Top = -VeryBigValue then FOriginalBounds.Top := 0;
       if FOriginalBounds.Right = VeryBigValue then FOriginalBounds.Right := Manager.Image.Width;

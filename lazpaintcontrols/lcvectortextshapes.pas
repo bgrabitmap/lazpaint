@@ -22,10 +22,12 @@ type
     FFontEmHeightBefore: single;
     FFontNameBefore: string;
     FFontStyleBefore: TFontStyles;
+    FAliasedBefore: boolean;
     FFontBidiModeAfter: TFontBidiMode;
     FFontEmHeightAfter: single;
     FFontNameAfter: string;
     FFontStyleAfter: TFontStyles;
+    FAliasedAfter: boolean;
   public
     constructor Create(AStartShape: TVectorShape); override;
     procedure ComputeDiff(AEndShape: TVectorShape); override;
@@ -79,6 +81,7 @@ type
 
   TTextShape = class(TCustomRectShape)
   private
+    FAliased: boolean;
     FAltitudePercent: single;
     FPenPhong: boolean;
     FLightPosition: TPointF;
@@ -99,6 +102,7 @@ type
     function GetParagraphAlignment: TAlignment;
     procedure OnMoveLightPos({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF;
       {%H-}AShift: TShiftState);
+    procedure SetAliased(AValue: boolean);
     procedure SetAltitudePercent(AValue: single);
     procedure SetPenPhong(AValue: boolean);
     procedure SetFontBidiMode(AValue: TFontBidiMode);
@@ -116,8 +120,6 @@ type
     FGlobalMatrix: TAffineMatrix;
     procedure DoOnChange(ABoundsBefore: TRectF; ADiff: TVectorShapeDiff); override;
     procedure SetGlobalMatrix(AMatrix: TAffineMatrix);
-    function PenVisible(AAssumePenFill: boolean = false): boolean;
-    function AllowShearTransform: boolean; override;
     function ShowArrows: boolean; override;
     function GetTextLayout: TBidiTextLayout;
     function GetFontRenderer: TBGRACustomFontRenderer;
@@ -149,10 +151,11 @@ type
     class function StorageClassName: RawByteString; override;
     class function Usermodes: TVectorShapeUsermodes; override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
-    procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape({%H-}APoint: TPointF; {%H-}ARadius: single): boolean; overload; override;
+    function PointInPen(APoint: TPointF): boolean; overload; override;
     function GetIsSlow(const {%H-}AMatrix: TAffineMatrix): boolean; override;
     function GetGenericCost: integer; override;
     procedure MouseMove({%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); override;
@@ -168,6 +171,7 @@ type
     function DeleteSelection: boolean;
     function GetAlignBounds(const {%H-}ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
     procedure Transform(const AMatrix: TAffineMatrix); override;
+    function AllowShearTransform: boolean; override;
     property HasSelection: boolean read GetHasSelection;
     property CanPasteSelection: boolean read GetCanPasteSelection;
     property Text: string read FText write SetText;
@@ -181,6 +185,7 @@ type
     property PenPhong: boolean read FPenPhong write SetPenPhong;
     property LightPosition: TPointF read FLightPosition write SetLightPosition;
     property AltitudePercent: single read FAltitudePercent write SetAltitudePercent;
+    property Aliased: boolean read FAliased write SetAliased;
   end;
 
 function FontStyleToStr(AStyle: TFontStyles): string;
@@ -193,7 +198,7 @@ implementation
 
 uses BGRATransform, BGRAText, BGRAVectorize, LCVectorialFill, math,
   BGRAUTF8, BGRAUnicode, Graphics, Clipbrd, LCLType, LCLIntf,
-  BGRAGradients, BGRACustomTextFX, LCResourceString;
+  BGRAGradients, BGRACustomTextFX, LCResourceString, BGRAFillInfo;
 
 function FontStyleToStr(AStyle: TFontStyles): string;
 begin
@@ -420,6 +425,7 @@ begin
     FFontEmHeightBefore:= FFontEmHeight;
     FFontNameBefore:= FFontName;
     FFontStyleBefore:= FFontStyle;
+    FAliasedBefore := FAliased;
   end;
 end;
 
@@ -431,6 +437,7 @@ begin
     FFontEmHeightAfter:= FFontEmHeight;
     FFontNameAfter:= FFontName;
     FFontStyleAfter:= FFontStyle;
+    FAliasedAfter := FAliased;
   end;
 end;
 
@@ -443,6 +450,7 @@ begin
     FFontEmHeight := FFontEmHeightAfter;
     FFontName := FFontNameAfter;
     FFontStyle := FFontStyleAfter;
+    FAliased := FAliasedAfter;
     if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
     EndUpdate;
   end;
@@ -457,6 +465,7 @@ begin
     FFontEmHeight := FFontEmHeightBefore;
     FFontName := FFontNameBefore;
     FFontStyle := FFontStyleBefore;
+    FAliased := FAliasedBefore;
     if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
     EndUpdate;
   end;
@@ -471,6 +480,7 @@ begin
   FFontEmHeightAfter := next.FFontEmHeightAfter;
   FFontNameAfter := next.FFontNameAfter;
   FFontStyleAfter := next.FFontStyleAfter;
+  FAliasedAfter := next.FAliasedAfter;
 end;
 
 function TTextShapeFontDiff.IsIdentity: boolean;
@@ -478,7 +488,8 @@ begin
   result := (FFontBidiModeBefore = FFontBidiModeAfter) and
     (FFontEmHeightBefore = FFontEmHeightAfter) and
     (FFontNameBefore = FFontNameAfter) and
-    (FFontStyleBefore = FFontStyleAfter);
+    (FFontStyleBefore = FFontStyleAfter) and
+    (FAliasedBefore = FAliasedAfter);
 end;
 
 { TTextShape }
@@ -545,6 +556,14 @@ procedure TTextShape.OnMoveLightPos(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
 begin
   LightPosition := ANewCoord;
+end;
+
+procedure TTextShape.SetAliased(AValue: boolean);
+begin
+  if FAliased=AValue then Exit;
+  BeginUpdate(TTextShapeFontDiff);
+  FAliased:=AValue;
+  EndUpdate;
 end;
 
 procedure TTextShape.SetAltitudePercent(AValue: single);
@@ -709,11 +728,6 @@ procedure TTextShape.SetGlobalMatrix(AMatrix: TAffineMatrix);
 begin
   if AMatrix = FGlobalMatrix then exit;
   FGlobalMatrix := AMatrix;
-end;
-
-function TTextShape.PenVisible(AAssumePenFill: boolean): boolean;
-begin
-  result := not PenFill.IsFullyTransparent or AAssumePenFill;
 end;
 
 function TTextShape.AllowShearTransform: boolean;
@@ -960,6 +974,7 @@ begin
   FPenPhong:= false;
   FAltitudePercent:= DefaultAltitudePercent;
   FLightPosition := PointF(0,0);
+  FAliased := false;
 end;
 
 procedure TTextShape.QuickDefine(constref APoint1, APoint2: TPointF);
@@ -1019,6 +1034,8 @@ begin
   end else
     SetDefaultFont;
 
+  Aliased := AStorage.Bool['aliased'];
+
   phongObj := AStorage.OpenObject('pen-phong');
   PenPhong := Assigned(phongObj);
   if PenPhong then
@@ -1064,6 +1081,7 @@ begin
   font.RawString['bidi'] := FontBidiModeToStr(FontBidiMode);
   font.RawString['style'] := FontStyleToStr(FontStyle);
   font.Free;
+  AStorage.Bool['aliased'] := Aliased;
 
   if PenPhong then
   begin
@@ -1099,7 +1117,7 @@ end;
 
 class function TTextShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenFill,vsfOutlineFill];
+  Result:= [vsfPenFill,vsfOutlineFill,vsfOutlineWidth];
 end;
 
 class function TTextShape.PreferPixelCentered: boolean;
@@ -1109,7 +1127,7 @@ end;
 
 class function TTextShape.DefaultFontName: string;
 begin
-  result := {$IFDEF WINDOWS}'Arial'{$ELSE}{$IFDEF DARWIN}'Helvetica'{$ELSE}'FreeSans'{$ENDIF}{$ENDIF};
+  result := {$IFDEF WINDOWS}'Arial'{$ELSE}{$IFDEF DARWIN}'Helvetica'{$ELSE}'Liberation Sans'{$ENDIF}{$ENDIF};
 end;
 
 class function TTextShape.DefaultFontEmHeight: single;
@@ -1283,7 +1301,7 @@ begin
     ctx := tmpTransf.Canvas2D;
     ctx.transform(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m);
     ctx.fillMode := fmWinding;
-    ctx.antialiasing:= not ADraft;
+    ctx.antialiasing:= not ADraft and not Aliased;
     ctx.beginPath;
     tl.PathText(ctx);
     ctx.resetTransform;
@@ -1309,7 +1327,7 @@ begin
     if HasOutline then
     begin
       ctx := tmpTransf.Canvas2D;
-      ctx.lineWidth := OutlineWidth;
+      ctx.lineWidth := zoom*OutlineWidth;
       ctx.lineJoinLCL:= pjsRound;
       ctx.lineStyle(psSolid);
       if OutlineFill.FillType = vftSolid then
@@ -1366,7 +1384,7 @@ begin
     ADest.PutImage(transfRect.Left, transfRect.Top, tmpTransf, dmDrawWithTransparency);
   end else
   begin
-    if ADraft then rf := rfBox else rf := rfHalfCosine;
+    if ADraft or Aliased then rf := rfBox else rf := rfHalfCosine;
     if storeImage then
       tmpTransf := TBGRABitmap.Create(transfRect.Width,transfRect.Height)
     else
@@ -1445,7 +1463,7 @@ var
   u: TPointF;
   lenU, margin: Single;
 begin
-  if (PenVisible(rboAssumePenFill in AOptions) or HasOutline) and
+  if (GetPenVisible(rboAssumePenFill in AOptions) or HasOutline) and
     (Text <> '') then
   begin
     ab := GetAffineBox(AMatrix, false);
@@ -1471,6 +1489,22 @@ end;
 
 function TTextShape.PointInShape(APoint: TPointF; ARadius: single): boolean;
 begin
+  result := false;
+end;
+
+function TTextShape.PointInPen(APoint: TPointF): boolean;
+var
+  tl: TBidiTextLayout;
+  pt: TPointF;
+  i: Integer;
+begin
+  if not GetAffineBox(AffineMatrixIdentity,true).Contains(APoint) then
+    exit(false);
+  SetGlobalMatrix(AffineMatrixIdentity);
+  tl := GetTextLayout;
+  pt := AffineMatrixInverse(GetUntransformedMatrix)*APoint;
+  for i := 0 to tl.PartCount-1 do
+    if tl.PartAffineBox[i].Contains(pt) then exit(true);
   result := false;
 end;
 

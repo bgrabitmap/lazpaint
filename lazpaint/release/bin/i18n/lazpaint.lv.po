@@ -1,35 +1,38 @@
-# Kārlis Kalviškis <eko@lanet.lv>, 2015.
 msgid ""
 msgstr ""
 "Project-Id-Version: LazPaint\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-20 11:31+0200\n"
-"PO-Revision-Date: 2015-04-15 11:16+0300\n"
-"Last-Translator: Kārlis Kalviškis <eko@lanet.lv>\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2020-03-09 22:24+0200\n"
+"Last-Translator: Kārlis Kalviškis <karlo@lu.lv>\n"
 "Language-Team: LJC\n"
 "Language: lv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);\n"
-"X-Generator: Virtaal 0.7.1\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : "
+"2);\n"
+"X-Generator: Poedit 2.2.1\n"
 "X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-Basepath: ../../..\n"
+"X-Poedit-SearchPath-0: debug\n"
+"X-Poedit-SearchPath-1: .\n"
 
 #: tablet.getprocfailed
 msgid "Procedure %s failed to load properly."
-msgstr ""
+msgstr "%s procedūru neizdevās pareizi ielasīt."
 
 #: tablet.openfailed
 msgid "Tablet context failed to open."
-msgstr ""
+msgstr "Neizdevās atvērt planšeti."
 
 #: tfabout.button_donate.caption
-msgctxt "TFABOUT.BUTTON_DONATE.CAPTION"
+msgctxt "tfabout.button_donate.caption"
 msgid "Donate..."
 msgstr "Ziedot ..."
 
 #: tfabout.caption
-msgctxt "TFABOUT.CAPTION"
+msgctxt "tfabout.caption"
 msgid "About"
 msgstr "Par LazPaint"
 
@@ -38,42 +41,42 @@ msgid "http://sourceforge.net/projects/lazpaint/"
 msgstr "http://sourceforge.net/projects/lazpaint/"
 
 #: tfabout.label_authors.caption
-msgctxt "TFABOUT.LABEL_AUTHORS.CAPTION"
+msgctxt "tfabout.label_authors.caption"
 msgid "Authors:"
 msgstr "Autori:"
 
 #: tfabout.label_authorsvalue.caption
-msgctxt "TFABOUT.LABEL_AUTHORSVALUE.CAPTION"
+msgctxt "tfabout.label_authorsvalue.caption"
 msgid "Circular helped by FabienWang, Lainz and others"
 msgstr "Circular, kuram palīdzēja FabienWang, Lainz un citi"
 
 #: tfabout.label_homepage.caption
-msgctxt "TFABOUT.LABEL_HOMEPAGE.CAPTION"
+msgctxt "tfabout.label_homepage.caption"
 msgid "Homepage:"
 msgstr "Mājas lapa:"
 
 #: tfabout.label_libraries.caption
-msgctxt "TFABOUT.LABEL_LIBRARIES.CAPTION"
+msgctxt "tfabout.label_libraries.caption"
 msgid "Libraries used:"
 msgstr "Izmantotās bibliotēkas:"
 
 #: tfabout.label_licence.caption
-msgctxt "TFABOUT.LABEL_LICENCE.CAPTION"
+msgctxt "tfabout.label_licence.caption"
 msgid "Licence:"
-msgstr "Licence"
+msgstr "Licence:"
 
 #: tfabout.label_opensource.caption
-msgctxt "TFABOUT.LABEL_OPENSOURCE.CAPTION"
+msgctxt "tfabout.label_opensource.caption"
 msgid "Open source (GPLv3)"
-msgstr "Atklātā pirmkoda programmatūra (GPLv3)"
+msgstr "Atklātā pirmkoda (GPLv3)"
 
 #: tfadjustcurves.button_cancel.caption
-msgctxt "TFADJUSTCURVES.BUTTON_CANCEL.CAPTION"
+msgctxt "tfadjustcurves.button_cancel.caption"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfadjustcurves.button_ok.caption
-msgctxt "TFADJUSTCURVES.BUTTON_OK.CAPTION"
+msgctxt "tfadjustcurves.button_ok.caption"
 msgid "OK"
 msgstr "Labi"
 
@@ -95,12 +98,12 @@ msgid "Remove selected point (Del)"
 msgstr "Dzēst izvēlēto punktu (Del)"
 
 #: tfblendop.button_cancel.caption
-msgctxt "TFBLENDOP.BUTTON_CANCEL.CAPTION"
+msgctxt "tfblendop.button_cancel.caption"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfblendop.button_ok.caption
-msgctxt "TFBLENDOP.BUTTON_OK.CAPTION"
+msgctxt "tfblendop.button_ok.caption"
 msgid "OK"
 msgstr "Labi"
 
@@ -109,7 +112,7 @@ msgid "Blend operation"
 msgstr "Sapludināšana"
 
 #: tfblendop.label_blendopcategory.caption
-msgctxt "TFBLENDOP.LABEL_BLENDOPCATEGORY.CAPTION"
+msgctxt "tfblendop.label_blendopcategory.caption"
 msgid "Category of blend operation"
 msgstr "Sapludināšanas veids"
 
@@ -119,7 +122,7 @@ msgid "."
 msgstr "."
 
 #: tfblendop.label_kritaover.caption
-msgctxt "TFBLENDOP.LABEL_KRITAOVER.CAPTION"
+msgctxt "tfblendop.label_kritaover.caption"
 msgid "Krita"
 msgstr "Krita"
 
@@ -128,7 +131,7 @@ msgid "Blend operations that are available in Krita"
 msgstr "Sapludināšana kāda iespējama programmā Krita"
 
 #: tfblendop.label_otherover.caption
-msgctxt "TFBLENDOP.LABEL_OTHEROVER.CAPTION"
+msgctxt "tfblendop.label_otherover.caption"
 msgid "Other"
 msgstr "Cits"
 
@@ -137,7 +140,7 @@ msgid "Blend operations of LazPaint and Paint.NET"
 msgstr "LazPant un Paint.NET sapludināšanas darbības"
 
 #: tfblendop.label_patternover.caption
-msgctxt "TFBLENDOP.LABEL_PATTERNOVER.CAPTION"
+msgctxt "tfblendop.label_patternover.caption"
 msgid "Pattern over"
 msgstr "Raksts pa virsu"
 
@@ -146,7 +149,7 @@ msgid "Preview blend operation with the specified image on top"
 msgstr "Sapludināsanas priekšapskate ar izvēlēto attēlu augšpusē"
 
 #: tfblendop.label_patternunder.caption
-msgctxt "TFBLENDOP.LABEL_PATTERNUNDER.CAPTION"
+msgctxt "tfblendop.label_patternunder.caption"
 msgid "Pattern under"
 msgstr "Raksts apakšā"
 
@@ -155,21 +158,22 @@ msgid "Preview blend operation with the specified image underneath"
 msgstr "Sapludināsanas priekšapskate ar izvēlēto attēlu apakšpusē"
 
 #: tfblendop.label_previewwith.caption
-msgctxt "TFBLENDOP.LABEL_PREVIEWWITH.CAPTION"
+msgctxt "tfblendop.label_previewwith.caption"
 msgid "Preview with"
 msgstr "Priekšskatīt ar"
 
 #: tfblendop.label_selectedblendop.caption
 msgid "Selected blend operation :"
-msgstr "Izvēlētā sapludināšana"
+msgstr "Izvēlētā sapludināšana:"
 
 #: tfblendop.label_svgover.caption
-msgctxt "TFBLENDOP.LABEL_SVGOVER.CAPTION"
+msgctxt "tfblendop.label_svgover.caption"
 msgid "Basic SVG"
-msgstr "PamatSVG"
+msgstr "Pamatveidi"
 
 #: tfblendop.label_svgover.hint
-msgid "Basic blend operations that are available in virtually all image editors"
+msgid ""
+"Basic blend operations that are available in virtually all image editors"
 msgstr "Sapludunāšana veidi, kuri pieejami gandrīz visos attēlu redaktoros"
 
 #: tfbrowseimages.caption
@@ -178,7 +182,7 @@ msgstr "Caurskatīt attēlus"
 
 #: tfbrowseimages.checkbox_usedirectoryonstartup.caption
 msgid "Use this directory on startup"
-msgstr ""
+msgstr "Sākotnēji lieto šo direktoriju"
 
 #: tfbrowseimages.label_status.caption
 msgctxt "tfbrowseimages.label_status.caption"
@@ -187,7 +191,7 @@ msgstr "."
 
 #: tfbrowseimages.toolbutton_createfolderorcontainer.hint
 msgid "Create folder or container"
-msgstr ""
+msgstr "Izveido mapi vai resursu datni"
 
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
@@ -198,14 +202,14 @@ msgid "Open selected files"
 msgstr "Atvērt izvēlētos failus"
 
 #: tfbrowseimages.toolbutton_viewbigicon.hint
-msgctxt "TFBROWSEIMAGES.TOOLBUTTON_VIEWBIGICON.HINT"
+msgctxt "tfbrowseimages.toolbutton_viewbigicon.hint"
 msgid "Show big icons"
-msgstr "Rādīt lielas ikonas"
+msgstr "Skatīt kā lielas ikonas"
 
 #: tfbrowseimages.toolbutton_viewdetails.hint
-msgctxt "TFBROWSEIMAGES.TOOLBUTTON_VIEWDETAILS.HINT"
+msgctxt "tfbrowseimages.toolbutton_viewdetails.hint"
 msgid "Show details and preview"
-msgstr "Ziņas un priekšapskate"
+msgstr "Skatīt kā detalizētu sarakstu"
 
 #: tfbrowseimages.tool_selectdrive.hint
 msgid "Select drive"
@@ -214,7 +218,7 @@ msgstr "Izvēlies disku"
 #: tfcanvassize.button_cancel.caption
 msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfcanvassize.button_ok.caption
 msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
@@ -222,7 +226,7 @@ msgid "OK"
 msgstr "Labi"
 
 #: tfcanvassize.caption
-msgctxt "TFCANVASSIZE.CAPTION"
+msgctxt "tfcanvassize.caption"
 msgid "Canvas size"
 msgstr "Audekla izmērs"
 
@@ -231,17 +235,17 @@ msgid "Flip mode"
 msgstr "Spoguļot"
 
 #: tfcanvassize.label_anchor.caption
-msgctxt "TFCANVASSIZE.LABEL_ANCHOR.CAPTION"
+msgctxt "tfcanvassize.label_anchor.caption"
 msgid "Anchor :"
 msgstr "Slāņa novietojums:"
 
 #: tfcanvassize.label_height.caption
-msgctxt "TFCANVASSIZE.LABEL_HEIGHT.CAPTION"
+msgctxt "tfcanvassize.label_height.caption"
 msgid "Height :"
 msgstr "Augstums:"
 
 #: tfcanvassize.label_width.caption
-msgctxt "TFCANVASSIZE.LABEL_WIDTH.CAPTION"
+msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Platums:"
 
@@ -254,18 +258,22 @@ msgid "Remove color from palette"
 msgstr "Izņemt krāsu no paletes"
 
 #: tfchoosecolor.caption
-msgctxt "TFCHOOSECOLOR.CAPTION"
+msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "Krāsa"
 
 #: tfchoosecolor.lcolor.hint
-msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr "Krāsas apraksts: ieklikškini, lai ierakstītu krāsas vārdu angliski vai CSS pierakstā."
+msgid ""
+"Color description: click to type in a color with the keyboard using color "
+"names or CSS notation."
+msgstr ""
+"Krāsas apraksts: ieklikškini, lai ierakstītu krāsas vārdu angliski vai CSS "
+"pierakstā."
 
 #: tfcolorintensity.button_cancel.caption
 msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfcolorintensity.button_ok.caption
 msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
@@ -273,24 +281,24 @@ msgid "OK"
 msgstr "Labi"
 
 #: tfcolorintensity.caption
-msgctxt "TFCOLORINTENSITY.CAPTION"
+msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
 msgstr "Spilgtums"
 
 #: tfcolorintensity.label_multiply.caption
-msgctxt "TFCOLORINTENSITY.LABEL_MULTIPLY.CAPTION"
+msgctxt "tfcolorintensity.label_multiply.caption"
 msgid "Multiply"
 msgstr "Reizinātājs"
 
 #: tfcolorintensity.label_shift.caption
-msgctxt "TFCOLORINTENSITY.LABEL_SHIFT.CAPTION"
+msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
-msgstr "Novirze"
+msgstr "Nobīde"
 
 #: tfcolorize.button_cancel.caption
 msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfcolorize.button_ok.caption
 msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
@@ -298,22 +306,22 @@ msgid "OK"
 msgstr "Labi"
 
 #: tfcolorize.caption
-msgctxt "TFCOLORIZE.CAPTION"
+msgctxt "tfcolorize.caption"
 msgid "Colorize"
 msgstr "Iekrāsot"
 
 #: tfcolorize.checkbox_gsba.caption
-msgctxt "TFCOLORIZE.CHECKBOX_GSBA.CAPTION"
+msgctxt "tfcolorize.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
 msgstr "Izlabot nokrāsu un gaišumu"
 
 #: tfcolorize.label_colorness.caption
-msgctxt "TFCOLORIZE.LABEL_COLORNESS.CAPTION"
+msgctxt "tfcolorize.label_colorness.caption"
 msgid "Colorness"
 msgstr "Piesātinājums"
 
 #: tfcolorize.label_hue.caption
-msgctxt "TFCOLORIZE.LABEL_HUE.CAPTION"
+msgctxt "tfcolorize.label_hue.caption"
 msgid "Hue"
 msgstr "Nokrāsa"
 
@@ -324,7 +332,7 @@ msgstr "Iestatījumi"
 #: tfcustomblur.button_cancel.caption
 msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfcustomblur.button_editmask.caption
 msgid "Edit mask..."
@@ -340,9 +348,9 @@ msgid "OK"
 msgstr "Labi"
 
 #: tfcustomblur.caption
-msgctxt "TFCUSTOMBLUR.CAPTION"
+msgctxt "tfcustomblur.caption"
 msgid "Custom blur"
-msgstr "Pielāgota aizmiglošana"
+msgstr "Pielāgota izpludināšana"
 
 #: tfcustomblur.openpicturedialog1.title
 msgid "Open grayscale file"
@@ -351,7 +359,7 @@ msgstr "Atvērt pelēktoņu attēlu"
 #: tfemboss.button_cancel.caption
 msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfemboss.button_ok.caption
 msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
@@ -359,30 +367,30 @@ msgid "OK"
 msgstr "Labi"
 
 #: tfemboss.caption
-msgctxt "TFEMBOSS.CAPTION"
+msgctxt "tfemboss.caption"
 msgid "Emboss"
 msgstr "Gofrēt"
 
 #: tfemboss.checkbox_preservecolors.caption
 msgid "Preserve colors"
-msgstr ""
+msgstr "Saglabāt krāsas"
 
 #: tfemboss.checkbox_transparent.caption
 msgid "Transparent"
-msgstr ""
+msgstr "Caurspīdīgs"
 
 #: tfemboss.label_direction.caption
-msgctxt "TFEMBOSS.LABEL_DIRECTION.CAPTION"
+msgctxt "tfemboss.label_direction.caption"
 msgid "Direction :"
 msgstr "Virziens:"
 
 #: tffilterfunction.button_cancel.caption
-msgctxt "TFFILTERFUNCTION.BUTTON_CANCEL.CAPTION"
+msgctxt "tffilterfunction.button_cancel.caption"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tffilterfunction.button_ok.caption
-msgctxt "TFFILTERFUNCTION.BUTTON_OK.CAPTION"
+msgctxt "tffilterfunction.button_ok.caption"
 msgid "OK"
 msgstr "Labi"
 
@@ -392,12 +400,12 @@ msgstr "Pielietot funkciju"
 
 #: tffilterfunction.checkbox_gamma.caption
 msgid "Gamma correction"
-msgstr ""
+msgstr "Gaišuma izmaiņa"
 
 #: tffilterfunction.checkbox_gsba.caption
-msgctxt "TFFILTERFUNCTION.CHECKBOX_GSBA.CAPTION"
+msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
-msgstr "Izlabota nokrāsa un gaišums"
+msgstr "Izlabot nokrāsu un gaišumu"
 
 #: tffilterfunction.label_alphaequals.caption
 msgctxt "tffilterfunction.label_alphaequals.caption"
@@ -450,7 +458,7 @@ msgstr "RGB"
 #: tfgeometricbrush.button_cancel.caption
 msgctxt "tfgeometricbrush.button_cancel.caption"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfgeometricbrush.button_ok.caption
 msgctxt "tfgeometricbrush.button_ok.caption"
@@ -467,7 +475,7 @@ msgstr "Izgaišana uz malām"
 
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
-msgstr "Malu skaits"
+msgstr "Malu skaits:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -503,17 +511,17 @@ msgid "-"
 msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[1].title.caption
-msgctxt "TFIMAGELIST.STRINGGRID1.COLUMNS[1].TITLE.CAPTION"
+msgctxt "tfimagelist.stringgrid1.columns[1].title.caption"
 msgid "-"
 msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[2].title.caption
-msgctxt "TFIMAGELIST.STRINGGRID1.COLUMNS[2].TITLE.CAPTION"
+msgctxt "tfimagelist.stringgrid1.columns[2].title.caption"
 msgid "-"
 msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[3].title.caption
-msgctxt "TFIMAGELIST.STRINGGRID1.COLUMNS[3].TITLE.CAPTION"
+msgctxt "tfimagelist.stringgrid1.columns[3].title.caption"
 msgid "-"
 msgstr "-"
 
@@ -559,7 +567,7 @@ msgid "Open next image (Alt-Right)"
 msgstr "Atvērt sarakstā esošo nākamo attēlu (Alt-Pa_labi)"
 
 #: tfimagelist.tbopennextsw.hint
-msgctxt "TFIMAGELIST.TBOPENNEXTSW.HINT"
+msgctxt "tfimagelist.tbopennextsw.hint"
 msgid "Open next image"
 msgstr "Atvērt nākamo attēlu"
 
@@ -569,7 +577,7 @@ msgid "Open previous image (Alt-Left)"
 msgstr "Atvērt sarakstā esošo iepriekšējo attēlu (Alt-Pa_kreisi)"
 
 #: tfimagelist.tbopenprevsw.hint
-msgctxt "TFIMAGELIST.TBOPENPREVSW.HINT"
+msgctxt "tfimagelist.tbopenprevsw.hint"
 msgid "Open previous image"
 msgstr "Atvērt iepriekšējo attēlu"
 
@@ -582,7 +590,7 @@ msgid "Uncheck all files for processing"
 msgstr "Noņemt visus ķekšus"
 
 #: tflayerstack.caption
-msgctxt "TFLAYERSTACK.CAPTION"
+msgctxt "tflayerstack.caption"
 msgid "Layers"
 msgstr "Slāņi"
 
@@ -621,7 +629,7 @@ msgid "Remove current brush"
 msgstr "Izmest doto otu"
 
 #: tfmain.caption
-msgctxt "TFMAIN.CAPTION"
+msgctxt "tfmain.caption"
 msgid "LazPaint"
 msgstr "LazPaint"
 
@@ -650,13 +658,13 @@ msgid "Posterize..."
 msgstr "Plakāta efekts ..."
 
 #: tfmain.colorshiftcolors.caption
-msgctxt "TFMAIN.COLORSHIFTCOLORS.CAPTION"
+msgctxt "tfmain.colorshiftcolors.caption"
 msgid "Shift colors..."
 msgstr "Nobīdīt krāsas ..."
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
-msgstr ""
+msgstr "Līnijas veids"
 
 #: tfmain.editcopy.caption
 msgid "Copy"
@@ -695,19 +703,19 @@ msgstr "Iezīmēt otrādi"
 
 #: tfmain.editmovedown.hint
 msgid "Move down"
-msgstr ""
+msgstr "Lejup"
 
 #: tfmain.editmovetoback.hint
 msgid "Send to back"
-msgstr ""
+msgstr "Novietot apakšā"
 
 #: tfmain.editmovetofront.hint
 msgid "Bring to front"
-msgstr ""
+msgstr "Novietot priekšpusē"
 
 #: tfmain.editmoveup.hint
 msgid "Move up"
-msgstr ""
+msgstr "Augšup"
 
 #: tfmain.editpaste.hint
 msgctxt "TFMAIN.EDITPASTE.HINT"
@@ -725,7 +733,7 @@ msgstr "Ievietot kā jaunu slāni"
 #: tfmain.editredo.hint
 msgctxt "TFMAIN.EDITREDO.HINT"
 msgid "Redo"
-msgstr "Pārdarīt"
+msgstr "Atjaunot atsaukto"
 
 #: tfmain.editselectall.caption
 msgctxt "tfmain.editselectall.caption"
@@ -733,7 +741,6 @@ msgid "Select all"
 msgstr "Iezīmēt visu"
 
 #: tfmain.editselectall.hint
-#, fuzzy
 msgctxt "tfmain.editselectall.hint"
 msgid "Select all"
 msgstr "Iezīmēt visu"
@@ -748,31 +755,31 @@ msgstr "Ievietot iezīmējumā"
 
 #: tfmain.editshapealignbottom.hint
 msgid "Align shape to the bottom"
-msgstr ""
+msgstr "Līdzināt pēc apakšmalas"
 
 #: tfmain.editshapealignleft.hint
 msgid "Align shape left"
-msgstr ""
+msgstr "Līdzināt pēc kreisās malas"
 
 #: tfmain.editshapealignright.hint
 msgid "Align shape right"
-msgstr ""
+msgstr "Līdzināt pēc labās malas"
 
 #: tfmain.editshapealigntop.hint
 msgid "Align shape to the top"
-msgstr ""
+msgstr "Līdzināt pēc augšmalas"
 
 #: tfmain.editshapecenterhorizontally.hint
 msgid "Center shape horizontally"
-msgstr ""
+msgstr "Līdzināt pēc stateniskā vidus"
 
 #: tfmain.editshapecentervertically.hint
 msgid "Center shape vertically"
-msgstr ""
+msgstr "Līdzināt pēc guleniskā vidus"
 
 #: tfmain.editshapetocurve.hint
 msgid "Convert shape to curve"
-msgstr ""
+msgstr "Pārveidot daudzstūri par līniju"
 
 #: tfmain.editundo.caption
 msgid "Undo"
@@ -785,11 +792,11 @@ msgstr "Atsauc pēdējās izmaiņas"
 #: tfmain.embeddedcancel.caption
 msgctxt "TFMAIN.EMBEDDEDCANCEL.CAPTION"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfmain.embeddedcancel.hint
 msgid "Cancel modifications"
-msgstr "Pārtrauc neko neizmainot"
+msgstr "Atcelt izmaiņas"
 
 #: tfmain.embeddedvalidate.caption
 msgid "Validate"
@@ -801,19 +808,19 @@ msgstr "Pārbaudīt izmaiņas"
 
 #: tfmain.exportpicturedialog.title
 msgid "Export as..."
-msgstr ""
+msgstr "Eksportēt kā ..."
 
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
-msgstr ""
+msgstr "Ielasi citu daļu ..."
 
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
-msgstr ""
+msgstr "Ielasa citu attēla daļu, piemēram, animēta GIF kadru"
 
 #: tfmain.fileexport.caption
 msgid "Export..."
-msgstr ""
+msgstr "Eksportēt ..."
 
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
@@ -850,17 +857,17 @@ msgid "Quit"
 msgstr "Iziet"
 
 #: tfmain.filereload.caption
-msgctxt "TFMAIN.FILERELOAD.CAPTION"
+msgctxt "tfmain.filereload.caption"
 msgid "Reload"
-msgstr "Pārlasīt attēlu"
+msgstr "Ielasīt no jauna"
 
 #: tfmain.fileremembersaveformat.hint
 msgid "Remember save format"
-msgstr ""
+msgstr "Atcerēties izmantotos failu formātus"
 
 #: tfmain.filerunscript.caption
 msgid "Run script..."
-msgstr ""
+msgstr "Darbināt skriptu ..."
 
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
@@ -891,46 +898,46 @@ msgstr "Saglabāt iezīmējumu kā ..."
 #: tfmain.fileuseimagebrowser.caption
 msgctxt "tfmain.fileuseimagebrowser.caption"
 msgid "Use image browser"
-msgstr ""
+msgstr "Lietot attēlu pārlūku"
 
 #: tfmain.filterblurbox.caption
 msgid "Box blur..."
-msgstr ""
+msgstr "Kantaina izpludināšana ..."
 
 #: tfmain.filterblurcorona.caption
-msgctxt "TFMAIN.FILTERBLURCORONA.CAPTION"
+msgctxt "tfmain.filterblurcorona.caption"
 msgid "Corona blur..."
 msgstr "Aurveida izpludināšana ..."
 
 #: tfmain.filterblurcustom.caption
-msgctxt "TFMAIN.FILTERBLURCUSTOM.CAPTION"
+msgctxt "tfmain.filterblurcustom.caption"
 msgid "Custom blur..."
 msgstr "Pielāgota izpludināšana ..."
 
 #: tfmain.filterblurdisk.caption
-msgctxt "TFMAIN.FILTERBLURDISK.CAPTION"
+msgctxt "tfmain.filterblurdisk.caption"
 msgid "Disk blur..."
-msgstr ""
+msgstr "Noapaļota izpludināšana ..."
 
 #: tfmain.filterblurfast.caption
-msgctxt "TFMAIN.FILTERBLURFAST.CAPTION"
+msgctxt "tfmain.filterblurfast.caption"
 msgid "Fast blur..."
 msgstr "Ātrā izpludināšana ..."
 
 #: tfmain.filterblurmotion.caption
-msgctxt "TFMAIN.FILTERBLURMOTION.CAPTION"
+msgctxt "tfmain.filterblurmotion.caption"
 msgid "Motion blur..."
-msgstr "Kusības izplūdums ..."
+msgstr "Kustības izplūdums ..."
 
 #: tfmain.filterblurprecise.caption
-msgctxt "TFMAIN.FILTERBLURPRECISE.CAPTION"
+msgctxt "tfmain.filterblurprecise.caption"
 msgid "Precise blur..."
-msgstr ""
+msgstr "Uzdota izpludināšana ..."
 
 #: tfmain.filterblurradial.caption
-msgctxt "TFMAIN.FILTERBLURRADIAL.CAPTION"
+msgctxt "tfmain.filterblurradial.caption"
 msgid "Gaussian blur..."
-msgstr "Vienmērīga izpludināšana ..."
+msgstr "Izpludināšana pēc Gausa ..."
 
 #: tfmain.filtercleartype.caption
 msgid "ClearType"
@@ -954,7 +961,7 @@ msgstr "Cilindrs"
 
 #: tfmain.filteremboss.caption
 msgid "Emboss..."
-msgstr "Iegravēts"
+msgstr "Iegravēts..."
 
 #: tfmain.filterfunction.caption
 msgid "Apply function..."
@@ -965,9 +972,9 @@ msgid "Grayscale"
 msgstr "Pelēko toņu"
 
 #: tfmain.filterlinearnegative.caption
-msgctxt "TFMAIN.FILTERLINEARNEGATIVE.CAPTION"
+msgctxt "tfmain.filterlinearnegative.caption"
 msgid "Linear negative"
-msgstr "Tiešs negatīvs"
+msgstr "Izlīdzināts negatīvs"
 
 #: tfmain.filtermedian.caption
 msgid "Median"
@@ -1022,15 +1029,15 @@ msgstr "Savirpināt ..."
 
 #: tfmain.filterwavedisplacement.caption
 msgid "Wave displacement..."
-msgstr ""
+msgstr "Viļņi ..."
 
 #: tfmain.forgetdialoganswers.caption
 msgid "Forget dialog box answers"
-msgstr ""
+msgstr "Aizmirst atbildes"
 
 #: tfmain.forgetdialoganswers.hint
 msgid "Forget answers given to dialog boxes"
-msgstr ""
+msgstr "Aizmirst atbildes, kura tika ierakstītas dialoglogos"
 
 #: tfmain.helpabout.caption
 msgid "About..."
@@ -1042,7 +1049,7 @@ msgstr "Saraksts ..."
 
 #: tfmain.imagechangecanvassize.caption
 msgid "Canvas size..."
-msgstr "Audekla izmērs"
+msgstr "Audekla izmērs..."
 
 #: tfmain.imageclearalpha.caption
 msgid "Clear alpha channel and set background"
@@ -1110,7 +1117,7 @@ msgstr "Palielināt attēlu trīskārtīgi"
 
 #: tfmain.imageswapredblue.caption
 msgid "Swap red and blue channels"
-msgstr ""
+msgstr "Samainīt sarkano ar zilo kanālu"
 
 #: tfmain.imageverticalflip.caption
 msgctxt "tfmain.imageverticalflip.caption"
@@ -1127,16 +1134,16 @@ msgid "Selected tool"
 msgstr "Izvēlētais rīks"
 
 #: tfmain.image_swapcolors.hint
-msgctxt "TFMAIN.IMAGE_SWAPCOLORS.HINT"
+msgctxt "tfmain.image_swapcolors.hint"
 msgid "Switch color"
-msgstr "Apmainīt krāsas vietām"
+msgstr "Samainīt krāsas"
 
 #: tfmain.itemdocklayersandcolors.caption
 msgid "Dock layers and colors"
-msgstr "Piesaistīt slāņus un krāsas"
+msgstr "Piesaistīt slāņu un krāsu logus"
 
 #: tfmain.itemdonate.caption
-msgctxt "TFMAIN.ITEMDONATE.CAPTION"
+msgctxt "tfmain.itemdonate.caption"
 msgid "Donate..."
 msgstr "Ziedot ..."
 
@@ -1147,7 +1154,7 @@ msgstr "Pilnekrāna"
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
-msgstr ""
+msgstr "Lietot attēlu pārlūku"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
@@ -1159,7 +1166,7 @@ msgstr "Augstums"
 
 #: tfmain.label_back.caption
 msgid "Back"
-msgstr "Pamatne"
+msgstr "Pildījums"
 
 #: tfmain.label_brush.caption
 msgctxt "tfmain.label_brush.caption"
@@ -1167,8 +1174,6 @@ msgid "Brush"
 msgstr "Ota"
 
 #: tfmain.label_coordinates.caption
-#, fuzzy
-#| msgid "99999x99999"
 msgid "9999x9999"
 msgstr "99999x99999"
 
@@ -1200,7 +1205,7 @@ msgid "Curve"
 msgstr "Līkne"
 
 #: tfmain.label_eraser.caption
-msgctxt "TFMAIN.LABEL_ERASER.CAPTION"
+msgctxt "tfmain.label_eraser.caption"
 msgid "Erase"
 msgstr "Dzēst"
 
@@ -1210,33 +1215,33 @@ msgid "Grid"
 msgstr "Tīkls"
 
 #: tfmain.label_gridx.caption
-msgctxt "TFMAIN.LABEL_GRIDX.CAPTION"
+msgctxt "tfmain.label_gridx.caption"
 msgid "x"
 msgstr "x"
 
 #: tfmain.label_outlinewidth.caption
-msgctxt "TFMAIN.LABEL_OUTLINEWIDTH.CAPTION"
+msgctxt "tfmain.label_outlinewidth.caption"
 msgid "Width"
 msgstr "Platums"
 
 #: tfmain.label_pen.caption
 msgctxt "TFMAIN.LABEL_PEN.CAPTION"
 msgid "Pen"
-msgstr "Spalva"
+msgstr "Līnija"
 
 #: tfmain.label_penwidth.caption
-msgctxt "TFMAIN.LABEL_PENWIDTH.CAPTION"
+msgctxt "tfmain.label_penwidth.caption"
 msgid "Width"
 msgstr "Platums"
 
 #: tfmain.label_phongborder.caption
-msgctxt "TFMAIN.LABEL_PHONGBORDER.CAPTION"
+msgctxt "tfmain.label_phongborder.caption"
 msgid "Border"
-msgstr ""
+msgstr "Apmale"
 
 #: tfmain.label_ratio.caption
 msgid "Ratio"
-msgstr ""
+msgstr "Attiecība"
 
 #: tfmain.label_shadowoffset.caption
 msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
@@ -1263,7 +1268,7 @@ msgid "Blur"
 msgstr "Izsmērēt"
 
 #: tfmain.label_tolerance.caption
-msgctxt "TFMAIN.LABEL_TOLERANCE.CAPTION"
+msgctxt "tfmain.label_tolerance.caption"
 msgid "Tolerance"
 msgstr "Pielaide"
 
@@ -1278,53 +1283,53 @@ msgid "Duplicate selected layer"
 msgstr "Izveidot dotā slāņa kopiju"
 
 #: tfmain.layerfromfile.hint
-msgctxt "TFMAIN.LAYERFROMFILE.HINT"
+msgctxt "tfmain.layerfromfile.hint"
 msgid "Import layer from file..."
 msgstr "Ielasi slāni no datnes ..."
 
 #: tfmain.layerhorizontalflip.hint
 msgid "Flip layer horizontally"
-msgstr "Apmest slāni guleniski"
+msgstr "Apmest slāni stateniski"
 
 #: tfmain.layermergeover.hint
-msgctxt "TFMAIN.LAYERMERGEOVER.HINT"
+msgctxt "tfmain.layermergeover.hint"
 msgid "Merge layer over"
 msgstr "Apvienot ar apakšējo slāni"
 
 #: tfmain.layermove.hint
-msgctxt "TFMAIN.LAYERMOVE.HINT"
+msgctxt "tfmain.layermove.hint"
 msgid "Move layer"
 msgstr "Pārvietot slāni"
 
 #: tfmain.layerrasterize.hint
 msgid "Rasterize layer"
-msgstr ""
+msgstr "Pārvērst par rastru"
 
 #: tfmain.layerremovecurrent.hint
-msgctxt "TFMAIN.LAYERREMOVECURRENT.HINT"
+msgctxt "tfmain.layerremovecurrent.hint"
 msgid "Remove layer"
 msgstr "Izdzēst slāni"
 
 #: tfmain.layerrotate.hint
-msgctxt "TFMAIN.LAYERROTATE.HINT"
+msgctxt "tfmain.layerrotate.hint"
 msgid "Rotate layer"
 msgstr "Pagriezt slāni"
 
 #: tfmain.layerverticalflip.hint
 msgctxt "tfmain.layerverticalflip.hint"
 msgid "Flip layer vertically"
-msgstr "Apmesrt slāni stateniski"
+msgstr "Apmest slāni guleniski"
 
 #: tfmain.layerzoom.hint
 msgid "Zoom layer"
-msgstr ""
+msgstr "Pietuvināt slāni"
 
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
 msgstr "Ielasīt iezīmējumu"
 
 #: tfmain.menucolors.caption
-msgctxt "TFMAIN.MENUCOLORS.CAPTION"
+msgctxt "tfmain.menucolors.caption"
 msgid "Colors"
 msgstr "Krāsas"
 
@@ -1345,7 +1350,7 @@ msgid "Dock right"
 msgstr "Piesaistīt labā pusē"
 
 #: tfmain.menuedit.caption
-msgctxt "TFMAIN.MENUEDIT.CAPTION"
+msgctxt "tfmain.menuedit.caption"
 msgid "Edit"
 msgstr "Labot"
 
@@ -1355,55 +1360,55 @@ msgstr "Datne"
 
 #: tfmain.menufiletoolbar.caption
 msgid "Show file toolbar"
-msgstr ""
+msgstr "Rādīt datņu rīkjoslu"
 
 #: tfmain.menufilter.caption
-msgctxt "TFMAIN.MENUFILTER.CAPTION"
+msgctxt "tfmain.menufilter.caption"
 msgid "Filter"
 msgstr "Filtri"
 
 #: tfmain.menuhelp.caption
-msgctxt "TFMAIN.MENUHELP.CAPTION"
+msgctxt "tfmain.menuhelp.caption"
 msgid "Help"
 msgstr "Palīgs"
 
 #: tfmain.menuimage.caption
-msgctxt "TFMAIN.MENUIMAGE.CAPTION"
+msgctxt "tfmain.menuimage.caption"
 msgid "Image"
 msgstr "Attēls"
 
 #: tfmain.menulanguage.caption
-msgctxt "TFMAIN.MENULANGUAGE.CAPTION"
+msgctxt "tfmain.menulanguage.caption"
 msgid "Language"
 msgstr "Valoda"
 
 #: tfmain.menuradialblur.caption
-msgctxt "TFMAIN.MENURADIALBLUR.CAPTION"
+msgctxt "tfmain.menuradialblur.caption"
 msgid "Radial blur"
 msgstr "Vienmērīga izpludināšana"
 
 #: tfmain.menurecentfiles.caption
-msgctxt "TFMAIN.MENURECENTFILES.CAPTION"
+msgctxt "tfmain.menurecentfiles.caption"
 msgid "Recent files"
 msgstr "Nesen lietotās datnes"
 
 #: tfmain.menuremovetransparency.caption
-msgctxt "TFMAIN.MENUREMOVETRANSPARENCY.CAPTION"
+msgctxt "tfmain.menuremovetransparency.caption"
 msgid "Remove transparency"
 msgstr "Noņemt caurspīdīgumu"
 
 #: tfmain.menurender.caption
-msgctxt "TFMAIN.MENURENDER.CAPTION"
+msgctxt "tfmain.menurender.caption"
 msgid "Render"
 msgstr "Atveidot"
 
 #: tfmain.menuscript.caption
 msgctxt "tfmain.menuscript.caption"
 msgid "Script"
-msgstr ""
+msgstr "Skripts"
 
 #: tfmain.menuselect.caption
-msgctxt "TFMAIN.MENUSELECT.CAPTION"
+msgctxt "tfmain.menuselect.caption"
 msgid "Select"
 msgstr "Iezīmējums"
 
@@ -1413,7 +1418,7 @@ msgid "Show palette"
 msgstr "Rādīt paleti"
 
 #: tfmain.menutool.caption
-msgctxt "TFMAIN.MENUTOOL.CAPTION"
+msgctxt "tfmain.menutool.caption"
 msgid "Tools"
 msgstr "Rīki"
 
@@ -1426,7 +1431,7 @@ msgid "Show undo/redo toolbar"
 msgstr "Rādīt atsaukšanas rīkus"
 
 #: tfmain.menuview.caption
-msgctxt "TFMAIN.MENUVIEW.CAPTION"
+msgctxt "tfmain.menuview.caption"
 msgid "View"
 msgstr "Skats"
 
@@ -1435,7 +1440,7 @@ msgid "Show zoom toolbar"
 msgstr "Rādīt tuvinājuma rīkus"
 
 #: tfmain.open3dobjectdialog.title
-msgctxt "TFMAIN.OPEN3DOBJECTDIALOG.TITLE"
+msgctxt "tfmain.open3dobjectdialog.title"
 msgid "Import 3D object"
 msgstr "Ielasīt 3D veidojumu"
 
@@ -1444,6 +1449,7 @@ msgid "Open brush"
 msgstr "Atvērt otu"
 
 #: tfmain.openpicturedialog1.title
+msgctxt "TFMAIN.OPENPICTUREDIALOG1.TITLE"
 msgid "Open existing image"
 msgstr "Atvērt esošu attēlu"
 
@@ -1453,14 +1459,14 @@ msgid "Open texture"
 msgstr "Atvērt virsmas rakstu"
 
 #: tfmain.perspective_repeat.hint
-msgctxt "TFMAIN.PERSPECTIVE_REPEAT.HINT"
+msgctxt "tfmain.perspective_repeat.hint"
 msgid "Repeat image"
 msgstr "Veido lielāku attēlu atkārtojot esošo"
 
 #: tfmain.perspective_twoplanes.hint
-msgctxt "TFMAIN.PERSPECTIVE_TWOPLANES.HINT"
+msgctxt "tfmain.perspective_twoplanes.hint"
 msgid "Draw opposite plane too"
-msgstr ""
+msgstr "Zīmēt arī spoguļattēlu"
 
 #: tfmain.rendercamouflage.caption
 msgid "Camouflage"
@@ -1475,7 +1481,7 @@ msgid "Water with custom colors"
 msgstr "Ūdens ar izvēlētām krāsām"
 
 #: tfmain.rendercyclicperlinnoise.caption
-msgctxt "TFMAIN.RENDERCYCLICPERLINNOISE.CAPTION"
+msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "Perlina troksnis flīzēm"
 
@@ -1508,7 +1514,7 @@ msgid "Stone"
 msgstr "Raupjš akmens"
 
 #: tfmain.renderwater.caption
-msgctxt "TFMAIN.RENDERWATER.CAPTION"
+msgctxt "tfmain.renderwater.caption"
 msgid "Water"
 msgstr "Ūdens"
 
@@ -1522,7 +1528,7 @@ msgstr "Koksne gargriezumā"
 
 #: tfmain.savepicturedialog1.title
 msgid "Save file as..."
-msgstr "Saglabāt failu kā"
+msgstr "Saglabāt failu kā..."
 
 #: tfmain.saveselectiondialog.title
 msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
@@ -1531,21 +1537,21 @@ msgstr "Saglabāt iezīmējumu kā ..."
 
 #: tfmain.selectionhorizontalflip.hint
 msgid "Flip selection horizontally"
-msgstr ""
+msgstr "Apmest iezīmējumu stateniski"
 
 #: tfmain.selectionverticalflip.hint
 msgid "Flip selection vertically"
-msgstr ""
+msgstr "Apmest iezīmējumu guleniski"
 
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
-msgstr ""
+msgstr "Bultas garums"
 
 #: tfmain.spinedit_arrowsizey.hint
 msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
-msgstr ""
+msgstr "Bultas platums"
 
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
@@ -1560,7 +1566,7 @@ msgstr "Dzēšgumijas caurredzamība"
 #: tfmain.spinedit_penwidth.hint
 msgctxt "tfmain.spinedit_penwidth.hint"
 msgid "Pen width"
-msgstr "Otas platums"
+msgstr "Līnijas platums"
 
 #: tfmain.spinedit_phongbordersize.hint
 msgctxt "tfmain.spinedit_phongbordersize.hint"
@@ -1570,7 +1576,7 @@ msgstr "Apmales platums"
 #: tfmain.spinedit_shapealtitude.hint
 msgctxt "tfmain.spinedit_shapealtitude.hint"
 msgid "Shape altitude"
-msgstr ""
+msgstr "Figūras biezums"
 
 #: tfmain.spinedit_textblur.hint
 msgctxt "tfmain.spinedit_textblur.hint"
@@ -1585,17 +1591,17 @@ msgstr "Apmales platums"
 #: tfmain.spinedit_textshadowx.hint
 msgctxt "tfmain.spinedit_textshadowx.hint"
 msgid "Horizontal shadow offset"
-msgstr ""
+msgstr "Ēnas nobīde uz sāniem"
 
 #: tfmain.spinedit_textshadowy.hint
 msgctxt "tfmain.spinedit_textshadowy.hint"
 msgid "Vertical shadow offset"
-msgstr ""
+msgstr "Stateniskā ēnas nobīde"
 
 #: tfmain.spinedit_textsize.hint
 msgctxt "tfmain.spinedit_textsize.hint"
 msgid "Text size"
-msgstr ""
+msgstr "Teksta izmērs"
 
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
@@ -1603,6 +1609,7 @@ msgid "Brush"
 msgstr "Ota"
 
 #: tfmain.toolchangedocking.hint
+msgctxt "tfmain.toolchangedocking.hint"
 msgid "Change docking"
 msgstr "Manīt rīku novietojumu"
 
@@ -1625,7 +1632,7 @@ msgstr "Staipīšanas režģis"
 
 #: tfmain.tooleditshape.hint
 msgid "Edit shape"
-msgstr ""
+msgstr "Labot vienumu"
 
 #: tfmain.toolellipse.hint
 msgctxt "TFMAIN.TOOLELLIPSE.HINT"
@@ -1667,9 +1674,9 @@ msgid "Choose hot spot of a cursor"
 msgstr ""
 
 #: tfmain.toollayermapping.hint
-msgctxt "TFMAIN.TOOLLAYERMAPPING.HINT"
+msgctxt "tfmain.toollayermapping.hint"
 msgid "Layer perspective"
-msgstr ""
+msgstr "Slāņa perspektīva"
 
 #: tfmain.toolmagicwand.caption
 msgid "Magic wand"
@@ -1686,7 +1693,7 @@ msgstr "Pārvietot iezīmējumu"
 
 #: tfmain.toolopenedcurve.hint
 msgid "Opened curve"
-msgstr ""
+msgstr "Liekta līnija"
 
 #: tfmain.toolpen.caption
 msgctxt "TFMAIN.TOOLPEN.CAPTION"
@@ -1700,7 +1707,7 @@ msgstr "Parasta rakstāmspalva"
 #: tfmain.toolphong.hint
 msgctxt "TFMAIN.TOOLPHONG.HINT"
 msgid "Shaded shape"
-msgstr "Daudzstūris ar ēnu"
+msgstr "Figūra ar ēnu"
 
 #: tfmain.toolpolygon.caption
 msgid "Polygon"
@@ -1712,7 +1719,7 @@ msgstr "Daudzstūris vai lauzta līnija"
 
 #: tfmain.toolpolyline.hint
 msgid "Polyline"
-msgstr ""
+msgstr "Lauzta līnija"
 
 #: tfmain.toolrect.hint
 msgctxt "TFMAIN.TOOLRECT.HINT"
@@ -1730,12 +1737,12 @@ msgid "Select ellipse"
 msgstr "Iezīmēšanas elipse"
 
 #: tfmain.toolselectpen.caption
-msgctxt "TFMAIN.TOOLSELECTPEN.CAPTION"
+msgctxt "tfmain.toolselectpen.caption"
 msgid "Selection pen"
 msgstr "Iezīmēšanas ota"
 
 #: tfmain.toolselectpen.hint
-msgctxt "TFMAIN.TOOLSELECTPEN.HINT"
+msgctxt "tfmain.toolselectpen.hint"
 msgid "Draw selection with pen"
 msgstr "Iezīmēt attēla daļas ar otu"
 
@@ -1750,7 +1757,7 @@ msgid "Select rectangle"
 msgstr "Iezīmēšanas taisnstūris"
 
 #: tfmain.toolselectspline.hint
-msgctxt "TFMAIN.TOOLSELECTSPLINE.HINT"
+msgctxt "tfmain.toolselectspline.hint"
 msgid "Select curve"
 msgstr "Iezīmēšanas līknes"
 
@@ -1760,7 +1767,6 @@ msgid "Curve"
 msgstr "Līknes"
 
 #: tfmain.toolspline.hint
-#, fuzzy
 msgctxt "tfmain.toolspline.hint"
 msgid "Curve"
 msgstr "Līknes"
@@ -1777,7 +1783,7 @@ msgstr "Virsma ar rakstu"
 
 #: tfmain.tool_aliasing.hint
 msgid "Disable antialiasing"
-msgstr ""
+msgstr "Izslēgt krāsu nogludināšanu"
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
@@ -1792,139 +1798,138 @@ msgstr "Apaļš gals"
 #: tfmain.tool_capsquare.hint
 msgctxt "TFMAIN.TOOL_CAPSQUARE.HINT"
 msgid "Square cap"
-msgstr ""
+msgstr "Stūrains gals"
 
 #: tfmain.tool_closeshape.hint
-msgctxt "TFMAIN.TOOL_CLOSESHAPE.HINT"
+msgctxt "tfmain.tool_closeshape.hint"
 msgid "Close shape"
-msgstr ""
+msgstr "Noslēdz daudzstūri"
 
 #: tfmain.tool_curvemodeangle.hint
 msgid "Draw an angle"
-msgstr ""
+msgstr "Lauzuma punkts"
 
 #: tfmain.tool_curvemodeauto.hint
-msgctxt "TFMAIN.TOOL_CURVEMODEAUTO.HINT"
+msgctxt "tfmain.tool_curvemodeauto.hint"
 msgid "Autodetect angles"
-msgstr ""
+msgstr "Pašnoteikti leņķi"
 
 #: tfmain.tool_curvemodecurve.hint
 msgid "Draw a curve"
-msgstr ""
+msgstr "Liekuma punkts"
 
 #: tfmain.tool_curvemovepoint.hint
 msgid "Move point"
-msgstr ""
+msgstr "Pārvietot punktu"
 
 #: tfmain.tool_drawshapeborder.hint
-msgctxt "TFMAIN.TOOL_DRAWSHAPEBORDER.HINT"
+msgctxt "tfmain.tool_drawshapeborder.hint"
 msgid "Draw border"
-msgstr ""
+msgstr "Zīmēt apmali"
 
 #: tfmain.tool_erasealpha.hint
-msgctxt "TFMAIN.TOOL_ERASEALPHA.HINT"
+msgctxt "tfmain.tool_erasealpha.hint"
 msgid "Make transparent"
-msgstr ""
+msgstr "Caurspīdīgs"
 
 #: tfmain.tool_eraseblur.hint
-msgctxt "TFMAIN.TOOL_ERASEBLUR.HINT"
+msgctxt "tfmain.tool_eraseblur.hint"
 msgid "Soften"
-msgstr ""
+msgstr "Mīkstāks"
 
 #: tfmain.tool_erasedarken.hint
 msgid "Darken"
-msgstr ""
+msgstr "Tumšāks"
 
 #: tfmain.tool_eraselighten.hint
 msgid "Lighten"
-msgstr ""
+msgstr "Gaišāks"
 
 #: tfmain.tool_erasesharpen.hint
 msgid "Sharpen"
-msgstr ""
+msgstr "Asāks"
 
 #: tfmain.tool_fillshape.hint
-msgctxt "TFMAIN.TOOL_FILLSHAPE.HINT"
+msgctxt "tfmain.tool_fillshape.hint"
 msgid "Fill shape"
-msgstr ""
+msgstr "Aizpildi daudzstūri"
 
 #: tfmain.tool_gridmovewithoutdeformation.hint
-msgctxt "TFMAIN.TOOL_GRIDMOVEWITHOUTDEFORMATION.HINT"
+msgctxt "tfmain.tool_gridmovewithoutdeformation.hint"
 msgid "Move grid without deformation"
-msgstr ""
+msgstr "Pārvietot tīklu nedeformējot"
 
 #: tfmain.tool_joinbevel.hint
 msgctxt "TFMAIN.TOOL_JOINBEVEL.HINT"
 msgid "Bevel join"
-msgstr ""
+msgstr "Nošķelts savienojums"
 
 #: tfmain.tool_joinmiter.hint
 msgctxt "TFMAIN.TOOL_JOINMITER.HINT"
 msgid "Miter join"
-msgstr ""
+msgstr "Salidums"
 
 #: tfmain.tool_joinround.hint
 msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
 msgid "Round join"
-msgstr ""
+msgstr "Apaļš savienojums"
 
 #: tfmain.tool_phongshapecone.hint
-msgctxt "TFMAIN.TOOL_PHONGSHAPECONE.HINT"
+msgctxt "tfmain.tool_phongshapecone.hint"
 msgid "Cone"
-msgstr ""
+msgstr "Konuss no augšas"
 
 #: tfmain.tool_phongshapehorizontalcylinder.hint
-msgctxt "TFMAIN.TOOL_PHONGSHAPEHORIZONTALCYLINDER.HINT"
+msgctxt "tfmain.tool_phongshapehorizontalcylinder.hint"
 msgid "Horizontal cylinder"
-msgstr ""
+msgstr "Gulenisks cilindrs"
 
 #: tfmain.tool_phongshaperectangle.hint
-msgctxt "TFMAIN.TOOL_PHONGSHAPERECTANGLE.HINT"
+msgctxt "tfmain.tool_phongshaperectangle.hint"
 msgid "Rectangle"
-msgstr "Taisns"
+msgstr "Taisnstūris"
 
 #: tfmain.tool_phongshaperoundrect.hint
-msgctxt "TFMAIN.TOOL_PHONGSHAPEROUNDRECT.HINT"
+msgctxt "tfmain.tool_phongshaperoundrect.hint"
 msgid "Rounded rectangle"
-msgstr "Noapaļots tais"
+msgstr "Noapaļots taisnstūris"
 
 #: tfmain.tool_phongshapesphere.hint
-msgctxt "TFMAIN.TOOL_PHONGSHAPESPHERE.HINT"
+msgctxt "tfmain.tool_phongshapesphere.hint"
 msgid "Sphere"
 msgstr "Lode"
 
 #: tfmain.tool_phongshapeverticalcone.hint
-msgctxt "TFMAIN.TOOL_PHONGSHAPEVERTICALCONE.HINT"
+msgctxt "tfmain.tool_phongshapeverticalcone.hint"
 msgid "Vertical cone"
-msgstr "Stāvošs konuss"
+msgstr "Konuss sānskatā"
 
 #: tfmain.tool_phongshapeverticalcylinder.hint
-msgctxt "TFMAIN.TOOL_PHONGSHAPEVERTICALCYLINDER.HINT"
+msgctxt "tfmain.tool_phongshapeverticalcylinder.hint"
 msgid "Vertical cylinder"
-msgstr "Stāvošs cilindrs"
+msgstr "Statenisks cilindrs"
 
 #: tfmain.tool_progressivefloodfill.caption
-#, fuzzy
-msgctxt "TFMAIN.TOOL_PROGRESSIVEFLOODFILL.CAPTION"
+msgctxt "tfmain.tool_progressivefloodfill.caption"
 msgid "Progressive floodfill"
 msgstr "Vienmērīgs aizpildījums"
 
 #: tfmain.tool_progressivefloodfill.hint
-msgctxt "TFMAIN.TOOL_PROGRESSIVEFLOODFILL.HINT"
+msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "Vienmērīgs aizpildījums"
 
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
-msgstr ""
+msgstr "Iecentrēt"
 
 #: tfmain.tool_textalignleft.hint
 msgid "Align left"
-msgstr ""
+msgstr "Līdzināt pa kreisi"
 
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
-msgstr ""
+msgstr "Līdzināt pa labi"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -1953,7 +1958,7 @@ msgstr "Krāsas"
 
 #: tfmain.viewdarktheme.caption
 msgid "Dark theme"
-msgstr ""
+msgstr "Tumšais izskats"
 
 #: tfmain.viewgrid.caption
 msgctxt "TFMAIN.VIEWGRID.CAPTION"
@@ -1970,14 +1975,14 @@ msgid "Layers"
 msgstr "Slaņi"
 
 #: tfmain.viewlayerstackbutton.caption
-msgctxt "TFMAIN.VIEWLAYERSTACKBUTTON.CAPTION"
+msgctxt "tfmain.viewlayerstackbutton.caption"
 msgid "Show layers"
 msgstr "Rādīt slāņus"
 
 #: tfmain.viewlayerstackbutton.hint
-msgctxt "TFMAIN.VIEWLAYERSTACKBUTTON.HINT"
+msgctxt "tfmain.viewlayerstackbutton.hint"
 msgid "Show or hide layer stack window"
-msgstr "Parāda/paslēpj slāņu  saraksta logu"
+msgstr "Parāda/paslēpj slāņu saraksta logu"
 
 #: tfmain.viewpalette.caption
 msgctxt "tfmain.viewpalette.caption"
@@ -1986,7 +1991,7 @@ msgstr "Palete"
 
 #: tfmain.viewstatusbar.caption
 msgid "Status bar"
-msgstr ""
+msgstr "Stāvokļa josla"
 
 #: tfmain.viewtoolbox.caption
 msgid "Toolbox"
@@ -1994,7 +1999,7 @@ msgstr "Rīku kaste"
 
 #: tfmain.viewworkspacecolor.caption
 msgid "Set workspace color..."
-msgstr ""
+msgstr "Darbavirsmas krāsa ..."
 
 #: tfmain.viewzoomfit.caption
 msgctxt "tfmain.viewzoomfit.caption"
@@ -2028,7 +2033,7 @@ msgstr "Tālināt"
 #: tfmotionblur.button_cancel.caption
 msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfmotionblur.button_ok.caption
 msgctxt "TFMOTIONBLUR.BUTTON_OK.CAPTION"
@@ -2036,7 +2041,7 @@ msgid "OK"
 msgstr "Labi"
 
 #: tfmotionblur.caption
-msgctxt "TFMOTIONBLUR.CAPTION"
+msgctxt "tfmotionblur.caption"
 msgid "Motion blur"
 msgstr "Kustības izplūdums"
 
@@ -2045,17 +2050,17 @@ msgid "Oriented"
 msgstr "Virzīts"
 
 #: tfmotionblur.label_distance.caption
-msgctxt "TFMOTIONBLUR.LABEL_DISTANCE.CAPTION"
+msgctxt "tfmotionblur.label_distance.caption"
 msgid "Distance :"
 msgstr "Attālums:"
 
 #: tfmultiimage.button_cancel.caption
-msgctxt "TFMULTIIMAGE.BUTTON_CANCEL.CAPTION"
+msgctxt "tfmultiimage.button_cancel.caption"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfmultiimage.button_ok.caption
-msgctxt "TFMULTIIMAGE.BUTTON_OK.CAPTION"
+msgctxt "tfmultiimage.button_ok.caption"
 msgid "OK"
 msgstr "Labi"
 
@@ -2066,7 +2071,7 @@ msgstr "Izvēlies attēlu"
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfnewimage.button_ok.caption
 msgctxt "TFNEWIMAGE.BUTTON_OK.CAPTION"
@@ -2074,43 +2079,43 @@ msgid "OK"
 msgstr "Labi"
 
 #: tfnewimage.caption
-msgctxt "TFNEWIMAGE.CAPTION"
+msgctxt "tfnewimage.caption"
 msgid "New image"
 msgstr "Jauns attēls"
 
 #: tfnewimage.combobox_bitdepth.text
 msgid "32"
-msgstr ""
+msgstr "32"
 
 #: tfnewimage.label_bitdepth.caption
 msgid "Bit depth :"
-msgstr ""
+msgstr "Dziļums bitos:"
 
 #: tfnewimage.label_height.caption
-msgctxt "TFNEWIMAGE.LABEL_HEIGHT.CAPTION"
+msgctxt "tfnewimage.label_height.caption"
 msgid "Height :"
 msgstr "Augstums:"
 
 #: tfnewimage.label_height1.caption
 msgid "Ratio :"
-msgstr ""
+msgstr "Attiecība:"
 
 #: tfnewimage.label_memoryrequired.caption
 msgid "Memory required :"
-msgstr ""
+msgstr "Nepieciešamā atmiņa:"
 
 #: tfnewimage.label_width.caption
-msgctxt "TFNEWIMAGE.LABEL_WIDTH.CAPTION"
+msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "Platums:"
 
 #: tfnoisefilter.button_cancel.caption
-msgctxt "TFNOISEFILTER.BUTTON_CANCEL.CAPTION"
+msgctxt "tfnoisefilter.button_cancel.caption"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfnoisefilter.button_ok.caption
-msgctxt "TFNOISEFILTER.BUTTON_OK.CAPTION"
+msgctxt "tfnoisefilter.button_ok.caption"
 msgid "OK"
 msgstr "Labi"
 
@@ -2120,7 +2125,7 @@ msgstr "Trokšņu filtrs"
 
 #: tfnoisefilter.label_opacity.caption
 msgid "Opacity:"
-msgstr "Redzamība"
+msgstr "Redzamība:"
 
 #: tfnoisefilter.radio_grayscalenoise.caption
 msgid "Grayscale noise"
@@ -2131,9 +2136,9 @@ msgid "RGB noise"
 msgstr "RGB troksnis"
 
 #: tfobject3d.button_cancel.caption
-msgctxt "TFOBJECT3D.BUTTON_CANCEL.CAPTION"
+msgctxt "tfobject3d.button_cancel.caption"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfobject3d.button_loadtex.caption
 msgid "Texture..."
@@ -2144,11 +2149,12 @@ msgid "No tex."
 msgstr ""
 
 #: tfobject3d.button_ok.caption
-msgctxt "TFOBJECT3D.BUTTON_OK.CAPTION"
+msgctxt "tfobject3d.button_ok.caption"
 msgid "OK"
 msgstr "Labi"
 
 #: tfobject3d.caption
+#, fuzzy
 msgid "3D object"
 msgstr "3D veidojums"
 
@@ -2169,12 +2175,12 @@ msgid "Selected light"
 msgstr "Izvēlētā gaisma"
 
 #: tfobject3d.groupbox_selectedmaterial.caption
-msgctxt "TFOBJECT3D.GROUPBOX_SELECTEDMATERIAL.CAPTION"
+msgctxt "tfobject3d.groupbox_selectedmaterial.caption"
 msgid "Selected material"
 msgstr "Izvēlētais materiāls"
 
 #: tfobject3d.label_color.caption
-msgctxt "TFOBJECT3D.LABEL_COLOR.CAPTION"
+msgctxt "tfobject3d.label_color.caption"
 msgid "Color :"
 msgstr "Krāsa:"
 
@@ -2184,12 +2190,12 @@ msgid "Color :"
 msgstr "Krāsa:"
 
 #: tfobject3d.label_height.caption
-msgctxt "TFOBJECT3D.LABEL_HEIGHT.CAPTION"
+msgctxt "tfobject3d.label_height.caption"
 msgid "Height :"
 msgstr "Augstums:"
 
 #: tfobject3d.label_lightingnormals.caption
-msgctxt "TFOBJECT3D.LABEL_LIGHTINGNORMALS.CAPTION"
+msgctxt "tfobject3d.label_lightingnormals.caption"
 msgid "Lighting normals :"
 msgstr "Apgaismojuma normāles:"
 
@@ -2198,27 +2204,27 @@ msgid "Lights :"
 msgstr "Gaismas:"
 
 #: tfobject3d.label_materials.caption
-msgctxt "TFOBJECT3D.LABEL_MATERIALS.CAPTION"
+msgctxt "tfobject3d.label_materials.caption"
 msgid "Materials :"
 msgstr "Materiāli:"
 
 #: tfobject3d.label_opacity.caption
-msgctxt "TFOBJECT3D.LABEL_OPACITY.CAPTION"
+msgctxt "tfobject3d.label_opacity.caption"
 msgid "Opacity :"
 msgstr "Redzamība:"
 
 #: tfobject3d.label_specularindex.caption
-msgctxt "TFOBJECT3D.LABEL_SPECULARINDEX.CAPTION"
+msgctxt "tfobject3d.label_specularindex.caption"
 msgid "Spec. index :"
 msgstr ""
 
 #: tfobject3d.label_width.caption
-msgctxt "TFOBJECT3D.LABEL_WIDTH.CAPTION"
+msgctxt "tfobject3d.label_width.caption"
 msgid "Width :"
 msgstr "Platums:"
 
 #: tfobject3d.label_zoom.caption
-msgctxt "TFOBJECT3D.LABEL_ZOOM.CAPTION"
+msgctxt "tfobject3d.label_zoom.caption"
 msgid "Zoom"
 msgstr "Tuvinājums"
 
@@ -2231,7 +2237,7 @@ msgid "Materials"
 msgstr "Materiāli"
 
 #: tfobject3d.opentexturedialog.title
-msgctxt "TFOBJECT3D.OPENTEXTUREDIALOG.TITLE"
+msgctxt "tfobject3d.opentexturedialog.title"
 msgid "Open texture"
 msgstr "Atvērt virsmas rakstu"
 
@@ -2252,22 +2258,22 @@ msgid "Remove selected light"
 msgstr "Izmest doto gaismu"
 
 #: tfphongfilter.button_cancel.caption
-msgctxt "TFPHONGFILTER.BUTTON_CANCEL.CAPTION"
+msgctxt "tfphongfilter.button_cancel.caption"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfphongfilter.button_ok.caption
-msgctxt "TFPHONGFILTER.BUTTON_OK.CAPTION"
+msgctxt "tfphongfilter.button_ok.caption"
 msgid "OK"
 msgstr "Labi"
 
 #: tfphongfilter.caption
-msgctxt "TFPHONGFILTER.CAPTION"
+msgctxt "tfphongfilter.caption"
 msgid "Shaded map"
 msgstr "Ēnota virsma"
 
 #: tfphongfilter.groupbox_color.caption
-msgctxt "TFPHONGFILTER.GROUPBOX_COLOR.CAPTION"
+msgctxt "tfphongfilter.groupbox_color.caption"
 msgid "Color"
 msgstr "Krāsa"
 
@@ -2277,11 +2283,11 @@ msgstr "Virsmas pacēlums"
 
 #: tfphongfilter.label_altitude.caption
 msgid "Global altitude :"
-msgstr "Kopējais pacēlums"
+msgstr "Kopējais pacēlums:"
 
 #: tfphongfilter.label_lightposition.caption
 msgid "Light position :"
-msgstr "Gaismas avots"
+msgstr "Gaismas avots:"
 
 #: tfphongfilter.radio_mapalpha.caption
 msgid "Alpha"
@@ -2296,7 +2302,7 @@ msgid "G"
 msgstr "G"
 
 #: tfphongfilter.radio_maplightness.caption
-msgctxt "TFPHONGFILTER.RADIO_MAPLIGHTNESS.CAPTION"
+msgctxt "tfphongfilter.radio_maplightness.caption"
 msgid "Lightness"
 msgstr "Gaišums"
 
@@ -2309,7 +2315,7 @@ msgid "R"
 msgstr "R"
 
 #: tfphongfilter.radio_mapsaturation.caption
-msgctxt "TFPHONGFILTER.RADIO_MAPSATURATION.CAPTION"
+msgctxt "tfphongfilter.radio_mapsaturation.caption"
 msgid "Saturation"
 msgstr "Piesātinājums"
 
@@ -2326,14 +2332,14 @@ msgid "Pen color"
 msgstr "Otas krāsa"
 
 #: tfphongfilter.radio_usetexture.caption
-msgctxt "TFPHONGFILTER.RADIO_USETEXTURE.CAPTION"
+msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "Virsmas raksts"
 
 #: tfpixelate.button_cancel.caption
 msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfpixelate.button_ok.caption
 msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
@@ -2341,34 +2347,34 @@ msgid "OK"
 msgstr "Labi"
 
 #: tfpixelate.caption
-msgctxt "TFPIXELATE.CAPTION"
+msgctxt "tfpixelate.caption"
 msgid "Pixelate"
-msgstr ""
+msgstr "Apvienot pikseļus"
 
 #: tfpixelate.label_pixelsize.caption
-msgctxt "TFPIXELATE.LABEL_PIXELSIZE.CAPTION"
+msgctxt "tfpixelate.label_pixelsize.caption"
 msgid "Pixel size :"
-msgstr ""
+msgstr "Pikseļa izmērs:"
 
 #: tfpixelate.label_quality.caption
-msgctxt "TFPIXELATE.LABEL_QUALITY.CAPTION"
+msgctxt "tfpixelate.label_quality.caption"
 msgid "Quality :"
-msgstr ""
+msgstr "Kvalitāte:"
 
 #: tfposterize.button_cancel.caption
-msgctxt "TFPOSTERIZE.BUTTON_CANCEL.CAPTION"
+msgctxt "tfposterize.button_cancel.caption"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfposterize.button_ok.caption
-msgctxt "TFPOSTERIZE.BUTTON_OK.CAPTION"
+msgctxt "tfposterize.button_ok.caption"
 msgid "OK"
 msgstr "Labi"
 
 #: tfposterize.caption
-msgctxt "TFPOSTERIZE.CAPTION"
+msgctxt "tfposterize.caption"
 msgid "Posterize"
-msgstr "Samazināts krāsu daudzums"
+msgstr "Plakāta efekts"
 
 #: tfposterize.checkbox_bylightness.caption
 msgid "By lightness"
@@ -2380,7 +2386,7 @@ msgstr "Līmeņi:"
 
 #: tfpreviewdialog.caption
 msgid "Preview"
-msgstr ""
+msgstr "Priekšskatījums"
 
 #: tfpreviewdialog.lstatus.caption
 msgctxt "tfpreviewdialog.lstatus.caption"
@@ -2396,16 +2402,16 @@ msgid "Print!"
 msgstr "Drukāt!"
 
 #: tfprint.button_zoomfit.caption
-msgctxt "TFPRINT.BUTTON_ZOOMFIT.CAPTION"
+msgctxt "tfprint.button_zoomfit.caption"
 msgid "Zoom fit"
-msgstr "Pielāgot lapai"
+msgstr "Ietilpināt logā"
 
 #: tfprint.caption
 msgid "Print"
 msgstr "Drukāt"
 
 #: tfprint.checkbox_ratio.caption
-msgctxt "TFPRINT.CHECKBOX_RATIO.CAPTION"
+msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "Saglabāt attiecību"
 
@@ -2422,18 +2428,18 @@ msgid "Bottom:"
 msgstr "Apakšā:"
 
 #: tfprint.label_dpix.caption
-msgctxt "TFPRINT.LABEL_DPIX.CAPTION"
+msgctxt "tfprint.label_dpix.caption"
 msgid "."
 msgstr "."
 
 #: tfprint.label_dpiy.caption
-msgctxt "TFPRINT.LABEL_DPIY.CAPTION"
+msgctxt "tfprint.label_dpiy.caption"
 msgid "."
 msgstr "."
 
 #: tfprint.label_height.caption
 msgid "Height:"
-msgstr "Augstums"
+msgstr "Augstums:"
 
 #: tfprint.label_left.caption
 msgid "Left:"
@@ -2441,11 +2447,11 @@ msgstr "Kreisā pusē:"
 
 #: tfprint.label_orientation.caption
 msgid "Orientation:"
-msgstr "Orientācija"
+msgstr "Orientācija:"
 
 #: tfprint.label_printerandpaper.caption
 msgid "Printer and paper:"
-msgstr "Drukas iekārta un papīrs"
+msgstr "Drukas iekārta un papīrs:"
 
 #: tfprint.label_right.caption
 msgid "Right:"
@@ -2457,15 +2463,15 @@ msgstr "Augšā:"
 
 #: tfprint.label_width.caption
 msgid "Width:"
-msgstr "Platums"
+msgstr "Platums:"
 
 #: tfquestion.caption
 msgid "Question"
-msgstr ""
+msgstr "Jautājums"
 
 #: tfquestion.checkbox_rememberchoice.caption
 msgid "Remember this choice"
-msgstr ""
+msgstr "Atcerēties izvēlēto"
 
 #: tfquestion.label_message.caption
 msgctxt "tfquestion.label_message.caption"
@@ -2475,7 +2481,7 @@ msgstr "."
 #: tfradialblur.button_cancel.caption
 msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfradialblur.button_ok.caption
 msgctxt "TFRADIALBLUR.BUTTON_OK.CAPTION"
@@ -2483,19 +2489,19 @@ msgid "OK"
 msgstr "Labi"
 
 #: tfradialblur.caption
-msgctxt "TFRADIALBLUR.CAPTION"
+msgctxt "tfradialblur.caption"
 msgid "Radial blur"
-msgstr "Izpludināšana"
+msgstr "Vienmērīga izpludināšana"
 
 #: tfradialblur.label_radius.caption
-msgctxt "TFRADIALBLUR.LABEL_RADIUS.CAPTION"
+msgctxt "tfradialblur.label_radius.caption"
 msgid "Radius :"
 msgstr "Rādiuss:"
 
 #: tfrain.button_cancel.caption
 msgctxt "tfrain.button_cancel.caption"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfrain.button_ok.caption
 msgctxt "tfrain.button_ok.caption"
@@ -2508,16 +2514,16 @@ msgstr "Lietus"
 
 #: tfrain.label_quantity.caption
 msgid "Quantity:"
-msgstr "Stiprums"
+msgstr "Stiprums:"
 
 #: tfrain.label_wind.caption
 msgid "Wind :"
-msgstr "Vējš"
+msgstr "Vējš:"
 
 #: tfresample.button_cancel.caption
 msgctxt "TFRESAMPLE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfresample.button_ok.caption
 msgctxt "TFRESAMPLE.BUTTON_OK.CAPTION"
@@ -2525,7 +2531,7 @@ msgid "OK"
 msgstr "Labi"
 
 #: tfresample.caption
-msgctxt "TFRESAMPLE.CAPTION"
+msgctxt "tfresample.caption"
 msgid "Resample"
 msgstr "Izmēra maiņa"
 
@@ -2535,24 +2541,24 @@ msgid "Keep aspect ratio"
 msgstr "Saglabāt attiecību"
 
 #: tfresample.label_height.caption
-msgctxt "TFRESAMPLE.LABEL_HEIGHT.CAPTION"
+msgctxt "tfresample.label_height.caption"
 msgid "Height :"
 msgstr "Augstums:"
 
 #: tfresample.label_quality.caption
-msgctxt "TFRESAMPLE.LABEL_QUALITY.CAPTION"
+msgctxt "tfresample.label_quality.caption"
 msgid "Quality :"
-msgstr ""
+msgstr "Kvalitāte:"
 
 #: tfresample.label_width.caption
-msgctxt "TFRESAMPLE.LABEL_WIDTH.CAPTION"
+msgctxt "tfresample.label_width.caption"
 msgid "Width :"
 msgstr "Platums:"
 
 #: tfsaveoption.button_cancel.caption
 msgctxt "tfsaveoption.button_cancel.caption"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfsaveoption.button_ok.caption
 msgctxt "tfsaveoption.button_ok.caption"
@@ -2570,7 +2576,7 @@ msgstr "Neīstā tonēšana"
 
 #: tfsaveoption.label1.caption
 msgid "Quality:"
-msgstr ""
+msgstr "Kvalitāte:"
 
 #: tfsaveoption.label_0.caption
 msgid "0"
@@ -2598,7 +2604,7 @@ msgstr "16 krāsas"
 
 #: tfsaveoption.radiobutton_24bitsperpixel.caption
 msgid "24 bits"
-msgstr "24 bitu"
+msgstr "24 biti"
 
 #: tfsaveoption.radiobutton_256colors.caption
 msgid "256 colors"
@@ -2610,19 +2616,19 @@ msgstr "2 krāsas"
 
 #: tfsaveoption.radiobutton_32bitsperpixel.caption
 msgid "32 bits"
-msgstr ""
+msgstr "32 biti"
 
 #: tfsaveoption.radiobutton_miomap.caption
 msgid "MioMap"
 msgstr ""
 
 #: tfsharpen.button_cancel.caption
-msgctxt "TFSHARPEN.BUTTON_CANCEL.CAPTION"
+msgctxt "tfsharpen.button_cancel.caption"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfsharpen.button_ok.caption
-msgctxt "TFSHARPEN.BUTTON_OK.CAPTION"
+msgctxt "tfsharpen.button_ok.caption"
 msgid "OK"
 msgstr "Labi"
 
@@ -2631,14 +2637,14 @@ msgid "Sharpen/Smooth"
 msgstr "Asināt/Nogludināt"
 
 #: tfsharpen.label_amount.caption
-msgctxt "TFSHARPEN.LABEL_AMOUNT.CAPTION"
+msgctxt "tfsharpen.label_amount.caption"
 msgid "Amount :"
-msgstr ""
+msgstr "Stiprums:"
 
 #: tfshiftcolors.button_cancel.caption
 msgctxt "TFSHIFTCOLORS.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfshiftcolors.button_ok.caption
 msgctxt "TFSHIFTCOLORS.BUTTON_OK.CAPTION"
@@ -2646,7 +2652,7 @@ msgid "OK"
 msgstr "Labi"
 
 #: tfshiftcolors.caption
-msgctxt "TFSHIFTCOLORS.CAPTION"
+msgctxt "tfshiftcolors.caption"
 msgid "Shift colors"
 msgstr "Nobīdīt krāsas"
 
@@ -2666,14 +2672,14 @@ msgid "Saturation"
 msgstr "Piesātinājums"
 
 #: tftoolbox.caption
-msgctxt "TFTOOLBOX.CAPTION"
+msgctxt "tftoolbox.caption"
 msgid "Tools"
 msgstr "Rīki"
 
 #: tftwirl.button_cancel.caption
 msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tftwirl.button_ok.caption
 msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
@@ -2681,24 +2687,24 @@ msgid "OK"
 msgstr "Labi"
 
 #: tftwirl.caption
-msgctxt "TFTWIRL.CAPTION"
+msgctxt "tftwirl.caption"
 msgid "Twirl"
 msgstr "Savirpināt"
 
 #: tftwirl.label_angle.caption
-msgctxt "TFTWIRL.LABEL_ANGLE.CAPTION"
+msgctxt "tftwirl.label_angle.caption"
 msgid "Angle :"
 msgstr "Leņķis:"
 
 #: tftwirl.label_radius.caption
-msgctxt "TFTWIRL.LABEL_RADIUS.CAPTION"
+msgctxt "tftwirl.label_radius.caption"
 msgid "Radius :"
 msgstr "Rādiuss:"
 
 #: tfwavedisplacement.button_cancel.caption
 msgctxt "tfwavedisplacement.button_cancel.caption"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: tfwavedisplacement.button_ok.caption
 msgctxt "tfwavedisplacement.button_ok.caption"
@@ -2707,19 +2713,19 @@ msgstr "Labi"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"
-msgstr ""
+msgstr "Viļņu nobīde"
 
 #: tfwavedisplacement.label_displacement.caption
 msgid "Displacement :"
-msgstr ""
+msgstr "Nobīde:"
 
 #: tfwavedisplacement.label_phase.caption
 msgid "Phase :"
-msgstr ""
+msgstr "Fāze:"
 
 #: tfwavedisplacement.label_wavelength.caption
 msgid "Wavelength :"
-msgstr ""
+msgstr "Viļņa garums:"
 
 #: uresourcestrings.rsactioninprogress
 msgid "Action in progress"
@@ -2731,7 +2737,7 @@ msgstr "Pievienot failus apstrādājamo attēlu sarakstam"
 
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
-msgstr ""
+msgstr "Novieto vienumu"
 
 #: uresourcestrings.rsallapplications
 msgid "all"
@@ -2751,13 +2757,14 @@ msgstr "Animētais GIF"
 
 #: uresourcestrings.rsautodetect
 msgid "Autodetect"
-msgstr ""
+msgstr "Pašnoteikts"
 
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
 msgstr "Izmanto [BACKSPACE] lai dzēstu pēdējo punktu"
 
 #: uresourcestrings.rsbestquality
+msgctxt "uresourcestrings.rsbestquality"
 msgid "Best quality"
 msgstr "Labākā kvalitāte"
 
@@ -2784,15 +2791,15 @@ msgstr "Baiti"
 #: uresourcestrings.rscancel
 msgctxt "uresourcestrings.rscancel"
 msgid "Cancel"
-msgstr "Atsaukt"
+msgstr "Atcelt"
 
 #: uresourcestrings.rscancelledbyuser
 msgid "Cancelled by user"
-msgstr ""
+msgstr "Pārtrauca lietotājs"
 
 #: uresourcestrings.rscannotdrawshapeonsvglayer
 msgid "Cannot draw shape on SVG layer"
-msgstr ""
+msgstr "Nevar zīmēt vektorslānī"
 
 #: uresourcestrings.rscannotopenfile
 msgid "Cannot open file"
@@ -2812,8 +2819,9 @@ msgid "Clear palette"
 msgstr "Notīrīt paleti"
 
 #: uresourcestrings.rscloserequest
+msgctxt "uresourcestrings.rscloserequest"
 msgid "Close request"
-msgstr ""
+msgstr "Aizvērt pieprasījumu"
 
 #: uresourcestrings.rscmd
 msgid "CMD"
@@ -2826,19 +2834,19 @@ msgstr "Krāsas"
 
 #: uresourcestrings.rsconfirmdeletefromcontainer
 msgid "Are you sure you want to delete this file from the container?"
-msgstr ""
+msgstr "Vai tiešām gribi izdzēst datni?"
 
 #: uresourcestrings.rsconfirmdeletemultiplefromcontainer
 msgid "Are you sure you want to delete these %1 files from the container?"
-msgstr ""
+msgstr "Vai tiešam gribi izdzēst šīs %1 datnes?"
 
 #: uresourcestrings.rsconfirmmovemultipletotrash
 msgid "Are you sure you want to move these %1 files to the trash?"
-msgstr "Vai tiešam gribi šos failus (%1) izmest papīrgrozā?"
+msgstr "Vai tiešam gribi šīs %1 datnes izmest papīrgrozā?"
 
 #: uresourcestrings.rsconfirmmovetotrash
 msgid "Are you sure you want to move this file to the trash?"
-msgstr "Vai tiešam gribi šos failus izmest papīrgrozā?"
+msgstr "Vai tiešam gribi šo datni izmest papīrgrozā?"
 
 #: uresourcestrings.rsconflictingactions
 msgid "Conflicting actions"
@@ -2859,6 +2867,7 @@ msgid "Corr. Hue CW"
 msgstr ""
 
 #: uresourcestrings.rscosine
+msgctxt "uresourcestrings.rscosine"
 msgid "Cosine"
 msgstr ""
 
@@ -2872,7 +2881,7 @@ msgstr ""
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
-msgstr ""
+msgstr "Spied [S] vai [X], lai uzdotu līknes pēdējā punkta veidu"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
@@ -2885,11 +2894,11 @@ msgstr "Dzēst"
 
 #: uresourcestrings.rsdeleteimageentry
 msgid "Delete selected image entry?"
-msgstr ""
+msgstr "Dzēst šo attēla daļu?"
 
 #: uresourcestrings.rsdirectorynotempty
 msgid "Directory is not empty"
-msgstr ""
+msgstr "Direktorija ir tukša"
 
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
@@ -2897,9 +2906,10 @@ msgstr "Tonēt izmantojot paletes krāsas"
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
-msgstr ""
+msgstr "Pavairot attēlu"
 
 #: uresourcestrings.rseditmask
+msgctxt "uresourcestrings.rseditmask"
 msgid "Edit mask"
 msgstr "Labot masku"
 
@@ -2908,6 +2918,7 @@ msgid "Edit selection"
 msgstr "Labot iezīmējumu"
 
 #: uresourcestrings.rsedittexture
+msgctxt "uresourcestrings.rsedittexture"
 msgid "Edit texture"
 msgstr "Labot virsmas rakstu"
 
@@ -2921,19 +2932,19 @@ msgstr "Iezīmējums ir tukšs"
 
 #: uresourcestrings.rsendwithoutmatchingbegin
 msgid "End without matching begin"
-msgstr ""
+msgstr "Beigas bez sākuma"
 
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
-msgstr ""
+msgstr "Mapes vai arī resursu datnes (*.res; *.lrs) vārds:"
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
-msgstr "Ieraksti slāna vārdu:"
+msgstr "Ieraksti slāņa vārdu:"
 
 #: uresourcestrings.rsentries
 msgid "Entries"
-msgstr ""
+msgstr "Ieraksti"
 
 #: uresourcestrings.rserror
 msgid "Error"
@@ -2941,7 +2952,7 @@ msgstr "Kļūda"
 
 #: uresourcestrings.rserrordecodingraw
 msgid "Error decoding raw image."
-msgstr ""
+msgstr "Kļūda atkodējot attēlu."
 
 #: uresourcestrings.rserrorloadingoriginal
 msgid "Error while loading original however layer can be rasterized."
@@ -2953,11 +2964,12 @@ msgstr "Nevar atvērt failu \"%1\""
 
 #: uresourcestrings.rsexception
 msgid "An exception was encountered"
-msgstr ""
+msgstr "Kļūda programmatūras darbībā"
 
 #: uresourcestrings.rsexitrequest
+msgctxt "uresourcestrings.rsexitrequest"
 msgid "Exit request"
-msgstr ""
+msgstr "Darba beigas"
 
 #: uresourcestrings.rsexpect1parameter
 msgid "expects one parameter : "
@@ -2972,24 +2984,26 @@ msgid "expects N parameters : "
 msgstr "vajadzīgi N parametri: "
 
 #: uresourcestrings.rsfast
+msgctxt "uresourcestrings.rsfast"
 msgid "Fast"
 msgstr "Ātri"
 
 #: uresourcestrings.rsfilecannotbeempty
 msgid "File cannot be empty"
-msgstr ""
+msgstr "Datne nevar būt tukša"
 
 #: uresourcestrings.rsfiledate
 msgid "Date"
 msgstr "Datums"
 
 #: uresourcestrings.rsfileextensionnotsupported
+msgctxt "uresourcestrings.rsfileextensionnotsupported"
 msgid "This file extension is not supported."
-msgstr "Neatbalstīts faila paplašnājums"
+msgstr "Neatbalstīts datnes paplašinājums."
 
 #: uresourcestrings.rsfileformatnotrecognized
 msgid "The file format has not been recognized."
-msgstr "Nepazīstams faila formāts"
+msgstr "Nepazīstams datnes formāts."
 
 #: uresourcestrings.rsfilename
 msgid "Filename"
@@ -2997,11 +3011,11 @@ msgstr "Datnes vārds"
 
 #: uresourcestrings.rsfilenotfound
 msgid "File not found!"
-msgstr "Fails netika atrasts!"
+msgstr "Datne netika atrasts!"
 
 #: uresourcestrings.rsfilenotsaved
 msgid "File not saved"
-msgstr "Fails netika saglabāts"
+msgstr "Datne netika saglabāts"
 
 #: uresourcestrings.rsfilesize
 msgid "Size"
@@ -3017,7 +3031,7 @@ msgstr "Veids"
 
 #: uresourcestrings.rsfixeddrive
 msgid "Fixed"
-msgstr ""
+msgstr "Nemainīgs"
 
 #: uresourcestrings.rsfolder
 msgid "Folder"
@@ -3025,7 +3039,7 @@ msgstr "Mape"
 
 #: uresourcestrings.rsfolderorcontaineralreadyexists
 msgid "Folder or container already exists."
-msgstr ""
+msgstr "Mape vai resursu datne jau ir."
 
 #: uresourcestrings.rsfollowingerrorsoccured
 msgid "Following errors occured:"
@@ -3033,7 +3047,7 @@ msgstr "Kļūda:"
 
 #: uresourcestrings.rsframes
 msgid "Frames"
-msgstr ""
+msgstr "Kadri"
 
 #: uresourcestrings.rsfunctionnotdefined
 msgid "The function %1 is not defined."
@@ -3044,6 +3058,7 @@ msgid "Green"
 msgstr "Zaļš"
 
 #: uresourcestrings.rshalfcosine
+msgctxt "uresourcestrings.rshalfcosine"
 msgid "Half-cosine"
 msgstr ""
 
@@ -3085,16 +3100,16 @@ msgstr ""
 
 #: uresourcestrings.rsiconimagealreadyexists
 msgid "There is already an image with this size and depth."
-msgstr ""
+msgstr "Ir jau šāda izmēra attēls ar šādu krāsu dziļumu."
 
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
-msgstr ""
+msgstr "Ikona/kursors"
 
 #: uresourcestrings.rsiconsize
 msgctxt "uresourcestrings.rsiconsize"
 msgid "Icon size"
-msgstr ""
+msgstr "Ikonas izmērs"
 
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
@@ -3103,11 +3118,15 @@ msgstr "Attēls ir par lielu"
 #: uresourcestrings.rsinfinity
 msgctxt "uresourcestrings.rsinfinity"
 msgid "Infinity"
-msgstr ""
+msgstr "Bezgalība"
 
 #: uresourcestrings.rsinformation
 msgid "Information"
-msgstr ""
+msgstr "Informācija"
+
+#: uresourcestrings.rsdownload
+msgid "Download"
+msgstr "Lejupielādēt"
 
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
@@ -3116,11 +3135,11 @@ msgstr "Spilgtums"
 
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
-msgstr ""
+msgstr "Iekšējā kļūda"
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
-msgstr ""
+msgstr "Nepareizs vārds"
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "
@@ -3128,7 +3147,7 @@ msgstr "Nepareiza redzamība: "
 
 #: uresourcestrings.rsinvalidparameters
 msgid "Invalid parameters"
-msgstr ""
+msgstr "Nepareizi parametri"
 
 #: uresourcestrings.rsinvalidresamplesize
 msgid "Invalid resample size : "
@@ -3136,15 +3155,16 @@ msgstr "Nepareizs jaunais izmērs: "
 
 #: uresourcestrings.rsinvalidsizefornew
 msgid "Invalid size for new : "
-msgstr ""
+msgstr "Nepareizs jaunais izmērs: "
 
 #: uresourcestrings.rskeepchanges
+msgctxt "uresourcestrings.rskeepchanges"
 msgid "Do you want to keep changes?"
-msgstr "Vai gribi sagalabāt izmaiņas?"
+msgstr "Vai gribi saglabāt izmaiņas?"
 
 #: uresourcestrings.rskeepemptyspace
 msgid "Keep empty space around opaque pixels?"
-msgstr ""
+msgstr "Paturēt tukšumu ap redzamajiem pikseļiem?"
 
 #: uresourcestrings.rslanczos
 msgid "Lanczos %1"
@@ -3174,9 +3194,10 @@ msgstr "LazPaint"
 
 #: uresourcestrings.rslazpaintonly
 msgid "LazPaint only"
-msgstr ""
+msgstr "Tikai LazPaint"
 
 #: uresourcestrings.rslight
+msgctxt "uresourcestrings.rslight"
 msgid "Light"
 msgstr "Gaišums"
 
@@ -3190,6 +3211,7 @@ msgid "Light position"
 msgstr "Gaismas novietojums"
 
 #: uresourcestrings.rslinear
+msgctxt "uresourcestrings.rslinear"
 msgid "Linear"
 msgstr "Tiešs"
 
@@ -3211,7 +3233,7 @@ msgstr "Ielasīt paleti ..."
 
 #: uresourcestrings.rsloopcount
 msgid "Loop count"
-msgstr ""
+msgstr "Atkārtojuma reizes"
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
@@ -3219,19 +3241,23 @@ msgstr "Izveidot no attēla %1 krāsu paleti"
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
-msgstr ""
+msgstr "Vai apvienot izvēlēto?"
 
 #: uresourcestrings.rsmitchell
+msgctxt "uresourcestrings.rsmitchell"
 msgid "Mitchell"
 msgstr "Mišela"
 
 #: uresourcestrings.rsmorethanonefile
-msgid "You are trying to open more than one file. How would you like these files to be opened?"
-msgstr "Tu centies atvērt vairāk nekā vienu failu. Kā vēlies lai tos atver?"
+msgid ""
+"You are trying to open more than one file. How would you like these files to "
+"be opened?"
+msgstr "Tu centies atvērt vairāk nekā vienu failu. Kā vēlies, lai tos atver?"
 
 #: uresourcestrings.rsmovingorrotatingselection
+msgctxt "uresourcestrings.rsmovingorrotatingselection"
 msgid "Moving or rotating selection"
-msgstr "Pārvieto vai pakriez izvēlēto"
+msgstr "Pārvieto vai pagriez izvēlēto"
 
 #: uresourcestrings.rsmustreleaseselection
 msgid "You must first release the selection"
@@ -3267,34 +3293,38 @@ msgid "Do not save and open another file"
 msgstr "Nesalabāt un atvērt citu failu"
 
 #: uresourcestrings.rsnoname
+msgctxt "uresourcestrings.rsnoname"
 msgid "noname"
-msgstr "bez vārda"
+msgstr "bez_vaarda"
 
 #: uresourcestrings.rsnormalblendop
 msgid "Normal"
 msgstr "Parasta"
 
 #: uresourcestrings.rsnothingtobedeformed
+msgctxt "uresourcestrings.rsnothingtobedeformed"
 msgid "There is nothing to be deformed"
 msgstr "Neka nav pārveidojams"
 
 #: uresourcestrings.rsnothingtoberetrieved
+msgctxt "uresourcestrings.rsnothingtoberetrieved"
 msgid "There is nothing to be retrieved"
 msgstr "Nav ko atdabūt"
 
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
-msgstr "Nav prātīgi saglabāt tik lielu attēlu šajā faila formātā"
+msgstr "Nav prātīgi saglabāt tik lielu attēlu šajā datnes formātā."
 
 #: uresourcestrings.rsnumber
 msgid "№"
-msgstr "Nr."
+msgstr "Nr. "
 
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "Labi"
 
 #: uresourcestrings.rsopacity
+msgctxt "uresourcestrings.rsopacity"
 msgid "Opacity"
 msgstr "Redzamība"
 
@@ -3304,19 +3334,19 @@ msgstr "Atvērt"
 
 #: uresourcestrings.rsopenfilesaslayers
 msgid "Open files as layers in a single image"
-msgstr ""
+msgstr "Atvērt datnes kā viena attēla slāņus"
 
 #: uresourcestrings.rsopenfirstfileonly
 msgid "Open the first file only"
-msgstr ""
+msgstr "Atvērt tikai pirmo datni"
 
 #: uresourcestrings.rsopening
 msgid "Opening"
-msgstr ""
+msgstr "Atveru"
 
 #: uresourcestrings.rsopenmultipleimagefiles
 msgid "Open multiple image files"
-msgstr ""
+msgstr "Atver vairākas datnes"
 
 #: uresourcestrings.rsotherblendop
 msgid "Other..."
@@ -3356,8 +3386,8 @@ msgid "px"
 msgstr "pikseļi"
 
 #: uresourcestrings.rspythonunexpectedversion
-msgid "Expected python version %1 but %2 found."
-msgstr ""
+msgid "Expected Python version %1 but %2 found."
+msgstr "Pitona %1 versijas vietā atrasta %2."
 
 #: uresourcestrings.rsramdisk
 msgid "RAM disk"
@@ -3365,7 +3395,7 @@ msgstr ""
 
 #: uresourcestrings.rsrasterlayer
 msgid "Raster layer"
-msgstr ""
+msgstr "Rastra slānis"
 
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
@@ -3386,7 +3416,7 @@ msgstr "Attēls tika mainīts. Vai tiešām ielasīt no jauna?"
 
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
-msgstr ""
+msgstr "Noņemams"
 
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
@@ -3395,15 +3425,16 @@ msgstr "Attkārtot attēlu"
 
 #: uresourcestrings.rsresamplingimage
 msgid "Resampling image..."
-msgstr ""
+msgstr "Attēla izmēra maiņa ..."
 
 #: uresourcestrings.rsretrieveselectedarea
+msgctxt "uresourcestrings.rsretrieveselectedarea"
 msgid "Do you want to retrieve selected area?"
-msgstr ""
+msgstr "Vai gribi atgūt iezīmētos laukumus?"
 
 #: uresourcestrings.rsreturnvalides
 msgid "Press ENTER to validate"
-msgstr ""
+msgstr "Nospied [Enter], lai apstiprinātu"
 
 #: uresourcestrings.rsrgb
 msgctxt "uresourcestrings.rsrgb"
@@ -3412,7 +3443,7 @@ msgstr "RGB"
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
-msgstr ""
+msgstr "Ar peles labo pogu norādi avotu"
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
@@ -3427,9 +3458,10 @@ msgstr "Saglabāt"
 #: uresourcestrings.rssaveasbuttonhint
 msgctxt "uresourcestrings.rssaveasbuttonhint"
 msgid "Save with specified filename"
-msgstr ""
+msgstr "Saglabāt ar uzdotu datnes vārdu"
 
 #: uresourcestrings.rssavechanges
+msgctxt "uresourcestrings.rssavechanges"
 msgid "Current bitmap has been modified. Do you want to save changes?"
 msgstr "Pašlaik atvērtais attēls ir izmainīts. Vai saglabāt izmaiņas?"
 
@@ -3440,17 +3472,17 @@ msgstr "Saglabāt paleti kā ..."
 #: uresourcestrings.rsscript
 msgctxt "uresourcestrings.rsscript"
 msgid "Script"
-msgstr ""
+msgstr "Skripts"
 
 #: uresourcestrings.rsselectblendoperation
-#, fuzzy
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
 msgstr "Izvēlies sapludināšanu"
 
 #: uresourcestrings.rsshift
-msgid "SHIFT"
-msgstr ""
+msgctxt "uresourcestrings.rsShift"
+msgid "Shift"
+msgstr "Shift"
 
 #: uresourcestrings.rsshowpalette
 msgctxt "uresourcestrings.rsshowpalette"
@@ -3459,7 +3491,7 @@ msgstr "Rādīt paleti"
 
 #: uresourcestrings.rssourceposition
 msgid "Source position"
-msgstr ""
+msgstr "Avots"
 
 #: uresourcestrings.rsspline
 msgctxt "uresourcestrings.rsspline"
@@ -3477,11 +3509,14 @@ msgstr "Virsma ar rakstu"
 
 #: uresourcestrings.rstherearenocheckeditems
 msgid "There are no checked items. Check some items or add some new ones."
-msgstr ""
+msgstr "Nekas nav atzīmēts. Vai nu atzīmē, vai pievieno ko jaunu."
 
 #: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
-msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
-msgstr "Dotajai datnei nav piešķirts vārds. Lieto „Saglabāt kā ...” datnes izvēlnē."
+msgid ""
+"There is no file name given for this file. Use \"Save as...\" from the main "
+"menu."
+msgstr ""
+"Dotajai datnei nav piešķirts vārds. Lieto „Saglabāt kā ...” datnes izvēlnē."
 
 #: uresourcestrings.rstodo
 msgid "To do"
@@ -3493,19 +3528,19 @@ msgstr "Palicis: %1"
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
-msgstr ""
+msgstr "Rīku nevar pielietot neredzam slānim"
 
 #: uresourcestrings.rstoomanyactions
 msgid "Too many actions"
-msgstr ""
+msgstr "Pārāk daudz darbību"
 
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
-msgstr ""
+msgstr "Pārāk daudz slāņu"
 
 #: uresourcestrings.rstoomanyshapesinlayer
 msgid "Too many shapes in layer"
-msgstr ""
+msgstr "Pārāk daudz objektu slānī"
 
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
@@ -3517,48 +3552,46 @@ msgstr "Pārvietot iezīmējumu uz citu slāni?"
 
 #: uresourcestrings.rstransformedrasterlayer
 msgid "Transformed raster layer"
-msgstr ""
+msgstr "Pārveidots rastra slānis"
 
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
-msgstr ""
+msgstr "Vai gribi pārveidot iezīmējuma saturu?"
 
 #: uresourcestrings.rsunabletoapplyfilter
 msgid "Unable to apply filter : "
-msgstr "Nav iespējams pielietot filtru:"
+msgstr "Nav iespējams pielietot filtru: "
 
 #: uresourcestrings.rsunabletoloadfile
 msgid "Unable to load file : "
-msgstr "Nevar atvērt failu:"
+msgstr "Nevar atvērt datni: "
 
 #: uresourcestrings.rsunabletosavefile
 msgid "Unable to save file : "
-msgstr "Nevar saglabāt failu:"
+msgstr "Nevar saglabāt datni: "
 
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
-msgstr "Nepazīstama komanda:"
+msgstr "Nepazīstama komanda: "
 
 #: uresourcestrings.rsunknownoriginal
 msgid "Unknown original"
-msgstr ""
+msgstr "Nepazīstams oriģināls"
 
 #: uresourcestrings.rsvectoriallayer
 msgid "Vectorial layer"
-msgstr ""
+msgstr "Vektoru slānis"
 
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "Jā"
 
 #: uresourcestrings.rszoomlayerstackin
-#, fuzzy
 msgctxt "uresourcestrings.rszoomlayerstackin"
 msgid "Zoom layer stack in"
 msgstr "Pietuvināt slāņu sarakstu"
 
 #: uresourcestrings.rszoomlayerstackout
-#, fuzzy
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Attālināt slāņu sarakstu"

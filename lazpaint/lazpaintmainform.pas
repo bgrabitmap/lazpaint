@@ -13,7 +13,7 @@ uses
   Graphics, Dialogs, Menus, ExtDlgs, ComCtrls, ActnList, StdCtrls, ExtCtrls,
   Buttons, types, LCLType, BGRAImageList, BCTrackbarUpdown, BCComboBox, BCButton,
 
-  BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal, BGRAGradientScanner,
+  BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal, BGRAGradientScanner, BGRAGradientOriginal,
 
   LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, UZoom, UImageView,
   UImageObservation, UConfig, LCScaleDPI, UResourceStrings, UMenu, uscripting,
@@ -29,6 +29,10 @@ type
     FileExport: TAction;
     ExportPictureDialog: TSaveDialog;
     MenuScript: TMenuItem;
+    Panel_OutlineFill: TPanel;
+    Panel_Donate: TPanel;
+    ToolButton_Donate: TToolButton;
+    ToolBar25: TToolBar;
     ToolOpenedCurve: TAction;
     ToolPolyline: TAction;
     FileRunScript: TAction;
@@ -55,6 +59,7 @@ type
     Tool_EraseSharpen: TToolButton;
     Tool_EraseLighten: TToolButton;
     Tool_EraseDarken: TToolButton;
+    VectorialFill_Outline: TLCVectorialFillControl;
     VectorialFill_Pen: TLCVectorialFillControl;
     VectorialFill_Back: TLCVectorialFillControl;
     Panel_BackFill: TPanel;
@@ -536,6 +541,7 @@ type
     procedure GridNb_SpinEditChange(Sender: TObject; AByUser: boolean);
     procedure TimerArrangeTimer(Sender: TObject);
     procedure TimerHideFillTimer(Sender: TObject);
+    procedure ToolButton_DonateClick(Sender: TObject);
     procedure VectorialFill_TextureClick(Sender: TObject);
     procedure PaintBox_PenPreviewPaint(Sender: TObject);
     procedure PaintBox_PictureMouseDown(Sender: TObject; Button: TMouseButton;
@@ -637,9 +643,7 @@ type
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure SpinEdit_PenWidthChange(Sender: TObject; AByUser: boolean);
     procedure Tool_CloseShapeClick(Sender: TObject);
-    procedure VectorialFill_BackChooseColor({%H-}ASender: TObject; AButton: TMouseButton;
-              AColorIndex: integer; var {%H-}AColorValue: TBGRAPixel; out AHandled: boolean);
-    procedure VectorialFill_PenChooseColor({%H-}ASender: TObject; AButton: TMouseButton;
+    procedure VectorialFill_ChooseColor({%H-}ASender: TObject; AButton: TMouseButton;
               AColorIndex: integer; var {%H-}AColorValue: TBGRAPixel; out AHandled: boolean);
     procedure SpinEdit_ArrowSizeChange(Sender: TObject; AByUser: boolean);
     procedure SpinEdit_ToleranceChange(Sender: TObject; AByUser: boolean);
@@ -684,20 +688,14 @@ type
     procedure ManagerToolbarChanged(Sender: TObject);
     procedure Perspective_RepeatClick(Sender: TObject);
     function ScriptShowColorDialog(AVars: TVariableSet): TScriptResult;
-    procedure VectorialFill_BackAdjustToShape(Sender: TObject);
-    procedure VectorialFill_BackChange(Sender: TObject);
-    procedure VectorialFill_BackEditGradTexPoints(Sender: TObject);
-    procedure VectorialFill_BackResize(Sender: TObject);
-    procedure VectorialFill_BackTypeChange(Sender: TObject);
-    procedure VectorialFill_PenAdjustToShape(Sender: TObject);
-    procedure VectorialFill_PenChange(Sender: TObject);
-    procedure VectorialFill_PenEditGradTexPoints(Sender: TObject);
-    procedure VectorialFill_PenResize(Sender: TObject);
-    procedure VectorialFill_PenTypeChange(Sender: TObject);
-    procedure VectorialFill_ShowBackFill(Sender: TObject; {%H-}Shift: TShiftState;
-      {%H-}X, {%H-}Y: Integer);
-    procedure VectorialFill_ShowPenFill(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X,
-      {%H-}Y: Integer);
+    procedure VectorialFill_Change(Sender: TObject);
+    procedure VectorialFill_TypeChange(Sender: TObject);
+    procedure VectorialFill_Resize(Sender: TObject);
+    procedure VectorialFill_EditGradTexPoints(Sender: TObject);
+    procedure VectorialFill_AdjustToShape(Sender: TObject);
+    procedure VectorialFill_ShowBackFill(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
+    procedure VectorialFill_ShowPenFill(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
+    procedure VectorialFill_ShowOutlineFill(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
   private
     { private declarations }
     FLayout: TMainFormLayout;
@@ -734,7 +732,6 @@ type
     FShowSelectionNormal: boolean;
     FLazPaintInstance: TLazPaintCustomInstance;
     Config: TLazPaintConfig;
-    FImageActions: TImageActions;
     StartDirectory: string;
     previousToolImg: integer;
     currentToolLabel: string;
@@ -751,8 +748,11 @@ type
 
     function GetCurrentPressure: single;
     function GetDarkTheme: boolean;
+    function GetImageAction: TImageActions;
+    function GetUpdatingPopup: boolean;
     function GetUseImageBrowser: boolean;
     procedure SetDarkTheme(AValue: boolean);
+    procedure SetUpdatingPopup(AValue: boolean);
     procedure UpdateStatusText;
     procedure CreateToolbarElements;
     function GetCurrentToolAction: TAction;
@@ -807,11 +807,11 @@ type
     function ShowColorDialogFor(ATarget: TColorTarget): boolean;
     procedure ShowPenPreview(ShouldRepaint: boolean= False);
     procedure HidePenPreview(ATimeMs: Integer = 300; AClearTime: boolean = false);
-    procedure ShowPenFill;
-    procedure ShowBackFill;
+    procedure ShowFill(AFillControl: TLCVectorialFillControl; APanel: TPanel);
     procedure HideFill(ATimeMs: Integer = 300; AClearTime: boolean = false);
     procedure OnPaintHandler;
     procedure OnImageChangedHandler({%H-}AEvent: TLazPaintImageObservationEvent);
+    procedure OnImageRenderChanged(sender: TObject);
     procedure LabelAutosize(ALabel: TLabel);
     procedure AskMergeSelection(ACaption: string);
     procedure ReleaseMouseButtons(Shift: TShiftState);
@@ -889,6 +889,8 @@ type
     property CurrentPressure: single read GetCurrentPressure;
     property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
     property Initialized: boolean read FInitialized;
+    property UpdatingPopup: boolean read GetUpdatingPopup write SetUpdatingPopup;
+    property ImageAction: TImageActions read GetImageAction;
   end;
 
 implementation
@@ -993,7 +995,6 @@ begin
   end;
   FLayout.ToolBoxPopup := nil;
   RegisterScripts(False);
-  FreeAndNil(FImageActions);
 
   If Assigned(ToolManager) then
   begin
@@ -1029,8 +1030,13 @@ begin
   FreeAndNil(FBrowseImages);
   FreeAndNil(FBrowseTextures);
   FreeAndNil(FBrowseBrushes);
-  if Assigned(FSaveImage) and Config.DefaultRememberSaveFormat then
-    Config.SetSaveExtensions(FSaveImage.DefaultExtensions);
+  if Config.DefaultRememberSaveFormat then
+  begin
+    if Assigned(FSaveImage) and Config.DefaultRememberSaveFormat and Config.DefaultUseImageBrowser then
+      Config.SetSaveExtensions(FSaveImage.DefaultExtensions)
+    else
+      Config.SetSaveExtensions(GetExtensionFilterByIndex([eoWritable], SavePictureDialog1.FilterIndex));
+  end;
   FreeAndNil(FSaveImage);
   FreeAndNil(FSaveSelection);
 
@@ -1066,10 +1072,19 @@ begin
     FLoadInitialDir := Config.DefaultStartupSourceDirectory;
   FileRememberSaveFormat.Checked:= Config.DefaultRememberSaveFormat;
 
+  if Config.DefaultRememberSaveFormat then
+  begin
+    SavePictureDialog1.FilterIndex := GetExtensionFilterIndex([eoWritable], Config.DefaultSaveExtensions);
+    ExportPictureDialog.FilterIndex:= SavePictureDialog1.FilterIndex;
+  end else
+  begin
+    SavePictureDialog1.FilterIndex := 1;
+    ExportPictureDialog.FilterIndex:= 1;
+  end;
+
   FImageView := TImageView.Create(LazPaintInstance, Zoom,
                 {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture.Canvas{$ELSE}self.Canvas{$ENDIF});
 
-  FImageActions := TImageActions.Create(LazPaintInstance);
   LazPaintInstance.EmbeddedResult := mrNone;
 
   Image.OnSelectedLayerIndexChanged:= @PictureSelectedLayerIndexChanged;
@@ -1104,7 +1119,7 @@ begin
   InitToolbarElements;
 
   Image.CurrentFilenameUTF8 := '';
-  FImageActions.SetCurrentBitmap(TBGRABitmap.Create(Config.DefaultImageWidth,Config.DefaultImageHeight,Config.DefaultImageBackgroundColor), false);
+  ImageAction.SetCurrentBitmap(TBGRABitmap.Create(Config.DefaultImageWidth,Config.DefaultImageHeight,Config.DefaultImageBackgroundColor), false);
   image.ClearUndo;
   image.SetSavedFlag(0, -1, 0);
 
@@ -1138,6 +1153,7 @@ begin
   RegisterScripts(True);
 
   Image.OnImageChanged.AddObserver(@OnImageChangedHandler);
+  Image.OnImageRenderChanged := @OnImageRenderChanged;
   Image.OnQueryExitToolHandler := @OnQueryExitToolHandler;
   Image.Zoom := Zoom;
   UpdateWindowCaption;
@@ -1160,7 +1176,7 @@ begin
       Panel_ShapeOption,Panel_PenWidth,Panel_PenStyle,Panel_JoinStyle,
       Panel_CloseShape,Panel_LineCap,Panel_Aliasing,
       Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_Text,Panel_Altitude,Panel_TextShadow,Panel_TextOutline,
-      Panel_PhongShape,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio],Panel_ToolbarBackground);
+      Panel_OutlineFill,Panel_PhongShape,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio,Panel_Donate],Panel_ToolbarBackground);
     m.ImageList := LazPaintInstance.Icons[ScaleY(16, 96)];
     m.Apply;
     FLayout.Menu := m;
@@ -2016,7 +2032,7 @@ begin
   end;
   if Open3DObjectDialog.Execute then
   begin
-    FImageActions.Import3DObject(Open3DObjectDialog.FileName);
+    ImageAction.Import3DObject(Open3DObjectDialog.FileName);
     Config.SetDefault3dObjectDirectory(ExtractFilePath(Open3DObjectDialog.FileName));
   end;
   LazPaintInstance.ShowTopmost(topmostInfo);
@@ -2079,7 +2095,7 @@ begin
       end;
     end;
   end;
-  if FImageActions.LoadSelection(selectionFileName, @loadedImage) then
+  if ImageAction.LoadSelection(selectionFileName, @loadedImage) then
   begin
     FSaveSelectionInitialFilename := selectionFileName;
     if Assigned(Scripting.RecordingFunctionParameters) then
@@ -2314,11 +2330,11 @@ begin
                   for i := 0 to high(loadedLayers) do
                   if Assigned(loadedLayers[i].bmp) then
                   begin
-                    FImageActions.AddLayerFromBitmap(loadedLayers[i].bmp,ExtractFileName(loadedLayers[i].filename));
+                    ImageAction.AddLayerFromBitmap(loadedLayers[i].bmp,ExtractFileName(loadedLayers[i].filename));
                     loadedLayers[i].bmp := nil;
                   end else
                   begin
-                    FImageActions.AddLayerFromOriginal(loadedLayers[i].orig,ExtractFileName(loadedLayers[i].filename));
+                    ImageAction.AddLayerFromOriginal(loadedLayers[i].orig,ExtractFileName(loadedLayers[i].filename));
                     loadedLayers[i].orig := nil;
                   end;
                 end;
@@ -2547,13 +2563,13 @@ begin
   begin
     if Assigned(loadedImage) and (length(chosenFiles)=1) then
     begin
-      layerLoaded := length(FImageActions.TryAddLayerFromFile(chosenFiles[0], loadedImage)) > 0;
+      layerLoaded := length(ImageAction.TryAddLayerFromFile(chosenFiles[0], loadedImage)) > 0;
     end else
     begin
       FreeAndNil(loadedImage);
       for i := 0 to high(chosenFiles) do
         begin
-          if length(FImageActions.TryAddLayerFromFile(chosenFiles[i])) > 0 then
+          if length(ImageAction.TryAddLayerFromFile(chosenFiles[i])) > 0 then
             layerLoaded := true;
         end;
     end;
@@ -3091,7 +3107,7 @@ begin
                     end
                     else
                     begin
-                      FImageActions.RemoveSelection;
+                      ImageAction.RemoveSelection;
                       texMapBounds := newTexture.GetImageBounds;
                       BGRAReplace(newTexture, newTexture.GetPart(texMapBounds));
                       ToolManager.BackFill.SetTexture(newTexture, AffineMatrixIdentity,
@@ -3192,7 +3208,7 @@ begin
                   mrYes:
                     begin
                       ToolManager.ToolCloseDontReopen;
-                      FImageActions.RetrieveSelection;
+                      ImageAction.RetrieveSelection;
                       ToolManager.ToolOpen;
                     end;
                 end;
@@ -3927,6 +3943,11 @@ begin
     btnRightDown := false;
     if ToolManager.ToolUp then PaintPictureNow;
   end;
+  if not (ssMiddle in Shift) and btnMiddleDown then
+  begin
+    btnMiddleDown := false;
+    if ToolManager.ToolUp then PaintPictureNow;
+  end;
   if not btnLeftDown and not btnRightDown then
   begin
     CanCompressOrUpdateStack := true;
@@ -4379,6 +4400,11 @@ begin
   if AEvent.DelayedStackUpdate then FUpdateStackWhenIdle := true;
 end;
 
+procedure TFMain.OnImageRenderChanged(sender: TObject);
+begin
+  InvalidatePicture;
+end;
+
 procedure TFMain.UpdateEditPicture(ADelayed: boolean = false);
 begin
   if ToolManager.ToolUpdate then
@@ -4590,6 +4616,11 @@ begin
   end;
 end;
 
+procedure TFMain.SetUpdatingPopup(AValue: boolean);
+begin
+  FImageView.UpdatingPopup := AValue;
+end;
+
 function TFMain.GetCurrentPressure: single;
 begin
   if Assigned(FTablet) and FTablet.Present and FTablet.Entering and (FTablet.Max > 0) then
@@ -4602,6 +4633,16 @@ function TFMain.GetDarkTheme: boolean;
 begin
   if Assigned(FLayout) then result := FLayout.DarkTheme
   else result := false;
+end;
+
+function TFMain.GetImageAction: TImageActions;
+begin
+  result := TImageActions(LazPaintInstance.ImageAction);
+end;
+
+function TFMain.GetUpdatingPopup: boolean;
+begin
+  result := FImageView.UpdatingPopup;
 end;
 
 function TFMain.GetScriptContext: TScriptContext;

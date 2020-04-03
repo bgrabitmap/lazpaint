@@ -1,4 +1,4 @@
-# New mask
+# Mask > New mask
 from lazpaint import image, layer, tools, colors, selection
 
 image.do_begin()

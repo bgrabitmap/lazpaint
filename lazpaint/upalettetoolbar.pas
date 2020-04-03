@@ -473,6 +473,7 @@ begin
     FPaletteAlphaWidth := FPaletteItemWidth div 3;
 
     FPanelPalette := TBGRAVirtualScreen.Create(nil);
+    FPanelPalette.Anchors:= [akTop,akRight,akBottom];
     FPanelPalette.Width := DoScaleX(FPaletteItemWidth, OriginalDPI)+VolatileScrollBarSize;
     FPanelPalette.Visible := false;
     FPanelPalette.OnRedraw := @RepaintPalette;

@@ -105,6 +105,7 @@ type
     function GetInitialFilename: string;
     function GetOpenLayerIcon: boolean;
     function GetRememberStartDirectory: boolean;
+    procedure SetDefaultExtensions(AValue: string);
     procedure SetFileExtensionFilter(AValue: string);
     procedure SetFilterIndex(AValue: integer);
     procedure SetInitialFilename(AValue: string);
@@ -134,6 +135,7 @@ type
     procedure SetShellMask;
     procedure DeleteSelectedFiles;
     procedure SelectFile(AName: string);
+    procedure SelectDefaultExtensions;
     procedure PreviewValidate({%H-}ASender: TObject);
     property CurrentFullname: string read GetCurrentFullname;
     property CurrentDirectory: string read GetCurrentDirectory write SetCurrentDirectory;
@@ -151,7 +153,7 @@ type
     property IsSaveDialog: boolean read FIsSaveDialog write SetIsSaveDialog;
     property OverwritePrompt: boolean read FOverwritePrompt write FOverwritePrompt;
     property DefaultExtension: string read FDefaultExtension write FDefaultExtension;
-    property DefaultExtensions: string read FDefaultExtensions write FDefaultExtensions;
+    property DefaultExtensions: string read FDefaultExtensions write SetDefaultExtensions;
     property InitialFilename: string read GetInitialFilename write SetInitialFilename;
     property CurrentExtensionFilter: string read GetCurrentExtensionFilter;
     property Filter: string read FFileExtensionFilter write SetFileExtensionFilter;
@@ -427,15 +429,6 @@ begin
   FreeAndNil(FChosenImage.bmp);
   UpdatePreview;
   UpdateToolButtonOpen;
-  if (FDefaultExtensions<>'') and (ComboBox_FileExtension.ItemIndex = -1) then
-  begin
-    for i := 0 to high(FFileExtensions) do
-      if FFileExtensions[i] = FDefaultExtensions then
-      begin
-        ComboBox_FileExtension.ItemIndex := i;
-        break;
-      end;
-  end;
   if IsSaveDialog then
   begin
     If not AdaptExtension then
@@ -759,6 +752,13 @@ end;
 function TFBrowseImages.GetRememberStartDirectory: boolean;
 begin
   result := CheckBox_UseDirectoryOnStartup.Checked;
+end;
+
+procedure TFBrowseImages.SetDefaultExtensions(AValue: string);
+begin
+  if FDefaultExtensions=AValue then Exit;
+  FDefaultExtensions:=AValue;
+  SelectDefaultExtensions;
 end;
 
 procedure TFBrowseImages.SetFileExtensionFilter(AValue: string);
@@ -1129,8 +1129,12 @@ begin
     ComboBox_FileExtension.Items.Add(parsedExt[i*2]);
   end;
   parsedExt.Free;
+
   if ComboBox_FileExtension.Items.Count > 0 then
+  begin
     ComboBox_FileExtension.ItemIndex := 0;
+    SelectDefaultExtensions;
+  end;
 end;
 
 procedure TFBrowseImages.SetShellMask;
@@ -1209,6 +1213,21 @@ begin
     InFilenameChange := true;
     Edit_Filename.text := ShellListView1.ItemName[idx];
     InFilenameChange := false;
+  end;
+end;
+
+procedure TFBrowseImages.SelectDefaultExtensions;
+var
+  i: Integer;
+begin
+  if FDefaultExtensions <> '' then
+  begin
+    for i := 0 to high(FFileExtensions) do
+      if FFileExtensions[i] = FDefaultExtensions then
+      begin
+        ComboBox_FileExtension.ItemIndex := i;
+        break;
+      end;
   end;
 end;
 

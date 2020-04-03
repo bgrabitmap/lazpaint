@@ -18,7 +18,7 @@ type
     FPrevShadow: boolean;
     FPrevShadowOffset: TPoint;
     FPrevShadowRadius: single;
-    function CreateShape: TVectorShape; override;
+    function ShapeClass: TVectorShapeAny; override;
     function AlwaysRasterizeShape: boolean; override;
     procedure IncludeShadowBounds(var ARect: TRect);
     function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; ADraft: boolean): TRect; override;
@@ -28,10 +28,6 @@ type
     procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     procedure QuickDefineEnd; override;
     function RoundCoordinate(constref ptF: TPointF): TPointF; override;
-    function ForeGradTexMode: TVectorShapeUsermode; override;
-    function BackGradTexMode: TVectorShapeUsermode; override;
-    function ShapeForeFill: TVectorialFill; override;
-    function ShapeBackFill: TVectorialFill; override;
     function DoToolKeyDown(var key: Word): TRect; override;
   public
     constructor Create(AManager: TToolManager); override;
@@ -47,9 +43,9 @@ uses LCVectorTextShapes, BGRALayerOriginal, BGRATransform, BGRAGrayscaleMask,
 
 { TToolText }
 
-function TToolText.CreateShape: TVectorShape;
+function TToolText.ShapeClass: TVectorShapeAny;
 begin
-  result := TTextShape.Create(nil);
+  result := TTextShape;
 end;
 
 function TToolText.AlwaysRasterizeShape: boolean;
@@ -150,9 +146,8 @@ var
   r: TRect;
   toolDest: TBGRABitmap;
   zoom: Single;
-  gradBox: TAffineBox;
-  fitMode: TFitMode;
 begin
+  inherited AssignShapeStyle(AMatrix, AAlwaysFit);
   FMatrix := AMatrix;
   with TTextShape(FShape) do
   begin
@@ -160,27 +155,7 @@ begin
     FontEmHeight:= zoom*Manager.TextFontSize*Manager.Image.DPI/72;
     FontName:= Manager.TextFontName;
     FontStyle:= Manager.TextFontStyle;
-    gradBox := self.SuggestGradientBox;
-
-    if AAlwaysFit then fitMode := fmAlways else fitMode := ForeFitMode;
-    if FSwapColor then
-      AssignFill(FShape.PenFill, Manager.BackFill, gradBox, fitMode)
-    else
-      AssignFill(FShape.PenFill, Manager.ForeFill, gradBox, fitMode);
-
-    if Manager.TextOutline and (Manager.TextOutlineWidth>0) and
-       (Manager.BackColor.alpha > 0) then
-    begin
-      if AAlwaysFit then fitMode := fmAlways else fitMode := BackFitMode;
-      if FSwapColor then
-        AssignFill(FShape.OutlineFill, Manager.ForeFill, gradBox, fitMode)
-      else
-        AssignFill(FShape.OutlineFill, Manager.BackFill, gradBox, fitMode);
-      OutlineWidth := Manager.TextOutlineWidth;
-    end
-    else
-      OutlineFill.Clear;
-
+    Aliased := Manager.ShapeOptionAliasing;
     LightPosition := AMatrix*Manager.LightPosition;
     AltitudePercent:= Manager.PhongShapeAltitude;
     ParagraphAlignment:= Manager.TextAlign;
@@ -206,38 +181,6 @@ begin
   result := PointF(floor(ptF.x)+0.5,floor(ptF.y)+0.5);
 end;
 
-function TToolText.ForeGradTexMode: TVectorShapeUsermode;
-begin
-  if FSwapColor then result := vsuEditOutlineFill else
-    result := vsuEditPenFill;
-end;
-
-function TToolText.BackGradTexMode: TVectorShapeUsermode;
-begin
-  if FSwapColor then result := vsuEditPenFill else
-    result := vsuEditOutlineFill;
-end;
-
-function TToolText.ShapeForeFill: TVectorialFill;
-begin
-  if Assigned(FShape) then
-  begin
-    if FSwapColor then result := FShape.OutlineFill else
-      result := FShape.PenFill;
-  end else
-    result := nil;
-end;
-
-function TToolText.ShapeBackFill: TVectorialFill;
-begin
-  if Assigned(FShape) then
-  begin
-    if FSwapColor then result := FShape.PenFill else
-      result := FShape.OutlineFill;
-  end else
-    result := nil;
-end;
-
 constructor TToolText.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
@@ -246,7 +189,7 @@ end;
 
 function TToolText.GetContextualToolbars: TContextualToolbars;
 begin
-  Result:= [ctPenFill,ctBackFill,ctText];
+  Result:= [ctPenFill,ctText,ctOutlineFill,ctOutlineWidth,ctAliasing];
   if Manager.TextPhong then include(result, ctAltitude);
 end;
 
@@ -263,38 +206,59 @@ begin
   end else
   if (Key = VK_ESCAPE) and Assigned(FShape) then
   begin
-    result := ValidateShape;
+    if FShape.Usermode = vsuEditText then
+      FShape.Usermode := vsuEdit
+    else
+      result := ValidateShape;
     Key := 0;
   end else
   if (Key = VK_RETURN) and Assigned(FShape) then
   begin
     handled := false;
     FShape.KeyDown(ShiftState, skReturn, handled);
-    if handled then Key := 0;
+    if not handled then ValidateShape;
+    Key := 0;
   end else
     Result:=inherited DoToolKeyDown(key);
 end;
 
 function TToolText.ToolCommand(ACommand: TToolCommand): boolean;
 begin
-  case ACommand of
-  tcCopy: Result:= Assigned(FShape) and TTextShape(FShape).CopySelection;
-  tcCut: Result:= Assigned(FShape) and TTextShape(FShape).CutSelection;
-  tcPaste: Result:= Assigned(FShape) and TTextShape(FShape).PasteSelection;
-  tcDelete: Result:= Assigned(FShape) and TTextShape(FShape).DeleteSelection;
+  if Assigned(FShape) and (FShape.Usermode = vsuEditText) then
+    case ACommand of
+    tcCopy: Result:= TTextShape(FShape).CopySelection;
+    tcCut: Result:= TTextShape(FShape).CutSelection;
+    tcPaste: Result:= TTextShape(FShape).PasteSelection;
+    tcDelete: Result:= TTextShape(FShape).DeleteSelection;
+    else
+      result := inherited ToolCommand(ACommand);
+    end
   else
-    result := inherited ToolCommand(ACommand);
-  end;
+    case ACommand of
+    tcDelete:
+      if Assigned(FShape) then
+      begin
+        CancelShape;
+        result := true;
+      end else result := false;
+    else result := inherited ToolCommand(ACommand);
+    end;
 end;
 
 function TToolText.ToolProvideCommand(ACommand: TToolCommand): boolean;
 begin
-  case ACommand of
-  tcCopy,tcCut,tcDelete: result := Assigned(FShape) and TTextShape(FShape).HasSelection;
-  tcPaste: result := Assigned(FShape);
+  if Assigned(FShape) and (FShape.Usermode = vsuEditText) then
+    case ACommand of
+    tcCopy,tcCut,tcDelete: result := TTextShape(FShape).HasSelection;
+    tcPaste: result := true;
+    else
+      result := inherited ToolProvideCommand(ACommand);
+    end
   else
-    result := inherited ToolProvideCommand(ACommand);
-  end;
+    case ACommand of
+    tcDelete: result := Assigned(FShape);
+    else result := inherited ToolProvideCommand(ACommand);
+    end;
 end;
 
 initialization

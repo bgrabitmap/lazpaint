@@ -62,10 +62,9 @@ type
     procedure OnMoveXYNegCornerAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnMoveXNegYNegCornerAlt({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; {%H-}APointIndex: integer; {%H-}AShift: TShiftState);
-    procedure UpdateFillMatrixFromRect;
+    procedure UpdateFillFromRectDiff;
     function GetCornerPositition: single; virtual; abstract;
     function GetOrthoRect(AMatrix: TAffineMatrix; out ARect: TRectF): boolean;
-    function AllowShearTransform: boolean; virtual;
     function ShowArrows: boolean; virtual;
     procedure SetOrigin(AValue: TPointF);
     function GetHeight: single;
@@ -82,7 +81,7 @@ type
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; {%H-}AOptions: TRenderBoundsOptions = []): TRectF; override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     function GetAffineBox(const AMatrix: TAffineMatrix; APixelCentered: boolean): TAffineBox;
-    procedure Transform(const AMatrix: TAffineMatrix); override;
+    procedure TransformFrame(const AMatrix: TAffineMatrix); override;
     procedure AlignTransform(const AMatrix: TAffineMatrix); override;
     property Origin: TPointF read FOrigin write SetOrigin;
     property XAxis: TPointF read FXAxis write SetXAxis;
@@ -96,15 +95,15 @@ type
 
   TRectShape = class(TCustomRectShape)
   protected
-    function PenVisible(AAssumePenFill: boolean = false): boolean;
-    function BackVisible: boolean;
     function GetCornerPositition: single; override;
   public
     class function Fields: TVectorShapeFields; override;
-    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
+    function PointInBack(APoint: TPointF): boolean; overload; override;
+    function PointInPen(APoint: TPointF): boolean; overload; override;
     function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
@@ -113,17 +112,17 @@ type
 
   TEllipseShape = class(TCustomRectShape)
   protected
-    function PenVisible(AAssumePenFill: boolean = false): boolean;
-    function BackVisible: boolean;
     function GetCornerPositition: single; override;
   public
     constructor Create(AContainer: TVectorOriginal); override;
     class function Fields: TVectorShapeFields; override;
     function GetAlignBounds(const {%H-}ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
-    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
+    function PointInBack(APoint: TPointF): boolean; overload; override;
+    function PointInPen(APoint: TPointF): boolean; overload; override;
     function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     class function StorageClassName: RawByteString; override;
   end;
@@ -171,10 +170,7 @@ type
     procedure SetLightPosition(AValue: TPointF);
     procedure SetShapeAltitudePercent(AValue: single);
     procedure SetShapeKind(AValue: TPhongShapeKind);
-    function BackVisible: boolean;
     function GetEnvelope: ArrayOfTPointF;
-  protected
-    function AllowShearTransform: boolean; override;
   public
     constructor Create(AContainer: TVectorOriginal); override;
     destructor Destroy; override;
@@ -186,13 +182,15 @@ type
     procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
-    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); override;
+    procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
+    function PointInBack(APoint: TPointF): boolean; overload; override;
     function GetIsSlow(const AMatrix: TAffineMatrix): boolean; override;
     function GetGenericCost: integer; override;
     procedure Transform(const AMatrix: TAffineMatrix); override;
+    function AllowShearTransform: boolean; override;
     class function StorageClassName: RawByteString; override;
     property ShapeKind: TPhongShapeKind read FShapeKind write SetShapeKind;
     property LightPosition: TPointF read FLightPosition write SetLightPosition;
@@ -354,8 +352,7 @@ begin
   FOrigin := AValue;
   FXAxis := t*FXAxis;
   FYAxis := t*FYAxis;
-  if vsfBackFill in Fields then BackFill.Transform(t);
-  if vsfPenFill in Fields then PenFill.Transform(t);
+  TransformFill(t, False);
   EndUpdate;
 end;
 
@@ -499,7 +496,7 @@ begin
     end;
   end;
   EnsureRatio(-AFactor,0);
-  UpdateFillMatrixFromRect;
+  UpdateFillFromRectDiff;
   EndUpdate;
 end;
 
@@ -538,7 +535,7 @@ begin
     end;
   end;
   EnsureRatio(0,-AFactor);
-  UpdateFillMatrixFromRect;
+  UpdateFillFromRectDiff;
   EndUpdate;
 end;
 
@@ -598,7 +595,7 @@ begin
     end;
   end;
   EnsureRatio(-AFactorX,-AFactorY);
-  UpdateFillMatrixFromRect;
+  UpdateFillFromRectDiff;
   EndUpdate;
 end;
 
@@ -719,18 +716,15 @@ begin
   FMatrixBackup := AffineMatrix(FXAxis-FOrigin, FYAxis-FOrigin, FOrigin);
 end;
 
-procedure TCustomRectShape.UpdateFillMatrixFromRect;
+procedure TCustomRectShape.UpdateFillFromRectDiff;
 var
   newMatrix, matrixDiff: TAffineMatrix;
 begin
   newMatrix := AffineMatrix(FXAxis-FOrigin, FYAxis-FOrigin, FOrigin);
   if IsAffineMatrixInversible(newMatrix) and IsAffineMatrixInversible(FMatrixBackup) then
   begin
-    if vsfBackFill in Fields then
-    begin
-      matrixDiff := newMatrix*AffineMatrixInverse(FMatrixBackup);
-      BackFill.Transform(matrixDiff);
-    end;
+    matrixDiff := newMatrix*AffineMatrixInverse(FMatrixBackup);
+    TransformFill(matrixDiff, True);
     FMatrixBackup := newMatrix;
   end;
 end;
@@ -747,7 +741,7 @@ begin
       FXAxis - (FYAxis - FOrigin), FYAxis - (FXAxis - FOrigin));
 end;
 
-procedure TCustomRectShape.Transform(const AMatrix: TAffineMatrix);
+procedure TCustomRectShape.TransformFrame(const AMatrix: TAffineMatrix);
 var
   m: TAffineMatrix;
 begin
@@ -756,7 +750,6 @@ begin
   FOrigin := m*FOrigin;
   FXAxis := m*FXAxis;
   FYAxis := m*FYAxis;
-  inherited Transform(AMatrix);
   EndUpdate;
 end;
 
@@ -786,11 +779,6 @@ begin
     ARect := EmptyRectF;
     exit(false);
   end;
-end;
-
-function TCustomRectShape.AllowShearTransform: boolean;
-begin
-  result := true;
 end;
 
 function TCustomRectShape.ShowArrows: boolean;
@@ -899,16 +887,6 @@ end;
 
 { TRectShape }
 
-function TRectShape.PenVisible(AAssumePenFill: boolean): boolean;
-begin
-  result := (PenWidth>0) and not IsClearPenStyle(PenStyle) and (not PenFill.IsFullyTransparent or AAssumePenFill);
-end;
-
-function TRectShape.BackVisible: boolean;
-begin
-  result := not BackFill.IsFullyTransparent;
-end;
-
 function TRectShape.GetCornerPositition: single;
 begin
   result := 1;
@@ -919,24 +897,24 @@ var
   ab: TAffineBox;
   backSurface, totalSurface, penSurface: Single;
 begin
-  if not PenVisible and not BackVisible then
+  if not GetPenVisible and not GetBackVisible then
     result := false
   else
   begin
     ab := GetAffineBox(AMatrix, true);
     backSurface := ab.Surface;
-    if PenVisible then
+    if GetPenVisible then
     begin
       penSurface := (ab.Width+ab.Height)*2*PenWidth;
-      if BackVisible then
+      if GetBackVisible then
         totalSurface:= backSurface+penSurface/2
       else
         totalSurface := penSurface;
     end else
       totalSurface := backSurface;
     result := (totalSurface > 800*600) or
-              ((backSurface > 320*240) and BackVisible and BackFill.IsSlow(AMatrix)) or
-              ((penSurface > 320*240) and PenVisible and PenFill.IsSlow(AMatrix));
+              ((backSurface > 320*240) and GetBackVisible and BackFill.IsSlow(AMatrix)) or
+              ((penSurface > 320*240) and GetPenVisible and PenFill.IsSlow(AMatrix));
   end;
 end;
 
@@ -957,7 +935,7 @@ var
   i: Integer;
 begin
   pts := GetAffineBox(AMatrix, true).AsPolygon;
-  If BackVisible then
+  If GetBackVisible then
   begin
     if (BackFill.FillType = vftSolid) then backScan := nil
     else backScan := BackFill.CreateScanner(AMatrix, ADraft);
@@ -1022,7 +1000,7 @@ begin
 
     backScan.Free;
   end;
-  if PenVisible then
+  if GetPenVisible then
   begin
     if (PenFill.FillType = vftSolid) then penScan := nil
     else penScan := PenFill.CreateScanner(AMatrix, ADraft);
@@ -1051,12 +1029,12 @@ var
   pts: ArrayOfTPointF;
   xMargin, yMargin: single;
 begin
-  if not (BackVisible or (rboAssumeBackFill in AOptions)) and not PenVisible(rboAssumePenFill in AOptions) then
+  if not (GetBackVisible or (rboAssumeBackFill in AOptions)) and not GetPenVisible(rboAssumePenFill in AOptions) then
     result:= EmptyRectF
   else
   begin
     result := inherited GetRenderBounds(ADestRect, AMatrix, AOptions);
-    if PenVisible(rboAssumePenFill in AOptions) then
+    if GetPenVisible(rboAssumePenFill in AOptions) then
     begin
       if (JoinStyle <> pjsMiter) or (Stroker.MiterLimit <= 1) then
       begin
@@ -1087,9 +1065,9 @@ var
   box: TAffineBox;
 begin
   box := GetAffineBox(AffineMatrixIdentity, true);
-  if BackVisible and box.Contains(APoint) then
+  if GetBackVisible and box.Contains(APoint) then
     result := true else
-  if PenVisible then
+  if GetPenVisible then
   begin
     pts := ComputeStroke(box.AsPolygon, true, AffineMatrixIdentity);
     result:= IsPointInPolygon(pts, APoint, true);
@@ -1102,7 +1080,7 @@ var
   pts: ArrayOfTPointF;
   box: TAffineBox;
 begin
-  if PenVisible or BackVisible then
+  if GetPenVisible or GetBackVisible then
   begin
     box := GetAffineBox(AffineMatrixIdentity, true);
     pts := ComputeStrokeEnvelope(box.AsPolygon, true, ARadius*2);
@@ -1111,22 +1089,44 @@ begin
   else result := false;
 end;
 
+function TRectShape.PointInBack(APoint: TPointF): boolean;
+var
+  box: TAffineBox;
+  scan: TBGRACustomScanner;
+begin
+  if GetBackVisible then
+  begin
+    box := GetAffineBox(AffineMatrixIdentity, true);
+    result := box.Contains(APoint);
+    if result and (BackFill.FillType = vftTexture) then
+    begin
+      scan := BackFill.CreateScanner(AffineMatrixIdentity, false);
+      if scan.ScanAt(APoint.X,APoint.Y).alpha = 0 then result := false;
+      scan.Free;
+    end;
+  end else
+    result := false;
+end;
+
+function TRectShape.PointInPen(APoint: TPointF): boolean;
+var
+  pts: ArrayOfTPointF;
+begin
+  if GetPenVisible then
+  begin
+    pts := GetAffineBox(AffineMatrixIdentity, true).AsPolygon;
+    pts := ComputeStroke(pts,true, AffineMatrixIdentity);
+    result:= IsPointInPolygon(pts, APoint, true);
+  end else
+    result := false;
+end;
+
 class function TRectShape.StorageClassName: RawByteString;
 begin
   result := 'rect';
 end;
 
 { TEllipseShape }
-
-function TEllipseShape.PenVisible(AAssumePenFill: boolean): boolean;
-begin
-  result := (PenWidth>0) and not IsClearPenStyle(PenStyle) and (not PenFill.IsFullyTransparent or AAssumePenFill);
-end;
-
-function TEllipseShape.BackVisible: boolean;
-begin
-  result := not BackFill.IsFullyTransparent;
-end;
 
 function TEllipseShape.GetCornerPositition: single;
 begin
@@ -1171,7 +1171,7 @@ begin
   IncludePoint(m*YAxis);
   IncludePoint(m*(Origin-(XAxis-Origin)));
   IncludePoint(m*(Origin-(YAxis-Origin)));
-  if PenVisible then
+  if GetPenVisible then
   begin
     zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
     result.Left -= zoom*PenWidth/2;
@@ -1198,7 +1198,7 @@ begin
   begin
     center := (orthoRect.TopLeft+orthoRect.BottomRight)*0.5;
     radius := (orthoRect.BottomRight-orthoRect.TopLeft)*0.5;
-    If BackVisible then
+    If GetBackVisible then
     begin
       if BackFill.FillType = vftSolid then backScan := nil
       else backScan := BackFill.CreateScanner(AMatrix, ADraft);
@@ -1219,7 +1219,7 @@ begin
 
       backScan.Free;
     end;
-    if PenVisible then
+    if GetPenVisible then
     begin
       if PenFill.FillType = vftSolid then penScan := nil
       else penScan := PenFill.CreateScanner(AMatrix, ADraft);
@@ -1263,7 +1263,7 @@ begin
   begin
     m:= MatrixForPixelCentered(AMatrix);
     pts := ComputeEllipse(m*FOrigin, m*FXAxis, m*FYAxis);
-    If BackVisible then
+    If GetBackVisible then
     begin
       if BackFill.FillType = vftSolid then backScan := nil
       else backScan := BackFill.CreateScanner(AMatrix, ADraft);
@@ -1283,7 +1283,7 @@ begin
 
       backScan.Free;
     end;
-    if PenVisible then
+    if GetPenVisible then
     begin
       if PenFill.FillType = vftSolid then penScan := nil
       else penScan := PenFill.CreateScanner(AMatrix, ADraft);
@@ -1311,12 +1311,12 @@ function TEllipseShape.GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMa
 var
   xMargin, yMargin: single;
 begin
-  if not (BackVisible or (rboAssumeBackFill in AOptions)) and not PenVisible(rboAssumePenFill in AOptions) then
+  if not (GetBackVisible or (rboAssumeBackFill in AOptions)) and not GetPenVisible(rboAssumePenFill in AOptions) then
     result:= EmptyRectF
   else
   begin
     result := inherited GetRenderBounds(ADestRect, AMatrix, AOptions);
-    if PenVisible(rboAssumePenFill in AOptions) then
+    if GetPenVisible(rboAssumePenFill in AOptions) then
     begin
       xMargin := (abs(AMatrix[1,1])+abs(AMatrix[1,2]))*PenWidth*0.5;
       yMargin := (abs(AMatrix[2,1])+abs(AMatrix[2,2]))*PenWidth*0.5;
@@ -1333,9 +1333,9 @@ var
   pts: ArrayOfTPointF;
 begin
   pts := ComputeEllipse(FOrigin, FXAxis, FYAxis);
-  if BackVisible and IsPointInPolygon(pts, APoint, true) then
+  if GetBackVisible and IsPointInPolygon(pts, APoint, true) then
     result := true else
-  if PenVisible then
+  if GetPenVisible then
   begin
     pts := ComputeStroke(pts, true, AffineMatrixIdentity);
     result:= IsPointInPolygon(pts, APoint, true);
@@ -1347,10 +1347,42 @@ function TEllipseShape.PointInShape(APoint: TPointF; ARadius: single): boolean;
 var
   pts: ArrayOfTPointF;
 begin
-  if PenVisible or BackVisible then
+  if GetPenVisible or GetBackVisible then
   begin
     pts := ComputeEllipse(FOrigin, FXAxis, FYAxis);
     pts := ComputeStrokeEnvelope(pts, true, ARadius*2);
+    result:= IsPointInPolygon(pts, APoint, true);
+  end else
+    result := false;
+end;
+
+function TEllipseShape.PointInBack(APoint: TPointF): boolean;
+var
+  pts: ArrayOfTPointF;
+  scan: TBGRACustomScanner;
+begin
+  if GetBackVisible then
+  begin
+    pts := ComputeEllipse(FOrigin, FXAxis, FYAxis);
+    result:= IsPointInPolygon(pts, APoint, true);
+    if result and (BackFill.FillType = vftTexture) then
+    begin
+      scan := BackFill.CreateScanner(AffineMatrixIdentity, false);
+      if scan.ScanAt(APoint.X,APoint.Y).alpha = 0 then result := false;
+      scan.Free;
+    end;
+  end else
+    result := false;
+end;
+
+function TEllipseShape.PointInPen(APoint: TPointF): boolean;
+var
+  pts: ArrayOfTPointF;
+begin
+  if GetPenVisible then
+  begin
+    pts := ComputeEllipse(FOrigin, FXAxis, FYAxis);
+    pts := ComputeStroke(pts,true, AffineMatrixIdentity);
     result:= IsPointInPolygon(pts, APoint, true);
   end else
     result := false;
@@ -1361,24 +1393,24 @@ var
   ab: TAffineBox;
   backSurface, totalSurface, penSurface: Single;
 begin
-  if not PenVisible and not BackVisible then
+  if not GetPenVisible and not GetBackVisible then
     result := false
   else
   begin
     ab := GetAffineBox(AMatrix, true);
     backSurface := ab.Surface*Pi/4;
-    if PenVisible then
+    if GetPenVisible then
     begin
       penSurface := (ab.Width+ab.Height)*(Pi/2)*PenWidth;
-      if BackVisible then
+      if GetBackVisible then
         totalSurface:= backSurface+penSurface/2
       else
         totalSurface := penSurface;
     end else
       totalSurface := backSurface;
     result := (totalSurface > 640*480) or
-              ((backSurface > 320*240) and BackVisible and BackFill.IsSlow(AMatrix)) or
-              ((penSurface > 320*240) and PenVisible and PenFill.IsSlow(AMatrix));
+              ((backSurface > 320*240) and GetBackVisible and BackFill.IsSlow(AMatrix)) or
+              ((penSurface > 320*240) and GetPenVisible and PenFill.IsSlow(AMatrix));
   end;
 end;
 
@@ -1425,11 +1457,6 @@ begin
   BeginUpdate(TPhongShapeDiff);
   FShapeAltitudePercent:=AValue;
   EndUpdate;
-end;
-
-function TPhongShape.BackVisible: boolean;
-begin
-  result := not BackFill.IsFullyTransparent;
 end;
 
 function TPhongShape.GetEnvelope: ArrayOfTPointF;
@@ -1605,7 +1632,7 @@ var
   rectRenderF,rectRasterF: TRectF;
   rectRender,rectRaster, prevClip: TRect;
 begin
-  if not BackVisible then exit;
+  if not GetBackVisible then exit;
 
   //determine final render bounds
   rectRenderF := GetRenderBounds(InfiniteRect,AMatrix);
@@ -1733,7 +1760,7 @@ end;
 function TPhongShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix;
   AOptions: TRenderBoundsOptions): TRectF;
 begin
-  if not (BackVisible or (rboAssumeBackFill in AOptions)) then
+  if not (GetBackVisible or (rboAssumeBackFill in AOptions)) then
     result:= EmptyRectF
   else
     result := inherited GetRenderBounds(ADestRect, AMatrix, AOptions);
@@ -1743,7 +1770,7 @@ function TPhongShape.PointInShape(APoint: TPointF): boolean;
 var
   pts: ArrayOfTPointF;
 begin
-  if not BackVisible then exit(false);
+  if not GetBackVisible then exit(false);
   pts := GetEnvelope;
   result := IsPointInPolygon(pts, APoint, true);
 end;
@@ -1752,7 +1779,7 @@ function TPhongShape.PointInShape(APoint: TPointF; ARadius: single): boolean;
 var
   pts: ArrayOfTPointF;
 begin
-  if BackVisible then
+  if GetBackVisible then
   begin
     pts := ComputeStrokeEnvelope(GetEnvelope, true, ARadius*2);
     result:= IsPointInPolygon(pts, APoint, true);
@@ -1760,11 +1787,24 @@ begin
     else result := false;
 end;
 
+function TPhongShape.PointInBack(APoint: TPointF): boolean;
+var
+  scan: TBGRACustomScanner;
+begin
+  result := PointInShape(APoint);
+  if result and (BackFill.FillType = vftTexture) then
+  begin
+    scan := BackFill.CreateScanner(AffineMatrixIdentity, false);
+    if scan.ScanAt(APoint.X,APoint.Y).alpha = 0 then result := false;
+    scan.Free;
+  end;
+end;
+
 function TPhongShape.GetIsSlow(const AMatrix: TAffineMatrix): boolean;
 var
   ab: TAffineBox;
 begin
-  if not BackVisible then exit(false);
+  if not GetBackVisible then exit(false);
   ab := GetAffineBox(AMatrix, true);
   result := ab.Surface > 320*240;
 end;

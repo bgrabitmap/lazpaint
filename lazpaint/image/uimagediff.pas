@@ -340,10 +340,14 @@ type
     FPreviousLayerContent: TStoredLayer;
     FPrevMatrix,FNextMatrix: TAffineMatrix;
     FSourceBounds: TRect;
+    FSourceLayerId: integer;
     FOriginalGuid: TGUID;
     function GetImageDifferenceKind: TImageDifferenceKind; override;
     function CreateOriginal(AState: TState; ALayerIndex: integer): TBGRALayerCustomOriginal; virtual; abstract;
     function ShouldRenderOriginal: boolean; virtual;
+    procedure StorePreviousLayer(AImgState: TImageState; ALayerIndex: integer;
+      AAlwaysStoreBitmap: boolean); virtual;
+    procedure CustomUnapplyto(AState: TState);
   public
     constructor Create(AFromState: TState; AIndex: integer; AAlwaysStoreBitmap: boolean);
     function UsedMemory: int64; override;
@@ -383,7 +387,14 @@ type
 
   TReplaceLayerByImageOriginalDifference = class(TReplaceLayerByOriginalDifference)
   protected
+    FSourceStoredInOriginal: boolean;
+    procedure StorePreviousLayer(AImgState: TImageState; ALayerIndex: integer;
+      AAlwaysStoreBitmap: boolean); override;
     function CreateOriginal(AState: TState; ALayerIndex: integer): TBGRALayerCustomOriginal; override;
+  public
+    function UsedMemory: int64; override;
+    function TryCompress: boolean; override;
+    procedure UnapplyTo(AState: TState); override;
   end;
 
   { TReplaceLayerByVectorOriginalDifference }
@@ -1130,6 +1141,15 @@ end;
 
 { TReplaceLayerByImageOriginalDifference }
 
+procedure TReplaceLayerByImageOriginalDifference.StorePreviousLayer(
+  AImgState: TImageState; ALayerIndex: integer; AAlwaysStoreBitmap: boolean);
+begin
+  if not AImgState.LayerOriginalDefined[ALayerIndex] then
+    FSourceStoredInOriginal:= true
+  else
+    inherited StorePreviousLayer(AImgState, ALayerIndex, AAlwaysStoreBitmap);
+end;
+
 function TReplaceLayerByImageOriginalDifference.CreateOriginal(AState: TState; ALayerIndex: integer): TBGRALayerCustomOriginal;
 var
   source: TBGRABitmap;
@@ -1148,6 +1168,40 @@ begin
   end else
     orig.AssignImage(source);
   result := orig;
+end;
+
+function TReplaceLayerByImageOriginalDifference.UsedMemory: int64;
+begin
+  if FSourceStoredInOriginal then
+    result := 0
+  else
+    Result:=inherited UsedMemory;
+end;
+
+function TReplaceLayerByImageOriginalDifference.TryCompress: boolean;
+begin
+  if FSourceStoredInOriginal then
+    result := false
+  else Result:=inherited TryCompress;
+end;
+
+procedure TReplaceLayerByImageOriginalDifference.UnapplyTo(AState: TState);
+var
+  imgState: TImageState;
+  layerIdx: Integer;
+  bmp: TBGRABitmap;
+begin
+  if FSourceStoredInOriginal then
+  begin
+    CustomUnapplyto(AState);
+    imgState := AState as TImageState;
+    layerIdx := imgState.LayeredBitmap.GetLayerIndexFromId(LayerId);
+    bmp := (imgState.LayeredBitmap.LayerOriginal[layerIdx] as TBGRALayerImageOriginal).GetImageCopy;
+    imgState.LayeredBitmap.SetLayerBitmap(layerIdx, bmp, True);
+    imgState.LayeredBitmap.LayerOffset[layerIdx] := Point(round(FPrevMatrix[1,3]), round(FPrevMatrix[2,3]));
+    imgState.LayeredBitmap.RemoveUnusedOriginals;
+  end else
+    inherited UnapplyTo(AState);
 end;
 
 { TSelectionTransformDifference }
@@ -1255,7 +1309,7 @@ end;
 
 function TReplaceLayerByOriginalDifference.GetLayerId: integer;
 begin
-  result := FPreviousLayerContent.LayerId;
+  result := FSourceLayerId;
 end;
 
 function TReplaceLayerByOriginalDifference.GetImageDifferenceKind: TImageDifferenceKind;
@@ -1268,6 +1322,17 @@ begin
   result := false;
 end;
 
+procedure TReplaceLayerByOriginalDifference.StorePreviousLayer(
+  AImgState: TImageState; ALayerIndex: integer; AAlwaysStoreBitmap: boolean);
+begin
+  FPreviousLayerContent := TStoredLayer.Create(AImgState.LayeredBitmap, ALayerIndex, AAlwaysStoreBitmap);
+end;
+
+procedure TReplaceLayerByOriginalDifference.CustomUnapplyto(AState: TState);
+begin
+  inherited UnapplyTo(AState);
+end;
+
 constructor TReplaceLayerByOriginalDifference.Create(
   AFromState: TState; AIndex: integer; AAlwaysStoreBitmap: boolean);
 var
@@ -1275,9 +1340,10 @@ var
 begin
   inherited Create(AFromState);
   imgState := AFromState as TImageState;
-  FPreviousLayerContent := TStoredLayer.Create(imgState.LayeredBitmap, AIndex, AAlwaysStoreBitmap);
   FSourceBounds := imgState.LayeredBitmap.LayerBitmap[AIndex].GetImageBounds;
-  with FPreviousLayerContent.Offset do FPrevMatrix := AffineMatrixTranslation(x+FSourceBounds.Left,y+FSourceBounds.Top);
+  FSourceLayerId := imgState.LayeredBitmap.LayerUniqueId[AIndex];
+  with imgState.LayeredBitmap.LayerOffset[AIndex] do FPrevMatrix := AffineMatrixTranslation(x+FSourceBounds.Left,y+FSourceBounds.Top);
+  StorePreviousLayer(imgState, AIndex, AAlwaysStoreBitmap);
   FNextMatrix := FPrevMatrix;
   ApplyTo(imgState);
 end;
@@ -1300,7 +1366,7 @@ var
 begin
   inherited ApplyTo(AState);
   imgState := AState as TImageState;
-  layerIdx := imgState.LayeredBitmap.GetLayerIndexFromId(FPreviousLayerContent.LayerId);
+  layerIdx := imgState.LayeredBitmap.GetLayerIndexFromId(FSourceLayerId);
   orig := CreateOriginal(imgState, layerIdx);
   if FOriginalGuid <> GUID_NULL then orig.Guid := FOriginalGuid;
   origIndex := imgState.LayeredBitmap.AddOriginal(orig, true);
@@ -1321,7 +1387,7 @@ procedure TReplaceLayerByOriginalDifference.UnapplyTo(AState: TState);
 var
   imgState: TImageState;
 begin
-  inherited UnapplyTo(AState);
+  CustomUnapplyto(AState);
   imgState := AState as TImageState;
   FPreviousLayerContent.Replace(imgState.LayeredBitmap);
 end;

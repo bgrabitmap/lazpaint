@@ -10,6 +10,7 @@ uses
 
 type
   TTextureRepetition = (trNone, trRepeatX, trRepeatY, trRepeatBoth);
+  TTransparentMode = (tmEnforeAllChannelsZero, tmAlphaZeroOnly, tmNoFill);
   TVectorialFillType = (vftNone, vftSolid, vftGradient, vftTexture);
   TVectorialFillTypes = set of TVectorialFillType;
   TVectorialFill = class;
@@ -44,6 +45,7 @@ type
   TVectorialFillDiff = class(TCustomVectorialFillDiff)
   protected
     FStart,FEnd: TVectorialFill;
+    FTransparentMode: TTransparentMode;
   public
     constructor Create(AFrom: TVectorialFill);
     procedure ComputeDiff(ATo: TVectorialFill);
@@ -68,6 +70,7 @@ type
     FTextureRepetition: TTextureRepetition;
     FTextureAverageColor: TBGRAPixel;
     FTextureAverageColorComputed: boolean;
+    FTransparentMode: TTransparentMode;
     FGradient: TBGRALayerGradientOriginal;
     FOnChange: TVectorialFillChangeEvent;
     FOnBeforeChange: TNotifyEvent;
@@ -81,6 +84,7 @@ type
     procedure SetTextureMatrix(AValue: TAffineMatrix);
     procedure SetTextureOpacity(AValue: byte);
     procedure SetTextureRepetition(AValue: TTextureRepetition);
+    procedure SetTransparentMode(AValue: TTransparentMode);
     procedure InternalClear;
     procedure BeginUpdate;
     procedure EndUpdate;
@@ -129,6 +133,7 @@ type
     property TextureRepetition: TTextureRepetition read FTextureRepetition write SetTextureRepetition;
     property OnChange: TVectorialFillChangeEvent read FOnChange write SetOnChange;
     property OnBeforeChange: TNotifyEvent read FOnBeforeChange write FOnBeforeChange;
+    property TransparentMode: TTransparentMode read FTransparentMode write SetTransparentMode;
   end;
 
 implementation
@@ -140,12 +145,14 @@ uses BGRAGradientScanner, BGRABlend, LCResourceString;
 constructor TVectorialFillDiff.Create(AFrom: TVectorialFill);
 begin
   FStart := TVectorialFill.Create;
+  FStart.TransparentMode:= AFrom.TransparentMode;
   FStart.Assign(AFrom);
 end;
 
 procedure TVectorialFillDiff.ComputeDiff(ATo: TVectorialFill);
 begin
   FEnd := TVectorialFill.Create;
+  FEnd.TransparentMode := ATo.TransparentMode;
   FEnd.Assign(ATo);
 end;
 
@@ -401,6 +408,7 @@ begin
   FTextureAverageColorComputed:= false;
   FGradient := nil;
   FIsSolid := false;
+  FTransparentMode := tmEnforeAllChannelsZero;
 end;
 
 function TVectorialFill.GetIsEditable: boolean;
@@ -446,13 +454,31 @@ begin
   end;
 end;
 
+procedure TVectorialFill.SetTransparentMode(AValue: TTransparentMode);
+begin
+  if FTransparentMode=AValue then Exit;
+  if (FillType = vftSolid) and (SolidColor.alpha = 0) then
+  begin
+    case FTransparentMode of
+    tmNoFill: Clear;
+    tmEnforeAllChannelsZero: SolidColor := BGRAPixelTransparent;
+    end;
+  end;
+  FTransparentMode:=AValue;
+end;
+
 procedure TVectorialFill.GradientChange(ASender: TObject; ABounds: PRectF; var ADiff: TBGRAOriginalDiff);
 var
   fillDiff: TVectorialFillGradientDiff;
 begin
+  if Assigned(FDiff) then
+  begin
+    FreeAndNil(ADiff);
+    exit;
+  end;
   if Assigned(OnChange) then
   begin
-    if Assigned(FDiff) then
+    if Assigned(ADiff) then
     begin
       fillDiff := TVectorialFillGradientDiff.Create(ADiff as TBGRAGradientOriginalDiff);
       ADiff := nil;
@@ -501,10 +527,14 @@ end;
 
 procedure TVectorialFill.SetSolid(AColor: TBGRAPixel);
 begin
-  if (FillType = vftSolid) and (SolidColor = AColor) then exit;
+  if AColor.alpha = 0 then
+  case TransparentMode of
+  tmNoFill: begin Clear; exit; end;
+  tmEnforeAllChannelsZero: AColor := BGRAPixelTransparent;
+  end;
+  if (FillType = vftSolid) and SolidColor.EqualsExactly(AColor) then exit;
   BeginUpdate;
   InternalClear;
-  if AColor.alpha = 0 then AColor := BGRAPixelTransparent;
   FColor := AColor;
   FIsSolid:= true;
   EndUpdate;
@@ -635,7 +665,7 @@ begin
     else
     begin
       case other.FillType of
-      vftSolid: result := (FillType = vftSolid) and (other.SolidColor = SolidColor);
+      vftSolid: result := (FillType = vftSolid) and other.SolidColor.EqualsExactly(SolidColor);
       vftGradient: result := (FillType = vftGradient) and (other.Gradient.Equals(Gradient));
       vftTexture: result := (FillType = vftTexture) and (other.Texture = Texture) and
                        (other.TextureMatrix = TextureMatrix) and (other.TextureOpacity = TextureOpacity)
@@ -727,7 +757,7 @@ begin
   end;
 end;
 
-procedure TVectorialFill.ApplyOpacity(AOpacity: byte);
+procedure TVectorialFill.ApplyOpacity(AOpacity: Byte);
 var
   c: TBGRAPixel;
 begin

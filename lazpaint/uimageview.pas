@@ -16,6 +16,7 @@ type
   TImageView = class
   protected
     FVirtualScreen : TBGRABitmap;
+    FUpdatingPopup: boolean;
     FPenCursorVisible: boolean;
     FPenCursorPos,FPenCursorPosBefore: TVSCursorPosition;
     FQueryPaintVirtualScreen: boolean;
@@ -35,7 +36,7 @@ type
     FZoom: TZoom;
     FPictureCanvas: TCanvas;
     function GetImage: TLazPaintImage;
-    function GetRenderUpdateRectVS(AIncludeLastToolState: boolean): TRect;
+    function GetRenderUpdateRectVS(AIncludeCurrentToolEditor: boolean): TRect;
     function GetFillSelectionHighlight: boolean;
     function GetPenCursorPosition: TVSCursorPosition;
     function GetWorkspaceColor: TColor;
@@ -47,6 +48,7 @@ type
     procedure SetFillSelectionHighlight(AValue: boolean);
     procedure SetShowSelection(AValue: boolean);
     procedure PictureSelectionChanged({%H-}sender: TLazPaintImage; const ARect: TRect);
+    procedure ToolManagerRenderChanged(Sender: TObject);
     procedure PaintVirtualScreenCursor({%H-}ACanvasOfs: TPoint; {%H-}AWorkArea: TRect; {%H-}AWinControlOfs: TPoint; {%H-}AWinControl: TWinControl);
     function GetRectToInvalidate(AInvalidateAll: boolean; AWorkArea: TRect): TRect;
     function GetPictureCoordsDefined: boolean;
@@ -73,6 +75,7 @@ type
     property ShowSelection: boolean read FShowSelection write SetShowSelection;
     property WorkspaceColor: TColor read GetWorkspaceColor;
     property PictureCoordsDefined: boolean read GetPictureCoordsDefined;
+    property UpdatingPopup: boolean read FUpdatingPopup write FUpdatingPopup;
   end;
 
 implementation
@@ -106,6 +109,13 @@ end;
 function TImageView.GetPictureCoordsDefined: boolean;
 begin
   result := FLastPictureParameters.defined;
+end;
+
+procedure TImageView.ToolManagerRenderChanged(Sender: TObject);
+begin
+  if Assigned(FVirtualScreen) then
+    Image.RenderMayChange(LazPaintInstance.ToolManager.GetRenderBounds(
+                            FVirtualScreen.Width, FVirtualScreen.Height));
 end;
 
 function TImageView.GetImage: TLazPaintImage;
@@ -159,32 +169,39 @@ begin
     FreeAndNil(FVirtualScreen);
 
   if not Assigned(FVirtualScreen) then
+  begin
     FVirtualScreen := TBGRABitmap.Create(FLastPictureParameters.virtualScreenArea.Right-FLastPictureParameters.virtualScreenArea.Left,
                                         FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top, WorkspaceColor);
-
-  if picParamWereDefined then FVirtualScreen.ClipRect := GetRenderUpdateRectVS(False);
-  Image.ResetRenderUpdateRect;
-
-  if not FVirtualScreen.ClipRect.IsEmpty then
+  end else
   begin
-    renderRect := FLastPictureParameters.scaledArea;
-    OffsetRect(renderRect, -FLastPictureParameters.virtualScreenArea.Left,
-                           -FLastPictureParameters.virtualScreenArea.Top);
-
-    DrawThumbnailCheckers(FVirtualScreen,renderRect,Image.IsIconCursor);
-
-    //draw image (with merged selection)
-    FVirtualScreen.StretchPutImage(renderRect,Image.RenderedImage,dmDrawWithTransparency);
-    if (Zoom.Factor > DoScaleX(MinZoomForGrid, OriginalDPI)) and LazPaintInstance.GridVisible then
-      DrawGrid(FVirtualScreen,FLastPictureParameters.zoomFactorX,FLastPictureParameters.zoomFactorY,
-         FLastPictureParameters.originInVS.X,FLastPictureParameters.originInVS.Y);
-
-    DrawSelectionHighlight(renderRect);
+    if picParamWereDefined then FVirtualScreen.ClipRect := GetRenderUpdateRectVS(False);
   end;
-  FVirtualScreen.NoClip;
 
-  //show tools info
-  LazPaintInstance.ToolManager.RenderTool(FVirtualScreen);
+  if not FUpdatingPopup then
+  begin
+    Image.ResetRenderUpdateRect;
+
+    if not FVirtualScreen.ClipRect.IsEmpty then
+    begin
+      renderRect := FLastPictureParameters.scaledArea;
+      OffsetRect(renderRect, -FLastPictureParameters.virtualScreenArea.Left,
+                             -FLastPictureParameters.virtualScreenArea.Top);
+
+      DrawThumbnailCheckers(FVirtualScreen,renderRect,Image.IsIconCursor);
+
+      //draw image (with merged selection)
+      FVirtualScreen.StretchPutImage(renderRect,Image.RenderedImage,dmDrawWithTransparency);
+      if (Zoom.Factor > DoScaleX(MinZoomForGrid, OriginalDPI)) and LazPaintInstance.GridVisible then
+        DrawGrid(FVirtualScreen,FLastPictureParameters.zoomFactorX,FLastPictureParameters.zoomFactorY,
+           FLastPictureParameters.originInVS.X,FLastPictureParameters.originInVS.Y);
+
+      DrawSelectionHighlight(renderRect);
+    end;
+    FVirtualScreen.NoClip;
+
+    //show tools info
+    Image.RenderMayChange(LazPaintInstance.ToolManager.RenderTool(FVirtualScreen), false, false);
+  end;
 
   PaintVirtualScreenImplementation(ACanvasOfs, AWorkArea, AVSPart);
   Image.VisibleArea := TRectF.Intersect(rectF(FormToBitmap(AWorkArea.Left, AWorkArea.Top),
@@ -299,6 +316,7 @@ begin
   FSelectionHighlight := TSelectionHighlight.Create(Image);
   FShowSelection:= true;
   Image.OnSelectionChanged := @PictureSelectionChanged;
+  LazPaintInstance.ToolManager.OnToolRenderChanged:=@ToolManagerRenderChanged;
   LazPaintInstance.ToolManager.BitmapToVirtualScreen := @BitmapToVirtualScreen;
 end;
 
@@ -382,7 +400,7 @@ begin
   FLastPictureParameters.defined := false;
 end;
 
-function TImageView.GetRenderUpdateRectVS(AIncludeLastToolState: boolean): TRect;
+function TImageView.GetRenderUpdateRectVS(AIncludeCurrentToolEditor: boolean): TRect;
 const displayMargin = 1;
 begin
   result := Image.RenderUpdateRectInPicCoord;
@@ -400,7 +418,7 @@ begin
     end;
   end;
   result := RectUnion(result, Image.RenderUpdateRectInVSCoord);
-  if AIncludeLastToolState and Assigned(FVirtualScreen) then
+  if AIncludeCurrentToolEditor and Assigned(FVirtualScreen) then
     result := RectUnion(result, LazPaintInstance.ToolManager.GetRenderBounds(FVirtualScreen.Width,FVirtualScreen.Height));
 end;
 

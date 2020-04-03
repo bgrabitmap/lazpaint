@@ -1,4 +1,4 @@
-# Merge channels
+# Channels > Merge
 from lazpaint import image, dialog, layer
 
 channels_id = None

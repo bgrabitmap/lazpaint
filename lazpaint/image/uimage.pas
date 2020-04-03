@@ -48,6 +48,7 @@ type
     FRenderedImage: TBGRABitmap;
     FRenderedImageInvalidated: TRect;
     FOnImageChanged, FOnImageSaving, FOnImageExport: TLazPaintImageObservable;
+    FOnImageRenderChanged: TNotifyEvent;
     FUndoList: TComposedImageDifference;
     FUndoPos: integer;
     FRenderUpdateRectInPicCoord, FRenderUpdateRectInVSCoord: TRect;
@@ -160,7 +161,7 @@ type
     procedure LayerMayChangeCompletely(ALayer: TBGRABitmap);
     procedure SelectionMaskMayChange(ARect: TRect);
     procedure SelectionMaskMayChangeCompletely;
-    procedure RenderMayChange(ARect: TRect; APicCoords: boolean = false);
+    procedure RenderMayChange(ARect: TRect; APicCoords: boolean = false; ANotify: boolean = true);
     procedure ResetRenderUpdateRect;
 
     // selection mask
@@ -257,6 +258,7 @@ type
     property OnSelectedLayerIndexChanged: TOnCurrentLayerIndexChanged read FOnSelectedLayerIndexChanged write FOnSelectedLayerIndexChanged;
     property OnStackChanged: TOnStackChanged read FOnStackChanged write FOnStackChanged;
     property OnImageChanged: TLazPaintImageObservable read FOnImageChanged;
+    property OnImageRenderChanged: TNotifyEvent read FOnImageRenderChanged write FOnImageRenderChanged;
     property OnImageSaving: TLazPaintImageObservable read FOnImageSaving;
     property OnImageExport: TLazPaintImageObservable read FOnImageExport;
     property OnActionProgress: TLayeredActionProgressEvent read FOnActionProgress write SetOnActionProgress;
@@ -1076,7 +1078,8 @@ var
   r: TRect;
 begin
   r := FCurrentState.LayeredBitmap.RenderOriginalIfNecessary(AOriginal.Guid, FDraftOriginal);
-  ImageMayChange(r, false);
+  if r.IsEmpty then OnImageChanged.NotifyObservers
+  else ImageMayChange(r, false);
   if Assigned(ADiff) then
   begin
     AddUndo(TVectorOriginalEmbeddedDifference.Create(CurrentState,AOriginal.Guid,ADiff,r));
@@ -1280,12 +1283,14 @@ begin
     OnImageChanged.NotifyObservers;
 end;
 
-procedure TLazPaintImage.RenderMayChange(ARect: TRect; APicCoords: boolean = false);
+procedure TLazPaintImage.RenderMayChange(ARect: TRect; APicCoords: boolean; ANotify: boolean);
 begin
   if APicCoords then
      FRenderUpdateRectInPicCoord := RectUnion(FRenderUpdateRectInPicCoord,ARect)
   else
-      FRenderUpdateRectInVSCoord := RectUnion(FRenderUpdateRectInVSCoord,ARect);
+     FRenderUpdateRectInVSCoord := RectUnion(FRenderUpdateRectInVSCoord,ARect);
+  if ANotify and Assigned(OnImageRenderChanged) then
+    OnImageRenderChanged(self);
 end;
 
 procedure TLazPaintImage.LayerBlendMayChange(AIndex: integer);

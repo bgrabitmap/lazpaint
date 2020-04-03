@@ -1,4 +1,4 @@
-# Layer shadow
+# Layer effect > Drop shadow
 from lazpaint import dialog
 
 try:
@@ -176,7 +176,7 @@ frame.pack()
 label_radius = Label(frame, text="Radius:")
 label_radius.grid(column=0, row=0)
 scale_radius = Scale(frame, from_=0, to=MAX_RADIUS, orient=HORIZONTAL, command=scale_radius_update)
-scale_radius.grid(column=1, row=0, columnspan=2, sticky=W+E, padx=10)
+scale_radius.grid(column=1, row=0, sticky=W+E, padx=10)
 scale_radius.set(chosen_radius)
 
 label_offset = Label(frame, text="Offset:")
@@ -185,21 +185,21 @@ scale_offset_x = Scale(frame, from_=-MAX_OFFSET, to=MAX_OFFSET, orient=HORIZONTA
 scale_offset_x.grid(column=1, row=1, sticky=W+E, padx=10)
 scale_offset_x.set(chosen_offset[0])
 scale_offset_y = Scale(frame, from_=-MAX_OFFSET, to=MAX_OFFSET, orient=HORIZONTAL, command=scale_offset_update)
-scale_offset_y.grid(column=2, row=1, sticky=W+E, padx=10)
+scale_offset_y.grid(column=1, row=2, sticky=W+E, padx=10)
 scale_offset_y.set(chosen_offset[1])
 
 label_opacity = Label(frame, text="Opacity:")
-label_opacity.grid(column=0, row=2)
+label_opacity.grid(column=0, row=3)
 scale_opacity = Scale(frame, from_=0, to=MAX_OPACITY, orient=HORIZONTAL, command=scale_opacity_update)
-scale_opacity.grid(column=1, row=2, columnspan=2, sticky=W+E, padx=10)
+scale_opacity.grid(column=1, row=3, sticky=W+E, padx=10)
 scale_opacity.set(chosen_opacity)
 
 frame.columnconfigure(0, pad=20)
-frame.columnconfigure(1, weight=1)
-frame.columnconfigure(2, weight=1)
+frame.columnconfigure(1, minsize=250)
 frame.rowconfigure(0, pad=20)
 frame.rowconfigure(1, pad=20)
 frame.rowconfigure(2, pad=20)
+frame.rowconfigure(3, pad=20)
 
 button_ok = Button(window, text="Ok", command=button_ok_click)
 button_ok.pack(side=RIGHT, padx=10, pady=10)

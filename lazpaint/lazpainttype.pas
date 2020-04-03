@@ -10,7 +10,7 @@ uses
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
-  LazPaintVersion = 7000800;
+  LazPaintVersion = 7000900;
 
   function LazPaintVersionStr: string;
 
@@ -109,7 +109,8 @@ function IsOnlyRenderChange(const ARect:TRect): boolean;
 type
     ArrayOfBGRABitmap = array of TBGRABitmap;
     TColorTarget = (ctForeColorSolid, ctForeColorStartGrad, ctForeColorEndGrad,
-                    ctBackColorSolid, ctBackColorStartGrad, ctBackColorEndGrad);
+                    ctBackColorSolid, ctBackColorStartGrad, ctBackColorEndGrad,
+                    ctOutlineColorSolid, ctOutlineColorStartGrad, ctOutlineColorEndGrad);
     TFlipOption = (foAuto, foWholePicture, foSelection, foCurrentLayer);
 
     PImageEntry = ^TImageEntry;
@@ -174,6 +175,7 @@ type
 
     function GetConfig: TLazPaintConfig; virtual; abstract;
     function GetImage: TLazPaintImage; virtual; abstract;
+    function GetImageAction: TObject; virtual; abstract;
     function GetToolManager: TToolManager; virtual; abstract;
     procedure SetBlackAndWhite(AValue: boolean); virtual;
     function GetZoomFactor: single; virtual;
@@ -321,6 +323,7 @@ type
     property ChooseColorTarget: TColorTarget read GetChooseColorTarget write setChooseColorTarget;
     property Config: TLazPaintConfig read GetConfig;
     property Image: TLazPaintImage read GetImage;
+    property ImageAction: TObject read GetImageAction;
     property ZoomFactor: single read GetZoomFactor;
     property ToolManager: TToolManager read GetToolManager;
     property Embedded: boolean read GetEmbedded;
@@ -645,30 +648,40 @@ begin
 end;
 
 function TLazPaintCustomInstance.GetColor(ATarget: TColorTarget): TBGRAPixel;
+  function GetStartColor(AFill: TVectorialFill): TBGRAPixel;
+  begin
+    if AFill.FillType = vftGradient then
+      result := AFill.Gradient.StartColor
+      else result := AFill.AverageColor;
+  end;
+  function GetEndColor(AFill: TVectorialFill): TBGRAPixel;
+  begin
+    if AFill.FillType = vftGradient then
+      result := AFill.Gradient.EndColor
+      else result := AFill.AverageColor;
+  end;
+
 begin
   case ATarget of
-    ctForeColorSolid: result := ToolManager.ForeColor;
-    ctForeColorStartGrad: if ToolManager.ForeFill.FillType = vftGradient then
-                            result := ToolManager.ForeFill.Gradient.StartColor
-                          else result := ToolManager.ForeColor;
-    ctForeColorEndGrad: if ToolManager.ForeFill.FillType = vftGradient then
-                          result := ToolManager.ForeFill.Gradient.EndColor
-                        else result := ToolManager.ForeColor;
-    ctBackColorSolid: result := ToolManager.BackColor;
-    ctBackColorStartGrad: if ToolManager.BackFill.FillType = vftGradient then
-                            result := ToolManager.BackFill.Gradient.StartColor
-                          else result := ToolManager.BackColor;
-    ctBackColorEndGrad: if ToolManager.BackFill.FillType = vftGradient then
-                          result := ToolManager.BackFill.Gradient.EndColor
-                        else result := ToolManager.BackColor;
+    ctForeColorSolid: result := ToolManager.ForeFill.AverageColor;
+    ctForeColorStartGrad: result := GetStartColor(ToolManager.ForeFill);
+    ctForeColorEndGrad: result := GetEndColor(ToolManager.ForeFill);
+    ctBackColorSolid: result := ToolManager.BackFill.AverageColor;
+    ctBackColorStartGrad: result := GetStartColor(ToolManager.BackFill);
+    ctBackColorEndGrad: result := GetEndColor(ToolManager.BackFill);
+    ctOutlineColorSolid: result := ToolManager.OutlineFill.AverageColor;
+    ctOutlineColorStartGrad: result := GetStartColor(ToolManager.OutlineFill);
+    ctOutlineColorEndGrad: result := GetEndColor(ToolManager.OutlineFill);
   else
     result := BGRAPixelTransparent;
   end;
+  if BlackAndWhite then result := BGRAToGrayscale(result);
 end;
 
 procedure TLazPaintCustomInstance.SetColor(ATarget: TColorTarget;
   AColor: TBGRAPixel);
 begin
+  if BlackAndWhite then AColor := BGRAToGrayscale(AColor);
   case ATarget of
     ctForeColorSolid: if ToolManager.ForeFill.FillType = vftSolid then
                         ToolManager.ForeColor := AColor;
@@ -682,6 +695,12 @@ begin
                             ToolManager.BackFill.Gradient.StartColor := AColor;
     ctBackColorEndGrad: if ToolManager.BackFill.FillType = vftGradient then
                           ToolManager.BackFill.Gradient.EndColor := AColor;
+    ctOutlineColorSolid: if ToolManager.OutlineFill.FillType = vftSolid then
+                        ToolManager.OutlineColor := AColor;
+    ctOutlineColorStartGrad: if ToolManager.OutlineFill.FillType = vftGradient then
+                            ToolManager.OutlineFill.Gradient.StartColor := AColor;
+    ctOutlineColorEndGrad: if ToolManager.OutlineFill.FillType = vftGradient then
+                          ToolManager.OutlineFill.Gradient.EndColor := AColor;
   end;
 end;
 
@@ -693,9 +712,21 @@ end;
 
 procedure TLazPaintCustomInstance.ShowMessage(ACaption: string; AMessage: string; ADlgType: TMsgDlgType = mtInformation);
 var top: TTopMostInfo;
+  elems: TStringList;
+  res: TModalResult;
 begin
   top := HideTopmost;
-  QuestionDlg(ACaption,AMessage,ADlgType,[mrOk,rsOkay],'');
+  elems := TStringList.Create;
+  elems.Delimiter:= #9;
+  elems.StrictDelimiter:= true;
+  elems.DelimitedText:= AMessage;
+  if (elems.Count = 3) and (elems[1] = rsDownload) then
+  begin
+    res := QuestionDlg(ACaption,elems[0],ADlgType,[mrOk,rsDownload,mrCancel,rsCancel],'');
+    if res = mrOk then OpenURL(elems[2]);
+  end else
+    QuestionDlg(ACaption,AMessage,ADlgType,[mrOk,rsOkay],'');
+  elems.Free;
   ShowTopmost(top);
 end;
 

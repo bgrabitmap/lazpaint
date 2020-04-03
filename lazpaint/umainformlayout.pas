@@ -29,8 +29,9 @@ type
     FDockedToolBoxToolBar: TToolBar;
     FPaletteToolbar: TPaletteToolbar;
     FStatusBarVisible: boolean;
-    FStatusBar: TStatusBar;
+    FStatusBar: TPanel;
     FStatusText: string;
+    FStatusTextSplit: TStringList;
     FDarkTheme: boolean;
     FDockedControlsPanel: TPanel;
     FDockedChooseColorSplitter: TSplitter;
@@ -39,6 +40,7 @@ type
     function GetStatusBarVisible: boolean;
     function GetStatusText: string;
     function GetToolBoxVisible: boolean;
+    procedure StatusBar_Paint(Sender: TObject);
     procedure ToolboxGroupMainButton_MouseMove(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X,
       {%H-}Y: Integer);
     procedure SetDarkTheme(AValue: boolean);
@@ -165,12 +167,19 @@ begin
 
   FDockedControlsPanel := TPanel.Create(nil);
   FDockedControlsPanel.Visible := false;
+  FDockedControlsPanel.Anchors:= [akRight,akTop,akBottom];
   FForm.InsertControl(FDockedControlsPanel);
 
-  FStatusBar := TStatusBar.Create(nil);
-  FStatusBar.SizeGrip := false;
+  FStatusBar := TPanel.Create(nil);
   FStatusBar.Align := alNone;
   FStatusBar.Visible := false;
+  FStatusBar.Anchors := [akLeft,akRight,akBottom];
+  FStatusBar.BevelOuter:= bvNone;
+  FStatusBar.BevelInner:= bvNone;
+  FStatusBar.Height := DoScaleY(15, OriginalDPI);
+  FStatusBar.Font.Height := -DoScaleY(12, OriginalDPI);
+  FStatusBar.OnPaint:=@StatusBar_Paint;
+  FStatusTextSplit := TStringList.Create;
   FForm.InsertControl(FStatusBar);
 
   ApplyTheme;
@@ -180,6 +189,7 @@ destructor TMainFormLayout.Destroy;
 begin
   FreeAndNil(FDockedControlsPanel);
   FreeAndNil(FStatusBar);
+  FreeAndNil(FStatusTextSplit);
   FreeAndNil(FPaletteToolbar);
   FreeAndNil(FPanelToolBox);
   FreeAndNil(FMenu);
@@ -205,6 +215,49 @@ end;
 function TMainFormLayout.GetToolBoxVisible: boolean;
 begin
   result := LazPaintInstance.ToolboxVisible;
+end;
+
+procedure TMainFormLayout.StatusBar_Paint(Sender: TObject);
+var
+  colWidth, spacing, i, x: Integer;
+begin
+  if FStatusTextSplit.Count > 0 then
+  begin
+    spacing := DoScaleX(6, OriginalDPI);
+    colWidth := (FStatusBar.ClientWidth - spacing*2) div FStatusTextSplit.Count;
+    if colWidth > spacing*2 then
+    begin
+      if DarkTheme then
+        FStatusBar.Canvas.Pen.Color := clDarkPanelHighlight
+        else FStatusBar.Canvas.Pen.Color := clBtnHighlight;
+      FStatusBar.Canvas.Line(0,0, FStatusBar.Width,0);
+      x := 0;
+      for i := 0 to FStatusTextSplit.Count-1 do
+      begin
+        FStatusBar.Canvas.Font := FStatusBar.Font;
+        if DarkTheme then
+          FStatusBar.Canvas.Font.Color := clLightText
+          else FStatusBar.Canvas.Font.Color := clBtnText;
+        FStatusBar.Canvas.TextOut(x + spacing,
+          (FStatusBar.ClientHeight - FStatusBar.Canvas.TextHeight('Hg')) div 2,
+          FStatusTextSplit[i]);
+
+        if i > 0 then
+        begin
+          if DarkTheme then
+            FStatusBar.Canvas.Pen.Color := clDarkPanelShadow
+            else FStatusBar.Canvas.Pen.Color := clBtnShadow;
+          FStatusBar.Canvas.Line(x-1,0, x-1,FStatusBar.Height);
+          if DarkTheme then
+            FStatusBar.Canvas.Pen.Color := clDarkPanelHighlight
+            else FStatusBar.Canvas.Pen.Color := clBtnHighlight;
+          FStatusBar.Canvas.Line(x,0, x,FStatusBar.Height);
+        end;
+
+        inc(x, max(colWidth, FStatusBar.Canvas.TextWidth(FStatusTextSplit[i]) + 2*spacing));
+      end;
+    end;
+  end;
 end;
 
 procedure TMainFormLayout.ToolboxGroupMainButton_MouseMove(Sender: TObject;
@@ -254,7 +307,7 @@ end;
 
 function TMainFormLayout.GetStatusText: string;
 begin
-  result := FStatusBar.SimpleText;
+  result := FStatusText;
 end;
 
 procedure TMainFormLayout.PaletteVisibilityChangedByUser(Sender: TObject);
@@ -282,46 +335,13 @@ begin
 end;
 
 procedure TMainFormLayout.SetStatusText(AValue: string);
-var elems: TStringList;
-  i,w: Integer;
-  idxDelim: integer;
 begin
   if AValue = FStatusText then exit;
   FStatusText := AValue;
-  if pos('|',AValue) = 0 then
-  begin
-    if FStatusBar.SimplePanel <> true then
-      FStatusBar.SimplePanel := true;
-    FStatusBar.SimpleText := AValue;
-  end else
-  begin
-    elems := TStringList.Create;
-    repeat
-      idxDelim := pos('|',AValue);
-      if idxDelim = 0 then
-      begin
-        elems.Add(AValue);
-        break;
-      end;
-      elems.Add(copy(AValue,1,idxDelim-1));
-      AValue := copy(AValue,idxDelim+1,length(AValue)-idxDelim);
-    until false;
-    if FStatusBar.SimplePanel <> false then
-      FStatusBar.SimplePanel := false;
-    while FStatusBar.Panels.Count > elems.Count do
-      FStatusBar.Panels.Delete(FStatusBar.Panels.Count-1);
-    while FStatusBar.Panels.Count < elems.Count do
-      with FStatusBar.Panels.Add do
-        Width := FStatusBar.Height*10;
-    w := FStatusBar.ClientWidth div elems.Count;
-    for i := 0 to elems.Count-1 do
-      with FStatusBar.Panels[i] do
-      begin
-        Text := elems[i];
-        Width := w;
-      end;
-    elems.Free;
-  end;
+  FStatusTextSplit.Delimiter:= '|';
+  FStatusTextSplit.StrictDelimiter:= true;
+  FStatusTextSplit.DelimitedText := FStatusText;
+  FStatusBar.Invalidate;
 end;
 
 procedure TMainFormLayout.SetToolBoxVisible(AValue: boolean);
@@ -446,8 +466,15 @@ begin
       w := FDockedToolBoxToolBar.ButtonWidth * nbX+2;
       FDockedToolBoxToolBar.Width := w;
       FPanelToolBox.Width := w;
-      if FToolBoxDocking = twLeft then FPanelToolBox.Left:= Left
-      else FPanelToolBox.Left:= Right-FPanelToolBox.Width;
+      if FToolBoxDocking = twLeft then
+      begin
+        FPanelToolBox.Left:= Left;
+        FPanelToolBox.Anchors:= [akLeft,akTop,akBottom];
+      end else
+      begin
+        FPanelToolBox.Left:= Right-FPanelToolBox.Width;
+        FPanelToolBox.Anchors:= [akRight,akTop,akBottom];
+      end;
       for i := 0 to FDockedToolBoxToolBar.ButtonCount-1 do
         FDockedToolBoxToolBar.Buttons[i].Top := i*FDockedToolBoxToolBar.ButtonHeight;
     end;
@@ -487,12 +514,6 @@ begin
   begin
     with GetWorkAreaAt(lsAfterDockedControlsPanel) do
       FStatusBar.SetBounds(Left,Bottom-FStatusBar.Height,Right-Left,FStatusBar.Height);
-    if not FStatusBar.SimplePanel then
-    begin
-      w := FStatusBar.ClientWidth div FStatusBar.Panels.Count;
-      for i := 0 to FStatusBar.Panels.Count-1 do
-        FStatusBar.Panels[i].Width := w;
-    end;
     if not FStatusBar.Visible then
     begin
       FStatusBar.Visible := true;
@@ -513,6 +534,7 @@ begin
     FDockedToolBoxToolBar.EdgeOuter := esNone;
     FDockedToolBoxToolBar.OnPaint := @DarkThemeInstance.ToolBarPaint;
     FDockedToolBoxToolBar.OnPaintButton:= @DarkThemeInstance.ToolBarPaintButton;
+    FStatusBar.Color:= clDarkBtnFace;
   end
   else
   begin
@@ -521,6 +543,7 @@ begin
     FDockedToolBoxToolBar.EdgeOuter := esNone;
     FDockedToolBoxToolBar.OnPaint := nil;
     FDockedToolBoxToolBar.OnPaintButton:= nil;
+    FStatusBar.Color:= clBtnFace;
   end;
   DarkThemeInstance.Apply(FDockedControlsPanel, DarkTheme, false);
   bevelOfs := integer(FDockedControlsPanel.BevelOuter <> bvNone)*FDockedControlsPanel.BevelWidth;
