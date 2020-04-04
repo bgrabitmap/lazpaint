@@ -1,6 +1,8 @@
 # LazPaint
 Image editor, like PaintBrush or Paint.Net, written in Lazarus (Free Pascal). Uses BGRABitmap library.
 
+> You can support the development by [donating](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MXWCFJJWNQ6A6). That will allow the developper to buy carrots and beans for sustenance.
+
 # Download
 [Download LazPaint](https://github.com/bgrabitmap/lazpaint/releases) for Windows, Mac and Linux.
 
