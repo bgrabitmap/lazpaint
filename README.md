@@ -18,6 +18,7 @@ Image editor, like PaintBrush or Paint.Net, written in Lazarus (Free Pascal). Us
 [LazPaint on YouTUBE](https://www.youtube.com/playlist?list=PLC5C5CAB111B5D9DA)
 
 # Screenshots
+![LazPaint Linux dark theme](https://upload.wikimedia.org/wikipedia/commons/c/c0/Lazpaint_version_7.png)
 ![LazPaint Windows](http://wiki.freepascal.org/images/2/25/Lazpaint_curve_redim.png)
 ![LazPaint Puppy Linux](http://wiki.freepascal.org/images/5/57/lazpaint6_puppy.png)
 
