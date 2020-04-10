@@ -418,7 +418,7 @@ begin
   RegisterScripts(True);
 
   InColorFromFChooseColor := false;
-  FImage := TLazPaintImage.Create;
+  FImage := TLazPaintImage.Create(self);
   FImage.OnStackChanged:= @OnStackChanged;
   FImage.OnException := @OnFunctionException;
   FImage.OnActionProgress:=@OnImageActionProgress;
