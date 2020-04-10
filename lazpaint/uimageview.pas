@@ -172,13 +172,13 @@ begin
   begin
     FVirtualScreen := TBGRABitmap.Create(FLastPictureParameters.virtualScreenArea.Right-FLastPictureParameters.virtualScreenArea.Left,
                                         FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top, WorkspaceColor);
-  end else
-  begin
-    if picParamWereDefined then FVirtualScreen.ClipRect := GetRenderUpdateRectVS(False);
+    Image.ResetRenderUpdateRect;
+    Image.RenderMayChange(rect(0,0,FVirtualScreen.Width,FVirtualScreen.Height), false, false);
   end;
 
   if not FUpdatingPopup then
   begin
+    if picParamWereDefined then FVirtualScreen.ClipRect := GetRenderUpdateRectVS(False);
     Image.ResetRenderUpdateRect;
 
     if not FVirtualScreen.ClipRect.IsEmpty then

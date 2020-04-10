@@ -127,7 +127,7 @@ begin
    end;
 end;
 
-function ChangeLayeredImageCanvasSize(layeredBmp: TLazPaintImage; newWidth,
+function ChangeLayeredImageCanvasSize(AInstance: TLazPaintCustomInstance; layeredBmp: TLazPaintImage; newWidth,
   newHeight: integer; anchor: string; background: TBGRAPixel;
   repeatImage: boolean; flipMode: boolean): TBGRALayeredBitmap;
 var i,idx: integer;
@@ -138,6 +138,7 @@ begin
   result := TBGRALayeredBitmap.Create;
   for i := 0 to layeredbmp.NbLayers-1 do
   begin
+    AInstance.ReportActionProgress(i*100 div layeredbmp.NbLayers);
     newBmp := ChangeCanvasSize(layeredbmp.LayerBitmap[i],layeredbmp.LayerOffset[i],layeredBmp.Width,layeredBmp.Height, newwidth,newHeight,anchor,background,repeatImage,flipMode);
     idx := result.AddOwnedLayer(newBmp,layeredBmp.BlendOperation[i],layeredbmp.LayerOpacity[i]);
     result.LayerName[idx] := layeredbmp.LayerName[i];
@@ -155,12 +156,13 @@ begin
       end;
     end;
   end;
+  AInstance.ReportActionProgress(100);
 end;
 
 function ComputeNewCanvasSize(AInstance: TLazPaintCustomInstance; AWidth,AHeight: integer;
   AAnchor: string; ARepeatImage, AFlipMode: boolean): TLayeredBitmapAndSelection;
 begin
-  result.layeredBitmap := ChangeLayeredImageCanvasSize(AInstance.Image,
+  result.layeredBitmap := ChangeLayeredImageCanvasSize(AInstance, AInstance.Image,
      AWidth,AHeight,AAnchor,BGRAPixelTransparent, ARepeatImage, AFlipMode);
   if AInstance.Image.SelectionMaskReadonly <> nil then
     result.selection := ChangeCanvasSize(AInstance.Image.SelectionMaskReadonly,
