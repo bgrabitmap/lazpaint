@@ -2434,6 +2434,16 @@ begin
          ViewZoomOut.Execute;
          UTF8Key := '';
       end else
+      if toolProcessKey and (UTF8Key = '*') then
+      begin
+         ViewZoomOriginal.Execute;
+         UTF8Key := '';
+      end else
+      if toolProcessKey and (UTF8Key = '/') then
+      begin
+         ViewZoomFit.Execute;
+         UTF8Key := '';
+      end else
       begin
         selectedTool := ToolManager.GetCurrentToolType;
         FLayout.Menu.CycleTool(selectedTool, UTF8Key);
