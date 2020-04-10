@@ -830,6 +830,7 @@ begin
       ShellListView1.Reload
     else
       ShellListView1.Root := newDir;
+    SetShellMask;
     StartThumbnails;
     if AFocus then ShellListView1.SetFocus;
     if ShellListView1.ItemCount <> 0 then
