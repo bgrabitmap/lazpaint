@@ -503,6 +503,7 @@ end;
 procedure TChooseColorInterface.DoSelect(X, Y: integer);
 var pix, newColor: TBGRAPixel;
   newLight: Word;
+  dist: single;
 begin
   case FSelectZone of
   szAlphascale:
@@ -513,8 +514,15 @@ begin
       UpdateColorview(False, False, True);
     end;
   szColorCircle:
-    if PtInRect(point(x,y), FColorCircle.Bounds) and Assigned(FColorCircle.bmpMaxlight) then
+    if Assigned(FColorCircle.bmpMaxlight) then
     begin
+      dist := sqrt(sqr((x-FColorCircle.center.X)/FColorCircle.bounds.Width*2) +
+              sqr((y-FColorCircle.center.Y)/FColorCircle.bounds.Height*2));
+      if dist > 1 then
+      begin
+        x := round(FColorCircle.center.X + (x-FColorCircle.center.X)/dist);
+        y := round(FColorCircle.center.Y + (y-FColorCircle.center.Y)/dist);
+      end;
       pix := FColorCircle.bmpMaxlight.GetPixel(x-FColorCircle.Bounds.Left,y-FColorCircle.Bounds.top);
       if pix.alpha <> 0 then
       begin

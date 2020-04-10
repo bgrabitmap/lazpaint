@@ -181,6 +181,7 @@ type
     procedure EndLoadingImage; override;
     procedure StartSavingImage(AFilename: string); override;
     procedure EndSavingImage; override;
+    procedure ReportActionProgress(AProgressPercent: integer); override;
     procedure Donate; override;
     procedure SaveMainWindowPosition; override;
     procedure RestoreMainWindowPosition; override;
@@ -313,6 +314,20 @@ begin
   UpdateWindows;
 end;
 
+procedure TLazPaintInstance.ReportActionProgress(AProgressPercent: integer);
+var
+  delay: Integer;
+begin
+  if AProgressPercent < 100 then delay := 10000 else delay := 1000;
+  if Assigned(FMain) then FMain.UpdatingPopup:= true;
+  try
+    MessagePopup(rsActionInProgress+'... '+inttostr(AProgressPercent)+'%', delay);
+    UpdateWindows;
+  finally
+    if Assigned(FMain) then FMain.UpdatingPopup:= false;
+  end;
+end;
+
 procedure TLazPaintInstance.Donate;
 begin
   OpenURL('http://sourceforge.net/donate/index.php?group_id=404555');
@@ -418,7 +433,7 @@ begin
   RegisterScripts(True);
 
   InColorFromFChooseColor := false;
-  FImage := TLazPaintImage.Create;
+  FImage := TLazPaintImage.Create(self);
   FImage.OnStackChanged:= @OnStackChanged;
   FImage.OnException := @OnFunctionException;
   FImage.OnActionProgress:=@OnImageActionProgress;
@@ -663,17 +678,8 @@ end;
 
 procedure TLazPaintInstance.OnImageActionProgress(ASender: TObject;
   AProgressPercent: integer);
-var
-  delay: Integer;
 begin
-  if AProgressPercent < 100 then delay := 10000 else delay := 1000;
-  if Assigned(FMain) then FMain.UpdatingPopup:= true;
-  try
-    MessagePopup(rsActionInProgress+'... '+inttostr(AProgressPercent)+'%', delay);
-    UpdateWindows;
-  finally
-    if Assigned(FMain) then FMain.UpdatingPopup:= false;
-  end;
+  ReportActionProgress(AProgressPercent);
 end;
 
 function TLazPaintInstance.GetInitialized: boolean;
@@ -1521,7 +1527,6 @@ end;
 
 procedure TLazPaintInstance.UpdateWindows;
 begin
-  {$IFDEF LINUX}
   if Assigned(FMain) then FMain.Enabled:= false;
   if Assigned(FFormToolbox) then FFormToolbox.Enabled:= false;
   if Assigned(FChooseColor) then FChooseColor.Enabled:= false;
@@ -1533,13 +1538,6 @@ begin
   if Assigned(FChooseColor) then FChooseColor.Enabled:= true;
   if Assigned(FLayerStack) then FLayerStack.Enabled:= true;
   if Assigned(FImageList) then FImageList.Enabled:= true;
-  {$ELSE}
-  if Assigned(FMain) then FMain.Update;
-  if Assigned(FFormToolbox) then FFormToolbox.Update;
-  if Assigned(FChooseColor) then FChooseColor.Update;
-  if Assigned(FLayerStack) then FLayerStack.Update;
-  if Assigned(FImageList) then FImageList.Update;
-  {$ENDIF}
 end;
 
 procedure TLazPaintInstance.Wait(ACheckActive: TCheckFunction; ADelayMs: integer);

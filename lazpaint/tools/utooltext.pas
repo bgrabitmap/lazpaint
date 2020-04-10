@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, UTool, UToolVectorial, LCLType, Graphics, BGRABitmap, BGRABitmapTypes, BGRATextFX,
-  BGRAGradients, LCVectorOriginal, LCVectorialFill;
+  BGRAGradients, LCVectorOriginal;
 
 type
 

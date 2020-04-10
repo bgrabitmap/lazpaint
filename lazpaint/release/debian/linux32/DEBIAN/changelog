@@ -173,3 +173,16 @@ lazpaint (7.0.9) unstable; urgency=low
 
 -- circular <circular@operamail.com>  Fri, 3 Apr 2020 12:40:00 +0100
 
+lazpaint (7.1) stable; urgency=low
+
+  * tool: fix update of pen style from shape
+  * interface: fix file extension mask when opening image browser
+  * interface: fix selection of file after changing folder
+  * interface: show progress when changing canvas size
+  * interface: show popup when downsampling opened big image
+  * interface: fix update of popup on Windows
+  * interface: allow to select outside color circle of color window
+  * interface: added shortcuts / and * to shrink and use original zoom
+
+-- circular <circular@operamail.com>  Fri, 10 Apr 2020 12:07:00 +0100
+

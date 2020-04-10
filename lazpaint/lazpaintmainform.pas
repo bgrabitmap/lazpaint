@@ -811,7 +811,7 @@ type
     procedure HideFill(ATimeMs: Integer = 300; AClearTime: boolean = false);
     procedure OnPaintHandler;
     procedure OnImageChangedHandler({%H-}AEvent: TLazPaintImageObservationEvent);
-    procedure OnImageRenderChanged(sender: TObject);
+    procedure OnImageRenderChanged({%H-}Sender: TObject);
     procedure LabelAutosize(ALabel: TLabel);
     procedure AskMergeSelection(ACaption: string);
     procedure ReleaseMouseButtons(Shift: TShiftState);
@@ -2432,6 +2432,16 @@ begin
       if toolProcessKey and (UTF8Key = '-') then
       begin
          ViewZoomOut.Execute;
+         UTF8Key := '';
+      end else
+      if toolProcessKey and (UTF8Key = '*') then
+      begin
+         ViewZoomOriginal.Execute;
+         UTF8Key := '';
+      end else
+      if toolProcessKey and (UTF8Key = '/') then
+      begin
+         ViewZoomFit.Execute;
          UTF8Key := '';
       end else
       begin
@@ -4400,7 +4410,7 @@ begin
   if AEvent.DelayedStackUpdate then FUpdateStackWhenIdle := true;
 end;
 
-procedure TFMain.OnImageRenderChanged(sender: TObject);
+procedure TFMain.OnImageRenderChanged(Sender: TObject);
 begin
   InvalidatePicture;
 end;

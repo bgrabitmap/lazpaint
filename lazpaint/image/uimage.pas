@@ -37,6 +37,7 @@ type
 
   TLazPaintImage = class
   private
+    FLazPaintInstance: TObject;
     FActionInProgress: TCustomLayerAction;
     FOnActionProgress: TLayeredActionProgressEvent;
     FOnSelectedLayerIndexChanging: TOnCurrentLayerIndexChanged;
@@ -295,7 +296,7 @@ type
     property IsTiff: boolean read GetIsTiff;
     property IsGif: boolean read GetIsGif;
     property DPI: integer read GetDPI;
-    constructor Create;
+    constructor Create(ALazPaintInstance: TObject);
     destructor Destroy; override;
   end;
 
@@ -713,7 +714,10 @@ begin
             layeredBmp.Free;
             layeredBmp := temp;
           end;
+          MessagePopupForever(rsResamplingImage);
+          (FLazPaintInstance as TLazPaintCustomInstance).UpdateWindows;
           (layeredBmp as TBGRALayeredBitmap).Resample(cx, cy, rmFineResample);
+          MessagePopupHide;
         end;
       CursorHotSpot := Point(0,0);
       if layeredBmp is TBGRALazPaintImage then
@@ -2326,8 +2330,9 @@ begin
   exit(-1);
 end;
 
-constructor TLazPaintImage.Create;
+constructor TLazPaintImage.Create(ALazPaintInstance: TObject);
 begin
+  FLazPaintInstance := ALazPaintInstance;
   FCurrentState := TImageState.Create;
   FCurrentState.OnOriginalChange:= @OriginalChange;
   FCurrentState.OnOriginalEditingChange:= @OriginalEditingChange;

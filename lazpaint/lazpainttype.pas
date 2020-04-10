@@ -10,7 +10,7 @@ uses
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
-  LazPaintVersion = 7000900;
+  LazPaintVersion = 7010000;
 
   function LazPaintVersionStr: string;
 
@@ -221,6 +221,7 @@ type
     procedure EndLoadingImage; virtual; abstract;
     procedure StartSavingImage(AFilename: string); virtual; abstract;
     procedure EndSavingImage; virtual; abstract;
+    procedure ReportActionProgress(AProgressPercent: integer); virtual; abstract;
     procedure SaveMainWindowPosition; virtual; abstract;
     procedure RestoreMainWindowPosition; virtual; abstract;
     procedure Donate; virtual; abstract;
