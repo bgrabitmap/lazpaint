@@ -1145,6 +1145,7 @@ begin
   for I := 0 to ItemCount-1 do
     SetItemImage(I,nil,false);
   FData := nil;
+  FSelectedIndex:= -1;
   if FUpdateCount = 0 then InvalidateView;
 end;
 
