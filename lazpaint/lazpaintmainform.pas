@@ -864,7 +864,7 @@ type
     Zoom: TZoom;
 
     procedure PaintPictureNow;
-    procedure InvalidatePicture;
+    procedure InvalidatePicture(AInvalidateAll: boolean = true);
     function TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True;
       ALoadedImage: PImageEntry = nil; ASkipDialogIfSingleImage: boolean = false;
       AAllowDuplicate: boolean = false; AEntryToLoad: integer = -1): Boolean;
@@ -4390,8 +4390,7 @@ end;
 
 procedure TFMain.OnImageChangedHandler(AEvent: TLazPaintImageObservationEvent);
 begin
-  if Assigned(FImageView) then
-    FImageView.InvalidatePicture(False, FLayout.WorkArea, Point(0,0), self);
+  InvalidatePicture(false);
 
   if (image.Width <> FLastWidth) or (image.Height <> FLastHeight)
    or (image.BPP <> FLastBPP) or (image.FrameIndex <> FLastFrameIndex) then
@@ -4412,7 +4411,7 @@ end;
 
 procedure TFMain.OnImageRenderChanged(Sender: TObject);
 begin
-  InvalidatePicture;
+  InvalidatePicture(false);
 end;
 
 procedure TFMain.UpdateEditPicture(ADelayed: boolean = false);
@@ -4604,10 +4603,10 @@ begin
   Layout.StatusText := s;
 end;
 
-procedure TFMain.InvalidatePicture;
+procedure TFMain.InvalidatePicture(AInvalidateAll: boolean = true);
 begin
   if Assigned(FImageView) and Assigned(FLayout) then
-    FImageView.InvalidatePicture(True, FLayout.WorkArea, Point(0,0), self);
+    FImageView.InvalidatePicture(AInvalidateAll, FLayout.WorkArea, Point(0,0), self);
 end;
 
 function TFMain.GetUseImageBrowser: boolean;
