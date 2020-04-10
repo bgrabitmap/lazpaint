@@ -82,7 +82,6 @@ var lColor: TBGRAPixel;
   idx: integer;
   fullPatternName, attr: string;
   i: integer;
-  ratio: single;
 begin
   fullPatternName:= APattern;
   for i := 0 to high(FPatterns) do

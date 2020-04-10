@@ -427,7 +427,6 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
   var inputStream,outputStream: TStream;
     icoCur: TBGRAIconCursor;
     picture: TBGRACustomBitmap;
-    bpp: integer;
   begin
     icoCur := TBGRAIconCursor.Create;
     if FileManager.FileExists(FOutputFilename) then
@@ -443,7 +442,6 @@ procedure TFSaveOption.Button_OKClick(Sender: TObject);
       icoCur.FileType:= ImageFormat;
     end;
     try
-      bpp := WantedBitsPerPixel;
       if PngStreamNeeded then
       begin
         MakePngStreamIfNeeded;

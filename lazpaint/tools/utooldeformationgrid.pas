@@ -957,10 +957,9 @@ begin
       if curDist < minDist then
       begin
         minDist := curDist;
-        deformationGridX := xb;
-        deformationGridY := yb;
+        x := xb;
+        y := yb;
         result := True;
-        deformationOrigin := ptF;
       end;
     end;
 end;
@@ -988,7 +987,7 @@ var xb,yb,NbX,NbY: integer;
     layer,backupLayer : TBGRABitmap;
     PreviousClipRect: TRect;
     previousBounds: TRect;
-    gridMinX,gridMinY,gridMaxX,gridMaxY, dummyX, dummY: integer;
+    gridMinX,gridMinY,gridMaxX,gridMaxY, dummyX, dummyY: integer;
 
   procedure AddToDeformationArea(xi,yi: integer);
   var ptF: TPointF;
@@ -1011,7 +1010,9 @@ begin
 
   if not deformationGridMoving then
   begin
-    if GetPointAt(ptF, dummyX, dummY) then
+    dummyX := 1;
+    dummyY := 1;
+    if GetPointAt(ptF, dummyX, dummyY) then
       Cursor := crHandPoint
       else Cursor := crDefault;
     exit;

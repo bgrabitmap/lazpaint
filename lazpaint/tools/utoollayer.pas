@@ -590,6 +590,7 @@ begin
       FBackupLayer.nextMatrix := transform;
       Manager.Image.AddUndo(invTransformDiff);
       Manager.Image.AddUndo(FBackupLayer);
+      r := EmptyRect;
       Manager.Image.CurrentState.LayeredBitmap.RenderLayerFromOriginalIfNecessary(layerIdx, false, r);
       FBackupLayer := nil;
     end;

@@ -321,7 +321,7 @@ begin
     if Manager.ShapeOptionAliasing then
     begin
       pts := toolDest.Pen.ComputePolyline([PointF(destF.X,destF.Y),PointF(originF.X,originF.Y)],
-       Manager.PenWidth, testPix, False);
+       Manager.PenWidth, BGRAPixelTransparent, False);
       toolDest.FillPoly(pts, b);
     end else
     begin
