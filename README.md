@@ -6,7 +6,7 @@ Image editor, like PaintBrush or Paint.Net, written in Lazarus (Free Pascal). Us
 # Download
 [Download LazPaint](https://github.com/bgrabitmap/lazpaint/releases) for Windows, Mac and Linux.
 
-[Download LazPaint Portable](https://framakey.org/Portables/LazPaintPortable) for Windows.
+This application can be made [portable](https://wiki.freepascal.org/LazPaint_Make_it_portable). 
 
 # Official Sites
 [LazPaint Wiki](http://wiki.freepascal.org/LazPaint)
