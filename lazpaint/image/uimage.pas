@@ -464,7 +464,7 @@ begin
   begin
     if (Width > 256) or (Height > 256) then
     begin
-      ShowMessage(rsNotReasonableFormat);
+      ShowMessage(rsNotReasonableFormat + ' (> 256x256)');
       result := false;
     end;
   end;
