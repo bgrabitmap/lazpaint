@@ -8,6 +8,8 @@ Image editor, like PaintBrush or Paint.Net, written in Lazarus (Free Pascal). Us
 
 This application can be made [portable](https://wiki.freepascal.org/LazPaint_Make_it_portable). 
 
+Here are [compilation instructions](https://wiki.freepascal.org/LazPaint#Compilation_of_latest_version) if you would like to debug or make a modified version.
+
 # Official Sites
 [LazPaint Wiki](http://wiki.freepascal.org/LazPaint)
 
