@@ -243,10 +243,12 @@ procedure TPhongShapeDiff.Unapply(AEndShape: TVectorShape);
 begin
   with (AEndShape as TPhongShape) do
   begin
+    BeginUpdate;
     FShapeKind := FStartShapeKind;
     FLightPosition := FStartLightPosition;
     FShapeAltitudePercent := FStartShapeAltitudePercent;
     FBorderSizePercent := FStartBorderSizePercent;
+    EndUpdate;
   end;
 end;
 
