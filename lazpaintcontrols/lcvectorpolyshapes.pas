@@ -1102,6 +1102,7 @@ var
   i, nbTotal: Integer;
 begin
   FViewMatrix := AEditor.Matrix;
+  if not IsAffineMatrixInversible(FViewMatrix) then exit;
   FViewMatrixInverse := AffineMatrixInverse(FViewMatrix);
   FGridMatrix := AEditor.GridMatrix;
 

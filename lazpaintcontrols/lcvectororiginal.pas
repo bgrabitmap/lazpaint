@@ -2427,6 +2427,7 @@ var
   sb: TRectF;
   m: TAffineMatrix;
 begin
+  if not IsAffineMatrixInversible(AMatrix) then exit;
   sb := GetAlignBounds(ABounds, AMatrix);
   case AAlign of
   taRightJustify: m := AffineMatrixTranslation(ABounds.Right-sb.Right,0);
@@ -2442,6 +2443,7 @@ var
   sb: TRectF;
   m: TAffineMatrix;
 begin
+  if not IsAffineMatrixInversible(AMatrix) then exit;
   sb := GetAlignBounds(ABounds, AMatrix);
   case AAlign of
   tlBottom: m := AffineMatrixTranslation(0,ABounds.Bottom-sb.Bottom);
