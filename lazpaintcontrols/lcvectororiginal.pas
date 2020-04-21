@@ -3236,9 +3236,9 @@ begin
       allRectF := rectF(0,0,ADest.Width,ADest.Height);
       FUnfrozenRangeStart := newUnfrozenRangeStart;
       FUnfrozenRangeEnd := newUnfrozenRangeEnd;
+      FreeAndNil(FFrozenShapesUnderSelection);
       if FUnfrozenRangeStart > 0 then
       begin
-        FreeAndNil(FFrozenShapesUnderSelection);
         FFrozenShapesUnderBounds := GetRenderBounds(rect(0,0,ADest.Width,ADest.Height), mOfs,
                                       0, FUnfrozenRangeStart-1);
         FFrozenShapesUnderBounds.Intersect(rect(0,0,ADest.Width,ADest.Height));
@@ -3263,10 +3263,10 @@ begin
       for i := FUnfrozenRangeStart to FUnfrozenRangeEnd-1 do
         if FShapes[i].GetRenderBounds(ADest.ClipRect, mOfs, []).IntersectsWith(clipRectF) then
           FShapes[i].Render(ADest, ARenderOffset, AMatrix, ADraft);
+      FreeAndNil(FFrozenShapesOverSelection);
       if FUnfrozenRangeEnd < FShapes.Count then
       begin
-        FreeAndNil(FFrozenShapesOverSelection);
-        FFrozenShapesOverBounds := GetRenderBounds(rect(0,0,ADest.Width,ADest.Height), AMatrix,
+        FFrozenShapesOverBounds := GetRenderBounds(rect(0,0,ADest.Width,ADest.Height), mOfs,
                                      FUnfrozenRangeEnd, FShapes.Count-1);
         FFrozenShapesOverBounds.Intersect(rect(0,0,ADest.Width,ADest.Height));
         FFrozenShapesOverSelection := TBGRABitmap.Create(FFrozenShapesOverBounds.Width, FFrozenShapesOverBounds.Height);
