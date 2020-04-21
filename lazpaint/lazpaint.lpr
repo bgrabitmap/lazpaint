@@ -40,7 +40,7 @@ uses
   URainType, UFormRain, UPaletteToolbar, uselectionhighlight,
   UImagePreview, UPreviewDialog, UQuestion, UTiff, UImageView,
   UDarkTheme, URaw, UProcessAuto, UPython, UImageBackup, ULayerStackInterface,
-  UChooseColorInterface;
+  UChooseColorInterface, UIconCache;
 
 //sometimes LResources disappear in the uses clause
 

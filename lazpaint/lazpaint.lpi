@@ -350,7 +350,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="105">
+    <Units Count="106">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -968,6 +968,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UImageBackup"/>
       </Unit104>
+      <Unit105>
+        <Filename Value="uiconcache.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UIconCache"/>
+      </Unit105>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

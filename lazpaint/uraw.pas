@@ -58,6 +58,9 @@ implementation
 
 uses process, BGRAThumbnail, UResourceStrings, UFileSystem, Forms, LazFileUtils;
 
+var
+  RawCriticalSection: TRTLCriticalSection;
+
 function GetAllRawExtensions: string;
 var
   i: Integer;
@@ -83,12 +86,18 @@ begin
   tempName := '';
   p := nil;
   try
-    tempName := GetTempFileName;
-    s := TFileStream.Create(tempName, fmCreate);
+
+    EnterCriticalsection(RawCriticalSection);
     try
-      s.CopyFrom(AInputStream, AInputStream.Size);
+      tempName := GetTempFileName;
+      s := TFileStream.Create(tempName, fmCreate);
+      try
+        s.CopyFrom(AInputStream, AInputStream.Size);
+      finally
+        s.Free;
+      end;
     finally
-      s.Free;
+      LeaveCriticalsection(RawCriticalSection);
     end;
 
     p := TProcess.Create(nil);
@@ -218,6 +227,11 @@ end;
 initialization
 
   AllRawExtensions := GetAllRawExtensions;
+  InitCriticalSection(RawCriticalSection);
+
+finalization
+
+  DoneCriticalsection(RawCriticalSection);
 
 end.
 
