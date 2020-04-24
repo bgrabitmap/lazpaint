@@ -186,3 +186,17 @@ lazpaint (7.1) stable; urgency=low
 
 -- circular <circular@operamail.com>  Fri, 10 Apr 2020 12:07:00 +0100
 
+lazpaint (7.1.2) stable; urgency=low
+
+  * installer: add scripts on Windows
+  * installer: add new extensions on Windows (oXo, cur, jpeg, tif, tga, webp, xpm)
+  * rendering: phong shape undo
+  * rendering: vector layer with selection and transform
+  * rendering: add font kerning for text shape
+  * file browser: load thumbnails in separate thread to prevent freeze
+  * file browser: generate less file extensions to avoid slowdown
+  * crash fixes: skip when matrix transform is invalid
+  * crash fixes: catch tablet initialization error
+
+-- circular <circular@operamail.com>  Fri, 24 Apr 2020 14:19:00 +0100
+
