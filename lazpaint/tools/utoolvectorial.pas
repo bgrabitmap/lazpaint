@@ -926,7 +926,7 @@ function TEditShapeTool.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
   BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 var
   orig, xAxis, yAxis: TPointF;
-  viewMatrix: TAffineMatrix;
+  viewMatrix, editMatrix: TAffineMatrix;
 begin
   if InvalidEditMode then StopEdit(false,false);
   with LayerOffset do
@@ -968,15 +968,21 @@ begin
         FRectEditor.PointSize := DoScaleX(PointSize,OriginalDPI);
       end;
       FRectEditor.Clear;
-      FRectEditor.Matrix := AffineMatrixTranslation(-0.5,-0.5)*viewMatrix*AffineMatrixTranslation(0.5,0.5);
-      if Assigned(FOriginalRect) then FOriginalRect.ConfigureEditor(FRectEditor);
-      if Assigned(FSelectionRect) then FSelectionRect.ConfigureEditor(FRectEditor);
-      if Assigned(VirtualScreen) then
-        result := FRectEditor.Render(VirtualScreen,
-          rect(0,0,VirtualScreenWidth,VirtualScreenHeight))
+      editMatrix := AffineMatrixTranslation(-0.5,-0.5)*viewMatrix*AffineMatrixTranslation(0.5,0.5);
+      if IsAffineMatrixInversible(editMatrix) then
+      begin
+        FRectEditor.Matrix := editMatrix;
+        if Assigned(FOriginalRect) then FOriginalRect.ConfigureEditor(FRectEditor);
+        if Assigned(FSelectionRect) then FSelectionRect.ConfigureEditor(FRectEditor);
+        if Assigned(VirtualScreen) then
+          result := FRectEditor.Render(VirtualScreen,
+            rect(0,0,VirtualScreenWidth,VirtualScreenHeight))
+        else
+          result := FRectEditor.GetRenderBounds(
+            rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
+      end
       else
-        result := FRectEditor.GetRenderBounds(
-          rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
+        result := EmptyRect;
     end;
   else
     begin
@@ -2320,6 +2326,7 @@ function TVectorialTool.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
   BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 var
   orig, xAxis, yAxis: TPointF;
+  editMatrix: TAffineMatrix;
 begin
   if Assigned(FShape) then
   begin
@@ -2329,14 +2336,19 @@ begin
       xAxis := BitmapToVirtualScreen(PointF(1,0));
       yAxis := BitmapToVirtualScreen(PointF(0,1));
     end;
-    Editor.Matrix := AffineMatrix(xAxis-orig,yAxis-orig,orig)*VectorTransform(true);
     Editor.Clear;
-    Editor.PointSize := DoScaleX(PointSize, OriginalDPI);
-    if Assigned(FShape) then FShape.ConfigureEditor(Editor);
-    if Assigned(VirtualScreen) then
-      Result:= Editor.Render(VirtualScreen, rect(0,0,VirtualScreen.Width,VirtualScreen.Height))
-    else
-      Result:= Editor.GetRenderBounds(rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
+    editMatrix := AffineMatrix(xAxis-orig,yAxis-orig,orig)*VectorTransform(true);
+    if IsAffineMatrixInversible(editMatrix) then
+    begin
+      Editor.Matrix := editMatrix;
+      Editor.PointSize := DoScaleX(PointSize, OriginalDPI);
+      if Assigned(FShape) then FShape.ConfigureEditor(Editor);
+      if Assigned(VirtualScreen) then
+        Result:= Editor.Render(VirtualScreen, rect(0,0,VirtualScreen.Width,VirtualScreen.Height))
+      else
+        Result:= Editor.GetRenderBounds(rect(0,0,VirtualScreenWidth,VirtualScreenHeight));
+    end else
+      result := EmptyRect;
   end else
   begin
     result := EmptyRect;
