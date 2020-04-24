@@ -181,53 +181,28 @@ begin
   if AUppercase then Result:=UTF8UpperCase(AStrUtf8) else Result:= UTF8LowerCase(AStrUtf8);
 end;
 
-{(en) Generates all possible upper and lowercase combinations of a string}
+{(en) Generates various cases that may be encountered}
 function SingleExtAllCases (ASingleExtension: string; Delimiter: String=';'; Prefix: string=''; Suffix: String=''):string;
 var
-  FWord,FChar:integer;
-  Len: integer;
-  Count: integer;
-  OrigArray,LCArray,UCArray: array of String;
-  CExt:string='';
-  Cased: Boolean;
+  otherCase: String;
 begin
-  Result := '';
-  Len:= Length(ASingleExtension);
-  Len:=UTF8Length(ASingleExtension);
-  Count:=(1 shl len) - 1;
-  SetLength(OrigArray,Len);
-  SetLength(LCArray,Len);
-  SetLength(UCArray,Len);
-  for FChar:=0 to Len -1 do
-  begin
-     OrigArray[FChar]:=Utf8Copy (ASingleExtension,FChar+1,1);
-     LCArray[FChar]:=UTF8LowerCase(OrigArray[FChar]);
-     UCArray[FChar]:=UTF8UpperCase(OrigArray[FChar]);
-  end;
-  for FWord:=0 to Count do
-  begin
-    CExt:='';
-    Cased:=True;
-    for FChar:=0 to Len-1 do
-    begin
-      if not GetBit(FWord,FChar) or (LCArray[FChar]<>UCArray[FChar]) then
-      begin
-        if (OrigArray[FChar] = UCArray[FChar]) xor GetBit(FWord,FChar) then
-          CExt += UCArray[FChar]
-        else
-          CExt += LCArray[FChar];
-      end
-      else begin Cased:= False; Break; end;
-    end; //for FChar
-    if Cased then
-    begin
-      if length(Result) > 0 then result += Delimiter;
-      Result:= Result+ Prefix+ CExt + Suffix;
-    end;  //if
-  end; //for FWord
+  Result := Prefix + ASingleExtension + Suffix;
+
+  otherCase := UTF8LowerCase(ASingleExtension);
+  if otherCase <> ASingleExtension then
+    Result += Delimiter + Prefix + otherCase + Suffix;
+
+  otherCase := UTF8UpperCase(ASingleExtension);
+  if otherCase <> ASingleExtension then
+    Result += Delimiter + Prefix + otherCase + Suffix;
+
+  otherCase := UTF8UpperCase(UTF8Copy(ASingleExtension, 1, 1)) +
+               UTF8LowerCase(UTF8Copy(ASingleExtension, 2, UTF8Length(ASingleExtension) - 1));
+  if otherCase <> ASingleExtension then
+    Result += Delimiter + Prefix + otherCase + Suffix;
 end;
 
-{(en) Generates all possible upper and lowercase combinations of file extensions}
+{(en) Generates various cases of file extensions}
 function ExtensionsAllCases (AllExtensions: String; ADelimiter: string = ';'; APrefix:string = '*.'): String;
 var
   ExtList: TStringList;

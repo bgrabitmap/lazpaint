@@ -931,10 +931,13 @@ var
   newPos: Integer;
   tl: TBidiTextLayout;
   zoom: Single;
+  untransformed: TAffineMatrix;
 begin
   tl := GetTextLayout;
   zoom := GetTextRenderZoom;
-  newPos := tl.GetCharIndexAt(AffineMatrixScale(zoom,zoom)*AffineMatrixInverse(GetUntransformedMatrix)*PointF(X,Y));
+  untransformed := GetUntransformedMatrix;
+  if not IsAffineMatrixInversible(untransformed) then exit;
+  newPos := tl.GetCharIndexAt(AffineMatrixScale(zoom,zoom)*AffineMatrixInverse(untransformed)*PointF(X,Y));
   if newPos<>-1 then
   begin
     if (newPos <> FSelEnd) or (not AExtend and (FSelStart <> FSelEnd)) or (UserMode <> vsuEditText) then
@@ -1497,12 +1500,15 @@ var
   tl: TBidiTextLayout;
   pt: TPointF;
   i: Integer;
+  untransformed: TAffineMatrix;
 begin
   if not GetAffineBox(AffineMatrixIdentity,true).Contains(APoint) then
     exit(false);
   SetGlobalMatrix(AffineMatrixIdentity);
   tl := GetTextLayout;
-  pt := AffineMatrixInverse(GetUntransformedMatrix)*APoint;
+  untransformed := GetUntransformedMatrix;
+  if not IsAffineMatrixInversible(untransformed) then exit;
+  pt := AffineMatrixInverse(untransformed)*APoint;
   for i := 0 to tl.PartCount-1 do
     if tl.PartAffineBox[i].Contains(pt) then exit(true);
   result := false;

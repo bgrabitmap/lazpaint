@@ -81,6 +81,7 @@ var
   AContext: TLogContext;
 begin
   inherited Create(AOwner);
+  FTablet := nil;
   FTablet := TTablet.Create(Self);
 
   FTablet.OnPacket := @TabletPacket;
@@ -118,7 +119,7 @@ end;
 
 destructor TCustomLazTablet.Destroy;
 begin
-  FTablet.Close;
+  if Assigned(FTablet) then FTablet.Close;
   inherited Destroy;
 end;
 

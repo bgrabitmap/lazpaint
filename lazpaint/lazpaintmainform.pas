@@ -947,7 +947,12 @@ begin
   btnLeftDown := false;
   btnRightDown := false;
   btnMiddleDown:= false;
-  FTablet := TLazTablet.Create(self);
+  try
+    FTablet := TLazTablet.Create(self);
+  except
+    on ex: exception do
+      FTablet := nil;
+  end;
   spacePressed:= false;
   altPressed:= false;
   snapPressed:= false;

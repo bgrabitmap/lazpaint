@@ -10,9 +10,6 @@ uses
   BGRAAnimatedGif, UMySLV, LazPaintType, Masks, LCLType, UFileSystem,
   UImagePreview;
 
-const
-  MaxIconCacheCount = 512;
-
 type
 
   { TFBrowseImages }
@@ -87,6 +84,7 @@ type
     FChosenImage: TImageEntry;
     FPreview: TImagePreview;
     FComputeIconCurrentItem: integer;
+    FCacheComputeIconIndexes: array of integer;
     FPreviewFilename: string;
     FInShowPreview,FInHidePreview: boolean;
     FSavedDetailsViewWidth: integer;
@@ -174,10 +172,8 @@ uses BGRAThumbnail, BGRAPaintNet, BGRAOpenRaster, BGRAReadLzp,
     Types, UResourceStrings,
     UConfig, bgrareadjpeg, FPReadJPEG,
     UFileExtensions, BGRAUTF8, LazFileUtils,
-    UGraph, URaw, UDarkTheme, ShellCtrls;
-
-var
-  IconCache: TStringList;
+    UGraph, URaw, UDarkTheme, ShellCtrls,
+    UIconCache;
 
 { TFBrowseImages }
 
@@ -340,6 +336,9 @@ end;
 
 procedure TFBrowseImages.FormHide(Sender: TObject);
 begin
+  FCacheComputeIconIndexes := nil;
+  StopCaching(true);
+
   FLastBigIcon := (ShellListView1.ViewStyle = vsIcon);
   if not IsSaveDialog then FFilename:= FPreviewFilename;
   Timer1.Enabled := false;
@@ -491,6 +490,8 @@ end;
 procedure TFBrowseImages.ShellListView1OnSort(Sender: TObject);
 begin
   FComputeIconCurrentItem := 0;
+  FCacheComputeIconIndexes := nil;
+  StopCaching;
 end;
 
 procedure TFBrowseImages.ShellListView1OnFormatType(Sender: Tobject;
@@ -512,98 +513,83 @@ begin
 end;
 
 procedure TFBrowseImages.Timer1Timer(Sender: TObject);
-var i: integer;
-  iconRect,shellRect:TRect;
-  endDate: TDateTime;
-
-  function DetermineIcon(i: integer): boolean;
-  var itemPath,cacheName,dummyCaption: string;
-    cacheIndex: integer;
-    found: boolean;
-    mem: TMemoryStream;
-    s: TStream;
-  begin
-    result := false;
-    if ShellListView1.GetItemImage(i) = FImageFileNotChecked then
-    begin
-      if ShellListView1.ItemIsFolder[i] then
-        ShellListView1.SetItemImage(i,FImageFolder,false)
-      else
-      begin
-        itemPath := ShellListView1.ItemFullName[i];
-        cacheName := itemPath+':'+FloatToStr(ShellListView1.ItemLastModification[i]);
-        cacheIndex := IconCache.IndexOf(cacheName);
-        if not Assigned(FBmpIcon) then FBmpIcon := TBGRABitmap.Create;
-        if cacheIndex <> -1 then
-        begin
-          TStream(IconCache.Objects[cacheIndex]).Position:= 0;
-          TBGRAReaderLazPaint.LoadRLEImage(TStream(IconCache.Objects[cacheIndex]),FBmpIcon,dummyCaption);
-          found := true;
-        end
-        else
-        begin
-          try
-            s := FileManager.CreateFileStream(itemPath, fmOpenRead or fmShareDenyWrite);
-            try
-              if IsRawFilename(itemPath) then
-              begin
-                found := GetRawStreamThumbnail(s,ShellListView1.LargeIconSize,ShellListView1.LargeIconSize, BGRAPixelTransparent, True, FBmpIcon) <> nil;
-              end else
-                found := GetStreamThumbnail(s,ShellListView1.LargeIconSize,ShellListView1.LargeIconSize, BGRAPixelTransparent, True, ExtractFileExt(itemPath), FBmpIcon) <> nil;
-            finally
-              s.Free;
-            end;
-          except
-            found := false;
-          end;
-          if found then
-          begin
-            if IconCache.Count >= MaxIconCacheCount then IconCache.Delete(0);
-            mem := TMemoryStream.Create;
-            TBGRAWriterLazPaint.WriteRLEImage(mem,FBmpIcon);
-            IconCache.AddObject(cacheName,mem);
-          end;
-        end;
-        if found then
-        begin
-          ShellListView1.SetItemImage(i,FBmpIcon.Duplicate as TBGRABitmap,True);
-        end else
-          ShellListView1.SetItemImage(i,FImageFileUnkown,False);
-      end;
-      result := true;
-    end;
-  end;
-
-var someIconDone: boolean;
-
+const MaxCacheComputeCount = 10;
+var
+  bmpIcon: TBGRABitmap;
+  iconRect, shellRect:TRect;
+  i,j,cacheComputeCount: Integer;
+  newFilenames: array of string;
+  newLastModifications: array of TDateTime;
 begin
   Timer1.Enabled:= false;
-  EndDate := Now + 50 / MSecsPerDay;
   if FPreview.Filename <> FPreviewFilename then
     UpdatePreview
   else
     FPreview.HandleTimer;
-  if FComputeIconCurrentItem < ShellListView1.ItemCount then
+
+  if not IsCacheBusy and (length(FCacheComputeIconIndexes) > 0) then
   begin
-    vsList.Cursor := crAppStart;
+    //retrieve computed icons
+    for i := 0 to high(FCacheComputeIconIndexes) do
+    begin
+      j := FCacheComputeIconIndexes[i];
+      if ShellListView1.GetItemImage(j) = FImageFileNotChecked then
+      begin
+        bmpIcon := GetCachedIcon(ShellListView1.ItemFullName[j],
+                                 ShellListView1.ItemLastModification[j],
+                                 FImageFileUnkown);
+        if Assigned(bmpIcon) then
+          ShellListView1.SetItemImage(j, bmpIcon, bmpIcon <> FImageFileUnkown)
+        else
+          if j <  FComputeIconCurrentItem then
+            FComputeIconCurrentItem := j;
+      end;
+    end;
+    FCacheComputeIconIndexes := nil;
+  end;
+
+  if not IsCacheBusy and (FComputeIconCurrentItem < ShellListView1.ItemCount) then
+  begin
+    //queue icons to compute
+    setlength(FCacheComputeIconIndexes, MaxCacheComputeCount);
+    cacheComputeCount := 0;
+
+    //compute icons for visible items
     shellRect := rect(0,0,ShellListView1.Width,ShellListView1.Height);
-    someIconDone := false;
     for i := FComputeIconCurrentItem to ShellListView1.ItemCount-1 do
     if ShellListView1.GetItemImage(i) = FImageFileNotChecked then
-    If Now >= EndDate then break else
     begin
       iconRect := ShellListView1.ItemDisplayRect[i];
-      if IntersectRect(iconRect,iconRect,shellRect) then
-        if DetermineIcon(i) then someIconDone := true;
+      if IntersectRect(iconRect, iconRect, shellRect) then
+      begin
+        FCacheComputeIconIndexes[cacheComputeCount] := i;
+        inc(cacheComputeCount);
+        if cacheComputeCount = MaxCacheComputeCount then break;
+      end;
     end;
-    if not someIconDone then EndDate := Now + 50 / MSecsPerDay;
-    for i := FComputeIconCurrentItem to ShellListView1.ItemCount-1 do
-    If Now >= EndDate then break else
+
+    //compute icons in current display order
+    while (FComputeIconCurrentItem < ShellListView1.ItemCount-1)
+      and (cacheComputeCount < MaxCacheComputeCount) do
     begin
-      FComputeIconCurrentItem := i+1;
-      DetermineIcon(i);
+      if ShellListView1.GetItemImage(FComputeIconCurrentItem) = FImageFileNotChecked then
+      begin
+        FCacheComputeIconIndexes[cacheComputeCount] := FComputeIconCurrentItem;
+        inc(cacheComputeCount);
+      end;
+      inc(FComputeIconCurrentItem);
     end;
-    vsList.Cursor := crDefault;
+
+    setlength(FCacheComputeIconIndexes, cacheComputeCount);
+    setlength(newFilenames, cacheComputeCount);
+    setlength(newLastModifications, cacheComputeCount);
+    for i := 0 to cacheComputeCount-1 do
+    begin
+      j := FCacheComputeIconIndexes[i];
+      newFilenames[i] := ShellListView1.ItemFullName[j];
+      newLastModifications[i] := ShellListView1.ItemLastModification[j];
+    end;
+    AddToCache(newFilenames, newLastModifications, ShellListView1.LargeIconSize);
   end;
   vsList.SetBounds(vsList.Left, vsList.Top, Panel2.Width, Panel2.Height-Panel3.Height);
   ShellListView1.Update;
@@ -916,6 +902,8 @@ begin
         ShellListView1.SetItemImage(i,FImageFileNotChecked,false);
     end;
   FComputeIconCurrentItem := 0;
+  FCacheComputeIconIndexes := nil;
+  StopCaching;
 end;
 
 procedure TFBrowseImages.SelectCurrentDir;
@@ -1247,16 +1235,6 @@ procedure TFBrowseImages.FreeChosenImage;
 begin
   FreeAndNil(FChosenImage.bmp);
 end;
-
-initialization
-
-IconCache := TStringList.Create;
-IconCache.CaseSensitive := true;
-IconCache.OwnsObjects := true;
-
-finalization
-
-IconCache.Free;
 
 end.
 

@@ -243,10 +243,12 @@ procedure TPhongShapeDiff.Unapply(AEndShape: TVectorShape);
 begin
   with (AEndShape as TPhongShape) do
   begin
+    BeginUpdate;
     FShapeKind := FStartShapeKind;
     FLightPosition := FStartLightPosition;
     FShapeAltitudePercent := FStartShapeAltitudePercent;
     FBorderSizePercent := FStartBorderSizePercent;
+    EndUpdate;
   end;
 end;
 
@@ -1624,7 +1626,7 @@ var
   mapWidth,mapHeight: integer;
   shader: TPhongShading;
   approxFactor,borderSize: single;
-  m: TAffineMatrix;
+  m,mInv: TAffineMatrix;
   h, lightPosZ: single;
   map,raster: TBGRABitmap;
   u,v,lightPosF: TPointF;
@@ -1644,9 +1646,9 @@ begin
 
   //determine map size before transform
   ab := GetAffineBox(AMatrix, false);
+  if (ab.Width = 0) or (ab.Height = 0) then exit;
   if ab.Width > ab.Height then
   begin
-    if ab.Width = 0 then exit;
     mapWidth := ceil(ab.Width);
     mapHeight := ceil(ab.Surface/ab.Width);
   end else
@@ -1672,6 +1674,8 @@ begin
   v := (ab.BottomLeft-ab.TopLeft)*(1/ab.Height);
   m := AffineMatrix(u,v,ab.TopLeft)*AffineMatrixScale(ab.Width/mapWidth,ab.Height/mapHeight);
   borderSize := FBorderSizePercent/200*min(ab.Width,ab.Height);
+  if not IsAffineMatrixInversible(m) then exit;
+  mInv := AffineMatrixInverse(m);
 
   try
     //create height map
@@ -1713,7 +1717,7 @@ begin
       end;
     end;
 
-    abRaster := AffineMatrixInverse(m)*TAffineBox.AffineBox(rectRenderF);
+    abRaster := mInv*TAffineBox.AffineBox(rectRenderF);
     rectRasterF := abRaster.RectBoundsF;
     rectRaster := rect(floor(rectRasterF.Left),floor(rectRasterF.Top),ceil(rectRasterF.Right),ceil(rectRasterF.Bottom));
 
@@ -1725,7 +1729,7 @@ begin
       shader.AmbientFactor := 0.5;
       shader.NegativeDiffusionFactor := 0.15;
       lightPosF := AffineMatrixTranslation(-rectRaster.Left,-rectRaster.Top)
-                    *AffineMatrixInverse(m)*AMatrix*FLightPosition;
+                    *mInv*AMatrix*FLightPosition;
       lightPosZ := 100*Power(approxFactor,1.1);
       if h*3/2 > lightPosZ then lightposZ := h*3/2;
       shader.LightPosition3D := Point3D(lightPosF.x,lightPosF.y,lightPosZ);
@@ -1735,7 +1739,7 @@ begin
         shader.Draw(raster,map,h,-rectRaster.Left,-rectRaster.Top,BackFill.SolidColor)
       else
       begin
-        scan := BackFill.CreateScanner(AffineMatrixTranslation(-rectRaster.left,-rectRaster.top)*AffineMatrixInverse(m)*AMatrix,ADraft);
+        scan := BackFill.CreateScanner(AffineMatrixTranslation(-rectRaster.left,-rectRaster.top)*mInv*AMatrix,ADraft);
         shader.DrawScan(raster,map,h,-rectRaster.Left,-rectRaster.Top,scan);
         scan.Free;
       end;
