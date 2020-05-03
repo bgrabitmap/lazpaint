@@ -964,7 +964,8 @@ procedure TTextShape.InsertUnicodeValue;
 begin
   if FEnteringUnicode then
   begin
-    InsertText(UnicodeCharToUTF8(FUnicodeValue));
+    if FUnicodeValue <= $10FFFF then
+      InsertText(UnicodeCharToUTF8(FUnicodeValue));
     FEnteringUnicode:= false;
   end;
 end;
