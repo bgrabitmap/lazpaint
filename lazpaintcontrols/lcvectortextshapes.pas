@@ -861,6 +861,7 @@ begin
     FText := GetTextLayout.TextUTF8;
     dec(selLeft,delCount);
   end;
+  inc(selLeft, GetTextLayout.IncludeNonSpacingChars(selLeft, 0));
   FSelStart := selLeft;
   FSelEnd := selLeft;
   EndUpdate;
@@ -880,6 +881,7 @@ begin
     tl.DeleteText(selRight, ACount);
     FText := tl.TextUTF8;
   end;
+  inc(selRight, GetTextLayout.IncludeNonSpacingChars(selRight, 0));
   FSelStart := selRight;
   FSelEnd := selRight;
   EndUpdate;
@@ -895,6 +897,7 @@ begin
     selLeft := Min(FSelStart,FSelEnd);
     GetTextLayout.DeleteText(selLeft, Abs(FSelEnd-FSelStart));
     FText := GetTextLayout.TextUTF8;
+    inc(selLeft, GetTextLayout.IncludeNonSpacingChars(selLeft, 0));
     FSelStart := selLeft;
     FSelEnd := selLeft;
     EndUpdate;
@@ -922,6 +925,7 @@ begin
   insertCount := GetTextLayout.InsertText(ATextUTF8, FSelStart);
   FText := GetTextLayout.TextUTF8;
   Inc(FSelStart, insertCount);
+  inc(FSelStart, GetTextLayout.IncludeNonSpacingChars(FSelStart, 0));
   FSelEnd := FSelStart;
   EndUpdate;
 end;
