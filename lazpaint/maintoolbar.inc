@@ -22,6 +22,7 @@ procedure TFMain.CreateToolbarElements;
       vf.GradInterpolation:= ColorInterpolation;
     end;
     if Assigned(lbl) then lbl.OnMouseMove:= mouseMove;
+    pnl.PopupMenu := nil;
     pnl.OnMouseMove:= mouseMove;
     vf.OnMouseMove:= mouseMove;
   end;
