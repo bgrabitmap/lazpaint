@@ -1232,6 +1232,11 @@ begin
       begin
         xMargin := (abs(AMatrix[1,1])+abs(AMatrix[1,2]))*PenWidth*0.5;
         yMargin := (abs(AMatrix[2,1])+abs(AMatrix[2,2]))*PenWidth*0.5;
+        if LineCap = pecSquare then
+        begin
+          xMargin *= sqrt(2);
+          yMargin *= sqrt(2);
+        end;
         result := GetPointsBoundsF(pts);
         result.Left -= xMargin;
         result.Top -= yMargin;
