@@ -200,3 +200,14 @@ lazpaint (7.1.2) stable; urgency=low
 
 -- circular <circular@operamail.com>  Fri, 24 Apr 2020 14:19:00 +0100
 
+lazpaint (7.1.3) stable; urgency=low
+
+  * clipboard: fix pasting image in 24-bit with transparent color
+  * selection mask: Fix undo of complex selection mask
+  * text tool: better handling of character groups
+  * curve tool: assign line cap, fix bounds for square cap
+  * interface: fix context menu on fill controls
+  * translation: update Czech translation
+
+-- circular <circular@operamail.com>  Thu, 14 May 2020 11:28:00 +0100
+

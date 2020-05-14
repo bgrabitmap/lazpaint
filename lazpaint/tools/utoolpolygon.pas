@@ -296,7 +296,7 @@ begin
   TCustomPolypointShape(FShape).ArrowStartKind := Manager.ArrowStart;
   TCustomPolypointShape(FShape).ArrowEndKind := Manager.ArrowEnd;
   TCustomPolypointShape(FShape).ArrowSize := Manager.ArrowSize;
-  if not (self is TToolSpline) then TCustomPolypointShape(FShape).LineCap:= Manager.LineCap;
+  TCustomPolypointShape(FShape).LineCap:= Manager.LineCap;
   UpdateUserMode;
 end;
 

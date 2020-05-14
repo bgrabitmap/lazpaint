@@ -139,7 +139,7 @@ var
 
   procedure EncodeChannels(y: integer);
   var
-    rowWidth, channelOfs: Integer;
+    rowWidth: Integer;
   begin
     rowWidth := FRows[y].Right - FRows[y].Left;
     if FGrayscale then
@@ -372,7 +372,7 @@ begin
   if FGrayscale then
   begin
     GetMem(tempRow, FWidth);
-    emptyColor := BGRAWhite;
+    emptyColor := BGRABlack;
   end else
   begin
     GetMem(tempRow, FWidth*4);
@@ -433,14 +433,14 @@ var newWidth, newHeight: integer;
   dataSize: int64;
   lenRows: Integer;
 begin
-  ASource.ReadBuffer(newWidth, sizeof(newWidth));
-  ASource.ReadBuffer(newHeight, sizeof(newHeight));
-  ASource.ReadBuffer(newBounds, sizeof(newBounds));
-  ASource.ReadBuffer(newGrayscale, sizeof(newGrayscale));
-  ASource.ReadBuffer(lenRows, sizeof(lenRows));
+  ASource.ReadBuffer({%H-}newWidth, sizeof(newWidth));
+  ASource.ReadBuffer({%H-}newHeight, sizeof(newHeight));
+  ASource.ReadBuffer({%H-}newBounds, sizeof(newBounds));
+  ASource.ReadBuffer({%H-}newGrayscale, sizeof(newGrayscale));
+  ASource.ReadBuffer({%H-}lenRows, sizeof(lenRows));
   setlength(newRows, lenRows);
   if lenRows > 0 then ASource.ReadBuffer(newRows[0], sizeof(newRows[0])*length(newRows));
-  ASource.ReadBuffer(dataSize, sizeof(dataSize));
+  ASource.ReadBuffer({%H-}dataSize, sizeof(dataSize));
   FreeAndNil(FData);
   FData := TMemoryStream.Create;
   FData.CopyFrom(ASource, dataSize);
