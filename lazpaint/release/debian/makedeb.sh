@@ -64,6 +64,7 @@ mkdir "${DOC_DIR}"
 chmod 0755 "${DOC_DIR}"
 gzip -9 -n -c "debian/changelog" >"${DOC_DIR}/changelog.gz"
 cp "debian/copyright" "${DOC_DIR}"
+cp "${SOURCE_BIN}/readme.txt" "${DOC_DIR}/README"
 
 cp -r applications "${SHARE_PARENT_DIR}"
 chmod 0755 "${SHARE_PARENT_DIR}/applications"
@@ -77,7 +78,6 @@ gzip -9 -n "${SHARE_PARENT_DIR}/man/man1/lazpaint.1"
 mkdir "${SHARE_DIR}"
 chmod 0755 "${SHARE_DIR}"
 cp "${SOURCE_BIN}/lazpaint_simplified.ini" "${SHARE_DIR}"
-cp "${SOURCE_BIN}/readme.txt" "${SHARE_DIR}"
 
 mkdir "${SHARE_DIR}/i18n"
 chmod 0755 "${SHARE_DIR}/i18n"
@@ -99,8 +99,11 @@ echo "Installed-Size: ${SIZE_IN_KB}" >> "${STAGING_DIR}/DEBIAN/control"
 dpkg-deb --root-owner-group --build "${STAGING_DIR}" "${PACKAGE_NAME}.deb"
 
 NO_INSTALL_ARCHIVE="${PACKAGE_NAME}_no_install.tar.gz"
+
 echo "Making ${NO_INSTALL_ARCHIVE}..."
 mv "${BIN_DIR}/lazpaint" "${SHARE_DIR}/lazpaint"
+mv "${DOC_DIR}/copyright" "${SHARE_DIR}/copyright"
+mv "${DOC_DIR}/README" "${SHARE_DIR}/README"
 cd "$SHARE_DIR"
 cd ..
 tar -czf "../../../${NO_INSTALL_ARCHIVE}" "lazpaint"
