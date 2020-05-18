@@ -1,9 +1,11 @@
+Source: lazpaint-dev
+Build-Depends: lazarus-project (>= 2.0.2), dpkg-dev (>= 7)
 Package: lazpaint
 Version: 7.1.3
 Section: graphics
 Priority: optional
-Architecture: amd64
-Depends: 
+Architecture: any
+Depends: ${shlibs:Depends}
 Maintainer: circular <circular@operamail.com>
 Homepage: https://wiki.freepascal.org/LazPaint
 Description: Graphics viewer and editor. 
