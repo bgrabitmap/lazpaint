@@ -53,6 +53,16 @@ begin
 end;
 {$endif}
 
+{$ifdef Linux}
+function GetLinuxResourcesPath: string;
+var
+  binPath: String;
+begin
+  binPath := ExtractFilePath(Application.ExeName);
+  result := ExpandFileName(binPath+'..'+PathDelim+'share'+PathDelim+'lazpaint'+PathDelim);
+end;
+{$endif}
+
 function GetResourcePath(AResource: string): string;
 begin
   {$IFDEF WINDOWS}
@@ -62,6 +72,12 @@ begin
     if DirectoryExists(GetDarwinResourcesPath+AResource) then
       result := GetDarwinResourcesPath+AResource+PathDelim
     else
+    {$ELSE}
+      {$IFDEF LINUX}
+      if DirectoryExists(GetLinuxResourcesPath+AResource) then
+        result := GetLinuxResourcesPath+AResource+PathDelim
+      else
+      {$ENDIF}
     {$ENDIF}
     result:=ExtractFilePath(Application.ExeName)+AResource+PathDelim;
   {$ENDIF}
