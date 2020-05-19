@@ -7,6 +7,70 @@ interface
 
 uses classes, LazpaintType, uresourcestrings;
 
+const Manual: array[0..61] of string = (
+'NAME',
+'       LazPaint - Image editor',
+'',
+'SYNOPSIS',
+'       lazpaint [INPUT FILE] [OUTPUT FILE]',
+'       lazpaint [INPUT FILE] [ACTION]... [OUTPUT FILE]',
+'',
+'DESCRIPTION',
+'       Graphics viewer and editor.',
+'',
+'       Can  read  layered  files (lzp, ora, pdn, oXo), multi-images (gif, ico,',
+'       tiff), flat files (bmp, jpeg,  pcx,  png,  tga,  xpm,  xwd),  vectorial',
+'       (svg),  3D  (obj). Has drawing tools, phong shading, curve adjustments,',
+'       filters and render some textures.',
+'',
+'OPTIONS',
+'       If supplied, the INPUT FILE is loaded. If the OUTPUT FILE is  supplied,',
+'       the image is saved and the program ends. Otherwise, the GUI of the pro‐',
+'       gram is displayed.',
+'',
+'       -scriptbasedir DIRECTORY',
+'              set the directory where Python scripts for LazPaint are located.',
+'',
+'       -script FILENAME',
+'              runs the specified Python script. It must have  a  ".py"  exten‐',
+'              sion.',
+'       -quit',
+'              quits the program even if no output file was  provided.  Can  be',
+'              useful when only running scripts.',
+'',
+'       -new WIDTH,HEIGHT',
+'              creates an empty image of size WIDTH x HEIGHT.',
+'',
+'       -resample WIDTH,HEIGHT',
+'              resamples the image to the size WIDTH x HEIGHT.',
+'',
+'       -opacity ALPHA',
+'              applies the opacity to the image. ALPHA is between 0 and 255.',
+'',
+'       -gradient R1,G1,B1,A1,R2,G2,B2,A2,TYPE,X1,Y1,X2,Y2',
+'              renders  a gradient from point X1,Y1 to point X2,Y2. TYPE can be',
+'              linear, reflected, diamond,  radial  or  angular.  The  starting',
+'              color is (R1,G1,B1,A1) and final color is (R2,G2,B2,A2).',
+'',
+'       -horizontalflip',
+'              flips selection or image horizontally.',
+'',
+'       -verticalflip',
+'              flips selection or image vertically.',
+'',
+'       -swapredblue',
+'              swap red and blue channels.',
+'',
+'       -smartzoom3',
+'              resample  the  image 3 times bigger with smart detection of bor‐',
+'              ders.',
+'',
+'       -rotatecw',
+'              rotates the image clockwise.',
+'',
+'       -rotateccw',
+'              rotates the image counter-clockwise.');
+
 procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved, quitQuery: boolean);
 function ParamStrUTF8(AIndex: integer): string;
 
@@ -158,6 +222,14 @@ var
     result := true;
   end;
 
+  procedure DisplayHelp;
+  var
+    j: Integer;
+  begin
+    for j := low(manual) to high(manual) do
+      writeln(manual[j]);
+  end;
+
 begin
   fileSaved := True;
   quitQuery:= false;
@@ -193,7 +265,9 @@ begin
     CommandStr := commandsUTF8[i];
     if (length(CommandStr) >= 1) and (CommandStr[1] in commandPrefix) then
     begin
-      Delete(CommandStr,1,1);
+      if (commandStr[1] = '-') and (length(commandStr)>=2) and (commandStr[2] = '-') then
+        delete(commandStr,1,2)
+        else Delete(CommandStr,1,1);
       Filter := StrToPictureFilter(CommandStr);
       if Filter <> pfNone then
       begin
@@ -206,6 +280,8 @@ begin
       end else
       begin
         LowerCmd := UTF8LowerCase(CommandStr);
+        if (LowerCmd='help') or (LowerCmd = 'h') or (LowerCmd = '?') then
+        begin DisplayHelp; quitQuery := true; exit; end else
         if LowerCmd='horizontalflip' then AImageActions.HorizontalFlip(foAuto) else
         if LowerCmd='verticalflip' then AImageActions.VerticalFlip(foAuto) else
         if LowerCmd='swapredblue' then instance.Image.SwapRedBlue else
