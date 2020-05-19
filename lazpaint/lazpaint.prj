@@ -1,0 +1,1355 @@
+[componentpalette]
+order0=0
+order1=0
+order2=0
+order3=0
+order4=0
+order5=0
+order6=0
+order7=0
+order8=0
+order9=0
+order10=0
+order11=0
+order12=0
+order13=0
+order14=0
+order15=0
+order16=0
+order17=0
+[projectoptions]
+findinfiledialog=50
+ [findinfileadialogfo.subdirs]
+ value=1
+ [findinfileadialogfo.incurrentfile]
+ value=0
+ [findinfileadialogfo.inopenfiles]
+ value=0
+ [findinfileadialogfo.wholeword]
+ value=0
+ [findinfileadialogfo.indirectories]
+ value=1
+ [findinfileadialogfo.inprojectdir]
+ value=0
+ [findinfileadialogfo.casesensitive]
+ value=0
+ [findinfileadialogfo.mask]
+ value="*.pas" "*.pp" "*.inc"
+ history=1
+  "*.pas" "*.pp" "*.inc"
+ [findinfileadialogfo.dir]
+ filecolwidth=174
+ x=0
+ y=0
+ cx=0
+ cy=0
+ filefilterindex=0
+ filefilter="*.pas" "*.pp" "*.inc"
+ [findinfileadialogfo.findtext]
+ value=bcaggrega
+ history=8
+  bcaggrega
+  BCComboBox
+  unit LCVectorRectShapes
+  unit LazarusPackageInt
+  LazarusPackageInt
+  cupsprinters_h
+  lapAutoAdjustForDPI
+  
+ [findinfileadialogfo]
+ stackedunder=
+ x=477
+ y=238
+ cx=339
+ cy=308
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+finddialog=8
+ [finddialogfo.selectedonly]
+ value=0
+ [finddialogfo]
+ stackedunder=
+ x=944
+ y=114
+ cx=234
+ cy=269
+options=114
+ [projectoptionsfo.toolshortcuts]
+ dropdowncolwidths=3
+  70
+  70
+  70
+ [projectoptionsfo.twidgetgrid3]
+ propcolwidthref=673
+ sortdescend0=0
+ sortdescend1=0
+ sortdescend2=0
+ sortdescend3=0
+ width4=119
+ sortdescend4=0
+ width5=234
+ sortdescend5=0
+ width6=275
+ sortdescend6=0
+ width7=47
+ sortdescend7=0
+ width8=1
+ sortdescend8=0
+ width9=275
+ sortdescend9=0
+ [projectoptionsfo.twidgetgrid4]
+ propcolwidthref=508
+ width0=96
+ sortdescend0=0
+ sortdescend1=0
+ width2=73
+ sortdescend2=0
+ width3=244
+ sortdescend3=0
+ width4=254
+ sortdescend4=0
+ sorted=0
+ col=-1073741823
+ row=-1073741823
+ rowheight=17
+ [projectoptionsfo.newfile]
+ firsttab=0
+ index=0
+ [projectoptionsfo.fontaliasgrid]
+ propcolwidthref=354
+ width0=98
+ sortdescend0=0
+ width1=343
+ sortdescend1=0
+ width2=50
+ sortdescend2=0
+ width3=50
+ sortdescend3=0
+ width4=50
+ sortdescend4=0
+ width5=50
+ sortdescend5=0
+ width6=70
+ sortdescend6=0
+ [projectoptionsfo.macrosplitter]
+ x=0
+ y=141
+ xprop=1
+ yprop=0.23920265780731
+ [projectoptionsfo.macrogrid]
+ propcolwidthref=446
+ sortdescend0=0
+ sortdescend1=0
+ sortdescend2=0
+ sortdescend3=0
+ sortdescend4=0
+ sortdescend5=0
+ sortdescend6=0
+ sortdescend7=0
+ sortdescend8=0
+ sortdescend9=0
+ width10=146
+ sortdescend10=0
+ width11=430
+ sortdescend11=0
+ [projectoptionsfo.comment_1]
+ value=
+ [projectoptionsfo.comment_B]
+ value=
+ [projectoptionsfo.comment_M]
+ value=
+ [projectoptionsfo.makegroupbox]
+ firsttab=0
+ index=2
+ [projectoptionsfo.exceptionsgrid]
+ propcolwidthref=664
+ width0=47
+ sortdescend0=0
+ width1=658
+ sortdescend1=0
+ [projectoptionsfo.ttabwidget1]
+ firsttab=0
+ index=1
+ [projectoptionsfo.filefiltergrid]
+ propcolwidthref=734
+ width0=112
+ sortdescend0=0
+ width1=727
+ sortdescend1=0
+ [projectoptionsfo.ttabwidget2]
+ firsttab=0
+ index=1
+ [projectoptionsfo.setting_tab]
+ firsttab=0
+ index=2
+ [projectoptionsfo]
+ stackedunder=
+ x=196
+ y=73
+ cx=724
+ cy=661
+settings=8
+ [settings_form]
+ x=447
+ y=148
+ cx=446
+ cy=578
+ wsize=0
+ active=1
+ visible=1
+mainfile=${PROJECTNAME}.lpr
+targetfile=${PROJECTNAME}${EXEEXT}
+messageoutputfile=
+makecommand=${COMPILER}
+makedir=
+unitdirs=27
+ ./buttons
+ ./image
+ ./tools
+ ../resources
+ ./dialog
+ ./tablet
+ ./dialog/color
+ ./dialog/filter
+ ./*
+ ../lazpaintcontrols
+ ${BGRABITMAPDIR}
+ ${lcldir}*
+ ${lcldir}/components/printers/win32
+ ${lcldir}/components/printers/unix
+ ${lcldir}/packager/registration
+ ${lcldir}/components/*
+ ${bgracontrolsdir}
+ ${lcldir}/lcl/forms
+ ${lcldir}/lcl/widgetset
+ ${lcldir}/interfaces/*
+ ${lcldir}/lcl/nonwin32
+ ${lcldir}/lcl/interfaces/gtk2
+ ${lcldir}/lcl/interfaces/qt
+ ${lcldir}/lcl/interfaces/win32
+ ${lcldir}/lcl/components/*
+ ${lcldir}/lcl/include
+ ${lcldir}/lcl
+unitpref=-Fu
+incpref=-Fi
+libpref=-Fl
+objpref=-Fo
+targpref=-o
+befcommand=0
+aftcommand=0
+makeoptions=10
+  -MObjFPC -Scgi -Cg -OoREGVAR -Xs -XX -l -vewnhibq
+ -gl
+ -ghl
+ -B
+ -O-
+ -O3 -XX -CX -Xs
+ -vi
+ -FUunits/
+ -dLCL -dLCLgtk2
+ -dLCL -dLCLwin32
+makeoptpurpose=10
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+compilerused=29
+ ${COMPILER} (Default)
+ Pascal 1
+ Pascal 2
+ Pascal 3
+ Pascal 4
+ Pascal 5
+ Pascal 6
+ Pascal 7
+ Pascal 8
+ C 1
+ C 2
+ C 3
+ C 4
+ C 5
+ C 6
+ C 7
+ C 8
+ Java 1
+ Java 2
+ Java 3
+ Java 4
+ Python 1
+ Python 2
+ Python 3
+ Python 4
+ Other 1
+ Other 2
+ Other 3
+ Other 4
+debuggerused=6
+ ${DEBUGGER} (Default)
+ Debugger 1
+ Debugger 2
+ Debugger 3
+ Debugger 4
+ None
+exeused=14
+ ${EXEEXT} (Default)
+ No Extension
+ .exe
+ .com
+ .bin
+ .prog
+ .pyc
+ .class
+ .so
+ .dll
+ .lib
+ .o
+ .res
+ .inf
+codetemplatedirs=1
+ ${TEMPLATEDIR}
+toolmenus=0
+toolfiles=0
+toolparams=0
+fontnames=0
+scriptbeforecopy=
+scriptaftercopy=
+newprojectfiles=0
+newprojectfilesdest=0
+newfinames=3
+ Program
+ Unit
+ Textfile
+newfifilters=3
+ "*.pas" "*.pp"
+ "*.pas" "*.pp"
+ 
+newfiexts=3
+ pas
+ pas
+ 
+newfisources=3
+ ${TEMPLATEDIR}default/program.pas
+ ${TEMPLATEDIR}default/unit.pas
+ 
+newfonames=11
+ Mainform
+ Simple Form
+ Docking Form
+ Datamodule
+ Subform
+ Scrollboxform
+ Tabform
+ Dockpanel
+ Report
+ Scriptform
+ Inherited Form
+newfonamebases=11
+ form
+ form
+ form
+ module
+ form
+ form
+ form
+ form
+ report
+ script
+ form
+newfosources=11
+ ${TEMPLATEDIR}default/mainform.pas
+ ${TEMPLATEDIR}default/simpleform.pas
+ ${TEMPLATEDIR}default/dockingform.pas
+ ${TEMPLATEDIR}default/datamodule.pas
+ ${TEMPLATEDIR}default/subform.pas
+ ${TEMPLATEDIR}default/scrollboxform.pas
+ ${TEMPLATEDIR}default/tabform.pas
+ ${TEMPLATEDIR}default/dockpanelform.pas
+ ${TEMPLATEDIR}default/report.pas
+ ${TEMPLATEDIR}default/pascform.pas
+ ${TEMPLATEDIR}default/inheritedform.pas
+newfoforms=11
+ ${TEMPLATEDIR}default/mainform.mfm
+ ${TEMPLATEDIR}default/simpleform.mfm
+ ${TEMPLATEDIR}default/dockingform.mfm
+ ${TEMPLATEDIR}default/datamodule.mfm
+ ${TEMPLATEDIR}default/subform.mfm
+ ${TEMPLATEDIR}default/scrollboxform.mfm
+ ${TEMPLATEDIR}default/tabform.mfm
+ ${TEMPLATEDIR}default/dockpanelform.mfm
+ ${TEMPLATEDIR}default/report.mfm
+ ${TEMPLATEDIR}default/pascform.mfm
+ ${TEMPLATEDIR}default/inheritedform.mfm
+forcezorder=0
+stripmessageesc=0
+copymessages=0
+closemessages=0
+enablepurpose=0
+enablesource=1
+checkmethods=1
+colorerror=-1610612717
+colorwarning=-1610612712
+colornote=-1610612716
+usercolors=30
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+usercolorcomment=30
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+formatmacronames=0
+formatmacrovalues=0
+settingsfile=
+settingseditor=1
+settingsdebugger=1
+settingsstorage=1
+settingsprojecttree=0
+settingsautoload=0
+settingsautosave=0
+modulenames=0
+moduletypes=0
+modulefiles=0
+befcommandon=0
+makeoptionson=10
+ 63
+ 2
+ 0
+ 6
+ 2
+ 61
+ 4095
+ 63
+ 4047
+ 48
+compilerusedon=29
+ 4039
+ 8
+ 0
+ 0
+ 0
+ 16
+ 32
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+debuggerusedon=6
+ 4095
+ 0
+ 0
+ 0
+ 0
+ 0
+exeusedon=14
+ 4047
+ 0
+ 48
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+comment_M=
+comment_B=
+comment_1=
+comment_2=
+comment_3=
+comment_4=
+comment_5=
+comment_6=
+comment_7=
+comment_8=
+comment_9=
+comment_0=
+project_name=
+project_creator=
+project_copyright=
+project_license=
+project_time=
+project_date=
+project_comment=
+aftcommandon=0
+unitdirson=27
+ 987135
+ 987135
+ 987135
+ 987135
+ 987135
+ 987135
+ 987135
+ 987135
+ 987135
+ 987135
+ 987135
+ 987135
+ 983088
+ 987087
+ 987135
+ 987135
+ 987135
+ 987135
+ 987135
+ 987135
+ 987087
+ 987087
+ 983040
+ 983088
+ 987135
+ 987135
+ 987135
+macroon=0
+macronames=0
+macrovalues=0
+macrogroup=0
+groupcomments=10
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+toolsave=0
+toolhide=0
+toolparse=0
+toolmessages=0
+toolshortcuts=0
+fontalias=0
+fontancestors=0
+fontheights=0
+fontwidths=0
+fontoptions=0
+fontxscales=0
+expandprojectfilemacros=0
+loadprojectfile=0
+newinheritedforms=11
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+ 1
+uid=0
+sourcefilemasks=3
+ "*.pas" "*.dpr" "*.lpr" "*.pp" "*.inc"
+ "*.c" "*.cc" "*.h"
+ "*.mfm"
+syntaxdeffiles=3
+ ${SYNTAXDEFDIR}pascal_ideu.sdef
+ ${SYNTAXDEFDIR}cpp.sdef
+ ${SYNTAXDEFDIR}objecttext.sdef
+filemasknames=3
+ Source
+ Forms
+ All Files
+filemasks=3
+ "*.pp" "*.pas" "*.inc" "*.dpr" "*.lpr"
+ *.mfm
+ *
+showgrid=1
+snaptogrid=1
+moveonfirstclick=1
+noformdesignerdocking=0
+componenthints=1
+gridsizex=8
+gridsizey=8
+autoindent=1
+blockindent=4
+linenumberson=1
+rightmarginon=1
+rightmarginchars=80
+scrollheight=0
+tabstops=4
+spacetabs=1
+showtabs=0
+tabindent=0
+editfontname=mseide_source
+editfontheight=16
+editfontwidth=0
+editfontextraspace=0
+editfontcolor=-1879048183
+editbkcolor=-1879048186
+statementcolor=14745599
+pairmarkcolor=-1610612712
+editfontantialiased=1
+editmarkbrackets=1
+editmarkpairwords=1
+fpgdesigner=1
+backupfilecount=0
+encoding=1
+eolstyle=1
+trimtrailingwhitespace=0
+codetemplatedirs=1
+ ${TEMPLATEDIR}
+debugcommand=${DEBUGGER}
+debugoptions=
+debugtarget=
+runcommand=
+xtermcommand=xterm -S${PTSN}/${PTSH}
+remoteconnection=
+uploadcommand=
+gdbprocessor=auto
+gdbservercommand=
+gdbservercommandattach=
+beforeconnect=
+afterconnect=
+beforeload=
+afterload=
+beforerun=
+sourcebase=
+sourcedirs=19
+ ./tools/
+ ../resources/
+ ./dialog/
+ ./tablet/
+ ./dialog/color/
+ ./dialog/filter/
+ ${BGRABITMAPDIR}/
+ ${bgracontrolsdir}/
+ ../lazpaintcontrols/
+ ${FPCSRCDIR}/*/
+ ${FPCSRCDIR}/*/
+ ${lcldir}*/
+ ${lcldir}/lcl/widgetset/
+ ${lcldir}/interfaces/*/
+ ${lcldir}/lcl/interfaces/gtk2/
+ ${lcldir}/lcl/components/*/
+ ${lcldir}/lcl/include/
+ ${lcldir}/lcl/
+ ./
+defines=0
+progparameters=
+progworkingdirectory=
+envvarnames=0
+envvarvalues=0
+defineson=0
+stoponexception=0
+valuehints=1
+activateonbreak=1
+raiseonbreak=1
+showconsole=1
+externalconsole=0
+settty=1
+gdbdownload=0
+downloadalways=0
+restartgdbbeforeload=0
+startupbkpt=0
+startupbkpton=0
+gdbsimulator=0
+gdbserverstartonce=0
+gdbloadtimeout=
+gdbserverwait=0
+nogdbserverexit=0
+gdbservertty=0
+exceptclassnames=1
+ EconvertError
+exceptignore=1
+ 0
+nodebugbeginend=0
+fpcgdbworkaround=1
+sigsettings=27
+ 1,1,T,F
+ 3,3,T,F
+ 4,4,T,F
+ 6,6,T,F
+ 7,7,T,F
+ 8,8,T,F
+ 9,9,T,F
+ 10,10,T,F
+ 11,11,T,F
+ 12,12,T,F
+ 13,13,T,F
+ 15,15,T,F
+ 16,16,T,F
+ 17,17,F,F
+ 18,18,T,F
+ 19,19,T,F
+ 20,20,T,F
+ 21,21,T,F
+ 22,22,T,F
+ 23,23,T,F
+ 24,24,T,F
+ 25,25,T,F
+ 26,26,T,F
+ 27,27,T,F
+ 28,28,T,F
+ 29,29,T,F
+ 30,30,T,F
+defaultmake=1
+[breakpoints]
+on=0
+path=0
+line=0
+address=0
+addbkpt=0
+ignore=0
+condition=0
+panels=1
+ panel1
+units=
+ (
+ a=0,8245,6,Pascal Units
+ c=1
+  (
+  file=lazpaint.lpr
+  kind=1
+  a=0,8196,0,lazpaint.lpr
+  )
+ )
+cmodules=
+ (
+ a=0,8228,6,C Modules
+ )
+files=
+ (
+ a=0,8228,6,Text Files
+ )
+[componentstore]
+filename=
+[components]
+[selecteditpage]
+colwidth=100
+x=0
+y=0
+cx=0
+cy=0
+[progparams]
+progparamhistory=0
+workdirparamhistory=0
+envvarons=0
+[edit]
+hintwidth=0
+hintheight=0
+finddtext=
+findhistory=0
+findoptions=1
+editpos=2
+ 6,10
+ 0,0
+bookmarks0=0
+bookmarks1=0
+sourcefiles=1
+ ${PROJECTDIR}/lazpaint.lpr
+relpaths=1
+ lazpaint.lpr
+ismoduletexts=2
+ 0
+ 0
+modules=0
+moduleoptions=0
+visiblemodules=0
+nomenumodules=0
+[sourcefo.files_tab]
+firsttab=0
+index=0
+[layout]
+windowlayout=511
+ [mainfo.basedock]
+ splitdir=2
+ useroptions=268450944
+ [mainfo]
+ splitdir=0
+ useroptions=301990011
+ stackedunder=
+ parent=
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=34
+ y=53
+ cx=1224
+ cy=621
+ rcx=0
+ rcy=0
+ wsize=0
+ active=1
+ visible=1
+ [targetconsolefo]
+ splitdir=0
+ useroptions=268451945
+ parent=
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=493
+ y=171
+ cx=497
+ cy=314
+ rcx=0
+ rcy=0
+ wsize=0
+ active=0
+ visible=1
+ [threadsfo]
+ splitdir=0
+ useroptions=268451945
+ parent=
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=444
+ y=431
+ cx=418
+ cy=126
+ rcx=0
+ rcy=0
+ wsize=0
+ active=0
+ visible=0
+ [memoryfo]
+ splitdir=0
+ useroptions=268451963
+ stackedunder=dialogfilesfo
+ parent=
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=100
+ y=100
+ cx=453
+ cy=354
+ rcx=0
+ rcy=0
+ wsize=0
+ active=0
+ visible=0
+ [memoryfo.add]
+ value=0
+ [memoryfo.memon]
+ value=0
+ [memoryfo.bitwidth]
+ value=0
+ [memoryfo.cnt]
+ value=0
+ [disassfo]
+ splitdir=0
+ useroptions=268451947
+ stackedunder=
+ parent=
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=162
+ y=502
+ cx=564
+ cy=210
+ rcx=0
+ rcy=0
+ wsize=0
+ active=0
+ visible=0
+ [findinfilefo]
+ splitdir=0
+ useroptions=268451947
+ stackedunder=
+ parent=
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=239
+ y=115
+ cx=962
+ cy=414
+ rcx=0
+ rcy=0
+ [projecttreefo]
+ splitdir=0
+ useroptions=268484715
+ parent=mainfo.panel1.container
+ visible=1
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=0
+ y=0
+ cx=205
+ cy=451
+ rcx=0
+ rcy=0
+ [projecttreefo.grid]
+ propcolwidthref=88
+ width0=117
+ sortdescend0=0
+ width1=82
+ sortdescend1=0
+ sorted=0
+ col=1
+ row=-1073741823
+ rowheight=16
+ [stackfo]
+ splitdir=0
+ useroptions=268460137
+ parent=
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=423
+ y=321
+ cx=344
+ cy=155
+ rcx=0
+ rcy=0
+ wsize=0
+ active=0
+ visible=0
+ [watchpointsfo]
+ splitdir=0
+ useroptions=268451945
+ parent=
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=537
+ y=26
+ cx=483
+ cy=210
+ rcx=0
+ rcy=0
+ wsize=0
+ active=0
+ visible=0
+ [watchpointsfo.grid]
+ propcolwidthref=332
+ sortdescend0=0
+ values1=0
+ values1_ci=-1
+ width1=33
+ sortdescend1=0
+ values2=0
+ width2=149
+ sortdescend2=0
+ width4=34
+ sortdescend4=0
+ values5=0
+ values5_ci=-1
+ width5=38
+ sortdescend5=0
+ values6=0
+ width6=172
+ sortdescend6=0
+ [breakpointsfo]
+ splitdir=0
+ useroptions=268451947
+ stackedunder=memoryfo
+ parent=
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=107
+ y=404
+ cx=477
+ cy=128
+ rcx=0
+ rcy=0
+ wsize=0
+ active=0
+ visible=0
+ [breakpointsfo.bkptson]
+ value=1
+ [objectinspectorfo.grid]
+ propcolwidthref=480
+ width0=213
+ sortdescend0=0
+ width1=261
+ sortdescend1=0
+ [symbolfo]
+ splitdir=0
+ useroptions=268451963
+ stackedunder=
+ parent=
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=142
+ y=257
+ cx=361
+ cy=137
+ rcx=0
+ rcy=0
+ wsize=0
+ active=0
+ visible=0
+ [symbolfo.grid]
+ propcolwidthref=207
+ values0=18
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+ width0=111
+ sortdescend0=0
+ width1=125
+ sortdescend1=0
+ [symbolfo.symbol]
+ [watchfo]
+ splitdir=0
+ useroptions=268460137
+ parent=mainfo.basedock
+ visible=0
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=53
+ y=0
+ cx=247
+ cy=44
+ rcx=1262
+ rcy=583
+ [watchfo.grid]
+ propcolwidthref=121
+ values0=0
+ values0_ci=-1
+ sortdescend0=0
+ values1=0
+ width1=66
+ sortdescend1=0
+ values3=0
+ values3_ci=-1
+ sortdescend3=0
+ values4=0
+ values4_ci=-1
+ width4=13
+ sortdescend4=0
+ [watchfo.watchon]
+ [watchfo.expression]
+ [watchfo.watcheson]
+ value=1
+ [messagefo]
+ splitdir=0
+ useroptions=268517483
+ parent=mainfo.basedock
+ visible=1
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=0
+ y=507
+ cx=1212
+ cy=93
+ rcx=0
+ rcy=0
+ [componentstorefo]
+ splitdir=0
+ useroptions=268460155
+ stackedunder=
+ parent=
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=100
+ y=100
+ cx=445
+ cy=354
+ rcx=0
+ rcy=0
+ wsize=0
+ active=0
+ visible=0
+ [componentstorefo.grid]
+ propcolwidthref=435
+ width0=111
+ sortdescend0=0
+ sortdescend1=0
+ width2=160
+ sortdescend2=0
+ width3=185
+ sortdescend3=0
+ [componentstorefo.storefiledialog]
+ filenames=0
+ filecolwidth=0
+ x=0
+ y=0
+ cx=0
+ cy=0
+ lastdir=
+ filehistory=0
+ filefilterindex=0
+ filefilter=
+ [componentstorefo.groupfiledialog]
+ filenames=0
+ filecolwidth=0
+ x=0
+ y=0
+ cx=0
+ cy=0
+ lastdir=
+ filehistory=0
+ filefilterindex=0
+ filefilter=
+ [componentstorefo.compfiledialog]
+ filenames=0
+ filecolwidth=0
+ x=0
+ y=0
+ cx=0
+ cy=0
+ lastdir=
+ filehistory=0
+ filefilterindex=0
+ filefilter=
+ [componentpalettefo]
+ splitdir=0
+ useroptions=268460139
+ stackedunder=
+ parent=
+ mdistate=3
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=240
+ y=139
+ cx=956
+ cy=77
+ rcx=0
+ rcy=0
+ wsize=0
+ active=0
+ visible=0
+ [componentpalettefo.componentpages]
+ activetab=17
+ [debuggerfo]
+ splitdir=0
+ useroptions=24683
+ parent=mainfo.basedock
+ visible=1
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=0
+ y=0
+ cx=1212
+ cy=50
+ rcx=0
+ rcy=0
+ [debuggerfo.basedock]
+ splitdir=2
+ useroptions=268582019
+ parent=debuggerfo.container
+ visible=1
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=1197
+ ncy=36
+ x=0
+ y=0
+ cx=1212
+ cy=34
+ rcx=0
+ rcy=0
+ [debuggerfo.edit_options]
+ value=X
+ [debuggerfo.edit_compilernum]
+ value=0
+ [debuggerfo.edit_compiler]
+ value=Pascal
+ [debuggerfo.file_history]
+ [debuggerfo.project_options]
+ value=1
+ [debuggerfo.hints]
+ value=0
+ [sourcefo]
+ splitdir=0
+ useroptions=16489
+ parent=mainfo.panel1.container
+ visible=1
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=208
+ y=0
+ cx=1004
+ cy=451
+ rcx=0
+ rcy=0
+ [sourcefo.files_tab]
+ firsttab=0
+ index=0
+ [confideufo.fontname]
+ value=stf_default
+ [confideufo.usedefaulteditoroptions]
+ value=0
+ [cpuc86_64fo]
+ irqoff=0
+ splitdir=0
+ useroptions=268451947
+ stackedunder=confdebuggerfo
+ parent=
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=183
+ y=113
+ cx=352
+ cy=277
+ rcx=0
+ rcy=0
+ wsize=0
+ active=0
+ visible=0
+ [mainfo.panel1]
+ splitdir=1
+ useroptions=302087659
+ parent=mainfo.basedock
+ visible=1
+ mdistate=0
+ nx=0
+ ny=0
+ ncx=0
+ ncy=0
+ x=0
+ y=53
+ cx=1212
+ cy=451
+ rcx=0
+ rcy=0
+[targetconsole]
+finddtext=
+findhistory=0
+findoptions=1
