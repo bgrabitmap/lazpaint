@@ -183,7 +183,6 @@ type
     FContainer: TVectorOriginal;
     FRemoving: boolean;
     FDiffs: TVectorShapeDiffList;
-    FFillChangeWithoutUpdate: boolean;
     FFillBeforeChangeBounds: TRectF;
     function GetIsUpdating: boolean;
     procedure SetContainer(AValue: TVectorOriginal);
@@ -193,6 +192,7 @@ type
   protected
     FPenWidth: single;
     FOutlineWidth: single;
+    FFillChangeWithoutUpdate: boolean;
     procedure BeginEditingUpdate;
     procedure EndEditingUpdate;
     procedure DoOnChange(ABoundsBefore: TRectF; ADiff: TVectorShapeDiff); virtual;

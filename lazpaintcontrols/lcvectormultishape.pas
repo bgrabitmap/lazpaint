@@ -431,6 +431,7 @@ var
   i: Integer;
 begin
   if FUpdatingFromShape or FInMultiTranformFill then exit;
+  if FFillChangeWithoutUpdate then exit;
   BeginUpdate;
   AddFillDiffHandler(ASender as TVectorialFill, ADiff);
   if ASender = PenFill then
