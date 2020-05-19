@@ -41,3 +41,5 @@ lazpaint/release/bin/i18n/lazpaint_x64.*
 /lazpaint/dialog/color/backup
 
 resources/createresource/backup/
+
+lazpaint/units/
