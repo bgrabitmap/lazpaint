@@ -23,7 +23,7 @@ DMG_TMP="${VOL_NAME}-temp.dmg"
 DMG_FINAL="${VOL_NAME}.dmg"         
 STAGING_DIR="./staging"             # we copy all our stuff into this dir
 SOURCE_DIR="$(cd ../bin; pwd)"
-SCRIPT_DIR="$(cd ../../../scripts; pwd)"
+SCRIPT_DIR="$(cd ../../../resources/scripts; pwd)"
 
 # Check the background image DPI and convert it if it isn't 72x72
 _BACKGROUND_IMAGE_DPI_H=`sips -g dpiHeight ${DMG_BACKGROUND_IMG} | grep -Eo '[0-9]+\.[0-9]+'`

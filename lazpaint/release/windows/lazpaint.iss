@@ -8,7 +8,7 @@
 #define DCRawExeName "dcraw.exe"
 #define LibWebPDllName "libwebp.dll"
 #define ReleaseDir "..\bin\"
-#define ScriptsDir "..\..\..\scripts\"
+#define ScriptsDir "..\..\..\resources\scripts\"
 
 [Setup]
 AppId={{A177F82E-B44A-4348-A265-3D1C089D6304}
