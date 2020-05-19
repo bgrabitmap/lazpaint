@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 procedure TLazPaintInstance.ShowPrintDlg;
 var f: TFPrint;
     wasVisible: boolean;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 procedure TFMain.CreateToolbarElements;
 
   procedure InitVectorialFill(vf: TLCVectorialFillControl; grad: TBGRALayerGradientOriginal;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UResample;
 
 {$mode objfpc}{$H+}
