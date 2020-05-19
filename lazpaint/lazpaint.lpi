@@ -320,13 +320,13 @@
     </PublishOptions>
     <RunParams>
       <local>
-        <CommandLineParams Value="-scriptbasedir ..\..\..\scripts"/>
+        <CommandLineParams Value="-scriptbasedir ..\..\..\resources\scripts"/>
       </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
         <Mode0 Name="default">
           <local>
-            <CommandLineParams Value="-scriptbasedir ..\..\..\scripts"/>
+            <CommandLineParams Value="-scriptbasedir ..\..\..\resources\scripts"/>
           </local>
         </Mode0>
       </Modes>
