@@ -783,7 +783,7 @@ begin
     if justDown and not Assigned(newShape) and IsCreateShapeTool(currentTool) and
       (VectLen(ptF-newStartPoint) >= EditorPointSize) then
     begin
-      vectorOriginal.DeselectShape;
+      vectorOriginal.DeselectShapes;
       newShape := CreateShape(newStartPoint,ptF);
       shapeAdded := false;
       rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
@@ -791,7 +791,7 @@ begin
       justDown := false;
       if IsEmptyRectF(rF) and newShape.CreateEmpty then
       begin
-        vectorOriginal.DeselectShape;
+        vectorOriginal.DeselectShapes;
         vectorOriginal.AddShape(newShape);
         vectorOriginal.SelectShape(newShape);
         currentTool:= ptHand;
@@ -853,18 +853,19 @@ begin
     begin
       if IsCreateShapeTool(currentTool) and (vsuCreate in PaintToolClass[currentTool].Usermodes) then
       begin
-        vectorOriginal.DeselectShape;
+        vectorOriginal.DeselectShapes;
         vectorOriginal.AddShape(CreateShape(newStartPoint,newStartPoint), vsuCreate);
       end else
       if IsCreateShapeTool(currentTool) and PaintToolClass[currentTool].CreateEmpty then
       begin
-        vectorOriginal.DeselectShape;
+        vectorOriginal.DeselectShapes;
         addedShape := CreateShape(newStartPoint,newStartPoint);
         vectorOriginal.AddShape(addedShape);
         vectorOriginal.SelectShape(addedShape);
         currentTool:= ptHand;
       end else
-        vectorOriginal.MouseClick(newStartPoint, DoScaleX(6, 96)/zoomFactor*originalZoomFactor);
+        vectorOriginal.MouseClick(newStartPoint, DoScaleX(6, 96)/zoomFactor*originalZoomFactor,
+                                  ssCtrl in Shift);
       justDown:= false;
     end
     else if Assigned(newShape) and (Button = newButton) then
@@ -982,7 +983,7 @@ begin
   if (Key = VK_RETURN) and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
   begin
     Key := 0;
-    vectorOriginal.DeselectShape;
+    vectorOriginal.DeselectShapes;
   end;
 end;
 
@@ -1063,7 +1064,7 @@ begin
 
   if IsCreateShapeTool(currentTool) then
   begin
-    if Assigned(vectorOriginal) and (vectorOriginal.SelectedShape <> nil) then vectorOriginal.DeselectShape
+    if Assigned(vectorOriginal) and (vectorOriginal.SelectedShape <> nil) then vectorOriginal.DeselectShapes
     else UpdateToolbarFromShape(nil);
 
     if currentTool in [ptPolyline, ptCurve] then
@@ -2317,7 +2318,7 @@ end;
 procedure TForm1.DoPaste;
 begin
   if Assigned(vectorOriginal) then
-    PasteShapesFromClipboard(vectorOriginal, vectorTransform);
+    PasteShapesFromClipboard(vectorOriginal, vectorTransform, rectF(0,0,img.Width,img.Height));
 end;
 
 procedure TForm1.DoDelete;
