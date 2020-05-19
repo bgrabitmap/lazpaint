@@ -3190,6 +3190,11 @@ begin
       newUnfrozenRangeEnd := idxSelected+1;
     end;
   end else
+  if FMultiselection = nil then
+  begin
+    newUnfrozenRangeStart := 0;
+    newUnfrozenRangeEnd := ShapeCount;
+  end else
   begin
     multiSel := FMultiselection.GetAsMultishape;
     if multiSel.ShapeCount = 0 then
