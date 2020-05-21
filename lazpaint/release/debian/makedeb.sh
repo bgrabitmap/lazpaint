@@ -47,12 +47,6 @@ sed -i -e "s/\\\${shlibs:Depends}/${DEPENDENCIES}/" "${STAGING_DIR}/DEBIAN/contr
 rm "debian/substvars"
 echo "Done determining dependencies."
 
-mkdir "${DOC_PARENT_DIR}"
-mkdir "${DOC_DIR}"
-gzip -9 -n -c "debian/changelog" >"${DOC_DIR}/changelog.gz"
-cp "debian/copyright" "${DOC_DIR}"
-cp "${SOURCE_BIN}/readme.txt" "${DOC_DIR}/README"
-
 SIZE_IN_KB="$(du -s ${STAGING_DIR} | awk '{print $1;}')"
 echo "Installed-Size: ${SIZE_IN_KB}" >> "${STAGING_DIR}/DEBIAN/control"
 find "${STAGING_DIR}" -type d -exec chmod 0755 {} \;

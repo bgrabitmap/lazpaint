@@ -3,6 +3,7 @@ USER_DIR = $(DESTDIR)$(prefix)
 BIN_DIR = $(USER_DIR)/bin
 SHARE_DIR=$(USER_DIR)/share
 RESOURCE_DIR=$(SHARE_DIR)/lazpaint
+DOC_DIR=$(SHARE_DIR)/doc/lazpaint
 SOURCE_BIN_DIR=lazpaint/release/bin
 SOURCE_SCRIPT_DIR=resources/scripts
 SOURCE_DEBIAN_DIR=lazpaint/release/debian
@@ -41,6 +42,11 @@ else ifeq ($(shell uname),Linux)
 	install -d "$(SHARE_DIR)/man/man1"
 	gzip -9 -n -c "$(SOURCE_DEBIAN_DIR)/man/man1/lazpaint.1" >"$(SHARE_DIR)/man/man1/lazpaint.1.gz"
 	chmod 0644 "$(SHARE_DIR)/man/man1/lazpaint.1.gz"
+	install -d "$(DOC_DIR)"
+	gzip -9 -n -c "$(SOURCE_DEBIAN_DIR)/debian/changelog" >"$(DOC_DIR)/changelog.gz"
+	chmod 0644 "$(DOC_DIR)/changelog.gz"
+	install "$(SOURCE_DEBIAN_DIR)/debian/copyright" "$(DOC_DIR)/copyright"
+	install "$(SOURCE_BIN_DIR)/readme.txt" "$(DOC_DIR)/README"
 else
 	echo Unhandled OS
 endif
@@ -51,6 +57,7 @@ ifeq ($(OS),Windows_NT)     # true for Windows_NT or later
 else ifeq ($(shell uname),Linux)
 	$(REMOVE) $(BIN_DIR)/lazpaint
 	$(REMOVEDIR) $(RESOURCE_DIR)
+	$(REMOVEDIR) $(DOC_DIR)
 	$(REMOVE) "$(SHARE_DIR)/applications/lazpaint.desktop"
 	$(REMOVE) "$(SHARE_DIR)/pixmaps/lazpaint.png"
 	$(REMOVE) "$(SHARE_DIR)/man/man1/lazpaint.1.gz"
