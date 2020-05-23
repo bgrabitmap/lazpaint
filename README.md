@@ -25,7 +25,7 @@ Here are [compilation instructions](https://wiki.freepascal.org/LazPaint#Compila
 ![LazPaint Puppy Linux](http://wiki.freepascal.org/images/5/57/lazpaint6_puppy.png)
 
 # History
-LazPaint was started to demonstrate the capabilities of the graphic library BGRABitmap. It provides advanced drawing functions in Lazarus development environment. Both provided a source of inspiration for the other and finally LazPaint became real image editor. Thanks to the help of Lazarus community, the program has been compiled on Windows, Linux and MacOS X.
+LazPaint was started to demonstrate the capabilities of the graphic library BGRABitmap. It provides advanced drawing functions in Lazarus development environment. Both provided a source of inspiration for the other and finally LazPaint became real image editor. Thanks to the help of Lazarus community, the program has been compiled on Windows, Linux, MacOS X, FreeBSD and Raspberry Pi.
 
 # Features
 * [Files](http://wiki.freepascal.org/LazPaint_File): read and write a variety of file formats, including layered bitmaps and 3D files.
