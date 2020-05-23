@@ -78,6 +78,7 @@ clean_vectoredit:
 clean_lazpaint:
 	$(REMOVEDIR) "lazpaint/debug"
 	$(REMOVEDIR) "lazpaint/release/lib"
+	$(REMOVE) "lazpaint/lazpaint.res"
 	$(REMOVE) "lazpaint/release/bin/lazpaint"
 	$(REMOVE) "lazpaint/release/bin/lazpaint32.exe"
 	$(REMOVE) "lazpaint/release/bin/lazpaint_x64.exe"
