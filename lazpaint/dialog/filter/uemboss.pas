@@ -148,7 +148,7 @@ var bmp: TBGRABitmap;
     c: TBGRAPixel;
 begin
     bmp := TBGRABitmap.Create(PaintBox1.Width,PaintBox1.Height);
-    bmp.Fill(ColorToRGB(clBtnFace));
+    bmp.Fill(clForm);
     c := ColorToBGRA(ColorToRGB(clWindowText));
     t := min(PaintBox1.Width/2,PaintBox1.Height/2);
     dx := cos(angle*Pi/180);

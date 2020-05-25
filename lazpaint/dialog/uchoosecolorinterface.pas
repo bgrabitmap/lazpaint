@@ -641,8 +641,8 @@ begin
     FFormTextColor := clLightText;
   end else
   begin
-    FFormBackgroundColor := ColorToBGRA(ColorToRGB({$IFDEF DARWIN}clWindow{$ELSE}clBtnFace{$ENDIF}));
-    FFormTextColor := ColorToBGRA(ColorToRGB(clWindowText));
+    FFormBackgroundColor := clForm;
+    FFormTextColor := clWindowText;
   end;
   Container.Color := FFormBackgroundColor;
   vsColorView.Color := FFormBackgroundColor;

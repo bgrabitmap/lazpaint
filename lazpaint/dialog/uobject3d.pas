@@ -610,7 +610,7 @@ begin
       x := round(pt.X*Width);
       y := round(pt.Y*Height);
       Canvas.Brush.Style := bsSolid;
-      Canvas.Brush.Color:= clBtnFace;
+      Canvas.Brush.Color:= clForm;
       Canvas.Pen.Style := psSolid;
       Canvas.Pen.Color := clWindowText;
       Canvas.Rectangle(0,0,Width,Height);
