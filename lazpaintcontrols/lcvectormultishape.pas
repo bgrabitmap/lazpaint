@@ -704,7 +704,7 @@ var
   r: TRectF;
 begin
   if FShapes.Count = 1 then
-    result := FShapes[i].SuggestGradientBox(AMatrix)
+    result := FShapes[0].SuggestGradientBox(AMatrix)
   else
   begin
     r := EmptyRectF;
