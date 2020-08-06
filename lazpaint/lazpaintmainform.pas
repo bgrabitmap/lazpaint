@@ -1171,6 +1171,7 @@ end;
 procedure TFMain.FormShow(Sender: TObject);
 var
   m: TMainFormMenu;
+  startFillControlWidth: LongInt;
 begin
   if FLayout.Menu = nil then
   begin
@@ -1222,8 +1223,10 @@ begin
   LazPaintInstance.ShowTopmost(FTopMostInfo);
   if Position = poDefault then LazPaintInstance.RestoreMainWindowPosition;
 
-  VectorialFill_Pen.Width := VectorialFill_Pen.PreferredSize.Width;
-  VectorialFill_Back.Width := VectorialFill_Back.PreferredSize.Width;
+  startFillControlWidth := VectorialFill_Pen.PreferredSize.Width;
+  VectorialFill_Pen.Width := startFillControlWidth;
+  VectorialFill_Back.Width := startFillControlWidth;
+  VectorialFill_Outline.Width := startFillControlWidth;
   ToolManager.UpdateContextualToolbars;
   UpdateToolImage;
   UpdateToolBar;

@@ -531,6 +531,7 @@ begin
   prevBackColor := VectorialFill_Back.AverageColor;
   VectorialFill_Pen.AssignFill(ToolManager.ForeFill);
   VectorialFill_Back.AssignFill(ToolManager.BackFill);
+  VectorialFill_Outline.AssignFill(ToolManager.OutlineFill);
   newPenColor := VectorialFill_Pen.AverageColor;
   newBackColor := VectorialFill_Back.AverageColor;
   FInFillChange:= false;
@@ -834,54 +835,38 @@ begin
 end;
 
 procedure TFMain.UpdateAllowedFillTypes;
-begin
-  if VectorialFill_Pen.AllowedFillTypes <> ToolManager.AllowedForeFillTypes then
+  procedure UpdateFor(AFillControl: TLCVectorialFillControl; AAllowedFillTypes: TVectorialFillTypes;
+      ANeedGradientProc: TProcedureOfObject);
   begin
-    if not (VectorialFill_Pen.FillType in ToolManager.AllowedForeFillTypes) then
+    if AFillControl.AllowedFillTypes <> AAllowedFillTypes then
     begin
-      if vftGradient in ToolManager.AllowedForeFillTypes then
+      if not (AFillControl.FillType in AAllowedFillTypes) then
       begin
-        VectorialFill_Pen.AllowedFillTypes:= [VectorialFill_Pen.FillType] + ToolManager.AllowedForeFillTypes;
-        ToolManager.NeedForeGradient;
-      end else
-      if vftTexture in ToolManager.AllowedForeFillTypes then
-      begin
-        VectorialFill_Pen.AllowedFillTypes:= [VectorialFill_Pen.FillType] + ToolManager.AllowedForeFillTypes;
-        Vectorialfill_Pen.FillType := vftTexture;
-      end else
-      if vftSolid in ToolManager.AllowedForeFillTypes then
-      begin
-        VectorialFill_Pen.AllowedFillTypes:= [VectorialFill_Pen.FillType] + ToolManager.AllowedForeFillTypes;
-        Vectorialfill_Pen.FillType := vftSolid;
+        if vftGradient in AAllowedFillTypes then
+        begin
+          AFillControl.AllowedFillTypes:= [AFillControl.FillType] + AAllowedFillTypes;
+          ANeedGradientProc();
+        end else
+        if vftTexture in AAllowedFillTypes then
+        begin
+          AFillControl.AllowedFillTypes:= [AFillControl.FillType] + AAllowedFillTypes;
+          AFillControl.FillType := vftTexture;
+        end else
+        if vftSolid in AAllowedFillTypes then
+        begin
+          AFillControl.AllowedFillTypes:= [AFillControl.FillType] + AAllowedFillTypes;
+          AFillControl.FillType := vftSolid;
+        end;
       end;
+      AFillControl.AllowedFillTypes:= AAllowedFillTypes;
+      AFillControl.Width := AFillControl.PreferredSize.cx;
     end;
-    VectorialFill_Pen.AllowedFillTypes:= ToolManager.AllowedForeFillTypes;
-    VectorialFill_Pen.Width := VectorialFill_Pen.PreferredSize.cx;
   end;
 
-  if VectorialFill_Back.AllowedFillTypes <> ToolManager.AllowedBackFillTypes then
-  begin
-    if not (VectorialFill_Back.FillType in ToolManager.AllowedBackFillTypes) then
-    begin
-      if vftGradient in ToolManager.AllowedBackFillTypes then
-      begin
-        VectorialFill_Back.AllowedFillTypes:= [VectorialFill_Back.FillType] + ToolManager.AllowedBackFillTypes;
-        ToolManager.NeedBackGradient;
-      end else
-      if vftTexture in ToolManager.AllowedBackFillTypes then
-      begin
-        VectorialFill_Back.AllowedFillTypes:= [VectorialFill_Back.FillType] + ToolManager.AllowedBackFillTypes;
-        Vectorialfill_Back.FillType := vftTexture;
-      end else
-      if vftSolid in ToolManager.AllowedBackFillTypes then
-      begin
-        VectorialFill_Back.AllowedFillTypes:= [VectorialFill_Back.FillType] + ToolManager.AllowedBackFillTypes;
-        Vectorialfill_Back.FillType := vftSolid;
-      end;
-    end;
-    VectorialFill_Back.AllowedFillTypes:= ToolManager.AllowedBackFillTypes;
-    VectorialFill_Back.Width := VectorialFill_Back.PreferredSize.cx;
-  end;
+begin
+  UpdateFor(VectorialFill_Pen, ToolManager.AllowedForeFillTypes, @ToolManager.NeedForeGradient);
+  UpdateFor(VectorialFill_Back, ToolManager.AllowedBackFillTypes, @ToolManager.NeedBackGradient);
+  UpdateFor(VectorialFill_Outline, ToolManager.AllowedOutlineFillTypes, @ToolManager.NeedOutlineGradient);
 
   Perspective_Repeat.Visible := (CurrentTool = ptLayerMapping);
 end;

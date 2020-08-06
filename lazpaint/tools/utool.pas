@@ -500,6 +500,7 @@ type
     function SwapToolColors: boolean;
     procedure NeedBackGradient;
     procedure NeedForeGradient;
+    procedure NeedOutlineGradient;
     procedure AddBrush(brush: TLazPaintBrush);
     procedure RemoveBrushAt(index: integer);
     procedure SetTextFont(AName: string; ASize: single; AStyle: TFontStyles);
@@ -3427,6 +3428,20 @@ begin
     tempFill.SetGradient(FForeLastGradient, False);
     tempFill.FitGeometry(SuggestGradientBox);
     ForeFill.Assign(tempFill);
+    tempFill.Free;
+  end;
+end;
+
+procedure TToolManager.NeedOutlineGradient;
+var
+  tempFill: TVectorialFill;
+begin
+  if OutlineFill.FillType <> vftGradient then
+  begin
+    tempFill := TVectorialFill.Create;
+    tempFill.SetGradient(FOutlineLastGradient, False);
+    tempFill.FitGeometry(SuggestGradientBox);
+    OutlineFill.Assign(tempFill);
     tempFill.Free;
   end;
 end;
