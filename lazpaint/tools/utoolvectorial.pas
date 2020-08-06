@@ -30,6 +30,7 @@ type
   protected
     FLayerWasEmpty: boolean;
     FShape: TVectorShape;
+    FTemporaryStorage: TBGRACustomOriginalStorage;
     FLastDraftUpdate: Boolean;
     FSwapColor: boolean;
     FQuickDefine: Boolean;
@@ -42,6 +43,7 @@ type
     FUseOriginal: boolean;
     function AlwaysRasterizeShape: boolean; virtual;
     function CreateShape: TVectorShape; virtual;
+    procedure ClearShape; virtual;
     function ShapeClass: TVectorShapeAny; virtual; abstract;
     function UseOriginal: boolean; virtual;
     function HasBrush: boolean; virtual;
@@ -1829,13 +1831,11 @@ begin
           Manager.Image.AddUndo(ReplaceLayerAndAddShape(changeBounds));
         Manager.Image.ImageMayChange(changeBounds);
       end;
-      FreeAndNil(FShape);
-      Editor.Clear;
+      ClearShape;
     end else
     begin
       ValidateActionPartially;
-      FreeAndNil(FShape);
-      Editor.Clear;
+      ClearShape;
     end;
     Cursor := crDefault;
     result := OnlyRenderChange;
@@ -1848,8 +1848,7 @@ end;
 function TVectorialTool.CancelShape: TRect;
 begin
   CancelActionPartially;
-  FreeAndNil(FShape);
-  Editor.Clear;
+  ClearShape;
   Cursor := crDefault;
   result := OnlyRenderChange;
 end;
@@ -1878,6 +1877,13 @@ end;
 function TVectorialTool.CreateShape: TVectorShape;
 begin
   result := ShapeClass.Create(nil);
+end;
+
+procedure TVectorialTool.ClearShape;
+begin
+  FreeAndNil(FShape);
+  FreeAndNil(FTemporaryStorage);
+  Editor.Clear;
 end;
 
 function TVectorialTool.UseOriginal: boolean;
@@ -2065,6 +2071,8 @@ begin
       else
         FLayerWasEmpty := Manager.Image.SelectionLayerIsEmpty;
       FShape := CreateShape;
+      if FTemporaryStorage = nil then FTemporaryStorage := TBGRAMemOriginalStorage.Create;
+      FShape.TemporaryStorage := FTemporaryStorage;
       FQuickDefine := true;
       FQuickDefineStartPoint := RoundCoordinate(FLastPos);
       FQuickDefineEndPoint := FQuickDefineStartPoint;
@@ -2153,6 +2161,7 @@ begin
   FEditor.Focused := true;
   FPreviousEditorBounds := EmptyRect;
   FLastShapeTransform := AffineMatrixIdentity;
+  FTemporaryStorage := TBGRAMemOriginalStorage.Create;
 end;
 
 function TVectorialTool.ToolUp: TRect;
@@ -2362,6 +2371,7 @@ destructor TVectorialTool.Destroy;
 begin
   if Assigned(FShape) then ValidateShape;
   FEditor.Free;
+  FTemporaryStorage.Free;
   inherited Destroy;
 end;
 

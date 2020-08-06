@@ -166,6 +166,18 @@ type
     function GetOnSelectionChange: TNotifyEvent;
   end;
 
+  { TShapeRenderStorage }
+
+  TShapeRenderStorage = object
+      persistent, temporary: TBGRACustomOriginalStorage;
+      class function OpenOrCreate(ARenderStorage: TBGRACustomOriginalStorage; AShapeId: integer): TShapeRenderStorage; static;
+      class function Open(ARenderStorage: TBGRACustomOriginalStorage; AShapeId: integer): TShapeRenderStorage; static;
+      class procedure Discard(ARenderStorage: TBGRACustomOriginalStorage; AShapeId: integer); static;
+      class function None: TShapeRenderStorage; static;
+      function IsOpened: boolean;
+      procedure Close;
+  end;
+
   { TVectorShape }
 
   TVectorShape = class
@@ -175,6 +187,7 @@ type
     FRenderIteration: integer; // increased at each BeginUpdate
     FOnChange: TShapeChangeEvent;
     FOnEditingChange: TShapeEditingChangeEvent;
+    FTemporaryStorage: TBGRACustomOriginalStorage;
     FUpdateCount, FUpdateEditingCount: integer;
     FBoundsBeforeUpdate: TRectF;
     FPenFill, FBackFill, FOutlineFill: TVectorialFill;
@@ -225,6 +238,7 @@ type
     function GetStroker: TBGRAPenStroker;
     procedure FillChange({%H-}ASender: TObject; var ADiff: TCustomVectorialFillDiff); virtual;
     procedure FillBeforeChange({%H-}ASender: TObject); virtual;
+    function OpenRenderStorage(ACreateIfNecessary: boolean): TShapeRenderStorage;
     procedure UpdateRenderStorage(ARenderBounds: TRect; AImage: TBGRACustomBitmap = nil);
     procedure DiscardRenderStorage;
     procedure RetrieveRenderStorage(AMatrix: TAffineMatrix; out ARenderBounds: TRect; out AImage: TBGRABitmap);
@@ -303,6 +317,7 @@ type
     property JoinStyle: TPenJoinStyle read GetJoinStyle write SetJoinStyle;
     property Usermode: TVectorShapeUsermode read FUsermode write SetUsermode;
     property Container: TVectorOriginal read FContainer write SetContainer;
+    property TemporaryStorage: TBGRACustomOriginalStorage read FTemporaryStorage write FTemporaryStorage;
     property IsFront: boolean read GetIsFront;
     property IsBack: boolean read GetIsBack;
     property IsRemoving: boolean read FRemoving;
@@ -499,7 +514,7 @@ var
 implementation
 
 uses math, BGRATransform, BGRAFillInfo, BGRAGraphics, BGRAPath, Types,
-  BGRAText, BGRATextFX;
+  BGRAText, BGRATextFX, BGRALayers;
 
 function MatrixForPixelCentered(const AMatrix: TAffineMatrix): TAffineMatrix;
 begin
@@ -538,6 +553,58 @@ type
       targetIndex: integer;
       class operator =(const ms1, ms2: TMovedShape): boolean;
     end;
+
+{ TShapeRenderStorage }
+
+class function TShapeRenderStorage.OpenOrCreate(ARenderStorage: TBGRACustomOriginalStorage; AShapeId: integer): TShapeRenderStorage;
+begin
+  result.persistent := ARenderStorage.OpenObject(inttostr(AShapeId));
+  if result.persistent = nil then
+    result.persistent := ARenderStorage.CreateObject(inttostr(AShapeId));
+  result.temporary := result.persistent.OpenObject(RenderTempSubDirectory);
+  if result.temporary = nil then
+    result.temporary := result.persistent.CreateObject(RenderTempSubDirectory);
+end;
+
+class function TShapeRenderStorage.Open(
+  ARenderStorage: TBGRACustomOriginalStorage; AShapeId: integer): TShapeRenderStorage;
+begin
+  result.persistent := ARenderStorage.OpenObject(inttostr(AShapeId));
+  if Assigned(result.persistent) then
+    result.temporary := result.persistent.OpenObject(RenderTempSubDirectory)
+  else
+    result.temporary := nil;
+end;
+
+class procedure TShapeRenderStorage.Discard(
+  ARenderStorage: TBGRACustomOriginalStorage; AShapeId: integer);
+begin
+  ARenderStorage.RemoveObject(inttostr(AShapeId));
+end;
+
+class function TShapeRenderStorage.None: TShapeRenderStorage;
+begin
+  result.persistent := nil;
+  result.temporary := nil;
+end;
+
+function TShapeRenderStorage.IsOpened: boolean;
+begin
+  result := (persistent <> nil) or (temporary <> nil);
+end;
+
+procedure TShapeRenderStorage.Close;
+var
+  freeTemp: Boolean;
+begin
+  if Assigned(temporary) then
+  begin
+    freeTemp := temporary.Empty;
+    FreeAndNil(temporary);
+    if freeTemp and Assigned(persistent) then persistent.RemoveObject(RenderTempSubDirectory);
+  end;
+  FreeAndNil(persistent);
+end;
 
 class operator TMovedShape.=(const ms1, ms2: TMovedShape): boolean;
 begin
@@ -1980,7 +2047,7 @@ begin
   r := FFillBeforeChangeBounds;
   FFillBeforeChangeBounds := EmptyRectF;
   if FFillChangeWithoutUpdate then exit;
-  //if shape is not being updating, send the fill diff as such
+  //if shape is not being updated, send the fill diff as such
   if not IsUpdating then
   begin
     inc(FRenderIteration);
@@ -2008,60 +2075,68 @@ begin
   FFillBeforeChangeBounds := GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
 end;
 
+function TVectorShape.OpenRenderStorage(ACreateIfNecessary: boolean): TShapeRenderStorage;
+begin
+  if ACreateIfNecessary then
+    result := TShapeRenderStorage.OpenOrCreate(Container.RenderStorage, Id)
+  else
+    result := TShapeRenderStorage.Open(Container.RenderStorage, Id);
+end;
+
 procedure TVectorShape.UpdateRenderStorage(ARenderBounds: TRect; AImage: TBGRACustomBitmap);
 var
-  obj: TBGRACustomOriginalStorage;
   imgStream: TMemoryStream;
+  shapeStorage: TShapeRenderStorage;
 begin
   if CanHaveRenderStorage then
   begin
-    obj := Container.RenderStorage.CreateObject(inttostr(Id));
-    obj.Int['iteration'] := FRenderIteration;
-    obj.Rectangle['bounds'] := ARenderBounds;
+    shapeStorage := OpenRenderStorage(true);
+    shapeStorage.persistent.Int['iteration'] := FRenderIteration;
+    shapeStorage.persistent.Rectangle['bounds'] := ARenderBounds;
     if Assigned(AImage) then
     begin
       imgStream := TMemoryStream.Create;
       AImage.Serialize(imgStream);
-      obj.WriteFile('image.data', imgStream, true, true);
+      shapeStorage.persistent.WriteFile('image.data', imgStream, false, true);
+                                                   //will be compressed when saving
     end else
-      obj.RemoveFile('image.data');
-    obj.Free;
+      shapeStorage.persistent.RemoveFile('image.data');
+    shapeStorage.Close;
   end;
 end;
 
 procedure TVectorShape.DiscardRenderStorage;
 begin
   if CanHaveRenderStorage then
-    Container.RenderStorage.RemoveObject(inttostr(Id));
+    TShapeRenderStorage.Discard(Container.RenderStorage, Id);
 end;
 
 procedure TVectorShape.RetrieveRenderStorage(AMatrix: TAffineMatrix; out
   ARenderBounds: TRect; out AImage: TBGRABitmap);
 var
-  stream: TMemoryStream;
-  shapeStorage: TBGRACustomOriginalStorage;
+  stream: TStream;
+  shapeStorage: TShapeRenderStorage;
 begin
   ARenderBounds := EmptyRect;
   AImage := nil;
   if Assigned(Container) and Assigned(Container.RenderStorage) and (Container.RenderStorage.AffineMatrix['last-matrix']=AMatrix) then
   begin
-    shapeStorage := Container.RenderStorage.OpenObject(inttostr(Id));
-    if Assigned(shapeStorage) then
+    shapeStorage := TShapeRenderStorage.Open(Container.RenderStorage, Id);
+    if Assigned(shapeStorage.persistent) then
     begin
-      if shapeStorage.Int['iteration'] = FRenderIteration then
+      if shapeStorage.persistent.Int['iteration'] = FRenderIteration then
       begin
-        ARenderBounds := shapeStorage.Rectangle['bounds'];
-        stream := TMemoryStream.Create;
-        if shapeStorage.ReadFile('image.data', stream) and (stream.Size>0) then
+        ARenderBounds := shapeStorage.persistent.Rectangle['bounds'];
+        stream := shapeStorage.persistent.GetFileStream('image.data') ;
+        if Assigned(stream) and (stream.Size > 0) then
         begin
           stream.Position:= 0;
           AImage := TBGRABitmap.Create;
           AImage.Deserialize(stream);
         end;
-        stream.Free;
       end;
-      shapeStorage.Free;
     end;
+    shapeStorage.Close;
   end;
 end;
 
@@ -3399,7 +3474,6 @@ var
   texName: String;
   loadedShape: TVectorShape;
   idList: array of single;
-  mem: TMemoryStream;
   texId: integer;
   bmp: TBGRABitmap;
 begin
@@ -3414,17 +3488,14 @@ begin
       begin
         texId:= round(idList[i]);
         texName:= 'tex'+inttostr(texId);
-        mem := TMemoryStream.Create;
         try
-          if not texObj.ReadFile(texName+'.png', mem) and
-             not texObj.ReadFile(texName+'.jpg', mem) then
+          bmp := TBGRABitmap.Create;
+          if not texObj.ReadBitmap(texName+'.png', bmp) and
+             not texObj.ReadBitmap(texName+'.jpg', bmp) then
              raise exception.Create(errUnableToFindTexture);
-          mem.Position:= 0;
-          bmp := TBGRABitmap.Create(mem);
           AddTextureWithId(bmp, texId);
-          bmp.FreeReference;
         finally
-          mem.Free;
+          bmp.FreeReference;
         end;
       end;
     finally
