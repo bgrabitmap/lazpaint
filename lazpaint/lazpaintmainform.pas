@@ -738,7 +738,7 @@ type
     currentToolLabel: string;
     InShowNoPicture: boolean;
     FTopMostInfo: TTopMostInfo;
-    DelayedPaintPicture: boolean;
+    DelayedPaintPicture, CatchPaintPicture, PaintPictureCatched: boolean;
     Panel_LineCap_FullSize: integer;
     FCoordinatesCaption: string;
     FCoordinatesCaptionCount: NativeInt;
@@ -783,6 +783,9 @@ type
     function TextSpinEditFocused: boolean;
     procedure UpdateBrush;
     procedure UpdateBrushList;
+    function CatchToolKeyDown(var AKey: Word): boolean;
+    function CatchToolKeyUp(var AKey: Word): boolean;
+    function CatchToolKeyPress(var AKey: TUTF8Char): boolean;
 
     procedure CreateMenuAndToolbar;
     function GetToolManager: TToolManager;
@@ -978,6 +981,39 @@ begin
   FLayout.OnPictureAreaChange := @LayoutPictureAreaChange;
   FInitialized := true;
   FirstPaint := true;
+end;
+
+function TFMain.CatchToolKeyDown(var AKey: Word): boolean;
+begin
+  if Assigned(ToolManager) then
+  begin
+    CatchPaintPicture:= true;
+    PaintPictureCatched := false;
+    result := ToolManager.ToolKeyDown(AKey) or PaintPictureCatched;
+  end else
+    result := false;
+end;
+
+function TFMain.CatchToolKeyUp(var AKey: Word): boolean;
+begin
+  if Assigned(ToolManager) then
+  begin
+    CatchPaintPicture:= true;
+    PaintPictureCatched := false;
+    result := ToolManager.ToolKeyUp(AKey) or PaintPictureCatched;
+  end else
+    result := false;
+end;
+
+function TFMain.CatchToolKeyPress(var AKey: TUTF8Char): boolean;
+begin
+  if Assigned(ToolManager) then
+  begin
+    CatchPaintPicture:= true;
+    PaintPictureCatched := false;
+    result := ToolManager.ToolKeyPress(AKey) or PaintPictureCatched;
+  end else
+    result := false;
 end;
 
 procedure TFMain.CreateMenuAndToolbar;
@@ -1964,15 +2000,14 @@ begin
   end;
 end;
 
-procedure TFMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
-  );
+procedure TFMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   try
     if Key = VK_MENU then altPressed:= true
     else if (Key = VK_SNAP) or (Key = VK_SNAP2) then snapPressed:= true
     else if Key = VK_SHIFT then shiftPressed:= true;
     if Zoom.EditingZoom or EditingColors then exit;
-    if not ((CurrentTool = ptText) and TextSpinEditFocused and (Key = VK_BACK)) and ToolManager.ToolKeyDown(Key) then
+    if not ((CurrentTool = ptText) and TextSpinEditFocused and (Key = VK_BACK)) and CatchToolKeyDown(Key) then
     begin
       DelayedPaintPicture := True;
     end else
@@ -2392,7 +2427,7 @@ begin
   if Key = VK_MENU then altPressed:= false
   else if (Key = VK_SNAP) or (Key = VK_SNAP2) then snapPressed:= false
   else if Key = VK_SHIFT then shiftPressed:= false;
-  if ToolManager.ToolKeyUp(Key) then
+  if CatchToolKeyUp(Key) then
   begin
     DelayedPaintPicture := True;
   end else
@@ -2422,7 +2457,7 @@ begin
       if TextSpinEditFocused then
          toolProcessKey:= false;
     end;
-    if toolProcessKey and ToolManager.ToolKeyPress(UTF8Key) then
+    if toolProcessKey and CatchToolKeyPress(UTF8Key) then
     begin
       DelayedPaintPicture := true;
       UpdateToolbar;
@@ -4400,7 +4435,9 @@ end;
 
 procedure TFMain.OnImageChangedHandler(AEvent: TLazPaintImageObservationEvent);
 begin
-  InvalidatePicture(false);
+  if CatchPaintPicture then
+    PaintPictureCatched := true
+    else InvalidatePicture(false);
 
   if (image.Width <> FLastWidth) or (image.Height <> FLastHeight)
    or (image.BPP <> FLastBPP) or (image.FrameIndex <> FLastFrameIndex) then
