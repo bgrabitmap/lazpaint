@@ -151,6 +151,8 @@ end;
 {$R *.res}
 
 {$IFDEF DARWIN}{$IFDEF DEBUG}
+const
+  ConsoleOutputFile = '/dev/ttys000';
 var
   OldOutput: TextFile;
 
@@ -158,7 +160,7 @@ var
   begin
     //on MacOS, you need to open the trerminal before running LazPaint
     OldOutput := Output;
-    AssignFile(Output, '/dev/ttys000');
+    AssignFile(Output, ConsoleOutputFile);
     Append(Output);
     Writeln;
     Writeln('Debug started');
@@ -169,6 +171,7 @@ var
     Writeln('Debug ended');
     CloseFile(Output);
     Output := OldOutput;
+    SetHeapTraceOutput(ConsoleOutputFile);
   end;
 {$ENDIF}{$ENDIF}
 
