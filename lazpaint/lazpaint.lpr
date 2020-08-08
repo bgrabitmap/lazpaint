@@ -158,7 +158,7 @@ var
 
   procedure InitOutput;
   begin
-    //on MacOS, you need to open the trerminal before running LazPaint
+    //on MacOS, you need to open the terminal before running LazPaint
     OldOutput := Output;
     AssignFile(Output, ConsoleOutputFile);
     Append(Output);
