@@ -81,13 +81,13 @@ type
     FForeFill, FBackFill: TVectorialFill;
     FBackFillScan, FForeFillScan: TBGRACustomScanner;
     function GetUniversalBrush(ASource: TVectorialFill; var ADest: TVectorialFill; var AScan: TBGRACustomScanner): TUniversalBrush;
-    function GetLayerOffset: TPoint;
   protected
     FManager: TToolManager;
     FLastToolDrawingLayer: TBGRABitmap;
     FValidating, FCanceling: boolean;
     function GetAction: TLayerAction; virtual;
     function GetIdleAction: TLayerAction; virtual;
+    function GetLayerOffset: TPoint; virtual;
     function GetIsSelectingTool: boolean; virtual; abstract;
     function FixSelectionTransform: boolean; virtual;
     function FixLayerOffset: boolean; virtual;

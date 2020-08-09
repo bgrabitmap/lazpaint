@@ -26,6 +26,7 @@ type
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; override;
     function ContinueDrawing(toolDest: TBGRABitmap; {%H-}originF, destF: TPointF; {%H-}rightBtn: boolean): TRect; override;
     function GetBrushAlpha(AAlpha: byte): byte;
+    function GetLayerOffset: TPoint; override;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
@@ -79,10 +80,12 @@ uses Math, UGraph, UResourceStrings, Graphics, LazPaintType;
 
 function TToolClone.DrawBrushAt(toolDest: TBGRABitmap; x, y: single): TRect;
 var source: TBGRABitmap;
+  ofs: TPoint;
 begin
+  ofs := LayerOffset;
   if definingSource then
   begin
-    sourcePosition := Point(round(x),round(y));
+    sourcePosition := Point(round(x) + ofs.x,round(y) + ofs.y);
     sourceLayerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
     sourcePositionRelative:= false;
     result := OnlyRenderChange;
@@ -101,8 +104,8 @@ begin
     end;
     if not sourcePositionRelative then
     begin
-      sourcePosition.x -= round(x);
-      sourcePosition.y -= round(y);
+      sourcePosition.x -= round(x) + ofs.x;
+      sourcePosition.y -= round(y) + ofs.y;
       sourcePositionRelative := true;
     end;
     with BrushInfo.BrushImage do
@@ -312,6 +315,14 @@ begin
   exponent := (BrushInfo.Size-1)/10+1;
   if exponent > 2 then exponent := 2;
   result := round(Power(AAlpha/255,exponent)*255)
+end;
+
+function TToolGenericBrush.GetLayerOffset: TPoint;
+begin
+  if IsSelectingTool or not Manager.Image.SelectionMaskEmpty then
+    result := Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex]
+  else
+    result := Point(0,0);
 end;
 
 constructor TToolGenericBrush.Create(AManager: TToolManager);
