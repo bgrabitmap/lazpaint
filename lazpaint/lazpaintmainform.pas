@@ -989,7 +989,11 @@ begin
   begin
     CatchPaintPicture:= true;
     PaintPictureCatched := false;
-    result := ToolManager.ToolKeyDown(AKey) or PaintPictureCatched;
+    try
+      result := ToolManager.ToolKeyDown(AKey) or PaintPictureCatched;
+    finally
+      CatchPaintPicture:= false;
+    end;
   end else
     result := false;
 end;
@@ -1000,7 +1004,11 @@ begin
   begin
     CatchPaintPicture:= true;
     PaintPictureCatched := false;
-    result := ToolManager.ToolKeyUp(AKey) or PaintPictureCatched;
+    try
+       result := ToolManager.ToolKeyUp(AKey) or PaintPictureCatched;
+    finally
+      CatchPaintPicture:= false;
+    end;
   end else
     result := false;
 end;
@@ -1011,7 +1019,11 @@ begin
   begin
     CatchPaintPicture:= true;
     PaintPictureCatched := false;
-    result := ToolManager.ToolKeyPress(AKey) or PaintPictureCatched;
+    try
+      result := ToolManager.ToolKeyPress(AKey) or PaintPictureCatched;
+    finally
+      CatchPaintPicture:= false;
+    end;
   end else
     result := false;
 end;
