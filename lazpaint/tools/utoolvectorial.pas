@@ -108,6 +108,8 @@ type
 
   TEditShapeMode = (esmNone, esmSelection, esmGradient, esmOtherOriginal, esmShape, esmNoShape);
   TEditShapeTool = class(TGenericTool)
+  private
+    function GetNothingSelected: boolean;
   protected
     FDownHandled,FRectEditorCapture,FLayerOriginalCapture,
     FLeftButton,FRightButton: boolean;
@@ -174,6 +176,7 @@ type
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
     function SuggestGradientBox: TAffineBox; override;
     property CurrentSplineMode: TToolSplineMode read GetCurrentSplineMode write SetCurrentSplineMode;
+    property NothingSelected: boolean read GetNothingSelected;
   end;
 
 procedure AssignFill(ATarget, ASource: TVectorialFill; const ABox: TAffineBox; AFitMode: TFitMode);
@@ -389,6 +392,11 @@ begin
   end else
   if Assigned(APreviousShape) then
     Manager.UpdateContextualToolbars;
+end;
+
+function TEditShapeTool.GetNothingSelected: boolean;
+begin
+  result := GetEditMode in [esmNone, esmNoShape];
 end;
 
 procedure TEditShapeTool.RetrieveLightPosition;

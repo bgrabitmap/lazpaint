@@ -178,6 +178,7 @@ type
 
     // image layer
     function SetCurrentLayerByIndex(AValue: integer): boolean;
+    function SelectLayerContainingPixelAt(APicturePos: TPoint): boolean;
     function CurrentLayerEmpty: boolean;
     function CurrentLayerTransparent: boolean;
     function CurrentLayerEquals(AColor: TBGRAPixel): boolean;
@@ -1570,6 +1571,23 @@ begin
   ImageMayChangeCompletely;
 
   result := true;
+end;
+
+function TLazPaintImage.SelectLayerContainingPixelAt(APicturePos: TPoint): boolean;
+var
+  i: Integer;
+  ofs: TPoint;
+begin
+  for i := NbLayers-1 downto 0 do
+  begin
+    ofs := LayerOffset[i];
+    if LayerBitmap[i].GetPixel(APicturePos.x - ofs.x, APicturePos.y - ofs.y).alpha > 0 then
+    begin
+      result := SetCurrentLayerByIndex(i);
+      exit;
+    end;
+  end;
+  result := false;
 end;
 
 procedure TLazPaintImage.SetLayerOffset(AIndex: integer; AValue: TPoint;

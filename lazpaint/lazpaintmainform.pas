@@ -1341,6 +1341,15 @@ begin
     if Button = mbRight then
       btnRightDown := true;
 
+    if (
+        (ToolManager.GetCurrentToolType = ptHand) or
+        ((ToolManager.GetCurrentToolType = ptEditShape) and
+          Assigned(ToolManager.CurrentTool) and
+          (ToolManager.CurrentTool as TEditShapeTool).NothingSelected)
+       )  and
+       (ssShift in Shift) then
+      Image.SelectLayerContainingPixelAt(FImageView.FormToBitmap(X,Y).Round);
+
     if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),
         btnRightDown{$IFDEF DARWIN} or (ssCtrl in Shift){$ENDIF},
         CurrentPressure) then
