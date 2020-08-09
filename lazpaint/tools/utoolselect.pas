@@ -144,7 +144,7 @@ type
 implementation
 
 uses types, ugraph, LCLType, LazPaintType, Math, BGRATransform, BGRAPath,
-  BGRAPen, LCVectorRectShapes, Controls;
+  BGRAPen, LCVectorRectShapes, Controls, BGRAGrayscaleMask;
 
 procedure AssignSelectShapeStyle(AShape: TVectorShape; ASwapColor: boolean);
 var
@@ -643,6 +643,14 @@ function TToolMagicWand.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 var penColor: TBGRAPixel;
   ofs: TPoint;
+  mask: TGrayscaleMask;
+  source: TBGRABitmap;
+  targetRect: TRect;
+  psource: PBGRAPixel;
+  yb, xb: Integer;
+  pmask: PByte;
+  compareColor: TExpandedPixel;
+  diff, diffDiv: integer;
 begin
   if not Manager.Image.CurrentLayerVisible then
   begin
@@ -651,9 +659,41 @@ begin
   end;
   if rightBtn then penColor := BGRABlack else penColor := BGRAWhite;
   ofs := Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex];
-  Manager.Image.CurrentLayerReadOnly.ParallelFloodFill(pt.X-ofs.X, pt.Y-ofs.Y,
-    toolDest, penColor, fmDrawWithTransparency, Manager.Tolerance, ofs.X, ofs.Y);
-  result := rect(0,0,toolDest.Width,toolDest.Height);
+  source := Manager.Image.CurrentLayerReadOnly;
+  targetRect := RectWithSize(ofs.x, ofs.y, source.Width, source.Height);
+  targetRect.Intersect( rect(0,0,toolDest.Width,toolDest.Height) );
+  if not targetRect.IsEmpty then
+  begin
+    if ffProgressive in Manager.FloodFillOptions then
+    begin
+      mask := TGrayscaleMask.Create(targetRect.Width, targetRect.Height, 0);
+      Manager.Image.CurrentLayerReadOnly.ParallelFloodFill(pt.X-ofs.X, pt.Y-ofs.Y,
+        mask, ByteMaskWhite, fmDrawWithTransparency, Manager.Tolerance,
+        ofs.X - targetRect.Left, ofs.Y - targetRect.Top);
+      compareColor := GammaExpansion(source.GetPixel(pt.X-ofs.X, pt.Y-ofs.Y));
+      diffDiv := Manager.Tolerance + (Manager.Tolerance shl 8) + 1;
+      for yb := 0 to mask.Height-1 do
+      begin
+        psource := PBGRAPixel(source.GetPixelAddress(targetRect.Left - ofs.x, yb + targetRect.Top - ofs.y));
+        pmask := mask.ScanLine[yb];
+        for xb := mask.Width-1 downto 0 do
+        begin
+          if pmask^ <> 0 then
+          begin
+            diff := ExpandedDiff(psource^.ToExpanded, compareColor);
+            pmask^ := (pmask^ * (diffDiv - diff) + (diffDiv shr 1)) div diffDiv;
+          end;
+          inc(pmask);
+          inc(psource);
+        end;
+      end;
+      toolDest.FillMask(targetRect.Left, targetRect.Top, mask, penColor, dmDrawWithTransparency);
+      mask.Free;
+    end else
+      source.ParallelFloodFill(pt.X-ofs.X, pt.Y-ofs.Y,
+        toolDest, penColor, fmDrawWithTransparency, Manager.Tolerance, ofs.X, ofs.Y);
+  end;
+  result := targetRect;
   Action.NotifyChange(toolDest, result);
   ValidateAction;
 end;
