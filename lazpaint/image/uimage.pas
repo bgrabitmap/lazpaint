@@ -106,6 +106,8 @@ type
       AOriginal: TBGRALayerCustomOriginal; var ADiff: TBGRAOriginalDiff);
     procedure OriginalEditingChange({%H-}ASender: TObject;
       {%H-}AOriginal: TBGRALayerCustomOriginal);
+    procedure OriginalLoadError(ASender: TObject; AError: string;
+      var ARaise: boolean);
     procedure SetBlendOperation(AIndex: integer; AValue: TBlendOperation);
     procedure SetCurrentFilenameUTF8(AValue: string);
     procedure LayeredBitmapReplaced;
@@ -1097,6 +1099,13 @@ procedure TLazPaintImage.OriginalEditingChange(ASender: TObject;
   AOriginal: TBGRALayerCustomOriginal);
 begin
   OnImageChanged.NotifyObservers;
+end;
+
+procedure TLazPaintImage.OriginalLoadError(ASender: TObject; AError: string;
+  var ARaise: boolean);
+begin
+  MessagePopup(rsErrorLoadingOriginal, 4000);
+  ARaise := false;
 end;
 
 procedure TLazPaintImage.Redo;
@@ -2355,6 +2364,7 @@ begin
   FCurrentState := TImageState.Create;
   FCurrentState.OnOriginalChange:= @OriginalChange;
   FCurrentState.OnOriginalEditingChange:= @OriginalEditingChange;
+  FCurrentState.OnOriginalLoadError:=@OriginalLoadError;
   FCurrentState.OnActionProgress:= @LayeredActionProgress;
   FCurrentState.OnActionDone:=@LayeredActionDone;
   FRenderUpdateRectInPicCoord := rect(0,0,0,0);

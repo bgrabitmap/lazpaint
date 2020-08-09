@@ -1162,6 +1162,8 @@ begin
 end;
 
 constructor TEditShapeTool.Create(AManager: TToolManager);
+var
+  orig: TVectorOriginal;
 begin
   inherited Create(AManager);
   FRectEditor := nil;
@@ -1170,14 +1172,17 @@ begin
   FIsEditingGradient:= false;
   FLeftButton:= false;
   FRightButton:= false;
+  if GetCurrentLayerKind = lkVectorial then
+    orig := GetVectorOriginal
+    else orig := nil;
   if not Manager.Image.SelectionMaskEmpty then
   begin
-    if (GetCurrentLayerKind = lkVectorial) and Assigned(GetVectorOriginal.SelectedShape) then
-      GetVectorOriginal.DeselectShapes;
+    if Assigned(orig) and Assigned(orig.SelectedShape) then
+      orig.DeselectShapes;
     DoEditSelection;
   end else
-  if (GetCurrentLayerKind = lkVectorial) and Assigned(GetVectorOriginal.SelectedShape) then
-    UpdateToolManagerFromShape(GetVectorOriginal.SelectedShape);
+  if Assigned(orig) and Assigned(orig.SelectedShape) then
+    UpdateToolManagerFromShape(orig.SelectedShape);
 end;
 
 function TEditShapeTool.DoToolKeyDown(var key: Word): TRect;

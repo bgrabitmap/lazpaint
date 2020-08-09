@@ -21,6 +21,7 @@ type
     FOnActionProgress: TLayeredActionProgressEvent;
     FOnOriginalChange: TEmbeddedOriginalChangeEvent;
     FOnOriginalEditingChange: TEmbeddedOriginalEditingChangeEvent;
+    FOnOriginalLoadError: TEmbeddedOriginalLoadErrorEvent;
     FSelectionMask: TBGRABitmap;
     FLastSelectionMaskBoundsIsDefined,
     FLastSelectionLayerBoundsIsDefined: TBoundsState;
@@ -53,6 +54,8 @@ type
       AOriginal: TBGRALayerCustomOriginal; var ADiff: TBGRAOriginalDiff);
     procedure OriginalEditingChange({%H-}ASender: TObject;
       AOriginal: TBGRALayerCustomOriginal);
+    procedure OriginalLoadError(ASender: TObject; AError: string;
+      var ARaise: boolean);
     procedure SelectImageLayer(AValue: TBGRABitmap);
     procedure SelectImageLayerByIndex(AValue: integer);
     procedure SetLayeredBitmap(AValue: TBGRALayeredBitmap);
@@ -179,6 +182,7 @@ type
     property SelectionTransform: TAffineMatrix read FSelectionTransform write FSelectionTransform;
     property OnOriginalChange: TEmbeddedOriginalChangeEvent read FOnOriginalChange write FOnOriginalChange;
     property OnOriginalEditingChange: TEmbeddedOriginalEditingChangeEvent read FOnOriginalEditingChange write FOnOriginalEditingChange;
+    property OnOriginalLoadError: TEmbeddedOriginalLoadErrorEvent read FOnOriginalLoadError write FOnOriginalLoadError;
     property OnActionProgress: TLayeredActionProgressEvent read FOnActionProgress write SetOnActionProgress;
     property OnActionDone: TNotifyEvent read FOnActionDone write SetOnActionDone;
   end;
@@ -400,6 +404,13 @@ begin
     FOnOriginalEditingChange(self, AOriginal);
 end;
 
+procedure TImageState.OriginalLoadError(ASender: TObject; AError: string;
+  var ARaise: boolean);
+begin
+  If Assigned(FOnOriginalLoadError) then
+    FOnOriginalLoadError(self, AError, ARaise);
+end;
+
 procedure TImageState.SelectImageLayer(AValue: TBGRABitmap);
 var
   i: Integer;
@@ -437,6 +448,7 @@ begin
     FLayeredBitmap.OnOriginalEditingChange:= nil;
     FLayeredBitmap.OnActionProgress:= nil;
     FLayeredBitmap.OnActionDone:= nil;
+    FLayeredBitmap.OnOriginalLoadError:= nil;
   end;
   FLayeredBitmap:=AValue;
   if Assigned(FLayeredBitmap) then
@@ -445,6 +457,7 @@ begin
     FLayeredBitmap.OnOriginalEditingChange:= @OriginalEditingChange;
     FLayeredBitmap.OnActionProgress:= @LayeredActionProgress;
     FLayeredBitmap.OnActionDone:=@LayeredActionDone;
+    FLayeredBitmap.OnOriginalLoadError:=@OriginalLoadError;
   end;
 end;
 

@@ -29,6 +29,7 @@ const
   errContainerMismatch = 'Container mismatch';
   errAlreadyRemovingShape = 'Already removing shape';
   errUnableToFindTexture = 'Unable to find texture';
+  errErrorLoadingShape = 'Error loading shape';
 
 type
   TVectorOriginal = class;
@@ -3476,6 +3477,7 @@ var
   idList: array of single;
   texId: integer;
   bmp: TBGRABitmap;
+  strErrors: string;
 begin
   Clear;
 
@@ -3503,6 +3505,7 @@ begin
     end;
   end;
 
+  strErrors := '';
   nb := AStorage.Int['count'];
   for i:= 0 to nb-1 do
   begin
@@ -3514,14 +3517,18 @@ begin
       loadedShape.OnEditingChange := @OnShapeEditingChange;
       if loadedShape.Id > FLastShapeId then FLastShapeId := loadedShape.Id;
       FShapes.Add(loadedShape);
-    finally
-      shapeObj.Free;
+    except
+      on ex: exception do
+        AppendStr(strErrors, ex.Message + ' ');
     end;
+    shapeObj.Free;
   end;
   for i := 0 to ShapeCount-1 do
     if Shape[i].Id = 0 then
       Shape[i].Id := GetNewShapeId;
   NotifyChange;
+  if strErrors <> '' then
+    raise exception.Create(errErrorLoadingShape + ': ' + Trim(strErrors));
 end;
 
 procedure TVectorOriginal.SaveToStorage(AStorage: TBGRACustomOriginalStorage);
