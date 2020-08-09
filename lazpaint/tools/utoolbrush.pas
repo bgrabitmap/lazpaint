@@ -58,6 +58,7 @@ type
     class var sourceLayerId: integer;
     class var sourcePosition: TPoint;
     class var sourcePositionRelative: boolean;
+    function PickColorWithShift: boolean; override;
     function DrawBrushAt(toolDest: TBGRABitmap; x, y: single): TRect; override;
     procedure PrepareBrush(rightBtn: boolean); override;
     procedure ReleaseBrush; override;
@@ -78,24 +79,39 @@ uses Math, UGraph, UResourceStrings, Graphics, LazPaintType;
 
 { TToolClone }
 
+function TToolClone.PickColorWithShift: boolean;
+begin
+  Result:= false;
+end;
+
 function TToolClone.DrawBrushAt(toolDest: TBGRABitmap; x, y: single): TRect;
 var source: TBGRABitmap;
-  ofs: TPoint;
+  sourceOfs: TPoint;
+  sourceIdx: Integer;
 begin
-  ofs := LayerOffset;
   if definingSource then
   begin
-    sourcePosition := Point(round(x) + ofs.x,round(y) + ofs.y);
+    sourceOfs := Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex];
+    sourcePosition := Point(round(x) + sourceOfs.x,round(y) + sourceOfs.y);
     sourceLayerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
     sourcePositionRelative:= false;
     result := OnlyRenderChange;
   end else
   begin
-    source := Manager.Image.LayerBitmapById[sourceLayerId];
-    if source = nil then
+    if (ssShift in ShiftState) then
     begin
-      result := EmptyRect;
-      exit;
+      source := Manager.Image.RenderedImage;
+      sourceOfs := Point(0,0);
+    end else
+    begin
+      sourceIdx := Manager.Image.GetLayerIndexById(sourceLayerId);
+      if sourceIdx = -1 then
+      begin
+        result := EmptyRect;
+        exit;
+      end;
+      source := Manager.Image.LayerBitmap[sourceIdx];
+      sourceOfs := Manager.Image.LayerOffset[sourceIdx];
     end;
     if not SubPixelAccuracy then
     begin
@@ -104,8 +120,8 @@ begin
     end;
     if not sourcePositionRelative then
     begin
-      sourcePosition.x -= round(x) + ofs.x;
-      sourcePosition.y -= round(y) + ofs.y;
+      sourcePosition.x -= round(x) + sourceOfs.x;
+      sourcePosition.y -= round(y) + sourceOfs.y;
       sourcePositionRelative := true;
     end;
     with BrushInfo.BrushImage do
