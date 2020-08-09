@@ -3372,7 +3372,8 @@ begin
   begin
     FDeformationGridNbX := ASize.cx;
     FDeformationGridNbY := ASize.cy;
-    ToolUpdate;
+    if ToolUpdate then
+      Image.OnImageChanged.NotifyObservers;
     if Assigned(FOnDeformationGridChanged) then FOnDeformationGridChanged(self);
   end;
 end;
