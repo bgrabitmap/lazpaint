@@ -155,23 +155,35 @@ const
   ConsoleOutputFile = '/dev/ttys000';
 var
   OldOutput: TextFile;
+  HasTerminalOutput: boolean;
 
   procedure InitOutput;
+  var TerminalOutput: TextFile;
   begin
-    //on MacOS, you need to open the terminal before running LazPaint
+    //on MacOS, you need to open the terminal before running LazPaint to get debug information
     OldOutput := Output;
-    AssignFile(Output, ConsoleOutputFile);
-    Append(Output);
-    Writeln;
-    Writeln('Debug started');
+    AssignFile(TerminalOutput, ConsoleOutputFile);
+    try
+      Append(TerminalOutput);
+      Output := TerminalOutput;
+      HasTerminalOutput := true;
+      Writeln;
+      Writeln('Debug started');
+    except
+      HasTerminalOutput := false;
+    end;
   end;
 
   procedure DoneOutput;
   begin
-    Writeln('Debug ended');
-    CloseFile(Output);
-    Output := OldOutput;
-    SetHeapTraceOutput(ConsoleOutputFile);
+    if HasTerminalOutput then
+    begin
+      Writeln('Debug ended');
+      CloseFile(Output);
+      Output := OldOutput;
+      HasTerminalOutput := false;
+      SetHeapTraceOutput(ConsoleOutputFile);
+    end;
   end;
 {$ENDIF}{$ENDIF}
 
