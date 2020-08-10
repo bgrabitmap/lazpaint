@@ -45,47 +45,53 @@ type
     FTextAreaHeightComputed: Boolean;
     FBarsAlign, FButtonsAlign: TAlign;
     FButtonsCenter: boolean;
-    FTitleFontHeight: integer;
+    FTitleFontHeight: single;
     FColorTitleVisible: boolean;
-    FWheelArea: TRect;
     FFormBackgroundColor, FFormTextColor: TBGRAPixel;
     FColorBeforeEColor: TBGRAPixel;
 
     FInFormMouseMove: Boolean;
-    FormMouseMovePos: TPoint;
+    FormMouseMovePos: TPointF;
 
     FCurrentColor: TBGRAPixel;
     FColorLight: word;
-    ColorX,colorY: integer;
+    FColorX,FColorY: single;
     FSelectZone: (szNone, szColorCircle, szLightScale, szAlphascale);
+    FBitmapScale: single;
     FColorCircle: record center: TPointF;
-                         bounds: TRect;
+                         bounds: TRectF;
                          bmp,bmpMaxlight: TBGRABitmap; end;
-    FLightscale: record bounds: TRect;
+    FLightscale: record bounds: TRectF;
                         bmp: TBGRABitmap;
-                        cursorRect: TRect; end;
-    FAlphascale: record bounds: TRect;
+                        cursorRect: TRectF; end;
+    FAlphascale: record bounds: TRectF;
                        bmp: TBGRABitmap;
-                       cursorRect: TRect; end;
+                       cursorRect: TRectF; end;
 
-    FTopMargin, FBarWidth, FButtonSize, FCursorPlace, FMargin, FInternalMargin,
-    FCursorMargin, FCursorSize, FColorXYSize, FCursorXYOpacity: integer;
+    FTopMargin, FBarWidth, FCursorPlace, FMargin, FInternalMargin,
+    FCursorMargin, FCursorSize, FColorXYSize, FCursorXYWidth: single;
+    FButtonSize: integer;
 
     FInitialized: boolean;
     FLazPaintInstance: TLazPaintCustomInstance;
 
-    function GetAvailableBmpHeight: integer;
-    function GetAvailableBmpWidth: integer;
+    function GetAvailableVSHeight: integer;
+    function GetAvailableVSWidth: integer;
+    function InterfaceToPixel(APoint: TPointF): TPoint;
+    function InterfaceToPixel(ARect: TRectF): TRect;
+    function LCLPosToInterface(APoint: TPoint): TPointF;
+    function PixelToInterface(APoint: TPoint): TPointF;
     function GetEditorVisible: boolean;
     procedure SetDarkTheme(AValue: boolean);
     procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
     procedure UpdateColorview(UpdateColorCircle, UpdateLightScale, Redraw: boolean);
     procedure SetColorLight(value: word);
     function ColorWithLight(c: TBGRAPixel; light: word): TBGRAPixel;
-    function BitmapWithLight(bmpsrc: TBGRABitmap; light: word; lookFor: TBGRAPixel; var pColorX,pColorY: integer): TBGRABitmap;
+    function BitmapWithLight(bmpsrc: TBGRABitmap; light: word; lookFor: TBGRAPixel; var pColorX,pColorY: single): TBGRABitmap;
     function ColorLightOf(c: TBGRAPixel): word;
-    function DrawTriangleCursor(dest: TBGRABitmap; bounds: TRect; value: byte): TRect;
-    procedure DoSelect(X,Y: integer);
+    function DrawTriangleCursor(dest: TBGRABitmap; bounds: TRectF; value, maxValue: integer): TRectF;
+    procedure DoClick(X,Y: single);
+    procedure DoSelect(X,Y: single);
     function MakeIconBase(size: integer): TBitmap;
     function MakeAddIcon(size: integer): TBitmap;
     function MakeRemoveIcon(size: integer): TBitmap;
@@ -93,15 +99,15 @@ type
 
     procedure ApplyTheme;
     procedure UpdateButtonLayout;
-    function SetRectBounds(var ABounds: TRect; ANewBounds: TRect): boolean;
+    function SetRectBounds(var ABounds: TRectF; ANewBounds: TRectF): boolean;
     function PreferredBarsAlignWithWidth: TAlign;
     procedure UpdateLayout;
     function GetAlphaScaleBmp: TBGRABitmap;
     function GetLightScaleBmp: TBGRABitmap;
     function GetColorCircleMaxLightBmp: TBGRABitmap;
     function GetColorCircleBmp: TBGRABitmap;
-    property AvailableBmpHeight: integer read GetAvailableBmpHeight;
-    property AvailableBmpWidth: integer read GetAvailableBmpWidth;
+    property AvailableVSHeight: integer read GetAvailableVSHeight;
+    property AvailableVSWidth: integer read GetAvailableVSWidth;
   public
     ColorTarget: TColorTarget;
 
@@ -121,7 +127,8 @@ type
 
 implementation
 
-uses math, Forms, UResourceStrings, LCLType, UDarkTheme, LCScaleDPI, UGraph, BGRAText;
+uses math, Forms, UResourceStrings, LCLType, UDarkTheme, LCScaleDPI, UGraph, BGRAText,
+  BGRAClasses;
 
 { TChooseColorInterface }
 
@@ -135,29 +142,16 @@ begin
       EColor.Hide;
       LColor.Show;
     end;
-    if PtInRect(Point(X,Y), FColorCircle.Bounds) then
-    begin
-      FSelectZone := szColorCircle;
-      DoSelect(X,Y);
-    end else
-    if PtInRect(Point(X,Y), FAlphascale.Bounds) or PtInRect(Point(X,Y), FAlphascale.cursorRect) then
-    begin
-      FSelectZone := szAlphascale;
-      DoSelect(X,Y);
-    end else
-    if PtInRect(Point(X,Y), FLightscale.Bounds) or PtInRect(Point(X,Y), FLightscale.cursorRect) then
-    begin
-      FSelectZone := szLightscale;
-      DoSelect(X,Y);
-    end;
+    with LCLPosToInterface(Point(X, Y)) do
+      DoClick(X,Y);
   end;
 end;
 
 procedure TChooseColorInterface.ContainerResize(Sender: TObject);
 begin
   NeedTextAreaHeight;
-  vsColorView.Width := AvailableBmpWidth;
-  vsColorView.Height := AvailableBmpHeight;
+  vsColorView.Width := AvailableVSWidth;
+  vsColorView.Height := AvailableVSHeight;
   EColor.Left := ExternalMargin;
   EColor.Width := Container.ClientWidth - 2*ExternalMargin;
   LColor.Left := ExternalMargin;
@@ -170,11 +164,11 @@ end;
 procedure TChooseColorInterface.vsColorViewMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
-  FormMouseMovePos := Point(X,Y);
+  FormMouseMovePos := LCLPosToInterface(Point(X,Y));
   if FInFormMouseMove then Exit;
   FInFormMouseMove := True;
   Application.ProcessMessages; //empty message stack
-  DoSelect(FormMouseMovePos.X,FormMouseMovePos.Y);
+  DoSelect(FormMouseMovePos.X, FormMouseMovePos.Y);
   FInFormMouseMove := False;
 end;
 
@@ -186,80 +180,100 @@ end;
 
 procedure TChooseColorInterface.vsColorViewRedraw(Sender: TObject;
   Bitmap: TBGRABitmap);
-var x,y: integer;
-  boundRight,w: integer;
-  size: single;
+var
+  textBoundRight: single;
+
+  procedure AddTitle(xRef: single; AText: string);
+  var x, w: single;
+  begin
+    w := Bitmap.TextSize(AText).cx / FBitmapScale;
+    x := xRef - w/2;
+    x := min(x, textBoundRight - w);
+    x := max(x, FButtonSize + FMargin + FMargin / 2);
+    if x > textBoundRight - w then exit;
+    with InterfaceToPixel(PointF(x, FMargin/2)) do
+      Bitmap.TextOut(x, y, AText, FFormTextColor, taLeftJustify);
+    textBoundRight := x - FMargin/2;
+  end;
+
+var
+  bmpRect: TRect;
+  previewSize: single;
+  previewRect: TRectF;
   c: TBGRAPixel;
+  bmpColorXYSize: integer;
+  bmpCursorWidth, i: integer;
+  bmpCursorOpacity: byte;
 begin
-  Bitmap.FontHeight := FTitleFontHeight;
+  FBitmapScale := Bitmap.Width / vsColorView.Width;
+  Bitmap.FontHeight := round(FTitleFontHeight * FBitmapScale);
   Bitmap.FontAntialias := True;
-  boundRight := Bitmap.Width;
+  textBoundRight := Bitmap.Width / FBitmapScale;
   if Assigned(GetAlphaScaleBmp) then
   begin
-    w := Bitmap.TextSize(rsOpacity).cx;
     if FBarsAlign = alRight then
-    begin
-      x := (FAlphascale.bounds.Left+FAlphascale.bounds.Right-w) div 2;
-      if x + w > boundRight then
-        x := boundRight-w;
-      Bitmap.TextOut(x, FMargin div 2, rsOpacity, FFormTextColor, taLeftJustify);
-      boundRight := x - FMargin div 2;
-    end;
-    Bitmap.PutImage(FAlphascale.bounds.Left, FAlphascale.bounds.top,
-                    GetAlphaScaleBmp, dmDrawWithTransparency);
-    Bitmap.Rectangle(FAlphascale.bounds,
+      AddTitle((FAlphascale.bounds.Left + FAlphascale.bounds.Right) / 2, rsOpacity);
+    bmpRect := InterfaceToPixel(FAlphascale.bounds);
+    Bitmap.PutImage(bmpRect.Left, bmpRect.Top, GetAlphaScaleBmp, dmDrawWithTransparency);
+    Bitmap.Rectangle(bmpRect,
                      BGRA(FFormTextColor.red, FFormTextColor.green, FFormTextColor.Blue,128),
                      dmDrawWithTransparency);
-    FAlphascale.cursorRect := DrawTriangleCursor(Bitmap, FAlphascale.bounds, FCurrentColor.alpha);
-  end else FAlphascale.cursorRect := EmptyRect;
+    FAlphascale.cursorRect := DrawTriangleCursor(Bitmap, FAlphascale.bounds, FCurrentColor.alpha, 255);
+  end else FAlphascale.cursorRect := EmptyRectF;
 
   if Assigned(GetLightscaleBmp) then
   begin
-    w := Bitmap.TextSize(rsLight).cx;
     if FBarsAlign = alRight then
-    begin
-      x := (FLightscale.bounds.Left + FLightscale.bounds.Right-w) div 2;
-      if x+ w > boundRight then
-        x:= boundRight-w;
-      Bitmap.TextOut(x, FMargin div 2, rsLight, FFormTextColor, taLeftJustify);
-      boundRight := x - FMargin div 2;
-    end;
-    Bitmap.PutImage(FLightscale.bounds.Left, FLightscale.bounds.top, GetLightscaleBmp, dmFastBlend);
-    Bitmap.Rectangle(FLightscale.bounds,
+      AddTitle((FLightscale.bounds.Left + FLightscale.bounds.Right) / 2, rsLight);
+    bmpRect := InterfaceToPixel(FLightscale.bounds);
+    Bitmap.PutImage(bmpRect.Left, bmpRect.top, GetLightscaleBmp, dmFastBlend);
+    Bitmap.Rectangle(bmpRect,
                      BGRA(FFormTextColor.red, FFormTextColor.green, FFormTextColor.Blue, 128),
                      dmDrawWithTransparency);
-    FLightscale.cursorRect := DrawTriangleCursor(Bitmap, FLightscale.bounds, FColorLight div 256);
-  end else FLightscale.cursorRect := EmptyRect;
+    FLightscale.cursorRect := DrawTriangleCursor(Bitmap, FLightscale.bounds, FColorLight, 65535);
+  end else FLightscale.cursorRect := EmptyRectF;
 
   if Assigned(GetColorCircleBmp) and not FColorCircle.bounds.IsEmpty then
   begin
     if FColorTitleVisible then
+      AddTitle(FColorCircle.center.X, rsLight);
+    bmpRect := InterfaceToPixel(FColorCircle.bounds);
+    Bitmap.PutImage(bmpRect.Left, bmpRect.top, GetColorCircleBmp, dmDrawWithTransparency);
+    bmpCursorWidth := round(FCursorXYWidth * FBitmapScale);
+    if FCursorXYWidth * FBitmapScale < 1 then
+      bmpCursorOpacity := round(FCursorXYWidth * FBitmapScale * 255)
+      else bmpCursorOpacity := 255;
+    with InterfaceToPixel(FColorCircle.bounds.TopLeft + PointF(FColorX, FColorY)) do
     begin
-      w := Bitmap.TextSize(rsColors).cx;
-      x := round(FColorCircle.center.X - w/2);
-      x := min(x, boundRight-w);
-      x := max(x, FButtonSize + FMargin + FMargin div 2);
-      if x <= boundRight-w then
-        Bitmap.TextOut(x, FMargin div 2, rsColors, FFormTextColor, taLeftJustify);
+      bmpColorXYSize := round(FColorXYSize * FBitmapScale);
+      bmpRect := rect(x-bmpColorXYSize, y-bmpColorXYSize, x+bmpColorXYSize+1, y+bmpColorXYSize+1);
+      bmpRect.Inflate(-1, -1);
+      Bitmap.Rectangle(bmpRect, BGRA(0,0,0,bmpCursorOpacity), dmDrawWithTransparency);
+      bmpRect.Inflate(1, 1);
+      for i := 1 to bmpCursorWidth do
+      begin
+        Bitmap.Rectangle(bmpRect, BGRA(255,255,255,bmpCursorOpacity), dmDrawWithTransparency);
+        bmpRect.Inflate(1, 1);
+      end;
+      Bitmap.Rectangle(bmpRect, BGRA(0,0,0,bmpCursorOpacity), dmDrawWithTransparency);
     end;
-    Bitmap.PutImage(FColorCircle.bounds.Left, FColorCircle.bounds.top, GetColorCircleBmp, dmDrawWithTransparency);
-    x := FColorCircle.bounds.Left+ColorX;
-    y := FColorCircle.bounds.top+ColorY;
-    Bitmap.Rectangle(x-FColorXYSize-1, y-FColorXYSize-1, x+FColorXYSize+2, y+FColorXYSize+2,
-                     BGRA(0,0,0,FCursorXYOpacity), dmDrawWithTransparency);
-    Bitmap.Rectangle(x-FColorXYSize, y-FColorXYSize, x+FColorXYSize+1, y+FColorXYSize+1,
-                     BGRA(255,255,255,FCursorXYOpacity), dmDrawWithTransparency);
-    Bitmap.Rectangle(x-FColorXYSize+1, y-FColorXYSize+1, x+FColorXYSize, y+FColorXYSize,
-                     BGRA(0,0,0,FCursorXYOpacity), dmDrawWithTransparency);
-    size := round(FBarWidth*0.9);
-    c := GetCurrentColor;
-    c.alpha := 255;
-    x := FMargin - ExternalMargin;
-    if FBarsAlign = alBottom then y := round(FLightscale.bounds.Top-FMargin-1-size)
-    else y := round(Bitmap.Height - FMargin - size);
-    if y >= BCButton_RemoveFromPalette.Top + BCButton_RemoveFromPalette.Height + FMargin div 2 then
-      Bitmap.RoundRectAntialias(x, y, x + size, y + size,
-          size/6,size/6, BGRA(0,0,0,192), 1, c, []);
+    previewSize := round(FBarWidth*0.9);
+    previewRect.Left := FMargin - ExternalMargin;
+    if FBarsAlign = alBottom then
+      previewRect.Top := FLightscale.bounds.Top - FMargin - previewSize
+      else previewRect.Top := Bitmap.Height/FBitmapScale - FMargin - previewSize;
+    previewRect.Right := previewRect.Left + previewSize;
+    previewRect.Bottom := previewRect.Top + previewSize;
+
+    if previewRect.Top >= BCButton_RemoveFromPalette.Top + BCButton_RemoveFromPalette.Height
+                          + FMargin / 2 then
+    begin
+      c := GetCurrentColor;
+      c.alpha := 255;
+      with InterfaceToPixel(previewRect) do
+        Bitmap.RoundRectAntialias(Left, Top, Right - 1, Bottom - 1,
+            previewSize/6, previewSize/6, BGRA(0,0,0,192), bmpCursorWidth, c, []);
+    end;
   end;
 end;
 
@@ -335,14 +349,37 @@ begin
   SafeSetFocus(EColor);
 end;
 
-function TChooseColorInterface.GetAvailableBmpHeight: integer;
+function TChooseColorInterface.GetAvailableVSHeight: integer;
 begin
   result := Container.ClientHeight - FTextAreaHeight - ExternalMargin;
 end;
 
-function TChooseColorInterface.GetAvailableBmpWidth: integer;
+function TChooseColorInterface.GetAvailableVSWidth: integer;
 begin
   result := Container.ClientWidth - ExternalMargin*2;
+end;
+
+function TChooseColorInterface.InterfaceToPixel(APoint: TPointF): TPoint;
+begin
+  result := (APoint * FBitmapScale).Truncate;
+end;
+
+function TChooseColorInterface.InterfaceToPixel(ARect: TRectF): TRect;
+begin
+  result.TopLeft := InterfaceToPixel(ARect.TopLeft);
+  result.BottomRight := InterfaceToPixel(ARect.BottomRight);
+end;
+
+function TChooseColorInterface.LCLPosToInterface(APoint: TPoint): TPointF;
+begin
+  result.x := APoint.x + 0.5 / FBitmapScale;
+  result.y := APoint.y + 0.5 / FBitmapScale;
+end;
+
+function TChooseColorInterface.PixelToInterface(APoint: TPoint): TPointF;
+begin
+  result.x := (APoint.x + 0.5) / FBitmapScale;
+  result.y := (APoint.y + 0.5) / FBitmapScale;
 end;
 
 function TChooseColorInterface.GetEditorVisible: boolean;
@@ -421,7 +458,7 @@ begin
 end;
 
 function TChooseColorInterface.BitmapWithLight(bmpsrc: TBGRABitmap;
-  light: word; lookFor: TBGRAPixel; var pColorX, pColorY: integer): TBGRABitmap;
+  light: word; lookFor: TBGRAPixel; var pColorX, pColorY: single): TBGRABitmap;
 var xb,yb: integer;
     psrc,pdest: PBGRAPixel;
     dist,newDist: integer;
@@ -465,8 +502,12 @@ begin
   result.InvalidateBitmap;
   if colorXYnb <> 0 then
   begin
-    pColorX := (ColorXsum + colorXYnb shr 1) div colorXYnb;
-    pColorY := (ColorYsum + colorXYnb shr 1) div colorXYnb;
+    with PixelToInterface(Point((ColorXsum + colorXYnb shr 1) div colorXYnb,
+                                (ColorYsum + colorXYnb shr 1) div colorXYnb)) do
+    begin
+      pColorX := x;
+      pColorY := y;
+    end;
   end;
 end;
 
@@ -479,29 +520,52 @@ begin
 end;
 
 function TChooseColorInterface.DrawTriangleCursor(dest: TBGRABitmap;
-  bounds: TRect; value: byte): TRect;
-var x,y: integer;
+  bounds: TRectF; value, maxValue: integer): TRectF;
+var x,y: single;
+  bmpCursorSize: integer;
 begin
+  bmpCursorSize := round(FCursorSize * FBitmapScale);
   if FBarsAlign = alRight then
   begin
     x := bounds.right + FCursorMargin;
-    y := bounds.bottom-1 - round(value/255*(bounds.height-1));
-    dest.FillPolyAntialias([pointF(x, y), pointF(x+FCursorSize, y-FCursorSize),
-                            pointF(x+FCursorSize, y+FCursorSize)], FFormTextColor);
-    result := rect(floor(x-FCursorSize/2), floor(y-FCursorSize*1.5),
-                   ceil(x+FCursorSize*1.5), ceil(y+FCursorSize*1.5));
+    y := bounds.top + (maxValue - value) / (maxValue + 1) * bounds.height;
+    with InterfaceToPixel(PointF(x, y)) do
+      dest.FillPolyAntialias([pointF(x, y), pointF(x+bmpCursorSize, y-bmpCursorSize),
+                              pointF(x+bmpCursorSize, y+bmpCursorSize)], FFormTextColor);
+    result := rectF(x - FCursorSize/2, y - FCursorSize*1.5,
+                    x + FCursorSize*1.5, y + FCursorSize*1.5);
   end else
   begin
-    x := bounds.left + round(value/255*(bounds.Width-1));
+    x := bounds.left + value / (maxValue + 1) * bounds.Width;
     y := bounds.bottom + FCursorMargin;
-    dest.FillPolyAntialias([pointF(x, y), pointF(x+FCursorSize,y+FCursorSize),
-                            pointF(x-FCursorSize, y+FCursorSize)], FFormTextColor);
-    result := rect(floor(x-FCursorSize*1.5), floor(y-FCursorSize/2),
-                   ceil(x+FCursorSize*1.5), ceil(y+FCursorSize*1.5));
+    with InterfaceToPixel(PointF(x, y)) do
+      dest.FillPolyAntialias([pointF(x, y), pointF(x+bmpCursorSize,y+bmpCursorSize),
+                              pointF(x-bmpCursorSize, y+bmpCursorSize)], FFormTextColor);
+    result := rectF(x - FCursorSize*1.5, y - FCursorSize/2,
+                    x + FCursorSize*1.5, y + FCursorSize*1.5);
   end;
 end;
 
-procedure TChooseColorInterface.DoSelect(X, Y: integer);
+procedure TChooseColorInterface.DoClick(X, Y: single);
+begin
+  if FColorCircle.Bounds.Contains(PointF(X,Y)) then
+  begin
+    FSelectZone := szColorCircle;
+    DoSelect(X,Y);
+  end else
+  if FAlphascale.Bounds.Contains(PointF(X,Y)) or FAlphascale.cursorRect.Contains(PointF(X,Y)) then
+  begin
+    FSelectZone := szAlphascale;
+    DoSelect(X,Y);
+  end else
+  if FLightscale.Bounds.Contains(PointF(X,Y)) or FLightscale.cursorRect.Contains(PointF(X,Y)) then
+  begin
+    FSelectZone := szLightscale;
+    DoSelect(X,Y);
+  end;
+end;
+
+procedure TChooseColorInterface.DoSelect(X, Y: single);
 var pix, newColor: TBGRAPixel;
   newLight: Word;
   dist: single;
@@ -510,8 +574,10 @@ begin
   szAlphascale:
     begin
       if FBarsAlign = alRight then
-        FCurrentColor.alpha := max(0, min(255, 255-round((Y-FAlphascale.Bounds.Top)/(FAlphascale.Bounds.Height-1)*255)))
-        else FCurrentColor.alpha := max(0, min(255, round((X-FAlphascale.Bounds.Left)/(FAlphascale.Bounds.Width-1)*255)));
+        FCurrentColor.alpha := max(0, min(255, 255 -
+          trunc((Y-FAlphascale.Bounds.Top) / FAlphascale.Bounds.Height * 256) ))
+        else FCurrentColor.alpha := max(0, min(255,
+          trunc((X-FAlphascale.Bounds.Left) / FAlphascale.Bounds.Width * 256) ));
       UpdateColorview(False, False, True);
     end;
   szColorCircle:
@@ -521,18 +587,19 @@ begin
               sqr((y-FColorCircle.center.Y)/FColorCircle.bounds.Height*2));
       if dist > 1 then
       begin
-        x := round(FColorCircle.center.X + (x-FColorCircle.center.X)/dist);
-        y := round(FColorCircle.center.Y + (y-FColorCircle.center.Y)/dist);
+        x := FColorCircle.center.X + (x - FColorCircle.center.X)/dist;
+        y := FColorCircle.center.Y + (y - FColorCircle.center.Y)/dist;
       end;
-      pix := FColorCircle.bmpMaxlight.GetPixel(x-FColorCircle.Bounds.Left,y-FColorCircle.Bounds.top);
+      with InterfaceToPixel(PointF(x,y) - FColorCircle.bounds.TopLeft) do
+        pix := FColorCircle.bmpMaxlight.GetPixel(x,y);
       if pix.alpha <> 0 then
       begin
         newColor := BGRA(pix.Red,pix.Green,pix.Blue,FCurrentColor.Alpha);
         if not FCurrentColor.EqualsExactly(newColor) then
         begin
           FCurrentColor := newColor;
-          ColorX := x-FColorCircle.Bounds.Left;
-          ColorY := y-FColorCircle.Bounds.top;
+          FColorX := x-FColorCircle.Bounds.Left;
+          FColorY := y-FColorCircle.Bounds.top;
           UpdateColorview(False, True, True);
         end;
       end;
@@ -540,8 +607,10 @@ begin
   szLightScale:
     begin
       if FBarsAlign = alRight then
-        newLight := max(0, min(65535, 65535 - round((Y-FLightscale.Bounds.Top)/(FLightscale.Bounds.Height-1)*65535)))
-        else newLight := max(0, min(65535, round((X-FLightscale.Bounds.Left)/(FLightscale.Bounds.Width-1)*65535)));
+        newLight := max(0, min(65535, 65535 -
+          trunc((Y-FLightscale.Bounds.Top) / FLightscale.Bounds.Height * 65536) ))
+        else newLight := max(0, min(65535,
+          trunc((X-FLightscale.Bounds.Left) / FLightscale.Bounds.Width * 65536)));
       SetColorLight(newLight);
     end;
   else exit;
@@ -654,27 +723,27 @@ var
   iconSize: Integer;
   tmpIcon: TBitmap;
 begin
-  FButtonSize := FBarWidth;
+  FButtonSize := round(FBarWidth);
   BCButton_AddToPalette.Width := FButtonSize;
   BCButton_AddToPalette.Height := FButtonSize;
   BCButton_RemoveFromPalette.Width := FButtonSize;
   BCButton_RemoveFromPalette.Height := FButtonSize;
-  BCButton_AddToPalette.Left := FMargin - ExternalMargin;
-  BCButton_AddToPalette.Top := FMargin div 2;
+  BCButton_AddToPalette.Left := round(FMargin - ExternalMargin);
+  BCButton_AddToPalette.Top := round(FMargin / 2);
   if FButtonsAlign = alLeft then
   begin
     if FButtonsCenter then
-      BCButton_AddToPalette.Top := (AvailableBmpHeight -
+      BCButton_AddToPalette.Top := (AvailableVSHeight -
         BCButton_AddToPalette.Height - BCButton_RemoveFromPalette.Height) div 2;
-    BCButton_RemoveFromPalette.Left := FMargin - ExternalMargin;
-    BCButton_RemoveFromPalette.Top := BCButton_AddToPalette.Top+BCButton_AddToPalette.Height;
+    BCButton_RemoveFromPalette.Left := round(FMargin - ExternalMargin);
+    BCButton_RemoveFromPalette.Top := BCButton_AddToPalette.Top + BCButton_AddToPalette.Height;
   end else
   begin
     if FButtonsCenter then
-      BCButton_AddToPalette.Left := (AvailableBmpWidth -
+      BCButton_AddToPalette.Left := (AvailableVSWidth -
         BCButton_AddToPalette.Width - BCButton_RemoveFromPalette.Width) div 2;
-    BCButton_RemoveFromPalette.Left := BCButton_AddToPalette.Left+BCButton_AddToPalette.Width;
-    BCButton_RemoveFromPalette.Top := FMargin div 2;
+    BCButton_RemoveFromPalette.Left := BCButton_AddToPalette.Left + BCButton_AddToPalette.Width;
+    BCButton_RemoveFromPalette.Top := round(FMargin / 2);
   end;
   iconSize := FButtonSize-4;
   if not Assigned(BCButton_AddToPalette.Glyph) or (BCButton_AddToPalette.Glyph.Width <> iconSize) then
@@ -691,8 +760,8 @@ begin
   end;
 end;
 
-function TChooseColorInterface.SetRectBounds(var ABounds: TRect;
-  ANewBounds: TRect): boolean;
+function TChooseColorInterface.SetRectBounds(var ABounds: TRectF;
+  ANewBounds: TRectF): boolean;
 begin
   result := (ABounds.Width <> ANewBounds.Width) or (ABounds.Height <> ANewBounds.Height);
   ABounds := ANewBounds;
@@ -700,23 +769,23 @@ end;
 
 function TChooseColorInterface.PreferredBarsAlignWithWidth: TAlign;
 var
-  oneBarWidth, tx,ty, internalMargin, margin: Integer;
+  oneBarWidth, internalMargin, margin, tx, ty: single;
 begin
-  margin := DoScaleY(8, OriginalDPI, FDPI);
-  oneBarWidth := DoScaleX(18, OriginalDPI, FDPI) + DoScaleX(10, OriginalDPI, FDPI) +
+  margin := DoScaleYF(8, OriginalDPI, FDPI);
+  oneBarWidth := DoScaleXF(18, OriginalDPI, FDPI) + DoScaleXF(10, OriginalDPI, FDPI) +
                  margin;
   internalMargin := max(0, margin - ExternalMargin);
   if (FLazPaintInstance = nil) or LazPaintInstance.BlackAndWhite then
   begin
-    tx := AvailableBmpWidth - 2*internalMargin;
+    tx := AvailableVSWidth - 2*internalMargin;
     if tx <= oneBarWidth*4 then
       result := alRight
     else
       result := alBottom;
   end else
   begin
-    tx := AvailableBmpWidth - 2*internalMargin;
-    ty := AvailableBmpHeight - 2*margin;
+    tx := AvailableVSWidth - 2*internalMargin;
+    ty := AvailableVSHeight - 2*margin;
     if tx >= ty then
       result := alRight
       else result := alBottom;
@@ -724,33 +793,34 @@ begin
 end;
 
 procedure TChooseColorInterface.UpdateLayout;
-var bmpWidth, bmpHeight: integer;
+var vsWidth, vsHeight: single;
     prevBarsAlign: TAlign;
-    newAlphaBounds, newLightscaleBounds: TRect;
+    newAlphaBounds, newLightscaleBounds: TRectF;
+    newColorCircleArea: TRectF;
     needUpdateLightscale, needUpdateColorCircle: Boolean;
-    diffXY, delta: integer;
+    diffXY, delta: single;
     reductionFactor: single;
 
-  function AdaptSizeX(ASize: integer): integer;
+  function AdaptSizeX(ASize: integer): single;
   begin
-    result := min(DoScaleX(ASize, OriginalDPI, FDPI), round(ASize*reductionFactor));
+    result := min(DoScaleXF(ASize, OriginalDPI, FDPI), ASize * reductionFactor);
   end;
-  function AdaptSizeY(ASize: integer): integer;
+  function AdaptSizeY(ASize: integer): single;
   begin
-    result := min(DoScaleY(ASize, OriginalDPI, FDPI), round(ASize*reductionFactor));
+    result := min(DoScaleYF(ASize, OriginalDPI, FDPI), ASize * reductionFactor);
   end;
 
 begin
   if FLazPaintInstance = nil then exit;
 
   prevBarsAlign := FBarsAlign;
-  bmpWidth := AvailableBmpWidth;
-  bmpHeight := AvailableBmpHeight;
+  vsWidth := AvailableVSWidth;
+  vsHeight := AvailableVSHeight;
 
   if LazPaintInstance.BlackAndWhite then
-    reductionFactor := min(bmpWidth, bmpHeight)/105
+    reductionFactor := min(vsWidth, vsHeight)/105
   else
-    reductionFactor := max(bmpWidth, bmpHeight)/200;
+    reductionFactor := max(vsWidth, vsHeight)/200;
   FBarWidth := AdaptSizeX(18);
   FCursorPlace := AdaptSizeX(10);
   FCursorMargin := AdaptSizeX(2);
@@ -760,16 +830,15 @@ begin
   FInternalMargin := FMargin-ExternalMargin;
   if FInternalMargin < 0 then FInternalMargin := 0;
   FTitleFontHeight := max(AdaptSizeY(12), 10);
-  FColorXYSize := DoScaleX(3, OriginalDPI, FDPI);
-  FCursorXYOpacity := DoScaleX(128, OriginalDPI, FDPI);
-  if FCursorXYOpacity > 255 then FCursorXYOpacity := 255;
+  FColorXYSize := DoScaleXF(3, OriginalDPI, FDPI);
+  FCursorXYWidth := DoScaleXF(0.5, OriginalDPI, FDPI);
 
-  FWheelArea := Rect(FInternalMargin, FMargin, bmpWidth - FInternalMargin, bmpHeight - FMargin);
+  newColorCircleArea := RectF(FInternalMargin, FMargin, vsWidth - FInternalMargin, vsHeight - FMargin);
 
   if FLazPaintInstance.BlackAndWhite then
   begin
     FButtonsCenter := true;
-    if FWheelArea.Width <= FWheelArea.Height then
+    if newColorCircleArea.Width <= newColorCircleArea.Height then
     begin
       FButtonsAlign := alLeft;
       FBarsAlign := alRight;
@@ -785,78 +854,78 @@ begin
   begin
     FButtonsAlign := alLeft;
     FButtonsCenter := false;
-    if FWheelArea.Width >= FWheelArea.Height then
+    if newColorCircleArea.Width >= newColorCircleArea.Height then
       FBarsAlign := alRight else FBarsAlign := alBottom;
     UpdateButtonLayout;
   end;
 
-  FWheelArea.Top := FTopMargin;
+  newColorCircleArea.Top := FTopMargin;
 
   if FBarsAlign = alRight then
   begin
-    newAlphaBounds := RectWithSize(FWheelArea.Right - FCursorPlace - FBarWidth, FWheelArea.Top,
-                                   FBarWidth, FWheelArea.Height);
-    FWheelArea.Right := newAlphaBounds.Left - FMargin;
+    newAlphaBounds := RectWithSizeF(newColorCircleArea.Right - FCursorPlace - FBarWidth, newColorCircleArea.Top,
+                                   FBarWidth, newColorCircleArea.Height);
+    newColorCircleArea.Right := newAlphaBounds.Left - FMargin;
   end
   else
   begin
-    newAlphaBounds := RectWithSize(FWheelArea.Left, FWheelArea.Bottom - FCursorPlace - FBarWidth,
-                                   FWheelArea.Width, FBarWidth);
-    FWheelArea.Bottom := newAlphaBounds.Top - FMargin;
+    newAlphaBounds := RectWithSizeF(newColorCircleArea.Left, newColorCircleArea.Bottom - FCursorPlace - FBarWidth,
+                                   newColorCircleArea.Width, FBarWidth);
+    newColorCircleArea.Bottom := newAlphaBounds.Top - FMargin;
   end;
   if SetRectBounds(FAlphascale.bounds, newAlphaBounds) or (FBarsAlign <> prevBarsAlign) then
     FreeAndNil(FAlphascale.bmp);
 
   if FBarsAlign = alRight then
   begin
-    newLightscaleBounds := RectWithSize(FWheelArea.Right - FCursorPlace - FBarWidth, FWheelArea.Top,
-                                   FBarWidth, FWheelArea.Height);
-    FWheelArea.Right := newLightscaleBounds.Left - FMargin;
+    newLightscaleBounds := RectWithSizeF(newColorCircleArea.Right - FCursorPlace - FBarWidth, newColorCircleArea.Top,
+                                   FBarWidth, newColorCircleArea.Height);
+    newColorCircleArea.Right := newLightscaleBounds.Left - FMargin;
   end
   else
   begin
-    newLightscaleBounds := RectWithSize(FWheelArea.Left, FWheelArea.Bottom - FCursorPlace - FBarWidth,
-                                    FWheelArea.Width, FBarWidth);
-    FWheelArea.Bottom := newLightscaleBounds.Top - FMargin;
+    newLightscaleBounds := RectWithSizeF(newColorCircleArea.Left, newColorCircleArea.Bottom - FCursorPlace - FBarWidth,
+                                    newColorCircleArea.Width, FBarWidth);
+    newColorCircleArea.Bottom := newLightscaleBounds.Top - FMargin;
   end;
   needUpdateLightscale := SetRectBounds(FLightscale.bounds, newLightscaleBounds)
                           or (FBarsAlign <> prevBarsAlign);
 
   if FButtonsAlign = alLeft then
   begin
-    delta := FMargin - (FWheelArea.Left + round(min(FWheelArea.Width, FWheelArea.Height)*(1-0.8)) - (FMargin - ExternalMargin + FButtonSize));
+    delta := FMargin - (newColorCircleArea.Left +
+                        min(newColorCircleArea.Width, newColorCircleArea.Height)*(1-0.8) -
+                        (FMargin - ExternalMargin + FButtonSize) );
     if delta >= 0 then
-    begin
-      inc(FWheelArea.Left, delta);
-    end;
+      incF(newColorCircleArea.Left, delta);
   end;
 
-  diffXY := FWheelArea.Width - FWheelArea.Height;
+  diffXY := newColorCircleArea.Width - newColorCircleArea.Height;
   if diffXY > 0 then
   begin
-    inc(FWheelArea.Left, diffXY div 2);
-    FWheelArea.Right := FWheelArea.Left + FWheelArea.Height;
+    incF(newColorCircleArea.Left, diffXY / 2);
+    newColorCircleArea.Right := newColorCircleArea.Left + newColorCircleArea.Height;
   end else
   begin
-    dec(FWheelArea.Top, diffXY div 2);
-    FWheelArea.Bottom := FWheelArea.Top + FWheelArea.Width;
+    decF(newColorCircleArea.Top, diffXY / 2);
+    newColorCircleArea.Bottom := newColorCircleArea.Top + newColorCircleArea.Width;
   end;
 
-  delta := min(FWheelArea.Left - (FButtonSize + FMargin) div 2, FWheelArea.Top - FMargin div 2);
-  delta := min(delta, DoScaleX(120, OriginalDPI, FDPI) - FWheelArea.Width);
+  delta := min(newColorCircleArea.Left - (FButtonSize + FMargin) / 2, newColorCircleArea.Top - FMargin / 2);
+  delta := min(delta, DoScaleXF(120, OriginalDPI, FDPI) - newColorCircleArea.Width);
   if delta > 0 then
   begin
-    dec(FWheelArea.Left, delta div 2);
-    inc(FWheelArea.Right, (delta+1) div 2);
-    dec(FWheelArea.Top, delta);
-    FColorTitleVisible := delta <= FMargin div 2;
+    decF(newColorCircleArea.Left, delta / 2);
+    incF(newColorCircleArea.Right, (delta+1) / 2);
+    decF(newColorCircleArea.Top, delta);
+    FColorTitleVisible := delta <= FMargin / 2;
   end else
     FColorTitleVisible := true;
 
-  FColorCircle.center := PointF((FWheelArea.Left + FWheelArea.Right)/2 - 0.5,
-                               (FWheelArea.Top + FWheelArea.Bottom)/2 - 0.5);
+  FColorCircle.center := PointF((newColorCircleArea.Left + newColorCircleArea.Right)/2 - 0.5,
+                               (newColorCircleArea.Top + newColorCircleArea.Bottom)/2 - 0.5);
 
-  needUpdateColorCircle := SetRectBounds(FColorCircle.bounds, FWheelArea);
+  needUpdateColorCircle := SetRectBounds(FColorCircle.bounds, newColorCircleArea);
   if needUpdateColorCircle then FreeAndNil(FColorCircle.bmpMaxlight);
 
   UpdateColorview(needUpdateColorCircle, needUpdateLightscale, False);
@@ -866,7 +935,8 @@ function TChooseColorInterface.GetAlphaScaleBmp: TBGRABitmap;
 begin
   if (FAlphascale.bmp = nil) and not FAlphascale.Bounds.IsEmpty then
   begin
-    FAlphascale.bmp := TBGRABitmap.Create(FAlphascale.Bounds.Width, FAlphascale.Bounds.Height);
+    FAlphascale.bmp := TBGRABitmap.Create( round(FAlphascale.Bounds.Width * FBitmapScale),
+                         round(FAlphascale.Bounds.Height * FBitmapScale) );
     if FBarsAlign = alRight then
       FAlphascale.bmp.GradientFill(0, 0, FAlphascale.bmp.width, FAlphascale.bmp.height,
         FFormTextColor, vsColorView.Color, gtLinear,
@@ -876,7 +946,7 @@ begin
       FAlphascale.bmp.GradientFill(0, 0, FAlphascale.bmp.width, FAlphascale.bmp.height,
         FFormTextColor, vsColorView.Color, gtLinear,
         PointF(FAlphascale.bmp.Width-0.5, 0), PointF(-0.5, 0), dmSet, True);
-      FAlphascale.bmp.FontHeight := FTitleFontHeight;
+      FAlphascale.bmp.FontHeight := round(FTitleFontHeight * FBitmapScale);
       FAlphascale.bmp.FontVerticalAnchor:= fvaCapCenter;
       FAlphascale.bmp.TextOut(FMargin/2, FAlphascale.bmp.Height/2, rsOpacity, FFormTextColor, taLeftJustify);
       FAlphascale.bmp.FontVerticalAnchor:= fvaTop;
@@ -891,7 +961,8 @@ var
 begin
   if (FLightscale.bmp = nil) and not FLightscale.Bounds.IsEmpty then
   begin
-    FLightscale.bmp := TBGRABitmap.Create(FLightscale.Bounds.Width, FLightscale.Bounds.Height);
+    FLightscale.bmp := TBGRABitmap.Create( round(FLightscale.Bounds.Width * FBitmapScale),
+                         round(FLightscale.Bounds.Height * FBitmapScale) );
     tempColor := ColorWithLight(FCurrentColor,$FFFF);
     tempColor.alpha := 255;
     if FBarsAlign = alRight then
@@ -903,7 +974,7 @@ begin
       FLightscale.bmp.GradientFill(0, 0, FLightscale.bmp.width, FLightscale.bmp.height,
         tempColor, BGRABlack, gtLinear,
         PointF(FLightscale.bmp.width-0.5, 0), PointF(-0.5, 0), dmSet, True);
-      FLightscale.bmp.FontHeight := FTitleFontHeight;
+      FLightscale.bmp.FontHeight := round(FTitleFontHeight * FBitmapScale);
       FLightscale.bmp.FontVerticalAnchor:= fvaCapCenter;
       FLightscale.bmp.TextOut(FMargin/2, FLightscale.bmp.Height/2, rsLight, BGRA(210,210,210), taLeftJustify);
       FLightscale.bmp.FontVerticalAnchor:= fvaTop;
@@ -916,7 +987,8 @@ function TChooseColorInterface.GetColorCircleMaxLightBmp: TBGRABitmap;
 begin
   if (FColorCircle.bmpMaxlight = nil) and not LazPaintInstance.BlackAndWhite
      and not FColorCircle.bounds.IsEmpty then
-    FColorCircle.bmpMaxlight := ComputeColorCircle(FColorCircle.Bounds.Width, FColorCircle.Bounds.Height, $FFFF);
+    FColorCircle.bmpMaxlight := ComputeColorCircle(round(FColorCircle.Bounds.Width * FBitmapScale),
+      round(FColorCircle.Bounds.Height * FBitmapScale), $FFFF);
 
   result := FColorCircle.bmpMaxlight;
 end;
@@ -925,7 +997,7 @@ function TChooseColorInterface.GetColorCircleBmp: TBGRABitmap;
 begin
   if (FColorCircle.bmp = nil) and Assigned(GetColorCircleMaxLightBmp) then
     FColorCircle.bmp := BitmapWithLight(GetColorCircleMaxLightBmp, max(10000, FColorLight),
-                                        FCurrentColor, ColorX, ColorY);
+                                        FCurrentColor, FColorX, FColorY);
   result := FColorCircle.bmp;
 end;
 
@@ -946,10 +1018,12 @@ begin
   vsColorView := TBGRAVirtualScreen.Create(Container);
   vsColorView.Caption := '';
   vsColorView.Parent := Container;
+  vsColorView.BitmapAutoScale:= false;
   vsColorView.OnMouseDown:= @vsColorViewMouseDown;
   vsColorView.OnMouseMove:= @vsColorViewMouseMove;
   vsColorView.OnMouseUp:= @vsColorViewMouseUp;
   vsColorView.OnRedraw:= @vsColorViewRedraw;
+  FBitmapScale := 1;
   BCButton_AddToPalette := TBCButton.Create(vsColorView);
   BCButton_AddToPalette.Parent := vsColorView;
   BCButton_AddToPalette.OnClick := @BCButton_AddToPaletteClick;
@@ -1031,31 +1105,32 @@ end;
 
 procedure TChooseColorInterface.AdjustControlHeight;
 var
-  oneBarWidth, h, margin, topMargin, barWidth, buttonSize: Integer;
+  oneBarWidth, h, margin, topMargin, barWidth: single;
+  buttonSize: Integer;
 begin
   if not ((FLazPaintInstance = nil) or FLazPaintInstance.BlackAndWhite) then exit;
 
-  margin := DoScaleY(8, OriginalDPI, FDPI);
-  topMargin := DoScaleY(27, OriginalDPI, FDPI);
-  barWidth := DoScaleX(18, OriginalDPI, FDPI);
-  buttonSize := barWidth;
-  oneBarWidth := barWidth + DoScaleX(10, OriginalDPI, FDPI) +
+  margin := DoScaleYF(8, OriginalDPI, FDPI);
+  topMargin := DoScaleYF(27, OriginalDPI, FDPI);
+  barWidth := DoScaleXF(18, OriginalDPI, FDPI);
+  buttonSize := round(barWidth);
+  oneBarWidth := barWidth + DoScaleXF(10, OriginalDPI, FDPI) +
                  margin;
   if PreferredBarsAlignWithWidth = alRight then
   begin
     if (FLazPaintInstance = nil) or FLazPaintInstance.BlackAndWhite then
       h := oneBarWidth*4 + margin
     else
-      h := AvailableBmpWidth - oneBarWidth*2 + topMargin;
+      h := AvailableVSWidth - oneBarWidth*2 + topMargin;
   end else
   begin
     if (FLazPaintInstance = nil) or FLazPaintInstance.BlackAndWhite then
       h := oneBarWidth*2 + buttonSize + margin
     else
-      h := AvailableBmpWidth + oneBarWidth*2 + topMargin;
+      h := AvailableVSWidth + oneBarWidth*2 + topMargin;
   end;
   NeedTextAreaHeight;
-  Container.Height := h + FTextAreaHeight + ExternalMargin;
+  Container.Height := round(h + FTextAreaHeight + ExternalMargin);
 end;
 
 end.
