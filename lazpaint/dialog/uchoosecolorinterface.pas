@@ -205,7 +205,9 @@ var
   bmpCursorWidth, i: integer;
   bmpCursorOpacity: byte;
 begin
-  FBitmapScale := Bitmap.Width / vsColorView.Width;
+  if vsColorView.Width <> 0 then
+    FBitmapScale := Bitmap.Width / vsColorView.Width
+    else FBitmapScale := 1;
   Bitmap.FontHeight := round(FTitleFontHeight * FBitmapScale);
   Bitmap.FontAntialias := True;
   textBoundRight := Bitmap.Width / FBitmapScale;
