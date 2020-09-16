@@ -1366,7 +1366,10 @@ var
       pts[i].Offset(AOffset.x, AOffset.Y);
 
     ADestination.FillMode:= fmWinding;
-    ADestination.FillPolyAntialias(pts, ABrush, false);
+    if (ADraft and PenPhong) or Aliased then
+      ADestination.FillPoly(pts, ABrush, false)
+    else
+      ADestination.FillPolyAntialias(pts, ABrush, false);
   end;
 
   procedure RenderPen(ADestination: TBGRACustomBitmap; AOffset: TPoint);
