@@ -668,6 +668,27 @@ begin
   FInitialized := oldInit;
 end;
 
+function TFMain.CatchToolKeyDown(var AKey: Word): boolean;
+begin
+  if Assigned(FLayout) then
+    result := FLayout.CatchToolKeyDown(AKey)
+    else result := false;
+end;
+
+function TFMain.CatchToolKeyUp(var AKey: Word): boolean;
+begin
+  if Assigned(FLayout) then
+    result := FLayout.CatchToolKeyUp(AKey)
+    else result := false;
+end;
+
+function TFMain.CatchToolKeyPress(var AKey: TUTF8Char): boolean;
+begin
+  if Assigned(FLayout) then
+    result := FLayout.CatchToolKeyPress(AKey)
+    else result := false;
+end;
+
 procedure TFMain.SpinEdit_ShapeAltitudeChange(Sender: TObject; AByUser: boolean);
 begin
   if SpinEdit_ShapeAltitude.Value < 6 then
@@ -1506,39 +1527,13 @@ begin
   if SpinEdit_PenWidth.Value < MinPenWidth*PenWidthFactor then SpinEdit_PenWidth.Value := MinPenWidth*PenWidthFactor;
 end;
 
-procedure TFMain.IncreasePenSize;
-begin
-  SpinEdit_PenWidth.Value := max(SpinEdit_PenWidth.Value+PenSizeDelta(1),MinPenWidth*PenWidthFactor);
-  UpdatePenWidthFromSpinEdit;
-end;
-
-procedure TFMain.DecreasePenSize;
-begin
-  SpinEdit_PenWidth.Value := max(SpinEdit_PenWidth.Value-PenSizeDelta(-1),MinPenWidth*PenWidthFactor);
-  UpdatePenWidthFromSpinEdit;
-end;
-
-function TFMain.PenSizeDelta(direction: integer): integer;
-var v: integer;
-begin
-  v := SpinEdit_PenWidth.Value;
-  if direction < 0 then dec(v);
-  if v < 100 then result := 10 else
-  if v < 200 then result := 20 else
-  if v < 500 then result := 50 else
-  if v < 1000 then result := 100 else
-  if v < 2000 then result := 200 else
-  if v < 5000 then result := 500 else
-    result := 1000;
-end;
-
 procedure TFMain.PaintBox_PenPreviewMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var t: integer;
 begin
   t := ImageList16.Width;
-  if (X < t) and (Y < t) then DecreasePenSize else
-  if (X >= PaintBox_PenPreview.Width-t) and (Y < t) then IncreasePenSize;
+  if (X < t) and (Y < t) then ToolManager.StepPenSize(True) else
+  if (X >= PaintBox_PenPreview.Width-t) and (Y < t) then ToolManager.StepPenSize(False);
   ShowPenPreview(False);
 end;
 

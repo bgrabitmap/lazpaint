@@ -5,10 +5,6 @@ unit LazpaintMainForm;
 
 interface
 
-{$IFDEF DARWIN}
-  {$DEFINE USEPAINTBOXPICTURE}
-{$ENDIF}
-
 uses
   Classes, LMessages, SysUtils, LazFileUtils, LResources, Forms, Controls,
   Graphics, Dialogs, Menus, ExtDlgs, ComCtrls, ActnList, StdCtrls, ExtCtrls,
@@ -21,7 +17,7 @@ uses
   ubrowseimages, UToolPolygon, UToolVectorial, LCVectorRectShapes,
   LCVectorialFillControl, LCVectorialFill,
 
-  laztablet, udarktheme, UScriptType;
+  udarktheme, UScriptType;
 
 type
   { TFMain }
@@ -345,7 +341,6 @@ type
     Panel_Text: TPanel;
     ToolBar15: TToolBar;
     Tool_TextFont: TToolButton;
-    PaintBox_Picture: TPaintBox;
     PaintBox_PenPreview: TPaintBox;
     Panel_Embedded: TPanel;
     Panel_PenWidthPreview: TPanel;
@@ -480,7 +475,6 @@ type
     procedure FileUseImageBrowserUpdate(Sender: TObject);
     procedure ForgetDialogAnswersExecute(Sender: TObject);
     procedure FormClose(Sender: TObject; var {%H-}CloseAction: TCloseAction);
-    procedure FormMouseLeave(Sender: TObject);
     procedure FormWindowStateChange(Sender: TObject);
     procedure ItemDockLayersAndColorsClick(Sender: TObject);
     procedure ItemFullscreenClick(Sender: TObject);
@@ -518,7 +512,6 @@ type
     procedure FileSaveSelectionAsUpdate(Sender: TObject);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
     procedure FormKeyUp(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
-    procedure FormMouseEnter(Sender: TObject);
     procedure FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
     procedure ImageCropLayerUpdate(Sender: TObject);
     procedure ImageFlattenExecute(Sender: TObject);
@@ -533,7 +526,6 @@ type
     procedure LayerRotateExecute(Sender: TObject);
     procedure LayerRotateUpdate(Sender: TObject);
     procedure ItemDonateClick(Sender: TObject);
-    procedure PaintBox_PictureMouseEnter(Sender: TObject);
     procedure Perspective_TwoPlanesClick(Sender: TObject);
     procedure SpinEdit_ShapeAltitudeChange(Sender: TObject; AByUser: boolean);
     procedure SpinEdit_BrushSpacingChange(Sender: TObject; AByUser: boolean);
@@ -545,15 +537,6 @@ type
     procedure ToolButton_DonateClick(Sender: TObject);
     procedure VectorialFill_TextureClick(Sender: TObject);
     procedure PaintBox_PenPreviewPaint(Sender: TObject);
-    procedure PaintBox_PictureMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure PaintBox_PictureMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
-    procedure PaintBox_PictureMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure PaintBox_PictureMouseWheel(Sender: TObject; Shift: TShiftState;
-      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-    procedure PaintBox_PicturePaint(Sender: TObject);
     procedure Panel_PenWidthMouseMove(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X,
       {%H-}Y: Integer);
     procedure Panel_ToolbarBackgroundMouseMove(Sender: TObject;
@@ -566,8 +549,6 @@ type
     procedure ToolAnyExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormHide(Sender: TObject);
-    procedure FormMouseWheel(Sender: TObject; {%H-}Shift: TShiftState;
-      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure HelpAboutExecute(Sender: TObject);
     procedure HelpIndexExecute(Sender: TObject);
     procedure ImageChangeCanvasSizeExecute(Sender: TObject);
@@ -633,12 +614,6 @@ type
     procedure FormResize(Sender: TObject);
     procedure ImageActionExecute(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-    procedure FormMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure FormPaint(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Image_SwapColorsMouseDown(Sender: TObject; {%H-}Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
@@ -688,6 +663,10 @@ type
     procedure ManagerToleranceChanged(Sender: TObject);
     procedure ManagerToolbarChanged(Sender: TObject);
     procedure Perspective_RepeatClick(Sender: TObject);
+    procedure PictureMouseBefore(Sender: TObject; AShift: TShiftState);
+    procedure PictureMouseMove(Sender: TObject; APosition: TPointF);
+    procedure PictureOnPaint(Sender: TObject);
+    procedure PictureToolbarUpdate(Sender: TObject);
     function ScriptShowColorDialog(AVars: TVariableSet): TScriptResult;
     procedure VectorialFill_Change(Sender: TObject);
     procedure VectorialFill_TypeChange(Sender: TObject);
@@ -711,9 +690,6 @@ type
     FBrowseBrushes: TFBrowseImages;
     FSaveImage: TFBrowseImages;
     FSaveSelection: TFBrowseImages;
-
-    FTablet: TLazTablet;
-
     FLoadInitialDir, FSaveInitialDir, FExportInitialDir: string;
     FSaveSelectionInitialFilename: string;
     FInFillChange, FInPenWidthChange, FInBrush, FInShapeRatio, FInEraserOption,
@@ -723,31 +699,20 @@ type
     FOnlineUpdater: TLazPaintCustomOnlineUpdater;
     FInitialized: boolean;
     FShouldArrange: boolean;
-    btnLeftDown, btnRightDown, btnMiddleDown: boolean;
     spacePressed, altPressed, snapPressed, shiftPressed: boolean;
-    FormMouseMovePos: TPoint;
-    InFormMouseMove: boolean;
-    InFormPaint: boolean;
     FirstPaint, LoadToolWindow: boolean;
-    CanCompressOrUpdateStack: boolean;
     FShowSelectionNormal: boolean;
     FLazPaintInstance: TLazPaintCustomInstance;
     Config: TLazPaintConfig;
     StartDirectory: string;
     previousToolImg: integer;
     currentToolLabel: string;
-    InShowNoPicture: boolean;
     FTopMostInfo: TTopMostInfo;
-    DelayedPaintPicture, CatchPaintPicture, PaintPictureCatched: boolean;
     Panel_LineCap_FullSize: integer;
     FCoordinatesCaption: string;
     FCoordinatesCaptionCount: NativeInt;
-    FImageView: TImageView;
-    FLastPaintDate: TDateTime;
-    FUpdateStackWhenIdle: boolean;
     FToolbarElementsInitDone: boolean;
 
-    function GetCurrentPressure: single;
     function GetDarkTheme: boolean;
     function GetImageAction: TImageActions;
     function GetUpdatingPopup: boolean;
@@ -789,7 +754,6 @@ type
 
     procedure CreateMenuAndToolbar;
     function GetToolManager: TToolManager;
-    procedure LayoutPictureAreaChange({%H-}ASender: TObject; {%H-}ANewArea: TRect);
     function GetCurrentTool: TPaintToolType;
     procedure SwitchColors;
     function EditingColors: boolean;
@@ -797,7 +761,6 @@ type
     procedure OnLatestVersionUpdate(ANewVersion: string);
     procedure ManagerToolChanged({%H-}sender: TToolManager; {%H-}ANewTool: TPaintToolType);
     procedure OnQueryExitToolHandler({%H-}sender: TLazPaintImage);
-    procedure OnZoomChanged({%H-}sender: TZoom; {%H-}ANewZoom: single);
     procedure SetLazPaintInstance(const AValue: TLazPaintCustomInstance);
     procedure SetShowSelectionNormal(const AValue: boolean);
     procedure ToggleToolwindowsVisible;
@@ -813,20 +776,15 @@ type
     procedure HidePenPreview(ATimeMs: Integer = 300; AClearTime: boolean = false);
     procedure ShowFill(AFillControl: TLCVectorialFillControl; APanel: TPanel);
     procedure HideFill(ATimeMs: Integer = 300; AClearTime: boolean = false);
-    procedure OnPaintHandler;
     procedure OnImageChangedHandler({%H-}AEvent: TLazPaintImageObservationEvent);
     procedure OnImageRenderChanged({%H-}Sender: TObject);
     procedure LabelAutosize(ALabel: TLabel);
     procedure AskMergeSelection(ACaption: string);
-    procedure ReleaseMouseButtons(Shift: TShiftState);
     procedure UpdateSpecialKeys({%H-}Shift: TShiftState);
     procedure UpdateCurveModeToolbar;
     function ShowOpenTextureDialog(ATargetFill: TVectorialFill): boolean;
     procedure ShowNoPicture;
     procedure SetCurveMode(AMode: TToolSplineMode);
-    procedure IncreasePenSize;
-    procedure DecreasePenSize;
-    function PenSizeDelta(direction: integer): integer;
     procedure UpdatePenWidthFromSpinEdit;
     procedure UpdateWindowCaption;
     procedure ImageCurrentFilenameChanged({%H-}sender: TLazPaintImage);
@@ -864,15 +822,15 @@ type
 
   public
     { public declarations }
-    UpdateStackOnTimer: boolean;
     Zoom: TZoom;
 
     procedure PaintPictureNow;
+    procedure PaintPictureLater;
+    procedure NotifyImagePaint;
     procedure InvalidatePicture(AInvalidateAll: boolean = true);
     function TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean=True;
       ALoadedImage: PImageEntry = nil; ASkipDialogIfSingleImage: boolean = false;
       AAllowDuplicate: boolean = false; AEntryToLoad: integer = -1): Boolean;
-    function PictureCanvasOfs: TPoint;
     procedure UpdateLineCapBar;
     procedure UpdateFillToolbar(AUpdateColorDiff: boolean);
     procedure UpdateToolbar;
@@ -890,7 +848,6 @@ type
     property ToolManager: TToolManager read GetToolManager;
     property Layout: TMainFormLayout read FLayout;
     property UseImageBrowser: boolean read GetUseImageBrowser;
-    property CurrentPressure: single read GetCurrentPressure;
     property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
     property Initialized: boolean read FInitialized;
     property UpdatingPopup: boolean read GetUpdatingPopup write SetUpdatingPopup;
@@ -915,16 +872,15 @@ procedure TFMain.FormCreate(Sender: TObject);
 begin
   FInitialized := false;
 
-  FLayout := TMainFormLayout.Create(self);
-  FImageView := nil;
+  Zoom := TZoom.Create(Label_CurrentZoom,Edit_Zoom,FLayout);
+  FLayout := TMainFormLayout.Create(self, Zoom);
+  FLayout.OnPaintPicture:=@PictureOnPaint;
+  FLayout.OnToolbarUpdate:=@PictureToolbarUpdate;
+  FLayout.OnPictureMouseMove:=@PictureMouseMove;
+  FLayout.OnPictureMouseBefore:=@PictureMouseBefore;
 
   ScaleControl(Self,OriginalDPI);
   self.Color := clBtnFace; //toolbar color inherited on mac
-
-  {$IFDEF USEPAINTBOXPICTURE}
-  PaintBox_Picture.SetBounds(0,0,ClientWidth,ClientHeight);
-  PaintBox_Picture.Visible := True;
-  {$ENDIF}
 
   //mac interface
   CheckActions(ActionList1);
@@ -944,28 +900,12 @@ begin
   ExportPictureDialog.Filter := SavePictureDialog1.Filter;
   SaveSelectionDialog.Filter := SavePictureDialog1.Filter;
 
-  Zoom := TZoom.Create(Label_CurrentZoom,Edit_Zoom,FLayout);
-  Zoom.OnZoomChanged:= @OnZoomChanged;
   previousToolImg:= -1;
 
-  //mouse status
-  btnLeftDown := false;
-  btnRightDown := false;
-  btnMiddleDown:= false;
-  try
-    FTablet := TLazTablet.Create(self);
-  except
-    on ex: exception do
-      FTablet := nil;
-  end;
   spacePressed:= false;
   altPressed:= false;
   snapPressed:= false;
   shiftPressed:= false;
-
-  //recursive calls
-  InFormMouseMove:= false;
-  InFormPaint := false;
 
   {$IFDEF LINUX}
   ComboBox_BrushSelect.Top := ComboBox_BrushSelect.Top - 2;
@@ -978,54 +918,8 @@ begin
   ComboBox_ArrowEnd.Font.Height := ComboBox_BrushSelect.Font.Height;
   {$ENDIF}
 
-  FLayout.OnPictureAreaChange := @LayoutPictureAreaChange;
   FInitialized := true;
   FirstPaint := true;
-end;
-
-function TFMain.CatchToolKeyDown(var AKey: Word): boolean;
-begin
-  if Assigned(ToolManager) then
-  begin
-    CatchPaintPicture:= true;
-    PaintPictureCatched := false;
-    try
-      result := ToolManager.ToolKeyDown(AKey) or PaintPictureCatched;
-    finally
-      CatchPaintPicture:= false;
-    end;
-  end else
-    result := false;
-end;
-
-function TFMain.CatchToolKeyUp(var AKey: Word): boolean;
-begin
-  if Assigned(ToolManager) then
-  begin
-    CatchPaintPicture:= true;
-    PaintPictureCatched := false;
-    try
-       result := ToolManager.ToolKeyUp(AKey) or PaintPictureCatched;
-    finally
-      CatchPaintPicture:= false;
-    end;
-  end else
-    result := false;
-end;
-
-function TFMain.CatchToolKeyPress(var AKey: TUTF8Char): boolean;
-begin
-  if Assigned(ToolManager) then
-  begin
-    CatchPaintPicture:= true;
-    PaintPictureCatched := false;
-    try
-      result := ToolManager.ToolKeyPress(AKey) or PaintPictureCatched;
-    finally
-      CatchPaintPicture:= false;
-    end;
-  end else
-    result := false;
 end;
 
 procedure TFMain.CreateMenuAndToolbar;
@@ -1079,8 +973,6 @@ begin
   FreeAndNil(Zoom);
   FreeAndNil(FOnlineUpdater);
 
-  FreeAndNil(FTablet);
-
   FreeAndNil(FBrowseSelections);
   FreeAndNil(FBrowseImages);
   FreeAndNil(FBrowseTextures);
@@ -1095,7 +987,6 @@ begin
   FreeAndNil(FSaveImage);
   FreeAndNil(FSaveSelection);
 
-  FreeAndNil(FImageView);
   FreeAndNil(FLayout);
 end;
 
@@ -1136,9 +1027,6 @@ begin
     SavePictureDialog1.FilterIndex := 1;
     ExportPictureDialog.FilterIndex:= 1;
   end;
-
-  FImageView := TImageView.Create(LazPaintInstance, Zoom,
-                {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture.Canvas{$ELSE}self.Canvas{$ENDIF});
 
   LazPaintInstance.EmbeddedResult := mrNone;
 
@@ -1314,146 +1202,6 @@ begin
   Scripting.RegisterScriptFunction('ViewGrid',@ScriptViewGrid,ARegister);
   Scripting.RegisterScriptFunction('ViewGridGet',@ScriptViewGridGet,ARegister);
   Scripting.RegisterScriptFunction('ShowColorDialog',@ScriptShowColorDialog,ARegister);
-end;
-
-procedure TFMain.FormMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-begin
-  if not Assigned(FImageView) then exit;
-  ReleaseMouseButtons(Shift);
-  if not (Button in[mbLeft,mbRight,mbMiddle]) or not FImageView.PictureCoordsDefined then exit;
-  CanCompressOrUpdateStack := false;
-  if Assigned(LazPaintInstance) then LazPaintInstance.ExitColorEditor;
-  Image.OnImageChanged.DelayedStackUpdate := True;
-
-  if btnLeftDown or btnRightDown or btnMiddleDown then exit;
-
-  if Button = mbMiddle then
-  begin
-    btnMiddleDown:= true;
-    if not ToolManager.ToolSleeping and not (ssAlt in Shift) then ToolManager.ToolSleep;
-  end;
-
-  if FImageView.PictureCoordsDefined then
-  begin
-    if Button = mbLeft then
-      btnLeftDown := true else
-    if Button = mbRight then
-      btnRightDown := true;
-
-    if (
-        (ToolManager.GetCurrentToolType = ptHand) or
-        ((ToolManager.GetCurrentToolType = ptEditShape) and
-          Assigned(ToolManager.CurrentTool) and
-          (ToolManager.CurrentTool as TEditShapeTool).NothingSelected)
-       )  and
-       (ssShift in Shift) then
-      Image.SelectLayerContainingPixelAt(FImageView.FormToBitmap(X,Y).Round);
-
-    if ToolManager.ToolDown(FImageView.FormToBitmap(X,Y),
-        btnRightDown{$IFDEF DARWIN} or (ssCtrl in Shift){$ENDIF},
-        CurrentPressure) then
-        PaintPictureNow;
-    UpdateToolbar;
-  end;
-end;
-
-procedure TFMain.FormMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer);
-var BmpPos: TPointF;
-    updateForVSCursor: boolean;
-
-//var tickstart:DWord;
-begin
-  //tickstart := GetTickCount;
-  if not Assigned(FImageView) then exit;
-
-  ReleaseMouseButtons(Shift);
-  UpdateSpecialKeys(Shift);
-  HidePenPreview;
-  HideFill;
-  if LazPaintInstance.TopMostHasFocus then
-  begin
-    if LazPaintInstance.TopMostOkToUnfocus then
-      SafeSetFocus(self)
-    else
-      exit;
-  end;
-  if (CurrentTool in[ptText,ptEditShape]) and TextSpinEditFocused then VectorialFill_Pen.SetFocus;
-  Image.CurrentState.LayeredBitmap.EditorFocused := true;
-
-  FormMouseMovePos := Point(X,Y);
-  if InFormMouseMove then exit;
-  InFormMouseMove := True;
-  if not FImageView.PictureCoordsDefined then
-    Application.ProcessMessages; //empty message stack
-  if not FImageView.PictureCoordsDefined then
-  begin
-    InFormMouseMove:= false;
-    exit;
-  end;
-
-  BmpPos := FImageView.FormToBitmap(FormMouseMovePos);
-  FCoordinatesCaption := IntToStr(round(BmpPos.X))+','+IntToStr(round(BmpPos.Y));
-  Inc(FCoordinatesCaptionCount);
-  if FCoordinatesCaptionCount > 8 then
-  begin
-    FCoordinatesCaptionCount := 0;
-    Label_Coordinates.caption := FCoordinatesCaption;
-    Label_Coordinates.Update;
-    UpdateStatusText;
-  end;
-  updateForVSCursor:= false;
-  if ToolManager.ToolMove(BmpPos,CurrentPressure) then
-  begin
-    FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea, self);
-  end else
-    updateForVSCursor := true;
-  UpdateToolbar;
-
-  if updateForVSCursor then
-    FImageView.UpdateCursor(X,Y, PictureCanvasOfs, FLayout.WorkArea,
-                            {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture{$ELSE}self{$ENDIF},
-                            Point(0,0), self);
-
-  if ToolManager.ToolSleeping and not spacePressed and not btnLeftDown and not btnRightDown
-    and not btnMiddleDown then
-    ToolManager.ToolWakeUp;
-
-  InFormMouseMove := False;
-  //Canvas.TextOut(FLayout.WorkArea.Left,FLayout.WorkArea.Top,inttostr(GetTickCount-tickstart)+'     ');
-end;
-
-procedure TFMain.FormMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-var redraw: boolean;
-begin
-  if not Assigned(FImageView) then exit;
-
-  redraw := false;
-  if (btnLeftDown and (Button = mbLeft)) or (btnRightDown and (Button=mbRight))
-    or (btnMiddleDown and (Button = mbMiddle)) then
-  begin
-    if FImageView.PictureCoordsDefined then
-      redraw := ToolManager.ToolMove(FImageView.FormToBitmap(X,Y),CurrentPressure)
-      else redraw := false;
-    if ToolManager.ToolUp then redraw := true;
-    btnLeftDown := false;
-    btnRightDown := false;
-    btnMiddleDown:= false;
-  end;
-  if redraw then PaintPictureNow;
-  if FUpdateStackWhenIdle then
-  begin
-    UpdateStackOnTimer:= true;
-    FUpdateStackWhenIdle:= false;
-  end;
-  UpdateToolbar;
-  ReleaseMouseButtons(Shift);
-
-  if ToolManager.ToolSleeping and not spacePressed and not btnLeftDown and not btnRightDown
-   and not btnMiddleDown then
-    ToolManager.ToolWakeUp;
 end;
 
 function TFMain.ScriptFileOpen(AVars: TVariableSet): TScriptResult;
@@ -2030,7 +1778,7 @@ begin
     if Zoom.EditingZoom or EditingColors then exit;
     if not ((CurrentTool = ptText) and TextSpinEditFocused and (Key = VK_BACK)) and CatchToolKeyDown(Key) then
     begin
-      DelayedPaintPicture := True;
+      PaintPictureLater;
     end else
     if Key = VK_F6 then
     begin
@@ -2041,7 +1789,7 @@ begin
     begin
       spacePressed:= true;
       Key := 0;
-      if not ToolManager.ToolSleeping and not btnLeftDown and not btnRightDown then ToolManager.ToolSleep;
+      if not ToolManager.ToolSleeping and ([ssLeft,ssRight] * FLayout.MouseButtonState = []) then ToolManager.ToolSleep;
     end else
     if LazPaintInstance.ImageListWindowVisible then
       LazPaintInstance.ImageListWindowVisibleKeyDown(Key,Shift);
@@ -2450,20 +2198,16 @@ begin
   else if Key = VK_SHIFT then shiftPressed:= false;
   if CatchToolKeyUp(Key) then
   begin
-    DelayedPaintPicture := True;
+    PaintPictureLater;
   end else
   If Key = VK_SPACE then
   begin
     spacePressed:= false;
-    if ToolManager.ToolSleeping and not spacePressed and not btnRightDown and not btnLeftDown then
+    if ToolManager.ToolSleeping and not spacePressed and
+       ([ssLeft,ssRight] * FLayout.MouseButtonState = []) then
       ToolManager.ToolWakeUp;
     Key := 0;
   end;
-end;
-
-procedure TFMain.FormMouseEnter(Sender: TObject);
-begin
-  Image.PrepareForRendering;
 end;
 
 procedure TFMain.FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
@@ -2480,7 +2224,7 @@ begin
     end;
     if toolProcessKey and CatchToolKeyPress(UTF8Key) then
     begin
-      DelayedPaintPicture := true;
+      PaintPictureLater;
       UpdateToolbar;
     end else
     if UTF8Key <> '' then
@@ -2520,11 +2264,6 @@ begin
     on ex:exception do
       LazPaintInstance.ShowError('KeyPress',ex.Message);
   end;
-end;
-
-procedure TFMain.FormMouseLeave(Sender: TObject);
-begin
-  Cursor := crDefault;
 end;
 
 procedure TFMain.FormWindowStateChange(Sender: TObject);
@@ -2694,43 +2433,6 @@ begin
   LazPaintInstance.Donate;
 end;
 
-procedure TFMain.PaintBox_PictureMouseEnter(Sender: TObject);
-begin
-  FormMouseEnter(Sender);
-end;
-
-procedure TFMain.PaintBox_PictureMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  FormMouseDown(Sender,Button,Shift,X+PaintBox_Picture.Left,Y+PaintBox_Picture.Top);
-end;
-
-procedure TFMain.PaintBox_PictureMouseMove(Sender: TObject; Shift: TShiftState;
-  X, Y: Integer);
-begin
-  FormMouseMove(Sender,Shift,X+PaintBox_Picture.Left,Y+PaintBox_Picture.Top);
-end;
-
-procedure TFMain.PaintBox_PictureMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-begin
-  FormMouseUp(Sender,Button,Shift,X+PaintBox_Picture.Left,Y+PaintBox_Picture.Top);
-end;
-
-procedure TFMain.PaintBox_PictureMouseWheel(Sender: TObject;
-  Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
-  var Handled: Boolean);
-begin
-  FormMouseWheel(Sender,Shift,WheelDelta,Point(MousePos.X+PaintBox_Picture.Left,MousePos.Y+PaintBox_Picture.Top),Handled);
-end;
-
-procedure TFMain.PaintBox_PicturePaint(Sender: TObject);
-begin
-  {$IFDEF USEPAINTBOXPICTURE}
-    OnPaintHandler;
-  {$ENDIF}
-end;
-
 procedure TFMain.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 var topmostInfo: TTopMostInfo;
 begin
@@ -2782,24 +2484,6 @@ begin
   FShouldArrange := false;
   FTopMostInfo := LazPaintInstance.HideTopmost;
   LazPaintInstance.SaveMainWindowPosition;
-end;
-
-procedure TFMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
-  WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-begin
-  if not Assigned(FImageView) or not FImageView.PictureCoordsDefined then exit;
-  if ssAlt in Shift then
-  begin
-    if WheelDelta > 0 then IncreasePenSize
-    else if WheelDelta < 0 then DecreasePenSize;
-  end else
-  begin
-    Zoom.SetPosition(FImageView.FormToBitmap(MousePos.X,MousePos.Y), MousePos);
-    if WheelDelta > 0 then Zoom.ZoomIn(ssSnap in Shift) else
-    if WheelDelta < 0 then Zoom.ZoomOut(ssSnap in Shift);
-    Zoom.ClearPosition;
-  end;
-  Handled := True;
 end;
 
 procedure TFMain.HelpAboutExecute(Sender: TObject);
@@ -2896,9 +2580,11 @@ begin
 end;
 
 procedure TFMain.TimerUpdateTimer(Sender: TObject);
-const SelectionPaintDelay = 100/(1000*60*60*24);
 begin
   TimerUpdate.Enabled := false;
+  if ToolManager.ToolSleeping and not spacePressed and
+     ([ssLeft,ssRight,ssMiddle] * FLayout.MouseButtonState = []) then
+    ToolManager.ToolWakeUp;
   EditUndo.Update;
   EditRedo.Update;
   UpdateStatusText;
@@ -2908,22 +2594,7 @@ begin
     Label_Coordinates.Update;
     FCoordinatesCaptionCount := 0;
   end;
-  if CanCompressOrUpdateStack and UpdateStackOnTimer then
-  begin
-    LazPaintInstance.NotifyStackChange;
-    UpdateStackOnTimer := false;
-  end else
-  begin
-    if CanCompressOrUpdateStack then image.CompressUndo;
-  end;
-  if DelayedPaintPicture or ToolManager.ToolUpdateNeeded or
-   (Assigned(FImageView) and not FImageView.ShowSelection and
-    (Now > FLastPaintDate+SelectionPaintDelay) ) then
-  begin
-    if ToolManager.ToolUpdateNeeded then ToolManager.ToolUpdate;
-    if Assigned(FImageView) then FImageView.ShowSelection := true;
-    PaintPictureNow;
-  end;
+  FLayout.CheckDelayedUpdate;
   TimerUpdate.Enabled := true;
 end;
 
@@ -3074,14 +2745,6 @@ begin
   params.AddBoolean('FromGUI', true);
   result := Scripting.CallScriptFunction(params) = srOk;
   params.Free;
-end;
-
-procedure TFMain.LayoutPictureAreaChange(ASender: TObject; ANewArea: TRect);
-begin
-   {$IFDEF USEPAINTBOXPICTURE}
-   PaintBox_Picture.SetBounds(ANewArea.Left,ANewArea.Top,ANewArea.Right-ANewArea.Left,ANewArea.Bottom-ANewArea.Top);
-   {$ENDIF}
-   if Assigned(FImageView) then FImageView.InvalidatePicture(True, ANewArea, Point(0,0), self);
 end;
 
 procedure TFMain.ToggleGridVisible;
@@ -3301,8 +2964,7 @@ begin
         ToolManager.ToolMove(texMapBounds.Right-0.5, texMapBounds.Bottom-0.5, 1);
         ToolManager.ToolUp;
       end;
-      if Assigned(FImageView) then
-        FImageView.FillSelectionHighlight := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
+      FLayout.FillSelectionHighlight := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
     except
       on ex:Exception do
       begin
@@ -3382,7 +3044,6 @@ begin
 
   if needUpdate then
   begin
-    FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea, self);
     PaintPictureNow;
     UpdateToolbar;
   end;
@@ -3460,7 +3121,6 @@ begin
 
   if needUpdate then
   begin
-    FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea, self);
     PaintPictureNow;
     UpdateToolbar;
   end;
@@ -3508,7 +3168,6 @@ begin
     end;
     if needUpdate then
     begin
-      FImageView.UpdatePicture(PictureCanvasOfs, FLayout.WorkArea, self);
       PaintPictureNow;
       UpdateToolbar;
     end;
@@ -4007,30 +3666,6 @@ begin
   end;
 end;
 
-procedure TFMain.ReleaseMouseButtons(Shift: TShiftState);
-begin
-  if not (ssLeft in Shift) and btnLeftDown then
-  begin
-    btnLeftDown := false;
-    if ToolManager.ToolUp then PaintPictureNow;
-  end;
-  if not (ssRight in Shift) and btnRightDown then
-  begin
-    btnRightDown := false;
-    if ToolManager.ToolUp then PaintPictureNow;
-  end;
-  if not (ssMiddle in Shift) and btnMiddleDown then
-  begin
-    btnMiddleDown := false;
-    if ToolManager.ToolUp then PaintPictureNow;
-  end;
-  if not btnLeftDown and not btnRightDown then
-  begin
-    CanCompressOrUpdateStack := true;
-    Image.OnImageChanged.DelayedStackUpdate := False;
-  end;
-end;
-
 procedure TFMain.UpdateSpecialKeys(Shift: TShiftState);
   procedure UpdateKey(AShift: TShiftStateEnum; ACode: Word; var APressed: boolean);
   begin
@@ -4194,9 +3829,8 @@ end;
 
 procedure TFMain.ShowNoPicture;
 begin
-  InShowNoPicture := true;
-  PaintPictureNow;
-  InShowNoPicture:= false;
+  if Assigned(FLayout) then
+    FLayout.ShowNoPicture;
 end;
 
 procedure TFMain.UpdateWindowCaption;
@@ -4430,36 +4064,8 @@ end;
 
 {****************************** Picture ************************}
 
-procedure TFMain.OnPaintHandler;
-var
-  ac: TWinControl;
-begin
-  if FirstPaint then
-  begin
-    LoadToolwindow := True;
-    TimerLoadToolWin.Enabled := true;
-    FirstPaint := false;
-  end;
-  if InFormPaint then exit;
-  InFormPaint := true;
-
-  if Assigned(FImageView) then FImageView.DoPaint(PictureCanvasOfs, FLayout.WorkArea, InShowNoPicture);
-  DelayedPaintPicture:= false;
-
-  ac := ActiveControl;
-  if ac is TBCTrackbarUpdown then
-    TBCTrackbarUpdown(ac).DelayTimer;
-
-  InFormPaint := false;
-  FLastPaintDate := Now;
-end;
-
 procedure TFMain.OnImageChangedHandler(AEvent: TLazPaintImageObservationEvent);
 begin
-  if CatchPaintPicture then
-    PaintPictureCatched := true
-    else InvalidatePicture(false);
-
   if (image.Width <> FLastWidth) or (image.Height <> FLastHeight)
    or (image.BPP <> FLastBPP) or (image.FrameIndex <> FLastFrameIndex) then
   begin
@@ -4474,7 +4080,6 @@ begin
     ChooseTool(ptHand);
     MessagePopup(rsToolOnInvisibleLayer,5000);
   end;
-  if AEvent.DelayedStackUpdate then FUpdateStackWhenIdle := true;
 end;
 
 procedure TFMain.OnImageRenderChanged(Sender: TObject);
@@ -4486,37 +4091,78 @@ procedure TFMain.UpdateEditPicture(ADelayed: boolean = false);
 begin
   if ToolManager.ToolUpdate then
   begin
-    if ADelayed then DelayedPaintPicture := True
+    if ADelayed then PaintPictureLater
     else
       PaintPictureNow;
   end;
 end;
 
-procedure TFMain.OnZoomChanged(sender: TZoom; ANewZoom: single);
-begin
-  if Assigned(FImageView) then
-  begin
-    if not Image.SelectionMaskEmpty then
-      FImageView.ShowSelection := false;
-    FImageView.OnZoomChanged(sender, ANewZoom, FLayout.WorkArea);
-  end;
-  UpdateToolbar;
-  PaintPictureNow;
-end;
-
 procedure TFMain.PaintPictureNow;
 begin
   if not visible then exit;
-  UpdateStackOnTimer := true;
-  Image.OnImageChanged.NotifyObservers;
-  {$IFDEF USEPAINTBOXPICTURE}PaintBox_Picture{$ELSE}self{$ENDIF}.Update;
+  if Assigned(LazPaintInstance) then LazPaintInstance.UpdateStackOnTimer := true;
+  if Assigned(FLayout) then FLayout.PaintPictureNow;
 end;
 
-procedure TFMain.FormPaint(Sender: TObject);
+procedure TFMain.PaintPictureLater;
 begin
-  {$IFNDEF USEPAINTBOXPICTURE}
-  OnPaintHandler;
-  {$ENDIF}
+  if Assigned(FLayout) then FLayout.DelayedPaintPicture := True;
+end;
+
+procedure TFMain.NotifyImagePaint;
+begin
+  if Assigned(FLayout) then
+    FLayout.DelayedPaintPicture:= false;
+end;
+
+procedure TFMain.PictureMouseBefore(Sender: TObject; AShift: TShiftState);
+begin
+  UpdateSpecialKeys(AShift);
+end;
+
+procedure TFMain.PictureMouseMove(Sender: TObject; APosition: TPointF);
+begin
+  HidePenPreview;
+  HideFill;
+
+  FCoordinatesCaption := IntToStr(round(APosition.X))+','+IntToStr(round(APosition.Y));
+  Inc(FCoordinatesCaptionCount);
+  if FCoordinatesCaptionCount > 8 then
+  begin
+    FCoordinatesCaptionCount := 0;
+    Label_Coordinates.caption := FCoordinatesCaption;
+    Label_Coordinates.Update;
+    UpdateStatusText;
+  end;
+
+  if LazPaintInstance.TopMostHasFocus then
+  begin
+    if LazPaintInstance.TopMostOkToUnfocus then
+      SafeSetFocus(self)
+    else
+      exit;
+  end;
+  if (CurrentTool in[ptText,ptEditShape]) and TextSpinEditFocused then VectorialFill_Pen.SetFocus;
+end;
+
+procedure TFMain.PictureOnPaint(Sender: TObject);
+var
+  ac: TWinControl;
+begin
+  if FirstPaint then
+  begin
+    LoadToolwindow := True;
+    TimerLoadToolWin.Enabled := true;
+    FirstPaint := false;
+  end;
+  ac := ActiveControl;
+  if ac is TBCTrackbarUpdown then
+    TBCTrackbarUpdown(ac).DelayTimer;
+end;
+
+procedure TFMain.PictureToolbarUpdate(Sender: TObject);
+begin
+  UpdateToolbar;
 end;
 
 procedure TFMain.PictureSelectedLayerIndexChanged(sender: TLazPaintImage);
@@ -4538,8 +4184,8 @@ end;
 procedure TFMain.SetShowSelectionNormal(const AValue: boolean);
 begin
   FShowSelectionNormal := AValue;
-  if Assigned(FImageView) then
-    FImageView.FillSelectionHighlight := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
+  if Assigned(FLayout) then
+    FLayout.FillSelectionHighlight := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
 end;
 
 procedure TFMain.WMEraseBkgnd(var Message: TLMEraseBkgnd);
@@ -4673,8 +4319,8 @@ end;
 
 procedure TFMain.InvalidatePicture(AInvalidateAll: boolean = true);
 begin
-  if Assigned(FImageView) and Assigned(FLayout) then
-    FImageView.InvalidatePicture(AInvalidateAll, FLayout.WorkArea, Point(0,0), self);
+  if Assigned(FLayout) then
+    FLayout.InvalidatePicture(AInvalidateAll);
 end;
 
 function TFMain.GetUseImageBrowser: boolean;
@@ -4695,15 +4341,8 @@ end;
 
 procedure TFMain.SetUpdatingPopup(AValue: boolean);
 begin
-  FImageView.UpdatingPopup := AValue;
-end;
-
-function TFMain.GetCurrentPressure: single;
-begin
-  if Assigned(FTablet) and FTablet.Present and FTablet.Entering and (FTablet.Max > 0) then
-    result := FTablet.Pressure/FTablet.Max
-  else
-    result := 1;
+  if Assigned(FLayout) then
+    FLayout.UpdatingPopup := AValue;
 end;
 
 function TFMain.GetDarkTheme: boolean;
@@ -4719,7 +4358,9 @@ end;
 
 function TFMain.GetUpdatingPopup: boolean;
 begin
-  result := FImageView.UpdatingPopup;
+  if Assigned(FLayout) then
+    result := FLayout.UpdatingPopup
+    else result := false;
 end;
 
 function TFMain.GetScriptContext: TScriptContext;
@@ -4739,15 +4380,6 @@ begin
   case Scripting.CallScriptFunction(AParams) of
     srFunctionNotDefined: LazPaintInstance.ShowMessage(rsScript,StringReplace(rsFunctionNotDefined,'%1',AParams.FunctionName,[]));
   end;
-end;
-
-function TFMain.PictureCanvasOfs: TPoint;
-begin
-  {$IFDEF USEPAINTBOXPICTURE}
-  result := Point(-PaintBox_Picture.Left,-PaintBox_Picture.Top);
-  {$ELSE}
-  result := Point(0,0);
-  {$ENDIF}
 end;
 
 {$R *.lfm}

@@ -460,6 +460,7 @@ type
     function ApplyPressure(AOpacity: byte): byte;
     procedure SetPressure(APressure: single);
     function GetPressureB: Byte;
+    procedure StepPenSize(ADecrease: boolean);
 
     function GetCurrentToolType: TPaintToolType;
     function SetCurrentToolType(tool: TPaintToolType): boolean;
@@ -3116,6 +3117,26 @@ end;
 function TToolManager.GetPressureB: Byte;
 begin
   result := round(FToolPressure*255);
+end;
+
+procedure TToolManager.StepPenSize(ADecrease: boolean);
+  function SizeDelta: single;
+  var v: single;
+  begin
+    v := PenWidth;
+    if ADecrease then v := v - 0.1;
+    if v < 10 then result := 1 else
+    if v < 20 then result := 2 else
+    if v < 50 then result := 5 else
+    if v < 100 then result := 10 else
+    if v < 200 then result := 20 else
+    if v < 500 then result := 50 else
+      result := 100;
+  end;
+begin
+  if ADecrease then
+    PenWidth := PenWidth - SizeDelta
+    else PenWidth := PenWidth + SizeDelta;
 end;
 
 procedure TToolManager.InternalSetCurrentToolType(tool: TPaintToolType);

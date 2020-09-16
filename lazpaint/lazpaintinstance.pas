@@ -108,6 +108,7 @@ type
     FInRunScript: boolean;
     FScriptTempFileNames: TStringList;
     FInCommandLine: boolean;
+    FUpdateStackOnTimer: boolean;
 
     function GetIcons(ASize: integer): TImageList; override;
     function GetToolBoxWindowPopup: TPopupMenu; override;
@@ -143,6 +144,8 @@ type
     function GetImage: TLazPaintImage; override;
     function GetImageAction: TImageActions; override;
     function GetToolManager: TToolManager; override;
+    function GetUpdateStackOnTimer: boolean; override;
+    procedure SetUpdateStackOnTimer(AValue: boolean); override;
     procedure CreateLayerStack;
     procedure CreateToolBox;
     procedure FormsNeeded;
@@ -202,6 +205,7 @@ type
     destructor Destroy; override;
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); override;
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); override;
+    procedure NotifyImagePaint; override;
     function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; override;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): TScriptResult; override;
     function RunScript(AFilename: string): boolean; override;
@@ -247,6 +251,8 @@ type
     property MainFormVisible: boolean read GetMainFormVisible;
     procedure NotifyStackChange; override;
     procedure ScrollLayerStackOnItem(AIndex: integer; ADelayedUpdate: boolean = true); override;
+    procedure InvalidateLayerStack; override;
+    procedure UpdateLayerStackOnTimer; override;
     function MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap; override;
     procedure ChooseTool(Tool : TPaintToolType); override;
     function OpenImage (FileName: string; AddToRecent: Boolean= True): boolean; override;
@@ -495,6 +501,16 @@ end;
 function TLazPaintInstance.GetToolManager: TToolManager;
 begin
   Result:= FToolManager;
+end;
+
+function TLazPaintInstance.GetUpdateStackOnTimer: boolean;
+begin
+  result := FUpdateStackOnTimer;
+end;
+
+procedure TLazPaintInstance.SetUpdateStackOnTimer(AValue: boolean);
+begin
+  FUpdateStackOnTimer := AValue;
 end;
 
 procedure TLazPaintInstance.CreateLayerStack;
@@ -1580,6 +1596,12 @@ begin
   If RepaintNow then FMain.Update;
 end;
 
+procedure TLazPaintInstance.NotifyImagePaint;
+begin
+  if Assigned(FMain) then
+    FMain.NotifyImagePaint;
+end;
+
 function TLazPaintInstance.TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean): boolean;
 begin
   FormsNeeded;
@@ -1778,8 +1800,19 @@ begin
   begin
     if not Assigned(FMain) then ADelayedUpdate:= false;
     FLayerStack.ScrollToItem(AIndex, not ADelayedUpdate);
-    if ADelayedUpdate then FMain.UpdateStackOnTimer := true;
+    if ADelayedUpdate then UpdateStackOnTimer := true;
   end;
+end;
+
+procedure TLazPaintInstance.InvalidateLayerStack;
+begin
+  if FLayerStack<> nil then
+    FLayerStack.InvalidateStack(false);
+end;
+
+procedure TLazPaintInstance.UpdateLayerStackOnTimer;
+begin
+  UpdateStackOnTimer := true;
 end;
 
 function TLazPaintInstance.MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap;
