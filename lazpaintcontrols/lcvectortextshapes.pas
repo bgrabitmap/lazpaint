@@ -1466,7 +1466,7 @@ var
     pts := ADestination.Pen.ComputePolygon(brokenLinePoints, outlineRenderWidth);
     for i := high(pts) downto 0 do
       pts[i].Offset(AOffset.x, AOffset.Y);
-    if ADraft then
+    if ADraft or Aliased then
       ADestination.FillPoly(pts, ABrush, false)
     else
       ADestination.FillPolyAntialias(pts, ABrush, false);
