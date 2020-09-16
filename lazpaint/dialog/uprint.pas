@@ -79,6 +79,8 @@ type
     FPrevMousePos: TPoint;
     FDpiAspectRatio,FAspectRatio: single;
     invZoom: TPointF;
+    FLabelCount: TLabel;
+    FPrintCount: integer;
     property RotatedSpinTop: TSpinEdit read GetRotatedSpinTop;
     property RotatedSpinLeft: TSpinEdit read GetRotatedSpinLeft;
     property RotatedSpinRight: TSpinEdit read GetRotatedSpinRight;
@@ -96,7 +98,7 @@ type
 
 implementation
 
-uses printers, UResourceStrings, Types, LCScaleDPI, umac;
+uses printers, UResourceStrings, Types, LCScaleDPI, umac, ULoading;
 
 var
   marginLeft, marginRight, marginTop, marginBottom: integer;
@@ -393,19 +395,47 @@ begin
   if (unrotatedTotalMarginInPoints.x >= paperSizeInPoints.x) or
     (unrotatedTotalMarginInPoints.y >= paperSizeInPoints.y) then exit;
 
-  FPrintTransform := AffineMatrixScale(Printer.XDPI/72, Printer.YDPI/72);
-  Printer.BeginDoc;
-  marTopLeft := FPrintTransform*unrotatedMarginTopLeftInPoints;
-  marBottomRight := FPrintTransform*(paperSizeInPoints - unrotatedMarginBottomRightInPoints);
-  area := rect(round(marTopLeft.x),round(marTopLeft.y),round(marBottomRight.x),round(marBottomRight.y));
-  Printer.Canvas.ClipRect := area;
-  Printer.Canvas.Clipping := true;
-  imgTopLeft := FPrintTransform*FImagePos;
-  imgBottomRight := FPrintTransform*(FImagePos+FImageSize);
-  Printer.Canvas.StretchDraw(rect(round(imgTopLeft.x),round(imgTopLeft.y),
-    round(imgBottomRight.x),round(imgBottomRight.y)), Instance.Image.RenderedImage.Bitmap);
-  Printer.Canvas.Clipping := false;
-  Printer.EndDoc;
+  if FLabelCount = nil then
+  begin
+    FLabelCount := TLabel.Create(self);
+    FLabelCount.Left := Button_Print.Left + Button_Print.Width;
+    FLabelCount.Top := Button_Print.Top;
+    FLabelCount.AutoSize := false;
+    FLabelCount.Height := Button_Print.Height;
+    FLabelCount.Width := BGRAVirtualScreen1.Left - FLabelCount.Left;
+    FLabelCount.Layout := tlCenter;
+    FLabelCount.Alignment := taCenter;
+    InsertControl(FLabelCount);
+  end;
+
+  FLabelCount.Caption:= '...';
+  MessagePopupForever(rsActionInProgress);
+  Self.Enabled:= false;
+  Application.ProcessMessages;
+  try
+    FPrintTransform := AffineMatrixScale(Printer.XDPI/72, Printer.YDPI/72);
+    Printer.BeginDoc;
+    marTopLeft := FPrintTransform*unrotatedMarginTopLeftInPoints;
+    marBottomRight := FPrintTransform*(paperSizeInPoints - unrotatedMarginBottomRightInPoints);
+    area := rect(round(marTopLeft.x),round(marTopLeft.y),round(marBottomRight.x),round(marBottomRight.y));
+    Printer.Canvas.ClipRect := area;
+    Printer.Canvas.Clipping := true;
+    imgTopLeft := FPrintTransform*FImagePos;
+    imgBottomRight := FPrintTransform*(FImagePos+FImageSize);
+    Printer.Canvas.StretchDraw(rect(round(imgTopLeft.x),round(imgTopLeft.y),
+      round(imgBottomRight.x),round(imgBottomRight.y)), Instance.Image.RenderedImage.Bitmap);
+    Printer.Canvas.Clipping := false;
+    Printer.EndDoc;
+    MessagePopup(rsOkay, 4000);
+    inc(FPrintCount);
+  except on ex:exception do
+    begin
+      Instance.ShowError(Caption, ex.Message);
+      if Printer.Printing then Printer.Abort;
+    end;
+  end;
+  Self.Enabled := true;
+  FLabelCount.Caption := IntToStr(FPrintCount);
 end;
 
 procedure TFPrint.Button_ZoomFitClick(Sender: TObject);
