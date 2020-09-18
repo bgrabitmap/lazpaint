@@ -9,11 +9,22 @@ interface
 uses
   Classes, SysUtils, USelectionHighlight, BGRABitmap, BGRABitmapTypes,
   LazPaintType, UImage, UZoom, Graphics, Controls, LCLType, UImageObservation,
-  laztablet;
+  laztablet, LMessages;
 
 type
   TPictureMouseMoveEvent = procedure(ASender: TObject; APosition: TPointF) of object;
   TPictureMouseBeforeEvent = procedure(ASender: TObject; AShift: TShiftState) of object;
+
+  { TOpaquePaintBox }
+
+  TOpaquePaintBox = class(TCustomControl)
+  protected
+    procedure WMEraseBkgnd(var Message: TLMEraseBkgnd); message LM_ERASEBKGND;
+    procedure WMPaint(var Message: TLMPaint); message LM_PAINT;
+  public
+    PaintRect: TRect;
+    procedure InvalidateRect(ARect: TRect);
+  end;
 
   { TImageView }
 
@@ -43,7 +54,7 @@ type
        imageWidth,imageHeight: integer;
     end;
     FZoom: TZoom;
-    FPaintBox: TGraphicControl;
+    FPaintBox: TOpaquePaintBox;
     FormMouseMovePos: TPoint;
     InFormMouseMove: boolean;
     InFormPaint: boolean;
@@ -92,7 +103,7 @@ type
     procedure ReleaseMouseButtons(Shift: TShiftState);
     function GetCurrentPressure: single;
   public
-    constructor Create(AInstance: TLazPaintCustomInstance; AZoom: TZoom; APaintBox: TGraphicControl);
+    constructor Create(AInstance: TLazPaintCustomInstance; AZoom: TZoom; APaintBox: TOpaquePaintBox);
     destructor Destroy; override;
     function CatchToolKeyDown(var AKey: Word): boolean;
     function CatchToolKeyPress(var AKey: TUTF8Char): boolean;
@@ -146,6 +157,27 @@ begin
     h := AControl.Parent.Handle;
   end;
   InvalidateRect(h, @AArea, False);
+end;
+
+{ TOpaquePaintBox }
+
+procedure TOpaquePaintBox.WMEraseBkgnd(var Message: TLMEraseBkgnd);
+begin
+  //nothing
+end;
+
+procedure TOpaquePaintBox.WMPaint(var Message: TLMPaint);
+begin
+  if Assigned(Message.PaintStruct) then
+    PaintRect := Message.PaintStruct^.rcPaint
+    else PaintRect := rect(0,0,ClientWidth,ClientHeight);
+
+  inherited WMPaint(Message);
+end;
+
+procedure TOpaquePaintBox.InvalidateRect(ARect: TRect);
+begin
+  InvalidateControlRect(self, ARect);
 end;
 
 function TImageView.GetFillSelectionHighlight: boolean;
@@ -560,7 +592,7 @@ begin
 end;
 
 constructor TImageView.Create(AInstance: TLazPaintCustomInstance; AZoom: TZoom;
-  APaintBox: TGraphicControl);
+  APaintBox: TOpaquePaintBox);
 begin
   FInstance := AInstance;
   FZoom := AZoom;
@@ -569,12 +601,12 @@ begin
   ugraph.CanvasScale:= FCanvasScale;
 
   FPaintBox := APaintBox;
-  (FPaintBox as TPaintBox).OnMouseEnter:=@PaintBoxMouseEnter;
-  (FPaintBox as TPaintBox).OnMouseDown:= @PaintBoxMouseDown;
-  (FPaintBox as TPaintBox).OnMouseMove:= @PaintBoxMouseMove;
-  (FPaintBox as TPaintBox).OnMouseUp:=   @PaintBoxMouseUp;
-  (FPaintBox as TPaintBox).OnMouseWheel:=@PaintBoxMouseWheel;
-  (FPaintBox as TPaintBox).OnPaint:=@PaintBoxPaint;
+  FPaintBox.OnMouseEnter:=@PaintBoxMouseEnter;
+  FPaintBox.OnMouseDown:= @PaintBoxMouseDown;
+  FPaintBox.OnMouseMove:= @PaintBoxMouseMove;
+  FPaintBox.OnMouseUp:=   @PaintBoxMouseUp;
+  FPaintBox.OnMouseWheel:=@PaintBoxMouseWheel;
+  FPaintBox.OnPaint:=@PaintBoxPaint;
   //recursive calls
   InFormMouseMove:= false;
   InFormPaint := false;
@@ -678,17 +710,23 @@ begin
 end;
 
 procedure TImageView.DoPaint(AWorkArea: TRect; AShowNoPicture: boolean);
+var
+  vsRect: TRect;
 begin
   if AShowNoPicture then
     PaintBlueAreaOnly(AWorkArea)
   else
   begin
+    with FPaintBox.PaintRect do
+      vsRect := rect(Left*CanvasScale, Top*CanvasScale, Right*CanvasScale, Bottom*CanvasScale);
+    with FLastPictureParameters.scaledVirtualScreenArea do
+      vsRect.Offset(-Left, -Top);
     if FQueryPaintVirtualScreen and
        (FLastPictureParameters.defined and
         IsRectEmpty(GetRenderUpdateRectVS(False))) then
-       PaintVirtualScreenImplementation(AWorkArea, rect(0,0,maxLongint,maxLongint))
+       PaintVirtualScreenImplementation(AWorkArea, vsRect)
     else
-      PaintPictureImplementation(AWorkArea, rect(0,0,maxLongint,maxLongint));
+      PaintPictureImplementation(AWorkArea, vsRect);
     PaintBlueAreaImplementation(AWorkArea);
   end;
   if Assigned(FOnPaint) then FOnPaint(self);
@@ -865,7 +903,7 @@ var
 begin
   area := GetRectToInvalidate(AInvalidateAll, AWorkArea);
   IntersectRect(area, area, AWorkArea);
-  InvalidateControlRect(FPaintBox, area);
+  FPaintBox.InvalidateRect(area);
 end;
 
 procedure TImageView.PictureSelectionChanged(sender: TLazPaintImage; const ARect: TRect);
@@ -893,8 +931,8 @@ begin
     area.Right := (area.Right+CanvasScale-1) div CanvasScale;
     area.Bottom := (area.Bottom+CanvasScale-1) div CanvasScale;
   end;
-  InvalidateControlRect(FPaintBox, area);
-  FPaintBox.Update;
+  FPaintBox.InvalidateRect(area);
+  {$IFNDEF DARWIN}FPaintBox.Update;{$ENDIF}
   FQueryPaintVirtualScreen := False;
   {$ENDIF}
 end;
@@ -985,8 +1023,8 @@ begin
   {$ELSE}
   if IntersectRect(updateArea, updateArea, AWorkArea) then
   begin
-    InvalidateControlRect(FPaintBox, updateArea);
-    FPaintBox.Update;
+    FPaintBox.InvalidateRect(updateArea);
+    {$IFNDEF DARWIN}FPaintBox.Update;{$ENDIF}
   end;
   {$ENDIF}
 end;

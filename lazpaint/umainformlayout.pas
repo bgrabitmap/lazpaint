@@ -41,7 +41,7 @@ type
     FDarkTheme: boolean;
     FDockedControlsPanel: TPanel;
     FDockedChooseColorSplitter: TSplitter;
-    FPaintBox: TPaintBox;
+    FPaintBox: TOpaquePaintBox;
     FImageView: TImageView;
     function GetFillSelectionHighlight: boolean;
     function GetMouseButtonState: TShiftState;
@@ -216,8 +216,8 @@ begin
   FStatusTextSplit := TStringList.Create;
   FForm.InsertControl(FStatusBar);
 
-  FPaintBox := TPaintBox.Create(nil);
-  FForm.InsertControl(FPaintBox);
+  FPaintBox := TOpaquePaintBox.Create(nil);
+  FForm.InsertControl(FPaintBox,0);
   FImageView := nil;
 
   ApplyTheme;
