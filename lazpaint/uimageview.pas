@@ -717,10 +717,14 @@ begin
     PaintBlueAreaOnly(AWorkArea)
   else
   begin
+    {$IFDEF WINDOWS}
+    vsRect := rect(0,0,FLastPictureParameters.scaledVirtualScreenArea.Width,FLastPictureParameters.scaledVirtualScreenArea.Height);
+    {$ELSE}
     with FPaintBox.PaintRect do
       vsRect := rect(Left*CanvasScale, Top*CanvasScale, Right*CanvasScale, Bottom*CanvasScale);
     with FLastPictureParameters.scaledVirtualScreenArea do
       vsRect.Offset(-Left, -Top);
+    {$ENDIF}
     if FQueryPaintVirtualScreen and
        (FLastPictureParameters.defined and
         IsRectEmpty(GetRenderUpdateRectVS(False))) then
