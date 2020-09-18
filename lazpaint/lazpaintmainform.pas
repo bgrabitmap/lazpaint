@@ -3609,7 +3609,7 @@ begin
   ItemViewDockToolbox.Checked := (Layout.ToolBoxDocking <> twWindow) and (Layout.ToolBoxDocking <> twNone);
   ItemDockLayersAndColors.Checked := LazPaintInstance.DockLayersAndColors;
   ItemFullscreen.Checked := LazPaintInstance.Fullscreen;
-  {$IFDEF LINUX}
+  {$IF defined(LINUX) or defined(DARWIN)}
   ItemFullscreen.Visible := false;
   {$ENDIF}
 end;
