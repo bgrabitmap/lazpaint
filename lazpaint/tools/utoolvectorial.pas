@@ -959,11 +959,11 @@ begin
         Manager.Image.CurrentState.LayeredBitmap.OriginalEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
       if Assigned(VirtualScreen) then
         result := Manager.Image.CurrentState.LayeredBitmap.DrawEditor(VirtualScreen,
-          Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize,OriginalDPI))
+          Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize*Manager.CanvasScale,OriginalDPI))
       else
         result := Manager.Image.CurrentState.LayeredBitmap.GetEditorBounds(
           rect(0,0,VirtualScreenWidth,VirtualScreenHeight),
-          Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize,OriginalDPI));
+          Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize*Manager.CanvasScale,OriginalDPI));
       RetrieveLightPosition;
     end;
   esmSelection, esmOtherOriginal:
@@ -976,7 +976,7 @@ begin
         FRectEditor := TVectorOriginalEditor.Create(nil);
         FRectEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
         FRectEditor.Focused := true;
-        FRectEditor.PointSize := DoScaleX(PointSize,OriginalDPI);
+        FRectEditor.PointSize := DoScaleX(PointSize*Manager.CanvasScale,OriginalDPI);
       end;
       FRectEditor.Clear;
       editMatrix := AffineMatrixTranslation(-0.5,-0.5)*viewMatrix*AffineMatrixTranslation(0.5,0.5);
@@ -1361,7 +1361,7 @@ begin
           zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2/Manager.Image.ZoomFactor;
           BindOriginalEvent(true);
           try
-            if GetVectorOriginal.MouseClick(m*FLastPos, DoScaleX(PointSize, OriginalDPI)*zoom, ssSnap in ShiftState) then
+            if GetVectorOriginal.MouseClick(m*FLastPos, DoScaleX(PointSize*Manager.CanvasScale, OriginalDPI)*zoom, ssSnap in ShiftState) then
             begin
               handled := true;
               result := OnlyRenderChange;
@@ -2364,7 +2364,7 @@ begin
     if IsAffineMatrixInversible(editMatrix) then
     begin
       Editor.Matrix := editMatrix;
-      Editor.PointSize := DoScaleX(PointSize, OriginalDPI);
+      Editor.PointSize := DoScaleX(PointSize*Manager.CanvasScale, OriginalDPI);
       if Assigned(FShape) then FShape.ConfigureEditor(Editor);
       if Assigned(VirtualScreen) then
         Result:= Editor.Render(VirtualScreen, rect(0,0,VirtualScreen.Width,VirtualScreen.Height))

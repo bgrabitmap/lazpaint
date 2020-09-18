@@ -298,7 +298,8 @@ begin
       setlength(pts, length(ptsF));
       for i := 0 to high(ptsF) do
         pts[i] := (ptsF[i]+PointF(0.5,0.5)).Round;
-      VirtualScreen.DrawPolygonAntialias(pts,BGRAWhite,BGRABlack,FrameDashLength);
+      VirtualScreen.DrawPolygonAntialias(pts,BGRAWhite,BGRABlack,
+        FrameDashLength*Manager.CanvasScale);
     end;
   end;
 end;
@@ -348,7 +349,8 @@ begin
       setlength(pts, length(ptsF));
       for i := 0 to high(ptsF) do
         pts[i] := ptsF[i].Round;
-      VirtualScreen.DrawPolygonAntialias(pts,BGRAWhite,BGRABlack,FrameDashLength);
+      VirtualScreen.DrawPolygonAntialias(pts,BGRAWhite,BGRABlack,
+        FrameDashLength*Manager.CanvasScale);
     end;
   end;
 end;

@@ -10,8 +10,9 @@ uses
   BCComboBox;
 
 var
-  NicePointMaxRadius: integer = 4;
+  NicePointMaxRadius: integer = 6;
   FrameDashLength: integer = 4;
+  CanvasScale: integer = 1;
 
 function ComputeRatio(ARatio: string): single;
 function RatioToStr(ARatio: single): string;
@@ -1162,17 +1163,17 @@ end;
 
 function NicePointBounds(x,y: single): TRect;
 begin
-  result := rect(floor(x)-NicePointMaxRadius-1,floor(y)-NicePointMaxRadius-1,
-  ceil(x)+NicePointMaxRadius+2,ceil(y)+NicePointMaxRadius+2);
+  result := rect(floor(x)-NicePointMaxRadius*CanvasScale-1,floor(y)-NicePointMaxRadius*CanvasScale-1,
+  ceil(x)+NicePointMaxRadius*CanvasScale+2,ceil(y)+NicePointMaxRadius*CanvasScale+2);
 end;
 
 function NicePoint(bmp: TBGRABitmap; x, y: single; alpha: byte = 192): TRect;
 begin
     result := NicePointBounds(x,y);
     if not Assigned(bmp) then exit;
-    bmp.EllipseAntialias(x,y,NicePointMaxRadius,NicePointMaxRadius,BGRA(0,0,0,alpha),1);
-    bmp.EllipseAntialias(x,y,NicePointMaxRadius-1,NicePointMaxRadius-1,BGRA(255,255,255,alpha),1);
-    bmp.EllipseAntialias(x,y,NicePointMaxRadius-2,NicePointMaxRadius-2,BGRA(0,0,0,alpha),1);
+    bmp.EllipseAntialias(x,y,NicePointMaxRadius*CanvasScale,NicePointMaxRadius*CanvasScale,BGRA(0,0,0,alpha),1);
+    bmp.EllipseAntialias(x,y,NicePointMaxRadius*CanvasScale-1,NicePointMaxRadius*CanvasScale-1,BGRA(255,255,255,alpha),1);
+    bmp.EllipseAntialias(x,y,NicePointMaxRadius*CanvasScale-2,NicePointMaxRadius*CanvasScale-2,BGRA(0,0,0,alpha),1);
 end;
 
 function NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192): TRect;

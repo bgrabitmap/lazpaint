@@ -20,6 +20,7 @@ type
   TImageView = class
   private
     function GetMouseButtonState: TShiftState;
+    procedure SetCanvasScale(AValue: integer);
   protected
     FVirtualScreen: TBGRABitmap;
     FUpdatingPopup: boolean;
@@ -31,11 +32,13 @@ type
     FInstance: TLazPaintCustomInstance;
     FLastPictureParameters: record
        defined: boolean;
-       workArea: TRect;
-       scaledArea: TRect;
-       virtualScreenArea: TRect;
+       canvasScale: integer;
+       workArea, scaledWorkArea: TRect;
+       zoomedArea, scaledZoomedArea: TRect;
+       virtualScreenArea, scaledVirtualScreenArea: TRect;
        originInVS: TPoint;
-       zoomFactorX,zoomFactorY: double;
+       zoomFactorX, zoomFactorY,
+       scaledZoomFactorX, scaledZoomFactorY: double;
        imageOffset: TPoint;
        imageWidth,imageHeight: integer;
     end;
@@ -56,6 +59,7 @@ type
     FCanCompressOrUpdateStack: boolean;
     FTablet: TLazTablet;
     FImagePos: TPointF;
+    FCanvasScale: integer;
     function GetImage: TLazPaintImage;
     function GetPictureCanvas: TCanvas;
     function GetWorkArea: TRect;
@@ -107,6 +111,7 @@ type
     function FormToBitmap(X, Y: Integer): TPointF;
     property Image: TLazPaintImage read GetImage;
     property Zoom: TZoom read FZoom;
+    property CanvasScale: integer read FCanvasScale write SetCanvasScale;
     property LazPaintInstance: TLazPaintCustomInstance read FInstance;
     property PictureCanvas: TCanvas read GetPictureCanvas;
     property FillSelectionHighlight: boolean read GetFillSelectionHighlight write SetFillSelectionHighlight;
@@ -352,6 +357,13 @@ begin
   if btnRightDown then include(result, ssRight);
 end;
 
+procedure TImageView.SetCanvasScale(AValue: integer);
+begin
+  if FCanvasScale=AValue then Exit;
+  FCanvasScale:=AValue;
+  LazPaintInstance.ToolManager.CanvasScale := AValue;
+end;
+
 function TImageView.GetImage: TLazPaintImage;
 begin
   result := FInstance.Image;
@@ -398,14 +410,14 @@ begin
   if not picParamWereDefined then
     FPenCursorPos := GetPenCursorPosition;
 
-  if Assigned(FVirtualScreen) and ((FVirtualScreen.Width <> FLastPictureParameters.virtualScreenArea.Right-FLastPictureParameters.virtualScreenArea.Left) or
-     (FVirtualScreen.Height <> FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top)) then
+  if Assigned(FVirtualScreen) and ((FVirtualScreen.Width <> FLastPictureParameters.scaledVirtualScreenArea.Width) or
+     (FVirtualScreen.Height <> FLastPictureParameters.scaledVirtualScreenArea.Height)) then
     FreeAndNil(FVirtualScreen);
 
   if not Assigned(FVirtualScreen) then
   begin
-    FVirtualScreen := TBGRABitmap.Create(FLastPictureParameters.virtualScreenArea.Right-FLastPictureParameters.virtualScreenArea.Left,
-                                        FLastPictureParameters.virtualScreenArea.Bottom-FLastPictureParameters.virtualScreenArea.Top, WorkspaceColor);
+    FVirtualScreen := TBGRABitmap.Create(FLastPictureParameters.scaledVirtualScreenArea.Width,
+                                        FLastPictureParameters.scaledVirtualScreenArea.Height, WorkspaceColor);
     Image.ResetRenderUpdateRect;
     Image.RenderMayChange(rect(0,0,FVirtualScreen.Width,FVirtualScreen.Height), false, false);
   end;
@@ -417,17 +429,18 @@ begin
 
     if not FVirtualScreen.ClipRect.IsEmpty then
     begin
-      renderRect := FLastPictureParameters.scaledArea;
-      OffsetRect(renderRect, -FLastPictureParameters.virtualScreenArea.Left,
-                             -FLastPictureParameters.virtualScreenArea.Top);
+      renderRect := FLastPictureParameters.scaledZoomedArea;
+      OffsetRect(renderRect, -FLastPictureParameters.scaledVirtualScreenArea.Left,
+                             -FLastPictureParameters.scaledVirtualScreenArea.Top);
 
-      DrawThumbnailCheckers(FVirtualScreen,renderRect,Image.IsIconCursor);
+      DrawThumbnailCheckers(FVirtualScreen, renderRect, Image.IsIconCursor, CanvasScale);
 
       //draw image (with merged selection)
       FVirtualScreen.StretchPutImage(renderRect,Image.RenderedImage,dmDrawWithTransparency);
       if (Zoom.Factor > DoScaleX(MinZoomForGrid, OriginalDPI)) and LazPaintInstance.GridVisible then
-        DrawGrid(FVirtualScreen,FLastPictureParameters.zoomFactorX,FLastPictureParameters.zoomFactorY,
-           FLastPictureParameters.originInVS.X,FLastPictureParameters.originInVS.Y);
+        DrawGrid(FVirtualScreen, FLastPictureParameters.scaledZoomFactorX,
+          FLastPictureParameters.scaledZoomFactorY, FLastPictureParameters.originInVS.X,
+          FLastPictureParameters.originInVS.Y);
 
       DrawSelectionHighlight(renderRect);
     end;
@@ -447,14 +460,26 @@ procedure TImageView.PaintVirtualScreenImplementation(AWorkArea: TRect; AVSPart:
 var cursorBack: TBGRABitmap;
     DestCanvas: TCanvas;
     cursorContourF: array of TPointF;
-    rectBack: TRect;
+    rectBack, oldClip: TRect;
     cursorPos: TVSCursorPosition;
 
   procedure DrawPart;
+  var
+    canvasVSPart: TRect;
   begin
-    FVirtualScreen.DrawPart(AVSPart, DestCanvas,
-      FLastPictureParameters.virtualScreenArea.Left+AVSPart.Left,
-      FLastPictureParameters.virtualScreenArea.Top+AVSPart.Top, True);
+    if CanvasScale > 1 then
+    begin
+      AVSPart.Left := AVSPart.Left - (AVSPart.Left mod CanvasScale);
+      AVSPart.Top := AVSPart.Top - (AVSPart.Top mod CanvasScale);
+      inc(AVSPart.Right, CanvasScale - 1);
+      inc(AVSPart.Bottom, CanvasScale - 1);
+      AVSPart.Right := AVSPart.Right - (AVSPart.Right mod CanvasScale);
+      AVSPart.Bottom := AVSPart.Bottom - (AVSPart.Bottom mod CanvasScale);
+    end;
+    canvasVSPart := rect(AVSPart.Left div CanvasScale, AVSPart.Top div CanvasScale,
+      AVSPart.Right div CanvasScale, AVSPart.Bottom div CanvasScale);
+    canvasVSPart.Offset(FLastPictureParameters.virtualScreenArea.TopLeft);
+    FVirtualScreen.DrawPart(AVSPart, DestCanvas, canvasVSPart, True);
   end;
 
 begin
@@ -474,9 +499,12 @@ begin
       cursorBack := FVirtualScreen.GetPart(rectBack) as TBGRABitmap;
 
       cursorContourF := FVirtualScreen.ComputeEllipseContour(cursorPos.c.x,cursorPos.c.y,cursorPos.rx,cursorPos.ry);
+      oldClip := FVirtualScreen.ClipRect;
+      FVirtualScreen.ClipRect := rectBack;
       FVirtualScreen.PenStyle := psSolid;
-      FVirtualScreen.DrawPolygonAntialias(cursorcontourF,BGRA(0,0,0,192),3);
-      FVirtualScreen.DrawPolygonAntialias(cursorcontourF,BGRA(255,255,255,255),1);
+      FVirtualScreen.DrawPolygonAntialias(cursorcontourF,BGRA(0,0,0,192),3*CanvasScale);
+      FVirtualScreen.DrawPolygonAntialias(cursorcontourF,BGRA(255,255,255,255),1*CanvasScale);
+      FVirtualScreen.ClipRect := oldClip;
       DrawPart;
 
       FVirtualScreen.PutImage(rectBack.left,rectBack.Top,cursorBack,dmSet);
@@ -496,25 +524,25 @@ end;
 
 procedure TImageView.PaintBlueAreaImplementation(AWorkArea: TRect);
 var
-  lastWorkArea, scaledArea: TRect;
+  lastWorkArea, zoomedArea: TRect;
 begin
   if FLastPictureParameters.defined then
   begin
     lastWorkArea := FLastPictureParameters.WorkArea;
     if (lastWorkArea.Right <= lastWorkArea.Left) or (lastWorkArea.Bottom <= lastWorkArea.Top) then exit;
-    scaledArea := FLastPictureParameters.scaledArea;
-    IntersectRect(scaledArea, scaledArea,lastWorkArea);
+    zoomedArea := FLastPictureParameters.zoomedArea;
+    IntersectRect(zoomedArea, zoomedArea,lastWorkArea);
     with PictureCanvas do
     begin
       Brush.Color := WorkspaceColor;
-      if scaledArea.Left > lastWorkArea.Left then
-        FillRect(lastWorkArea.Left, scaledArea.Top, scaledArea.Left, scaledArea.Bottom);
-      if scaledArea.Top > lastWorkArea.Top then
-        FillRect(lastWorkArea.Left, lastWorkArea.Top, lastWorkArea.Right, scaledArea.Top);
-      if scaledArea.Right < lastWorkArea.Right then
-        FillRect(scaledArea.Right, scaledArea.Top, lastWorkArea.Right, scaledArea.Bottom);
-      if scaledArea.Bottom < lastWorkArea.Bottom then
-        FillRect(lastWorkArea.Left, scaledArea.Bottom, lastWorkArea.Right, lastWorkArea.Bottom);
+      if zoomedArea.Left > lastWorkArea.Left then
+        FillRect(lastWorkArea.Left, zoomedArea.Top, zoomedArea.Left, zoomedArea.Bottom);
+      if zoomedArea.Top > lastWorkArea.Top then
+        FillRect(lastWorkArea.Left, lastWorkArea.Top, lastWorkArea.Right, zoomedArea.Top);
+      if zoomedArea.Right < lastWorkArea.Right then
+        FillRect(zoomedArea.Right, zoomedArea.Top, lastWorkArea.Right, zoomedArea.Bottom);
+      if zoomedArea.Bottom < lastWorkArea.Bottom then
+        FillRect(lastWorkArea.Left, zoomedArea.Bottom, lastWorkArea.Right, lastWorkArea.Bottom);
     end;
   end else
     PaintBlueAreaOnly(AWorkArea);
@@ -536,6 +564,9 @@ constructor TImageView.Create(AInstance: TLazPaintCustomInstance; AZoom: TZoom;
 begin
   FInstance := AInstance;
   FZoom := AZoom;
+  FCanvasScale:= round(APaintBox.GetCanvasScaleFactor);
+  AInstance.ToolManager.CanvasScale := FCanvasScale;
+  ugraph.CanvasScale:= FCanvasScale;
 
   FPaintBox := APaintBox;
   (FPaintBox as TPaintBox).OnMouseEnter:=@PaintBoxMouseEnter;
@@ -592,6 +623,7 @@ begin
   picBoundsChanged := (FPaintBox.Left <> ALeft) or (FPaintBox.Top <> ATop) or
       (FPaintBox.Width <> AWidth) or (FPaintBox.Height <> AHeight);
   FPaintBox.SetBounds(ALeft, ATop, AWidth, AHeight);
+  CanvasScale:= round(FPaintBox.GetCanvasScaleFactor);
   if picBoundsChanged then
     InvalidatePicture(True);
 end;
@@ -669,16 +701,21 @@ end;
 
 procedure TImageView.ComputePictureParams(AWorkArea: TRect);
 var
-  scaledArea, croppedArea: TRect;
+  croppedArea: TRect;
 begin
+  FLastPictureParameters.canvasScale:= CanvasScale;
   FLastPictureParameters.imageWidth:= Image.Width;
   FLastPictureParameters.imageHeight:= Image.Height;
   FLastPictureParameters.zoomFactorX := Zoom.Factor;
   FLastPictureParameters.zoomFactorY := Zoom.Factor;
-  FLastPictureParameters.scaledArea := EmptyRect;
+  FLastPictureParameters.zoomFactorX := Zoom.Factor*CanvasScale;
+  FLastPictureParameters.zoomFactorY := Zoom.Factor*CanvasScale;
+  FLastPictureParameters.zoomedArea := EmptyRect;
+  FLastPictureParameters.scaledZoomedArea := EmptyRect;
   FLastPictureParameters.imageOffset := Image.ImageOffset;
   FLastPictureParameters.originInVS := Point(0,0);
   FLastPictureParameters.virtualScreenArea := EmptyRect;
+  FLastPictureParameters.scaledVirtualScreenArea := EmptyRect;
 
   FLastPictureParameters.workArea := AWorkArea;
   if (AWorkArea.Right <= AWorkArea.Left) or (AWorkArea.Bottom <= AWorkArea.Top) or not Assigned(Zoom) then
@@ -686,23 +723,32 @@ begin
     FLastPictureParameters.defined := false;
     exit;
   end;
+  FLastPictureParameters.scaledWorkArea := rect(AWorkArea.Left*CanvasScale,
+    AWorkArea.Top*CanvasScale, AWorkArea.Right*CanvasScale, AWorkArea.Bottom*CanvasScale);
 
-  scaledArea := Zoom.GetScaledArea(AWorkArea, image.Width, image.Height, image.ImageOffset);
-  FLastPictureParameters.scaledArea := scaledArea;
-  croppedArea := RectInter(scaledArea,AWorkArea);
+  FLastPictureParameters.zoomedArea := Zoom.GetScaledArea(AWorkArea, image.Width, image.Height, image.ImageOffset);
+  with FLastPictureParameters.zoomedArea do
+    FLastPictureParameters.scaledZoomedArea := rect(Left*CanvasScale, Top*CanvasScale,
+      Right*CanvasScale, Bottom*CanvasScale);
+  croppedArea := RectInter(FLastPictureParameters.zoomedArea, FLastPictureParameters.workArea);
   if IsRectEmpty(croppedArea) then
   begin
     FLastPictureParameters.defined := false;
     exit;
   end;
 
-  FLastPictureParameters.zoomFactorX := (scaledArea.Right-scaledArea.Left)/Image.Width;
-  FLastPictureParameters.zoomFactorY := (scaledArea.Bottom-scaledArea.Top)/Image.Height;
+  FLastPictureParameters.zoomFactorX := FLastPictureParameters.zoomedArea.Width/Image.Width;
+  FLastPictureParameters.zoomFactorY := FLastPictureParameters.zoomedArea.Height/Image.Height;
+  FLastPictureParameters.scaledZoomFactorX := FLastPictureParameters.scaledZoomedArea.Width/Image.Width;
+  FLastPictureParameters.scaledZoomFactorY := FLastPictureParameters.scaledZoomedArea.Height/Image.Height;
 
   FLastPictureParameters.virtualScreenArea := croppedArea;
+  with FLastPictureParameters.virtualScreenArea do
+    FLastPictureParameters.scaledVirtualScreenArea := rect(Left*CanvasScale, Top*CanvasScale,
+      Right*CanvasScale, Bottom*CanvasScale);
 
-  FLastPictureParameters.originInVS.X := scaledArea.Left - FLastPictureParameters.virtualScreenArea.Left;
-  FLastPictureParameters.originInVS.Y := scaledArea.Top  - FLastPictureParameters.virtualScreenArea.Top;
+  FLastPictureParameters.originInVS.X := FLastPictureParameters.scaledZoomedArea.Left - FLastPictureParameters.scaledVirtualScreenArea.Left;
+  FLastPictureParameters.originInVS.Y := FLastPictureParameters.scaledZoomedArea.Top  - FLastPictureParameters.scaledVirtualScreenArea.Top;
   FLastPictureParameters.defined := true;
 end;
 
@@ -747,10 +793,10 @@ function TImageView.FormToBitmap(X, Y: Integer): TPointF;
 begin
   if not FLastPictureParameters.defined then
     result.X := 0 else
-     result.x := (x+0.5-FLastPictureParameters.scaledArea.Left)/FLastPictureParameters.zoomFactorX - 0.5;
+     result.x := ((x-FLastPictureParameters.zoomedArea.Left)*CanvasScale+0.5)/FLastPictureParameters.scaledZoomFactorX - 0.5;
   if not FLastPictureParameters.defined then
     result.Y := 0 else
-     result.y := (y+0.5-FLastPictureParameters.scaledArea.Top)/FLastPictureParameters.zoomFactorY - 0.5;
+     result.y := ((y-FLastPictureParameters.zoomedArea.Top)*CanvasScale+0.5)/FLastPictureParameters.scaledZoomFactorY - 0.5;
 end;
 
 function TImageView.FormToBitmap(pt: TPoint): TPointF;
@@ -762,10 +808,10 @@ function TImageView.BitmapToForm(X, Y: Single): TPointF;
 begin
   if not FLastPictureParameters.defined then
     result.X := 0 else
-     result.X := (X+0.5)*FLastPictureParameters.zoomFactorX + FLastPictureParameters.scaledArea.Left-0.5;
+     result.X := ((X+0.5)*FLastPictureParameters.scaledZoomFactorX - 0.5)/CanvasScale + FLastPictureParameters.zoomedArea.Left;
   if not FLastPictureParameters.defined then
     result.Y := 0 else
-     result.Y := (Y+0.5)*FLastPictureParameters.zoomFactorY + FLastPictureParameters.scaledArea.Top-0.5;
+     result.Y := ((Y+0.5)*FLastPictureParameters.scaledZoomFactorY - 0.5)/CanvasScale + FLastPictureParameters.zoomedArea.Top;
 end;
 
 function TImageView.BitmapToForm(pt: TPointF): TPointF;
@@ -775,7 +821,14 @@ end;
 
 function TImageView.BitmapToVirtualScreen(X, Y: Single): TPointF;
 begin
-  result := BitmapToForm(X,Y) - PointF(FLastPictureParameters.virtualScreenArea.Left, FLastPictureParameters.virtualScreenArea.Top);
+  if not FLastPictureParameters.defined then
+    result.X := 0 else
+     result.X := ((X+0.5)*FLastPictureParameters.scaledZoomFactorX - 0.5)
+       + FLastPictureParameters.scaledZoomedArea.Left - FLastPictureParameters.scaledVirtualScreenArea.Left;
+  if not FLastPictureParameters.defined then
+    result.Y := 0 else
+     result.Y := ((Y+0.5)*FLastPictureParameters.scaledZoomFactorY - 0.5)
+       + FLastPictureParameters.scaledZoomedArea.Top - FLastPictureParameters.scaledVirtualScreenArea.Top;
 end;
 
 function TImageView.BitmapToVirtualScreen(ptF: TPointF): TPointF;
@@ -798,10 +851,10 @@ begin
   result.ry := (br.y-tl.y)/2-0.5;
   if FPenCursorVisible then
   begin
-    result.bounds.left := floor(tl.x)-margin;
-    result.bounds.top := floor(tl.y)-margin;
-    result.bounds.right := ceil(br.x)+1+2*margin;
-    result.bounds.bottom := ceil(br.y)+1+2*margin;
+    result.bounds.left := floor(tl.x)-margin*CanvasScale;
+    result.bounds.top := floor(tl.y)-margin*CanvasScale;
+    result.bounds.right := ceil(br.x)+1+2*margin*CanvasScale;
+    result.bounds.bottom := ceil(br.y)+1+2*margin*CanvasScale;
   end else
     result.bounds := EmptyRect;
 end;
@@ -826,13 +879,20 @@ begin
   area := FPenCursorPos.bounds;
   FPenCursorPos := GetPenCursorPosition;
   area := RectUnion(area, FPenCursorPos.bounds);
-  OffsetRect(area, FLastPictureParameters.virtualScreenArea.Left,
-                   FLastPictureParameters.virtualScreenArea.Top);
+  OffsetRect(area, FLastPictureParameters.scaledVirtualScreenArea.Left,
+                   FLastPictureParameters.scaledVirtualScreenArea.Top);
   {$IFDEF IMAGEVIEW_DIRECTUPDATE}
-  OffsetRect(area, -FLastPictureParameters.virtualScreenArea.Left, -FLastPictureParameters.virtualScreenArea.Top);
+  OffsetRect(area, -FLastPictureParameters.scaledVirtualScreenArea.Left, -FLastPictureParameters.scaledVirtualScreenArea.Top);
   PaintVirtualScreenImplementation(AWorkArea, area);
   {$ELSE}
   FQueryPaintVirtualScreen := True;
+  if CanvasScale > 1 then
+  begin
+    area.Left := area.Left div CanvasScale;
+    area.Top := area.Top div CanvasScale;
+    area.Right := (area.Right+CanvasScale-1) div CanvasScale;
+    area.Bottom := (area.Bottom+CanvasScale-1) div CanvasScale;
+  end;
   InvalidateControlRect(FPaintBox, area);
   FPaintBox.Update;
   FQueryPaintVirtualScreen := False;
@@ -843,6 +903,7 @@ function TImageView.GetRectToInvalidate(AInvalidateAll: boolean;
   AWorkArea: TRect): TRect;
 begin
   if not AInvalidateAll and FLastPictureParameters.defined and
+    (FLastPictureParameters.canvasScale = CanvasScale) and
     (FLastPictureParameters.imageWidth = image.Width) and (FLastPictureParameters.imageHeight = image.Height) and
     (FLastPictureParameters.imageOffset.x = Image.ImageOffset.x) and (FLastPictureParameters.imageOffset.y = Image.ImageOffset.y) and
     (FLastPictureParameters.workArea.Left = AWorkArea.Left) and (FLastPictureParameters.workArea.Top = AWorkArea.Top) and
@@ -851,8 +912,15 @@ begin
     result := GetRenderUpdateRectVS(True);
     result := RectUnion(result,FPenCursorPosBefore.bounds);
     result := RectUnion(result,FPenCursorPos.bounds);
-    OffsetRect(result, FLastPictureParameters.virtualScreenArea.Left,
-                     FLastPictureParameters.virtualScreenArea.Top);
+    OffsetRect(result, FLastPictureParameters.scaledVirtualScreenArea.Left,
+                     FLastPictureParameters.scaledVirtualScreenArea.Top);
+    if CanvasScale > 1 then
+    begin
+      result.Left := result.Left div CanvasScale;
+      result.Top := result.Top div CanvasScale;
+      result.Right := (result.Right+CanvasScale-1) div CanvasScale;
+      result.Bottom := (result.Bottom+CanvasScale-1) div CanvasScale;
+    end;
   end
   else
   begin
@@ -869,7 +937,7 @@ var virtualScreenPenCursorBefore: boolean;
   begin
     if FLastPictureParameters.Defined and
       (LazPaintInstance.ToolManager.PenWidth * FLastPictureParameters.zoomFactorX > 6) and
-      PtInRect(FLastPictureParameters.scaledArea, Point(X,Y)) then
+      PtInRect(FLastPictureParameters.zoomedArea, Point(X,Y)) then
     begin
       FPenCursorVisible := True;
       {$IFNDEF DARWIN}wantedCursor := crNone;{$ENDIF}
@@ -904,6 +972,13 @@ begin
   {$IFDEF IMAGEVIEW_DIRECTUPDATE}
   if FLastPictureParameters.defined then
     OffsetRect(updateArea, -FLastPictureParameters.virtualScreenArea.Left,-FLastPictureParameters.virtualScreenArea.Top);
+  with updateArea do
+  begin
+    Left *= CanvasScale;
+    Top *= CanvasScale;
+    Right *= CanvasScale;
+    Bottom *= CanvasScale;
+  end;
   PaintPictureImplementation(AWorkArea, updateArea);
   if prevVSArea <> FLastPictureParameters.virtualScreenArea then
     PaintBlueAreaImplementation(AWorkArea);

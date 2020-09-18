@@ -446,6 +446,7 @@ type
     TextControls, TextShadowControls, PhongControls, AltitudeControls,
     PerspectiveControls,FillControls,OutlineFillControls,
     BrushControls, RatioControls, DonateControls: TList;
+    CanvasScale: integer;
 
     constructor Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider;
       ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction = nil;
@@ -2821,6 +2822,7 @@ constructor TToolManager.Create(AImage: TLazPaintImage; AConfigProvider: IConfig
   ABlackAndWhite : boolean; AScriptContext: TScriptContext);
 begin
   FImage:= AImage;
+  CanvasScale := 1;
   BitmapToVirtualScreen := ABitmapToVirtualScreen;
   FShouldExitTool:= false;
   FConfigProvider := AConfigProvider;
