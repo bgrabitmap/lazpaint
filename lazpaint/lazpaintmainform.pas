@@ -872,7 +872,7 @@ procedure TFMain.FormCreate(Sender: TObject);
 begin
   FInitialized := false;
 
-  Zoom := TZoom.Create(Label_CurrentZoom,Edit_Zoom,FLayout);
+  Zoom := TZoom.Create(Label_CurrentZoom, Edit_Zoom);
   FLayout := TMainFormLayout.Create(self, Zoom);
   FLayout.OnPaintPicture:=@PictureOnPaint;
   FLayout.OnToolbarUpdate:=@PictureToolbarUpdate;
@@ -970,7 +970,6 @@ begin
     if ToolManager.OnFloodFillOptionChanged = @ManagerFloodFillOptionChanged then ToolManager.OnFloodFillOptionChanged := nil;
     if ToolManager.OnPerspectiveOptionChanged = @ManagerPerspectiveOptionChanged then ToolManager.OnPerspectiveOptionChanged := nil;
   end;
-  FreeAndNil(Zoom);
   FreeAndNil(FOnlineUpdater);
 
   FreeAndNil(FBrowseSelections);
@@ -988,6 +987,7 @@ begin
   FreeAndNil(FSaveSelection);
 
   FreeAndNil(FLayout);
+  FreeAndNil(Zoom);
 end;
 
 procedure TFMain.SetLazPaintInstance(const AValue: TLazPaintCustomInstance);

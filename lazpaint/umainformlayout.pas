@@ -177,6 +177,7 @@ begin
   FForm := AForm;
   FZoom := AZoom;
   FZoom.OnZoomChanged:=@ZoomChanged;
+  FZoom.Layout := self;
   FPanelToolBox := TPanel.Create(nil);
   FPanelToolBox.BevelInner := bvNone;
   FPanelToolBox.BevelOuter := bvNone;
@@ -225,6 +226,7 @@ end;
 
 destructor TMainFormLayout.Destroy;
 begin
+  FZoom.Layout := nil;
   FreeAndNil(FImageView);
   FreeAndNil(FPaintBox);
   FreeAndNil(FDockedControlsPanel);
