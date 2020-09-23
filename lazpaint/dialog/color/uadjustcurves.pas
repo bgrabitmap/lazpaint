@@ -622,6 +622,10 @@ begin
   result := -1;
   curve := SelectedCurve;
   if curve = nil then exit;
+  if xBmp < FPoint0.x then xBmp := FPoint0.x;
+  if xBmp > FPoint1.x then xBmp := FPoint1.x;
+  if yBmp > FPoint0.y then yBmp := FPoint0.y;
+  if yBmp < FPoint1.y then yBmp := FPoint1.y;
   pointList := curve.GetVariable('Points');
   pointCount := curve.GetListCount(pointList);
   minDist := sqr(ScaleX(20,96)+0.0);
@@ -657,6 +661,8 @@ begin
     if (pt1.x <= xBmp-1) and (pt2.x >= xBmp+1) then
     begin
       coord := BitmapToCoord(xBmp,yBmp);
+      if coord.y < 0 then coord.y := 0;
+      if coord.y > 1 then coord.y := 1;
       curve.AppendPoint(pointList, curve.GetPoint2DAt(pointList, pointCount-1));
       for j := pointCount-1 downto i do curve.AssignPointAt(pointList, j+1, curve.GetPoint2DAt(pointList, j));
       curve.AssignPointAt(pointList, i, coord);
