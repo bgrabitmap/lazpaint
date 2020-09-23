@@ -33,6 +33,7 @@ object FAdjustCurves: TFAdjustCurves
       'Alpha'
     )
     Align = alClient
+    Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
     object vsChart: TBGRAVirtualScreen
       Left = 2
@@ -64,7 +65,7 @@ object FAdjustCurves: TFAdjustCurves
         Top = 0
         Width = 90
         Align = alNone
-        Anchors = [akTop, akRight]
+        Anchors = [akTop, akLeft]
         EdgeBorders = []
         Images = FMain.ImageList16
         ParentShowHint = False
