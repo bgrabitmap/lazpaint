@@ -912,6 +912,7 @@ begin
   inherited Create(AContainer);
   FShapes := TVectorShapes.Create;
   FOldChangeHandler := TShapeChangeHandlerMap.Create;
+  FDisableHitBox:= true;
 end;
 
 procedure TVectorMultiselection.TransformFrame(const AMatrix: TAffineMatrix);
