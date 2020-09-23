@@ -2664,7 +2664,9 @@ begin
   begin
     self.sourceLayerId := LayeredBitmap.LayerUniqueId[SelectedImageLayerIndex];
     self.duplicateId := LayeredBitmap.ProduceLayerUniqueId;
-    self.duplicateOriginal := useOriginal and (LayeredBitmap.LayerOriginalClass[SelectedImageLayerIndex]=TVectorOriginal);
+    self.duplicateOriginal := useOriginal and
+      ((LayeredBitmap.LayerOriginalClass[SelectedImageLayerIndex]=TVectorOriginal) or
+       (LayeredBitmap.LayerOriginalClass[SelectedImageLayerIndex]=TBGRALayerGradientOriginal));
     if self.duplicateOriginal then
       CreateGUID(duplicateGuid);
   end;
