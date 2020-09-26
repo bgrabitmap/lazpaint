@@ -3,6 +3,7 @@ unit UImageView;
 
 {$mode objfpc}{$H+}
 {$IFDEF LINUX}{$DEFINE IMAGEVIEW_DIRECTUPDATE}{$ENDIF}
+{$DEFINE DRAW_TOOL_OUTSIDE_IMAGE}
 
 interface
 
@@ -475,6 +476,24 @@ begin
           FLastPictureParameters.originInVS.Y);
 
       DrawSelectionHighlight(renderRect);
+
+      {$IFDEF DRAW_TOOL_OUTSIDE_IMAGE}
+      //paint blue area in virtual screen
+      if FLastPictureParameters.scaledZoomedArea.Top > 0 then
+        FVirtualScreen.FillRect(0, 0,
+          FVirtualScreen.Width, FLastPictureParameters.scaledZoomedArea.Top, WorkspaceColor, dmSet);
+      if FLastPictureParameters.scaledZoomedArea.Left > 0 then
+        FVirtualScreen.FillRect(0, FLastPictureParameters.scaledZoomedArea.Top,
+          FLastPictureParameters.scaledZoomedArea.Left, FLastPictureParameters.scaledZoomedArea.Bottom,
+          WorkspaceColor, dmSet);
+      if FLastPictureParameters.scaledZoomedArea.Right < FVirtualScreen.Width then
+        FVirtualScreen.FillRect(FLastPictureParameters.scaledZoomedArea.Right, FLastPictureParameters.scaledZoomedArea.Top,
+          FVirtualScreen.Width, FLastPictureParameters.scaledZoomedArea.Bottom,
+          WorkspaceColor, dmSet);
+      if FLastPictureParameters.scaledZoomedArea.Bottom < FVirtualScreen.Height then
+        FVirtualScreen.FillRect(0, FLastPictureParameters.scaledZoomedArea.Bottom,
+          FVirtualScreen.Width, FVirtualScreen.Height, WorkspaceColor, dmSet);
+      {$ENDIF}
     end;
     FVirtualScreen.NoClip;
 
@@ -562,7 +581,7 @@ begin
   begin
     lastWorkArea := FLastPictureParameters.WorkArea;
     if (lastWorkArea.Right <= lastWorkArea.Left) or (lastWorkArea.Bottom <= lastWorkArea.Top) then exit;
-    zoomedArea := FLastPictureParameters.zoomedArea;
+    zoomedArea := FLastPictureParameters.virtualScreenArea;
     IntersectRect(zoomedArea, zoomedArea,lastWorkArea);
     with PictureCanvas do
     begin
@@ -772,7 +791,12 @@ begin
   with FLastPictureParameters.zoomedArea do
     FLastPictureParameters.scaledZoomedArea := rect(Left*CanvasScale, Top*CanvasScale,
       Right*CanvasScale, Bottom*CanvasScale);
+
+  {$IFDEF DRAW_TOOL_OUTSIDE_IMAGE}
+  croppedArea := FLastPictureParameters.workArea;
+  {$ELSE}
   croppedArea := RectInter(FLastPictureParameters.zoomedArea, FLastPictureParameters.workArea);
+  {$ENDIF}
   if IsRectEmpty(croppedArea) then
   begin
     FLastPictureParameters.defined := false;
