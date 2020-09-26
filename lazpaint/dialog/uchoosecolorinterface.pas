@@ -25,6 +25,7 @@ type
     EColor: TEdit;
     LColor: TLabel;
     procedure ContainerResize(Sender: TObject);
+    procedure SetColorTarget(AValue: TColorTarget);
     procedure vsColorViewMouseDown(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
     procedure vsColorViewMouseMove(Sender: TObject; {%H-}Shift: TShiftState; X,
@@ -53,6 +54,7 @@ type
     FInFormMouseMove: Boolean;
     FormMouseMovePos: TPointF;
 
+    FColorTarget: TColorTarget;
     FCurrentColor: TBGRAPixel;
     FColorLight: word;
     FColorX,FColorY: single;
@@ -109,7 +111,7 @@ type
     property AvailableVSHeight: integer read GetAvailableVSHeight;
     property AvailableVSWidth: integer read GetAvailableVSWidth;
   public
-    ColorTarget: TColorTarget;
+
 
     constructor Create(AContainer: TWinControl; ADPI: integer);
     destructor Destroy; override;
@@ -123,6 +125,7 @@ type
     property DarkTheme: boolean read FDarkTheme write SetDarkTheme;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     property EditorVisible: boolean read GetEditorVisible;
+    property ColorTarget: TColorTarget read FColorTarget write SetColorTarget;
   end;
 
 implementation
@@ -159,6 +162,13 @@ begin
   EColor.Top := Container.ClientHeight - FTextAreaHeight + (FTextAreaHeight-EColor.Height) div 2;
   LColor.Top := Container.ClientHeight - FTextAreaHeight + (FTextAreaHeight-LColor.Height) div 2;
   UpdateLayout;
+end;
+
+procedure TChooseColorInterface.SetColorTarget(AValue: TColorTarget);
+begin
+  if FColorTarget=AValue then Exit;
+  FColorTarget:=AValue;
+  vsColorView.DiscardBitmap;
 end;
 
 procedure TChooseColorInterface.vsColorViewMouseMove(Sender: TObject;
@@ -204,6 +214,7 @@ var
   bmpColorXYSize: integer;
   bmpCursorWidth, i: integer;
   bmpCursorOpacity: byte;
+  s: String;
 begin
   if vsColorView.Width <> 0 then
     FBitmapScale := Bitmap.Width / vsColorView.Width
@@ -238,7 +249,19 @@ begin
   if Assigned(GetColorCircleBmp) and not FColorCircle.bounds.IsEmpty then
   begin
     if FColorTitleVisible then
-      AddTitle(FColorCircle.center.X, rsLight);
+    begin
+      case ColorTarget of
+        ctForeColorSolid..ctForeColorEndGrad: s := rsPen;
+        ctBackColorSolid..ctBackColorEndGrad: s := rsBack;
+        ctOutlineColorSolid..ctOutlineColorEndGrad: s := rsTextOutline;
+        else s := rsColors;
+      end;
+      case ColorTarget of
+        ctForeColorStartGrad,ctBackColorStartGrad,ctOutlineColorStartGrad: s += '[1]';
+        ctForeColorEndGrad,ctBackColorEndGrad,ctOutlineColorEndGrad: s += '[2]';
+      end;
+      AddTitle(FColorCircle.center.X, s);
+    end;
     bmpRect := InterfaceToPixel(FColorCircle.bounds);
     Bitmap.PutImage(bmpRect.Left, bmpRect.top, GetColorCircleBmp, dmDrawWithTransparency);
     bmpCursorWidth := round(FCursorXYWidth * FBitmapScale);

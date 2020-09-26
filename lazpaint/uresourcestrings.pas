@@ -116,6 +116,9 @@ resourcestring
   rsCorrectedHueCW = 'Corr. Hue CW';
   rsCorrectedHueCCW = 'Corr. Hue CCW';
 
+  rsPen = 'Pen';
+  rsBack = 'Back';
+  rsTextOutline = 'Text outline';
 
   rsColors='Colors';
   rsLight='Light';
