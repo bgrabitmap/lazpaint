@@ -26,6 +26,7 @@ type
   TVectorialFillInterface = class(TComponent)
   private
     FCanEditGradTexPoints: boolean;
+    FIsTarget: boolean;
     FOnMouseDown: TMouseEvent;
     FOnMouseEnter: TNotifyEvent;
     FOnMouseLeave: TNotifyEvent;
@@ -37,6 +38,7 @@ type
       {%H-}Shift: TShiftState; X, {%H-}Y: Integer);
     procedure SetCanEditGradTexPoints(AValue: boolean);
     procedure SetEditingGradTexPoints(AValue: boolean);
+    procedure SetIsTarget(AValue: boolean);
     procedure SetVerticalPadding(AValue: integer);
     procedure ToolbarMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -182,6 +184,7 @@ type
     function CreateShapeFill(AShape: TVectorShape): TVectorialFill;
     procedure UpdateShapeFill(AShape: TVectorShape; ATarget: TLCFillTarget);
     property FillType: TVectorialFillType read FFillType write SetFillType;
+    property IsTarget: boolean read FIsTarget write SetIsTarget;
     property SolidColor: TBGRAPixel read FSolidColor write SetSolidColor;
     property AverageColor: TBGRAPixel read GetAverageColor;
     property GradientType: TGradientType read FGradType write SetGradientType;
@@ -486,7 +489,13 @@ begin
         grad.Free;
       end;
   end;
-  bmp.Rectangle(bmp.ClipRect, BGRA(0,0,0,128), dmDrawWithTransparency);
+  if IsTarget then
+  begin
+    if bmp.GetPixel(bmp.Width/2,bmp.Height/2).Lightness > 20000 then
+      bmp.Rectangle(bmp.ClipRect, BGRABlack, dmDrawWithTransparency)
+      else bmp.Rectangle(bmp.ClipRect, CSSSilver, dmDrawWithTransparency);
+  end
+    else bmp.Rectangle(bmp.ClipRect, BGRA(0,0,0,128), dmDrawWithTransparency);
   bmpCopy := bmp.MakeBitmapCopy(clBtnFace);
   bmp.Free;
   FPreview.Picture.Assign(bmpCopy);
@@ -1150,6 +1159,13 @@ procedure TVectorialFillInterface.SetEditingGradTexPoints(AValue: boolean);
 begin
   if Assigned(FButtonEditGradTexPoints) then
     FButtonEditGradTexPoints.Down := AValue;
+end;
+
+procedure TVectorialFillInterface.SetIsTarget(AValue: boolean);
+begin
+  if FIsTarget=AValue then Exit;
+  FIsTarget:=AValue;
+  UpdatePreview;
 end;
 
 procedure TVectorialFillInterface.ToolbarMouseEnter(Sender: TObject);

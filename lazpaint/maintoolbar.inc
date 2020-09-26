@@ -2,7 +2,7 @@
 procedure TFMain.CreateToolbarElements;
 
   procedure InitVectorialFill(vf: TLCVectorialFillControl; grad: TBGRALayerGradientOriginal;
-      lbl: TLabel; pnl: TPanel; mouseMove: TMouseMoveEvent);
+      lbl: TLabel; pnl: TPanel; mouseMove: TMouseMoveEvent; AIsTarget: boolean);
   begin
     vf.PopupMenu := nil;
     vf.VerticalPadding:= DoScaleY(6, OriginalDPI);
@@ -26,6 +26,7 @@ procedure TFMain.CreateToolbarElements;
     pnl.PopupMenu := nil;
     pnl.OnMouseMove:= mouseMove;
     vf.OnMouseMove:= mouseMove;
+    vf.IsTarget:= AIsTarget;
   end;
 
 var
@@ -37,11 +38,14 @@ begin
   Panel_ToolbarBackground.PopupMenu := PopupToolbar;
   Perspective_Repeat.OnClick:=@Perspective_RepeatClick;
   Perspective_TwoPlanes.OnClick := @Perspective_TwoPlanesClick;
-  InitVectorialFill(VectorialFill_Pen, ToolManager.ForeLastGradient, Label_Pen, Panel_PenFill, @VectorialFill_ShowPenFill);
+  InitVectorialFill(VectorialFill_Pen, ToolManager.ForeLastGradient, Label_Pen, Panel_PenFill,
+    @VectorialFill_ShowPenFill, LazPaintInstance.ChooseColorTarget in[ctForeColorSolid..ctForeColorEndGrad]);
   VectorialFill_Pen.SolidColor := ToolManager.ForeColor;
-  InitVectorialFill(VectorialFill_Back, ToolManager.BackLastGradient, Label_Back, Panel_BackFill, @VectorialFill_ShowBackFill);
+  InitVectorialFill(VectorialFill_Back, ToolManager.BackLastGradient, Label_Back, Panel_BackFill,
+    @VectorialFill_ShowBackFill, LazPaintInstance.ChooseColorTarget in[ctBackColorSolid..ctBackColorEndGrad]);
   VectorialFill_Back.SolidColor := ToolManager.BackColor;
-  InitVectorialFill(VectorialFill_Outline, ToolManager.OutlineLastGradient, nil, Panel_OutlineFill, @VectorialFill_ShowOutlineFill);
+  InitVectorialFill(VectorialFill_Outline, ToolManager.OutlineLastGradient, nil, Panel_OutlineFill,
+    @VectorialFill_ShowOutlineFill, LazPaintInstance.ChooseColorTarget in[ctOutlineColorSolid..ctOutlineColorEndGrad]);
   VectorialFill_Outline.SolidColor := ToolManager.OutlineColor;
   Image_SwapColors.OnMouseDown := @Image_SwapColorsMouseDown;
   Tool_DrawShapeBorder.OnClick := @Tool_DrawShapeBorderClick;

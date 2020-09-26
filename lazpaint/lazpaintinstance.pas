@@ -1898,6 +1898,12 @@ procedure TLazPaintInstance.SetChooseColorTarget(const AValue: TColorTarget);
 begin
   if not Assigned(FChooseColor) then exit;
   FChooseColor.ColorTarget:= AValue;
+  if Assigned(FMain) then
+  begin
+    FMain.VectorialFill_Pen.IsTarget := AValue in [ctForeColorSolid..ctForeColorEndGrad];
+    FMain.VectorialFill_Back.IsTarget := AValue in [ctBackColorSolid..ctBackColorEndGrad];
+    FMain.VectorialFill_Outline.IsTarget := AValue in [ctOutlineColorSolid..ctOutlineColorEndGrad];
+  end;
   ColorToFChooseColor;
 end;
 
