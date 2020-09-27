@@ -185,6 +185,7 @@ procedure TFCanvasSize.FormCreate(Sender: TObject);
 begin
   FIgnoreInput:= true;
   ScaleControl(Self,OriginalDPI);
+  vsPreview.BitmapAutoScale:= false;
 
   SpinEdit_Width.MaxValue := MaxImageWidth;
   SpinEdit_Height.MaxValue := MaxImageHeight;
@@ -307,7 +308,10 @@ var
   tx,ty,px,py,x,y,px2,py2,x2,y2: NativeInt;
   ratio,zoom: double;
   anchor: string;
+  scale: single;
 begin
+  scale := DoScaleX(60, OriginalDPI)/60 * GetCanvasScaleFactor;
+
   case FMUnit of
     0: begin //pixels
          tx:=SpinEdit_Width.Value;
@@ -331,21 +335,21 @@ begin
   if (tx > 0) and (ty > 0) then
   begin
     ratio := tx/ty;
-    if vsPreview.Width/ratio < vsPreview.Height then
-      zoom := vsPreview.Width/tx
+    if Bitmap.Width/ratio < Bitmap.Height then
+      zoom := Bitmap.Width/tx
     else
-      zoom := vsPreview.height/ty;
+      zoom := Bitmap.height/ty;
 
     px := round(px*zoom);
     py := round(py*zoom);
-    x := (vsPreview.Width-px) div 2;
-    y := (vsPreview.height-py) div 2;
+    x := (Bitmap.Width-px) div 2;
+    y := (Bitmap.height-py) div 2;
 
     px2 := round(LazPaintInstance.Image.Width*zoom);
     py2 := round(LazPaintInstance.Image.Height*zoom);
 
-    x2 := (vsPreview.Width-px2) div 2;
-    y2 := (vsPreview.height-py2) div 2;
+    x2 := (Bitmap.Width-px2) div 2;
+    y2 := (Bitmap.height-py2) div 2;
     anchor := LowerCase(SelectedAnchor);
     if (anchor='topleft') or (anchor='top') or (anchor='topright') then y2 := y;
     if (anchor='bottomleft') or (anchor='bottom') or (anchor='bottomright') then y2 := y+py-py2;
@@ -354,19 +358,19 @@ begin
 
     Bitmap.StretchPutImage(rect(x2,y2,x2+px2,y2+py2),LazPaintInstance.Image.RenderedImage,dmDrawWithTransparency,128);
     Bitmap.ClipRect := rect(x,y,x+px,y+py);
-    DrawCheckers(Bitmap,rect(x,y,x+px,y+py));
+    DrawCheckers(Bitmap,rect(x,y,x+px,y+py),scale);
     Bitmap.StretchPutImage(rect(x2,y2,x2+px2,y2+py2),LazPaintInstance.Image.RenderedImage,dmDrawWithTransparency);
     Bitmap.NoClip;
 
     if (px2 = 1) or (py2 = 1) then
-      Bitmap.DrawLineAntialias(x2,y2,x2+px2-1,y2+py2-1,BGRA(0,0,0,160),BGRA(255,255,255,160),1,True)
+      Bitmap.DrawLineAntialias(x2,y2,x2+px2-1,y2+py2-1,BGRA(0,0,0,160),BGRA(255,255,255,160),round(scale),True)
     else
-      Bitmap.DrawPolyLineAntialias([Point(x2,y2),Point(x2+px2-1,y2),Point(x2+px2-1,y2+py2-1),Point(x2,y2+py2-1),Point(x2,y2)],BGRA(0,0,0,160),BGRA(255,255,255,160),1,False);
+      Bitmap.DrawPolyLineAntialias([Point(x2,y2),Point(x2+px2-1,y2),Point(x2+px2-1,y2+py2-1),Point(x2,y2+py2-1),Point(x2,y2)],BGRA(0,0,0,160),BGRA(255,255,255,160),round(scale),False);
 
     if (px = 1) or (py = 1) then
-      Bitmap.DrawLineAntialias(x,y,x+px-1,y+py-1,BGRA(0,0,0,160),BGRA(255,255,255,160),1,True)
+      Bitmap.DrawLineAntialias(x,y,x+px-1,y+py-1,BGRA(0,0,0,160),BGRA(255,255,255,160),round(scale),True)
     else
-      Bitmap.DrawPolyLineAntialias([Point(x,y),Point(x+px-1,y),Point(x+px-1,y+py-1),Point(x,y+py-1),Point(x,y)],BGRA(0,0,0,160),BGRA(255,255,255,160),1,False);
+      Bitmap.DrawPolyLineAntialias([Point(x,y),Point(x+px-1,y),Point(x+px-1,y+py-1),Point(x,y+py-1),Point(x,y)],BGRA(0,0,0,160),BGRA(255,255,255,160),round(scale),False);
 
   end;
 end;
