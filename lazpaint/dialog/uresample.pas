@@ -54,7 +54,7 @@ function ShowResampleDialog(Instance: TLazPaintCustomInstance; AParameters: TVar
 
 implementation
 
-uses BGRABitmapTypes, umac, uimage;
+uses ugraph, BGRABitmapTypes, umac, uimage;
 
 { TFResample }
 
@@ -83,6 +83,7 @@ procedure TFResample.FormCreate(Sender: TObject);
 begin
   FIgnoreInput := true;
   ScaleControl(Self,OriginalDPI);
+  vsPreview.BitmapAutoScale:= false;
 
   SpinEdit_Width.MaxValue := MaxImageWidth;
   SpinEdit_Height.MaxValue := MaxImageHeight;
@@ -200,10 +201,12 @@ end;
 procedure TFResample.vsPreviewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
 var
   tx,ty,px,py,x,y,px2,py2,x2,y2: NativeInt;
-  ratio,zoom: double;
+  ratio,zoom,scaling: double;
   deltaX: NativeInt;
 begin
-  deltaX := vsPreview.Width-vsPreview.Height;
+  scaling := DoScaleX(60, OriginalDPI)/60 * GetCanvasScaleFactor;
+
+  deltaX := Bitmap.Width-Bitmap.Height;
   if deltaX < 0 then deltaX := 0;
   tx := NewWidth;
   ty := NewHeight;
@@ -212,31 +215,36 @@ begin
   if (tx > 0) and (ty > 0) then
   begin
     ratio := tx/ty;
-    if (vsPreview.Width-deltaX)/ratio < vsPreview.Height then
-      zoom := (vsPreview.Width-deltaX)/tx
+    if (Bitmap.Width-deltaX)/ratio < Bitmap.Height then
+      zoom := (Bitmap.Width-deltaX)/tx
     else
-      zoom := vsPreview.height/ty;
+      zoom := Bitmap.height/ty;
 
     px := round(NewWidth*zoom);
     py := round(NewHeight*zoom);
-    x := vsPreview.Width-px;
-    y := (vsPreview.height-py) div 2;
+    if px < 1 then px := 1;
+    if py < 1 then py := 1;
+    x := Bitmap.Width-px;
+    y := (Bitmap.height-py) div 2;
 
     px2 := round(LazPaintInstance.Image.Width*zoom);
     py2 := round(LazPaintInstance.Image.Height*zoom);
     x2 := 0;
-    y2 := (vsPreview.height-py2) div 2;
+    y2 := (Bitmap.height-py2) div 2;
 
     if (px = 1) or (py = 1) then
       Bitmap.FillRect(x,y,x+px,y+py,BGRA(0,0,0,192),dmDrawWithTransparency)
     else
-      Bitmap.Rectangle(x,y,x+px,y+py,BGRA(0,0,0,192),BGRA(255,255,255,192),dmDrawWithTransparency);
+    begin
+      Bitmap.Rectangle(x,y,x+px,y+py,BGRA(0,0,0,192),dmDrawWithTransparency);
+      DrawCheckers(Bitmap, rect(x+1,y+1,x+px-1,y+py-1), scaling);
+    end;
     Bitmap.StretchPutImage(rect(x,y,x+px,y+py),LazPaintInstance.Image.RenderedImage,dmDrawWithTransparency);
 
     if (px2 = 1) or (py2 = 1) then
-      Bitmap.DrawLineAntialias(x2,y2,x2+px2-1,y2+py2-1,BGRA(0,0,0,160),BGRA(255,255,255,160),1,True)
+      Bitmap.DrawLineAntialias(x2,y2,x2+px2-1,y2+py2-1,BGRA(0,0,0,160),BGRA(255,255,255,160),round(scaling),True)
     else
-      Bitmap.DrawPolyLineAntialias([Point(x2,y2),Point(x2+px2-1,y2),Point(x2+px2-1,y2+py2-1),Point(x2,y2+py2-1),Point(x2,y2)],BGRA(0,0,0,160),BGRA(255,255,255,160),1,False);
+      Bitmap.DrawPolyLineAntialias([Point(x2,y2),Point(x2+px2-1,y2),Point(x2+px2-1,y2+py2-1),Point(x2,y2+py2-1),Point(x2,y2)],BGRA(0,0,0,160),BGRA(255,255,255,160),round(scaling),False);
     Bitmap.StretchPutImage(rect(x2,y2,x2+px2,y2+py2),LazPaintInstance.Image.RenderedImage,dmDrawWithTransparency,48);
   end;
 end;
