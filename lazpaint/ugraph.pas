@@ -22,7 +22,7 @@ function RectInter(const rect1,Rect2: TRect): TRect;
 function RectOfs(const ARect: TRect; ofsX,ofsY: integer): TRect;
 function GetShapeBounds(const pts: array of TPointF; width: single): TRect;
 function DoPixelate(source: TBGRABitmap; pixelSize: integer; quality: string): TBGRABitmap;
-procedure DrawCheckers(bmp : TBGRABitmap; ARect: TRect);
+procedure DrawCheckers(bmp : TBGRABitmap; ARect: TRect; AScale: single = 1);
 procedure DrawGrid(bmp: TBGRABitmap; sizex,sizey: single; ofsx,ofsy: single);
 function ComputeAngle(dx,dy: single): single;
 function GetSelectionCenter(bmp: TBGRABitmap): TPointF;
@@ -199,9 +199,9 @@ begin
   result := source.FilterPixelate(pixelSize,useFilter,filter) as TBGRABitmap;
 end;
 
-procedure DrawCheckers(bmp: TBGRABitmap; ARect: TRect);
+procedure DrawCheckers(bmp: TBGRABitmap; ARect: TRect; AScale: single = 1);
 begin
-  DrawThumbnailCheckers(bmp, ARect, False);
+  DrawThumbnailCheckers(bmp, ARect, False, AScale);
 end; 
 
 procedure DrawGrid(bmp: TBGRABitmap; sizex, sizey: single; ofsx,ofsy: single);

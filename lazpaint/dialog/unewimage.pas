@@ -132,15 +132,21 @@ var
   ratio: double;
   sx,sy: NativeInt;
   blur: TBGRACustomBitmap;
+  scaling: single;
+  scaledShadowOfsX, scaledShadowOfsY, scaledShadowBlur: integer;
 begin
-  sx := vsPreview.Width- shadowOffsetX - shadowBlur;
-  sy := vsPreview.Height- shadowOffsetY - shadowBlur;
+  scaling := DoScaleX(60, OriginalDPI)/60 * GetCanvasScaleFactor;
+  scaledShadowOfsX := round(shadowOffsetX*scaling);
+  scaledShadowOfsY := round(shadowOffsetY*scaling);
+  scaledShadowBlur := round(shadowBlur*scaling);
+  sx := Bitmap.Width- scaledShadowOfsX - scaledShadowBlur;
+  sy := Bitmap.Height- scaledShadowOfsY - scaledShadowBlur;
   tx := SpinEdit_Width.Value;
   ty := SpinEdit_Height.Value;
   if (tx > 0) and (ty > 0) then
   begin
     ratio := tx/ty;
-    if sx/ratio < vsPreview.Height then
+    if sx/ratio < Bitmap.Height then
     begin
       px := sx;
       py := round(sx/ratio);
@@ -153,15 +159,17 @@ begin
     end;
     x := (sx-px) div 2;
     y := (sy-py) div 2;
-    Bitmap.FillRect(x+shadowOffsetX,y+shadowOffsetY,x+shadowOffsetX+px,y+shadowOffsetY+py,BGRA(0,0,0,192),dmDrawWithTransparency);
-    blur := bitmap.FilterBlurRadial(shadowBlur,rbFast);
+    Bitmap.FillRect(x+scaledShadowOfsX, y+scaledShadowOfsY,
+      x+scaledShadowOfsX+px, y+scaledShadowOfsY+py,
+      BGRA(0,0,0,192), dmDrawWithTransparency);
+    blur := bitmap.FilterBlurRadial(scaledShadowBlur,rbFast);
     Bitmap.PutImage(0,0, blur,dmSet);
     blur.free;
     if (px = 1) or (py = 1) then
       Bitmap.FillRect(x,y,x+px,y+py,BGRABlack,dmSet)
     else
     begin
-      ugraph.DrawCheckers(Bitmap,rect(x,y,x+px,y+py));
+      ugraph.DrawCheckers(Bitmap,rect(x,y,x+px,y+py),scaling);
       Bitmap.Rectangle(x,y,x+px,y+py,BGRABlack,FBackColor,dmDrawWithTransparency);
     end;
   end;
@@ -258,6 +266,7 @@ end;
 procedure TFNewImage.FormCreate(Sender: TObject);
 begin
   ScaleControl(Self,OriginalDPI);
+  vsPreview.BitmapAutoScale:= false;
 
   FRecomputing := true;
   SpinEdit_Width.MaxValue := MaxImageWidth;
