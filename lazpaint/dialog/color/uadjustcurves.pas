@@ -68,6 +68,7 @@ type
     FGridColor: TBGRAPixel;
     FTickSize: integer;
     FPointSize, FCurvePenWidth: single;
+    FScaling: single;
     FHueTabPrecomputed: boolean;
     FSelectedPoint: integer;
     FMovingPoint: boolean;
@@ -127,6 +128,7 @@ var
   i: Integer;
 begin
   ScaleControl(Self, OriginalDPI);
+  vsChart.BitmapAutoScale:= false;
 
   CheckOKCancelBtns(Button_OK, Button_Cancel);
   FSelectedPoint:= -1;
@@ -380,6 +382,8 @@ end;
 procedure TFAdjustCurves.vsChartMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
+  X := round(X*FScaling);
+  Y := round(Y*FScaling);
   if Button = mbLeft then
   begin
     FSelectedPoint:= NearestPoint(X,Y);
@@ -392,6 +396,8 @@ end;
 procedure TFAdjustCurves.vsChartMouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: Integer);
 begin
+  X := round(X*FScaling);
+  Y := round(Y*FScaling);
   if FMovingPoint then
   begin
     SetPointCoord(FSelectedPoint, BitmapToCoord(X,Y));
@@ -539,8 +545,9 @@ begin
     if length(labels[i])>maxLabelLength then maxLabelLength := length(labels[i]);
   totalLabelLength:= maxLabelLength + length(labels[0]) + (1+maxLabelLength)*(length(labels)-1);
 
+  FScaling := GetCanvasScaleFactor;
   th := Min(AHeight div (length(labels)+2), round(AWidth*1.8/totalLabelLength));
-  th := Min(th, DoScaleY(20,96));
+  th := Min(th, DoScaleY(round(20*FScaling),96));
   FCurvePenWidth := th/10;
   FPointSize := th/4;
   FTickSize := th div 4;
