@@ -394,6 +394,7 @@ procedure TImageView.SetCanvasScale(AValue: integer);
 begin
   if FCanvasScale=AValue then Exit;
   FCanvasScale:=AValue;
+  ugraph.CanvasScale:= AValue;
   LazPaintInstance.ToolManager.CanvasScale := AValue;
 end;
 

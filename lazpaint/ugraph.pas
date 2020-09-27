@@ -65,7 +65,7 @@ implementation
 
 uses GraphType, math, Types, FileUtil, dialogs, BGRAAnimatedGif,
   BGRAGradients, BGRATextFX, uresourcestrings, LCScaleDPI,
-  BGRAThumbnail, LCVectorPolyShapes;
+  BGRAThumbnail, LCVectorPolyShapes, BGRAPolygon;
 
 function ComputeRatio(ARatio: string): single;
 var
@@ -1168,12 +1168,23 @@ begin
 end;
 
 function NicePoint(bmp: TBGRABitmap; x, y: single; alpha: byte = 192): TRect;
+var
+  multi: TBGRAMultishapeFiller;
+  oldClip: TRect;
 begin
-    result := NicePointBounds(x,y);
-    if not Assigned(bmp) then exit;
-    bmp.EllipseAntialias(x,y,NicePointMaxRadius*CanvasScale,NicePointMaxRadius*CanvasScale,BGRA(0,0,0,alpha),1);
-    bmp.EllipseAntialias(x,y,NicePointMaxRadius*CanvasScale-1,NicePointMaxRadius*CanvasScale-1,BGRA(255,255,255,alpha),1);
-    bmp.EllipseAntialias(x,y,NicePointMaxRadius*CanvasScale-2,NicePointMaxRadius*CanvasScale-2,BGRA(0,0,0,alpha),1);
+  result := NicePointBounds(x,y);
+  if not Assigned(bmp) then exit;
+  oldClip := bmp.ClipRect;
+  bmp.IntersectClip(result);
+  multi := TBGRAMultishapeFiller.Create;
+  multi.AddEllipseBorder(x,y,NicePointMaxRadius*CanvasScale-1*CanvasScale,
+    NicePointMaxRadius*CanvasScale-1*CanvasScale, CanvasScale*3, BGRA(0,0,0,alpha));
+  multi.AddEllipseBorder(x,y,NicePointMaxRadius*CanvasScale-1*CanvasScale,
+    NicePointMaxRadius*CanvasScale-1*CanvasScale, CanvasScale*1, BGRA(255,255,255,alpha));
+  multi.PolygonOrder:= poLastOnTop;
+  multi.Draw(bmp);
+  multi.Free;
+  bmp.ClipRect := oldClip;
 end;
 
 function NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192): TRect;
