@@ -53,6 +53,7 @@ type
     procedure LazPaint_ImageChanged(AEvent: TLazPaintImageObservationEvent);
   protected
     FDPI: integer;
+    FScaling: Double;
     FSysColorSelection: Boolean;
     FDarkTheme: boolean;
     FScrollStackItemIntoView: Boolean;
@@ -173,6 +174,8 @@ procedure TLayerStackInterface.BGRALayerStack_MouseDown(Sender: TObject;
 var i: integer;
   str: string;
 begin
+  X := round(X*FScaling);
+  Y := round(Y*FScaling);
   if PtInRect(Point(X,Y),FScrollButtonRect) then exit;
   If (Button = mbLeft) then
   begin
@@ -242,6 +245,8 @@ procedure TLayerStackInterface.BGRALayerStack_MouseMove(Sender: TObject;
 var
   i: Integer;
 begin
+  X := round(X*FScaling);
+  Y := round(Y*FScaling);
   if FMovingItemBitmap <> nil then
   begin
     FMovingItemMousePos := point(X,Y);
@@ -278,6 +283,8 @@ var destinationIndex, prevIndex: integer;
   res: TModalResult;
   topmostInfo: TTopMostInfo;
 begin
+  X := round(X*FScaling);
+  Y := round(Y*FScaling);
   if Button = mbLeft then
   begin
     FMovingItemStart := false;
@@ -331,7 +338,7 @@ procedure TLayerStackInterface.BGRALayerStack_MouseWheel(Sender: TObject;
   Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
   var Handled: Boolean);
 begin
-  DoScrollVertically(round(-WheelDelta*ZoomFactor*50/120));
+  DoScrollVertically(round(-WheelDelta*ZoomFactor*50/120*FScaling));
   Handled := true;
 end;
 
@@ -445,6 +452,7 @@ var i: integer;
   y: integer;
   clipping, prevClip: TRect;
   lColor, lColorTrans: TBGRAPixel;
+  penWidth: single;
 
   procedure DrawKindUnknown(rKind: TRect; out HintText: string);
   var
@@ -512,10 +520,10 @@ var i: integer;
     end else
     begin
       ABitmap.EllipseAntialias(rKind.Left+rKind.Width / 3, rKind.Top+rKind.Height / 3,rKind.Width / 3,rKind.Height / 3,
-                              lColor, 1, lColorTrans);
+                              lColor, penWidth, lColorTrans);
       ABitmap.DrawPolygonAntialias([PointF(rKind.Left+rKind.Width/4,rKind.Bottom),
                                    PointF(rKind.Left+rKind.Width/2,rKind.Top+rKind.Height/4),
-                                   PointF(rKind.Right,rKind.Bottom)],lColor,1, lColorTrans);
+                                   PointF(rKind.Right,rKind.Bottom)],lColor,penWidth, lColorTrans);
       HintText := rsVectorialLayer;
     end;
   end;
@@ -526,6 +534,9 @@ begin
     ComputeLayout(ABitmap);
     AUpdateItem := -1;
   end;
+  penWidth := 1.25/50*FLayerRectHeight;
+  if penWidth < 1 then penWidth := 1;
+  if penWidth > 3 then penWidth := 3;
   layerPos.x := -FOffset.X;
   layerPos.y := -FOffset.Y;
   SetLength(FLayerInfo, LazPaintInstance.Image.NbLayers);
@@ -564,7 +575,8 @@ begin
           lColorTrans := lColor;
           lColorTrans.alpha := lColorTrans.alpha div 3;
 
-          ABitmap.Rectangle(FLayerInfo[i].VisibleCheckbox,lColor,dmDrawWithTransparency);
+          with FLayerInfo[i].VisibleCheckbox do
+            ABitmap.RectangleAntialias(left, top, right-1, bottom-1, lColor, penWidth);
           if LayerVisible[i] then
           with FLayerInfo[i].VisibleCheckbox do
           begin
@@ -574,7 +586,7 @@ begin
 
                BezierCurve(PointF((left+right-1)/2,bottom-3),
                   PointF((left+right-1)/2,(top*2+bottom-1)/3),
-                  PointF(right-2,top-2))]),lColor,1.5);
+                  PointF(right-2,top-2))]),lColor, penWidth);
           end;
 
           FLayerInfo[i].KindIcon := FLayerInfo[i].VisibleCheckbox;
@@ -645,25 +657,26 @@ end;
 procedure TLayerStackInterface.ComputeLayout(ABitmap: TBGRABitmap);
 var i,temp,h: integer;
 begin
+  FScaling := Container.GetCanvasScaleFactor;
   FLayerInfo := nil;
-  FLayerRectWidth := round(100*zoomFactor);
-  FLayerRectHeight := round(50*zoomFactor);
+  FLayerRectWidth := round(100*zoomFactor*FScaling);
+  FLayerRectHeight := round(50*zoomFactor*FScaling);
   ABitmap.FontName := 'Arial';
   ABitmap.FontQuality := fqSystemClearType;
 
-  temp := ScaleY(20,OriginalDPI);
+  temp := ScaleY(round(20*FScaling),OriginalDPI);
   h := FLayerRectHeight div 3;
   if h > temp then h := temp;
-  temp := ScaleY(12,OriginalDPI);
+  temp := ScaleY(round(12*FScaling),OriginalDPI);
   if h < temp then h := temp;
   ABitmap.FontFullHeight := h;
 
   FInterruptorWidth := FLayerRectHeight div 4;
   FInterruptorHeight := FLayerRectHeight div 4;
-  temp := ScaleY(28,OriginalDPI);
+  temp := ScaleY(round(28*FScaling),OriginalDPI);
   if FInterruptorWidth > temp then FInterruptorWidth := temp;
   if FInterruptorHeight > temp then FInterruptorHeight := temp;
-  temp := ScaleY(7,OriginalDPI);
+  temp := ScaleY(round(7*FScaling),OriginalDPI);
   if FInterruptorHeight < temp then FInterruptorHeight := temp;
   if FInterruptorWidth < temp then FInterruptorWidth := temp;
   FStackWidth := FInterruptorWidth + FLayerRectWidth + FInterruptorWidth*6;
@@ -695,8 +708,8 @@ begin
   FreeAndNil(VolatileVertScrollBar);
   WithHorzScrollBar:= AWithHorzScrollBar;
   WithVertScrollBar:= AWithVertScrollBar;
-  FAvailableWidth := BGRALayerStack.Width;
-  FAvailableHeight := BGRALayerStack.Height;
+  FAvailableWidth := round(BGRALayerStack.Width*FScaling);
+  FAvailableHeight := round(BGRALayerStack.Height*FScaling);
   if FAvailableWidth <= VolatileThumbSize then WithHorzScrollBar := false;
   if FAvailableHeight <= VolatileThumbSize then WithVertScrollBar := false;
   if FAvailableWidth <= VolatileScrollBarSize then WithVertScrollBar:= false;
@@ -1000,6 +1013,7 @@ begin
   BGRALayerStack.OnMouseMove:=@BGRALayerStack_MouseMove;
   BGRALayerStack.OnMouseUp:=@BGRALayerStack_MouseUp;
   BGRALayerStack.OnMouseWheel:=@BGRALayerStack_MouseWheel;
+  BGRALayerStack.BitmapAutoScale:= false;
 
   TimerScroll := TTimer.Create(Container);
   TimerScroll.Enabled := false;
