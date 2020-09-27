@@ -325,7 +325,7 @@ end;
 procedure TFObject3D.BGRAView3DRedraw(Sender: TObject;
   Bitmap: TBGRABitmap);
 begin
-  DrawCheckers(Bitmap,rect(0,0,Bitmap.Width,Bitmap.Height));
+  DrawCheckers(Bitmap,rect(0,0,Bitmap.Width,Bitmap.Height),CanvasScale);
   scene.Surface := Bitmap;
   scene.Render;
 end;
@@ -463,6 +463,7 @@ end;
 procedure TFObject3D.FormCreate(Sender: TObject);
 begin
   ScaleControl(Self,OriginalDPI);
+  BGRAView3D.BitmapAutoScale:= false;
 
   CheckOKCancelBtns(Button_OK,Button_Cancel);
   CheckSpinEdit(SpinEdit_ColorOpacity);
