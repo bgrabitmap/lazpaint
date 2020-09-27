@@ -712,6 +712,7 @@ type
     FCoordinatesCaption: string;
     FCoordinatesCaptionCount: NativeInt;
     FToolbarElementsInitDone: boolean;
+    FPenPlusMinus: integer;
 
     function GetDarkTheme: boolean;
     function GetImageAction: TImageActions;

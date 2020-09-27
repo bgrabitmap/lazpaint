@@ -88,6 +88,7 @@ begin
   PaintBox_PenPreview.OnMouseMove := @Panel_PenWidthMouseMove;
   PaintBox_PenPreview.OnMouseDown := @PaintBox_PenPreviewMouseDown;
   PaintBox_PenPreview.OnPaint := @PaintBox_PenPreviewPaint;
+  PaintBox_PenPreview.Align := alClient;
   Tool_PhongShapeRectangle.OnClick := @Tool_PhongShapeRectangleClick;
   Tool_PhongShapeRoundRect.OnClick := @Tool_PhongShapeRoundRectClick;
   Tool_PhongShapeSphere.OnClick := @Tool_PhongShapeSphereClick;
@@ -1535,7 +1536,7 @@ procedure TFMain.PaintBox_PenPreviewMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var t: integer;
 begin
-  t := ImageList16.Width;
+  t := FPenPlusMinus;
   if (X < t) and (Y < t) then ToolManager.StepPenSize(True) else
   if (X >= PaintBox_PenPreview.Width-t) and (Y < t) then ToolManager.StepPenSize(False);
   ShowPenPreview(False);
@@ -1570,17 +1571,22 @@ end;
 
 procedure TFMain.PaintBox_PenPreviewPaint(Sender: TObject);
 var bmp: TBGRABitmap;
-    x,y,t: integer;
+    x,y,t,margin: integer;
     c: TBGRAPixel;
     m: single;
     bi: TLazPaintBrush;
     visualSize: single;
+    scaling: Double;
 begin
-  bmp := TBGRABitmap.Create(PaintBox_PenPreview.Width,PaintBox_PenPreview.Height,Panel_PenWidthPreview.Color);
+  scaling := PaintBox_PenPreview.GetCanvasScaleFactor;
+  bmp := TBGRABitmap.Create(round(PaintBox_PenPreview.Width*scaling),
+    round(PaintBox_PenPreview.Height*scaling), Panel_PenWidthPreview.Color);
+  bmp.ClipRect := rect(1,1,bmp.Width-1,bmp.Height-1);
   if DarkTheme then c := clLightText else c := clBtnText;
-  x := round(PaintBox_PenPreview.Width/2);
-  y := round(PaintBox_PenPreview.Height/2);
+  x := round(bmp.Width/2);
+  y := round(bmp.Height/2);
   if Assigned(Zoom) then visualSize := ToolManager.PenWidth * Zoom.Factor else visualSize := ToolManager.PenWidth;
+  visualSize *= scaling;
   if (CurrentTool in[ptBrush,ptClone]) and (visualSize <= 2*bmp.width) and (visualSize <= 2*bmp.Height) then
   begin
     bi := ToolManager.BrushInfo;
@@ -1592,17 +1598,28 @@ begin
       end;
   end else
     bmp.FillEllipseAntialias(x,y,visualSize/2,visualSize/2,c);
-  t := ImageList16.Width;
+  t := round(ImageList16.Width*scaling);
+  margin := DoScaleX(round(4*scaling),OriginalDPI);
+  FPenPlusMinus := round((t+margin)/scaling);
   m := t/10;
-  x := 0;
-  bmp.EllipseAntialias(x+(t-1)/2,(t-1)/2,t/2-m,t/2-m,BGRABlack,m,BGRAWhite);
-  bmp.DrawLineAntialias(x+m*2.6,(t-1)/2,x+t-1-m*2.6,(t-1)/2,BGRABlack,m);
-  x := bmp.Width-t;
-  bmp.EllipseAntialias(x+(t-1)/2,(t-1)/2,t/2-m,t/2-m,BGRABlack,m,BGRAWhite);
-  bmp.DrawLineAntialias(x+(t-1)/2,m*2.6,x+(t-1)/2,t-1-m*2.6,BGRABlack,m);
-  bmp.DrawLineAntialias(x+m*2.6,(t-1)/2,x+t-1-m*2.6,(t-1)/2,BGRABlack,m);
+  x := margin;
+  y := margin;
+  bmp.EllipseAntialias(x+(t-1)/2, y+(t-1)/2, t/2-m, t/2-m, BGRABlack,m,BGRAWhite);
+  bmp.DrawLineAntialias(x+m*2.6, y+(t-1)/2, x+t-1-m*2.6, y+(t-1)/2, BGRABlack,m);
+  x := bmp.Width-t-margin;
+  y := margin;
+  bmp.EllipseAntialias(x+(t-1)/2, y+(t-1)/2, t/2-m, t/2-m, BGRABlack,m,BGRAWhite);
+  bmp.DrawLineAntialias(x+(t-1)/2, y+m*2.6, x+(t-1)/2, y+t-1-m*2.6, BGRABlack,m);
+  bmp.DrawLineAntialias(x+m*2.6, y+(t-1)/2, x+t-1-m*2.6, y+(t-1)/2, BGRABlack,m);
 
-  bmp.Draw(PaintBox_PenPreview.Canvas,0,0);
+  bmp.NoClip;
+  bmp.HorizLine(0,0,bmp.Width-1, ApplyLightnessFast(Panel_PenWidthPreview.Color, 48000));
+  bmp.VertLine(0,0,bmp.Height-1, ApplyLightnessFast(Panel_PenWidthPreview.Color, 48000));
+  bmp.HorizLine(0,bmp.Height-1,bmp.Width-1, ApplyLightnessFast(Panel_PenWidthPreview.Color, 16000));
+  bmp.VertLine(bmp.Width-1,0,bmp.Height-1, ApplyLightnessFast(Panel_PenWidthPreview.Color, 16000));
+
+  bmp.Draw(PaintBox_PenPreview.Canvas,
+    rect(0, 0, PaintBox_PenPreview.Width, PaintBox_PenPreview.Height));
   bmp.Free;
 end;
 

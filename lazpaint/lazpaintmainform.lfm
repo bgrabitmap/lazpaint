@@ -1517,9 +1517,7 @@ object FMain: TFMain
     Height = 104
     Top = 176
     Width = 106
-    ClientHeight = 104
-    ClientWidth = 106
-    Color = clBtnFace
+    BevelOuter = bvNone
     Font.Height = -12
     ParentColor = False
     ParentFont = False
