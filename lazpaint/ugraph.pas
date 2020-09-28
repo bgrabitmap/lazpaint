@@ -1207,8 +1207,8 @@ var fx: TBGRATextEffect;
 begin
   f := TFont.Create;
   f.Name := 'Arial';
-  f.Height := DoScaleY(16,OriginalDPI);
-  ofs := DoScaleX(4,OriginalDPI);
+  f.Height := DoScaleY(16*CanvasScale,OriginalDPI);
+  ofs := DoScaleX(4*CanvasScale,OriginalDPI);
   fx := TBGRATextEffect.Create(s,f,true);
   if valign = tlBottom then y := y-fx.TextSize.cy else
   if valign = tlCenter then y := y-fx.TextSize.cy div 2;
