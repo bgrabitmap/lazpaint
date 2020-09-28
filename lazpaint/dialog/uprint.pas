@@ -492,7 +492,7 @@ end;
 procedure TFPrint.BGRAVirtualScreen1Redraw(Sender: TObject; Bitmap: TBGRABitmap
   );
 var
-  ratio: single;
+  ratio, scaling: single;
   x,y,w,h: integer;
   marTopLeft,marBottomRight,
   imgTopLeft,imgBottomRight: TPointF;
@@ -500,6 +500,7 @@ var
   zoom: TPointF;
 begin
   if (printer.PaperSize.Height = 0) or (printer.PaperSize.Width = 0) then exit;
+  scaling := DoScaleX(60, OriginalDPI)/60 * BGRAVirtualScreen1.GetCanvasScaleFactor;
   ratio := printer.PaperSize.Width/printer.PaperSize.Height;
   if Bitmap.Height * ratio > Bitmap.Width then
     begin
@@ -532,7 +533,8 @@ begin
   marTopLeft := FPreviewTransform*unrotatedMarginTopLeftInPoints;
   marBottomRight := FPreviewTransform*(paperSizeInPoints - unrotatedMarginBottomRightInPoints);
   area := rect(round(marTopLeft.x),round(marTopLeft.y),round(marBottomRight.x),round(marBottomRight.y));
-  Bitmap.Rectangle(area,BGRA(128,160,192,128),dmDrawWithTransparency);
+  Bitmap.RectangleAntialias(area.left, area.top, area.right, area.bottom, BGRA(128,160,192,128),
+    scaling);
   if IntersectRect(area,area,Bitmap.ClipRect) then
   begin
     Bitmap.ClipRect := area;
@@ -551,7 +553,8 @@ begin
     InflateRect(bounds,1,1);
     IntersectRect(imgRect, imgRect,bounds);
     Bitmap.DrawPolyLineAntialias([imgRect.TopLeft,Point(imgRect.Right-1,imgRect.Top),Point(imgRect.Right-1, imgRect.Bottom-1),
-                                  Point(imgRect.left, imgRect.Bottom-1),imgRect.TopLeft], BGRA(128,160,192,128), BGRAPixelTransparent, 2, False);
+                                  Point(imgRect.left, imgRect.Bottom-1),imgRect.TopLeft], BGRA(0,0,0,128),
+                                  BGRA(255,255,255,128), round(2*scaling), False);
   end;
   Bitmap.NoClip;
 end;
@@ -623,6 +626,8 @@ end;
 procedure TFPrint.FormCreate(Sender: TObject);
 begin
   ScaleControl(Self,OriginalDPI);
+  BGRAVirtualScreen1.BitmapAutoScale:= false;
+  BGRAVirtualScreen1.Color := clDkGray;
 
   CheckSpinEdit(SpinEdit_DpiY);
   CheckSpinEdit(SpinEdit_DpiX);
