@@ -12,7 +12,7 @@ fi
 
 
 appname=LazPaint
-appversion=7.1.3
+appversion=7.1.4
 pkgversion=0
 appnamenospaces=lazpaint
 appbundle="$appname.app"
