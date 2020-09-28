@@ -1254,7 +1254,16 @@ begin
   if (AIndex < 0) or (AIndex >= ItemCount) then
     result := EmptyRect
   else
+  begin
     result := FData[AIndex].displayRect;
+    with result do
+    begin
+      left := round(left/FScaling);
+      right := round(right/FScaling);
+      top := round(top/FScaling);
+      bottom := round(bottom/FScaling);
+    end;
+  end;
 end;
 
 function TLCShellListView.InternalSelectAll: boolean;
