@@ -831,7 +831,7 @@ procedure TLayerStackInterface.NeedCheckers;
 var
   checkerSize: Integer;
 begin
-  checkerSize := DoScaleX(2, OriginalDPI, DPI);
+  checkerSize := DoScaleX(round(2*FScaling), OriginalDPI, DPI);
   if Assigned(FRegularBackground) and (FRegularBackground.Width <> checkerSize*2) then
   begin
     FreeAndNil(FRegularBackground);
