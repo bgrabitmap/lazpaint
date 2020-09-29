@@ -669,6 +669,7 @@ type
     procedure PictureToolbarUpdate(Sender: TObject);
     function ScriptShowColorDialog(AVars: TVariableSet): TScriptResult;
     procedure VectorialFill_Change(Sender: TObject);
+    procedure vectorialFill_ClickLabel(Sender: TObject);
     procedure VectorialFill_TypeChange(Sender: TObject);
     procedure VectorialFill_Resize(Sender: TObject);
     procedure VectorialFill_EditGradTexPoints(Sender: TObject);

@@ -2,7 +2,7 @@
 procedure TFMain.CreateToolbarElements;
 
   procedure InitVectorialFill(vf: TLCVectorialFillControl; grad: TBGRALayerGradientOriginal;
-      lbl: TLabel; pnl: TPanel; mouseMove: TMouseMoveEvent; AIsTarget: boolean);
+      lbl: TLabel; pnl: TPanel; mouseMove: TMouseMoveEvent; mouseClick: TNotifyEvent; AIsTarget: boolean);
   begin
     vf.PopupMenu := nil;
     vf.VerticalPadding:= DoScaleY(6, OriginalDPI);
@@ -22,7 +22,11 @@ procedure TFMain.CreateToolbarElements;
       vf.GradRepetition:= Repetition;
       vf.GradInterpolation:= ColorInterpolation;
     end;
-    if Assigned(lbl) then lbl.OnMouseMove:= mouseMove;
+    if Assigned(lbl) then
+    begin
+      lbl.OnMouseMove:= mouseMove;
+      lbl.OnClick:= mouseClick;
+    end;
     pnl.PopupMenu := nil;
     pnl.OnMouseMove:= mouseMove;
     vf.OnMouseMove:= mouseMove;
@@ -39,13 +43,16 @@ begin
   Perspective_Repeat.OnClick:=@Perspective_RepeatClick;
   Perspective_TwoPlanes.OnClick := @Perspective_TwoPlanesClick;
   InitVectorialFill(VectorialFill_Pen, ToolManager.ForeLastGradient, Label_Pen, Panel_PenFill,
-    @VectorialFill_ShowPenFill, LazPaintInstance.ChooseColorTarget in[ctForeColorSolid..ctForeColorEndGrad]);
+    @VectorialFill_ShowPenFill, @vectorialFill_ClickLabel,
+    LazPaintInstance.ChooseColorTarget in[ctForeColorSolid..ctForeColorEndGrad]);
   VectorialFill_Pen.SolidColor := ToolManager.ForeColor;
   InitVectorialFill(VectorialFill_Back, ToolManager.BackLastGradient, Label_Back, Panel_BackFill,
-    @VectorialFill_ShowBackFill, LazPaintInstance.ChooseColorTarget in[ctBackColorSolid..ctBackColorEndGrad]);
+    @VectorialFill_ShowBackFill, @vectorialFill_ClickLabel,
+    LazPaintInstance.ChooseColorTarget in[ctBackColorSolid..ctBackColorEndGrad]);
   VectorialFill_Back.SolidColor := ToolManager.BackColor;
   InitVectorialFill(VectorialFill_Outline, ToolManager.OutlineLastGradient, nil, Panel_OutlineFill,
-    @VectorialFill_ShowOutlineFill, LazPaintInstance.ChooseColorTarget in[ctOutlineColorSolid..ctOutlineColorEndGrad]);
+    @VectorialFill_ShowOutlineFill, @vectorialFill_ClickLabel,
+    LazPaintInstance.ChooseColorTarget in[ctOutlineColorSolid..ctOutlineColorEndGrad]);
   VectorialFill_Outline.SolidColor := ToolManager.OutlineColor;
   Image_SwapColors.OnMouseDown := @Image_SwapColorsMouseDown;
   Tool_DrawShapeBorder.OnClick := @Tool_DrawShapeBorderClick;
@@ -952,6 +959,32 @@ begin
   UpdateChooseColors;
   UpdateEditPicture;
   FInFillChange:= false;
+end;
+
+procedure TFMain.vectorialFill_ClickLabel(Sender: TObject);
+  procedure CheckFor(ALabel: TLabel; ASolid, AStart, AEnd: TColorTarget;
+      AControl: TLCVectorialFillControl);
+  begin
+    if Sender = ALabel then
+    begin
+      if LazPaintInstance.ChooseColorTarget = ASolid then exit;
+      if LazPaintInstance.ChooseColorTarget = AStart then
+        LazPaintInstance.ChooseColorTarget := AEnd
+      else if LazPaintInstance.ChooseColorTarget = AEnd then
+        LazPaintInstance.ChooseColorTarget := AStart
+      else
+        begin
+          case AControl.FillType of
+            vftSolid: LazPaintInstance.ChooseColorTarget:= ASolid;
+            vftGradient: LazPaintInstance.ChooseColorTarget:= AStart;
+          end;
+        end;
+    end;
+  end;
+
+begin
+  CheckFor(Label_Pen, ctForeColorSolid, ctForeColorStartGrad, ctForeColorEndGrad, VectorialFill_Pen);
+  CheckFor(Label_Back, ctBackColorSolid, ctBackColorStartGrad, ctBackColorEndGrad, VectorialFill_Back);
 end;
 
 procedure TFMain.VectorialFill_Resize(Sender: TObject);
