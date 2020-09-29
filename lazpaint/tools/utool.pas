@@ -170,7 +170,7 @@ type
     tpmRightClickForSource, tpmNothingToBeDeformed);
 
   TOnToolChangedHandler = procedure(sender: TToolManager; ANewToolType: TPaintToolType) of object;
-  TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage; AKey: Word) of object;
+  TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage; AKey: Word; AAlways: boolean) of object;
 
   TShapeOption = (toAliasing, toDrawShape, toFillShape, toCloseShape);
   TShapeOptions = set of TShapeOption;
@@ -485,7 +485,7 @@ type
     procedure ToolOpen;
     function ToolUpdate: boolean;
     function ToolUpdateNeeded: boolean;
-    procedure ToolPopup(AMessage: TToolPopupMessage; AKey: Word = 0);
+    procedure ToolPopup(AMessage: TToolPopupMessage; AKey: Word = 0; AAlways: boolean = false);
     procedure HintReturnValidates;
 
     function IsSelectingTool: boolean;
@@ -3751,10 +3751,10 @@ begin
     result := true;
 end;
 
-procedure TToolManager.ToolPopup(AMessage: TToolPopupMessage; AKey: Word = 0);
+procedure TToolManager.ToolPopup(AMessage: TToolPopupMessage; AKey: Word = 0; AAlways: boolean = false);
 begin
   if Assigned(FOnPopupToolHandler) then
-    FOnPopupToolHandler(self, AMessage, AKey);
+    FOnPopupToolHandler(self, AMessage, AKey, AAlways);
 end;
 
 function TToolManager.IsSelectingTool: boolean;

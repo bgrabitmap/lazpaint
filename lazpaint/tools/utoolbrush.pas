@@ -58,6 +58,8 @@ type
     class var sourceLayerId: integer;
     class var sourcePosition: TPoint;
     class var sourcePositionRelative: boolean;
+    class var sourceFlattened: boolean;
+    class var sourceDefined: boolean;
     function PickColorWithShift: boolean; override;
     function DrawBrushAt(toolDest: TBGRABitmap; x, y: single): TRect; override;
     procedure PrepareBrush(rightBtn: boolean); override;
@@ -95,10 +97,18 @@ begin
     sourcePosition := Point(round(x) + sourceOfs.x,round(y) + sourceOfs.y);
     sourceLayerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
     sourcePositionRelative:= false;
+    sourceFlattened := ssShift in ShiftState;
+    sourceDefined := true;
     result := OnlyRenderChange;
   end else
   begin
-    if (ssShift in ShiftState) then
+    if not sourceDefined then
+    begin
+      Manager.ToolPopup(tpmRightClickForSource, 0, true);
+      result := EmptyRect;
+      exit;
+    end;
+    if (ssShift in ShiftState) or sourceFlattened then
     begin
       source := Manager.Image.RenderedImage;
       sourceOfs := Point(0,0);
@@ -107,6 +117,7 @@ begin
       sourceIdx := Manager.Image.GetLayerIndexById(sourceLayerId);
       if sourceIdx = -1 then
       begin
+        Manager.ToolPopup(tpmRightClickForSource, 0, true);
         result := EmptyRect;
         exit;
       end;
@@ -188,8 +199,8 @@ var sourcePosF: TPointF;
 begin
   Result:=inherited Render(VirtualScreen, VirtualScreenWidth,
     VirtualScreenHeight, BitmapToVirtualScreen);
-  if not sourcePositionRelative and
-    (Manager.Image.LayerBitmapById[sourceLayerId] <> nil) then
+  if not sourcePositionRelative and (sourceFlattened or
+    (Manager.Image.LayerBitmapById[sourceLayerId] <> nil)) then
   begin
     sourcePosF := BitmapToVirtualScreen(PointF(sourcePosition.X mod Manager.Image.Width,
       sourcePosition.Y mod Manager.Image.Height));
