@@ -1764,6 +1764,7 @@ begin
        (tempStorage.PointF['origin'] <> Origin) or
        (tempStorage.PointF['x-axis'] <> XAxis) or
        (tempStorage.PointF['y-axis'] <> YAxis) or
+       (tempStorage.Float['em-height'] <> FontEmHeight) or
        not useBrokenLinesRender then
     begin
       //all temp files that are obsolete
@@ -1777,6 +1778,7 @@ begin
       tempStorage.RemoveAttribute('origin');
       tempStorage.RemoveAttribute('x-axis');
       tempStorage.RemoveAttribute('y-axis');
+      tempStorage.RemoveAttribute('em-height');
       tempStorage.RemoveAttribute('outline-width');
       tempStorage.RemoveObject('pen-phong');
     end;
@@ -1974,6 +1976,7 @@ begin
     tempStorage.PointF['origin'] := Origin;
     tempStorage.PointF['x-axis'] := XAxis;
     tempStorage.PointF['y-axis'] := YAxis;
+    tempStorage.Float['em-height'] := FontEmHeight;
     if HasOutline then
       tempStorage.Float['outline-width'] := OutlineWidth
       else tempStorage.RemoveAttribute('outline-width');
