@@ -7,6 +7,10 @@ interface
 
 uses classes, LazpaintType, uresourcestrings;
 
+{$IFDEF WINDOWS}
+  {$DEFINE SHOW_MANUAL_IN_WINDOW }
+{$ENDIF}
+
 const Manual: array[0..61] of string = (
 'NAME',
 '       LazPaint - Image editor',
@@ -78,7 +82,7 @@ implementation
 
 uses
   SysUtils, BGRAUTF8, LazFileUtils, BGRABitmap, BGRABitmapTypes, Dialogs, uparse,
-  UImage, UImageAction, ULayerAction, UScripting, UPython;
+  UImage, UImageAction, ULayerAction, UScripting, UPython, Forms, StdCtrls, Controls;
 
 function ParamStrUTF8(AIndex: integer): string;
 begin
@@ -225,9 +229,34 @@ var
   procedure DisplayHelp;
   var
     j: Integer;
+    {$IFDEF SHOW_MANUAL_IN_WINDOW}
+    f: TForm;
+    memo: TMemo;
+    {$ENDIF}
   begin
+    {$IFDEF SHOW_MANUAL_IN_WINDOW}
+    f := TForm.Create(nil);
+    try
+      f.Caption := rsLazPaint;
+      f.Position:= poDesktopCenter;
+      f.Width := Screen.Width*3 div 4;
+      f.Height := Screen.Height*3 div 4;
+      memo := TMemo.Create(f);
+      memo.Align:= alClient;
+      memo.Parent := f;
+      memo.Font.Name:= 'monospace';
+      memo.ScrollBars := ssVertical;
+      memo.Lines.Clear;
+      for j := low(manual) to high(manual) do
+        memo.Lines.Add(manual[j]);
+      f.ShowModal;
+    finally
+      f.Free;
+    end;
+    {$ELSE}
     for j := low(manual) to high(manual) do
       writeln(manual[j]);
+    {$ENDIF}
   end;
 
 begin
