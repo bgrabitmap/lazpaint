@@ -335,6 +335,7 @@ var
 begin
   if FStatusTextSplit.Count > 0 then
   begin
+    FStatusBar.Canvas.Brush.Style := bsClear;
     spacing := DoScaleX(6, OriginalDPI);
     colWidth := (FStatusBar.ClientWidth - spacing*2) div FStatusTextSplit.Count;
     if colWidth > spacing*2 then
