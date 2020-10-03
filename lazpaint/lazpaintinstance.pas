@@ -1666,6 +1666,7 @@ begin
         memo := TMemo.Create(fError);
         memo.Align:= alClient;
         memo.Parent := fError;
+        memo.ScrollBars := ssVertical;
         memo.Font.Name:= 'monospace';
         memo.Text := p.ErrorText;
         fError.ShowModal;
