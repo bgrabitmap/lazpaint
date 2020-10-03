@@ -1760,11 +1760,11 @@ begin
   begin
     tempRenderNewList := TStringList.Create;
     useBrokenLinesRender := not ADraft and (Usermode = vsuEditText);
-    if (tempStorage.AffineMatrix['last-matrix'] <> AMatrix) or
-       (tempStorage.PointF['origin'] <> Origin) or
-       (tempStorage.PointF['x-axis'] <> XAxis) or
-       (tempStorage.PointF['y-axis'] <> YAxis) or
-       (tempStorage.Float['em-height'] <> FontEmHeight) or
+    if not tempStorage.AffineMatrixEquals('last-matrix', AMatrix) or
+       not tempStorage.PointFEquals('origin', Origin) or
+       not tempStorage.PointFEquals('x-axis', XAxis) or
+       not tempStorage.PointFEquals('y-axis', YAxis) or
+       not tempStorage.FloatEquals('em-height', FontEmHeight) or
        not useBrokenLinesRender then
     begin
       //all temp files that are obsolete
@@ -1822,8 +1822,8 @@ begin
   begin
     phongObj := tempStorage.OpenObject('pen-phong');
     penPhongChange := not Assigned(phongObj) or
-                      (phongObj.PointF['light-pos'] <> LightPosition) or
-                      (phongObj.Float['altitude-percent'] <> AltitudePercent) or
+                      not phongObj.PointFEquals('light-pos', LightPosition) or
+                      not phongObj.FloatEquals('altitude-percent', AltitudePercent) or
                       (phongObj.Int['fill-iteration'] <> FPenFillIteration);
     phongObj.Free;
   end else
