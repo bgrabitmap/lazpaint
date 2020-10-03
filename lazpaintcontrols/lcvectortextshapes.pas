@@ -1842,6 +1842,7 @@ begin
 
   if useBrokenLinesRender then
   begin
+    brokenLineBoundsF := EmptyRectF;
     if HasOutline then
       tmpTransfOutline := TGrayscaleMask.Create(transfRect.Width, transfRect.Height)
       else tmpTransfOutline := nil;
@@ -2049,7 +2050,7 @@ begin
   SetGlobalMatrix(AffineMatrixIdentity);
   tl := GetTextLayout;
   untransformed := GetUntransformedMatrix;
-  if not IsAffineMatrixInversible(untransformed) then exit;
+  if not IsAffineMatrixInversible(untransformed) then exit(false);
   pt := AffineMatrixInverse(untransformed)*APoint;
   for i := 0 to tl.PartCount-1 do
     if tl.PartAffineBox[i].Contains(pt) then exit(true);
