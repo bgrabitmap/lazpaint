@@ -179,7 +179,6 @@
           <Linking>
             <Debugging>
               <GenerateDebugInfo Value="False"/>
-              <DebugInfoType Value="dsDwarf2Set"/>
               <UseLineInfoUnit Value="False"/>
               <StripSymbols Value="True"/>
             </Debugging>
@@ -219,7 +218,6 @@
           </CodeGeneration>
           <Linking>
             <Debugging>
-              <DebugInfoType Value="dsDwarf2Set"/>
               <UseHeaptrc Value="True"/>
             </Debugging>
             <Options>
@@ -992,7 +990,6 @@
     </CodeGeneration>
     <Linking>
       <Debugging>
-        <DebugInfoType Value="dsDwarf2Set"/>
         <UseHeaptrc Value="True"/>
       </Debugging>
       <Options>
