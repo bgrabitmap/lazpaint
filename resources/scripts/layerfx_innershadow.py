@@ -4,7 +4,7 @@ from lazpaint import dialog
 try:
     from tkinter import *
 except ImportError:
-    dialog.show_message("Please install tkinter.")
+    dialog.show_message("Please install tkinter. On Debian distributions, use the command: apt install python3-tk")
     exit()
         
 from lazpaint import colors, image, layer, filters, tools, selection
