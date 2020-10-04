@@ -1,4 +1,7 @@
 # Channels > Split RGB
+# (fr) Canaux > Séparer RVB
+# (es) Canales > Dividir RGB
+# (de) Kanäle > RVB teilen
 from lazpaint import image, dialog, layer, filters
 
 # check if it is a channel

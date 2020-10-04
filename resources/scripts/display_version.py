@@ -1,4 +1,7 @@
 # Version
+# (fr) Version
+# (es) Versión
+# (de) Version
 
 from lazpaint import command, dialog
 import sys

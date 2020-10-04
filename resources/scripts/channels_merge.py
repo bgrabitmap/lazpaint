@@ -1,4 +1,7 @@
 # Channels > Merge
+# (fr) Canaux > Fusionner
+# (es) Canales > Dividir HSL
+# (de) Kanäle > Zusammenführen
 from lazpaint import image, dialog, layer
 
 channels_id = None

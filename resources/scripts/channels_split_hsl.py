@@ -1,4 +1,7 @@
 # Channels > Split HSL
+# (fr) Canaux > Séparer TSL
+# (es) Canales > Dividir HSL
+# (de) Kanäle > HSL teilen
 from lazpaint import image, dialog, layer, filters
 
 # check if it is a channel

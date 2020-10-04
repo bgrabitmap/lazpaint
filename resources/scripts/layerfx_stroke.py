@@ -1,4 +1,7 @@
 # Layer effect > Stroke
+# (fr) Effet de calque > Trait
+# (es) Efectos de capa > Trazo
+# (de) Ebeneneffekte > Strich
 from lazpaint import dialog
 
 try:

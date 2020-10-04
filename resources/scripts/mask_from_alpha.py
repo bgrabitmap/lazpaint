@@ -1,4 +1,7 @@
 # Mask > Mask from alpha channel
+# (fr) Masque > Masque depuis canal alpha
+# (es) Máscara > Máscara desde canal alpha
+# (de) Maske > Maske vom Alphakanal
 from lazpaint import image, layer, filters, selection
 
 image.do_begin()

@@ -1,4 +1,7 @@
 # Channels > Split CMYK
+# (fr) Canaux > Séparer CMJN
+# (es) Canales > Dividir CMYK
+# (de) Kanäle > CMYK teilen
 from lazpaint import image, dialog, layer, filters
 
 # check if it is a channel

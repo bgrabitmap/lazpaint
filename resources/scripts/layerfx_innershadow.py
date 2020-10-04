@@ -1,4 +1,7 @@
 # Layer effect > Inner shadow
+# (fr) Effet de calque > Ombre intérieure
+# (es) Efectos de capa > Sombra interior
+# (de) Ebeneneffekte > Inneren Schatten
 from lazpaint import dialog
 
 try:

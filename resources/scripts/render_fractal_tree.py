@@ -1,4 +1,7 @@
 # Render > Fractal tree
+# (fr) Rendu > Arbre fractal
+# (es) Renderizar > Árbol fractal
+# (de) Rendering > Fraktaler Baum
 from lazpaint import tools, image, layer, dialog
 import math, random
 

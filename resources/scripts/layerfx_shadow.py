@@ -1,4 +1,7 @@
 # Layer effect > Drop shadow
+# (fr) Effet de calque > Ombre portée
+# (es) Efectos de capa > Sombra paralela
+# (de) Ebeneneffekte > Schlagschatten
 from lazpaint import dialog
 
 try:

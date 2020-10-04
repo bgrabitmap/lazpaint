@@ -1,4 +1,7 @@
 # Channels > Make monochromatic
+# (fr) Canaux > Rendre monochrome
+# (es) Canales > Hacer monocromático
+# (de) Kanäle > Monochromatisch machen
 from lazpaint import image, dialog, layer, filters
 
 channel = layer.get_registry("split-channel")

@@ -59,7 +59,7 @@ implementation
 uses UResourceStrings, BGRAUTF8, LCScaleDPI, ComCtrls, Graphics,
   StdCtrls, BGRAText, math, udarktheme,
   ugraph, BGRABitmapTypes, LCVectorialFillControl,
-  UPython;
+  UPython, UTranslation;
 
 { TMainFormMenu }
 
@@ -289,6 +289,41 @@ var
   item: TMenuItem;
   items: TStringList;
   i: Integer;
+  matchLang: boolean;
+
+  procedure RetrieveTitle(AText: string; ADefault: boolean; out ALangMatch: boolean);
+  var
+    posCloseBracket: SizeInt;
+    lang: String;
+  begin
+    If AText.StartsWith('#') then
+      Delete(AText, 1,1);
+    AText := AText.Trim;
+    ALangMatch := false;
+    if AText.StartsWith('(') then
+    begin
+      posCloseBracket := pos(')', AText);
+      if posCloseBracket > 0 then
+      begin
+        lang := copy(AText, 2, posCloseBracket-2);
+        delete(AText, 1, posCloseBracket);
+        AText := AText.Trim;
+        if lang = ActiveLanguage then
+          ALangMatch:= true;
+      end;
+    end else
+    begin
+      if not ADefault then exit;
+      if ActiveLanguage = DesignLanguage then ALangMatch:= true;
+    end;
+    if ALangMatch or ADefault then
+    begin
+      title := AText;
+      title := StringReplace(title, ' >', '>', [rfReplaceAll]);
+      title := StringReplace(title, '> ', '>', [rfReplaceAll]);
+    end;
+  end;
+
 begin
   if FInstalledScripts = nil then FInstalledScripts := TStringList.Create;
   path := TPythonScript.DefaultScriptDirectory;
@@ -303,18 +338,28 @@ begin
         begin
           assignFile(t, fullname);
           reset(t);
-          readln(t, header);
-          closefile(t);
-          if header.StartsWith('#') then
-          begin
-            title := header.Substring(1).Trim;
-            title := StringReplace(title, ' >', '>', [rfReplaceAll]);
-            title := StringReplace(title, '> ', '>', [rfReplaceAll]);
-            item := TMenuItem.Create(AMenu);
-            item.Caption := title;
-            item.Tag := FInstalledScripts.Add(fullname);
-            item.OnClick:=@Script_Click;
-            items.AddObject(title, item);
+          try
+            readln(t, header);
+            if header.StartsWith('#') then
+            begin
+              title := '';
+              RetrieveTitle(header, true, matchLang);
+              while not matchLang do
+              begin
+                readln(t, header);
+                if header.StartsWith('#') then
+                begin
+                  RetrieveTitle(header, false, matchLang);
+                end else break;
+              end;
+              item := TMenuItem.Create(AMenu);
+              item.Caption := title;
+              item.Tag := FInstalledScripts.Add(fullname);
+              item.OnClick:=@Script_Click;
+              items.AddObject(title, item);
+            end;
+          finally
+            closefile(t);
           end;
         end;
       until FindNextUTF8(searchRec)<>0;

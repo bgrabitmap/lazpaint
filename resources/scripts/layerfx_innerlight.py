@@ -1,4 +1,7 @@
 # Layer effect > Inner light
+# (fr) Effet de calque > Lumière intérieure
+# (es) Efectos de capa > Luz interior
+# (de) Ebeneneffekte > Inneres Licht
 from lazpaint import dialog
 
 try:

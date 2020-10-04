@@ -1,4 +1,7 @@
 # Mask > New mask
+# (fr) Masque > Nouveau masque
+# (es) Máscara > Máscara nueva
+# (de) Maske > Neue Maske
 from lazpaint import image, layer, tools, colors, selection
 
 image.do_begin()
