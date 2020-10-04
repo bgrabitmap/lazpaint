@@ -86,8 +86,8 @@ type
     function GetFillSelectionHighlight: boolean;
     function GetPenCursorPosition: TVSCursorPosition;
     function GetWorkspaceColor: TColor;
-    procedure PaintPictureImplementation(AWorkArea: TRect; AVSPart: TRect);
-    procedure PaintVirtualScreenImplementation(AWorkArea: TRect; AVSPart: TRect);
+    procedure PaintPictureImplementation(AWorkArea: TRect; AInvalidatedPart: TRect);
+    procedure PaintVirtualScreenImplementation(AWorkArea: TRect; AInvalidatedPart: TRect);
     procedure PaintBlueAreaImplementation(AWorkArea: TRect);
     procedure PaintBlueAreaOnly(AWorkArea: TRect);
     procedure ComputePictureParams(AWorkArea: TRect);
@@ -403,7 +403,7 @@ begin
   result := FInstance.Image;
 end;
 
-procedure TImageView.PaintPictureImplementation(AWorkArea: TRect; AVSPart: TRect);
+procedure TImageView.PaintPictureImplementation(AWorkArea: TRect; AInvalidatedPart: TRect);
 var
   renderRect: TRect;
   picParamWereDefined: boolean;
@@ -502,13 +502,13 @@ begin
     Image.RenderMayChange(LazPaintInstance.ToolManager.RenderTool(FVirtualScreen), false, false);
   end;
 
-  PaintVirtualScreenImplementation(AWorkArea, AVSPart);
+  PaintVirtualScreenImplementation(AWorkArea, AInvalidatedPart);
   Image.VisibleArea := TRectF.Intersect(rectF(FormToBitmap(AWorkArea.Left, AWorkArea.Top),
                                               FormToBitmap(AWorkArea.Right, AWorkArea.Bottom)),
                           rectF(-0.5,-0.5,Image.Width-0.5,Image.Height-0.5));
 end;
 
-procedure TImageView.PaintVirtualScreenImplementation(AWorkArea: TRect; AVSPart: TRect);
+procedure TImageView.PaintVirtualScreenImplementation(AWorkArea: TRect; AInvalidatedPart: TRect);
 var cursorBack: TBGRABitmap;
     DestCanvas: TCanvas;
     cursorContourF: array of TPointF;
@@ -517,27 +517,19 @@ var cursorBack: TBGRABitmap;
 
   procedure DrawPart;
   var
-    canvasVSPart: TRect;
+    vsPart: TRect;
   begin
-    if CanvasScale > 1 then
-    begin
-      AVSPart.Left := AVSPart.Left - (AVSPart.Left mod CanvasScale);
-      AVSPart.Top := AVSPart.Top - (AVSPart.Top mod CanvasScale);
-      inc(AVSPart.Right, CanvasScale - 1);
-      inc(AVSPart.Bottom, CanvasScale - 1);
-      AVSPart.Right := AVSPart.Right - (AVSPart.Right mod CanvasScale);
-      AVSPart.Bottom := AVSPart.Bottom - (AVSPart.Bottom mod CanvasScale);
-    end;
-    canvasVSPart := rect(AVSPart.Left div CanvasScale, AVSPart.Top div CanvasScale,
-      AVSPart.Right div CanvasScale, AVSPart.Bottom div CanvasScale);
-    canvasVSPart.Offset(FLastPictureParameters.virtualScreenArea.TopLeft);
-    FVirtualScreen.DrawPart(AVSPart, DestCanvas, canvasVSPart, True);
+    with AInvalidatedPart do
+      vsPart := rect(Left*CanvasScale, Top*CanvasScale, Right*CanvasScale, Bottom*CanvasScale);
+    with FLastPictureParameters.scaledVirtualScreenArea do
+      vsPart.Offset(-Left, -Top);
+    FVirtualScreen.DrawPart(vsPart, DestCanvas, AInvalidatedPart, True);
   end;
 
 begin
   if (FVirtualScreen = nil) or not FLastPictureParameters.defined then exit;
-  AVSPart.Intersect(rect(0,0, FVirtualScreen.Width,FVirtualScreen.Height));
-  if AVSPart.IsEmpty then exit;
+  AInvalidatedPart.Intersect(FLastPictureParameters.virtualScreenArea);
+  if AInvalidatedPart.IsEmpty then exit;
 
   DestCanvas := PictureCanvas;
 
@@ -730,27 +722,17 @@ begin
 end;
 
 procedure TImageView.DoPaint(AWorkArea: TRect; AShowNoPicture: boolean);
-var
-  vsRect: TRect;
 begin
   if AShowNoPicture then
     PaintBlueAreaOnly(AWorkArea)
   else
   begin
-    {$IFDEF WINDOWS}
-    vsRect := rect(0,0,FLastPictureParameters.scaledVirtualScreenArea.Width,FLastPictureParameters.scaledVirtualScreenArea.Height);
-    {$ELSE}
-    with FPaintBox.PaintRect do
-      vsRect := rect(Left*CanvasScale, Top*CanvasScale, Right*CanvasScale, Bottom*CanvasScale);
-    with FLastPictureParameters.scaledVirtualScreenArea do
-      vsRect.Offset(-Left, -Top);
-    {$ENDIF}
     if FQueryPaintVirtualScreen and
        (FLastPictureParameters.defined and
         IsRectEmpty(GetRenderUpdateRectVS(False))) then
-       PaintVirtualScreenImplementation(AWorkArea, vsRect)
+       PaintVirtualScreenImplementation(AWorkArea, FPaintBox.PaintRect)
     else
-      PaintPictureImplementation(AWorkArea, vsRect);
+      PaintPictureImplementation(AWorkArea, FPaintBox.PaintRect);
     PaintBlueAreaImplementation(AWorkArea);
   end;
   if Assigned(FOnPaint) then FOnPaint(self);
@@ -946,13 +928,6 @@ begin
   area := FPenCursorPos.bounds;
   FPenCursorPos := GetPenCursorPosition;
   area := RectUnion(area, FPenCursorPos.bounds);
-  OffsetRect(area, FLastPictureParameters.scaledVirtualScreenArea.Left,
-                   FLastPictureParameters.scaledVirtualScreenArea.Top);
-  {$IFDEF IMAGEVIEW_DIRECTUPDATE}
-  OffsetRect(area, -FLastPictureParameters.scaledVirtualScreenArea.Left, -FLastPictureParameters.scaledVirtualScreenArea.Top);
-  PaintVirtualScreenImplementation(AWorkArea, area);
-  {$ELSE}
-  FQueryPaintVirtualScreen := True;
   if CanvasScale > 1 then
   begin
     area.Left := area.Left div CanvasScale;
@@ -960,6 +935,12 @@ begin
     area.Right := (area.Right+CanvasScale-1) div CanvasScale;
     area.Bottom := (area.Bottom+CanvasScale-1) div CanvasScale;
   end;
+  OffsetRect(area, FLastPictureParameters.virtualScreenArea.Left,
+                   FLastPictureParameters.virtualScreenArea.Top);
+  {$IFDEF IMAGEVIEW_DIRECTUPDATE}
+  PaintVirtualScreenImplementation(AWorkArea, area);
+  {$ELSE}
+  FQueryPaintVirtualScreen := True;
   FPaintBox.InvalidateRect(area);
   {$IFNDEF DARWIN}FPaintBox.Update;{$ENDIF}
   FQueryPaintVirtualScreen := False;
@@ -1037,15 +1018,6 @@ begin
   updateArea := GetRectToInvalidate(false, AWorkArea);
   FPenCursorPosBefore.bounds := EmptyRect;
   {$IFDEF IMAGEVIEW_DIRECTUPDATE}
-  if FLastPictureParameters.defined then
-    OffsetRect(updateArea, -FLastPictureParameters.virtualScreenArea.Left,-FLastPictureParameters.virtualScreenArea.Top);
-  with updateArea do
-  begin
-    Left *= CanvasScale;
-    Top *= CanvasScale;
-    Right *= CanvasScale;
-    Bottom *= CanvasScale;
-  end;
   PaintPictureImplementation(AWorkArea, updateArea);
   if prevVSArea <> FLastPictureParameters.virtualScreenArea then
     PaintBlueAreaImplementation(AWorkArea);
