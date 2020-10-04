@@ -230,6 +230,23 @@ begin
     result := srCancelledByUser;
 end;
 
+function TLazPaintInstance.ScriptTranslateText(AVars: TVariableSet): TScriptResult;
+var
+  textVar, resVar: TScriptVariableReference;
+  i: Integer;
+begin
+  textVar := AVars.GetVariable('Text');
+  if not AVars.IsReferenceDefined(textVar) then exit(srException);
+  if AVars.IsList(textVar) then
+  begin
+    resVar := AVars.AddStringList('Result');
+    for i := 0 to AVars.GetListCount(textVar)-1 do
+      AVars.AppendString(resVar, DoTranslate('', AVars.GetStringAt(textVar, i)));
+  end else
+    AVars.Strings['Result'] := DoTranslate('', AVars.Strings['Text']);
+  result := srOk;
+end;
+
 function TLazPaintInstance.ShowResampleDialog(AParameters: TVariableSet): boolean;
 begin
   FormsNeeded;

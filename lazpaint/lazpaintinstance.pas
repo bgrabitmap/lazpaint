@@ -59,6 +59,7 @@ type
     function ScriptImageResample(AParams: TVariableSet): TScriptResult;
     function ScriptLazPaintGetVersion(AVars: TVariableSet): TScriptResult;
     function ScriptShowDirectoryDialog(AVars: TVariableSet): TScriptResult;
+    function ScriptTranslateText(AVars: TVariableSet): TScriptResult;
     procedure SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
     procedure ToolFillChanged(Sender: TObject);
     procedure PythonScriptCommand({%H-}ASender: TObject; ACommand, AParam: UTF8String; out
@@ -267,7 +268,7 @@ type
 
 implementation
 
-uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8,
+uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslation,
 
      URadialBlur, UMotionBlur, UEmboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, UPixelate, unoisefilter, ufilters,
@@ -394,6 +395,7 @@ begin
   ScriptContext.RegisterScriptFunction('ShowDirectoryDialog',@ScriptShowDirectoryDialog,ARegister);
   ScriptContext.RegisterScriptFunction('InputBox',@ScriptInputBox,ARegister);
   ScriptContext.RegisterScriptFunction('LazPaintGetVersion',@ScriptLazPaintGetVersion,ARegister);
+  ScriptContext.RegisterScriptFunction('TranslateText',@ScriptTranslateText,ARegister);
 end;
 
 function TLazPaintInstance.ScriptFileGetTemporaryName(AVars: TVariableSet): TScriptResult;

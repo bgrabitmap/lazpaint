@@ -30,11 +30,15 @@ function LazPaintLanguageFile(ALanguage: string): string;
 procedure FillLanguageList(AConfig: TLazPaintConfig);
 procedure TranslateLazPaint(AConfig: TIniFile);
 function GetResourcePath(AResource: string): string;
+function DoTranslate(AId, AText: string): string;
 
 implementation
 
 uses Forms, LCLProc, LazUTF8, BGRAUTF8, LCLTranslator, LResources, Translations,
   LazPaintType, LCVectorOriginal;
+
+var
+  FMainPoFile: TPOFile;
 
 {$ifdef Darwin}
 function GetDarwinResourcesPath: string;
@@ -84,6 +88,37 @@ begin
   {$ENDIF}
 end;
 
+function DoTranslate(AId, AText: string): string;
+var
+  item: TPOFileItem;
+begin
+  if Assigned(FMainPoFile) then
+  begin
+    item := FMainPoFile.FindPoItem(AId);
+    if (AId <> '') and Assigned(item) then
+      exit(item.Translation) else
+    begin
+      item := FMainPoFile.OriginalToItem(AText);
+      if Assigned(item) then exit(item.Translation) else
+      begin
+        item := FMainPoFile.OriginalToItem(AText+':');
+        if item = nil then item := FMainPoFile.OriginalToItem(AText+' :');
+        if Assigned(item) then
+        begin
+          result := item.Translation.TrimRight;
+          if result.EndsWith(':') then
+          begin
+            delete(result, length(result), 1);
+            result := result.TrimRight;
+          end;
+          exit;
+        end;
+      end;
+    end;
+  end;
+  result := AText;
+end;
+
 function LanguagePathUTF8: string;
 begin
   result := GetResourcePath('i18n');
@@ -127,8 +162,9 @@ begin
 
   if FileExistsUTF8(POFile) then
   begin
-    LRSTranslator:=TPoTranslator.Create(POFile);
-    TranslateResourceStrings(POFile);
+    FMainPoFile := TPOFile.Create(POFile, true);
+    LRSTranslator:=TPoTranslator.Create(FMainPoFile);
+    TranslateResourceStrings(FMainPoFile);
     ActiveLanguage:= Language;
   end;
 

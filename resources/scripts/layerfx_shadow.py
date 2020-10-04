@@ -12,8 +12,11 @@ except ImportError:
         
 from lazpaint import colors, image, layer, filters, tools, selection
 
+english = ["Layer is empty", "Shadow of ", "Radius", "Offset", "Opacity", "Ok", "Cancel"]
+translation = dict(zip(english, dialog.translate_text(english)))
+
 if layer.is_empty():
-    dialog.show_message("Layer is empty")
+    dialog.show_message(translation["Layer is empty"])
     exit()
 
 ############ image processing
@@ -65,7 +68,7 @@ def create_shadow_layer():
         layer.remove()
     layer.select_id(source_layer_id)
     layer.duplicate()
-    layer.set_name("Shadow of "+source_layer_name)
+    layer.set_name(translation["Shadow of "]+source_layer_name)
     layer.set_registry("shadow-source-layer-id", source_layer_id)
     shadow_layer_id = layer.get_id()
     shadow_index = image.get_layer_index()
@@ -176,13 +179,13 @@ window.resizable(False, False)
 frame = Frame(window)
 frame.pack()
 
-label_radius = Label(frame, text="Radius:")
+label_radius = Label(frame, text=translation["Radius"])
 label_radius.grid(column=0, row=0)
 scale_radius = Scale(frame, from_=0, to=MAX_RADIUS, orient=HORIZONTAL, command=scale_radius_update)
 scale_radius.grid(column=1, row=0, sticky=W+E, padx=10)
 scale_radius.set(chosen_radius)
 
-label_offset = Label(frame, text="Offset:")
+label_offset = Label(frame, text=translation["Offset"])
 label_offset.grid(column=0, row=1)
 scale_offset_x = Scale(frame, from_=-MAX_OFFSET, to=MAX_OFFSET, orient=HORIZONTAL, command=scale_offset_update)
 scale_offset_x.grid(column=1, row=1, sticky=W+E, padx=10)
@@ -191,7 +194,7 @@ scale_offset_y = Scale(frame, from_=-MAX_OFFSET, to=MAX_OFFSET, orient=HORIZONTA
 scale_offset_y.grid(column=1, row=2, sticky=W+E, padx=10)
 scale_offset_y.set(chosen_offset[1])
 
-label_opacity = Label(frame, text="Opacity:")
+label_opacity = Label(frame, text=translation["Opacity"])
 label_opacity.grid(column=0, row=3)
 scale_opacity = Scale(frame, from_=0, to=MAX_OPACITY, orient=HORIZONTAL, command=scale_opacity_update)
 scale_opacity.grid(column=1, row=3, sticky=W+E, padx=10)
@@ -204,9 +207,9 @@ frame.rowconfigure(1, pad=20)
 frame.rowconfigure(2, pad=20)
 frame.rowconfigure(3, pad=20)
 
-button_ok = Button(window, text="Ok", command=button_ok_click)
+button_ok = Button(window, text=translation["Ok"], command=button_ok_click)
 button_ok.pack(side=RIGHT, padx=10, pady=10)
-button_cancel = Button(window, text="Cancel", command=button_cancel_click)
+button_cancel = Button(window, text=translation["Cancel"], command=button_cancel_click)
 button_cancel.pack(side=RIGHT, pady=10)
 
 image.do_begin()
