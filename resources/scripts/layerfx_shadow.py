@@ -216,5 +216,9 @@ window_width = window.winfo_width()
 screen_width = window.winfo_screenwidth()
 window.geometry('+%d+0' % (int((screen_width - window_width) / 2)))
 
+window.lift()
+window.attributes('-topmost',True)
+window.after_idle(window.attributes,'-topmost',False)
+
 window.mainloop()
 button_cancel_click()
