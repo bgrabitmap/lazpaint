@@ -133,14 +133,18 @@ begin
       Report += 'Exception class: ' + E.ClassName + LineEnding;
     Report += 'Message: ' + E.Message + LineEnding;
   end;
+  {$IFDEF DEBUG}
   Report += 'Stacktrace:' + LineEnding;
   Report := Report + '  ' + BackTraceStrFunc(ExceptAddr) + LineEnding;
   Frames := ExceptFrames;
   for I := 0 to ExceptFrameCount - 1 do
     Report := Report + '  ' + BackTraceStrFunc(Frames[I]) + LineEnding;
+  {$ELSE}
+  Report += 'To get more information, use the debug version.' + LineEnding;
+  {$ENDIF}
   Report += LineEnding;
   if Initialized then
-    Report += 'It is recommanded to save a backup and restart the application.'
+    Report += 'It is recommanded to save a backup of your image and restart the application.'
   else
     Report += 'Application will now close.';
   ShowError(rsLazPaint, Report);
