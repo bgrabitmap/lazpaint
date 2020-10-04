@@ -248,7 +248,7 @@ type
     procedure NotifyStackChange; virtual; abstract;
     function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; virtual; abstract;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): TScriptResult; virtual; abstract;
-    function RunScript(AFilename: string): boolean; virtual; abstract;
+    function RunScript(AFilename: string; ACaption: string = ''): boolean; virtual; abstract;
     procedure AdjustChooseColorHeight; virtual; abstract;
     procedure ColorFromFChooseColor; virtual; abstract;
     procedure ColorToFChooseColor; virtual; abstract;

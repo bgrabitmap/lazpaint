@@ -83,7 +83,7 @@ begin
   begin
     item := Sender as TMenuItem;
     scriptIndex := item.Tag;
-    FInstance.RunScript(FInstalledScripts[scriptIndex]);
+    FInstance.RunScript(FInstalledScripts[scriptIndex], item.Caption);
   end;
 end;
 

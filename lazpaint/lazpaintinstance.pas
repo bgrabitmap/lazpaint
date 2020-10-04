@@ -209,7 +209,7 @@ type
     procedure NotifyImagePaint; override;
     function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; override;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): TScriptResult; override;
-    function RunScript(AFilename: string): boolean; override;
+    function RunScript(AFilename: string; ACaption: string = ''): boolean; override;
     procedure AdjustChooseColorHeight; override;
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
@@ -1625,7 +1625,7 @@ begin
   vars.Free;
 end;
 
-function TLazPaintInstance.RunScript(AFilename: string): boolean;
+function TLazPaintInstance.RunScript(AFilename: string; ACaption: string): boolean;
 var
   p: TPythonScript;
   fError: TForm;
@@ -1651,7 +1651,9 @@ begin
   try
     FScriptTempFileNames := TStringList.Create;
     p := TPythonScript.Create;
-    FScriptName := AFilename;
+    if Trim(ACaption).Length > 0 then
+      FScriptName:= Trim(ACaption)
+      else FScriptName := AFilename;
     p.OnCommand:=@PythonScriptCommand;
     p.OnBusy := @PythonBusy;
     p.Run(AFilename);
