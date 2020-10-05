@@ -3188,6 +3188,11 @@ msgctxt "uresourcestrings.rslayers"
 msgid "Layers"
 msgstr "Ebenen"
 
+#: uresourcestrings.rslayer
+msgctxt "uresourcestrings.rslayer"
+msgid "Layer"
+msgstr "Ebene"
+
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
 msgid "LazPaint"

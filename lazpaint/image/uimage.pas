@@ -1875,6 +1875,7 @@ begin
       layeredBmp.LayerName[layeredBmp.AddOwnedLayer(mask,boXor)] := 'Xor';
     end;
   end;
+  if ACaption = '' then ACaption := rsLayer+'1';
   layeredBmp.LayerName[0] := ACaption;
   layeredBmp.LayerOpacity[0] := AOpacity;
   Assign(layeredBmp,True,AUndoable);

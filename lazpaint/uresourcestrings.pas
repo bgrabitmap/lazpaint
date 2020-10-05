@@ -135,6 +135,7 @@ resourcestring
   rsHotSpot='Hot spot';
   rsEntries='Entries';
   rsLayers='Layers';
+  rsLayer='Layer';
   rsFrames='Frames';
   rsLoopCount='Loop count';
   rsInfinity='Infinity';

@@ -63,6 +63,7 @@ type
     procedure SetOnActionDone(AValue: TNotifyEvent);
     procedure SetOnActionProgress(AValue: TLayeredActionProgressEvent);
     procedure SetSelectionMask(AValue: TBGRABitmap);
+    function MakeLayerName: string;
   public
     SelectionLayer: TBGRABitmap;
     selectedLayerId: integer;
@@ -555,6 +556,30 @@ begin
   DiscardSelectionMaskBoundsCompletely;
 end;
 
+function TImageState.MakeLayerName: string;
+
+  function LayerNameUsed(AName: string): Boolean;
+  var
+    j: Integer;
+  begin
+    if LayeredBitmap = nil then
+      result := false else
+    begin
+      for j := 0 to NbLayers-1 do
+        if trim(LayerName[j]) = trim(AName) then exit(true);
+      result := false;
+    end;
+  end;
+
+var i: integer;
+begin
+  for i := 1 to 1000 do
+  begin
+    result := rsLayer + inttostr(i);
+    if not LayerNameUsed(result) and not LayerNameUsed('Layer' + inttostr(i)) then exit;
+  end;
+end;
+
 procedure TImageState.SetLayerBitmap(layer: integer; ABitmap: TBGRABitmap;
   AOwned: boolean);
 begin
@@ -680,6 +705,7 @@ end;
 procedure TImageState.Assign(AValue: TBGRABitmap; AOwned: boolean);
 var
   xorMask: TBGRABitmap;
+  idx: Integer;
 begin
   if LayeredBitmap = nil then
     SetLayeredBitmap(TBGRALayeredBitmap.Create);
@@ -688,7 +714,8 @@ begin
   LayeredBitmap.SetSize(AValue.Width,AValue.Height);
   if AOwned then
   begin
-    LayeredBitmap.AddOwnedLayer(AValue);
+    idx := LayeredBitmap.AddOwnedLayer(AValue);
+    LayeredBitmap.LayerName[idx] := MakeLayerName;
     if Assigned(AValue.XorMask) then
     begin
       xorMask := TBGRABitmap.Create(AValue.XorMask);
@@ -700,7 +727,8 @@ begin
   end
   else
   begin
-    LayeredBitmap.AddLayer(AValue);
+    idx := LayeredBitmap.AddLayer(AValue);
+    LayeredBitmap.LayerName[idx] := MakeLayerName;
     if Assigned(AValue.XorMask) then
     begin
       xorMask := AValue.XorMask.Duplicate as TBGRABitmap;
@@ -858,12 +886,14 @@ function TImageState.AddNewLayer(ALayer: TBGRABitmap; AName: string; AOffset: TP
 var
   idxLayer: Integer;
 begin
+  if AName = '' then AName := MakeLayerName;
   //no undo if no previous image
   if LayeredBitmap = nil then
   begin
     SetLayeredBitmap(TBGRALayeredBitmap.Create);
     idxLayer := LayeredBitmap.AddOwnedLayer(ALayer, ABlendOp, AOpacity);
     LayeredBitmap.LayerOffset[idxLayer] := AOffset;
+    LayeredBitmap.LayerName[idxLayer] := AName;
     result := nil;
   end else
   begin
@@ -877,12 +907,14 @@ function TImageState.AddNewLayer(AOriginal: TBGRALayerCustomOriginal;
 var
   idx: Integer;
 begin
+  if AName = '' then AName := MakeLayerName;
   //no undo if no previous image
   if LayeredBitmap = nil then
   begin
     SetLayeredBitmap(TBGRALayeredBitmap.Create);
     idx := LayeredBitmap.AddLayerFromOwnedOriginal(AOriginal, ABlendOp, AOpacity);
     LayeredBitmap.LayerOriginalMatrix[idx] := AMatrix;
+    LayeredBitmap.LayerName[idx] := AName;
     LayeredBitmap.RenderLayerFromOriginal(idx);
     result := nil;
   end else

@@ -3174,6 +3174,11 @@ msgctxt "uresourcestrings.rslayers"
 msgid "Layers"
 msgstr "图层"
 
+#: uresourcestrings.rslayer
+msgctxt "uresourcestrings.rslayer"
+msgid "Layer"
+msgstr "层"
+
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
 msgid "LazPaint"
