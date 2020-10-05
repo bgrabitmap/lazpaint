@@ -20,5 +20,14 @@ def show_color_dialog(color=None) -> str:
 def translate_text(text) -> str:
   return command.send('TranslateText?', Text=text)
 
+def get_language() -> str:
+  return command.send('TranslateGetLanguage?')
+
+def select_translation(**translations):
+  lang = get_language()
+  if translations.get(lang) is None:
+    lang = "en"
+  return translations[lang]
+
 def get_script_name() -> str:
   return command.send('ScriptGetName?')

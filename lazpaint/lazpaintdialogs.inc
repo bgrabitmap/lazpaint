@@ -236,6 +236,13 @@ begin
     result := srCancelledByUser;
 end;
 
+function TLazPaintInstance.ScriptTranslateGetLanguage(AVars: TVariableSet
+  ): TScriptResult;
+begin
+  AVars.Strings['Result'] := ActiveLanguage;
+  result := srOk;
+end;
+
 function TLazPaintInstance.ScriptTranslateText(AVars: TVariableSet): TScriptResult;
 var
   textVar, resVar: TScriptVariableReference;

@@ -4,6 +4,13 @@
 # (de) Kanäle > Zusammenführen
 from lazpaint import image, dialog, layer
 
+translation = dialog.select_translation(
+  en = {"Current layer is not split": "Current layer is not split"}, 
+  fr = {"Current layer is not split": "Le calque actuel n'est pas séparé"}, 
+  es = {"Current layer is not split": "La capa actual no está dividida"}, 
+  de = {"Current layer is not split": "Die aktuelle Ebene wird nicht geteilt"}, 
+  )
+
 channels_id = None
 new_layer_index = None
 image.do_begin()
@@ -28,10 +35,10 @@ else:
   new_layer_index = image.get_layer_index() + 1
 
 if channels_id is None:
-  dialog.show_message("Current layer is not split")
+  dialog.show_message(translation["Current layer is not split"])
   exit()
 
-layer.new("Merged channels")
+layer.new(dialog.get_script_name())
 image.move_layer_index(image.get_layer_index(), new_layer_index)
 
 for cur_layer_id in reversed(channels_id):

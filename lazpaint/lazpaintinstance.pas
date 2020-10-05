@@ -60,6 +60,7 @@ type
     function ScriptImageResample(AParams: TVariableSet): TScriptResult;
     function ScriptLazPaintGetVersion(AVars: TVariableSet): TScriptResult;
     function ScriptShowDirectoryDialog(AVars: TVariableSet): TScriptResult;
+    function ScriptTranslateGetLanguage(AVars: TVariableSet): TScriptResult;
     function ScriptTranslateText(AVars: TVariableSet): TScriptResult;
     procedure SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
     procedure ToolFillChanged(Sender: TObject);
@@ -397,6 +398,7 @@ begin
   ScriptContext.RegisterScriptFunction('InputBox',@ScriptInputBox,ARegister);
   ScriptContext.RegisterScriptFunction('LazPaintGetVersion',@ScriptLazPaintGetVersion,ARegister);
   ScriptContext.RegisterScriptFunction('TranslateText',@ScriptTranslateText,ARegister);
+  ScriptContext.RegisterScriptFunction('TranslateGetLanguage',@ScriptTranslateGetLanguage,ARegister);
   ScriptContext.RegisterScriptFunction('ScriptGetName',@ScriptGetName,ARegister);
 end;
 

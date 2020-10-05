@@ -4,9 +4,16 @@
 # (de) Kanäle > HSL teilen
 from lazpaint import image, dialog, layer, filters
 
+translation = dialog.select_translation(
+  en = {"Layer already split": "Layer already split", "Hue": "Hue", "Saturation": "Saturation", "Lightness": "Lightness", "Alpha": "Alpha"}, 
+  fr = {"Layer already split": "Le calque est déjà séparé", "Hue": "Teinte", "Saturation": "Saturation", "Lightness": "Luminosité", "Alpha": "Alpha"}, 
+  es = {"Layer already split": "La capa ya está dividida", "Hue": "Matiz", "Saturation": "Saturación", "Lightness": "Luminosidad", "Alpha": "Alpha"}, 
+  de = {"Layer already split": "Die Ebene ist bereits geteilt", "Hue": "Farbwinkel", "Saturation": "Farbsättigung", "Lightness": "Farbhelligkeit", "Alpha": "Alpha"}
+  )
+  
 # check if it is a channel
 if layer.get_registry("split-channel") is not None:
-  dialog.show_message("Layer already split")
+  dialog.show_message(translation["Layer already split"])
   exit()
 
 layer_id = layer.get_id()
@@ -18,7 +25,7 @@ layer_transparent = layer.is_transparent()
 if layer.get_registry("split-channels-id") is not None:
   for cur_layer_id in image.iterate_layers():
     if layer.get_registry("split-source-id") == layer_id:
-      dialog.show_message("Layer already split")
+      dialog.show_message(translation["Layer already split"])
       exit()
 
 image.do_begin()
@@ -34,7 +41,7 @@ for ch in channels:
   layer.select_id(layer_id)
   layer.duplicate()
   filters.filter_function(hue = ch["hue"], saturation = ch["saturation"], lightness = ch["lightness"], alpha = ch["alpha"], gamma_correction = False)
-  layer.set_name(ch["name"] + " channel")
+  layer.set_name(translation[ch["name"]])
   layer.set_opacity(layer_opacity)
   if ch["channel"] != channels[-1]:
     layer.set_blend_op(ch["blend"])

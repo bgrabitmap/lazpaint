@@ -2,13 +2,20 @@
 # (fr) Masque > Nouveau masque
 # (es) Máscara > Máscara nueva
 # (de) Maske > Neue Maske
-from lazpaint import image, layer, tools, colors, selection
+from lazpaint import image, layer, tools, colors, selection, dialog
+
+translation = dialog.select_translation(
+  en = {"Mask" : "Mask"}, 
+  fr = {"Mask": "Masque"}, 
+  es = {"Mask": "Máscara"}, 
+  de = {"Mask": "Maske"}
+  )
 
 image.do_begin()
 
 selection.deselect()
 layer_index = image.get_layer_index()
-layer.new("Mask")
+layer.new(translation["Mask"])
 mask_index = image.get_layer_index()
 image.move_layer_index(mask_index, layer_index + 1)
 layer.set_blend_op(layer.BLEND_MASK)
