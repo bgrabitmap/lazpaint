@@ -54,6 +54,7 @@ type
     function ScriptColorShiftColors(AVars: TVariableSet): TScriptResult;
     function ScriptFileGetTemporaryName(AVars: TVariableSet): TScriptResult;
     function ScriptFileNew(AVars: TVariableSet): TScriptResult;
+    function ScriptGetName(AVars: TVariableSet): TScriptResult;
     function ScriptImageCanvasSize(AVars: TVariableSet): TScriptResult;
     function ScriptImageRepeat(AVars: TVariableSet): TScriptResult;
     function ScriptImageResample(AParams: TVariableSet): TScriptResult;
@@ -396,6 +397,7 @@ begin
   ScriptContext.RegisterScriptFunction('InputBox',@ScriptInputBox,ARegister);
   ScriptContext.RegisterScriptFunction('LazPaintGetVersion',@ScriptLazPaintGetVersion,ARegister);
   ScriptContext.RegisterScriptFunction('TranslateText',@ScriptTranslateText,ARegister);
+  ScriptContext.RegisterScriptFunction('ScriptGetName',@ScriptGetName,ARegister);
 end;
 
 function TLazPaintInstance.ScriptFileGetTemporaryName(AVars: TVariableSet): TScriptResult;

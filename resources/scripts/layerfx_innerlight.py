@@ -22,7 +22,7 @@ if layer.is_empty():
 
 ############ image processing
 
-FRIENDLY_NAME = "Inner light"
+FRIENDLY_NAME = dialog.get_script_name()
 REGISTRY_NAME = "innerlight"
 OPPOSITE_REGISTRY_NAME = "innershadow"
 DEFAULT_ANGLE = 315
@@ -88,7 +88,7 @@ def create_shadow_layer():
     layer.select_id(source_layer_id)
     layer.duplicate()
     layer.rasterize()
-    layer.set_name(FRIENDLY_NAME+" of "+source_layer_name)
+    layer.set_name(FRIENDLY_NAME+" - "+source_layer_name)
     layer.set_registry(REGISTRY_NAME+"-source-layer-id", source_layer_id)
     shadow_layer_id = layer.get_id()
     layer.set_registry("overlay-color", overlay_color)

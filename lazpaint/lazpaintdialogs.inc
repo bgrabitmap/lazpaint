@@ -124,6 +124,12 @@ begin
   result := srOk;
 end;
 
+function TLazPaintInstance.ScriptGetName(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Strings['Result'] := FScriptName;
+  result := srOk;
+end;
+
 function TLazPaintInstance.ScriptImageCanvasSize(AVars: TVariableSet): TScriptResult;
 var
   w, h: Int64;

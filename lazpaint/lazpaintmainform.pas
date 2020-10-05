@@ -862,7 +862,7 @@ uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
    ugeometricbrush, UPreviewDialog, UQuestion, BGRALayerOriginal,
    BGRATransform, LCVectorPolyShapes, URaw, UFileSystem,
-   UTranslation;
+   UTranslation, UPython;
 
 const PenWidthFactor = 10;
 
@@ -3460,6 +3460,8 @@ procedure TFMain.FileRunScriptExecute(Sender: TObject);
 var
   dlg: TOpenDialog;
   tmi: TTopMostInfo;
+  title: String;
+  posSub: Integer;
 begin
   tmi := LazPaintInstance.HideTopmost;
   try
@@ -3472,7 +3474,10 @@ begin
       if dlg.Execute then
       begin
         Config.SetDefaultScriptDirectory(ExtractFilePath(dlg.FileName));
-        LazPaintInstance.RunScript(dlg.FileName);
+        title := GetScriptTitle(dlg.FileName);
+        posSub := title.LastIndexOf('>');
+        if posSub <> -1 then title := title.Substring(posSub+1);
+        LazPaintInstance.RunScript(dlg.FileName, title);
       end;
     except
       on ex:exception do

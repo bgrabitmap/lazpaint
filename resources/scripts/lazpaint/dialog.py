@@ -17,5 +17,8 @@ def input_value(prompt, default):
 def show_color_dialog(color=None) -> str:
   return command.send('ShowColorDialog?', Color=color)
 
-def translate_text(text):
+def translate_text(text) -> str:
   return command.send('TranslateText?', Text=text)
+
+def get_script_name() -> str:
+  return command.send('ScriptGetName?')

@@ -21,6 +21,7 @@ if layer.is_empty():
 
 ############ image processing
 
+FRIENDLY_NAME = dialog.get_script_name()
 MAX_RADIUS = 100
 MAX_OPACITY = 255
 
@@ -64,7 +65,7 @@ def create_stroke_layer():
     else:
         layer.select_id(source_layer_id)
         layer.duplicate()
-        layer.set_name("Stroke of "+source_layer_name)
+        layer.set_name(FRIENDLY_NAME + " - " + source_layer_name)
         layer.set_registry("stroke-source-layer-id", source_layer_id)
         stroke_layer_id = layer.get_id()
         stroke_index = image.get_layer_index()
@@ -173,7 +174,7 @@ def button_color_click():
         apply_opacity()
 
 window = Tk()
-window.title("Layer stroke")
+window.title(FRIENDLY_NAME)
 window.resizable(False, False)
 
 frame = Frame(window)
