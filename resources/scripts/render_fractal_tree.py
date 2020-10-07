@@ -5,6 +5,13 @@
 from lazpaint import tools, image, layer, dialog
 import math, random
 
+translation = dialog.select_translation(
+  en = {"Invalid angle": "Invalid angle", "Vertical size": "Vertical size"}, 
+  fr = {"Invalid angle": "Angle invalide", "Vertical size": "Taille verticale"}, 
+  es = {"Invalid angle": "Ángulo invalido", "Vertical size": "Tamaño vertical"}, 
+  de = {"Invalid angle": "Ungültiger Winkel", "Vertical size": "Vertikal Größe"}, 
+  )
+  
 line_buf = []
 
 def line(x, y, x2, y2):
@@ -23,13 +30,14 @@ def flush_line():
   line_buf = []
 
 DEG_TO_RAD = math.pi / 180
-ANGLE = abs(dialog.input_value("Angle (< 90)", 45))
+ANGLE = abs(dialog.input_value(dialog.translate_text("Angle") + " (< 90)", 45))
 if ANGLE >= 90:
-  dialog.show_message("Invalid angle")  
+  dialog.show_message(translation["Invalid angle"])
+  exit()
 DEFAULT_SIZE_Y = 7*8/2*2 * (1.14+math.cos(ANGLE * DEG_TO_RAD))/2.14
 MULTIPLIER = image.get_height() / DEFAULT_SIZE_Y
 
-ZOOM = dialog.input_value("Vertical size (%)", 95)
+ZOOM = dialog.input_value(translation["Vertical size"] + " (%)", 95)
 MULTIPLIER = MULTIPLIER * ZOOM/100
 
 
