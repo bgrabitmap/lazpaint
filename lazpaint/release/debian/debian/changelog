@@ -26,6 +26,7 @@ lazpaint (7.1.4) stable; urgency=low
   * gradient: don't link when duplicating layer
   * multiselection: remove hitboxes to allow selecting within
   * refactoring of debian package
+  * translations of scripts
 
  -- circular <circular@operamail.com>  Mon, 28 Sep 2020 10:35:00 +0100
 
