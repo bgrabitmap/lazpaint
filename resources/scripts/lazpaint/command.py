@@ -6,6 +6,13 @@ print("LazPaint script\t")
 if input('') != chr(27) + 'LazPaint': 
   print("Needs to be run from LazPaint.")
   exit()
+  
+import sys
+if sys.platform == "win32":
+  import io
+  sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding = 'utf-8')
+  sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding = 'utf-8')
+  sys.stdin = io.TextIOWrapper(sys.stdin.detach(), encoding = 'utf-8')
 
 def parse_str(text: str):
   if text[:1] == "#":
