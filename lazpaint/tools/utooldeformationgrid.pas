@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UToolDeformationGrid;
 
 {$mode objfpc}{$H+}
@@ -34,6 +35,7 @@ type
     function GetIsSelectingTool: boolean; override;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
   public
+    constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; {%H-}VirtualScreenWidth, {%H-}VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
@@ -1129,10 +1131,20 @@ begin
     ReleaseGrid;
     DeformationGrid := nil;
     DeformationGridTexCoord := nil;
+    deformationGridNbX:= 0;
+    deformationGridNbY:= 0;
     Result:= OnlyRenderChange;
   end
   else
     result := EmptyRect;
+end;
+
+constructor TToolDeformationGrid.Create(AManager: TToolManager);
+begin
+  inherited Create(AManager);
+  deformationGridNbX:= 0;
+  deformationGridNbY:= 0;
+  DoingDeformation:= false;
 end;
 
 function TToolDeformationGrid.Render(VirtualScreen: TBGRABitmap;

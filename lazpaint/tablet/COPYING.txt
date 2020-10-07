@@ -1,0 +1,7 @@
+The Delphi Tablet Component is distributed as freeware. You are free to use it in any type of applications, including commercial, provided some credit is given.
+
+Sourcecode may be freely modified and redistributed.
+
+This software is provided 'as-is', without warranty of any kind, either expressed or implied. In no event shall the author be held liable for any damages arising from the use of this software.
+
+Copyright (C) 2001 Mattias Andersson. All rights reserved. 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit ubrowseimages;
 
 {$mode objfpc}{$H+}
@@ -268,6 +269,7 @@ begin
   FChosenImage := TImageEntry.Empty;
 
   DarkThemeInstance.Apply(ComboBox_FileExtension, False, 0.40);
+  vsList.BitmapAutoScale:= false;
 
   bmp := TBitmap.Create;
   ImageList128.GetBitmap(0,bmp);
@@ -338,6 +340,7 @@ procedure TFBrowseImages.FormHide(Sender: TObject);
 begin
   FCacheComputeIconIndexes := nil;
   StopCaching(true);
+  BGRAThumbnail.CheckersScale:= 1;
 
   FLastBigIcon := (ShellListView1.ViewStyle = vsIcon);
   if not IsSaveDialog then FFilename:= FPreviewFilename;
@@ -384,6 +387,17 @@ var r:TRect; i: integer;
 begin
   if FInFormShow then exit;
   FInFormShow:= true;
+
+  BGRAThumbnail.CheckersScale:= GetCanvasScaleFactor;
+  ShellListView1.FontHeight:= ScaleY(round(13*GetCanvasScaleFactor),OriginalDPI);
+  ShellListView1.SmallIconSize := round(ScaleX(round(64*GetCanvasScaleFactor),OriginalDPI)/16)*16;
+  if ShellListView1.SmallIconSize > 128 then
+    ShellListView1.SmallIconSize := 128;
+  ShellListView1.LargeIconSize:= ShellListView1.SmallIconSize*2;
+  if ShellListView1.LargeIconSize > 192 then
+    ShellListView1.LargeIconSize := 192;
+  ShellListView1.DetailIconSize:= ShellListView1.SmallIconSize;
+
   ListBox_RecentDirs.Clear;
   for i := 0 to LazPaintInstance.Config.RecentDirectoriesCount-1 do
     ListBox_RecentDirs.Items.Add(LazPaintInstance.Config.RecentDirectory[i]);

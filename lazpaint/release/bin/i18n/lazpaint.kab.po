@@ -3171,6 +3171,11 @@ msgctxt "uresourcestrings.rslayers"
 msgid "Layers"
 msgstr "Tissiyin"
 
+#: uresourcestrings.rslayer
+msgctxt "uresourcestrings.rslayer"
+msgid "Layer"
+msgstr "Tissi"
+
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
 msgid "LazPaint"

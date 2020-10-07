@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UBlendOp;
 
 {$mode objfpc}{$H+}
@@ -92,6 +93,7 @@ begin
       exit;
     end;
   end;
+  BGRAThumbnail.CheckersScale:= GetCanvasScaleFactor;
   if APattern = 'Under' then
   begin
     result := GetBitmapThumbnail(PatternUnder,AWidth,AHeight,BGRAPixelTransparent,ACheckers) as TBGRABitmap;
@@ -118,6 +120,7 @@ begin
       result.GradientFill(0,0,result.Width,result.Height,lColor,BGRABlack,gtRadial,PointF((result.Width-1)/2,(result.Height-1)/2),PointF(0,(result.Height-1)/2),dmSet,False);
     BGRAReplace(result,GetBitmapThumbnail(result,AWidth,AHeight,BGRAPixelTransparent,false));
   end;
+  BGRAThumbnail.CheckersScale:= 1;
   setlength(FPatterns,length(FPatterns)+1);
   FPatterns[high(FPatterns)].name := fullPatternName;
   FPatterns[high(FPatterns)].bmp := result;
@@ -148,12 +151,15 @@ end;
 
 procedure TFBlendOp.DrawPattern(ACanvas: TCanvas; ARect: TRect; APattern: string; State: TOwnerDrawState);
 var bmp: TBGRABitmap;
+  scaling: Double;
 begin
   if (ARect.Right <= ARect.Left) or (ARect.Bottom <= ARect.Top) then exit;
-  bmp := TBGRABitmap.Create(ARect.Right-ARect.Left,ARect.Bottom-ARect.Top,ColorToRGB(clBtnFace));
-  bmp.PutImage(0,0,GetPattern(bmp.width,bmp.height,APattern,True),dmDrawWithTransparency);
+  scaling := GetCanvasScaleFactor;
+  bmp := TBGRABitmap.Create(round(ARect.Width*scaling),
+    round(ARect.Height*scaling), ColorToRGB(clBtnFace));
+  bmp.PutImage(0,0, GetPattern(bmp.width,bmp.height,APattern,True), dmDrawWithTransparency);
   if odSelected in State then DrawPatternHighlight(bmp);
-  bmp.Draw(ACanvas,ARect.Left,ARect.Top,false);
+  bmp.Draw(ACanvas,ARect,false);
   bmp.Free;
 end;
 
@@ -355,9 +361,10 @@ procedure TFBlendOp.ListBox_DrawBlendItem(Control: TWinControl; Index: Integer;
   ARect: TRect; State: TOwnerDrawState);
 var
   background,preview,over: TBGRABitmap;
-  w,h: integer;
+  w,h, checkerSize: integer;
   BlendStr: string;
   fx: TBGRATextEffect;
+  scaling: Double;
 begin
   {$IFDEF LINUX}
   ARect.Right := ARect.Left+Control.Width-FListBoxInternalMargin;
@@ -368,22 +375,24 @@ begin
   begin
     if (ARect.Right <= ARect.Left) or (ARect.Bottom <= ARect.Top) then exit;
     BlendStr := (Control as TListBox).Items[Index];
-    w := ARect.Right-ARect.Left;
-    h := ARect.Bottom-ARect.Top;
+    scaling := GetCanvasScaleFactor;
+    checkerSize := DoScaleX(round(8*scaling), OriginalDPI);
+    w := round(ARect.Width*scaling);
+    h := round(ARect.Height*scaling);
     background := TBGRABitmap.Create(w,h,ColorToBGRA(ColorToRGB(clBtnFace)));
-    background.DrawCheckers(background.ClipRect, ImageCheckersColor1, ImageCheckersColor2);
+    background.DrawCheckers(background.ClipRect, ImageCheckersColor1, ImageCheckersColor2, checkerSize, checkerSize);
     preview := GetPattern(w,h,ListBox_PatternUnder.Items[ListBox_PatternUnder.ItemIndex],False).Duplicate as TBGRABitmap;
     over := GetPattern(w,h,ListBox_PatternOver.Items[ListBox_PatternOver.ItemIndex],False);
     preview.BlendImageOver(0,0,over,StrToBlendOperation(BlendStr));
     background.PutImage(0,0,preview,dmDrawWithTransparency);
     preview.Free;
     if odSelected in State then DrawPatternHighlight(background);
-    fx := TBGRATextEffect.Create(BlendStr,'Arial',Max(DoScaleY(12,OriginalDPI),h div 10),true);
+    fx := TBGRATextEffect.Create(BlendStr,'Arial',Max(DoScaleY(round(12*scaling),OriginalDPI),h div 10),true);
     fx.DrawOutline(background,1,1,BGRABlack);
     fx.Draw(background,1,1,BGRAWhite);
     fx.Free;
     background.FontName := 'Arial';
-    background.Draw((Control as TListBox).Canvas,ARect.Left,ARect.Top,True);
+    background.Draw((Control as TListBox).Canvas,ARect,True);
     background.Free;
   end;
 end;

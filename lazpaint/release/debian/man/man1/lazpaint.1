@@ -1,0 +1,88 @@
+.TH LazPaint 1 "18 May 2020" "" LazPaint
+.SH NAME
+LazPaint - Image editor
+.SH SYNOPSIS
+.B lazpaint
+[INPUT FILE] [OUTPUT FILE]
+.br
+.B lazpaint
+[INPUT FILE] [ACTION]... [OUTPUT FILE]
+.SH DESCRIPTION
+Graphics viewer and editor. 
+.PP
+Can read layered files (lzp, ora, pdn, oXo), multi-images (gif, ico, tiff), flat files (bmp, jpeg, pcx, png, tga, xpm, xwd), vectorial (svg), 3D (obj). Has drawing tools, phong shading, curve adjustments, filters and render some 
+textures.
+.SH OPTIONS
+If supplied, the INPUT FILE is loaded. If the OUTPUT FILE is supplied, the image is saved and the program ends. Otherwise, the GUI of the program is displayed.
+.PP
+.B -scriptbasedir
+DIRECTORY
+.RS
+set the directory where Python scripts for LazPaint are located.
+
+.RE
+.B -script
+FILENAME
+.RS
+runs the specified Python script. It must have a ".py" extension.
+.RE
+
+.B -new
+WIDTH,HEIGHT
+.RS
+creates an empty image of size WIDTH x HEIGHT.
+.RE
+
+.B -resample
+WIDTH,HEIGHT
+.RS
+resamples the image to the size WIDTH x HEIGHT.
+.RE
+
+.B -opacity
+ALPHA
+.RS
+applies the opacity to the image. ALPHA is between 0 and 255.
+.RE
+
+.B -gradient
+R1,G1,B1,A1,R2,G2,B2,A2,TYPE,X1,Y1,X2,Y2
+.RS
+renders a gradient from point X1,Y1 to point X2,Y2. TYPE can be linear, reflected, diamond, radial or angular. The starting color is (R1,G1,B1,A1) and final color is (R2,G2,B2,A2).
+.RE
+
+.B -horizontalflip
+.RS
+flips selection or image horizontally.
+.RE
+
+.B -verticalflip
+.RS
+flips selection or image vertically.
+.RE
+
+.B -swapredblue
+.RS
+swap red and blue channels.
+.RE
+
+.B -smartzoom3
+.RS
+resample the image 3 times bigger with smart detection of borders.
+.RE
+
+.B -rotatecw
+.RS
+rotates the image clockwise.
+.RE
+
+.B -rotateccw
+.RS
+rotates the image counter-clockwise.
+.RE
+
+.B -quit
+.RS
+quits the program even if no output file was provided. Can be useful when only running scripts.
+.RE
+

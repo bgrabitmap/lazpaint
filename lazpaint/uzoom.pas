@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UZoom;
 
 {$mode objfpc}{$H+}
@@ -46,7 +47,7 @@ type
     procedure UpdateLabel;
     function RoundZoom(AValue: single): single;
   public
-    constructor Create(ALabelCurrentZoom: TLabel; AEditZoom: TEdit; ALayout: TCustomMainFormLayout);
+    constructor Create(ALabelCurrentZoom: TLabel; AEditZoom: TEdit);
     destructor Destroy; override;
     procedure ZoomOriginal;
     procedure ZoomFit(AImageWidth,AImageHeight: integer);
@@ -56,6 +57,7 @@ type
     procedure ClearPosition;
     procedure DoAction(const AName: string);
     function GetScaledArea(const AWorkArea: TRect; AImageWidth, AImageHeight: integer; var AViewOffset: TPoint): TRect;
+    property Layout: TCustomMainFormLayout read FLayout write FLayout;
     property EditingZoom: boolean read GetEditingZoom write SetEditingZoom;
     property Factor: single read GetZoomFactor write SetZoomFactor;
     property OnZoomChanged: TOnZoomChangedHandler read FOnZoomChangedHandler write FOnZoomChangedHandler;
@@ -192,11 +194,10 @@ begin
   if not (Key in['0'..'9',#8]) then Key := #0;
 end;
 
-constructor TZoom.Create(ALabelCurrentZoom: TLabel; AEditZoom: TEdit;
-  ALayout: TCustomMainFormLayout);
+constructor TZoom.Create(ALabelCurrentZoom: TLabel; AEditZoom: TEdit);
 begin
   inherited Create;
-  FLayout := ALayout;
+  FLayout := nil;
   FLabelCurrentZoom := ALabelCurrentZoom;
   FLabelCurrentZoom.OnClick := @LabelCurrentZoom_Click;
   FEditZoom := AEditZoom;
@@ -228,6 +229,7 @@ const pixelMargin = 0;
 var zx,zy: single;
   pictureArea: TRect;
 begin
+  if FLayout = nil then exit;
   pictureArea := FLayout.WorkArea;
   if (AImageWidth = 0) or (AImageHeight = 0) or (pictureArea.right-pictureArea.Left <= pixelMargin)
     or (pictureArea.Bottom-pictureArea.top <= pixelMargin) then exit;

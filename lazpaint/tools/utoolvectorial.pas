@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UToolVectorial;
 
 {$mode objfpc}{$H+}
@@ -29,6 +30,7 @@ type
   protected
     FLayerWasEmpty: boolean;
     FShape: TVectorShape;
+    FTemporaryStorage: TBGRACustomOriginalStorage;
     FLastDraftUpdate: Boolean;
     FSwapColor: boolean;
     FQuickDefine: Boolean;
@@ -41,6 +43,7 @@ type
     FUseOriginal: boolean;
     function AlwaysRasterizeShape: boolean; virtual;
     function CreateShape: TVectorShape; virtual;
+    procedure ClearShape; virtual;
     function ShapeClass: TVectorShapeAny; virtual; abstract;
     function UseOriginal: boolean; virtual;
     function HasBrush: boolean; virtual;
@@ -105,6 +108,8 @@ type
 
   TEditShapeMode = (esmNone, esmSelection, esmGradient, esmOtherOriginal, esmShape, esmNoShape);
   TEditShapeTool = class(TGenericTool)
+  private
+    function GetNothingSelected: boolean;
   protected
     FDownHandled,FRectEditorCapture,FLayerOriginalCapture,
     FLeftButton,FRightButton: boolean;
@@ -171,6 +176,7 @@ type
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
     function SuggestGradientBox: TAffineBox; override;
     property CurrentSplineMode: TToolSplineMode read GetCurrentSplineMode write SetCurrentSplineMode;
+    property NothingSelected: boolean read GetNothingSelected;
   end;
 
 procedure AssignFill(ATarget, ASource: TVectorialFill; const ABox: TAffineBox; AFitMode: TFitMode);
@@ -386,6 +392,11 @@ begin
   end else
   if Assigned(APreviousShape) then
     Manager.UpdateContextualToolbars;
+end;
+
+function TEditShapeTool.GetNothingSelected: boolean;
+begin
+  result := GetEditMode in [esmNone, esmNoShape];
 end;
 
 procedure TEditShapeTool.RetrieveLightPosition;
@@ -948,11 +959,11 @@ begin
         Manager.Image.CurrentState.LayeredBitmap.OriginalEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
       if Assigned(VirtualScreen) then
         result := Manager.Image.CurrentState.LayeredBitmap.DrawEditor(VirtualScreen,
-          Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize,OriginalDPI))
+          Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize*Manager.CanvasScale,OriginalDPI))
       else
         result := Manager.Image.CurrentState.LayeredBitmap.GetEditorBounds(
           rect(0,0,VirtualScreenWidth,VirtualScreenHeight),
-          Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize,OriginalDPI));
+          Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize*Manager.CanvasScale,OriginalDPI));
       RetrieveLightPosition;
     end;
   esmSelection, esmOtherOriginal:
@@ -965,7 +976,7 @@ begin
         FRectEditor := TVectorOriginalEditor.Create(nil);
         FRectEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
         FRectEditor.Focused := true;
-        FRectEditor.PointSize := DoScaleX(PointSize,OriginalDPI);
+        FRectEditor.PointSize := DoScaleX(PointSize*Manager.CanvasScale,OriginalDPI);
       end;
       FRectEditor.Clear;
       editMatrix := AffineMatrixTranslation(-0.5,-0.5)*viewMatrix*AffineMatrixTranslation(0.5,0.5);
@@ -1151,6 +1162,8 @@ begin
 end;
 
 constructor TEditShapeTool.Create(AManager: TToolManager);
+var
+  orig: TVectorOriginal;
 begin
   inherited Create(AManager);
   FRectEditor := nil;
@@ -1159,14 +1172,17 @@ begin
   FIsEditingGradient:= false;
   FLeftButton:= false;
   FRightButton:= false;
+  if GetCurrentLayerKind = lkVectorial then
+    orig := GetVectorOriginal
+    else orig := nil;
   if not Manager.Image.SelectionMaskEmpty then
   begin
-    if (GetCurrentLayerKind = lkVectorial) and Assigned(GetVectorOriginal.SelectedShape) then
-      GetVectorOriginal.DeselectShapes;
+    if Assigned(orig) and Assigned(orig.SelectedShape) then
+      orig.DeselectShapes;
     DoEditSelection;
   end else
-  if (GetCurrentLayerKind = lkVectorial) and Assigned(GetVectorOriginal.SelectedShape) then
-    UpdateToolManagerFromShape(GetVectorOriginal.SelectedShape);
+  if Assigned(orig) and Assigned(orig.SelectedShape) then
+    UpdateToolManagerFromShape(orig.SelectedShape);
 end;
 
 function TEditShapeTool.DoToolKeyDown(var key: Word): TRect;
@@ -1345,7 +1361,7 @@ begin
           zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2/Manager.Image.ZoomFactor;
           BindOriginalEvent(true);
           try
-            if GetVectorOriginal.MouseClick(m*FLastPos, DoScaleX(PointSize, OriginalDPI)*zoom, ssCtrl in ShiftState) then
+            if GetVectorOriginal.MouseClick(m*FLastPos, DoScaleX(PointSize*Manager.CanvasScale, OriginalDPI)*zoom, ssSnap in ShiftState) then
             begin
               handled := true;
               result := OnlyRenderChange;
@@ -1828,13 +1844,11 @@ begin
           Manager.Image.AddUndo(ReplaceLayerAndAddShape(changeBounds));
         Manager.Image.ImageMayChange(changeBounds);
       end;
-      FreeAndNil(FShape);
-      Editor.Clear;
+      ClearShape;
     end else
     begin
       ValidateActionPartially;
-      FreeAndNil(FShape);
-      Editor.Clear;
+      ClearShape;
     end;
     Cursor := crDefault;
     result := OnlyRenderChange;
@@ -1847,8 +1861,7 @@ end;
 function TVectorialTool.CancelShape: TRect;
 begin
   CancelActionPartially;
-  FreeAndNil(FShape);
-  Editor.Clear;
+  ClearShape;
   Cursor := crDefault;
   result := OnlyRenderChange;
 end;
@@ -1877,6 +1890,13 @@ end;
 function TVectorialTool.CreateShape: TVectorShape;
 begin
   result := ShapeClass.Create(nil);
+end;
+
+procedure TVectorialTool.ClearShape;
+begin
+  FreeAndNil(FShape);
+  FreeAndNil(FTemporaryStorage);
+  Editor.Clear;
 end;
 
 function TVectorialTool.UseOriginal: boolean;
@@ -2064,6 +2084,8 @@ begin
       else
         FLayerWasEmpty := Manager.Image.SelectionLayerIsEmpty;
       FShape := CreateShape;
+      if FTemporaryStorage = nil then FTemporaryStorage := TBGRAMemOriginalStorage.Create;
+      FShape.TemporaryStorage := FTemporaryStorage;
       FQuickDefine := true;
       FQuickDefineStartPoint := RoundCoordinate(FLastPos);
       FQuickDefineEndPoint := FQuickDefineStartPoint;
@@ -2152,6 +2174,7 @@ begin
   FEditor.Focused := true;
   FPreviousEditorBounds := EmptyRect;
   FLastShapeTransform := AffineMatrixIdentity;
+  FTemporaryStorage := TBGRAMemOriginalStorage.Create;
 end;
 
 function TVectorialTool.ToolUp: TRect;
@@ -2341,7 +2364,7 @@ begin
     if IsAffineMatrixInversible(editMatrix) then
     begin
       Editor.Matrix := editMatrix;
-      Editor.PointSize := DoScaleX(PointSize, OriginalDPI);
+      Editor.PointSize := DoScaleX(PointSize*Manager.CanvasScale, OriginalDPI);
       if Assigned(FShape) then FShape.ConfigureEditor(Editor);
       if Assigned(VirtualScreen) then
         Result:= Editor.Render(VirtualScreen, rect(0,0,VirtualScreen.Width,VirtualScreen.Height))
@@ -2361,6 +2384,7 @@ destructor TVectorialTool.Destroy;
 begin
   if Assigned(FShape) then ValidateShape;
   FEditor.Free;
+  FTemporaryStorage.Free;
   inherited Destroy;
 end;
 

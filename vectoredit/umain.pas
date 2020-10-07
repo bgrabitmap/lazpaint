@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit umain;
 
 {$mode objfpc}{$H+}
@@ -11,7 +12,7 @@ uses
   BGRABitmap, BGRABitmapTypes, BGRAGraphics, BGRALazPaint, BGRALayerOriginal,
   BGRATransform, BGRAGradientScanner, LCVectorOriginal, LCVectorShapes,
   LCVectorRectShapes, LCVectorPolyShapes, LCVectorTextShapes,
-  LCVectorialFillControl, LCVectorialFill, fgl;
+  LCVectorialFillControl, LCVectorialFill, LCVectorMultishape, fgl;
 
 const
   RenderDelayMs = 100; //minimum delay between the end of the last rendering and the beginning of the next rendering
@@ -783,7 +784,7 @@ begin
     if justDown and not Assigned(newShape) and IsCreateShapeTool(currentTool) and
       (VectLen(ptF-newStartPoint) >= EditorPointSize) then
     begin
-      vectorOriginal.DeselectShape;
+      vectorOriginal.DeselectShapes;
       newShape := CreateShape(newStartPoint,ptF);
       shapeAdded := false;
       rF := newShape.GetRenderBounds(InfiniteRect, vectorTransform);
@@ -791,7 +792,7 @@ begin
       justDown := false;
       if IsEmptyRectF(rF) and newShape.CreateEmpty then
       begin
-        vectorOriginal.DeselectShape;
+        vectorOriginal.DeselectShapes;
         vectorOriginal.AddShape(newShape);
         vectorOriginal.SelectShape(newShape);
         currentTool:= ptHand;
@@ -853,18 +854,19 @@ begin
     begin
       if IsCreateShapeTool(currentTool) and (vsuCreate in PaintToolClass[currentTool].Usermodes) then
       begin
-        vectorOriginal.DeselectShape;
+        vectorOriginal.DeselectShapes;
         vectorOriginal.AddShape(CreateShape(newStartPoint,newStartPoint), vsuCreate);
       end else
       if IsCreateShapeTool(currentTool) and PaintToolClass[currentTool].CreateEmpty then
       begin
-        vectorOriginal.DeselectShape;
+        vectorOriginal.DeselectShapes;
         addedShape := CreateShape(newStartPoint,newStartPoint);
         vectorOriginal.AddShape(addedShape);
         vectorOriginal.SelectShape(addedShape);
         currentTool:= ptHand;
       end else
-        vectorOriginal.MouseClick(newStartPoint, DoScaleX(6, 96)/zoomFactor*originalZoomFactor);
+        vectorOriginal.MouseClick(newStartPoint, DoScaleX(6, 96)/zoomFactor*originalZoomFactor,
+                                  ssCtrl in Shift);
       justDown:= false;
     end
     else if Assigned(newShape) and (Button = newButton) then
@@ -982,7 +984,7 @@ begin
   if (Key = VK_RETURN) and Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
   begin
     Key := 0;
-    vectorOriginal.DeselectShape;
+    vectorOriginal.DeselectShapes;
   end;
 end;
 
@@ -1063,7 +1065,7 @@ begin
 
   if IsCreateShapeTool(currentTool) then
   begin
-    if Assigned(vectorOriginal) and (vectorOriginal.SelectedShape <> nil) then vectorOriginal.DeselectShape
+    if Assigned(vectorOriginal) and (vectorOriginal.SelectedShape <> nil) then vectorOriginal.DeselectShapes
     else UpdateToolbarFromShape(nil);
 
     if currentTool in [ptPolyline, ptCurve] then
@@ -1759,7 +1761,7 @@ begin
   begin
     FUpdatingFromShape := true;
     mode := AShape.Usermode;
-    f := AShape.Fields;
+    f := AShape.MultiFields;
     toolClass := TVectorShapeAny(AShape.ClassType);
     if vsfPenFill in f then PenFillControl.AssignFill(AShape.PenFill);
     if vsfPenWidth in f then penWidth:= AShape.PenWidth;
@@ -2080,21 +2082,21 @@ end;
 procedure TForm1.UpdateShapeBackFill;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
-    (vsfBackFill in vectorOriginal.SelectedShape.Fields) then
+    (vsfBackFill in vectorOriginal.SelectedShape.MultiFields) then
     BackFillControl.UpdateShapeFill(vectorOriginal.SelectedShape, ftBack);
 end;
 
 procedure TForm1.UpdateShapePenFill;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
-    (vsfPenFill in vectorOriginal.SelectedShape.Fields) then
+    (vsfPenFill in vectorOriginal.SelectedShape.MultiFields) then
     PenFillControl.UpdateShapeFill(vectorOriginal.SelectedShape, ftPen);
 end;
 
 procedure TForm1.UpdateShapeOutlineFill;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
-    (vsfOutlineFill in vectorOriginal.SelectedShape.Fields) then
+    (vsfOutlineFill in vectorOriginal.SelectedShape.MultiFields) then
     OutlineFillControl.UpdateShapeFill(vectorOriginal.SelectedShape, ftOutline);
 end;
 
@@ -2103,21 +2105,21 @@ begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) then
   begin
     if (currentTool = ptMoveBackFillPoint) and
-       (vsfBackFill in vectorOriginal.SelectedShape.Fields) and
+       (vsfBackFill in vectorOriginal.SelectedShape.MultiFields) and
        vectorOriginal.SelectedShape.BackFill.IsEditable then
     begin
       if vectorOriginal.SelectedShape.Usermode <> vsuEditBackFill then
         vectorOriginal.SelectedShape.Usermode := vsuEditBackFill;
     end else
     if (currentTool = ptMovePenFillPoint) and
-       (vsfPenFill in vectorOriginal.SelectedShape.Fields) and
+       (vsfPenFill in vectorOriginal.SelectedShape.MultiFields) and
        vectorOriginal.SelectedShape.PenFill.IsEditable then
     begin
       if vectorOriginal.SelectedShape.Usermode <> vsuEditPenFill then
         vectorOriginal.SelectedShape.Usermode := vsuEditPenFill;
     end else
     if (currentTool = ptMoveOutlineFillPoint) and
-       (vsfOutlineFill in vectorOriginal.SelectedShape.Fields) and
+       (vsfOutlineFill in vectorOriginal.SelectedShape.MultiFields) and
        vectorOriginal.SelectedShape.OutlineFill.IsEditable then
     begin
       if vectorOriginal.SelectedShape.Usermode <> vsuEditOutlineFill then
@@ -2150,7 +2152,8 @@ var
 begin
   if FInRemoveShapeIfEmpty then exit;
   FInRemoveShapeIfEmpty := true;
-  if (AShape <> nil) and not AShape.IsRemoving then
+  if (AShape <> nil) and not AShape.IsRemoving and
+     (AShape.GetAsMultishape = nil) then
   begin
     rF := AShape.GetRenderBounds(InfiniteRect, vectorTransform);
     if IsEmptyRectF(rF) then
@@ -2202,7 +2205,7 @@ var
   vectorFill: TVectorialFill;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
-     (vsfBackFill in vectorOriginal.SelectedShape.Fields) then
+     (vsfBackFill in vectorOriginal.SelectedShape.MultiFields) then
   begin
     vectorFill := BackFillControl.CreateShapeFill(vectorOriginal.SelectedShape);
     vectorOriginal.SelectedShape.BackFill := vectorFill;
@@ -2220,7 +2223,7 @@ var
   vectorFill: TVectorialFill;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
-     (vsfPenFill in vectorOriginal.SelectedShape.Fields) then
+     (vsfPenFill in vectorOriginal.SelectedShape.MultiFields) then
   begin
     vectorFill := PenFillControl.CreateShapeFill(vectorOriginal.SelectedShape);
     vectorOriginal.SelectedShape.PenFill := vectorFill;
@@ -2242,7 +2245,7 @@ var
   vectorFill: TVectorialFill;
 begin
   if Assigned(vectorOriginal) and Assigned(vectorOriginal.SelectedShape) and
-     (vsfOutlineFill in vectorOriginal.SelectedShape.Fields) then
+     (vsfOutlineFill in vectorOriginal.SelectedShape.MultiFields) then
   begin
     vectorFill := OutlineFillControl.CreateShapeFill(vectorOriginal.SelectedShape);
     vectorOriginal.SelectedShape.OutlineFill := vectorFill;
@@ -2317,7 +2320,7 @@ end;
 procedure TForm1.DoPaste;
 begin
   if Assigned(vectorOriginal) then
-    PasteShapesFromClipboard(vectorOriginal, vectorTransform);
+    PasteShapesFromClipboard(vectorOriginal, vectorTransform, rectF(0,0,img.Width,img.Height));
 end;
 
 procedure TForm1.DoDelete;

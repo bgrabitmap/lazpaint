@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit LazPaintType;
 
 {$mode objfpc}{$H+}
@@ -10,7 +11,7 @@ uses
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
-  LazPaintVersion = 7010300;
+  LazPaintVersion = 7010400;
 
   function LazPaintVersionStr: string;
 
@@ -180,6 +181,9 @@ type
     procedure SetBlackAndWhite(AValue: boolean); virtual;
     function GetZoomFactor: single; virtual;
 
+    function GetUpdateStackOnTimer: boolean; virtual; abstract;
+    procedure SetUpdateStackOnTimer(AValue: boolean); virtual; abstract;
+
     function GetChooseColorHeight: integer; virtual; abstract;
     function GetChooseColorWidth: integer; virtual; abstract;
     procedure SetChooseColorHeight(AValue: integer); virtual; abstract;
@@ -240,10 +244,11 @@ type
     procedure CancelRestart; virtual; abstract;
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); virtual; abstract;
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); virtual; abstract;
+    procedure NotifyImagePaint; virtual; abstract;
     procedure NotifyStackChange; virtual; abstract;
     function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; virtual; abstract;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): TScriptResult; virtual; abstract;
-    function RunScript(AFilename: string): boolean; virtual; abstract;
+    function RunScript(AFilename: string; ACaption: string = ''): boolean; virtual; abstract;
     procedure AdjustChooseColorHeight; virtual; abstract;
     procedure ColorFromFChooseColor; virtual; abstract;
     procedure ColorToFChooseColor; virtual; abstract;
@@ -293,6 +298,8 @@ type
     property BlackAndWhite: boolean read FBlackAndWhite write SetBlackAndWhite;
 
     procedure ScrollLayerStackOnItem(AIndex: integer; ADelayedUpdate: boolean = true); virtual; abstract;
+    procedure InvalidateLayerStack; virtual; abstract;
+    procedure UpdateLayerStackOnTimer; virtual; abstract;
     function MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap; virtual; abstract;
     procedure ChooseTool(Tool : TPaintToolType); virtual; abstract;
     function GetOnlineUpdater: TLazPaintCustomOnlineUpdater; virtual;
@@ -339,6 +346,7 @@ type
     property Fullscreen: boolean read GetFullscreen write SetFullscreen;
     property RestartQuery: boolean read FRestartQuery;
     property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
+    property UpdateStackOnTimer: boolean read GetUpdateStackOnTimer write SetUpdateStackOnTimer;
 
     property Icons[ASize: integer]: TImageList read GetIcons;
   end;

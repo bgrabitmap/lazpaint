@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 procedure TLazPaintInstance.ShowPrintDlg;
 var f: TFPrint;
     wasVisible: boolean;
@@ -123,6 +124,12 @@ begin
   result := srOk;
 end;
 
+function TLazPaintInstance.ScriptGetName(AVars: TVariableSet): TScriptResult;
+begin
+  AVars.Strings['Result'] := FScriptName;
+  result := srOk;
+end;
+
 function TLazPaintInstance.ScriptImageCanvasSize(AVars: TVariableSet): TScriptResult;
 var
   w, h: Int64;
@@ -227,6 +234,30 @@ begin
     result := srOk;
   end else
     result := srCancelledByUser;
+end;
+
+function TLazPaintInstance.ScriptTranslateGetLanguage(AVars: TVariableSet
+  ): TScriptResult;
+begin
+  AVars.Strings['Result'] := ActiveLanguage;
+  result := srOk;
+end;
+
+function TLazPaintInstance.ScriptTranslateText(AVars: TVariableSet): TScriptResult;
+var
+  textVar, resVar: TScriptVariableReference;
+  i: Integer;
+begin
+  textVar := AVars.GetVariable('Text');
+  if not AVars.IsReferenceDefined(textVar) then exit(srException);
+  if AVars.IsList(textVar) then
+  begin
+    resVar := AVars.AddStringList('Result');
+    for i := 0 to AVars.GetListCount(textVar)-1 do
+      AVars.AppendString(resVar, DoTranslate('', AVars.GetStringAt(textVar, i)));
+  end else
+    AVars.Strings['Result'] := DoTranslate('', AVars.Strings['Text']);
+  result := srOk;
 end;
 
 function TLazPaintInstance.ShowResampleDialog(AParameters: TVariableSet): boolean;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UMenu;
 
 {$mode objfpc}{$H+}
@@ -58,7 +59,7 @@ implementation
 uses UResourceStrings, BGRAUTF8, LCScaleDPI, ComCtrls, Graphics,
   StdCtrls, BGRAText, math, udarktheme,
   ugraph, BGRABitmapTypes, LCVectorialFillControl,
-  UPython;
+  UPython, UTranslation;
 
 { TMainFormMenu }
 
@@ -82,7 +83,7 @@ begin
   begin
     item := Sender as TMenuItem;
     scriptIndex := item.Tag;
-    FInstance.RunScript(FInstalledScripts[scriptIndex]);
+    FInstance.RunScript(FInstalledScripts[scriptIndex], item.Caption);
   end;
 end;
 
@@ -282,12 +283,13 @@ procedure TMainFormMenu.AddInstalledScripts(AMenu: TMenuItem; AIndex: integer);
   end;
 
 var
-  path, fullname, header, title: String;
+  path, fullname, title: String;
   searchRec: TSearchRec;
   t: textFile;
   item: TMenuItem;
   items: TStringList;
   i: Integer;
+
 begin
   if FInstalledScripts = nil then FInstalledScripts := TStringList.Create;
   path := TPythonScript.DefaultScriptDirectory;
@@ -300,15 +302,9 @@ begin
         fullname := path+PathDelim+searchRec.Name;
         if FileExistsUTF8(fullname) then
         begin
-          assignFile(t, fullname);
-          reset(t);
-          readln(t, header);
-          closefile(t);
-          if header.StartsWith('#') then
+          title := GetScriptTitle(fullname);
+          if title <> '' then
           begin
-            title := header.Substring(1).Trim;
-            title := StringReplace(title, ' >', '>', [rfReplaceAll]);
-            title := StringReplace(title, '> ', '>', [rfReplaceAll]);
             item := TMenuItem.Create(AMenu);
             item.Caption := title;
             item.Tag := FInstalledScripts.Add(fullname);

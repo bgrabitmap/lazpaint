@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit LCVectorMultishape;
 
 {$mode objfpc}{$H+}
@@ -431,6 +432,7 @@ var
   i: Integer;
 begin
   if FUpdatingFromShape or FInMultiTranformFill then exit;
+  if FFillChangeWithoutUpdate then exit;
   BeginUpdate;
   AddFillDiffHandler(ASender as TVectorialFill, ADiff);
   if ASender = PenFill then
@@ -702,7 +704,7 @@ var
   r: TRectF;
 begin
   if FShapes.Count = 1 then
-    result := FShapes[i].SuggestGradientBox(AMatrix)
+    result := FShapes[0].SuggestGradientBox(AMatrix)
   else
   begin
     r := EmptyRectF;
@@ -910,6 +912,7 @@ begin
   inherited Create(AContainer);
   FShapes := TVectorShapes.Create;
   FOldChangeHandler := TShapeChangeHandlerMap.Create;
+  FDisableHitBox:= true;
 end;
 
 procedure TVectorMultiselection.TransformFrame(const AMatrix: TAffineMatrix);

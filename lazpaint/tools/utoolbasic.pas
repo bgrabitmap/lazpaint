@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UToolBasic;
 
 {$mode objfpc}{$H+}
@@ -49,6 +50,7 @@ type
     penDrawing, penDrawingRight: boolean;
     shiftClicking, shiftClickingRight: boolean;
     penOrigin: TPointF;
+    function PickColorWithShift: boolean; virtual;
     function GetIsSelectingTool: boolean; override;
     function GetUniversalBrush(ARightButton: boolean): TUniversalBrush; virtual;
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; virtual;
@@ -257,6 +259,11 @@ end;
 
 { TToolPen }
 
+function TToolPen.PickColorWithShift: boolean;
+begin
+  result := true;
+end;
+
 function TToolPen.GetIsSelectingTool: boolean;
 begin
   Result:= false;
@@ -343,7 +350,7 @@ begin
   if ssSnap in ShiftState then ptF := PointF(pt.X,pt.Y);
   if not penDrawing then
   begin
-    if ssShift in ShiftState then
+    if PickColorWithShift and (ssShift in ShiftState) then
     begin
       result := DoToolShiftClick(toolDest, ptF, rightBtn);
       shiftClicking := true;

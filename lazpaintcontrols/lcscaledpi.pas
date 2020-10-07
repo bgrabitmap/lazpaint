@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit LCScaleDPI;
 
 {$mode objfpc}{$H+}
@@ -12,6 +13,8 @@ procedure ScaleControl(Control: TControl; FromDPI: Integer; ToDPI_X: Integer = 0
 procedure ScaleImageList(SourceList: TImageList; newWidth, newHeight: Integer; TargetList: TImageList);
 function DoScaleX(Size: Integer; FromDPI: Integer; ToDPI: Integer = 0): integer;
 function DoScaleY(Size: Integer; FromDPI: Integer; ToDPI: Integer = 0): integer;
+function DoScaleXF(Size: single; FromDPI: Integer; ToDPI: Integer = 0): single;
+function DoScaleYF(Size: single; FromDPI: Integer; ToDPI: Integer = 0): single;
 
 implementation
 
@@ -78,6 +81,24 @@ begin
     result := Size
   else
     Result := MulDiv(Size, ToDPI, FromDPI);
+end;
+
+function DoScaleXF(Size: single; FromDPI: Integer; ToDPI: Integer): single;
+begin
+  if ToDPI = 0 then ToDPI := ScreenInfo.PixelsPerInchX;
+  if ToDPI <= FromDPI then
+    result := Size
+  else
+    Result := Size * ToDPI / FromDPI;
+end;
+
+function DoScaleYF(Size: single; FromDPI: Integer; ToDPI: Integer): single;
+begin
+  if ToDPI = 0 then ToDPI := ScreenInfo.PixelsPerInchY;
+  if ToDPI <= FromDPI then
+    result := Size
+  else
+    Result := Size * ToDPI / FromDPI;
 end;
 
 procedure ScaleControl(Control: TControl; FromDPI: Integer; ToDPI_X: Integer; ToDPI_Y: integer);

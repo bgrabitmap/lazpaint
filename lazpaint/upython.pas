@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UPython;
 
 {$mode objfpc}{$H+}
@@ -46,6 +47,7 @@ type
   end;
 
 function GetPythonVersion(APythonBin: string = DefaultPythonBin): string;
+function GetScriptTitle(AFilename: string): string;
 
 var
   CustomScriptDirectory: string;
@@ -75,6 +77,67 @@ begin
       PythonVersionCache.Version := '?';
   end;
   result := PythonVersionCache.Version;
+end;
+
+function GetScriptTitle(AFilename: string): string;
+var t: textfile;
+  header: string;
+  matchLang: boolean;
+
+  procedure RetrieveTitle(AText: string; ADefault: boolean; var title: string; out ALangMatch: boolean);
+  var
+    posCloseBracket: SizeInt;
+    lang: String;
+  begin
+    If AText.StartsWith('#') then
+      Delete(AText, 1,1);
+    AText := AText.Trim;
+    ALangMatch := false;
+    if AText.StartsWith('(') then
+    begin
+      posCloseBracket := pos(')', AText);
+      if posCloseBracket > 0 then
+      begin
+        lang := copy(AText, 2, posCloseBracket-2);
+        delete(AText, 1, posCloseBracket);
+        AText := AText.Trim;
+        if lang = ActiveLanguage then
+          ALangMatch:= true;
+      end;
+    end else
+    begin
+      if not ADefault then exit;
+      if ActiveLanguage = DesignLanguage then ALangMatch:= true;
+    end;
+    if ALangMatch or ADefault then
+    begin
+      title := AText;
+      title := StringReplace(title, ' >', '>', [rfReplaceAll]);
+      title := StringReplace(title, '> ', '>', [rfReplaceAll]);
+    end;
+  end;
+
+begin
+  result := '';
+  assignFile(t, AFilename);
+  reset(t);
+  try
+    readln(t, header);
+    if header.StartsWith('#') then
+    begin
+      RetrieveTitle(header, true, result, matchLang);
+      while not matchLang do
+      begin
+        readln(t, header);
+        if header.StartsWith('#') then
+        begin
+          RetrieveTitle(header, false, result, matchLang);
+        end else break;
+      end;
+    end;
+  finally
+    closefile(t);
+  end;
 end;
 
 { TPythonScript }

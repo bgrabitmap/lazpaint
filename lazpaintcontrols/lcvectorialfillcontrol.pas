@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit LCVectorialFillControl;
 
 {$mode objfpc}{$H+}
@@ -33,6 +34,7 @@ type
     function GetGradRepetition: TBGRAGradientRepetition;
     function GetGradStartColor: TBGRAPixel;
     function GetGradType: TGradientType;
+    function GetIsTarget: boolean;
     function GetPreferredSizeAsSize: TSize;
     function GetSolidColor: TBGRAPixel;
     function GetTexOpacity: byte;
@@ -58,6 +60,7 @@ type
     procedure SetGradInterpolation(AValue: TBGRAColorInterpolation);
     procedure SetGradRepetition(AValue: TBGRAGradientRepetition);
     procedure SetGradStartColor(AValue: TBGRAPixel);
+    procedure SetIsTarget(AValue: boolean);
     procedure SetOnChooseColor(AValue: TChooseColorEvent);
     procedure SetOnTextureClick(AValue: TNotifyEvent);
     procedure SetSolidColor(AValue: TBGRAPixel);
@@ -94,6 +97,7 @@ type
     procedure UpdateShapeFill(AShape: TVectorShape; ATarget: TLCFillTarget);
     procedure UpdateFillExceptGeometry(ATargetFill: TVectorialFill);
     property FillType: TVectorialFillType read GetFillType write SetFillType;
+    property IsTarget: boolean read GetIsTarget write SetIsTarget;
     property AverageColor: TBGRAPixel read GetAverageColor;
     property SolidColor: TBGRAPixel read GetSolidColor write SetSolidColor;
     property GradientType: TGradientType read GetGradType write SetGradientType;
@@ -208,6 +212,11 @@ end;
 function TLCVectorialFillControl.GetGradType: TGradientType;
 begin
   result := FInterface.GradientType;
+end;
+
+function TLCVectorialFillControl.GetIsTarget: boolean;
+begin
+  result := FInterface.IsTarget;
 end;
 
 function TLCVectorialFillControl.GetPreferredSizeAsSize: TSize;
@@ -326,6 +335,11 @@ end;
 procedure TLCVectorialFillControl.SetGradStartColor(AValue: TBGRAPixel);
 begin
   FInterface.GradStartColor := AValue;
+end;
+
+procedure TLCVectorialFillControl.SetIsTarget(AValue: boolean);
+begin
+  FInterface.IsTarget := AValue;
 end;
 
 procedure TLCVectorialFillControl.SetOnChooseColor(AValue: TChooseColorEvent);

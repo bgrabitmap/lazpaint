@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UGraph;
 
 {$mode objfpc}{$H+}
@@ -9,8 +10,9 @@ uses
   BCComboBox;
 
 var
-  NicePointMaxRadius: integer = 4;
+  NicePointMaxRadius: integer = 6;
   FrameDashLength: integer = 4;
+  CanvasScale: integer = 1;
 
 function ComputeRatio(ARatio: string): single;
 function RatioToStr(ARatio: single): string;
@@ -20,7 +22,7 @@ function RectInter(const rect1,Rect2: TRect): TRect;
 function RectOfs(const ARect: TRect; ofsX,ofsY: integer): TRect;
 function GetShapeBounds(const pts: array of TPointF; width: single): TRect;
 function DoPixelate(source: TBGRABitmap; pixelSize: integer; quality: string): TBGRABitmap;
-procedure DrawCheckers(bmp : TBGRABitmap; ARect: TRect);
+procedure DrawCheckers(bmp : TBGRABitmap; ARect: TRect; AScale: single = 1);
 procedure DrawGrid(bmp: TBGRABitmap; sizex,sizey: single; ofsx,ofsy: single);
 function ComputeAngle(dx,dy: single): single;
 function GetSelectionCenter(bmp: TBGRABitmap): TPointF;
@@ -63,7 +65,7 @@ implementation
 
 uses GraphType, math, Types, FileUtil, dialogs, BGRAAnimatedGif,
   BGRAGradients, BGRATextFX, uresourcestrings, LCScaleDPI,
-  BGRAThumbnail, LCVectorPolyShapes;
+  BGRAThumbnail, LCVectorPolyShapes, BGRAPolygon;
 
 function ComputeRatio(ARatio: string): single;
 var
@@ -197,9 +199,9 @@ begin
   result := source.FilterPixelate(pixelSize,useFilter,filter) as TBGRABitmap;
 end;
 
-procedure DrawCheckers(bmp: TBGRABitmap; ARect: TRect);
+procedure DrawCheckers(bmp: TBGRABitmap; ARect: TRect; AScale: single = 1);
 begin
-  DrawThumbnailCheckers(bmp, ARect, False);
+  DrawThumbnailCheckers(bmp, ARect, False, AScale);
 end; 
 
 procedure DrawGrid(bmp: TBGRABitmap; sizex, sizey: single; ofsx,ofsy: single);
@@ -1161,17 +1163,28 @@ end;
 
 function NicePointBounds(x,y: single): TRect;
 begin
-  result := rect(floor(x)-NicePointMaxRadius-1,floor(y)-NicePointMaxRadius-1,
-  ceil(x)+NicePointMaxRadius+2,ceil(y)+NicePointMaxRadius+2);
+  result := rect(floor(x)-NicePointMaxRadius*CanvasScale-1,floor(y)-NicePointMaxRadius*CanvasScale-1,
+  ceil(x)+NicePointMaxRadius*CanvasScale+2,ceil(y)+NicePointMaxRadius*CanvasScale+2);
 end;
 
 function NicePoint(bmp: TBGRABitmap; x, y: single; alpha: byte = 192): TRect;
+var
+  multi: TBGRAMultishapeFiller;
+  oldClip: TRect;
 begin
-    result := NicePointBounds(x,y);
-    if not Assigned(bmp) then exit;
-    bmp.EllipseAntialias(x,y,NicePointMaxRadius,NicePointMaxRadius,BGRA(0,0,0,alpha),1);
-    bmp.EllipseAntialias(x,y,NicePointMaxRadius-1,NicePointMaxRadius-1,BGRA(255,255,255,alpha),1);
-    bmp.EllipseAntialias(x,y,NicePointMaxRadius-2,NicePointMaxRadius-2,BGRA(0,0,0,alpha),1);
+  result := NicePointBounds(x,y);
+  if not Assigned(bmp) then exit;
+  oldClip := bmp.ClipRect;
+  bmp.IntersectClip(result);
+  multi := TBGRAMultishapeFiller.Create;
+  multi.AddEllipseBorder(x,y,NicePointMaxRadius*CanvasScale-1*CanvasScale,
+    NicePointMaxRadius*CanvasScale-1*CanvasScale, CanvasScale*3, BGRA(0,0,0,alpha));
+  multi.AddEllipseBorder(x,y,NicePointMaxRadius*CanvasScale-1*CanvasScale,
+    NicePointMaxRadius*CanvasScale-1*CanvasScale, CanvasScale*1, BGRA(255,255,255,alpha));
+  multi.PolygonOrder:= poLastOnTop;
+  multi.Draw(bmp);
+  multi.Free;
+  bmp.ClipRect := oldClip;
 end;
 
 function NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192): TRect;
@@ -1194,8 +1207,8 @@ var fx: TBGRATextEffect;
 begin
   f := TFont.Create;
   f.Name := 'Arial';
-  f.Height := DoScaleY(16,OriginalDPI);
-  ofs := DoScaleX(4,OriginalDPI);
+  f.Height := DoScaleY(16*CanvasScale,OriginalDPI);
+  ofs := DoScaleX(4*CanvasScale,OriginalDPI);
   fx := TBGRATextEffect.Create(s,f,true);
   if valign = tlBottom then y := y-fx.TextSize.cy else
   if valign = tlCenter then y := y-fx.TextSize.cy div 2;

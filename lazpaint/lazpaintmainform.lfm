@@ -7,7 +7,6 @@ object FMain: TFMain
   Caption = 'LazPaint'
   ClientHeight = 572
   ClientWidth = 739
-  Color = clSkyBlue
   Constraints.MinWidth = 320
   Font.Height = -12
   KeyPreview = True
@@ -20,12 +19,6 @@ object FMain: TFMain
   OnHide = FormHide
   OnKeyDown = FormKeyDown
   OnKeyUp = FormKeyUp
-  OnMouseDown = FormMouseDown
-  OnMouseEnter = FormMouseEnter
-  OnMouseMove = FormMouseMove
-  OnMouseUp = FormMouseUp
-  OnMouseWheel = FormMouseWheel
-  OnPaint = FormPaint
   OnResize = FormResize
   OnShow = FormShow
   OnUTF8KeyPress = FormUTF8KeyPress
@@ -1524,9 +1517,7 @@ object FMain: TFMain
     Height = 104
     Top = 176
     Width = 106
-    ClientHeight = 104
-    ClientWidth = 106
-    Color = clBtnFace
+    BevelOuter = bvNone
     Font.Height = -12
     ParentColor = False
     ParentFont = False
@@ -2341,22 +2332,6 @@ object FMain: TFMain
         Style = tbsCheck
       end
     end
-  end
-  object PaintBox_Picture: TPaintBox
-    Left = 608
-    Height = 84
-    Top = 56
-    Width = 117
-    Anchors = [akTop, akLeft, akRight, akBottom]
-    Font.Height = -12
-    ParentFont = False
-    Visible = False
-    OnMouseDown = PaintBox_PictureMouseDown
-    OnMouseEnter = PaintBox_PictureMouseEnter
-    OnMouseMove = PaintBox_PictureMouseMove
-    OnMouseUp = PaintBox_PictureMouseUp
-    OnMouseWheel = PaintBox_PictureMouseWheel
-    OnPaint = PaintBox_PicturePaint
   end
   object Panel_Brush: TPanel
     Left = 8

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UEmboss;
 
 {$mode objfpc}{$H+}
@@ -145,23 +146,27 @@ var bmp: TBGRABitmap;
     x1,y1,x2,y2: single;
     dx,dy,t: single;
     c: TBGRAPixel;
+    scaling: Double;
 begin
-    bmp := TBGRABitmap.Create(PaintBox1.Width,PaintBox1.Height);
-    bmp.Fill(ColorToRGB(clBtnFace));
-    c := ColorToBGRA(ColorToRGB(clWindowText));
-    t := min(PaintBox1.Width/2,PaintBox1.Height/2);
-    dx := cos(angle*Pi/180);
-    dy := sin(angle*Pi/180);
-    x1 := PaintBox1.Width/2;
-    y1 := PaintBox1.Height/2;
-    x2 := x1+dx*(t-2);
-    y2 := y1+dy*(t-2);
-    bmp.FillEllipseAntialias(x1,y1,t-1,t-1,BGRA(c.red,c.green,c.blue,48));
-    bmp.DrawLineAntialias(x1,y1,x2,y2,c,2,true);
-    bmp.DrawLineAntialias(x2+dy*5-dx*5,y2-dx*5-dy*5,x2,y2,c,2,false);
-    bmp.DrawLineAntialias(x2-dy*5-dx*5,y2+dx*5-dy*5,x2,y2,c,2,false);
-    bmp.Draw(PaintBox1.Canvas,0,0,true);
-    bmp.Free;
+  scaling := GetCanvasScaleFactor;
+  bmp := TBGRABitmap.Create(round(PaintBox1.Width*scaling),round(PaintBox1.Height*scaling));
+  bmp.Fill(clForm);
+  c := ColorToBGRA(ColorToRGB(clWindowText));
+  t := min(bmp.Width/2,bmp.Height/2);
+  dx := cos(angle*Pi/180);
+  dy := sin(angle*Pi/180);
+  x1 := bmp.Width/2;
+  y1 := bmp.Height/2;
+  x2 := x1+dx*(t-2);
+  y2 := y1+dy*(t-2);
+  bmp.FillEllipseAntialias(x1,y1,t-1,t-1,BGRA(c.red,c.green,c.blue,48));
+  bmp.DrawLineAntialias(x1,y1,x2,y2,c,2*scaling,true);
+  bmp.DrawLineAntialias(x2+dy*5*scaling-dx*5*scaling,
+    y2-dx*5*scaling-dy*5*scaling,x2,y2,c,2*scaling,false);
+  bmp.DrawLineAntialias(x2-dy*5*scaling-dx*5*scaling,
+    y2+dx*5*scaling-dy*5*scaling,x2,y2,c,2*scaling,false);
+  bmp.Draw(PaintBox1.Canvas, rect(0,0,PaintBox1.Width,PaintBox1.Height), true);
+  bmp.Free;
 end;
 
 procedure TFEmboss.TrackBar_StrengthChange(Sender: TObject);

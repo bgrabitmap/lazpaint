@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UTranslation;
 
 {$mode objfpc}{$H+}
@@ -29,11 +30,15 @@ function LazPaintLanguageFile(ALanguage: string): string;
 procedure FillLanguageList(AConfig: TLazPaintConfig);
 procedure TranslateLazPaint(AConfig: TIniFile);
 function GetResourcePath(AResource: string): string;
+function DoTranslate(AId, AText: string): string;
 
 implementation
 
 uses Forms, LCLProc, LazUTF8, BGRAUTF8, LCLTranslator, LResources, Translations,
   LazPaintType, LCVectorOriginal;
+
+var
+  FMainPoFile: TPOFile;
 
 {$ifdef Darwin}
 function GetDarwinResourcesPath: string;
@@ -53,6 +58,16 @@ begin
 end;
 {$endif}
 
+{$ifdef Linux}
+function GetLinuxResourcesPath: string;
+var
+  binPath: String;
+begin
+  binPath := ExtractFilePath(Application.ExeName);
+  result := ExpandFileName(binPath+'..'+PathDelim+'share'+PathDelim+'lazpaint'+PathDelim);
+end;
+{$endif}
+
 function GetResourcePath(AResource: string): string;
 begin
   {$IFDEF WINDOWS}
@@ -62,9 +77,52 @@ begin
     if DirectoryExists(GetDarwinResourcesPath+AResource) then
       result := GetDarwinResourcesPath+AResource+PathDelim
     else
+    {$ELSE}
+      {$IFDEF LINUX}
+      if DirectoryExists(GetLinuxResourcesPath+AResource) then
+        result := GetLinuxResourcesPath+AResource+PathDelim
+      else
+      {$ENDIF}
     {$ENDIF}
     result:=ExtractFilePath(Application.ExeName)+AResource+PathDelim;
   {$ENDIF}
+end;
+
+function DoTranslate(AId, AText: string): string;
+var
+  item: TPOFileItem;
+begin
+  if Assigned(FMainPoFile) then
+  begin
+    item := FMainPoFile.FindPoItem(AId);
+    if (AId <> '') and Assigned(item) then
+      exit(item.Translation);
+
+    item := FMainPoFile.OriginalToItem(AText);
+    if Assigned(item) then exit(item.Translation);
+
+    item := FMainPoFile.OriginalToItem(AText+':');
+    if item = nil then item := FMainPoFile.OriginalToItem(AText+' :');
+    if Assigned(item) then
+    begin
+      result := item.Translation.TrimRight;
+      if result.EndsWith(':') then
+      begin
+        delete(result, length(result), 1);
+        result := result.TrimRight;
+      end;
+      exit;
+    end;
+
+    item := FMainPoFile.OriginalToItem(AText+'...');
+    if Assigned(item) then
+    begin
+      result := item.Translation.TrimRight;
+      if result.EndsWith('...') then delete(result, length(result)-2, 3);
+      exit;
+    end;
+  end;
+  result := AText;
 end;
 
 function LanguagePathUTF8: string;
@@ -110,8 +168,9 @@ begin
 
   if FileExistsUTF8(POFile) then
   begin
-    LRSTranslator:=TPoTranslator.Create(POFile);
-    TranslateResourceStrings(POFile);
+    FMainPoFile := TPOFile.Create(POFile, true);
+    LRSTranslator:=TPoTranslator.Create(FMainPoFile);
+    TranslateResourceStrings(FMainPoFile);
     ActiveLanguage:= Language;
   end;
 

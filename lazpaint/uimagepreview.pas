@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UImagePreview;
 
 {$mode objfpc}{$H+}
@@ -10,14 +11,22 @@ uses
   BGRABitmap, BGRAAnimatedGif, BGRAIconCursor, BGRABitmapTypes, BGRAThumbnail,
   UTiff, fgl;
 
+const
+  IconSize = 32;
+  SubImageSize = 128;
+
 type
   TBGRABitmapList = specialize TFPGObjectList<TBGRABitmap>;
 
   { TImagePreview }
 
   TImagePreview = class
+  private
+    function GetScaledIconSize: integer;
   protected
     FSurface: TBGRAVirtualScreen;
+    FScaling: single;
+    FSurfaceScaledHeight: Integer;
     FScrollbar: TVolatileScrollBar;
     FScrolling: boolean;
     FStatus: TLabel;
@@ -95,6 +104,7 @@ type
     property EntryCount: integer read GetEntryCount;
     function GetPreviewBitmap: TImageEntry;
     property DuplicateEntrySourceIndex: integer read FDuplicateEntrySourceIndex write FDuplicateEntrySourceIndex;
+    property ScaledIconSize: integer read GetScaledIconSize;
   end;
 
 implementation
@@ -103,6 +113,11 @@ uses FPimage, BGRAReadJpeg, BGRAOpenRaster, BGRAPaintNet, BGRAReadLzp, Dialogs, 
   LCLType, BGRAPhoxo, BGRASVG, math, URaw, UImage;
 
 { TImagePreview }
+
+function TImagePreview.GetScaledIconSize: integer;
+begin
+  result := round(IconSize * FScaling);
+end;
 
 function TImagePreview.GetPreviewDataLoss: boolean;
 begin
@@ -124,6 +139,8 @@ end;
 
 procedure TImagePreview.SurfaceRedraw(Sender: TObject; Bitmap: TBGRABitmap);
 begin
+  FScaling := FSurface.GetCanvasScaleFactor;
+  FSurfaceScaledHeight := Bitmap.Height;
   if (Bitmap.Width = 0) or (Bitmap.Height = 0) then
   begin
     ClearMenu;
@@ -142,6 +159,8 @@ var
   i: Integer;
   scrollPos: integer;
 begin
+  X := round(X*FScaling);
+  Y := round(Y*FScaling);
   if (Button = mbLeft) and Assigned(FScrollbar) and FScrollbar.MouseDown(X,Y) then
   begin
     FScrolling:= true;
@@ -174,6 +193,8 @@ procedure TImagePreview.SurfaceMouseMove(Sender: TObject; Shift: TShiftState;
 var
   i, scrollPos: Integer;
 begin
+  X := round(X*FScaling);
+  Y := round(Y*FScaling);
   if FScrolling and Assigned(FScrollbar) and FScrollbar.MouseMove(X,Y) then
      FSurface.DiscardBitmap else
   begin
@@ -194,6 +215,8 @@ end;
 procedure TImagePreview.SurfaceMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
+  X := round(X*FScaling);
+  Y := round(Y*FScaling);
   if (Button = mbLeft) and FScrolling and Assigned(FScrollbar) and FScrollbar.MouseUp(X,Y) then
   begin
      FSurface.DiscardBitmap;
@@ -292,6 +315,9 @@ begin
   else
     exit;
 
+  w := round(w*FScaling);
+  h := round(h*FScaling);
+
   if w > bitmap.Width then
   begin
     h := round(h/w*bitmap.Width);
@@ -310,7 +336,7 @@ begin
   bitmap.FillRect(rect(x+w,y+ofs,x+ofs+w,y+ofs+h), BGRA(0,0,0,128),dmDrawWithTransparency);
   bitmap.FillRect(rect(x+ofs,y+h,x+w,y+ofs+h), BGRA(0,0,0,128),dmDrawWithTransparency);
 
-  DrawThumbnailCheckers(Bitmap, rect(x,y,x+w,y+h));
+  DrawThumbnailCheckers(Bitmap, rect(x,y,x+w,y+h), false, FScaling);
   bitmap.StretchPutImage(rect(x,y,x+w,y+h), frame, dmDrawWithTransparency)
 end;
 
@@ -405,11 +431,11 @@ begin
     if i = FSelectedMenuIndex then
     begin
       bitmap.FillRect(scrolledArea, ColorToRGB(clHighlight));
-      if not IsNew and not IsLoopCount and not IsDuplicate and (Area.Right - IconArea.Right > 32) and CanDeleteEntry(FrameIndex) then
+      if not IsNew and not IsLoopCount and not IsDuplicate and (Area.Right - IconArea.Right > ScaledIconSize) and CanDeleteEntry(FrameIndex) then
       begin
         sh := (Area.Right - IconArea.Right - 8) div 4;
-        if sh < 16 then sh := 16;
-        if sh > 32 then sh := 32;
+        if sh < ScaledIconSize div 2 then sh := ScaledIconSize div 2;
+        if sh > ScaledIconSize then sh := ScaledIconSize;
         if sh > Area.Bottom-Area.Top-4 then sh := Area.Bottom-Area.Top-4;
         sw := sh;
         DeleteArea := RectWithSize(Area.Right-8-sw,(Area.Top+Area.Bottom-sh) div 2, sw,sh);
@@ -493,6 +519,8 @@ var x,y,i,frameIndex,h,w,sw,sh: integer;
   currentCol: integer;
 
   procedure ComputeColumn;
+  var
+    scaledSubImageSize: integer;
   begin
     colLeft := (AWidth*currentCol) div AColCount;
     colRight := (AWidth*(currentCol+1)) div AColCount;
@@ -500,8 +528,9 @@ var x,y,i,frameIndex,h,w,sw,sh: integer;
     y := 2;
     maxWidth := colRight-colLeft-8;
 
-    if maxWidth > 128 then maxWidth := 128;
-    maxHeight := 128;
+    scaledSubImageSize := round(SubImageSize*FScaling);
+    if maxWidth > scaledSubImageSize then maxWidth := scaledSubImageSize;
+    maxHeight := scaledSubImageSize;
   end;
 
 begin
@@ -521,29 +550,29 @@ begin
     begin
       frameIndex := -1;
       FImageMenu[i].IsLoopCount := true;
-      w := 32;
-      h := 32;
+      w := ScaledIconSize;
+      h := w;
     end else
     if (NewItem = 1) and (i = LoopCountItem) then
     begin
       frameIndex := GetEntryCount;
       FImageMenu[i].IsNew := true;
-      w := 32;
-      h := 32;
+      w := ScaledIconSize;
+      h := w;
     end
     else
     if (DuplicateItem = 1) and (i = LoopCountItem + NewItem) then
     begin
       frameIndex := GetEntryCount;
       FImageMenu[i].IsDuplicate := true;
-      w := 32;
-      h := 32;
+      w := ScaledIconSize;
+      h := w;
     end
     else
     begin
       frameIndex := i-NewItem-LoopCountItem-DuplicateItem;
-      w := GetEntryWidth(frameIndex);
-      h := GetEntryHeight(frameIndex);
+      w := round(GetEntryWidth(frameIndex)*FScaling);
+      h := round(GetEntryHeight(frameIndex)*FScaling);
     end;
     if w > maxWidth then
     begin
@@ -1071,8 +1100,8 @@ begin
 
   if (FSelectedMenuIndex >= 0) and (FSelectedMenuIndex <= high(FImageMenu)) then
   begin
-    if scrollPos < FImageMenu[FSelectedMenuIndex].Area.Bottom-FSurface.Height then
-      scrollPos := FImageMenu[FSelectedMenuIndex].Area.Bottom-FSurface.Height;
+    if scrollPos < FImageMenu[FSelectedMenuIndex].Area.Bottom-FSurfaceScaledHeight then
+      scrollPos := FImageMenu[FSelectedMenuIndex].Area.Bottom-FSurfaceScaledHeight;
     if scrollPos > FImageMenu[FSelectedMenuIndex].Area.Top then
       scrollPos := FImageMenu[FSelectedMenuIndex].Area.Top;
     if Assigned(FScrollbar) then FScrollbar.Position := scrollPos;
@@ -1083,6 +1112,7 @@ end;
 constructor TImagePreview.Create(ASurface: TBGRAVirtualScreen; AStatus: TLabel; AAnimate: boolean);
 begin
   FSurface := ASurface;
+  FSurface.BitmapAutoScale:= false;
   FStatus := AStatus;
   FAnimate:= AAnimate;
   FSelectedMenuIndex := -1;

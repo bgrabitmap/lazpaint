@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UImage;
 
 {$mode objfpc}{$H+}
@@ -105,6 +106,8 @@ type
       AOriginal: TBGRALayerCustomOriginal; var ADiff: TBGRAOriginalDiff);
     procedure OriginalEditingChange({%H-}ASender: TObject;
       {%H-}AOriginal: TBGRALayerCustomOriginal);
+    procedure OriginalLoadError(ASender: TObject; AError: string;
+      var ARaise: boolean);
     procedure SetBlendOperation(AIndex: integer; AValue: TBlendOperation);
     procedure SetCurrentFilenameUTF8(AValue: string);
     procedure LayeredBitmapReplaced;
@@ -177,6 +180,7 @@ type
 
     // image layer
     function SetCurrentLayerByIndex(AValue: integer): boolean;
+    function SelectLayerContainingPixelAt(APicturePos: TPoint): boolean;
     function CurrentLayerEmpty: boolean;
     function CurrentLayerTransparent: boolean;
     function CurrentLayerEquals(AColor: TBGRAPixel): boolean;
@@ -1097,6 +1101,13 @@ begin
   OnImageChanged.NotifyObservers;
 end;
 
+procedure TLazPaintImage.OriginalLoadError(ASender: TObject; AError: string;
+  var ARaise: boolean);
+begin
+  MessagePopup(rsErrorLoadingOriginal, 4000);
+  ARaise := false;
+end;
+
 procedure TLazPaintImage.Redo;
 var diff: TCustomImageDifference;
 begin
@@ -1571,6 +1582,23 @@ begin
   result := true;
 end;
 
+function TLazPaintImage.SelectLayerContainingPixelAt(APicturePos: TPoint): boolean;
+var
+  i: Integer;
+  ofs: TPoint;
+begin
+  for i := NbLayers-1 downto 0 do
+  begin
+    ofs := LayerOffset[i];
+    if LayerBitmap[i].GetPixel(APicturePos.x - ofs.x, APicturePos.y - ofs.y).alpha > 0 then
+    begin
+      result := SetCurrentLayerByIndex(i);
+      exit;
+    end;
+  end;
+  result := false;
+end;
+
 procedure TLazPaintImage.SetLayerOffset(AIndex: integer; AValue: TPoint;
   APrecomputedLayerBounds: TRect);
 var
@@ -1847,6 +1875,7 @@ begin
       layeredBmp.LayerName[layeredBmp.AddOwnedLayer(mask,boXor)] := 'Xor';
     end;
   end;
+  if ACaption = '' then ACaption := rsLayer+'1';
   layeredBmp.LayerName[0] := ACaption;
   layeredBmp.LayerOpacity[0] := AOpacity;
   Assign(layeredBmp,True,AUndoable);
@@ -2336,6 +2365,7 @@ begin
   FCurrentState := TImageState.Create;
   FCurrentState.OnOriginalChange:= @OriginalChange;
   FCurrentState.OnOriginalEditingChange:= @OriginalEditingChange;
+  FCurrentState.OnOriginalLoadError:=@OriginalLoadError;
   FCurrentState.OnActionProgress:= @LayeredActionProgress;
   FCurrentState.OnActionDone:=@LayeredActionDone;
   FRenderUpdateRectInPicCoord := rect(0,0,0,0);

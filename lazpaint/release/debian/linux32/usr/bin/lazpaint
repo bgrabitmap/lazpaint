@@ -1,6 +1,0 @@
-#!/bin/bash
-# launcher for lazpaint by Bruno 2015-06-04
-
-cd /usr/share/lazpaint
-
-./lazpaint "$@"

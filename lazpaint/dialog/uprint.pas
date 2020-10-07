@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit uprint;
 
 {$mode objfpc}{$H+}
@@ -78,6 +79,8 @@ type
     FPrevMousePos: TPoint;
     FDpiAspectRatio,FAspectRatio: single;
     invZoom: TPointF;
+    FLabelCount: TLabel;
+    FPrintCount: integer;
     property RotatedSpinTop: TSpinEdit read GetRotatedSpinTop;
     property RotatedSpinLeft: TSpinEdit read GetRotatedSpinLeft;
     property RotatedSpinRight: TSpinEdit read GetRotatedSpinRight;
@@ -95,7 +98,7 @@ type
 
 implementation
 
-uses printers, UResourceStrings, Types, LCScaleDPI, umac;
+uses printers, UResourceStrings, Types, LCScaleDPI, umac, ULoading;
 
 var
   marginLeft, marginRight, marginTop, marginBottom: integer;
@@ -392,19 +395,50 @@ begin
   if (unrotatedTotalMarginInPoints.x >= paperSizeInPoints.x) or
     (unrotatedTotalMarginInPoints.y >= paperSizeInPoints.y) then exit;
 
-  FPrintTransform := AffineMatrixScale(Printer.XDPI/72, Printer.YDPI/72);
-  Printer.BeginDoc;
-  marTopLeft := FPrintTransform*unrotatedMarginTopLeftInPoints;
-  marBottomRight := FPrintTransform*(paperSizeInPoints - unrotatedMarginBottomRightInPoints);
-  area := rect(round(marTopLeft.x),round(marTopLeft.y),round(marBottomRight.x),round(marBottomRight.y));
-  Printer.Canvas.ClipRect := area;
-  Printer.Canvas.Clipping := true;
-  imgTopLeft := FPrintTransform*FImagePos;
-  imgBottomRight := FPrintTransform*(FImagePos+FImageSize);
-  Printer.Canvas.StretchDraw(rect(round(imgTopLeft.x),round(imgTopLeft.y),
-    round(imgBottomRight.x),round(imgBottomRight.y)), Instance.Image.RenderedImage.Bitmap);
-  Printer.Canvas.Clipping := false;
-  Printer.EndDoc;
+  if FLabelCount = nil then
+  begin
+    FLabelCount := TLabel.Create(self);
+    FLabelCount.Left := Button_Print.Left + Button_Print.Width;
+    FLabelCount.Top := Button_Print.Top;
+    FLabelCount.AutoSize := false;
+    FLabelCount.Height := Button_Print.Height;
+    FLabelCount.Width := BGRAVirtualScreen1.Left - FLabelCount.Left;
+    FLabelCount.Layout := tlCenter;
+    FLabelCount.Alignment := taCenter;
+    InsertControl(FLabelCount);
+  end;
+
+  FLabelCount.Caption:= '...';
+  MessagePopupForever(rsActionInProgress);
+  Self.Enabled:= false;
+  Application.ProcessMessages;
+  try
+    FPrintTransform := AffineMatrixScale(Printer.XDPI/72, Printer.YDPI/72);
+    Printer.BeginDoc;
+    if not Instance.Image.RenderedImage.Empty then
+    begin
+      marTopLeft := FPrintTransform*unrotatedMarginTopLeftInPoints;
+      marBottomRight := FPrintTransform*(paperSizeInPoints - unrotatedMarginBottomRightInPoints);
+      area := rect(round(marTopLeft.x),round(marTopLeft.y),round(marBottomRight.x),round(marBottomRight.y));
+      Printer.Canvas.ClipRect := area;
+      Printer.Canvas.Clipping := true;
+      imgTopLeft := FPrintTransform*FImagePos;
+      imgBottomRight := FPrintTransform*(FImagePos+FImageSize);
+      Printer.Canvas.StretchDraw(rect(round(imgTopLeft.x),round(imgTopLeft.y),
+        round(imgBottomRight.x),round(imgBottomRight.y)), Instance.Image.RenderedImage.Bitmap);
+      Printer.Canvas.Clipping := false;
+    end;
+    Printer.EndDoc;
+    MessagePopup(rsOkay, 4000);
+    inc(FPrintCount);
+  except on ex:exception do
+    begin
+      Instance.ShowError(Caption, ex.Message);
+      if Printer.Printing then Printer.Abort;
+    end;
+  end;
+  Self.Enabled := true;
+  FLabelCount.Caption := IntToStr(FPrintCount);
 end;
 
 procedure TFPrint.Button_ZoomFitClick(Sender: TObject);
@@ -458,7 +492,7 @@ end;
 procedure TFPrint.BGRAVirtualScreen1Redraw(Sender: TObject; Bitmap: TBGRABitmap
   );
 var
-  ratio: single;
+  ratio, scaling: single;
   x,y,w,h: integer;
   marTopLeft,marBottomRight,
   imgTopLeft,imgBottomRight: TPointF;
@@ -466,6 +500,7 @@ var
   zoom: TPointF;
 begin
   if (printer.PaperSize.Height = 0) or (printer.PaperSize.Width = 0) then exit;
+  scaling := DoScaleX(60, OriginalDPI)/60 * BGRAVirtualScreen1.GetCanvasScaleFactor;
   ratio := printer.PaperSize.Width/printer.PaperSize.Height;
   if Bitmap.Height * ratio > Bitmap.Width then
     begin
@@ -498,7 +533,8 @@ begin
   marTopLeft := FPreviewTransform*unrotatedMarginTopLeftInPoints;
   marBottomRight := FPreviewTransform*(paperSizeInPoints - unrotatedMarginBottomRightInPoints);
   area := rect(round(marTopLeft.x),round(marTopLeft.y),round(marBottomRight.x),round(marBottomRight.y));
-  Bitmap.Rectangle(area,BGRA(128,160,192,128),dmDrawWithTransparency);
+  Bitmap.RectangleAntialias(area.left, area.top, area.right, area.bottom, BGRA(128,160,192,128),
+    scaling);
   if IntersectRect(area,area,Bitmap.ClipRect) then
   begin
     Bitmap.ClipRect := area;
@@ -517,7 +553,8 @@ begin
     InflateRect(bounds,1,1);
     IntersectRect(imgRect, imgRect,bounds);
     Bitmap.DrawPolyLineAntialias([imgRect.TopLeft,Point(imgRect.Right-1,imgRect.Top),Point(imgRect.Right-1, imgRect.Bottom-1),
-                                  Point(imgRect.left, imgRect.Bottom-1),imgRect.TopLeft], BGRA(128,160,192,128), BGRAPixelTransparent, 2, False);
+                                  Point(imgRect.left, imgRect.Bottom-1),imgRect.TopLeft], BGRA(0,0,0,128),
+                                  BGRA(255,255,255,128), round(2*scaling), False);
   end;
   Bitmap.NoClip;
 end;
@@ -589,6 +626,8 @@ end;
 procedure TFPrint.FormCreate(Sender: TObject);
 begin
   ScaleControl(Self,OriginalDPI);
+  BGRAVirtualScreen1.BitmapAutoScale:= false;
+  BGRAVirtualScreen1.Color := clDkGray;
 
   CheckSpinEdit(SpinEdit_DpiY);
   CheckSpinEdit(SpinEdit_DpiX);

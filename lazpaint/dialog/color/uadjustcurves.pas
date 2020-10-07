@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit uadjustcurves;
 
 {$mode objfpc}{$H+}
@@ -67,6 +68,7 @@ type
     FGridColor: TBGRAPixel;
     FTickSize: integer;
     FPointSize, FCurvePenWidth: single;
+    FScaling: single;
     FHueTabPrecomputed: boolean;
     FSelectedPoint: integer;
     FMovingPoint: boolean;
@@ -126,6 +128,7 @@ var
   i: Integer;
 begin
   ScaleControl(Self, OriginalDPI);
+  vsChart.BitmapAutoScale:= false;
 
   CheckOKCancelBtns(Button_OK, Button_Cancel);
   FSelectedPoint:= -1;
@@ -379,6 +382,8 @@ end;
 procedure TFAdjustCurves.vsChartMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
+  X := round(X*FScaling);
+  Y := round(Y*FScaling);
   if Button = mbLeft then
   begin
     FSelectedPoint:= NearestPoint(X,Y);
@@ -391,6 +396,8 @@ end;
 procedure TFAdjustCurves.vsChartMouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: Integer);
 begin
+  X := round(X*FScaling);
+  Y := round(Y*FScaling);
   if FMovingPoint then
   begin
     SetPointCoord(FSelectedPoint, BitmapToCoord(X,Y));
@@ -538,8 +545,9 @@ begin
     if length(labels[i])>maxLabelLength then maxLabelLength := length(labels[i]);
   totalLabelLength:= maxLabelLength + length(labels[0]) + (1+maxLabelLength)*(length(labels)-1);
 
+  FScaling := GetCanvasScaleFactor;
   th := Min(AHeight div (length(labels)+2), round(AWidth*1.8/totalLabelLength));
-  th := Min(th, DoScaleY(20,96));
+  th := Min(th, DoScaleY(round(20*FScaling),96));
   FCurvePenWidth := th/10;
   FPointSize := th/4;
   FTickSize := th div 4;
@@ -621,6 +629,10 @@ begin
   result := -1;
   curve := SelectedCurve;
   if curve = nil then exit;
+  if xBmp < FPoint0.x then xBmp := FPoint0.x;
+  if xBmp > FPoint1.x then xBmp := FPoint1.x;
+  if yBmp > FPoint0.y then yBmp := FPoint0.y;
+  if yBmp < FPoint1.y then yBmp := FPoint1.y;
   pointList := curve.GetVariable('Points');
   pointCount := curve.GetListCount(pointList);
   minDist := sqr(ScaleX(20,96)+0.0);
@@ -656,6 +668,8 @@ begin
     if (pt1.x <= xBmp-1) and (pt2.x >= xBmp+1) then
     begin
       coord := BitmapToCoord(xBmp,yBmp);
+      if coord.y < 0 then coord.y := 0;
+      if coord.y > 1 then coord.y := 1;
       curve.AppendPoint(pointList, curve.GetPoint2DAt(pointList, pointCount-1));
       for j := pointCount-1 downto i do curve.AssignPointAt(pointList, j+1, curve.GetPoint2DAt(pointList, j));
       curve.AssignPointAt(pointList, i, coord);

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit LCVectorTextShapes;
 
 {$mode objfpc}{$H+}
@@ -5,11 +6,8 @@ unit LCVectorTextShapes;
 interface
 
 uses
-  Classes, SysUtils, LCVectorRectShapes, BGRATextBidi, BGRABitmapTypes, LCVectorOriginal, BGRAGraphics,
-  BGRABitmap, BGRALayerOriginal, BGRACanvas2D;
-
-const
-  AlwaysVectorialText = true;
+  Classes, SysUtils, LCVectorRectShapes, BGRATextBidi, BGRABitmapTypes, LCVectorOriginal,
+  BGRAGraphics, BGRABitmap, BGRALayerOriginal, BGRACanvas2D, LCVectorialFill;
 
 type
   TTextShape = class;
@@ -84,6 +82,7 @@ type
     FAliased: boolean;
     FAltitudePercent: single;
     FPenPhong: boolean;
+    FPenFillIteration: integer;
     FLightPosition: TPointF;
     FFontBidiMode: TFontBidiMode;
     FFontEmHeight: single;
@@ -100,6 +99,16 @@ type
     function GetCanPasteSelection: boolean;
     function GetHasSelection: boolean;
     function GetParagraphAlignment: TAlignment;
+    procedure InvalidateParagraphLayout(AFrom, ATo: integer);
+    procedure LayoutBrokenLinesChanged(ASender: TObject;
+      AParagraphIndex: integer; ASubBrokenStart, ASubBrokenChangedCountBefore,
+      ASubBrokenChangedCountAfter: integer; ASubBrokenTotalCountBefore,
+      ASubBrokenTotalCountAfter: integer);
+    procedure LayoutParagraphDeleted(ASender: TObject; AParagraphIndex: integer);
+    procedure LayoutParagraphMergedWithNext(ASender: TObject;
+      AParagraphIndex: integer);
+    procedure LayoutParagraphSplit(ASender: TObject; AParagraphIndex: integer;
+      ASubBrokenIndex, ACharIndex: integer);
     procedure OnMoveLightPos({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF;
       {%H-}AShift: TShiftState);
     procedure SetAliased(AValue: boolean);
@@ -118,12 +127,17 @@ type
     FTextLayout: TBidiTextLayout;
     FFontRenderer: TBGRACustomFontRenderer;
     FGlobalMatrix: TAffineMatrix;
-    procedure DoOnChange(ABoundsBefore: TRectF; ADiff: TVectorShapeDiff); override;
+    FCurBrokenLineImageId: int64;
+    FParagraphLayout: array of record
+        brokenLines: array of record
+              penImageId, penMaskId,
+              outlineMaskId: int64;
+            end;
+      end;
     procedure SetGlobalMatrix(AMatrix: TAffineMatrix);
     function ShowArrows: boolean; override;
     function GetTextLayout: TBidiTextLayout;
     function GetFontRenderer: TBGRACustomFontRenderer;
-    function UseVectorialTextRenderer: boolean;
     function UpdateFontRenderer: boolean;
     function GetTextRenderZoom: single;
     function GetUntransformedMatrix: TAffineMatrix; //matrix before render transform
@@ -136,6 +150,7 @@ type
     procedure SelectWithMouse(X,Y: single; AExtend: boolean);
     function HasOutline: boolean;
     procedure InsertUnicodeValue;
+    procedure FillChange(ASender: TObject; var ADiff: TCustomVectorialFillDiff); override;
   public
     constructor Create(AContainer: TVectorOriginal); override;
     procedure QuickDefine(constref APoint1,APoint2: TPointF); override;
@@ -196,9 +211,10 @@ function StrToFontBidiMode(AText: string): TFontBidiMode;
 
 implementation
 
-uses BGRATransform, BGRAText, BGRAVectorize, LCVectorialFill, math,
+uses BGRATransform, BGRAText, BGRAVectorize, math,
   BGRAUTF8, BGRAUnicode, Graphics, Clipbrd, LCLType, LCLIntf,
-  BGRAGradients, BGRACustomTextFX, LCResourceString, BGRAFillInfo;
+  BGRAGradients, BGRACustomTextFX, LCResourceString, BGRAFillInfo,
+  BGRAGrayscaleMask, BGRAPath, BGRALzpCommon, BGRADefaultBitmap;
 
 function FontStyleToStr(AStyle: TFontStyles): string;
 begin
@@ -237,6 +253,29 @@ begin
   if CompareText(AText,'ltr')=0 then result := fbmLeftToRight else
   if CompareText(AText,'rtl')=0 then result := fbmRightToLeft
   else result := fbmAuto;
+end;
+
+function GetPointBoundsF(APoints: ArrayOfTPointF): TRectF;
+var
+  i: Integer;
+begin
+  result := EmptyRectF;
+  i := length(APoints);
+  while i > 0 do
+  begin
+    dec(i);
+    if not isEmptyPointF(APoints[i]) then
+    begin
+      result.TopLeft := APoints[i];
+      result.BottomRight := APoints[i];
+      break;
+    end;
+  end;
+  while i > 0 do
+  begin
+    dec(i);
+    result.Include(APoints[i]);
+  end;
 end;
 
 { TTextShapeTextDiff }
@@ -552,6 +591,85 @@ begin
   end;
 end;
 
+procedure TTextShape.InvalidateParagraphLayout(AFrom, ATo: integer);
+var
+  i, j: Integer;
+begin
+  for i := AFrom to ATo do
+    with FParagraphLayout[i] do
+    begin
+      for j := 0 to high(brokenLines) do
+      begin
+        brokenLines[j].penImageId := 0;
+        brokenLines[j].penMaskId:= 0;
+        brokenLines[j].outlineMaskId := 0;
+      end;
+    end;
+end;
+
+procedure TTextShape.LayoutBrokenLinesChanged(ASender: TObject;
+  AParagraphIndex: integer; ASubBrokenStart, ASubBrokenChangedCountBefore,
+  ASubBrokenChangedCountAfter: integer; ASubBrokenTotalCountBefore,
+  ASubBrokenTotalCountAfter: integer);
+var
+  i: Integer;
+begin
+  if AParagraphIndex >= length(FParagraphLayout) then exit;
+  if (ASubBrokenTotalCountBefore <> length(FParagraphLayout[AParagraphIndex].brokenLines)) then
+  begin
+    InvalidateParagraphLayout(AParagraphIndex,high(FParagraphLayout));
+    FParagraphLayout[AParagraphIndex].brokenLines := nil;
+    exit;
+  end;
+  with FParagraphLayout[AParagraphIndex] do
+  begin
+    if (ASubBrokenChangedCountBefore <> ASubBrokenChangedCountAfter) then
+    begin
+      for i := ASubBrokenStart to high(brokenLines) do
+      begin
+         brokenLines[i].penImageId := 0;
+         brokenLines[i].penMaskId := 0;
+         brokenLines[i].outlineMaskId := 0;
+      end;
+      setlength(brokenLines, ASubBrokenTotalCountAfter);
+      if ASubBrokenChangedCountAfter > ASubBrokenChangedCountBefore then
+      begin
+        for i := ASubBrokenTotalCountBefore to high(brokenLines) do
+        begin
+          brokenLines[i].penImageId := 0;
+          brokenLines[i].penMaskId := 0;
+          brokenLines[i].outlineMaskId := 0;
+        end;
+      end;
+      InvalidateParagraphLayout(AParagraphIndex+1,high(FParagraphLayout));
+    end else
+      for i := ASubBrokenStart to ASubBrokenStart+ASubBrokenChangedCountBefore-1 do
+      begin
+        brokenLines[i].penImageId := 0;
+        brokenLines[i].penMaskId := 0;
+        brokenLines[i].outlineMaskId := 0;
+      end;
+  end;
+end;
+
+procedure TTextShape.LayoutParagraphDeleted(ASender: TObject;
+  AParagraphIndex: integer);
+begin
+  InvalidateParagraphLayout(AParagraphIndex, high(FParagraphLayout));
+end;
+
+procedure TTextShape.LayoutParagraphMergedWithNext(ASender: TObject;
+  AParagraphIndex: integer);
+begin
+  InvalidateParagraphLayout(AParagraphIndex, high(FParagraphLayout));
+end;
+
+procedure TTextShape.LayoutParagraphSplit(ASender: TObject;
+  AParagraphIndex: integer; ASubBrokenIndex, ACharIndex: integer);
+begin
+  InvalidateParagraphLayout(AParagraphIndex, high(FParagraphLayout));
+end;
+
 procedure TTextShape.OnMoveLightPos(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
 begin
@@ -699,31 +817,6 @@ begin
   EndUpdate;
 end;
 
-procedure TTextShape.DoOnChange(ABoundsBefore: TRectF; ADiff: TVectorShapeDiff);
-var freeRenderer: boolean;
-begin
-  if Assigned(FFontRenderer) then
-  begin
-    freeRenderer := false;
-    if UseVectorialTextRenderer then
-    begin
-      if not (FFontRenderer is TBGRAVectorizedFontRenderer) then
-        freeRenderer:= true;
-    end else
-    begin
-      if not (FFontRenderer is TLCLFontRenderer) then
-        freeRenderer:= true;
-    end;
-    if freeRenderer then
-    begin
-      FreeAndNil(FFontRenderer);
-      if Assigned(FTextLayout) then
-        FTextLayout.FontRenderer := GetFontRenderer;
-    end;
-  end;
-  inherited DoOnChange(ABoundsBefore, ADiff);
-end;
-
 procedure TTextShape.SetGlobalMatrix(AMatrix: TAffineMatrix);
 begin
   if AMatrix = FGlobalMatrix then exit;
@@ -745,7 +838,13 @@ var
   box: TAffineBox;
 begin
   if FTextLayout = nil then
-    FTextLayout := TBidiTextLayout.Create(GetFontRenderer, FText)
+  begin
+    FTextLayout := TBidiTextLayout.Create(GetFontRenderer, FText);
+    FTextLayout.OnParagraphDeleted:=@LayoutParagraphDeleted;
+    FTextLayout.OnParagraphMergedWithNext:=@LayoutParagraphMergedWithNext;
+    FTextLayout.OnParagraphSplit:=@LayoutParagraphSplit;
+    FTextLayout.OnBrokenLinesChanged:=@LayoutBrokenLinesChanged;
+  end
   else
     if UpdateFontRenderer then FTextLayout.InvalidateLayout;
 
@@ -764,29 +863,16 @@ begin
   result := FFontRenderer;
 end;
 
-function TTextShape.UseVectorialTextRenderer: boolean;
-begin
-  result := AlwaysVectorialText or HasOutline;
-end;
-
 function TTextShape.UpdateFontRenderer: boolean;
 var
   newEmHeight: single;
 begin
   if FFontRenderer = nil then
   begin
-    if UseVectorialTextRenderer then
-    begin
-      FFontRenderer := TBGRAVectorizedFontRenderer.Create;
-      TBGRAVectorizedFontRenderer(FFontRenderer).QuadraticCurves := true;
-      TBGRAVectorizedFontRenderer(FFontRenderer).MinFontResolution := 300;
-      TBGRAVectorizedFontRenderer(FFontRenderer).MaxFontResolution := 300;
-    end
-    else
-    begin
-      FFontRenderer := TLCLFontRenderer.Create;
-      TLCLFontRenderer(FFontRenderer).OverrideUnderlineDecoration:= true;
-    end;
+    FFontRenderer := TBGRAVectorizedFontRenderer.Create;
+    TBGRAVectorizedFontRenderer(FFontRenderer).QuadraticCurves := true;
+    TBGRAVectorizedFontRenderer(FFontRenderer).MinFontResolution := 300;
+    TBGRAVectorizedFontRenderer(FFontRenderer).MaxFontResolution := 300;
   end;
   newEmHeight := FontEmHeight*GetTextRenderZoom;
   if (newEmHeight <> FFontRenderer.FontEmHeight) or
@@ -970,6 +1056,13 @@ begin
   end;
 end;
 
+procedure TTextShape.FillChange(ASender: TObject;
+  var ADiff: TCustomVectorialFillDiff);
+begin
+  if ASender = PenFill then inc(FPenFillIteration);
+  inherited FillChange(ASender, ADiff);
+end;
+
 constructor TTextShape.Create(AContainer: TVectorOriginal);
 begin
   inherited Create(AContainer);
@@ -980,9 +1073,11 @@ begin
   FSelEnd := 0;
   FGlobalMatrix := AffineMatrixIdentity;
   FPenPhong:= false;
+  FPenFillIteration := 0;
   FAltitudePercent:= DefaultAltitudePercent;
   FLightPosition := PointF(0,0);
   FAliased := false;
+  FCurBrokenLineImageId := 0;
 end;
 
 procedure TTextShape.QuickDefine(constref APoint1, APoint2: TPointF);
@@ -1225,30 +1320,418 @@ procedure TTextShape.Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: 
   end;
 
 var
-  zoom: Single;
+  hasPen: boolean;
+  zoom, outlineRenderWidth: Single;
   m: TAffineMatrix;
   tl: TBidiTextLayout;
   fr: TBGRACustomFontRenderer;
-  pad: Integer;
+  pad, paraIndex, fileIdx: Integer;
   sourceRectF,transfRectF,sourceInvRect,destF: TRectF;
-  transfRect: TRect;
-  tmpSource, tmpTransf, tmpTransfMask: TBGRABitmap;
-  scan: TBGRACustomScanner;
-  ctx: TBGRACanvas2D;
+  transfRect, tmpRenderRect, brokenLineRectBounds: TRect;
+  tmpSource, tmpTransf: TBGRABitmap;
+  tmpBroken: TBGRAMemoryStreamBitmap;
+  tmpTransfOutline, tmpBrokenMask: TGrayscaleMask;
   rf: TResampleFilter;
-  storeImage: Boolean;
-  shader: TPhongShading;
-  textFx: TBGRACustomTextEffect;
+  storeImage, useBrokenLinesRender, redrawPen, redrawOutline,
+    outlineWidthChange, penPhongChange: Boolean;
+  storage: TShapeRenderStorage;
+  startBrokenIndex, endBrokenIndex, brokenIndex: LongInt;
+  imgStream: TMemoryStream;
+  tempRenderNewList, tempRenderCurList: TStringList;
+  renderObj, phongObj, tempStorage: TBGRACustomOriginalStorage;
+  brokenRenderOfs: TPoint;
+  brokenLinePoints: Array of TPointF;
+  brokenLineBoundsF: TRectF;
+
+  procedure ComputeBrokenLinesPath(AStartBroken, AEndBroken: integer);
+  var
+    p: TBGRAPath;
+  begin
+    p := TBGRAPath.Create;
+    tl.PathBrokenLines(p, AStartBroken, AEndBroken);
+    brokenLinePoints := p.ToPoints(m);
+    brokenLineBoundsF := GetPointBoundsF(brokenLinePoints);
+    p.Free;
+  end;
+
+  procedure FillPen(ADestination: TCustomUniversalBitmap; AOffset: TPoint; ABrush: TUniversalBrush);
+  var
+    pts: ArrayOfTPointF;
+    i: Integer;
+  begin
+    if not hasPen then exit;
+
+    pts := PointsF(brokenLinePoints);
+    for i := high(pts) downto 0 do
+      pts[i].Offset(AOffset.x, AOffset.Y);
+
+    ADestination.FillMode:= fmWinding;
+    if (ADraft and PenPhong) or Aliased then
+      ADestination.FillPoly(pts, ABrush, false)
+    else
+      ADestination.FillPolyAntialias(pts, ABrush, false);
+  end;
+
+  procedure RenderPen(ADestination: TBGRACustomBitmap; AOffset: TPoint);
+  var
+    rF: TRectF;
+    r: TRect;
+    textMask: TGrayscaleMask;
+    textFx: TBGRACustomTextEffect;
+    scan: TBGRACustomScanner;
+    shader: TPhongShading;
+    maskOfs: TPoint;
+    b: TUniversalBrush;
+  begin
+    if not hasPen then exit;
+
+    if PenPhong then
+    begin
+      rF := brokenLineBoundsF;
+      rF.Offset(AOffset.X, AOffset.Y);
+      rF := TRectF.Intersect(rF, rectF(0,0,ADestination.Width,ADestination.Height));
+      r := Rect(floor(rF.Left), floor(rF.Top), ceil(rF.Right), ceil(rF.Bottom));
+      r.Inflate(1, 1);
+      maskOfs := Point(AOffset.x - r.Left, AOffset.y - r.Top);
+
+      textMask := TGrayscaleMask.Create(r.Width, r.Height, 0);
+      textMask.SolidBrush(b, ByteMaskWhite, dmDrawWithTransparency);
+      FillPen(textMask, maskOfs, b);
+      textFx := TBGRACustomTextEffect.Create(textMask, true, textMask.Width,textMask.Height, Point(0, 0));
+
+      shader:= CreateShader(AOffset.X, AOffset.Y);
+      if PenFill.FillType = vftSolid then
+        textFx.DrawShaded(ADestination, r.Left, r.Top, shader, GetTextPhongHeight, PenFill.SolidColor)
+      else
+      begin
+        scan := PenFill.CreateScanner(AffineMatrixTranslation(AOffset.X, AOffset.Y)*FGlobalMatrix, ADraft);
+        textFx.DrawShaded(ADestination, r.Left, r.Top, shader, GetTextPhongHeight, scan);
+        scan.Free;
+      end;
+      shader.Free;
+
+      textFx.Free;
+    end else
+    begin
+      if PenFill.FillType = vftSolid then
+      begin
+        ADestination.SolidBrush(b, PenFill.SolidColor, dmDrawWithTransparency);
+        FillPen(ADestination, AOffset, b);
+      end else
+      begin
+        scan := PenFill.CreateScanner(AffineMatrixTranslation(AOffset.X, AOffset.Y)*FGlobalMatrix, ADraft);
+        ADestination.ScannerBrush(b, scan, dmDrawWithTransparency);
+        FillPen(ADestination, AOffset, b);
+        scan.Free;
+      end;
+    end;
+  end;
+
+  procedure RenderPenMask(ADestination: TGrayscaleMask; AOffset: TPoint);
+  var
+    b: TUniversalBrush;
+  begin
+    ADestination.SolidBrush(b, ByteMaskWhite, dmDrawWithTransparency);
+    FillPen(ADestination, AOffset, b);
+  end;
+
+  procedure RenderFromMask(ADestination: TBGRABitmap; AX, AY: Integer; AMask: TGrayscaleMask;
+    AFillOffset: TPoint; AFill: TVectorialFill);
+  var
+    scan: TBGRACustomScanner;
+  begin
+    if AFill.FillType = vftSolid then
+    begin
+      ADestination.FillMask(AX, AY, AMask, AFill.SolidColor, dmDrawWithTransparency);
+    end else
+    if AFill.FillType <> vftNone then
+    begin
+      scan := AFill.CreateScanner(AffineMatrixTranslation(AFillOffset.X, AFillOffset.Y)*FGlobalMatrix, ADraft);
+      ADestination.FillMask(AX, AY, AMask, scan, dmDrawWithTransparency);
+      scan.Free;
+    end;
+  end;
+
+  procedure RenderFromMask(ADestination: TGrayscaleMask; AX, AY: Integer; AMask: TGrayscaleMask);
+  begin
+    ADestination.FillMask(AX, AY, AMask, ByteMaskWhite);
+  end;
+
+  procedure FillOutline(ADestination: TCustomUniversalBitmap; AOffset: TPoint; ABrush: TUniversalBrush);
+  var
+    pts: ArrayOfTPointF;
+    i: Integer;
+  begin
+    if not HasOutline then exit;
+    ADestination.Pen.JoinStyle:= pjsRound;
+    ADestination.Pen.Style:= psSolid;
+    ADestination.FillMode:= fmWinding;
+    pts := ADestination.Pen.ComputePolygon(brokenLinePoints, outlineRenderWidth);
+    for i := high(pts) downto 0 do
+      pts[i].Offset(AOffset.x, AOffset.Y);
+    if ADraft or Aliased then
+      ADestination.FillPoly(pts, ABrush, false)
+    else
+      ADestination.FillPolyAntialias(pts, ABrush, false);
+  end;
+
+  procedure RenderOutlineMask(ADestination: TGrayscaleMask; AOffset: TPoint);
+  var
+    b: TUniversalBrush;
+  begin
+    ADestination.SolidBrush(b, ByteMaskWhite, dmDrawWithTransparency);
+    FillOutline(ADestination, AOffset, b);
+  end;
+
+  procedure RenderOutline(ADestination: TBGRABitmap; AOffset: TPoint);
+  var
+    scan: TBGRACustomScanner;
+    b: TUniversalBrush;
+  begin
+    if OutlineFill.FillType = vftSolid then
+    begin
+      ADestination.SolidBrush(b, OutlineFill.SolidColor, dmDrawWithTransparency);
+      FillOutline(ADestination, AOffset, b);
+    end else
+    if OutlineFill.FillType <> vftNone then
+    begin
+      scan := OutlineFill.CreateScanner(AffineMatrixTranslation(AOffset.X, AOffset.Y)*FGlobalMatrix, ADraft);
+      ADestination.ScannerBrush(b, scan, dmDrawWithTransparency);
+      FillOutline(ADestination, AOffset, b);
+      scan.Free;
+    end;
+  end;
+
+  procedure RenderBrokenLines(ADestination: TBGRABitmap; AStartBroken, AEndBroken: integer; AOffset: TPoint);
+  begin
+    ComputeBrokenLinesPath(AStartBroken, AEndBroken);
+    RenderOutline(ADestination, AOffset);
+    RenderPen(ADestination, AOffset);
+  end;
+
+  procedure StoreRGBAImage(var AImageId: int64; AImage: TBGRAMemoryStreamBitmap; AImageOffset: TPoint);
+  var
+    imgStream: TMemoryStream;
+    renderObj: TBGRACustomOriginalStorage;
+  begin
+    if AImageId = 0 then
+    begin
+      inc(FCurBrokenLineImageId);
+      AImageId := FCurBrokenLineImageId;
+    end;
+    renderObj := tempStorage.CreateObject(inttostr(AImageId));
+    renderObj.PointF['size'] := PointF(AImage.Width, AImage.Height);
+    renderObj.PointF['offset'] := PointF(AImageOffset) - PointF(ARenderOffset);
+    renderObj.WriteFile('image.data', AImage.Stream, false, AImage.OwnStream);
+    AImage.OwnStream := false;
+    renderObj.Free;
+    tempRenderNewList.Add(inttostr(AImageId));
+  end;
+
+  procedure EncodeSimpleRLE(AData: PByte; ASize: integer; AStream: TStream);
+  var
+    repCount, val: Byte;
+    repeating: boolean;
+  begin
+    repeating := true;
+    while ASize > 0 do
+    begin
+      val := AData^; inc(AData); repCount := 1; dec(ASize);
+      while (ASize > 0) and (AData^ = val) and (repCount < 254) do
+      begin
+        inc(AData);
+        dec(ASize);
+        inc(repCount);
+      end;
+      if (repCount > 2) or (ASize = 0) then
+      begin
+        if not repeating then AStream.WriteByte(0);
+        AStream.WriteByte(repCount);
+        AStream.WriteByte(val);
+        repeating := false;
+      end else
+      begin
+        while (ASize > 1) and (repCount < 253) and ((AData^ <> (AData-1)^) or ((AData+1)^ <> (AData-1)^)) do
+        begin
+          inc(AData, 2);
+          dec(ASize, 2);
+          inc(repCount, 2);
+        end;
+        if (ASize = 1) and (repCount < 254) then
+        begin
+          inc(AData);
+          dec(ASize);
+          inc(repCount);
+        end;
+        if repeating then AStream.WriteByte(0);
+        AStream.WriteByte(repCount);
+        AStream.WriteBuffer((AData-repCount)^, repCount);
+        repeating := true;
+      end;
+    end;
+    AStream.WriteByte(255);
+  end;
+
+  procedure DecodeSimpleRLE(AData: PByte; ASize: integer; AStream: TStream);
+  var
+    repCount, val: Byte;
+  begin
+    while ASize > 0 do
+    begin
+      repCount := AStream.ReadByte;
+      if repCount = 255 then break;
+      if repCount > 0 then
+      begin
+        val := AStream.ReadByte;
+        if repCount > ASize then repCount := ASize;
+        fillchar(AData^, repCount, val);
+        inc(AData, repCount);
+        dec(ASize, repCount);
+      end;
+
+      repCount := AStream.ReadByte;
+      if repCount = 255 then break;
+      if repCount > 0 then
+      begin
+        if repCount > ASize then repCount := ASize;
+        AStream.ReadBuffer(AData^, repCount);
+        inc(AData, repCount);
+        dec(ASize, repCount);
+      end;
+    end;
+    while ASize > 0 do
+    begin
+      AData^ := 0;
+      inc(AData);
+      dec(ASize);
+    end;
+  end;
+
+  procedure StoreMask(var AMaskId: int64; AMask: TGrayscaleMask; AMaskOffset: TPoint);
+  var
+    imgStream: TMemoryStream;
+    renderObj: TBGRACustomOriginalStorage;
+  begin
+    imgStream := TMemoryStream.Create;
+    EncodeSimpleRLE(AMask.Data, AMask.NbPixels, imgStream);
+    if AMaskId = 0 then
+    begin
+      inc(FCurBrokenLineImageId);
+      AMaskId := FCurBrokenLineImageId;
+    end;
+    renderObj := tempStorage.CreateObject(inttostr(AMaskId));
+    renderObj.PointF['size'] := PointF(AMask.Width, AMask.Height);
+    renderObj.PointF['offset'] := PointF(AMaskOffset) - PointF(ARenderOffset);
+    renderObj.WriteFile('mask.data', imgStream, false, true);
+    renderObj.Free;
+    tempRenderNewList.Add(inttostr(AMaskId));
+  end;
+
+  function LoadStoredMask(AMaskId: integer; out AMask: TGrayscaleMask; out AOffset: TPoint): boolean;
+  var
+    imgStream: TStream;
+    renderObj: TBGRACustomOriginalStorage;
+    size: TPoint;
+  begin
+    AMask := nil;
+    AOffset := Point(0,0);
+    result := false;
+
+    renderObj := tempStorage.OpenObject(inttostr(AMaskId));
+    if Assigned(renderObj) then
+    begin
+      size := renderObj.PointF['size'].Round;
+      AOffset := (renderObj.PointF['offset'] + PointF(ARenderOffset)).Round;
+      imgStream := renderObj.GetFileStream('mask.data');
+      if not Assigned(imgStream) or (imgStream.Size = 0) then exit;
+      tempRenderNewList.Add(inttostr(AMaskId));
+      AMask := TGrayscaleMask.Create;
+      AMask.SetSize(size.x, size.y);
+      imgStream.Position := 0;
+      DecodeSimpleRLE(AMask.Data, AMask.NbPixels, imgStream);
+      renderObj.Free;
+      result := true;
+    end;
+  end;
+
+  procedure RenderFromStoredMask(ADestination: TBGRABitmap; AMaskId: integer; AFill: TVectorialFill);
+  var
+    brokenRenderOfs: TPoint;
+    tmpBrokenMask: TGrayscaleMask;
+  begin
+    if LoadStoredMask(AMaskId, tmpBrokenMask, brokenRenderOfs) then
+    begin
+      RenderFromMask(ADestination, brokenRenderOfs.X - transfRect.Left,
+                     brokenRenderOfs.Y - transfRect.Top, tmpBrokenMask,
+                     Point(- transfRect.Left, - transfRect.Top), AFill);
+      tmpBrokenMask.Free;
+    end;
+  end;
+
+  procedure RenderFromStoredMask(ADestination: TGrayscaleMask; AMaskId: integer);
+  var
+    brokenRenderOfs: TPoint;
+    tmpBrokenMask: TGrayscaleMask;
+  begin
+    if LoadStoredMask(AMaskId, tmpBrokenMask, brokenRenderOfs) then
+    begin
+      RenderFromMask(ADestination, brokenRenderOfs.X - transfRect.Left,
+                     brokenRenderOfs.Y - transfRect.Top, tmpBrokenMask);
+      tmpBrokenMask.Free;
+    end;
+  end;
+
+  procedure RenderFromStoredImage(ADestination: TBGRABitmap; AImageId: integer);
+  var
+    renderObj: TBGRACustomOriginalStorage;
+    brokenRenderOfs, size: TPoint;
+    imgStream: TStream;
+    tmpBroken: TBGRAMemoryStreamBitmap;
+  begin
+    renderObj := tempStorage.OpenObject(inttostr(AImageId));
+    if Assigned(renderObj) then
+    begin
+      size := renderObj.PointF['size'].Round;
+      brokenRenderOfs := (renderObj.PointF['offset'] + PointF(ARenderOffset)).Round;
+      imgStream := renderObj.GetFileStream('image.data');
+      if (imgStream = nil) or (imgStream.Size = 0) then exit;
+      tempRenderNewList.Add(inttostr(AImageId));
+      tmpBroken := TBGRAMemoryStreamBitmap.Create(size.x, size.y,
+                     imgStream as TMemoryStream, 0, false);
+      ADestination.PutImage(brokenRenderOfs.X - transfRect.Left,
+                            brokenRenderOfs.Y - transfRect.Top,
+                            tmpBroken, dmDrawWithTransparency);
+      tmpBroken.Free;
+      renderObj.Free;
+    end;
+  end;
+
+  procedure ApplyClipBox(ADest: TCustomUniversalBitmap);
+  var
+    maskBox: TAffineBox;
+    wholeImage: TAffineBox;
+  begin
+    maskBox := AffineMatrixTranslation(-transfRect.Left,-transfRect.Top) * m  *
+               TAffineBox.AffineBox(sourceRectF);
+    wholeImage := TAffineBox.AffineBox(PointF(-1,-1), PointF(-1,ADest.Height+1),
+                                       PointF(ADest.Width+1,-1));
+    ADest.FillMode := fmWinding;
+    ADest.ErasePolyAntialias( ConcatPointsF([wholeImage.AsPolygon, maskBox.AsPolygon], true),
+                                  255, false);
+  end;
+
 begin
   RetrieveRenderStorage(AMatrix, transfRect, tmpTransf);
   if Assigned(tmpTransf) then
   begin
-    ADest.PutImage(transfRect.Left+ARenderOffset.X,transfRect.Top+ARenderOffset.Y, tmpTransf,dmDrawWithTransparency);
+    ADest.PutImage(transfRect.Left + ARenderOffset.X, transfRect.Top + ARenderOffset.Y,
+                   tmpTransf, dmDrawWithTransparency);
     tmpTransf.Free;
     exit;
   end;
 
-  if PenFill.IsFullyTransparent and not HasOutline then exit;
+  hasPen := not PenFill.IsFullyTransparent;
+  if not hasPen and not HasOutline then exit;
   SetGlobalMatrix(AffineMatrixTranslation(ARenderOffset.X,ARenderOffset.Y)*AMatrix);
   zoom := GetTextRenderZoom;
   if zoom = 0 then exit;
@@ -1263,20 +1746,54 @@ begin
   tl := GetTextLayout;
   sourceRectF := RectF(-pad,0,tl.AvailableWidth+pad,min(tl.TotalTextHeight,tl.AvailableHeight));
 
-  storeImage := not ADraft and CanHaveRenderStorage;
-  if storeImage then
+  if CanHaveRenderStorage then
+  begin
+    storage := OpenRenderStorage(true);
+    tempStorage := storage.temporary;
+  end else
+  begin
+    storage := TShapeRenderStorage.None;
+    tempStorage := TemporaryStorage;
+  end;
+
+  if Assigned(tempStorage) then
+  begin
+    tempRenderNewList := TStringList.Create;
+    useBrokenLinesRender := not ADraft and (Usermode = vsuEditText);
+    if not tempStorage.AffineMatrixEquals('last-matrix', AMatrix) or
+       not tempStorage.PointFEquals('origin', Origin) or
+       not tempStorage.PointFEquals('x-axis', XAxis) or
+       not tempStorage.PointFEquals('y-axis', YAxis) or
+       not tempStorage.FloatEquals('em-height', FontEmHeight) or
+       not useBrokenLinesRender then
+    begin
+      //all temp files that are obsolete
+      tempRenderCurList := TStringList.Create;
+      tempStorage.EnumerateObjects(tempRenderCurList);
+      for fileIdx := 0 to tempRenderCurList.Count-1 do
+        tempStorage.RemoveObject(tempRenderCurList[fileIdx]);
+      tempRenderCurList.Free;
+
+      tempStorage.RemoveAttribute('last-matrix');
+      tempStorage.RemoveAttribute('origin');
+      tempStorage.RemoveAttribute('x-axis');
+      tempStorage.RemoveAttribute('y-axis');
+      tempStorage.RemoveAttribute('em-height');
+      tempStorage.RemoveAttribute('outline-width');
+      tempStorage.RemoveObject('pen-phong');
+    end;
+  end else
+  begin
+    tempRenderNewList := nil;
+    useBrokenLinesRender := false;
+  end;
+
+  storeImage := CanHaveRenderStorage and not ADraft; // and not useBrokenLinesRender;
+
+  if storeImage or useBrokenLinesRender then
     destF := rectF(0,0,ADest.Width,ADest.Height)
   else
-  begin
     destF := RectF(ADest.ClipRect.Left,ADest.ClipRect.Top,ADest.ClipRect.Right,ADest.ClipRect.Bottom);
-    if PenPhong then
-    begin
-      destF.Left -= 1;
-      destF.Top -= 1;
-      destF.Right += 1;
-      destF.Bottom += 1;
-    end;
-  end;
 
   transfRectF := (m*TAffineBox.AffineBox(sourceRectF)).RectBoundsF;
   transfRectF := TRectF.Intersect(transfRectF, destF);
@@ -1292,171 +1809,192 @@ begin
   sourceRectF.Right := floor(sourceRectF.Right);
   sourceRectF.Bottom := sourceRectF.Bottom;
 
-  m := m*AffineMatrixTranslation(sourceRectF.Left,sourceRectF.Top);
   if tl.TotalTextHeight < tl.AvailableHeight then
   case VerticalAlignment of
   tlBottom: m *= AffineMatrixTranslation(0, tl.AvailableHeight-tl.TotalTextHeight);
   tlCenter: m *= AffineMatrixTranslation(0, (tl.AvailableHeight-tl.TotalTextHeight)/2);
   end;
 
-  tl.TopLeft := PointF(-sourceRectF.Left,-sourceRectF.Top);
   with transfRectF do
     transfRect := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
 
-  if UseVectorialTextRenderer then
+  if PenPhong and Assigned(tempStorage) then
   begin
-    tmpTransf := TBGRABitmap.Create(transfRect.Width,transfRect.Height);
-    ctx := tmpTransf.Canvas2D;
-    ctx.transform(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m);
-    ctx.fillMode := fmWinding;
-    ctx.antialiasing:= not ADraft and not Aliased;
-    ctx.beginPath;
-    tl.PathText(ctx);
-    ctx.resetTransform;
+    phongObj := tempStorage.OpenObject('pen-phong');
+    penPhongChange := not Assigned(phongObj) or
+                      not phongObj.PointFEquals('light-pos', LightPosition) or
+                      not phongObj.FloatEquals('altitude-percent', AltitudePercent) or
+                      (phongObj.Int['fill-iteration'] <> FPenFillIteration);
+    phongObj.Free;
+  end else
+    penPhongChange := false;
 
-    tmpTransfMask := TBGRABitmap.Create(transfRect.Width,transfRect.Height, BGRABlack);
-    ctx := tmpTransfMask.Canvas2D;
-    ctx.linearBlend:= true;
-    ctx.transform(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m);
-
-    if PenPhong and not PenFill.IsFullyTransparent then
-    begin
-      ctx := tmpTransf.Canvas2D;
-      tmpTransf.Fill(BGRABlack);
-      ctx.linearBlend:= true;
-      ctx.fillStyle(BGRAWhite);
-      ctx.fill;
-      textFx := TBGRACustomTextEffect.Create(tmpTransf, false, tmpTransf.Width,tmpTransf.Height, Point(0,0));
-      tmpTransf.FillTransparent;
-      ctx.linearBlend:= false
-    end else
-      textFx := nil;
-
-    if HasOutline then
-    begin
-      ctx := tmpTransf.Canvas2D;
-      ctx.lineWidth := zoom*OutlineWidth;
-      ctx.lineJoinLCL:= pjsRound;
-      ctx.lineStyle(psSolid);
-      if OutlineFill.FillType = vftSolid then
-      begin
-        ctx.strokeStyle(OutlineFill.SolidColor);
-        ctx.stroke;
-      end else
-      if OutlineFill.FillType <> vftNone then
-      begin
-        scan := OutlineFill.CreateScanner(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*FGlobalMatrix, ADraft);
-        ctx.strokeStyle(scan);
-        ctx.stroke;
-        ctx.strokeStyle(BGRABlack);
-        scan.Free;
-      end;
-    end;
-
-    if Assigned(textFx) then
-    begin
-      scan := PenFill.CreateScanner(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*FGlobalMatrix, ADraft);
-      shader:= CreateShader(-transfRect.Left, -transfRect.Top);
-      textFx.DrawShaded(tmpTransf, 0,0, shader, GetTextPhongHeight, scan);
-      shader.Free;
-      scan.Free;
-      textFx.Free;
-    end else
-    if not PenFill.IsFullyTransparent then
-    begin
-      ctx := tmpTransf.Canvas2D;
-      if PenFill.FillType = vftSolid then
-      begin
-        ctx.fillStyle(PenFill.SolidColor);
-        ctx.fill;
-      end else
-      if PenFill.FillType <> vftNone then
-      begin
-        scan := PenFill.CreateScanner(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*FGlobalMatrix, ADraft);
-        ctx.fillStyle(scan);
-        ctx.fill;
-        ctx.fillStyle(BGRABlack);
-        scan.Free;
-      end;
-    end;
-
-    ctx := tmpTransfMask.Canvas2D;
-    ctx.beginPath;
-    ctx.rect(0,0,sourceRectF.Width,sourceRectF.Height);
-    ctx.fillStyle(BGRAWhite);
-    ctx.fill;
-
-    tmpTransf.ApplyMask(tmpTransfMask);
-    tmpTransfMask.Free;
-
-    ADest.PutImage(transfRect.Left, transfRect.Top, tmpTransf, dmDrawWithTransparency);
+  if HasOutline then
+  begin
+    outlineRenderWidth := zoom*OutlineWidth;
+    outlineWidthChange := Assigned(tempStorage) and
+      (tempStorage.Float['outline-width'] <> OutlineWidth);
   end else
   begin
-    if ADraft or Aliased then rf := rfBox else rf := rfHalfCosine;
-    if storeImage then
-      tmpTransf := TBGRABitmap.Create(transfRect.Width,transfRect.Height)
-    else
-      tmpTransf := nil;
+    outlineRenderWidth := 0;
+    outlineWidthChange := false;
+  end;
 
-    if not PenPhong and (PenFill.FillType = vftSolid) then
+  if useBrokenLinesRender then
+  begin
+    brokenLineBoundsF := EmptyRectF;
+    if HasOutline then
+      tmpTransfOutline := TGrayscaleMask.Create(transfRect.Width, transfRect.Height)
+      else tmpTransfOutline := nil;
+
+    //render each broken line independently
+    setlength(FParagraphLayout, tl.ParagraphCount);
+    for paraIndex := 0 to tl.ParagraphCount-1 do
+    with FParagraphLayout[paraIndex] do
     begin
-      tmpSource := TBGRABitmap.Create(round(sourceRectF.Width),ceil(sourceRectF.Height));
-      tl.DrawText(tmpSource,PenFill.SolidColor);
-      if frac(sourceRectF.Height) > 0 then
-        tmpSource.EraseLine(0,floor(sourceRectF.Height),tmpSource.Width,floor(sourceRectF.Height), round((1-frac(sourceRectF.Height))*255), false);
-      if assigned(tmpTransf) then
-        tmpTransf.PutImageAffine(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m, tmpSource, rf, dmDrawWithTransparency, 255, false)
-      else
-        ADest.PutImageAffine(m, tmpSource, rf, dmDrawWithTransparency, 255, false);
-      tmpSource.Free;
-    end
-    else
-    if PenFill.FillType <> vftNone then
-    begin
-      tmpSource := TBGRABitmap.Create(round(sourceRectF.Width),ceil(sourceRectF.Height),BGRABlack);
-      tmpSource.LinearAntialiasing:= true;
-      tl.DrawText(tmpSource,BGRAWhite);
-      if frac(sourceRectF.Height) > 0 then
-        tmpSource.DrawLine(0,floor(sourceRectF.Height),tmpSource.Width,floor(sourceRectF.Height), BGRA(0,0,0,round((1-frac(sourceRectF.Height))*255)), false);
-
-      tmpTransfMask := TBGRABitmap.Create(transfRect.Width,transfRect.Height,BGRABlack);
-      tmpTransfMask.PutImageAffine(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*m,
-                               tmpSource, rf, dmDrawWithTransparency, 255, false);
-      tmpSource.Free;
-
-      if Assigned(tmpTransf) then
+      startBrokenIndex := tl.ParagraphStartBrokenLine[paraIndex];
+      endBrokenIndex := tl.ParagraphEndBrokenLine[paraIndex];
+      setlength(FParagraphLayout[paraIndex].brokenLines, endBrokenIndex - startBrokenIndex);
+      for brokenIndex := startBrokenIndex to endBrokenIndex-1 do
+      with brokenLines[brokenIndex - startBrokenIndex] do
       begin
-        scan := PenFill.CreateScanner(AffineMatrixTranslation(-transfRect.Left,-transfRect.Top)*FGlobalMatrix, ADraft);
-        if PenPhong then
+        redrawPen := hasPen and
+                       (
+                        (PenPhong and (penPhongChange or (penImageId = 0) or
+                                    not tempStorage.ObjectExists(inttostr(penImageId))) ) or
+                        (not PenPhong and ((penMaskId = 0) or
+                                    not tempStorage.ObjectExists(inttostr(penMaskId))) )
+                       );
+        redrawOutline := HasOutline and ((outlineMaskId = 0) or outlineWidthChange or
+                        not tempStorage.ObjectExists(inttostr(outlineMaskId)) );
+
+        if redrawPen or redrawOutline then
+          ComputeBrokenLinesPath(brokenIndex, brokenIndex+1);
+
+        if redrawOutline then
         begin
-          shader:= CreateShader(-transfRect.Left, -transfRect.Top);
-          textFx := TBGRACustomTextEffect.Create(tmpTransfMask, false, tmpTransfMask.Width,tmpTransfMask.Height, Point(0,0));
-          textFx.DrawShaded(tmpTransf, 0,0, shader, GetTextPhongHeight, scan);
-          textFx.Free;
-          shader.Free;
+          with brokenLineBoundsF do
+            brokenLineRectBounds := Rect(floor(Left - outlineRenderWidth/2),
+              floor(Top - outlineRenderWidth/2), ceil(Right + outlineRenderWidth/2),
+              ceil(Bottom + outlineRenderWidth/2));
+          tmpRenderRect := TRect.Intersect(brokenLineRectBounds, transfRect);
+          brokenRenderOfs := tmpRenderRect.TopLeft;
+          tmpBrokenMask := TGrayscaleMask.Create(tmpRenderRect.Width, tmpRenderRect.Height);
+          RenderOutlineMask(tmpBrokenMask, Point(-brokenRenderOfs.X, -brokenRenderOfs.Y));
+          RenderFromMask(tmpTransfOutline, brokenRenderOfs.X - transfRect.Left,
+                         brokenRenderOfs.Y - transfRect.Top, tmpBrokenMask);
+          StoreMask(outlineMaskId, tmpBrokenMask, brokenRenderOfs);
+          tmpBrokenMask.Free;
         end else
-          tmpTransf.FillMask(0, 0, tmpTransfMask, scan, dmDrawWithTransparency)
-      end
-      else
-      begin
-        scan := PenFill.CreateScanner(FGlobalMatrix, ADraft);
-        if PenPhong then
+        if HasOutline then
+          RenderFromStoredMask(tmpTransfOutline, outlineMaskId);
+
+
+        if redrawPen then
         begin
-          shader:= CreateShader(0,0);
-          textFx := TBGRACustomTextEffect.Create(tmpTransfMask, false, tmpTransfMask.Width,tmpTransfMask.Height, Point(0,0));
-          textFx.DrawShaded(ADest, transfRect.Left, transfRect.Top, shader, GetTextPhongHeight, scan);
-          textFx.Free;
-          shader.Free;
-        end else
-          ADest.FillMask(transfRect.Left, transfRect.Top, tmpTransfMask, scan, dmDrawWithTransparency);
+          if PenPhong then
+          begin
+            with brokenLineBoundsF do
+              brokenLineRectBounds := Rect(floor(Left), floor(Top), ceil(Right), ceil(Bottom));
+            tmpRenderRect := TRect.Intersect(brokenLineRectBounds, transfRect);
+            brokenRenderOfs := tmpRenderRect.TopLeft;
+            tmpBroken := TBGRAMemoryStreamBitmap.Create(tmpRenderRect.Width, tmpRenderRect.Height);
+            RenderPen(tmpBroken, Point(- brokenRenderOfs.X,
+                                       - brokenRenderOfs.Y));
+            StoreRGBAImage(penImageId, tmpBroken, brokenRenderOfs);
+            tmpBroken.Free;
+          end else
+          begin
+            with brokenLineBoundsF do
+              brokenLineRectBounds := Rect(floor(Left), floor(Top), ceil(Right), ceil(Bottom));
+            tmpRenderRect := TRect.Intersect(brokenLineRectBounds, transfRect);
+            brokenRenderOfs := tmpRenderRect.TopLeft;
+            tmpBrokenMask := TGrayscaleMask.Create(tmpRenderRect.Width, tmpRenderRect.Height);
+            RenderPenMask(tmpBrokenMask, Point(-brokenRenderOfs.X, -brokenRenderOfs.Y));
+            StoreMask(penMaskId, tmpBrokenMask, brokenRenderOfs);
+            tmpBrokenMask.Free;
+          end;
+        end;
+
       end;
-      scan.Free;
-      tmpTransfMask.Free;
     end;
 
-    if Assigned(tmpTransf) then
-      ADest.PutImage(transfRect.Left, transfRect.Top, tmpTransf, dmDrawWithTransparency);
+    tmpTransf := TBGRABitmap.Create(transfRect.Width, transfRect.Height);
+    if Assigned(tmpTransfOutline) then
+    begin
+      ApplyClipBox(tmpTransfOutline);
+      RenderFromMask(tmpTransf, 0, 0, tmpTransfOutline,
+                     Point(-transfRect.Left, -transfRect.Top), OutlineFill);
+      tmpTransfOutline.Free;
+    end;
+    if hasPen then
+      for paraIndex := 0 to tl.ParagraphCount-1 do
+      with FParagraphLayout[paraIndex] do
+      begin
+        for brokenIndex := 0 to high(brokenLines) do
+        with brokenLines[brokenIndex] do
+        begin
+          if PenPhong then RenderFromStoredImage(tmpTransf, penImageId)
+          else RenderFromStoredMask(tmpTransf, penMaskId, PenFill);
+        end;
+      end;
+  end else
+  begin
+    tmpTransf := TBGRABitmap.Create(transfRect.Width, transfRect.Height);
+    RenderBrokenLines(tmpTransf, 0, tl.BrokenLineCount, Point(-transfRect.Left, -transfRect.Top));
+
+    //make list of temp files to keep
+    if Assigned(tempStorage) and Assigned(tempRenderNewList) then
+      for paraIndex := 0 to high(FParagraphLayout) do
+      with FParagraphLayout[paraIndex] do
+        for brokenIndex := 0 to high(brokenLines) do
+        with brokenLines[brokenIndex] do
+        begin
+          if hasPen then
+          begin
+            if not PenPhong and (penImageId <> 0) then
+              tempRenderNewList.Add(inttostr(penImageId));
+            if PenPhong and not penPhongChange and (penMaskId <> 0) then
+              tempRenderNewList.Add(inttostr(penMaskId));
+          end;
+          if HasOutline and (outlineMaskId <> 0) and not outlineWidthChange then
+            tempRenderNewList.Add(inttostr(outlineMaskId));
+        end;
   end;
+
+  if Assigned(tempStorage) then
+  begin
+    //remove temp files that are obsolete
+    tempRenderCurList := TStringList.Create;
+    tempStorage.EnumerateObjects(tempRenderCurList);
+    for fileIdx := 0 to tempRenderCurList.Count-1 do
+      if tempRenderNewList.IndexOf(tempRenderCurList[fileIdx]) = -1 then
+        tempStorage.RemoveObject(tempRenderCurList[fileIdx]);
+    tempRenderCurList.Free;
+    tempRenderNewList.Free;
+
+    tempStorage.AffineMatrix['last-matrix'] := AMatrix;
+    tempStorage.PointF['origin'] := Origin;
+    tempStorage.PointF['x-axis'] := XAxis;
+    tempStorage.PointF['y-axis'] := YAxis;
+    tempStorage.Float['em-height'] := FontEmHeight;
+    if HasOutline then
+      tempStorage.Float['outline-width'] := OutlineWidth
+      else tempStorage.RemoveAttribute('outline-width');
+    if PenPhong then
+    begin
+      phongObj := tempStorage.CreateObject('pen-phong');
+      phongObj.PointF['light-pos'] := LightPosition;
+      phongObj.Float['altitude-percent'] := AltitudePercent;
+      phongObj.Int['fill-iteration'] := FPenFillIteration;
+      phongObj.Free;
+    end else
+      tempStorage.RemoveObject('pen-phong');
+  end;
+  storage.Close;
+
+  ApplyClipBox(tmpTransf);
+  ADest.PutImage(transfRect.Left, transfRect.Top, tmpTransf, dmDrawWithTransparency);
 
   transfRect.Offset(-ARenderOffset.X,-ARenderOffset.Y);
   if storeImage then UpdateRenderStorage(transfRect, tmpTransf)
@@ -1512,7 +2050,7 @@ begin
   SetGlobalMatrix(AffineMatrixIdentity);
   tl := GetTextLayout;
   untransformed := GetUntransformedMatrix;
-  if not IsAffineMatrixInversible(untransformed) then exit;
+  if not IsAffineMatrixInversible(untransformed) then exit(false);
   pt := AffineMatrixInverse(untransformed)*APoint;
   for i := 0 to tl.PartCount-1 do
     if tl.PartAffineBox[i].Contains(pt) then exit(true);

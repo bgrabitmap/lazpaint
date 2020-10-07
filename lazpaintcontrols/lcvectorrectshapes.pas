@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit LCVectorRectShapes;
 
 {$mode objfpc}{$H+}
@@ -41,6 +42,7 @@ type
     FXSizeBackup,FYSizeBackup: single;
     FMatrixBackup: TAffineMatrix;
     FFixedRatio: single;
+    FDisableHitBox: boolean;
     procedure DoMoveXAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
     procedure DoMoveYAxis(ANewCoord: TPointF; AShift: TShiftState; AFactor: single);
     procedure DoMoveXYCorner(ANewCoord: TPointF; AShift: TShiftState; AFactorX, AFactorY: single);
@@ -867,7 +869,7 @@ begin
   AEditor.AddPointAlternateMove(idxXNeg, @OnMoveXAxisNegAlt);
   AEditor.AddPointAlternateMove(idxYNeg, @OnMoveYAxisNegAlt);
   idxOrig := AEditor.AddPoint(FOrigin, @OnMoveOrigin, true);
-  if ShowArrows then
+  if ShowArrows and not FDisableHitBox then
   begin
     AEditor.SetHitBox(idxX, TAffineBox.AffineBox(Origin + (XAxis-Origin)*0.667 - (YAxis-Origin)*0.667,
       Origin + (XAxis-Origin) - (YAxis-Origin)*0.667,

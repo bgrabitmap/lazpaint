@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UMySLV;
 
 {$mode objfpc}{$H+}
@@ -58,6 +59,7 @@ type
     FVerticalScrollPos: integer;
     FWantedItemVisible: integer;
     FItemsPerPage: integer;
+    FScaling: single;
     { Setters and getters }
     function GetColumnCount: integer;
     function GetHeight: integer;
@@ -700,6 +702,7 @@ begin
   ABitmap.FontHeight := FontHeight;
   ABitmap.FontQuality := fqSystemClearType;
   FActualRowHeight:= MinimumRowHeight;
+  FScaling := (Sender as TControl).GetCanvasScaleFactor;
   textHeight := ABitmap.FontFullHeight+2;
   if textHeight > FActualRowHeight then FActualRowHeight:= textHeight;
 
@@ -851,6 +854,8 @@ procedure TLCShellListView.MouseDown(Sender: TObject; Button: TMouseButton;
 var i,idx, prevIdx:integer;
   keepSelection, selChanged:boolean;
 begin
+  X := round(X*FScaling);
+  Y := round(Y*FScaling);
   SetFocus;
   for i := 0 to ColumnCount-1 do
     if PtInRect(Point(x,y),FColumns[i].displayRect) then
@@ -927,6 +932,8 @@ end;
 procedure TLCShellListView.MouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
+  X := round(X*FScaling);
+  Y := round(Y*FScaling);
   if Assigned(FVScrollBar) then
     if FVScrollBar.MouseMove(X,Y) then
     begin
@@ -938,6 +945,8 @@ end;
 procedure TLCShellListView.MouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
+  X := round(X*FScaling);
+  Y := round(Y*FScaling);
   if Assigned(FVScrollBar) and (Button = mbLeft) then
     if FVScrollBar.MouseUp(X,Y) then
     begin
@@ -1245,7 +1254,16 @@ begin
   if (AIndex < 0) or (AIndex >= ItemCount) then
     result := EmptyRect
   else
+  begin
     result := FData[AIndex].displayRect;
+    with result do
+    begin
+      left := round(left/FScaling);
+      right := round(right/FScaling);
+      top := round(top/FScaling);
+      bottom := round(bottom/FScaling);
+    end;
+  end;
 end;
 
 function TLCShellListView.InternalSelectAll: boolean;

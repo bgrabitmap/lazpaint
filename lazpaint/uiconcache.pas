@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UIconCache;
 
 {$mode objfpc}{$H+}

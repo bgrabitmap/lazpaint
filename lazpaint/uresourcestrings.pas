@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UResourceStrings;
 
 {$mode objfpc}
@@ -115,6 +116,9 @@ resourcestring
   rsCorrectedHueCW = 'Corr. Hue CW';
   rsCorrectedHueCCW = 'Corr. Hue CCW';
 
+  rsPen = 'Pen';
+  rsBack = 'Back';
+  rsTextOutline = 'Text outline';
 
   rsColors='Colors';
   rsLight='Light';
@@ -131,6 +135,7 @@ resourcestring
   rsHotSpot='Hot spot';
   rsEntries='Entries';
   rsLayers='Layers';
+  rsLayer='Layer';
   rsFrames='Frames';
   rsLoopCount='Loop count';
   rsInfinity='Infinity';

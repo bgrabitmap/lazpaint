@@ -1,14 +1,14 @@
 #define MyAppName "LazPaint"
 #define MyAppOutputName "lazpaint"
 #define MyInstallerSuffix "_setup_win32_win64"
-#define MyAppVersion "7.1.3"
+#define MyAppVersion "7.1.4"
 #define MyAppPublisher "Circular, Fabien Wang, Lainz and others"
 #define MyAppURL "http://sourceforge.net/projects/lazpaint/"
 #define MyAppExeName "lazpaint.exe"
 #define DCRawExeName "dcraw.exe"
 #define LibWebPDllName "libwebp.dll"
 #define ReleaseDir "..\bin\"
-#define ScriptsDir "..\..\..\scripts\"
+#define ScriptsDir "..\..\..\resources\scripts\"
 
 [Setup]
 AppId={{A177F82E-B44A-4348-A265-3D1C089D6304}

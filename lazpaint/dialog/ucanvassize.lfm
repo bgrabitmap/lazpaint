@@ -120,7 +120,7 @@ object FCanvasSize: TFCanvasSize
     Width = 144
     OnRedraw = vsPreviewRedraw
     Alignment = taLeftJustify
-    Color = clBtnFace
+    Color = clForm
     ParentColor = False
     TabOrder = 6
   end

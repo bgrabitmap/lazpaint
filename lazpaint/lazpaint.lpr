@@ -133,14 +133,18 @@ begin
       Report += 'Exception class: ' + E.ClassName + LineEnding;
     Report += 'Message: ' + E.Message + LineEnding;
   end;
+  {$IFDEF DEBUG}
   Report += 'Stacktrace:' + LineEnding;
   Report := Report + '  ' + BackTraceStrFunc(ExceptAddr) + LineEnding;
   Frames := ExceptFrames;
   for I := 0 to ExceptFrameCount - 1 do
     Report := Report + '  ' + BackTraceStrFunc(Frames[I]) + LineEnding;
+  {$ELSE}
+  Report += 'To get more information, use the debug version.' + LineEnding;
+  {$ENDIF}
   Report += LineEnding;
   if Initialized then
-    Report += 'It is recommanded to save a backup and restart the application.'
+    Report += 'It is recommanded to save a backup of your image and restart the application.'
   else
     Report += 'Application will now close.';
   ShowError(rsLazPaint, Report);
@@ -151,23 +155,39 @@ end;
 {$R *.res}
 
 {$IFDEF DARWIN}{$IFDEF DEBUG}
+const
+  ConsoleOutputFile = '/dev/ttys000';
 var
   OldOutput: TextFile;
+  HasTerminalOutput: boolean;
 
   procedure InitOutput;
+  var TerminalOutput: TextFile;
   begin
+    //on MacOS, you need to open the terminal before running LazPaint to get debug information
     OldOutput := Output;
-    AssignFile(Output, '/dev/ttys000');
-    Append(Output);
-    Writeln;
-    Writeln('Debug started');
+    AssignFile(TerminalOutput, ConsoleOutputFile);
+    try
+      Append(TerminalOutput);
+      Output := TerminalOutput;
+      HasTerminalOutput := true;
+      Writeln;
+      Writeln('Debug started');
+    except
+      HasTerminalOutput := false;
+    end;
   end;
 
   procedure DoneOutput;
   begin
-    Writeln('Debug ended');
-    CloseFile(Output);
-    Output := OldOutput;
+    if HasTerminalOutput then
+    begin
+      Writeln('Debug ended');
+      CloseFile(Output);
+      Output := OldOutput;
+      HasTerminalOutput := false;
+      SetHeapTraceOutput(ConsoleOutputFile);
+    end;
   end;
 {$ENDIF}{$ENDIF}
 

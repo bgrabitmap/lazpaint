@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UToolLayer;
 
 {$mode objfpc}{$H+}
@@ -441,7 +442,8 @@ begin
   result.Inflate(1,1);
 
   if Assigned(VirtualScreen) then
-    virtualScreen.DrawpolygonAntialias(pts,BGRA(230,255,230,255),BGRA(0,0,0,255),FrameDashLength);
+    virtualScreen.DrawpolygonAntialias(pts,BGRA(230,255,230,255),BGRA(0,0,0,255),
+      FrameDashLength*Manager.CanvasScale);
 end;
 
 { TToolTransformLayer }
@@ -765,7 +767,8 @@ begin
   Result.Union(ptsRect);
 
   if Assigned(VirtualScreen) then
-    virtualScreen.DrawpolygonAntialias(pts,BGRA(230,255,230,255),BGRA(0,0,0,255),FrameDashLength);
+    virtualScreen.DrawpolygonAntialias(pts,BGRA(230,255,230,255),BGRA(0,0,0,255),
+      FrameDashLength*Manager.CanvasScale);
 end;
 
 function TToolTransformLayer.GetIsSelectingTool: boolean;

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=LazPaint
+Name[fr]=LazPaint
+Comment=LazPaint
+Comment[fr]=LazPaint
+Icon=lazpaint
+Exec=lazpaint
+Terminal=false
+Type=Application
+Categories=Graphics
+GenericName=LazPaint

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UTool;
 
 {$mode objfpc}{$H+}
@@ -80,13 +81,13 @@ type
     FForeFill, FBackFill: TVectorialFill;
     FBackFillScan, FForeFillScan: TBGRACustomScanner;
     function GetUniversalBrush(ASource: TVectorialFill; var ADest: TVectorialFill; var AScan: TBGRACustomScanner): TUniversalBrush;
-    function GetLayerOffset: TPoint;
   protected
     FManager: TToolManager;
     FLastToolDrawingLayer: TBGRABitmap;
     FValidating, FCanceling: boolean;
     function GetAction: TLayerAction; virtual;
     function GetIdleAction: TLayerAction; virtual;
+    function GetLayerOffset: TPoint; virtual;
     function GetIsSelectingTool: boolean; virtual; abstract;
     function FixSelectionTransform: boolean; virtual;
     function FixLayerOffset: boolean; virtual;
@@ -169,7 +170,7 @@ type
     tpmRightClickForSource, tpmNothingToBeDeformed);
 
   TOnToolChangedHandler = procedure(sender: TToolManager; ANewToolType: TPaintToolType) of object;
-  TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage; AKey: Word) of object;
+  TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage; AKey: Word; AAlways: boolean) of object;
 
   TShapeOption = (toAliasing, toDrawShape, toFillShape, toCloseShape);
   TShapeOptions = set of TShapeOption;
@@ -445,6 +446,7 @@ type
     TextControls, TextShadowControls, PhongControls, AltitudeControls,
     PerspectiveControls,FillControls,OutlineFillControls,
     BrushControls, RatioControls, DonateControls: TList;
+    CanvasScale: integer;
 
     constructor Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider;
       ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction = nil;
@@ -459,6 +461,7 @@ type
     function ApplyPressure(AOpacity: byte): byte;
     procedure SetPressure(APressure: single);
     function GetPressureB: Byte;
+    procedure StepPenSize(ADecrease: boolean);
 
     function GetCurrentToolType: TPaintToolType;
     function SetCurrentToolType(tool: TPaintToolType): boolean;
@@ -482,7 +485,7 @@ type
     procedure ToolOpen;
     function ToolUpdate: boolean;
     function ToolUpdateNeeded: boolean;
-    procedure ToolPopup(AMessage: TToolPopupMessage; AKey: Word = 0);
+    procedure ToolPopup(AMessage: TToolPopupMessage; AKey: Word = 0; AAlways: boolean = false);
     procedure HintReturnValidates;
 
     function IsSelectingTool: boolean;
@@ -499,6 +502,7 @@ type
     function SwapToolColors: boolean;
     procedure NeedBackGradient;
     procedure NeedForeGradient;
+    procedure NeedOutlineGradient;
     procedure AddBrush(brush: TLazPaintBrush);
     procedure RemoveBrushAt(index: integer);
     procedure SetTextFont(AName: string; ASize: single; AStyle: TFontStyles);
@@ -2818,6 +2822,7 @@ constructor TToolManager.Create(AImage: TLazPaintImage; AConfigProvider: IConfig
   ABlackAndWhite : boolean; AScriptContext: TScriptContext);
 begin
   FImage:= AImage;
+  CanvasScale := 1;
   BitmapToVirtualScreen := ABitmapToVirtualScreen;
   FShouldExitTool:= false;
   FConfigProvider := AConfigProvider;
@@ -3116,6 +3121,26 @@ begin
   result := round(FToolPressure*255);
 end;
 
+procedure TToolManager.StepPenSize(ADecrease: boolean);
+  function SizeDelta: single;
+  var v: single;
+  begin
+    v := PenWidth;
+    if ADecrease then v := v - 0.1;
+    if v < 10 then result := 1 else
+    if v < 20 then result := 2 else
+    if v < 50 then result := 5 else
+    if v < 100 then result := 10 else
+    if v < 200 then result := 20 else
+    if v < 500 then result := 50 else
+      result := 100;
+  end;
+begin
+  if ADecrease then
+    PenWidth := PenWidth - SizeDelta
+    else PenWidth := PenWidth + SizeDelta;
+end;
+
 procedure TToolManager.InternalSetCurrentToolType(tool: TPaintToolType);
 begin
   if (tool <> FCurrentToolType) or (FCurrentTool=nil) then
@@ -3370,7 +3395,8 @@ begin
   begin
     FDeformationGridNbX := ASize.cx;
     FDeformationGridNbY := ASize.cy;
-    ToolUpdate;
+    if ToolUpdate then
+      Image.OnImageChanged.NotifyObservers;
     if Assigned(FOnDeformationGridChanged) then FOnDeformationGridChanged(self);
   end;
 end;
@@ -3426,6 +3452,20 @@ begin
     tempFill.SetGradient(FForeLastGradient, False);
     tempFill.FitGeometry(SuggestGradientBox);
     ForeFill.Assign(tempFill);
+    tempFill.Free;
+  end;
+end;
+
+procedure TToolManager.NeedOutlineGradient;
+var
+  tempFill: TVectorialFill;
+begin
+  if OutlineFill.FillType <> vftGradient then
+  begin
+    tempFill := TVectorialFill.Create;
+    tempFill.SetGradient(FOutlineLastGradient, False);
+    tempFill.FitGeometry(SuggestGradientBox);
+    OutlineFill.Assign(tempFill);
     tempFill.Free;
   end;
 end;
@@ -3711,10 +3751,10 @@ begin
     result := true;
 end;
 
-procedure TToolManager.ToolPopup(AMessage: TToolPopupMessage; AKey: Word = 0);
+procedure TToolManager.ToolPopup(AMessage: TToolPopupMessage; AKey: Word = 0; AAlways: boolean = false);
 begin
   if Assigned(FOnPopupToolHandler) then
-    FOnPopupToolHandler(self, AMessage, AKey);
+    FOnPopupToolHandler(self, AMessage, AKey, AAlways);
 end;
 
 function TToolManager.IsSelectingTool: boolean;

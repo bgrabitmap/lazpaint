@@ -124,7 +124,7 @@ object FResample: TFResample
     Width = 185
     OnRedraw = vsPreviewRedraw
     Alignment = taLeftJustify
-    Color = clBtnFace
+    Color = clForm
     ParentColor = False
     TabOrder = 7
   end

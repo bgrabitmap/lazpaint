@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UMainFormLayout;
 
 {$mode objfpc}{$H+}
@@ -5,8 +6,10 @@ unit UMainFormLayout;
 interface
 
 uses
-  Classes, SysUtils, UMenu, Forms, LazPaintType, UZoom, ExtCtrls, ComCtrls,
-  Menus, UPaletteToolbar, BGRABitmapTypes, Controls;
+  Classes, LCLType, SysUtils, UMenu, Forms, LazPaintType, UZoom, ExtCtrls, ComCtrls,
+  Menus, UPaletteToolbar, BGRABitmapTypes, Controls, UImageView;
+
+const SelectionPaintDelay = 100/(1000*60*60*24);
 
 type
   TOnPictureAreaChange = procedure(ASender: TObject; ANewArea: TRect) of object;
@@ -17,12 +20,15 @@ type
   { TMainFormLayout }
 
   TMainFormLayout = class(TCustomMainFormLayout)
-    procedure PaletteVisibilityChangedByUser(Sender: TObject);
   private
     FForm: TForm;
+    FOnPaintPicture: TNotifyEvent;
+    FOnPictureMouseBefore: TPictureMouseBeforeEvent;
+    FOnPictureMouseMove: TPictureMouseMoveEvent;
+    FOnToolbarUpdate: TNotifyEvent;
+    FZoom: TZoom;
     FMenu: TMainFormMenu;
     FLazPaintInstance: TLazPaintCustomInstance;
-    FOnPictureAreaChange: TOnPictureAreaChange;
     FToolBoxDocking: TToolWindowDocking;
     FInSetToolBoxDocking: boolean;
     FPanelToolBox: TPanel;
@@ -35,11 +41,23 @@ type
     FDarkTheme: boolean;
     FDockedControlsPanel: TPanel;
     FDockedChooseColorSplitter: TSplitter;
+    FPaintBox: TOpaquePaintBox;
+    FImageView: TImageView;
+    function GetFillSelectionHighlight: boolean;
+    function GetMouseButtonState: TShiftState;
     function GetPaletteVisible: boolean;
     function GetPopupToolbox: TPopupMenu;
     function GetStatusBarVisible: boolean;
     function GetStatusText: string;
     function GetToolBoxVisible: boolean;
+    function GetUpdatingPopup: boolean;
+    procedure ImageToolbarUpdate(Sender: TObject);
+    procedure ImageViewMouseBefore(ASender: TObject; AShift: TShiftState);
+    procedure ImageViewMouseMove(Sender: TObject; APosition: TPointF);
+    procedure ImageViewOnPaint(Sender: TObject);
+    procedure SetFillSelectionHighlight(AValue: boolean);
+    procedure SetOnPaintPicture(AValue: TNotifyEvent);
+    procedure SetUpdatingPopup(AValue: boolean);
     procedure StatusBar_Paint(Sender: TObject);
     procedure ToolboxGroupMainButton_MouseMove(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X,
       {%H-}Y: Integer);
@@ -57,8 +75,9 @@ type
     procedure ToolboxGroupToolbarButton_MouseEnter(Sender: TObject);
     procedure ToolboxGroupToolbarButton_MouseLeave(Sender: TObject);
     procedure ToolboxSimpleButton_Click(Sender: TObject);
+    procedure PaletteVisibilityChangedByUser(Sender: TObject);
+    procedure ZoomChanged(sender: TZoom; ANewZoom: single);
   protected
-    FLastWorkArea: TRect;
     FDockedToolboxGroup: array of record
         Button: TToolButton;
         Panel: TPanel;
@@ -67,7 +86,6 @@ type
       end;
     function GetWorkArea: TRect; override;
     function GetWorkAreaAt(AStage: TLayoutStage): TRect;
-    procedure RaisePictureAreaChange;
     procedure DoArrange;
     procedure ApplyTheme;
     function DockedControlsPanelWidth: integer;
@@ -76,9 +94,14 @@ type
     procedure HideToolboxGroup(AGroupIndex: integer);
     procedure HideToolboxGroups;
   public
-    constructor Create(AForm: TForm);
+    DelayedPaintPicture: boolean;
+    constructor Create(AForm: TForm; AZoom: TZoom);
     destructor Destroy; override;
+    function CatchToolKeyDown(var AKey: Word): boolean;
+    function CatchToolKeyPress(var AKey: TUTF8Char): boolean;
+    function CatchToolKeyUp(var AKey: Word): boolean;
     procedure Arrange;
+    procedure CheckDelayedUpdate;
     procedure DockedToolBoxAddButton(AAction: TBasicAction);
     procedure DockedToolBoxAddGroup(AActions: array of TBasicAction);
     procedure DockedToolBoxSetImages(AImages: TImageList);
@@ -86,10 +109,12 @@ type
     procedure RemoveColorFromPalette(AColor : TBGRAPixel);
     procedure AddDockedControl(AControl: TControl);
     procedure RemoveDockedControl(AControl: TControl);
+    procedure PaintPictureNow;
+    procedure InvalidatePicture(AInvalidateAll: boolean);
+    procedure ShowNoPicture;
     property Menu: TMainFormMenu read FMenu write FMenu;
     property ToolBoxDocking: TToolWindowDocking read FToolBoxDocking write SetToolBoxDocking;
     property ToolBoxVisible: boolean read GetToolBoxVisible write SetToolBoxVisible;
-    property OnPictureAreaChange: TOnPictureAreaChange read FOnPictureAreaChange write FOnPictureAreaChange;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     property ToolboxPopup: TPopupMenu read GetPopupToolbox write SetPopupToolbox;
     property PaletteVisible: boolean read GetPaletteVisible write SetPaletteVisible;
@@ -97,6 +122,13 @@ type
     property StatusText: string read GetStatusText write SetStatusText;
     property DefaultToolboxDocking: TToolWindowDocking read GetDefaultToolboxDocking;
     property DarkTheme: boolean read FDarkTheme write SetDarkTheme;
+    property OnPaintPicture: TNotifyEvent read FOnPaintPicture write SetOnPaintPicture;
+    property OnToolbarUpdate: TNotifyEvent read FOnToolbarUpdate write FOnToolbarUpdate;
+    property OnPictureMouseMove: TPictureMouseMoveEvent read FOnPictureMouseMove write FOnPictureMouseMove;
+    property OnPictureMouseBefore: TPictureMouseBeforeEvent read FOnPictureMouseBefore write FOnPictureMouseBefore;
+    property FillSelectionHighlight: boolean read GetFillSelectionHighlight write SetFillSelectionHighlight;
+    property UpdatingPopup: boolean read GetUpdatingPopup write SetUpdatingPopup;
+    property MouseButtonState: TShiftState read GetMouseButtonState;
   end;
 
 function ToolWindowDockingToStr(AValue: TToolWindowDocking): string;
@@ -140,9 +172,12 @@ end;
 
 { TMainFormLayout }
 
-constructor TMainFormLayout.Create(AForm: TForm);
+constructor TMainFormLayout.Create(AForm: TForm; AZoom: TZoom);
 begin
   FForm := AForm;
+  FZoom := AZoom;
+  FZoom.OnZoomChanged:=@ZoomChanged;
+  FZoom.Layout := self;
   FPanelToolBox := TPanel.Create(nil);
   FPanelToolBox.BevelInner := bvNone;
   FPanelToolBox.BevelOuter := bvNone;
@@ -182,11 +217,18 @@ begin
   FStatusTextSplit := TStringList.Create;
   FForm.InsertControl(FStatusBar);
 
+  FPaintBox := TOpaquePaintBox.Create(nil);
+  FForm.InsertControl(FPaintBox,0);
+  FImageView := nil;
+
   ApplyTheme;
 end;
 
 destructor TMainFormLayout.Destroy;
 begin
+  FZoom.Layout := nil;
+  FreeAndNil(FImageView);
+  FreeAndNil(FPaintBox);
   FreeAndNil(FDockedControlsPanel);
   FreeAndNil(FStatusBar);
   FreeAndNil(FStatusTextSplit);
@@ -194,6 +236,27 @@ begin
   FreeAndNil(FPanelToolBox);
   FreeAndNil(FMenu);
   inherited Destroy;
+end;
+
+function TMainFormLayout.CatchToolKeyDown(var AKey: Word): boolean;
+begin
+  if Assigned(FImageView) then
+    result := FImageView.CatchToolKeyDown(AKey)
+    else result := false;
+end;
+
+function TMainFormLayout.CatchToolKeyUp(var AKey: Word): boolean;
+begin
+  if Assigned(FImageView) then
+    result := FImageView.CatchToolKeyUp(AKey)
+    else result := false;
+end;
+
+function TMainFormLayout.CatchToolKeyPress(var AKey: TUTF8Char): boolean;
+begin
+  if Assigned(FImageView) then
+    result := FImageView.CatchToolKeyPress(AKey)
+    else result := false;
 end;
 
 procedure TMainFormLayout.SetToolBoxDocking(AValue: TToolWindowDocking);
@@ -208,7 +271,6 @@ begin
       FLazPaintInstance.Config.SetDefaultToolboxDocking(ToolWindowDockingToStr(AValue));
   end;
   DoArrange;
-  RaisePictureAreaChange;
   FInSetToolBoxDocking := false;
 end;
 
@@ -217,12 +279,63 @@ begin
   result := LazPaintInstance.ToolboxVisible;
 end;
 
+function TMainFormLayout.GetUpdatingPopup: boolean;
+begin
+  if Assigned(FImageView) then
+    result := FImageView.UpdatingPopup
+    else result := False;
+end;
+
+procedure TMainFormLayout.ImageToolbarUpdate(Sender: TObject);
+begin
+  if Assigned(FOnToolbarUpdate) then
+    FOnToolbarUpdate(self);
+end;
+
+procedure TMainFormLayout.ImageViewMouseBefore(ASender: TObject;
+  AShift: TShiftState);
+begin
+  if Assigned(FOnPictureMouseBefore) then
+    FOnPictureMouseBefore(self, AShift);
+end;
+
+procedure TMainFormLayout.ImageViewMouseMove(Sender: TObject; APosition: TPointF);
+begin
+  if Assigned(FOnPictureMouseMove) then
+    FOnPictureMouseMove(self, APosition);
+end;
+
+procedure TMainFormLayout.ImageViewOnPaint(Sender: TObject);
+begin
+  if Assigned(FOnPaintPicture) then
+    FOnPaintPicture(self);
+end;
+
+procedure TMainFormLayout.SetFillSelectionHighlight(AValue: boolean);
+begin
+  if Assigned(FImageView) then
+    FImageView.FillSelectionHighlight := AValue;
+end;
+
+procedure TMainFormLayout.SetOnPaintPicture(AValue: TNotifyEvent);
+begin
+  if FOnPaintPicture=AValue then Exit;
+  FOnPaintPicture:=AValue;
+end;
+
+procedure TMainFormLayout.SetUpdatingPopup(AValue: boolean);
+begin
+  if Assigned(FImageView) then
+    FImageView.UpdatingPopup := AValue;
+end;
+
 procedure TMainFormLayout.StatusBar_Paint(Sender: TObject);
 var
   colWidth, spacing, i, x: Integer;
 begin
   if FStatusTextSplit.Count > 0 then
   begin
+    FStatusBar.Canvas.Brush.Style := bsClear;
     spacing := DoScaleX(6, OriginalDPI);
     colWidth := (FStatusBar.ClientWidth - spacing*2) div FStatusTextSplit.Count;
     if colWidth > spacing*2 then
@@ -286,6 +399,12 @@ begin
   FLazPaintInstance:=AValue;
   FPaletteToolbar.LazPaintInstance:= AValue;
   FStatusBarVisible := LazPaintInstance.Config.GetStatusBarVisible;
+  if Assigned(FImageView) then FreeAndNil(FImageView);
+  FImageView := TImageView.Create(FLazPaintInstance, FZoom, FPaintBox);
+  FImageView.OnPaint:=@ImageViewOnPaint;
+  FImageView.OnToolbarUpdate:=@ImageToolbarUpdate;
+  FImageView.OnMouseMove:=@ImageViewMouseMove;
+  FImageView.OnMouseBefore:=@ImageViewMouseBefore;
 end;
 
 procedure TMainFormLayout.SetPaletteVisible(AValue: boolean);
@@ -315,9 +434,34 @@ begin
   Arrange;
 end;
 
+procedure TMainFormLayout.ZoomChanged(sender: TZoom; ANewZoom: single);
+begin
+  if Assigned(FImageView) then
+  begin
+    if not LazPaintInstance.Image.SelectionMaskEmpty then
+      FImageView.ShowSelection := false;
+    FImageView.OnZoomChanged(sender, ANewZoom);
+  end;
+  PaintPictureNow;
+end;
+
 function TMainFormLayout.GetPaletteVisible: boolean;
 begin
   result := FPaletteToolbar.Visible;
+end;
+
+function TMainFormLayout.GetFillSelectionHighlight: boolean;
+begin
+  if Assigned(FImageView) then
+    result := FillSelectionHighlight
+    else result := false;
+end;
+
+function TMainFormLayout.GetMouseButtonState: TShiftState;
+begin
+  if Assigned(FImageView) then
+    result := FImageView.MouseButtonState
+    else result := [];
 end;
 
 procedure TMainFormLayout.SetPopupToolbox(AValue: TPopupMenu);
@@ -439,12 +583,6 @@ begin
   if AStage = lsAfterStatusBar then exit;
 end;
 
-procedure TMainFormLayout.RaisePictureAreaChange;
-begin
-  if Assigned(FOnPictureAreaChange) then
-    FOnPictureAreaChange(self, WorkArea);
-end;
-
 procedure TMainFormLayout.DoArrange;
 var nbY,nbX,w,i: integer;
   updateChooseColorHeight: Boolean;
@@ -521,6 +659,9 @@ begin
     end;
   end
   else FStatusBar.Visible := false;
+  if Assigned(FImageView) then
+    with WorkArea do
+    FImageView.SetBounds(Left, Top, Width, Height);
 end;
 
 procedure TMainFormLayout.ApplyTheme;
@@ -621,26 +762,34 @@ begin
 end;
 
 procedure TMainFormLayout.Arrange;
-var picAreaBeforeArrange,newPicArea: TRect;
 begin
-  picAreaBeforeArrange := WorkArea;
   DoArrange;
   HideToolboxGroups;
-  newPicArea := WorkArea;
-  if (newPicArea.Left <> picAreaBeforeArrange.Left) or
-     (newPicArea.Top <> picAreaBeforeArrange.Top) or
-     (newPicArea.Right <> picAreaBeforeArrange.Right) or
-     (newPicArea.Bottom <> picAreaBeforeArrange.Bottom) or
-     (newPicArea.Left <> FLastWorkArea.Left) or
-     (newPicArea.Top <> FLastWorkArea.Top) or
-     (newPicArea.Right <> FLastWorkArea.Right) or
-     (newPicArea.Bottom <> FLastWorkArea.Bottom) then
-  begin
-    RaisePictureAreaChange;
-    FLastWorkArea := newPicArea;
-  end;
   if Assigned(FMenu) then
     FMenu.RepaintToolbar;
+end;
+
+procedure TMainFormLayout.CheckDelayedUpdate;
+begin
+  if (LazPaintInstance = nil) or (FImageView = nil) then exit;
+
+  if FImageView.CanCompressOrUpdateStack and LazPaintInstance.UpdateStackOnTimer then
+  begin
+    LazPaintInstance.NotifyStackChange;
+    LazPaintInstance.UpdateStackOnTimer := false;
+  end else
+  begin
+    if FImageView.CanCompressOrUpdateStack then LazPaintInstance.Image.CompressUndo;
+  end;
+
+  if DelayedPaintPicture or LazPaintInstance.ToolManager.ToolUpdateNeeded or
+   (not FImageView.ShowSelection and
+    (Now > FImageView.LastPaintDate+SelectionPaintDelay) ) then
+  begin
+    if LazPaintInstance.ToolManager.ToolUpdateNeeded then LazPaintInstance.ToolManager.ToolUpdate;
+    if Assigned(FImageView) then FImageView.ShowSelection := true;
+    PaintPictureNow;
+  end;
 end;
 
 procedure TMainFormLayout.DockedToolBoxAddButton(AAction: TBasicAction);
@@ -772,6 +921,24 @@ begin
     FDockedControlsPanel.RemoveControl(AControl);
     AControl.Align:= alNone;
   end;
+end;
+
+procedure TMainFormLayout.PaintPictureNow;
+begin
+  if Assigned(FImageView) then
+    FImageView.UpdatePicture;
+end;
+
+procedure TMainFormLayout.InvalidatePicture(AInvalidateAll: boolean);
+begin
+  if Assigned(FImageView) then
+    FImageView.InvalidatePicture(AInvalidateAll);
+end;
+
+procedure TMainFormLayout.ShowNoPicture;
+begin
+  if Assigned(FImageView) then
+    FImageView.ShowNoPicture;
 end;
 
 end.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UToolBrush;
 
 {$mode objfpc}{$H+}
@@ -25,6 +26,7 @@ type
     function StartDrawing(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; override;
     function ContinueDrawing(toolDest: TBGRABitmap; {%H-}originF, destF: TPointF; {%H-}rightBtn: boolean): TRect; override;
     function GetBrushAlpha(AAlpha: byte): byte;
+    function GetLayerOffset: TPoint; override;
   public
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
@@ -56,6 +58,9 @@ type
     class var sourceLayerId: integer;
     class var sourcePosition: TPoint;
     class var sourcePositionRelative: boolean;
+    class var sourceFlattened: boolean;
+    class var sourceDefined: boolean;
+    function PickColorWithShift: boolean; override;
     function DrawBrushAt(toolDest: TBGRABitmap; x, y: single): TRect; override;
     procedure PrepareBrush(rightBtn: boolean); override;
     procedure ReleaseBrush; override;
@@ -76,22 +81,48 @@ uses Math, UGraph, UResourceStrings, Graphics, LazPaintType;
 
 { TToolClone }
 
+function TToolClone.PickColorWithShift: boolean;
+begin
+  Result:= false;
+end;
+
 function TToolClone.DrawBrushAt(toolDest: TBGRABitmap; x, y: single): TRect;
 var source: TBGRABitmap;
+  sourceOfs: TPoint;
+  sourceIdx: Integer;
 begin
   if definingSource then
   begin
-    sourcePosition := Point(round(x),round(y));
+    sourceOfs := Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex];
+    sourcePosition := Point(round(x) + sourceOfs.x,round(y) + sourceOfs.y);
     sourceLayerId := Manager.Image.LayerId[Manager.Image.CurrentLayerIndex];
     sourcePositionRelative:= false;
+    sourceFlattened := ssShift in ShiftState;
+    sourceDefined := true;
     result := OnlyRenderChange;
   end else
   begin
-    source := Manager.Image.LayerBitmapById[sourceLayerId];
-    if source = nil then
+    if not sourceDefined then
     begin
+      Manager.ToolPopup(tpmRightClickForSource, 0, true);
       result := EmptyRect;
       exit;
+    end;
+    if (ssShift in ShiftState) or sourceFlattened then
+    begin
+      source := Manager.Image.RenderedImage;
+      sourceOfs := Point(0,0);
+    end else
+    begin
+      sourceIdx := Manager.Image.GetLayerIndexById(sourceLayerId);
+      if sourceIdx = -1 then
+      begin
+        Manager.ToolPopup(tpmRightClickForSource, 0, true);
+        result := EmptyRect;
+        exit;
+      end;
+      source := Manager.Image.LayerBitmap[sourceIdx];
+      sourceOfs := Manager.Image.LayerOffset[sourceIdx];
     end;
     if not SubPixelAccuracy then
     begin
@@ -100,8 +131,8 @@ begin
     end;
     if not sourcePositionRelative then
     begin
-      sourcePosition.x -= round(x);
-      sourcePosition.y -= round(y);
+      sourcePosition.x -= round(x) + sourceOfs.x;
+      sourcePosition.y -= round(y) + sourceOfs.y;
       sourcePositionRelative := true;
     end;
     with BrushInfo.BrushImage do
@@ -168,8 +199,8 @@ var sourcePosF: TPointF;
 begin
   Result:=inherited Render(VirtualScreen, VirtualScreenWidth,
     VirtualScreenHeight, BitmapToVirtualScreen);
-  if not sourcePositionRelative and
-    (Manager.Image.LayerBitmapById[sourceLayerId] <> nil) then
+  if not sourcePositionRelative and (sourceFlattened or
+    (Manager.Image.LayerBitmapById[sourceLayerId] <> nil)) then
   begin
     sourcePosF := BitmapToVirtualScreen(PointF(sourcePosition.X mod Manager.Image.Width,
       sourcePosition.Y mod Manager.Image.Height));
@@ -311,6 +342,14 @@ begin
   exponent := (BrushInfo.Size-1)/10+1;
   if exponent > 2 then exponent := 2;
   result := round(Power(AAlpha/255,exponent)*255)
+end;
+
+function TToolGenericBrush.GetLayerOffset: TPoint;
+begin
+  if IsSelectingTool or not Manager.Image.SelectionMaskEmpty then
+    result := Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex]
+  else
+    result := Point(0,0);
 end;
 
 constructor TToolGenericBrush.Create(AManager: TToolManager);

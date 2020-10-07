@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit LazpaintInstance;
 
 {$mode objfpc}{$H+}
@@ -53,11 +54,14 @@ type
     function ScriptColorShiftColors(AVars: TVariableSet): TScriptResult;
     function ScriptFileGetTemporaryName(AVars: TVariableSet): TScriptResult;
     function ScriptFileNew(AVars: TVariableSet): TScriptResult;
+    function ScriptGetName(AVars: TVariableSet): TScriptResult;
     function ScriptImageCanvasSize(AVars: TVariableSet): TScriptResult;
     function ScriptImageRepeat(AVars: TVariableSet): TScriptResult;
     function ScriptImageResample(AParams: TVariableSet): TScriptResult;
     function ScriptLazPaintGetVersion(AVars: TVariableSet): TScriptResult;
     function ScriptShowDirectoryDialog(AVars: TVariableSet): TScriptResult;
+    function ScriptTranslateGetLanguage(AVars: TVariableSet): TScriptResult;
+    function ScriptTranslateText(AVars: TVariableSet): TScriptResult;
     procedure SelectionInstanceOnRun(AInstance: TLazPaintCustomInstance);
     procedure ToolFillChanged(Sender: TObject);
     procedure PythonScriptCommand({%H-}ASender: TObject; ACommand, AParam: UTF8String; out
@@ -107,6 +111,7 @@ type
     FInRunScript: boolean;
     FScriptTempFileNames: TStringList;
     FInCommandLine: boolean;
+    FUpdateStackOnTimer: boolean;
 
     function GetIcons(ASize: integer): TImageList; override;
     function GetToolBoxWindowPopup: TPopupMenu; override;
@@ -142,13 +147,16 @@ type
     function GetImage: TLazPaintImage; override;
     function GetImageAction: TImageActions; override;
     function GetToolManager: TToolManager; override;
+    function GetUpdateStackOnTimer: boolean; override;
+    procedure SetUpdateStackOnTimer(AValue: boolean); override;
     procedure CreateLayerStack;
     procedure CreateToolBox;
     procedure FormsNeeded;
     procedure Init(AEmbedded: boolean);
     procedure SetBlackAndWhite(AValue: boolean); override;
     procedure OnStackChanged({%H-}sender: TLazPaintImage; AScrollIntoView: boolean);
-    procedure OnToolPopup({%H-}sender: TToolManager; AMessage: TToolPopupMessage; AKey: Word);
+    procedure OnToolPopup({%H-}sender: TToolManager; AMessage: TToolPopupMessage; AKey: Word;
+      AAlways: boolean);
 
     function GetImageListWindowHeight: integer; override;
     function GetImageListWindowWidth: integer; override;
@@ -201,9 +209,10 @@ type
     destructor Destroy; override;
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); override;
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); override;
+    procedure NotifyImagePaint; override;
     function TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean = false): boolean; override;
     function ExecuteFilter(filter: TPictureFilter; skipDialog: boolean = false): TScriptResult; override;
-    function RunScript(AFilename: string): boolean; override;
+    function RunScript(AFilename: string; ACaption: string = ''): boolean; override;
     procedure AdjustChooseColorHeight; override;
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
@@ -246,6 +255,8 @@ type
     property MainFormVisible: boolean read GetMainFormVisible;
     procedure NotifyStackChange; override;
     procedure ScrollLayerStackOnItem(AIndex: integer; ADelayedUpdate: boolean = true); override;
+    procedure InvalidateLayerStack; override;
+    procedure UpdateLayerStackOnTimer; override;
     function MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap; override;
     procedure ChooseTool(Tool : TPaintToolType); override;
     function OpenImage (FileName: string; AddToRecent: Boolean= True): boolean; override;
@@ -259,7 +270,7 @@ type
 
 implementation
 
-uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8,
+uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslation,
 
      URadialBlur, UMotionBlur, UEmboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, UPixelate, unoisefilter, ufilters,
@@ -386,6 +397,9 @@ begin
   ScriptContext.RegisterScriptFunction('ShowDirectoryDialog',@ScriptShowDirectoryDialog,ARegister);
   ScriptContext.RegisterScriptFunction('InputBox',@ScriptInputBox,ARegister);
   ScriptContext.RegisterScriptFunction('LazPaintGetVersion',@ScriptLazPaintGetVersion,ARegister);
+  ScriptContext.RegisterScriptFunction('TranslateText',@ScriptTranslateText,ARegister);
+  ScriptContext.RegisterScriptFunction('TranslateGetLanguage',@ScriptTranslateGetLanguage,ARegister);
+  ScriptContext.RegisterScriptFunction('ScriptGetName',@ScriptGetName,ARegister);
 end;
 
 function TLazPaintInstance.ScriptFileGetTemporaryName(AVars: TVariableSet): TScriptResult;
@@ -496,6 +510,16 @@ begin
   Result:= FToolManager;
 end;
 
+function TLazPaintInstance.GetUpdateStackOnTimer: boolean;
+begin
+  result := FUpdateStackOnTimer;
+end;
+
+procedure TLazPaintInstance.SetUpdateStackOnTimer(AValue: boolean);
+begin
+  FUpdateStackOnTimer := AValue;
+end;
+
 procedure TLazPaintInstance.CreateLayerStack;
 var
   defaultZoom: Single;
@@ -587,12 +611,13 @@ begin
     FLayerStack.InvalidateStack(AScrollIntoView);
 end;
 
-procedure TLazPaintInstance.OnToolPopup(sender: TToolManager; AMessage: TToolPopupMessage; AKey: Word);
+procedure TLazPaintInstance.OnToolPopup(sender: TToolManager; AMessage: TToolPopupMessage; AKey: Word;
+  AAlways: boolean);
 var messageStr: string;
     idx: integer;
 begin
   if FInCommandLine then exit;
-  if Assigned(Config) then
+  if Assigned(Config) and not AAlways then
   begin
     idx := ord(AMessage);
     if Config.ToolPopupMessageShownCount(idx) < MaxToolPopupShowCount then
@@ -1579,6 +1604,12 @@ begin
   If RepaintNow then FMain.Update;
 end;
 
+procedure TLazPaintInstance.NotifyImagePaint;
+begin
+  if Assigned(FMain) then
+    FMain.NotifyImagePaint;
+end;
+
 function TLazPaintInstance.TryOpenFileUTF8(filename: string; skipDialogIfSingleImage: boolean): boolean;
 begin
   FormsNeeded;
@@ -1600,7 +1631,7 @@ begin
   vars.Free;
 end;
 
-function TLazPaintInstance.RunScript(AFilename: string): boolean;
+function TLazPaintInstance.RunScript(AFilename: string; ACaption: string): boolean;
 var
   p: TPythonScript;
   fError: TForm;
@@ -1626,7 +1657,9 @@ begin
   try
     FScriptTempFileNames := TStringList.Create;
     p := TPythonScript.Create;
-    FScriptName := AFilename;
+    if Trim(ACaption).Length > 0 then
+      FScriptName:= Trim(ACaption)
+      else FScriptName := AFilename;
     p.OnCommand:=@PythonScriptCommand;
     p.OnBusy := @PythonBusy;
     p.Run(AFilename);
@@ -1641,6 +1674,7 @@ begin
         memo := TMemo.Create(fError);
         memo.Align:= alClient;
         memo.Parent := fError;
+        memo.ScrollBars := ssVertical;
         memo.Font.Name:= 'monospace';
         memo.Text := p.ErrorText;
         fError.ShowModal;
@@ -1777,8 +1811,19 @@ begin
   begin
     if not Assigned(FMain) then ADelayedUpdate:= false;
     FLayerStack.ScrollToItem(AIndex, not ADelayedUpdate);
-    if ADelayedUpdate then FMain.UpdateStackOnTimer := true;
+    if ADelayedUpdate then UpdateStackOnTimer := true;
   end;
+end;
+
+procedure TLazPaintInstance.InvalidateLayerStack;
+begin
+  if FLayerStack<> nil then
+    FLayerStack.InvalidateStack(false);
+end;
+
+procedure TLazPaintInstance.UpdateLayerStackOnTimer;
+begin
+  UpdateStackOnTimer := true;
 end;
 
 function TLazPaintInstance.MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap;
@@ -1864,6 +1909,12 @@ procedure TLazPaintInstance.SetChooseColorTarget(const AValue: TColorTarget);
 begin
   if not Assigned(FChooseColor) then exit;
   FChooseColor.ColorTarget:= AValue;
+  if Assigned(FMain) then
+  begin
+    FMain.VectorialFill_Pen.IsTarget := AValue in [ctForeColorSolid..ctForeColorEndGrad];
+    FMain.VectorialFill_Back.IsTarget := AValue in [ctBackColorSolid..ctBackColorEndGrad];
+    FMain.VectorialFill_Outline.IsTarget := AValue in [ctOutlineColorSolid..ctOutlineColorEndGrad];
+  end;
   ColorToFChooseColor;
 end;
 

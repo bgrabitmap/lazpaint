@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UAbout;
 
 {$mode objfpc}{$H+}
@@ -90,12 +91,12 @@ var bmp: TBGRABitmap;
 begin
   shader.LightPosition := Point(round((cos(angle)+1)/2*Image_Title.Width),round((sin(angle)+1)*Image_Title.height));
   inc(frameNumber);
-  bmp := TBGRABitmap.Create(Image_Title.Width,Image_Title.Height,ColorToRGB({$IFDEF DARWIN}clWindow{$ELSE}clBtnFace{$ENDIF}));
+  bmp := TBGRABitmap.Create(Image_Title.Width,Image_Title.Height,clForm);
 
   if xTxt = -1 then xTxt := bmp.Width;
   if xTxt > bmp.Width div 2 then dec(xTxt);
   fx.DrawShaded(bmp,xTxt,0, shader, 1,
-    MergeBGRA(ColorToBGRA(ColorToRGB(clBtnFace)),ColorToBGRA(ColorToRGB(clWindowText))),
+    MergeBGRA(ColorToBGRA(clForm),ColorToBGRA(clWindowText)),
     taCenter, false);
 
   bmp.Draw(Image_Title.Picture.Bitmap.Canvas,0,0,true);

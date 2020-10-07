@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UPaletteToolbar;
 
 {$mode objfpc}{$H+}
@@ -102,7 +103,7 @@ implementation
 uses LCScaleDPI, Graphics, Forms, UGraph,
   UResourceStrings, BGRAColorQuantization,
   ULayerAction, UCursors, UFileSystem,
-  udarktheme;
+  udarktheme, UTool, LCVectorialFill;
 
 { TPaletteToolbar }
 
@@ -628,24 +629,92 @@ end;
 procedure TPaletteToolbar.PickColor(Shift: TShiftState; X, Y: Integer);
 var idx: integer;
   c : TBGRAPixel;
+
+  procedure NeedGradient(AFill: TVectorialFill);
+  begin
+    if AFill = LazPaintInstance.ToolManager.ForeFill then
+      LazPaintInstance.ToolManager.NeedForeGradient else
+    if AFill = LazPaintInstance.ToolManager.BackFill then
+      LazPaintInstance.ToolManager.NeedBackGradient else
+    if AFill = LazPaintInstance.ToolManager.OutlineFill then
+      LazPaintInstance.ToolManager.NeedOutlineGradient;
+  end;
+
+  procedure ChangeStartColor(AFill: TVectorialFill);
+  begin
+    NeedGradient(AFill);
+    if not (AFill.FillType = vftGradient) then exit;
+    if not FTransparentPalette then c.alpha := AFill.Gradient.StartColor.alpha;
+    AFill.Gradient.StartColor := c;
+    if AFill = LazPaintInstance.ToolManager.ForeFill then
+      LazPaintInstance.ChooseColorTarget := ctForeColorStartGrad else
+    if AFill = LazPaintInstance.ToolManager.BackFill then
+      LazPaintInstance.ChooseColorTarget := ctBackColorStartGrad else
+    if AFill = LazPaintInstance.ToolManager.OutlineFill then
+      LazPaintInstance.ChooseColorTarget := ctOutlineColorStartGrad;
+  end;
+
+  procedure ChangeEndColor(AFill: TVectorialFill);
+  begin
+    NeedGradient(AFill);
+    if not (AFill.FillType = vftGradient) then exit;
+    if not FTransparentPalette then c.alpha := AFill.Gradient.EndColor.alpha;
+    AFill.Gradient.EndColor := c;
+    if AFill = LazPaintInstance.ToolManager.ForeFill then
+      LazPaintInstance.ChooseColorTarget := ctForeColorEndGrad else
+    if AFill = LazPaintInstance.ToolManager.BackFill then
+      LazPaintInstance.ChooseColorTarget := ctBackColorEndGrad else
+    if AFill = LazPaintInstance.ToolManager.OutlineFill then
+      LazPaintInstance.ChooseColorTarget := ctOutlineColorEndGrad;
+  end;
+
+  function GetSelectedFill: TVectorialFill;
+  begin
+    case LazPaintInstance.ChooseColorTarget of
+      ctBackColorSolid..ctBackColorEndGrad: result := LazPaintInstance.ToolManager.BackFill;
+      ctOutlineColorSolid..ctOutlineColorEndGrad: result := LazPaintInstance.ToolManager.OutlineFill;
+      else
+        result := LazPaintInstance.ToolManager.ForeFill;
+    end;
+  end;
+
 begin
   if PtInRect(Point(X,Y),FPaletteColorRect) then
   begin
     idx := (Y-FPaletteColorRect.Top) div FPaletteColorItemHeight + FScrollPos;
     if (idx < 0) or (idx >= FColors.Count) then exit;
+    c := FColors.Color[idx];
     if (ssLeft in Shift) and not (ssRight in Shift) then
     begin
-      c := FColors.Color[idx];
-      if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.ForeColor.alpha;
-      LazPaintInstance.ToolManager.ForeColor := c;
+      if ssSnap in Shift then
+        ChangeStartColor(GetSelectedFill)
+      else
+      begin
+        if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.ForeColor.alpha;
+        LazPaintInstance.ToolManager.ForeColor := c;
+        LazPaintInstance.ChooseColorTarget:= ctForeColorSolid;
+      end;
     end else
     if not (ssLeft in Shift) and (ssRight in Shift) then
     begin
-      c := FColors.Color[idx];
-      if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.BackColor.alpha;
-      LazPaintInstance.ToolManager.BackColor := c;
+      if ssSnap in Shift then
+        ChangeEndColor(GetSelectedFill)
+      else
+      begin
+        if LazPaintInstance.ToolManager.GetCurrentToolType = ptText then
+        begin
+          if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.OutlineColor.alpha;
+          LazPaintInstance.ToolManager.OutlineColor := c;
+          LazPaintInstance.ChooseColorTarget:= ctOutlineColorSolid;
+        end else
+        begin
+          if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.BackColor.alpha;
+          LazPaintInstance.ToolManager.BackColor := c;
+          LazPaintInstance.ChooseColorTarget:= ctBackColorSolid;
+        end;
+      end;
     end else
-        exit;
+      exit;
   end;
 end;
 

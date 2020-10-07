@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit UFilterConnector;
 
 {$mode objfpc}{$H+}

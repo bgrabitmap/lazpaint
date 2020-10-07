@@ -80,7 +80,7 @@ object FNewImage: TFNewImage
     Width = 134
     OnRedraw = vsPreviewRedraw
     Alignment = taLeftJustify
-    Color = clBtnFace
+    Color = clForm
     ParentColor = False
     TabOrder = 4
   end

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 unit ULoadImage;
 
 {$mode objfpc}{$H+}
@@ -18,7 +19,7 @@ implementation
 uses FileUtil, BGRAAnimatedGif, Graphics, UMultiImage,
   BGRAReadLzp, LCLProc, BGRABitmapTypes, BGRAReadPng,
   UFileSystem, BGRAIconCursor, BGRAReadTiff,
-  Dialogs, math, URaw;
+  Dialogs, math, URaw, UResourceStrings;
 
 function LoadIcoEntryFromStream(AStream: TStream; AIndex: integer): TImageEntry;
 var ico: TBGRAIconCursor;
@@ -192,11 +193,13 @@ end;
 function LoadSVGImageUTF8(AFilename: string): TBGRALayeredBitmap;
 var
   svg: TBGRALayerSVGOriginal;
+  idx: Integer;
 begin
   svg := LoadSVGOriginalUTF8(AFilename);
   result := TBGRALayeredBitmap.Create(ceil(svg.Width),ceil(svg.Height));
-  result.AddLayerFromOwnedOriginal(svg);
-  result.RenderLayerFromOriginal(0);
+  idx := result.AddLayerFromOwnedOriginal(svg);
+  result.LayerName[idx] := rsLayer+'1';
+  result.RenderLayerFromOriginal(idx);
 end;
 
 function LoadSVGOriginalUTF8(AFilename: string): TBGRALayerSVGOriginal;

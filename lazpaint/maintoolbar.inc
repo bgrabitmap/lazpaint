@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
 procedure TFMain.CreateToolbarElements;
 
   procedure InitVectorialFill(vf: TLCVectorialFillControl; grad: TBGRALayerGradientOriginal;
-      lbl: TLabel; pnl: TPanel; mouseMove: TMouseMoveEvent);
+      lbl: TLabel; pnl: TPanel; mouseMove: TMouseMoveEvent; mouseClick: TNotifyEvent; AIsTarget: boolean);
   begin
     vf.PopupMenu := nil;
     vf.VerticalPadding:= DoScaleY(6, OriginalDPI);
@@ -21,10 +22,15 @@ procedure TFMain.CreateToolbarElements;
       vf.GradRepetition:= Repetition;
       vf.GradInterpolation:= ColorInterpolation;
     end;
-    if Assigned(lbl) then lbl.OnMouseMove:= mouseMove;
+    if Assigned(lbl) then
+    begin
+      lbl.OnMouseMove:= mouseMove;
+      lbl.OnClick:= mouseClick;
+    end;
     pnl.PopupMenu := nil;
     pnl.OnMouseMove:= mouseMove;
     vf.OnMouseMove:= mouseMove;
+    vf.IsTarget:= AIsTarget;
   end;
 
 var
@@ -36,11 +42,17 @@ begin
   Panel_ToolbarBackground.PopupMenu := PopupToolbar;
   Perspective_Repeat.OnClick:=@Perspective_RepeatClick;
   Perspective_TwoPlanes.OnClick := @Perspective_TwoPlanesClick;
-  InitVectorialFill(VectorialFill_Pen, ToolManager.ForeLastGradient, Label_Pen, Panel_PenFill, @VectorialFill_ShowPenFill);
+  InitVectorialFill(VectorialFill_Pen, ToolManager.ForeLastGradient, Label_Pen, Panel_PenFill,
+    @VectorialFill_ShowPenFill, @vectorialFill_ClickLabel,
+    LazPaintInstance.ChooseColorTarget in[ctForeColorSolid..ctForeColorEndGrad]);
   VectorialFill_Pen.SolidColor := ToolManager.ForeColor;
-  InitVectorialFill(VectorialFill_Back, ToolManager.BackLastGradient, Label_Back, Panel_BackFill, @VectorialFill_ShowBackFill);
+  InitVectorialFill(VectorialFill_Back, ToolManager.BackLastGradient, Label_Back, Panel_BackFill,
+    @VectorialFill_ShowBackFill, @vectorialFill_ClickLabel,
+    LazPaintInstance.ChooseColorTarget in[ctBackColorSolid..ctBackColorEndGrad]);
   VectorialFill_Back.SolidColor := ToolManager.BackColor;
-  InitVectorialFill(VectorialFill_Outline, ToolManager.OutlineLastGradient, nil, Panel_OutlineFill, @VectorialFill_ShowOutlineFill);
+  InitVectorialFill(VectorialFill_Outline, ToolManager.OutlineLastGradient, nil, Panel_OutlineFill,
+    @VectorialFill_ShowOutlineFill, @vectorialFill_ClickLabel,
+    LazPaintInstance.ChooseColorTarget in[ctOutlineColorSolid..ctOutlineColorEndGrad]);
   VectorialFill_Outline.SolidColor := ToolManager.OutlineColor;
   Image_SwapColors.OnMouseDown := @Image_SwapColorsMouseDown;
   Tool_DrawShapeBorder.OnClick := @Tool_DrawShapeBorderClick;
@@ -83,6 +95,7 @@ begin
   PaintBox_PenPreview.OnMouseMove := @Panel_PenWidthMouseMove;
   PaintBox_PenPreview.OnMouseDown := @PaintBox_PenPreviewMouseDown;
   PaintBox_PenPreview.OnPaint := @PaintBox_PenPreviewPaint;
+  PaintBox_PenPreview.Align := alClient;
   Tool_PhongShapeRectangle.OnClick := @Tool_PhongShapeRectangleClick;
   Tool_PhongShapeRoundRect.OnClick := @Tool_PhongShapeRoundRectClick;
   Tool_PhongShapeSphere.OnClick := @Tool_PhongShapeSphereClick;
@@ -530,6 +543,7 @@ begin
   prevBackColor := VectorialFill_Back.AverageColor;
   VectorialFill_Pen.AssignFill(ToolManager.ForeFill);
   VectorialFill_Back.AssignFill(ToolManager.BackFill);
+  VectorialFill_Outline.AssignFill(ToolManager.OutlineFill);
   newPenColor := VectorialFill_Pen.AverageColor;
   newBackColor := VectorialFill_Back.AverageColor;
   FInFillChange:= false;
@@ -664,6 +678,27 @@ begin
       LazPaintInstance.ShowError(rsLazPaint,ex.Message);
   end;
   FInitialized := oldInit;
+end;
+
+function TFMain.CatchToolKeyDown(var AKey: Word): boolean;
+begin
+  if Assigned(FLayout) then
+    result := FLayout.CatchToolKeyDown(AKey)
+    else result := false;
+end;
+
+function TFMain.CatchToolKeyUp(var AKey: Word): boolean;
+begin
+  if Assigned(FLayout) then
+    result := FLayout.CatchToolKeyUp(AKey)
+    else result := false;
+end;
+
+function TFMain.CatchToolKeyPress(var AKey: TUTF8Char): boolean;
+begin
+  if Assigned(FLayout) then
+    result := FLayout.CatchToolKeyPress(AKey)
+    else result := false;
 end;
 
 procedure TFMain.SpinEdit_ShapeAltitudeChange(Sender: TObject; AByUser: boolean);
@@ -833,54 +868,38 @@ begin
 end;
 
 procedure TFMain.UpdateAllowedFillTypes;
-begin
-  if VectorialFill_Pen.AllowedFillTypes <> ToolManager.AllowedForeFillTypes then
+  procedure UpdateFor(AFillControl: TLCVectorialFillControl; AAllowedFillTypes: TVectorialFillTypes;
+      ANeedGradientProc: TProcedureOfObject);
   begin
-    if not (VectorialFill_Pen.FillType in ToolManager.AllowedForeFillTypes) then
+    if AFillControl.AllowedFillTypes <> AAllowedFillTypes then
     begin
-      if vftGradient in ToolManager.AllowedForeFillTypes then
+      if not (AFillControl.FillType in AAllowedFillTypes) then
       begin
-        VectorialFill_Pen.AllowedFillTypes:= [VectorialFill_Pen.FillType] + ToolManager.AllowedForeFillTypes;
-        ToolManager.NeedForeGradient;
-      end else
-      if vftTexture in ToolManager.AllowedForeFillTypes then
-      begin
-        VectorialFill_Pen.AllowedFillTypes:= [VectorialFill_Pen.FillType] + ToolManager.AllowedForeFillTypes;
-        Vectorialfill_Pen.FillType := vftTexture;
-      end else
-      if vftSolid in ToolManager.AllowedForeFillTypes then
-      begin
-        VectorialFill_Pen.AllowedFillTypes:= [VectorialFill_Pen.FillType] + ToolManager.AllowedForeFillTypes;
-        Vectorialfill_Pen.FillType := vftSolid;
+        if vftGradient in AAllowedFillTypes then
+        begin
+          AFillControl.AllowedFillTypes:= [AFillControl.FillType] + AAllowedFillTypes;
+          ANeedGradientProc();
+        end else
+        if vftTexture in AAllowedFillTypes then
+        begin
+          AFillControl.AllowedFillTypes:= [AFillControl.FillType] + AAllowedFillTypes;
+          AFillControl.FillType := vftTexture;
+        end else
+        if vftSolid in AAllowedFillTypes then
+        begin
+          AFillControl.AllowedFillTypes:= [AFillControl.FillType] + AAllowedFillTypes;
+          AFillControl.FillType := vftSolid;
+        end;
       end;
+      AFillControl.AllowedFillTypes:= AAllowedFillTypes;
+      AFillControl.Width := AFillControl.PreferredSize.cx;
     end;
-    VectorialFill_Pen.AllowedFillTypes:= ToolManager.AllowedForeFillTypes;
-    VectorialFill_Pen.Width := VectorialFill_Pen.PreferredSize.cx;
   end;
 
-  if VectorialFill_Back.AllowedFillTypes <> ToolManager.AllowedBackFillTypes then
-  begin
-    if not (VectorialFill_Back.FillType in ToolManager.AllowedBackFillTypes) then
-    begin
-      if vftGradient in ToolManager.AllowedBackFillTypes then
-      begin
-        VectorialFill_Back.AllowedFillTypes:= [VectorialFill_Back.FillType] + ToolManager.AllowedBackFillTypes;
-        ToolManager.NeedBackGradient;
-      end else
-      if vftTexture in ToolManager.AllowedBackFillTypes then
-      begin
-        VectorialFill_Back.AllowedFillTypes:= [VectorialFill_Back.FillType] + ToolManager.AllowedBackFillTypes;
-        Vectorialfill_Back.FillType := vftTexture;
-      end else
-      if vftSolid in ToolManager.AllowedBackFillTypes then
-      begin
-        VectorialFill_Back.AllowedFillTypes:= [VectorialFill_Back.FillType] + ToolManager.AllowedBackFillTypes;
-        Vectorialfill_Back.FillType := vftSolid;
-      end;
-    end;
-    VectorialFill_Back.AllowedFillTypes:= ToolManager.AllowedBackFillTypes;
-    VectorialFill_Back.Width := VectorialFill_Back.PreferredSize.cx;
-  end;
+begin
+  UpdateFor(VectorialFill_Pen, ToolManager.AllowedForeFillTypes, @ToolManager.NeedForeGradient);
+  UpdateFor(VectorialFill_Back, ToolManager.AllowedBackFillTypes, @ToolManager.NeedBackGradient);
+  UpdateFor(VectorialFill_Outline, ToolManager.AllowedOutlineFillTypes, @ToolManager.NeedOutlineGradient);
 
   Perspective_Repeat.Visible := (CurrentTool = ptLayerMapping);
 end;
@@ -940,6 +959,32 @@ begin
   UpdateChooseColors;
   UpdateEditPicture;
   FInFillChange:= false;
+end;
+
+procedure TFMain.vectorialFill_ClickLabel(Sender: TObject);
+  procedure CheckFor(ALabel: TLabel; ASolid, AStart, AEnd: TColorTarget;
+      AControl: TLCVectorialFillControl);
+  begin
+    if Sender = ALabel then
+    begin
+      if LazPaintInstance.ChooseColorTarget = ASolid then exit;
+      if LazPaintInstance.ChooseColorTarget = AStart then
+        LazPaintInstance.ChooseColorTarget := AEnd
+      else if LazPaintInstance.ChooseColorTarget = AEnd then
+        LazPaintInstance.ChooseColorTarget := AStart
+      else
+        begin
+          case AControl.FillType of
+            vftSolid: LazPaintInstance.ChooseColorTarget:= ASolid;
+            vftGradient: LazPaintInstance.ChooseColorTarget:= AStart;
+          end;
+        end;
+    end;
+  end;
+
+begin
+  CheckFor(Label_Pen, ctForeColorSolid, ctForeColorStartGrad, ctForeColorEndGrad, VectorialFill_Pen);
+  CheckFor(Label_Back, ctBackColorSolid, ctBackColorStartGrad, ctBackColorEndGrad, VectorialFill_Back);
 end;
 
 procedure TFMain.VectorialFill_Resize(Sender: TObject);
@@ -1520,39 +1565,13 @@ begin
   if SpinEdit_PenWidth.Value < MinPenWidth*PenWidthFactor then SpinEdit_PenWidth.Value := MinPenWidth*PenWidthFactor;
 end;
 
-procedure TFMain.IncreasePenSize;
-begin
-  SpinEdit_PenWidth.Value := max(SpinEdit_PenWidth.Value+PenSizeDelta(1),MinPenWidth*PenWidthFactor);
-  UpdatePenWidthFromSpinEdit;
-end;
-
-procedure TFMain.DecreasePenSize;
-begin
-  SpinEdit_PenWidth.Value := max(SpinEdit_PenWidth.Value-PenSizeDelta(-1),MinPenWidth*PenWidthFactor);
-  UpdatePenWidthFromSpinEdit;
-end;
-
-function TFMain.PenSizeDelta(direction: integer): integer;
-var v: integer;
-begin
-  v := SpinEdit_PenWidth.Value;
-  if direction < 0 then dec(v);
-  if v < 100 then result := 10 else
-  if v < 200 then result := 20 else
-  if v < 500 then result := 50 else
-  if v < 1000 then result := 100 else
-  if v < 2000 then result := 200 else
-  if v < 5000 then result := 500 else
-    result := 1000;
-end;
-
 procedure TFMain.PaintBox_PenPreviewMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var t: integer;
 begin
-  t := ImageList16.Width;
-  if (X < t) and (Y < t) then DecreasePenSize else
-  if (X >= PaintBox_PenPreview.Width-t) and (Y < t) then IncreasePenSize;
+  t := FPenPlusMinus;
+  if (X < t) and (Y < t) then ToolManager.StepPenSize(True) else
+  if (X >= PaintBox_PenPreview.Width-t) and (Y < t) then ToolManager.StepPenSize(False);
   ShowPenPreview(False);
 end;
 
@@ -1585,17 +1604,22 @@ end;
 
 procedure TFMain.PaintBox_PenPreviewPaint(Sender: TObject);
 var bmp: TBGRABitmap;
-    x,y,t: integer;
+    x,y,t,margin: integer;
     c: TBGRAPixel;
     m: single;
     bi: TLazPaintBrush;
     visualSize: single;
+    scaling: Double;
 begin
-  bmp := TBGRABitmap.Create(PaintBox_PenPreview.Width,PaintBox_PenPreview.Height,Panel_PenWidthPreview.Color);
+  scaling := PaintBox_PenPreview.GetCanvasScaleFactor;
+  bmp := TBGRABitmap.Create(round(PaintBox_PenPreview.Width*scaling),
+    round(PaintBox_PenPreview.Height*scaling), Panel_PenWidthPreview.Color);
+  bmp.ClipRect := rect(1,1,bmp.Width-1,bmp.Height-1);
   if DarkTheme then c := clLightText else c := clBtnText;
-  x := round(PaintBox_PenPreview.Width/2);
-  y := round(PaintBox_PenPreview.Height/2);
+  x := round(bmp.Width/2);
+  y := round(bmp.Height/2);
   if Assigned(Zoom) then visualSize := ToolManager.PenWidth * Zoom.Factor else visualSize := ToolManager.PenWidth;
+  visualSize *= scaling;
   if (CurrentTool in[ptBrush,ptClone]) and (visualSize <= 2*bmp.width) and (visualSize <= 2*bmp.Height) then
   begin
     bi := ToolManager.BrushInfo;
@@ -1607,17 +1631,28 @@ begin
       end;
   end else
     bmp.FillEllipseAntialias(x,y,visualSize/2,visualSize/2,c);
-  t := ImageList16.Width;
+  t := round(ImageList16.Width*scaling);
+  margin := DoScaleX(round(4*scaling),OriginalDPI);
+  FPenPlusMinus := round((t+margin)/scaling);
   m := t/10;
-  x := 0;
-  bmp.EllipseAntialias(x+(t-1)/2,(t-1)/2,t/2-m,t/2-m,BGRABlack,m,BGRAWhite);
-  bmp.DrawLineAntialias(x+m*2.6,(t-1)/2,x+t-1-m*2.6,(t-1)/2,BGRABlack,m);
-  x := bmp.Width-t;
-  bmp.EllipseAntialias(x+(t-1)/2,(t-1)/2,t/2-m,t/2-m,BGRABlack,m,BGRAWhite);
-  bmp.DrawLineAntialias(x+(t-1)/2,m*2.6,x+(t-1)/2,t-1-m*2.6,BGRABlack,m);
-  bmp.DrawLineAntialias(x+m*2.6,(t-1)/2,x+t-1-m*2.6,(t-1)/2,BGRABlack,m);
+  x := margin;
+  y := margin;
+  bmp.EllipseAntialias(x+(t-1)/2, y+(t-1)/2, t/2-m, t/2-m, BGRABlack,m,BGRAWhite);
+  bmp.DrawLineAntialias(x+m*2.6, y+(t-1)/2, x+t-1-m*2.6, y+(t-1)/2, BGRABlack,m);
+  x := bmp.Width-t-margin;
+  y := margin;
+  bmp.EllipseAntialias(x+(t-1)/2, y+(t-1)/2, t/2-m, t/2-m, BGRABlack,m,BGRAWhite);
+  bmp.DrawLineAntialias(x+(t-1)/2, y+m*2.6, x+(t-1)/2, y+t-1-m*2.6, BGRABlack,m);
+  bmp.DrawLineAntialias(x+m*2.6, y+(t-1)/2, x+t-1-m*2.6, y+(t-1)/2, BGRABlack,m);
 
-  bmp.Draw(PaintBox_PenPreview.Canvas,0,0);
+  bmp.NoClip;
+  bmp.HorizLine(0,0,bmp.Width-1, ApplyLightnessFast(Panel_PenWidthPreview.Color, 48000));
+  bmp.VertLine(0,0,bmp.Height-1, ApplyLightnessFast(Panel_PenWidthPreview.Color, 48000));
+  bmp.HorizLine(0,bmp.Height-1,bmp.Width-1, ApplyLightnessFast(Panel_PenWidthPreview.Color, 16000));
+  bmp.VertLine(bmp.Width-1,0,bmp.Height-1, ApplyLightnessFast(Panel_PenWidthPreview.Color, 16000));
+
+  bmp.Draw(PaintBox_PenPreview.Canvas,
+    rect(0, 0, PaintBox_PenPreview.Width, PaintBox_PenPreview.Height));
   bmp.Free;
 end;
 
