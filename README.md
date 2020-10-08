@@ -1,10 +1,14 @@
 # LazPaint
 Image editor, like PaintBrush or Paint.Net, written in Lazarus (Free Pascal). Uses BGRABitmap library.
 
+> You can support the development by [donating](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MXWCFJJWNQ6A6). That will allow the developper to buy carrots and beans for sustenance.
+
 # Download
 [Download LazPaint](https://github.com/bgrabitmap/lazpaint/releases) for Windows, Mac and Linux.
 
-[Download LazPaint Portable](https://framakey.org/Portables/LazPaintPortable) for Windows.
+This application can be made [portable](https://wiki.freepascal.org/LazPaint_Make_it_portable). 
+
+Here are [compilation instructions](https://wiki.freepascal.org/LazPaint#Compilation_of_latest_version) if you would like to debug or make a modified version.
 
 # Official Sites
 [LazPaint Wiki](http://wiki.freepascal.org/LazPaint)
@@ -16,11 +20,12 @@ Image editor, like PaintBrush or Paint.Net, written in Lazarus (Free Pascal). Us
 [LazPaint on YouTUBE](https://www.youtube.com/playlist?list=PLC5C5CAB111B5D9DA)
 
 # Screenshots
+![LazPaint Linux dark theme](https://upload.wikimedia.org/wikipedia/commons/c/c0/Lazpaint_version_7.png)
 ![LazPaint Windows](http://wiki.freepascal.org/images/2/25/Lazpaint_curve_redim.png)
 ![LazPaint Puppy Linux](http://wiki.freepascal.org/images/5/57/lazpaint6_puppy.png)
 
 # History
-LazPaint was started to demonstrate the capabilities of the graphic library BGRABitmap. It provides advanced drawing functions in Lazarus development environment. Both provided a source of inspiration for the other and finally LazPaint became real image editor. Thanks to the help of Lazarus community, the program has been compiled on Windows, Linux and MacOS X.
+LazPaint was started to demonstrate the capabilities of the graphic library BGRABitmap. It provides advanced drawing functions in Lazarus development environment. Both provided a source of inspiration for the other and finally LazPaint became real image editor. Thanks to the help of Lazarus community, the program has been compiled on Windows, Linux, MacOS X, FreeBSD and Raspberry Pi.
 
 # Features
 * [Files](http://wiki.freepascal.org/LazPaint_File): read and write a variety of file formats, including layered bitmaps and 3D files.
