@@ -33,9 +33,9 @@ copy ..\bin\i18n\lclstrconsts.* lazpaint32\i18n >nul
 if not exist lazpaint32\models mkdir lazpaint32\models
 copy ..\bin\models lazpaint32\models >nul
 if not exist lazpaint32\scripts mkdir lazpaint32\scripts
-copy ..\..\..\scripts lazpaint32\scripts >nul
+copy ..\..\..\resources\scripts lazpaint32\scripts >nul
 if not exist lazpaint32\scripts\lazpaint mkdir lazpaint32\scripts\lazpaint
-copy ..\..\..\scripts\lazpaint lazpaint32\scripts\lazpaint >nul
+copy ..\..\..\resources\scripts\lazpaint lazpaint32\scripts\lazpaint >nul
 goto donebin32
 :missingbin32
 echo Error: 32-bit binary not found
@@ -56,9 +56,9 @@ copy ..\bin\i18n\lclstrconsts.* lazpaint64\i18n >nul
 if not exist lazpaint64\models mkdir lazpaint64\models
 copy ..\bin\models lazpaint64\models >nul
 if not exist lazpaint64\scripts mkdir lazpaint64\scripts
-copy ..\..\..\scripts lazpaint64\scripts >nul
+copy ..\..\..\resources\scripts lazpaint64\scripts >nul
 if not exist lazpaint64\scripts\lazpaint mkdir lazpaint64\scripts\lazpaint
-copy ..\..\..\scripts\lazpaint lazpaint64\scripts\lazpaint >nul
+copy ..\..\..\resources\scripts\lazpaint lazpaint64\scripts\lazpaint >nul
 goto donebin64
 :missingbin64
 echo Error: 64-bit binary not found
