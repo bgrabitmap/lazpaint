@@ -10,11 +10,11 @@ msgstr ""
 
 #: lclstrconsts.hhshelpbrowsernotexecutable
 msgid "Browser %s%s%s not executable."
-msgstr "Il browser %s%s%s non Ë eseguibile."
+msgstr "Il browser %s%s%s non √® eseguibile."
 
 #: lclstrconsts.hhshelpbrowsernotfound
 msgid "Browser %s%s%s not found."
-msgstr "Il browser %s%s%s non Ë stato trovato."
+msgstr "Il browser %s%s%s non √® stato trovato."
 
 #: lclstrconsts.hhshelperrorwhileexecuting
 msgid "Error while executing %s%s%s:%s%s"
@@ -26,7 +26,7 @@ msgstr "Impossibile trovare un browser HTML"
 
 #: lclstrconsts.hhshelpnohtmlbrowserfoundpleasedefineoneinhelpconfigurehe
 msgid "No HTML Browser found.%sPlease define one in Environment -> Options -> Help -> Help Options"
-msgstr "Non Ë stato trovato nessun browser HTML.%sDefiniscine uno in Aiuto -> Configura l'aiuto -> Visualizzatori"
+msgstr "Non √® stato trovato nessun browser HTML.%sDefiniscine uno in Aiuto -> Configura l'aiuto -> Visualizzatori"
 
 #: lclstrconsts.hhshelpthehelpdatabasewasunabletofindfile
 msgid "The help database %s%s%s was unable to find file %s%s%s."
@@ -34,7 +34,7 @@ msgstr "L'archivio dell'help %s%s%s non riesce a trovare il file %s%s%s."
 
 #: lclstrconsts.hhshelpthemacrosinbrowserparamswillbereplacedbytheurl
 msgid "The macro %s in BrowserParams will be replaced by the URL."
-msgstr "La macro  %s nei parametri del browser verr‡ sostituita dall'URL"
+msgstr "La macro  %s nei parametri del browser verr√† sostituita dall'URL"
 
 #: lclstrconsts.ifsalt
 msgid "Alt"
@@ -451,7 +451,7 @@ msgstr "La directory \"%s\" non esiste."
 
 #: lclstrconsts.rsfdfilealreadyexists
 msgid "The file \"%s\" already exists. Overwrite ?"
-msgstr "Il file \"%s\" Esiste gi‡. Lo rimpiazzo?"
+msgstr "Il file \"%s\" Esiste gi√†. Lo rimpiazzo?"
 
 #: lclstrconsts.rsfdfilemustexist
 msgid "File must exist"
@@ -615,7 +615,7 @@ msgstr "--gtk-module-module   Carica il modulo specificato alla partenza."
 
 #: lclstrconsts.rsgtkoptionname
 msgid "--name programe       Set program name to \"progname\". If not specified, program name will be set to ParamStrUTF8(0)."
-msgstr "--name programe       Imposta il nome del programma a \"progname\". Se non specificato, il nome del programma sar‡ impostato a ParamStrUTF8(0)."
+msgstr "--name programe       Imposta il nome del programma a \"progname\". Se non specificato, il nome del programma sar√† impostato a ParamStrUTF8(0)."
 
 #: lclstrconsts.rsgtkoptionnodebug
 msgid "--gtk-no-debug flags  Turn off specific Gtk+ trace/debug messages."
@@ -635,7 +635,7 @@ msgstr "--sync                Chiama XSynchronize (display, True) appena viene s
 
 #: lclstrconsts.rshelpalreadyregistered
 msgid "%s: Already registered"
-msgstr "%s: Gi‡ registrato"
+msgstr "%s: Gi√† registrato"
 
 #: lclstrconsts.rshelpcontextnotfound
 msgid "Help Context not found"
@@ -731,7 +731,7 @@ msgstr "Icona"
 
 #: lclstrconsts.rsiconimageempty
 msgid "Icon image cannot be empty"
-msgstr "L'immagine dell'icona non puÚ essere vuota"
+msgstr "L'immagine dell'icona non pu√≤ essere vuota"
 
 #: lclstrconsts.rsiconimageformat
 msgid "Icon image must have the same format"
@@ -966,11 +966,11 @@ msgstr "Niente"
 
 #: lclstrconsts.rsnotavalidgridfile
 msgid "Not a valid grid file"
-msgstr "Non √® un file griglia valido"
+msgstr "Non √É¬® un file griglia valido"
 
 #: lclstrconsts.rsnowidgetset
 msgid "No widgetset object. Please check if the unit \"interfaces\" was added to the programs uses clause."
-msgstr "Nessun oggetto. Verifica se la unit  \"interfaces\" Ë stata aggiunta alla clausola uses del programma."
+msgstr "Nessun oggetto. Verifica se la unit  \"interfaces\" √® stata aggiunta alla clausola uses del programma."
 
 #: lclstrconsts.rsolivecolorcaption
 msgid "Olive"
@@ -1284,7 +1284,7 @@ msgstr "Deregistrazione azione non valida"
 
 #: lclstrconsts.sinvalidcharset
 msgid "The char set in mask \"%s\" is not valid!"
-msgstr "Il carattere di mask \"%s\" non Ë valido"
+msgstr "Il carattere di mask \"%s\" non √® valido"
 
 #: lclstrconsts.sinvalidimagesize
 msgid "Invalid image size"
