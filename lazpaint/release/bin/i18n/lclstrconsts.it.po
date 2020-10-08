@@ -966,7 +966,7 @@ msgstr "Niente"
 
 #: lclstrconsts.rsnotavalidgridfile
 msgid "Not a valid grid file"
-msgstr "Non Ã¨ un file griglia valido"
+msgstr "Non è un file griglia valido"
 
 #: lclstrconsts.rsnowidgetset
 msgid "No widgetset object. Please check if the unit \"interfaces\" was added to the programs uses clause."
