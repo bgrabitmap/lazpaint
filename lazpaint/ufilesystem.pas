@@ -650,9 +650,16 @@ begin
   setlength(containedFiles, nbContainedFiles);
   if nbContainedFiles > 0 then
   begin
-    if not AConfirmationCallback(AForm, containedFiles, True) then exit;
-    for i := 0 to high(containedFiles) do
-      DeleteFile(containedFiles[i]);
+    if not AConfirmationCallback(AForm, containedFiles, True) then exit(false);
+    try
+      for i := 0 to high(containedFiles) do
+        DeleteFile(containedFiles[i]);
+    except on ex: exception do
+      begin
+        ShowMessage(ex.Message);
+        exit(false);
+      end;
+    end;
   end;
   if nbRealFiles > 0 then
   begin
