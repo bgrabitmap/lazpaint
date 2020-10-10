@@ -1,15 +1,11 @@
 #!/bin/bash
 set -e
+cd `dirname $0`
 
 if ! [ ${OSTYPE:0:6} = "darwin" ]; then
   echo "This script is for OS X only"
   exit 1
 fi
-
-if [ -e "macOS" ]; then
-  rm -R macOS
-fi
-
 
 appname=LazPaint
 appversion=7.1.4
