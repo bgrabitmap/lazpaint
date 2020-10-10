@@ -912,8 +912,8 @@ begin
     FDontUpdateStack := true;
     LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.CurrentLayerIndex] := blendOp;
     FDontUpdateStack := false;
-    UpdateComboBlendOp;
   end;
+  UpdateComboBlendOp;
   tempUnder.Free;
   LazPaintInstance.ShowTopmost(topmostInfo);
   if LazPaintInstance.Image.CurrentLayerIndex = 0 then
