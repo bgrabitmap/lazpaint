@@ -374,6 +374,12 @@ begin
   begin
     DeleteSelectedFiles;
     Key := 0;
+  end else
+  if (KEY = VK_F5) then
+  begin
+    ResetDirectory(false, true);
+    SelectFile(Edit_Filename.Text);
+    Key := 0;
   end;
 end;
 
