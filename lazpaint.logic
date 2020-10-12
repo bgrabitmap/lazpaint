@@ -8,3 +8,8 @@ echo "DON'T FORGET TO UPDATE release/debian/changelog"
 text release/macOS/makedmg.sh "appversion=$(Version)"
 bundle release/macOS/LazPaint.app
 copy ../resources/icon/lazpaint.icns release/macOS/LazPaint.app/Contents/Resources/lazpaint.icns
+if exists ../../lazpaint.github.io/app.js
+  text ../../lazpaint.github.io/app.js "    var version = '$(Version)'"
+else
+  echo "WEBSITE FOLDER NOT FOUND, UPDATE MANUALLY app.js"
+end
