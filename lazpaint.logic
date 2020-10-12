@@ -4,7 +4,6 @@ package lazpaintembeddedpack.lpk
 const lazpainttype.pas LazPaintVersion
 text release/windows/lazpaint.iss "#define MyAppVersion ""$(Version)"""
 text release/debian/debian/control "Version: $(Version)"
-echo "DON'T FORGET TO UPDATE release/debian/changelog"
 text release/macOS/makedmg.sh "appversion=$(Version)"
 bundle release/macOS/LazPaint.app
 copy ../resources/icon/lazpaint.icns release/macOS/LazPaint.app/Contents/Resources/lazpaint.icns
@@ -13,3 +12,4 @@ if exists ../../lazpaint.github.io/app.js
 else
   echo "WEBSITE FOLDER NOT FOUND, UPDATE MANUALLY app.js"
 end
+echo ">> DON'T FORGET TO ADD VERSION IN release/debian/changelog <<"
