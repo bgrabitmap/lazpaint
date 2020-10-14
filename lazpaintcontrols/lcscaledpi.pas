@@ -36,6 +36,9 @@ var
   i: Integer;
 
 begin
+  if (TargetList = SourceList) and (newWidth = SourceList.Width) and
+    (newHeight = SourceList.Height) then exit;
+
   setlength(TempBGRA, SourceList.Count);
   TempBmp := TBitmap.Create;
   for i := 0 to SourceList.Count-1 do

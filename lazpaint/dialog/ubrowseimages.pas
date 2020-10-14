@@ -15,7 +15,7 @@ type
 
   { TFBrowseImages }
 
-  TFBrowseImages = class(TForm)
+   TFBrowseImages = class(TForm)
     ComboBox_FileExtension: TBCComboBox;
     CheckBox_UseDirectoryOnStartup: TCheckBox;
     DirectoryEdit1: TEdit;
@@ -174,7 +174,7 @@ uses BGRAThumbnail, BGRAPaintNet, BGRAOpenRaster, BGRAReadLzp,
     UConfig, bgrareadjpeg, FPReadJPEG,
     UFileExtensions, BGRAUTF8, LazFileUtils,
     UGraph, URaw, UDarkTheme, ShellCtrls,
-    UIconCache;
+    UIconCache, LCScaleDPI;
 
 { TFBrowseImages }
 
@@ -267,6 +267,12 @@ begin
   FPreview := TImagePreview.Create(vsPreview, Label_Status, true);
   FPreview.OnValidate:= @PreviewValidate;
   FChosenImage := TImageEntry.Empty;
+
+  ScaleImageList(ImageListToolbar, DoScaleX(32, OriginalDPI),
+    DoScaleY(32, OriginalDPI), ImageListToolbar);
+
+  ScaleControl(Panel1, OriginalDPI);
+  ScaleControl(Panel2, OriginalDPI);
 
   DarkThemeInstance.Apply(ComboBox_FileExtension, False, 0.40);
   vsList.BitmapAutoScale:= false;
