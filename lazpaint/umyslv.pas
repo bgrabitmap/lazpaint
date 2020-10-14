@@ -630,15 +630,9 @@ var
       FVScrollBar := TVolatileScrollBar.Create(w-VolatileScrollBarSize,0,
          VolatileScrollBarSize,h,sbVertical,FVerticalScrollPos,0,maxScroll);
     end;
-    if Assigned(FVScrollBar) then
-    begin
-      FVScrollBar.Draw(ABitmap);
-      clientArea := rect(0,0,w-VolatileScrollBarSize,h);
-    end else
-    begin
-      clientArea := rect(0,0,w,h);
+    if not Assigned(FVScrollBar) then
       FVerticalScrollPos := 0;
-    end;
+    clientArea := rect(0,0,w,h);
     FItemsPerPage:= (Size(clientArea).cy div totalIconVSize)*FIconsPerLine;
     for item := 0 to ItemCount-1 do SetDisplayRect(item,EmptyRect);
     item := (FVerticalScrollPos div (32*FIconsPerLine))*FIconsPerLine;
@@ -685,6 +679,8 @@ var
       end;
       inc(item);
     end;
+    if Assigned(FVScrollBar) then
+      FVScrollBar.Draw(ABitmap);
   end;
 
 var i: integer;
