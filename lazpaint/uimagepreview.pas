@@ -304,6 +304,7 @@ end;
 procedure TImagePreview.DrawCurrentFrame(Bitmap: TBGRABitmap);
 var x,y,w,h,ofs: integer;
   frame: TBGRABitmap;
+  checkerScale: single;
 begin
   ClearMenu;
   frame := GetCurrentFrameBitmap;
@@ -330,13 +331,14 @@ begin
   end;
   x := (bitmap.Width-w) div 2;
   y := (bitmap.Height-h) div 2;
-  ofs := 4;
+  checkerScale := DoScaleX(round(60*FScaling), OriginalDPI)/60;
+  ofs := round(4*checkerScale);
   if w < ofs then ofs := w;
   if h < ofs then ofs := h;
   bitmap.FillRect(rect(x+w,y+ofs,x+ofs+w,y+ofs+h), BGRA(0,0,0,128),dmDrawWithTransparency);
   bitmap.FillRect(rect(x+ofs,y+h,x+w,y+ofs+h), BGRA(0,0,0,128),dmDrawWithTransparency);
 
-  DrawThumbnailCheckers(Bitmap, rect(x,y,x+w,y+h), false, DoScaleX(round(60*FScaling), OriginalDPI)/60);
+  DrawThumbnailCheckers(Bitmap, rect(x,y,x+w,y+h), false, checkerScale);
   bitmap.StretchPutImage(rect(x,y,x+w,y+h), frame, dmDrawWithTransparency)
 end;
 
