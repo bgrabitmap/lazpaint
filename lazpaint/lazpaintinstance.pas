@@ -430,8 +430,6 @@ end;
 
 procedure TLazPaintInstance.Init(AEmbedded: boolean);
 begin
-  TVolatileScrollBar.InitDPI;
-
   Title := 'LazPaint ' + LazPaintCurrentVersion;
   FCustomImageList := TImageListList.Create;
   FTopMostInfo.choosecolorHidden := 0;

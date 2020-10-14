@@ -140,6 +140,7 @@ end;
 procedure TImagePreview.SurfaceRedraw(Sender: TObject; Bitmap: TBGRABitmap);
 begin
   FScaling := FSurface.GetCanvasScaleFactor;
+  TVolatileScrollBar.InitDPI(FScaling);
   FSurfaceScaledHeight := Bitmap.Height;
   if (Bitmap.Width = 0) or (Bitmap.Height = 0) then
   begin

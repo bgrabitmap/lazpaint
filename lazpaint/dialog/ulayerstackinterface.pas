@@ -166,6 +166,7 @@ end;
 procedure TLayerStackInterface.BGRALayerStack_Redraw(Sender: TObject;
   Bitmap: TBGRABitmap);
 begin
+  TVolatileScrollBar.InitDPI((Sender as TControl).GetCanvasScaleFactor);
   DrawLayerStack(Bitmap, not FPartialRedraw, -1);
 end;
 
