@@ -277,7 +277,7 @@ uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTra
      USharpen, uposterize, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
 
-     ugraph, LCScaleDPI, ucommandline, uabout, UPython, UVolatileScrollBar;
+     ugraph, LCScaleDPI, ucommandline, uabout, UPython;
 
 { TLazPaintInstance }
 

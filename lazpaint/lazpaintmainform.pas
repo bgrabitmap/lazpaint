@@ -12,7 +12,7 @@ uses
 
   BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal, BGRAGradientScanner, BGRAGradientOriginal,
 
-  LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, UZoom, UImageView,
+  LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, UZoom,
   UImageObservation, UConfig, LCScaleDPI, UResourceStrings, UMenu, uscripting,
   ubrowseimages, UToolPolygon, UToolVectorial, LCVectorRectShapes,
   LCVectorialFillControl, LCVectorialFill,
