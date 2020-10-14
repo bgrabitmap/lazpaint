@@ -274,7 +274,7 @@ end;
 
 procedure TFSaveOption.BGRAPreviewRedraw(Sender: TObject;
   Bitmap: TBGRABitmap);
-var ratioX,ratioY,ratio: single;
+var ratioX,ratioY,ratio, checkerScale: single;
   picture: TBGRABitmap;
   mustFreePic: boolean;
   x,y,visualWidth,visualHeight: integer;
@@ -341,7 +341,10 @@ begin
     thumb.Free;
   end else
   begin
-    DrawCheckers(Bitmap, r);
+    checkerScale := DoScaleX(60, OriginalDPI)/60;
+    if not BGRAPreview.BitmapAutoScale then
+      checkerScale *= BGRAPreview.GetCanvasScaleFactor;
+    DrawCheckers(Bitmap, r, checkerScale);
     Bitmap.StretchPutImage(r, picture, dmDrawWithTransparency);
   end;
   if mustFreePic then picture.Free;

@@ -110,7 +110,7 @@ type
 implementation
 
 uses FPimage, BGRAReadJpeg, BGRAOpenRaster, BGRAPaintNet, BGRAReadLzp, Dialogs, UNewimage,
-  LCLType, BGRAPhoxo, BGRASVG, math, URaw, UImage;
+  LCLType, BGRAPhoxo, BGRASVG, math, URaw, UImage, LCScaleDPI;
 
 { TImagePreview }
 
@@ -336,7 +336,7 @@ begin
   bitmap.FillRect(rect(x+w,y+ofs,x+ofs+w,y+ofs+h), BGRA(0,0,0,128),dmDrawWithTransparency);
   bitmap.FillRect(rect(x+ofs,y+h,x+w,y+ofs+h), BGRA(0,0,0,128),dmDrawWithTransparency);
 
-  DrawThumbnailCheckers(Bitmap, rect(x,y,x+w,y+h), false, FScaling);
+  DrawThumbnailCheckers(Bitmap, rect(x,y,x+w,y+h), false, DoScaleX(round(60*FScaling), OriginalDPI)/60);
   bitmap.StretchPutImage(rect(x,y,x+w,y+h), frame, dmDrawWithTransparency)
 end;
 
