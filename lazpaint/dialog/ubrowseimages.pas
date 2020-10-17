@@ -323,6 +323,7 @@ begin
 
   FCreateFolderOrContainerCaption := ToolButton_CreateFolderOrContainer.Hint;
   ToolButton_CreateFolderOrContainer.Hint := ToolButton_CreateFolderOrContainer.Hint + '...';
+  ComboBox_FileExtension.TabStop := true;
 end;
 
 procedure TFBrowseImages.FormDestroy(Sender: TObject);

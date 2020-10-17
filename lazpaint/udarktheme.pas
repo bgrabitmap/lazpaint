@@ -400,6 +400,7 @@ begin
   Apply(ACombo.Button, ADarkTheme, AFontHeightRatio);
   with ACombo do
   begin
+    FocusBorderOpacity:= 128;
     fh := round((Height+4)*AFontHeightRatio);
     Button.StateNormal.FontEx.Height := fh;
     Button.StateNormal.FontEx.ShadowColorOpacity:= 96;
@@ -412,11 +413,13 @@ begin
       DropDownBorderColor:= clBlack;
       DropDownFontColor:= clLightText;
       DropDownColor:= clDarkBtnFace;
+      FocusBorderColor:= clLightText;
     end else
     begin
       DropDownBorderColor := MergeBGRA(ColorToBGRA(clWindowText),ColorToBGRA(clWindow));
       DropDownFontColor:= clWindowText;
       DropDownColor:= clWindow;
+      FocusBorderColor:= clWindowText;
     end;
     DropDownFontHighlight:= clHighlightText;
     DropDownHighlight:= clHighlight;
