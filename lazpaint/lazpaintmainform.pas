@@ -862,7 +862,7 @@ uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
    ugeometricbrush, UPreviewDialog, UQuestion, BGRALayerOriginal,
    BGRATransform, LCVectorPolyShapes, URaw, UFileSystem,
-   UTranslation, UPython;
+   UTranslation, UPython, BCTypes;
 
 const PenWidthFactor = 10;
 
