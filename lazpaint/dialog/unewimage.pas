@@ -38,7 +38,9 @@ type
     Label_MemoryRequiredValue: TLabel;
     Label_Height1: TLabel;
     Label_MemoryRequired: TLabel;
+    ToolBar_Ratio: TToolBar;
     ToolBar_Rotate: TToolBar;
+    ToolButton_ClearRatio: TToolButton;
     ToolButton_Rotate: TToolButton;
     vsPreview: TBGRAVirtualScreen;
     Button_OK: TButton;
@@ -53,6 +55,7 @@ type
     procedure ComboBox_RatioEnter(Sender: TObject);
     procedure ComboBox_RatioExit(Sender: TObject);
     procedure SpinEdit_HeightChange(Sender: TObject);
+    procedure ToolButton_ClearRatioClick(Sender: TObject);
     procedure ToolButton_RotateClick(Sender: TObject);
     procedure vsPreviewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
     procedure Button_OKClick(Sender: TObject);
@@ -263,6 +266,12 @@ begin
   UpdatePreview;
 end;
 
+procedure TFNewImage.ToolButton_ClearRatioClick(Sender: TObject);
+begin
+  ComboBox_Ratio.ItemIndex:= 0;
+  ComboBox_RatioChange(ComboBox_Ratio);
+end;
+
 procedure TFNewImage.FormCreate(Sender: TObject);
 begin
   ScaleControl(Self,OriginalDPI);
@@ -282,6 +291,7 @@ end;
 procedure TFNewImage.FormShow(Sender: TObject);
 begin
   ToolBar_Rotate.Images := LazPaintInstance.Icons[DoScaleY(16,OriginalDPI)];
+  ToolBar_Ratio.Images := ToolBar_Rotate.Images;
   Label_MemoryRequiredValue.Left := Label_MemoryRequired.BoundsRect.Right + DoScaleX(4,OriginalDPI);
 
   FRecomputing := true;
@@ -342,6 +352,9 @@ procedure TFNewImage.UpdatePreview;
 begin
   vsPreview.DiscardBitmap;
   Label_MemoryRequiredValue.Caption := FileSizeToStr(int64((SpinEdit_Width.Value*GetBitDepth+7) div 8)*SpinEdit_Height.Value,rsBytes);
+  if FBackColor.alpha = 0 then
+    ToolBar_Rotate.Color := MergeBGRA(ColorToBGRA(clSilver), ColorToBGRA(clWhite))
+    else ToolBar_Rotate.Color := ColorToBGRA(FBackColor);
 end;
 
 function TFNewImage.GetBitDepth: integer;

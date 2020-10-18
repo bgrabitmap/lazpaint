@@ -12,7 +12,7 @@ object FNewImage: TFNewImage
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.8.2.0'
+  LCLVersion = '2.0.10.0'
   object Label_Width: TLabel
     Left = 16
     Height = 15
@@ -37,7 +37,7 @@ object FNewImage: TFNewImage
     Caption = 'OK'
     Default = True
     OnClick = Button_OKClick
-    TabOrder = 6
+    TabOrder = 5
   end
   object Button_Cancel: TButton
     Left = 152
@@ -47,7 +47,7 @@ object FNewImage: TFNewImage
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 7
+    TabOrder = 6
   end
   object SpinEdit_Width: TSpinEdit
     Left = 80
@@ -80,24 +80,29 @@ object FNewImage: TFNewImage
     Width = 134
     OnRedraw = vsPreviewRedraw
     Alignment = taLeftJustify
+    ClientHeight = 128
+    ClientWidth = 134
     Color = clForm
     ParentColor = False
     TabOrder = 4
-  end
-  object ToolBar_Rotate: TToolBar
-    Left = 104
-    Height = 24
-    Top = 73
-    Width = 24
-    Align = alNone
-    EdgeBorders = []
-    Images = FMain.ImageList16
-    TabOrder = 5
-    object ToolButton_Rotate: TToolButton
-      Left = 1
-      Top = 0
-      ImageIndex = 43
-      OnClick = ToolButton_RotateClick
+    object ToolBar_Rotate: TToolBar
+      Left = 51
+      Height = 22
+      Top = 49
+      Width = 24
+      Align = alNone
+      AutoSize = True
+      Color = clForm
+      EdgeBorders = []
+      Images = FMain.ImageList16
+      ParentColor = False
+      TabOrder = 0
+      object ToolButton_Rotate: TToolButton
+        Left = 1
+        Top = 0
+        ImageIndex = 43
+        OnClick = ToolButton_RotateClick
+      end
     end
   end
   object Label_Height1: TLabel
@@ -112,7 +117,7 @@ object FNewImage: TFNewImage
     Left = 80
     Height = 23
     Top = 103
-    Width = 79
+    Width = 63
     ItemHeight = 15
     Items.Strings = (
       ''
@@ -121,11 +126,11 @@ object FNewImage: TFNewImage
       '5:4'
       '4:3'
       '11:8'
-      '1.4142:1'
+      '1.414:1'
       '1.43:1'
       '3:2'
       '8:5'
-      '1.6180:1'
+      '1.618:1'
       '5:3'
       '16:9'
       '2:1'
@@ -146,31 +151,16 @@ object FNewImage: TFNewImage
     BorderOpacity = 180
     BorderColor = clBlack
     BorderGradient.StartColor = clWhite
-    BorderGradient.StartColorOpacity = 255
-    BorderGradient.DrawMode = dmSet
     BorderGradient.EndColor = clBlack
-    BorderGradient.EndColorOpacity = 255
-    BorderGradient.ColorCorrection = True
     BorderGradient.GradientType = gtLinear
-    BorderGradient.Point1XPercent = 0
-    BorderGradient.Point1YPercent = 0
     BorderGradient.Point2XPercent = 100
     BorderGradient.Point2YPercent = 100
-    BorderGradient.Sinus = False
     FillColor = clBlack
     FillOpacity = 255
     FillGradient.StartColor = clWhite
-    FillGradient.StartColorOpacity = 255
-    FillGradient.DrawMode = dmSet
     FillGradient.EndColor = clBlack
-    FillGradient.EndColorOpacity = 255
-    FillGradient.ColorCorrection = True
     FillGradient.GradientType = gtLinear
-    FillGradient.Point1XPercent = 0
-    FillGradient.Point1YPercent = 0
-    FillGradient.Point2XPercent = 0
     FillGradient.Point2YPercent = 100
-    FillGradient.Sinus = False
     Caption = 'BGRAShape1'
     RoundRadius = 5
     OnClick = BGRAShapeClick
@@ -185,31 +175,16 @@ object FNewImage: TFNewImage
     BorderOpacity = 180
     BorderColor = clBlack
     BorderGradient.StartColor = clWhite
-    BorderGradient.StartColorOpacity = 255
-    BorderGradient.DrawMode = dmSet
     BorderGradient.EndColor = clBlack
-    BorderGradient.EndColorOpacity = 255
-    BorderGradient.ColorCorrection = True
     BorderGradient.GradientType = gtLinear
-    BorderGradient.Point1XPercent = 0
-    BorderGradient.Point1YPercent = 0
     BorderGradient.Point2XPercent = 100
     BorderGradient.Point2YPercent = 100
-    BorderGradient.Sinus = False
     FillColor = clBlue
     FillOpacity = 255
     FillGradient.StartColor = clWhite
-    FillGradient.StartColorOpacity = 255
-    FillGradient.DrawMode = dmSet
     FillGradient.EndColor = clBlack
-    FillGradient.EndColorOpacity = 255
-    FillGradient.ColorCorrection = True
     FillGradient.GradientType = gtLinear
-    FillGradient.Point1XPercent = 0
-    FillGradient.Point1YPercent = 0
-    FillGradient.Point2XPercent = 0
     FillGradient.Point2YPercent = 100
-    FillGradient.Sinus = False
     Caption = 'BGRAShape2'
     RoundRadius = 5
     OnClick = BGRAShapeClick
@@ -224,31 +199,16 @@ object FNewImage: TFNewImage
     BorderOpacity = 180
     BorderColor = clBlack
     BorderGradient.StartColor = clWhite
-    BorderGradient.StartColorOpacity = 255
-    BorderGradient.DrawMode = dmSet
     BorderGradient.EndColor = clBlack
-    BorderGradient.EndColorOpacity = 255
-    BorderGradient.ColorCorrection = True
     BorderGradient.GradientType = gtLinear
-    BorderGradient.Point1XPercent = 0
-    BorderGradient.Point1YPercent = 0
     BorderGradient.Point2XPercent = 100
     BorderGradient.Point2YPercent = 100
-    BorderGradient.Sinus = False
     FillColor = clRed
     FillOpacity = 255
     FillGradient.StartColor = clWhite
-    FillGradient.StartColorOpacity = 255
-    FillGradient.DrawMode = dmSet
     FillGradient.EndColor = clBlack
-    FillGradient.EndColorOpacity = 255
-    FillGradient.ColorCorrection = True
     FillGradient.GradientType = gtLinear
-    FillGradient.Point1XPercent = 0
-    FillGradient.Point1YPercent = 0
-    FillGradient.Point2XPercent = 0
     FillGradient.Point2YPercent = 100
-    FillGradient.Sinus = False
     Caption = 'BGRAShape3'
     RoundRadius = 5
     OnClick = BGRAShapeClick
@@ -263,31 +223,16 @@ object FNewImage: TFNewImage
     BorderOpacity = 180
     BorderColor = clBlack
     BorderGradient.StartColor = clWhite
-    BorderGradient.StartColorOpacity = 255
-    BorderGradient.DrawMode = dmSet
     BorderGradient.EndColor = clBlack
-    BorderGradient.EndColorOpacity = 255
-    BorderGradient.ColorCorrection = True
     BorderGradient.GradientType = gtLinear
-    BorderGradient.Point1XPercent = 0
-    BorderGradient.Point1YPercent = 0
     BorderGradient.Point2XPercent = 100
     BorderGradient.Point2YPercent = 100
-    BorderGradient.Sinus = False
     FillColor = clLime
     FillOpacity = 255
     FillGradient.StartColor = clWhite
-    FillGradient.StartColorOpacity = 255
-    FillGradient.DrawMode = dmSet
     FillGradient.EndColor = clBlack
-    FillGradient.EndColorOpacity = 255
-    FillGradient.ColorCorrection = True
     FillGradient.GradientType = gtLinear
-    FillGradient.Point1XPercent = 0
-    FillGradient.Point1YPercent = 0
-    FillGradient.Point2XPercent = 0
     FillGradient.Point2YPercent = 100
-    FillGradient.Sinus = False
     Caption = 'BGRAShape4'
     RoundRadius = 5
     OnClick = BGRAShapeClick
@@ -302,31 +247,16 @@ object FNewImage: TFNewImage
     BorderOpacity = 180
     BorderColor = clBlack
     BorderGradient.StartColor = clWhite
-    BorderGradient.StartColorOpacity = 255
-    BorderGradient.DrawMode = dmSet
     BorderGradient.EndColor = clBlack
-    BorderGradient.EndColorOpacity = 255
-    BorderGradient.ColorCorrection = True
     BorderGradient.GradientType = gtLinear
-    BorderGradient.Point1XPercent = 0
-    BorderGradient.Point1YPercent = 0
     BorderGradient.Point2XPercent = 100
     BorderGradient.Point2YPercent = 100
-    BorderGradient.Sinus = False
     FillColor = clFuchsia
     FillOpacity = 255
     FillGradient.StartColor = clWhite
-    FillGradient.StartColorOpacity = 255
-    FillGradient.DrawMode = dmSet
     FillGradient.EndColor = clBlack
-    FillGradient.EndColorOpacity = 255
-    FillGradient.ColorCorrection = True
     FillGradient.GradientType = gtLinear
-    FillGradient.Point1XPercent = 0
-    FillGradient.Point1YPercent = 0
-    FillGradient.Point2XPercent = 0
     FillGradient.Point2YPercent = 100
-    FillGradient.Sinus = False
     Caption = 'BGRAShape5'
     RoundRadius = 5
     OnClick = BGRAShapeClick
@@ -341,31 +271,16 @@ object FNewImage: TFNewImage
     BorderOpacity = 180
     BorderColor = clBlack
     BorderGradient.StartColor = clWhite
-    BorderGradient.StartColorOpacity = 255
-    BorderGradient.DrawMode = dmSet
     BorderGradient.EndColor = clBlack
-    BorderGradient.EndColorOpacity = 255
-    BorderGradient.ColorCorrection = True
     BorderGradient.GradientType = gtLinear
-    BorderGradient.Point1XPercent = 0
-    BorderGradient.Point1YPercent = 0
     BorderGradient.Point2XPercent = 100
     BorderGradient.Point2YPercent = 100
-    BorderGradient.Sinus = False
     FillColor = clAqua
     FillOpacity = 255
     FillGradient.StartColor = clWhite
-    FillGradient.StartColorOpacity = 255
-    FillGradient.DrawMode = dmSet
     FillGradient.EndColor = clBlack
-    FillGradient.EndColorOpacity = 255
-    FillGradient.ColorCorrection = True
     FillGradient.GradientType = gtLinear
-    FillGradient.Point1XPercent = 0
-    FillGradient.Point1YPercent = 0
-    FillGradient.Point2XPercent = 0
     FillGradient.Point2YPercent = 100
-    FillGradient.Sinus = False
     Caption = 'BGRAShape6'
     RoundRadius = 5
     OnClick = BGRAShapeClick
@@ -380,31 +295,16 @@ object FNewImage: TFNewImage
     BorderOpacity = 180
     BorderColor = clBlack
     BorderGradient.StartColor = clWhite
-    BorderGradient.StartColorOpacity = 255
-    BorderGradient.DrawMode = dmSet
     BorderGradient.EndColor = clBlack
-    BorderGradient.EndColorOpacity = 255
-    BorderGradient.ColorCorrection = True
     BorderGradient.GradientType = gtLinear
-    BorderGradient.Point1XPercent = 0
-    BorderGradient.Point1YPercent = 0
     BorderGradient.Point2XPercent = 100
     BorderGradient.Point2YPercent = 100
-    BorderGradient.Sinus = False
     FillColor = clYellow
     FillOpacity = 255
     FillGradient.StartColor = clWhite
-    FillGradient.StartColorOpacity = 255
-    FillGradient.DrawMode = dmSet
     FillGradient.EndColor = clBlack
-    FillGradient.EndColorOpacity = 255
-    FillGradient.ColorCorrection = True
     FillGradient.GradientType = gtLinear
-    FillGradient.Point1XPercent = 0
-    FillGradient.Point1YPercent = 0
-    FillGradient.Point2XPercent = 0
     FillGradient.Point2YPercent = 100
-    FillGradient.Sinus = False
     Caption = 'BGRAShape7'
     RoundRadius = 5
     OnClick = BGRAShapeClick
@@ -419,31 +319,16 @@ object FNewImage: TFNewImage
     BorderOpacity = 180
     BorderColor = clBlack
     BorderGradient.StartColor = clWhite
-    BorderGradient.StartColorOpacity = 255
-    BorderGradient.DrawMode = dmSet
     BorderGradient.EndColor = clBlack
-    BorderGradient.EndColorOpacity = 255
-    BorderGradient.ColorCorrection = True
     BorderGradient.GradientType = gtLinear
-    BorderGradient.Point1XPercent = 0
-    BorderGradient.Point1YPercent = 0
     BorderGradient.Point2XPercent = 100
     BorderGradient.Point2YPercent = 100
-    BorderGradient.Sinus = False
     FillColor = 11796479
     FillOpacity = 255
     FillGradient.StartColor = clWhite
-    FillGradient.StartColorOpacity = 255
-    FillGradient.DrawMode = dmSet
     FillGradient.EndColor = clBlack
-    FillGradient.EndColorOpacity = 255
-    FillGradient.ColorCorrection = True
     FillGradient.GradientType = gtLinear
-    FillGradient.Point1XPercent = 0
-    FillGradient.Point1YPercent = 0
-    FillGradient.Point2XPercent = 0
     FillGradient.Point2YPercent = 100
-    FillGradient.Sinus = False
     Caption = 'BGRAShape8'
     RoundRadius = 5
     OnClick = BGRAShapeClick
@@ -458,31 +343,16 @@ object FNewImage: TFNewImage
     BorderOpacity = 180
     BorderColor = clBlack
     BorderGradient.StartColor = clWhite
-    BorderGradient.StartColorOpacity = 255
-    BorderGradient.DrawMode = dmSet
     BorderGradient.EndColor = clBlack
-    BorderGradient.EndColorOpacity = 255
-    BorderGradient.ColorCorrection = True
     BorderGradient.GradientType = gtLinear
-    BorderGradient.Point1XPercent = 0
-    BorderGradient.Point1YPercent = 0
     BorderGradient.Point2XPercent = 100
     BorderGradient.Point2YPercent = 100
-    BorderGradient.Sinus = False
     FillColor = clWhite
     FillOpacity = 255
     FillGradient.StartColor = clWhite
-    FillGradient.StartColorOpacity = 255
-    FillGradient.DrawMode = dmSet
     FillGradient.EndColor = clBlack
-    FillGradient.EndColorOpacity = 255
-    FillGradient.ColorCorrection = True
     FillGradient.GradientType = gtLinear
-    FillGradient.Point1XPercent = 0
-    FillGradient.Point1YPercent = 0
-    FillGradient.Point2XPercent = 0
     FillGradient.Point2YPercent = 100
-    FillGradient.Sinus = False
     Caption = 'BGRAShape9'
     RoundRadius = 5
     OnClick = BGRAShapeClick
@@ -511,31 +381,16 @@ object FNewImage: TFNewImage
     BorderOpacity = 180
     BorderColor = clBlack
     BorderGradient.StartColor = clWhite
-    BorderGradient.StartColorOpacity = 255
-    BorderGradient.DrawMode = dmSet
     BorderGradient.EndColor = clBlack
-    BorderGradient.EndColorOpacity = 255
-    BorderGradient.ColorCorrection = True
     BorderGradient.GradientType = gtLinear
-    BorderGradient.Point1XPercent = 0
-    BorderGradient.Point1YPercent = 0
     BorderGradient.Point2XPercent = 100
     BorderGradient.Point2YPercent = 100
-    BorderGradient.Sinus = False
     FillColor = clWhite
     FillOpacity = 0
     FillGradient.StartColor = clWhite
-    FillGradient.StartColorOpacity = 255
-    FillGradient.DrawMode = dmSet
     FillGradient.EndColor = clBlack
-    FillGradient.EndColorOpacity = 255
-    FillGradient.ColorCorrection = True
     FillGradient.GradientType = gtLinear
-    FillGradient.Point1XPercent = 0
-    FillGradient.Point1YPercent = 0
-    FillGradient.Point2XPercent = 0
     FillGradient.Point2YPercent = 100
-    FillGradient.Sinus = False
     Caption = 'BGRAShape10'
     RoundRadius = 5
     OnClick = BGRAShapeClick
@@ -567,7 +422,7 @@ object FNewImage: TFNewImage
     Left = 80
     Height = 23
     Top = 72
-    Width = 79
+    Width = 63
     ItemHeight = 15
     ItemIndex = 5
     Items.Strings = (
@@ -583,5 +438,24 @@ object FNewImage: TFNewImage
     Style = csDropDownList
     TabOrder = 2
     Text = '32'
+  end
+  object ToolBar_Ratio: TToolBar
+    Left = 143
+    Height = 22
+    Top = 103
+    Width = 24
+    Align = alNone
+    AutoSize = True
+    Caption = 'ToolBar_Ratio'
+    EdgeBorders = []
+    Images = FMain.ImageList16
+    TabOrder = 7
+    object ToolButton_ClearRatio: TToolButton
+      Left = 1
+      Top = 0
+      Caption = 'ToolButton_ClearRatio'
+      ImageIndex = 39
+      OnClick = ToolButton_ClearRatioClick
+    end
   end
 end
