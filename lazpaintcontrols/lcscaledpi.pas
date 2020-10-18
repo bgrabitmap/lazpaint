@@ -152,7 +152,8 @@ begin
     if WinControl.ControlCount > 0 then begin
       for n:=0 to WinControl.ControlCount-1 do begin
         if WinControl.Controls[n] is TControl then begin
-          ScaleControl(WinControl.Controls[n],FromDPI,ToDPI_X,ToDPI_Y);
+          ScaleControl(WinControl.Controls[n],FromDPI,ToDPI_X,ToDPI_Y,
+            ScaleToolbar);
         end;
       end;
     end;
