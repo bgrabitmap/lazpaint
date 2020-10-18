@@ -45,6 +45,7 @@ type
     FLazPaintInstance: TLazPaintCustomInstance;
     FOnVisibilityChangedByUser: TPaletteVisibilityChangedByUserHandler;
     FPanelPalette: TBGRAVirtualScreen;
+    FCanvasScale: single;
     FVisible: boolean;
     FScrollbar: TVolatileScrollBar;
     FScrollPos: integer;
@@ -132,6 +133,8 @@ end;
 procedure TPaletteToolbar.PanelMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
+  X := round(X*FCanvasScale);
+  Y := round(Y*FCanvasScale);
   if (Button = mbLeft) and Assigned(FScrollbar) then
   begin
     if FScrollbar.MouseDown(X,Y) then
@@ -147,6 +150,8 @@ end;
 procedure TPaletteToolbar.PanelMouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: Integer);
 begin
+  X := round(X*FCanvasScale);
+  Y := round(Y*FCanvasScale);
   if Assigned(FScrollbar) then
   begin
     if FScrollbar.MouseMove(X,Y) then
@@ -166,6 +171,8 @@ end;
 procedure TPaletteToolbar.PanelMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
+  X := round(X*FCanvasScale);
+  Y := round(Y*FCanvasScale);
   if (Button = mbLeft) and Assigned(FScrollbar) then
   begin
     if FScrollbar.MouseUp(X,Y) then
@@ -481,6 +488,7 @@ begin
     FPanelPalette.OnMouseDown:=@PanelMouseDown;
     FPanelPalette.OnMouseUp:=@PanelMouseUp;
     FPanelPalette.OnMouseMove:=@PanelMouseMove;
+    FPanelPalette.BitmapAutoScale:= false;
     ApplyTheme;
     FPanelPalette.Caption := '';
     FColors := TBGRAPalette.Create;
@@ -730,6 +738,9 @@ var i,x,y,w,aw,a,h: integer;
   nbVisible, maxScroll, availHeight: integer;
   clInterm, cSign: TBGRAPixel;
 begin
+  FCanvasScale := (Sender as TControl).GetCanvasScaleFactor;
+  TVolatileScrollBar.InitDPI(FCanvasScale);
+
   if DarkTheme then
   begin
     clInterm := MergeBGRA(ColorToBGRA(clDarkBtnFace),ColorToBGRA(clLightText));
@@ -739,11 +750,11 @@ begin
   else
     clInterm := MergeBGRA(ColorToBGRA(ColorToRGB(clBtnFace)),ColorToBGRA(ColorToRGB(clBtnText)));
 
-  x := 2;
-  y := FMenuButton.Top+FMenuButton.Height+1;
+  x := round(2*FCanvasScale);
+  y := round((FMenuButton.Top+FMenuButton.Height+1)*FCanvasScale);
   w := Bitmap.Width-(VolatileScrollBarSize+1)-x;
-  aw := DoScaleX(FPaletteAlphaWidth, OriginalDPI);
-  h := DoScaleY(FPaletteItemHeight, OriginalDPI);
+  aw := DoScaleX(round(FPaletteAlphaWidth*FCanvasScale), OriginalDPI);
+  h := DoScaleY(round(FPaletteItemHeight*FCanvasScale), OriginalDPI);
   if h < 3 then h := 3;
   availHeight := Bitmap.Height - 2 - y - 1;
   nbVisible := availHeight div (h-1);

@@ -543,6 +543,56 @@ begin
 end;
 {$ENDIF}
 
+{$IFDEF DARWIN}
+function RunAppleScriptLine(AScriptLine: string): boolean;
+var
+  p: TProcess;
+begin
+  p := nil;
+  try
+    p := TProcess.Create(nil);
+    p.Executable := 'osascript';
+    p.Parameters.Add('-e');
+    p.Parameters.Add(AScriptLine);
+    p.Options := [poWaitOnExit];
+    p.Execute;
+    result := true;
+  except
+    result := false;
+  end;
+  p.Free;
+end;
+
+function AppleScriptEscape(AText: string): string;
+begin
+  result := StringReplace(AText, '\', '\\', [rfReplaceAll]);
+  result := StringReplace(result, '"', '\"', [rfReplaceAll]);
+end;
+
+function MoveToTrashOnMacOS(AForm: TForm; const AFilenamesUTF8: array of string; AConfirmationCallback: TDeleteConfirmationFunction): boolean;
+var
+  appleScript: String;
+  i: Integer;
+begin
+  if length(AFilenamesUTF8) = 0 then exit(true);
+  if Assigned(AConfirmationCallback) then
+  begin
+    if not AConfirmationCallback(AForm, AFilenamesUTF8, False) then exit(false);
+  end;
+  appleScript := 'tell application "Finder" to delete {';
+  for i := 0 to high(AFilenamesUTF8) do
+  begin
+    if i > 0 then appleScript += ', ';
+    appleScript += 'POSIX file "' + AppleScriptEscape(AFilenamesUTF8[i]) + '"';
+  end;
+  appleScript += '}';
+  if not RunAppleScriptLine(appleScript) then exit(false);
+  result := true;
+  for i := 0 to high(AFilenamesUTF8) do
+    if FileExists(AFilenamesUTF8[i]) then result := false;
+end;
+{$ENDIF}
+
 function IsMultiFileContainerName(AFilenameUTF8: string): boolean;
 var
   ext: String;
@@ -600,9 +650,16 @@ begin
   setlength(containedFiles, nbContainedFiles);
   if nbContainedFiles > 0 then
   begin
-    if not AConfirmationCallback(AForm, containedFiles, True) then exit;
-    for i := 0 to high(containedFiles) do
-      DeleteFile(containedFiles[i]);
+    if not AConfirmationCallback(AForm, containedFiles, True) then exit(false);
+    try
+      for i := 0 to high(containedFiles) do
+        DeleteFile(containedFiles[i]);
+    except on ex: exception do
+      begin
+        ShowMessage(ex.Message);
+        exit(false);
+      end;
+    end;
   end;
   if nbRealFiles > 0 then
   begin
@@ -612,7 +669,11 @@ begin
       {$IFDEF WINDOWS}
       result := MoveToTrashOnWindows(AForm, realFiles, AConfirmationCallback);
       {$ELSE}
-      result := false;
+        {$IFDEF DARWIN}
+        result := MoveToTrashOnMacOS(AForm, realFiles, AConfirmationCallback);
+        {$ELSE}
+        result := false;
+        {$ENDIF}
       {$ENDIF}
     {$ENDIF}
   end;

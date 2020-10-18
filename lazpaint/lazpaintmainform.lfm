@@ -3056,6 +3056,8 @@ object FMain: TFMain
         93794A89288EE7EDFD7151874569D446E3CAD0C6C25555FF01E3A570E78DDA12
         390000000049454E44AE426082
       }
+      Proportional = True
+      Stretch = True
     end
   end
   object Panel_BackFill: TPanel

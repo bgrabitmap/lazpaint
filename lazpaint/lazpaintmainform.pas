@@ -12,7 +12,7 @@ uses
 
   BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal, BGRAGradientScanner, BGRAGradientOriginal,
 
-  LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, UZoom, UImageView,
+  LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, UZoom,
   UImageObservation, UConfig, LCScaleDPI, UResourceStrings, UMenu, uscripting,
   ubrowseimages, UToolPolygon, UToolVectorial, LCVectorRectShapes,
   LCVectorialFillControl, LCVectorialFill,
@@ -862,7 +862,7 @@ uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
    ugeometricbrush, UPreviewDialog, UQuestion, BGRALayerOriginal,
    BGRATransform, LCVectorPolyShapes, URaw, UFileSystem,
-   UTranslation, UPython;
+   UTranslation, UPython, BCTypes;
 
 const PenWidthFactor = 10;
 

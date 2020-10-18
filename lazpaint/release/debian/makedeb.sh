@@ -1,4 +1,6 @@
 #!/bin/bash
+cd `dirname $0`
+
 STAGING_RELATIVEDIR="./staging"
 STAGING_DIR=$(readlink --canonicalize "${STAGING_RELATIVEDIR}")
 USER_DIR="${STAGING_DIR}/usr"

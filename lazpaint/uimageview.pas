@@ -467,7 +467,7 @@ begin
       OffsetRect(renderRect, -FLastPictureParameters.scaledVirtualScreenArea.Left,
                              -FLastPictureParameters.scaledVirtualScreenArea.Top);
 
-      DrawThumbnailCheckers(FVirtualScreen, renderRect, Image.IsIconCursor, CanvasScale);
+      DrawThumbnailCheckers(FVirtualScreen, renderRect, Image.IsIconCursor, DoScaleX(60*CanvasScale, OriginalDPI)/60);
 
       //draw image (with merged selection)
       FVirtualScreen.StretchPutImage(renderRect,Image.RenderedImage,dmDrawWithTransparency);

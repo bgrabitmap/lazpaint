@@ -8,10 +8,15 @@ interface
 uses
   Classes, SysUtils, Forms, BGRABitmap, BGRAGradients;
 
+const
+  OrigVolatileScrollBarSize = 14;
+  OrigVolatileThumbSize = 24;
+  OrigVolatileBorderSize = 3;
+
 var
-  VolatileScrollBarSize : integer = 14;
-  VolatileThumbSize : integer = 24;
-  VolatileBorderSize : integer = 3;
+  VolatileScrollBarSize : integer = OrigVolatileScrollBarSize;
+  VolatileThumbSize : integer = OrigVolatileThumbSize;
+  VolatileBorderSize : integer = OrigVolatileBorderSize;
 
 type
   TScrollBarKind = Forms.TScrollBarKind;
@@ -42,7 +47,7 @@ type
   public
     constructor Create(X,Y,AWidth,AHeight: integer; ADirection: TScrollBarKind; APosition, AMinimum, AMaximum: integer);
     destructor Destroy; override;
-    class procedure InitDPI;
+    class procedure InitDPI(ACanvasScaleFactor: single);
     function MouseDown(X,Y: integer): boolean;
     function MouseMove(X,Y: integer): boolean;
     function MouseUp({%H-}X,{%H-}Y: integer): boolean;
@@ -208,13 +213,13 @@ begin
   FPhong.DrawRectangle(ADest,lThumb,VolatileBorderSize,h,ColorToBGRA(ColorToRGB(clBtnFace)),true,[]);
 end;
 
-class procedure TVolatileScrollBar.InitDPI;
+class procedure TVolatileScrollBar.InitDPI(ACanvasScaleFactor: single);
 begin
   if not FInitDPI then
   begin
-    VolatileScrollBarSize := ScaleX(VolatileScrollBarSize, OriginalDPI);
-    VolatileThumbSize := ScaleX(VolatileThumbSize, OriginalDPI);
-    VolatileBorderSize := ScaleX(VolatileBorderSize, OriginalDPI);
+    VolatileScrollBarSize := ScaleX(round(VolatileScrollBarSize * ACanvasScaleFactor), OriginalDPI);
+    VolatileThumbSize := ScaleX(round(VolatileThumbSize * ACanvasScaleFactor), OriginalDPI);
+    VolatileBorderSize := ScaleX(round(VolatileBorderSize * ACanvasScaleFactor), OriginalDPI);
     FInitDPI := true;
   end;
 end;

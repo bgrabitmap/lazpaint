@@ -1,3 +1,16 @@
+lazpaint (7.1.5) stable; urgency=low
+
+  * image browser: can move to trash on MacOS
+  * image browser: F5 to update file list
+  * image browser: fix tab stops
+  * macOS: scaling of icons, comboboxes and buttons
+  * comboboxes: fix scaling and non responsive drop down
+  * checkers: scaled according to DPI
+  * file new: add icon to discard ratio
+  * top toolbar: stretch switch color button to DPI
+
+ -- circular <circular@operamail.com>  Sun, 18 Oct 2020 21:51:00 +0100
+  
 lazpaint (7.1.4) stable; urgency=low
 
   * add --help command line

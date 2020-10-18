@@ -539,15 +539,9 @@ var
       FVScrollBar := TVolatileScrollBar.Create(w-VolatileScrollBarSize,textHeight,
          VolatileScrollBarSize,h-textHeight,sbVertical,FVerticalScrollPos,0,maxScroll);
     end;
-    if Assigned(FVScrollBar) then
-    begin
-      FVScrollBar.Draw(ABitmap);
-      clientArea := rect(0,textHeight,w-VolatileScrollBarSize,h);
-    end else
-    begin
-      clientArea := rect(0,textHeight,w,h);
+    if not Assigned(FVScrollBar) then
       FVerticalScrollPos:= 0;
-    end;
+    clientArea := rect(0,textHeight,w,h);
     FItemsPerPage:= Size(clientArea).cy div FActualRowHeight;
 
     setlength(colPos,ColumnCount+1);
@@ -603,6 +597,10 @@ var
       inc(curY, FActualRowHeight);
       inc(row);
     end;
+    ABitmap.NoClip;
+
+    if Assigned(FVScrollBar) then
+      FVScrollBar.Draw(ABitmap);
   end;
 
   procedure DrawIcons;
@@ -632,15 +630,9 @@ var
       FVScrollBar := TVolatileScrollBar.Create(w-VolatileScrollBarSize,0,
          VolatileScrollBarSize,h,sbVertical,FVerticalScrollPos,0,maxScroll);
     end;
-    if Assigned(FVScrollBar) then
-    begin
-      FVScrollBar.Draw(ABitmap);
-      clientArea := rect(0,0,w-VolatileScrollBarSize,h);
-    end else
-    begin
-      clientArea := rect(0,0,w,h);
+    if not Assigned(FVScrollBar) then
       FVerticalScrollPos := 0;
-    end;
+    clientArea := rect(0,0,w,h);
     FItemsPerPage:= (Size(clientArea).cy div totalIconVSize)*FIconsPerLine;
     for item := 0 to ItemCount-1 do SetDisplayRect(item,EmptyRect);
     item := (FVerticalScrollPos div (32*FIconsPerLine))*FIconsPerLine;
@@ -687,11 +679,15 @@ var
       end;
       inc(item);
     end;
+    if Assigned(FVScrollBar) then
+      FVScrollBar.Draw(ABitmap);
   end;
 
 var i: integer;
 
 begin
+  TVolatileScrollBar.InitDPI((Sender as TControl).GetCanvasScaleFactor);
+
   if SelectedIndex = -1 then FKeySelectionRangeStart := -1
   else if FKeySelectionRangeStart = -1 then FKeySelectionRangeStart:= SelectedIndex;
   for i := 0 to ColumnCount-1 do

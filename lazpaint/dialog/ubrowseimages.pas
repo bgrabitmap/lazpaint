@@ -15,7 +15,7 @@ type
 
   { TFBrowseImages }
 
-  TFBrowseImages = class(TForm)
+   TFBrowseImages = class(TForm)
     ComboBox_FileExtension: TBCComboBox;
     CheckBox_UseDirectoryOnStartup: TCheckBox;
     DirectoryEdit1: TEdit;
@@ -174,7 +174,7 @@ uses BGRAThumbnail, BGRAPaintNet, BGRAOpenRaster, BGRAReadLzp,
     UConfig, bgrareadjpeg, FPReadJPEG,
     UFileExtensions, BGRAUTF8, LazFileUtils,
     UGraph, URaw, UDarkTheme, ShellCtrls,
-    UIconCache;
+    UIconCache, LCScaleDPI;
 
 { TFBrowseImages }
 
@@ -258,7 +258,7 @@ begin
 end;
 
 procedure TFBrowseImages.FormCreate(Sender: TObject);
-var bmp : TBitmap; delta: integer;
+var bmp : TBitmap;
 begin
   FLastDirectory := '';
   FOverwritePrompt:= true;
@@ -267,6 +267,12 @@ begin
   FPreview := TImagePreview.Create(vsPreview, Label_Status, true);
   FPreview.OnValidate:= @PreviewValidate;
   FChosenImage := TImageEntry.Empty;
+
+  ScaleImageList(ImageListToolbar, DoScaleX(32, OriginalDPI),
+    DoScaleY(32, OriginalDPI), ImageListToolbar);
+
+  ScaleControl(Panel1, OriginalDPI, 0,0, true);
+  ScaleControl(Panel2, OriginalDPI, 0,0, true);
 
   DarkThemeInstance.Apply(ComboBox_FileExtension, False, 0.40);
   vsList.BitmapAutoScale:= false;
@@ -303,20 +309,12 @@ begin
   BGRAPaintNet.RegisterPaintNetFormat;
   BGRAOpenRaster.RegisterOpenRasterFormat;
 
-  if FileManager.CanGetFileSystems then
-  begin
-    Tool_SelectDrive.Visible := true;
-  end else
-  begin
-    Tool_SelectDrive.Visible := false;
-    delta := ImageListToolbar.Width+Toolbar1.Indent;
-    ToolBar1.Width := ToolBar1.Width-delta;
-    DirectoryEdit1.Left := DirectoryEdit1.Left-delta;
-    DirectoryEdit1.Width := DirectoryEdit1.Width+delta;
-  end;
+  Tool_SelectDrive.Visible := FileManager.CanGetFileSystems;
+  Toolbar1.AutoSize := true;
 
   FCreateFolderOrContainerCaption := ToolButton_CreateFolderOrContainer.Hint;
   ToolButton_CreateFolderOrContainer.Hint := ToolButton_CreateFolderOrContainer.Hint + '...';
+  ComboBox_FileExtension.TabStop := true;
 end;
 
 procedure TFBrowseImages.FormDestroy(Sender: TObject);
@@ -374,6 +372,12 @@ begin
   begin
     DeleteSelectedFiles;
     Key := 0;
+  end else
+  if (KEY = VK_F5) then
+  begin
+    ResetDirectory(false, true);
+    SelectFile(Edit_Filename.Text);
+    Key := 0;
   end;
 end;
 
@@ -383,10 +387,15 @@ begin
 end;
 
 procedure TFBrowseImages.FormShow(Sender: TObject);
-var r:TRect; i: integer;
+var r:TRect; i, delta: integer;
 begin
   if FInFormShow then exit;
   FInFormShow:= true;
+
+  delta := DirectoryEdit1.Left - (Toolbar1.Left + Toolbar1.Width
+    + DoScaleX(4, OriginalDPI));
+  DirectoryEdit1.Left := DirectoryEdit1.Left-delta;
+  DirectoryEdit1.Width := DirectoryEdit1.Width+delta;
 
   BGRAThumbnail.CheckersScale:= GetCanvasScaleFactor;
   ShellListView1.FontHeight:= ScaleY(round(13*GetCanvasScaleFactor),OriginalDPI);

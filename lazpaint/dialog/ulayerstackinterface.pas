@@ -166,6 +166,7 @@ end;
 procedure TLayerStackInterface.BGRALayerStack_Redraw(Sender: TObject;
   Bitmap: TBGRABitmap);
 begin
+  TVolatileScrollBar.InitDPI((Sender as TControl).GetCanvasScaleFactor);
   DrawLayerStack(Bitmap, not FPartialRedraw, -1);
 end;
 
@@ -912,8 +913,8 @@ begin
     FDontUpdateStack := true;
     LazPaintInstance.Image.BlendOperation[LazPaintInstance.Image.CurrentLayerIndex] := blendOp;
     FDontUpdateStack := false;
-    UpdateComboBlendOp;
   end;
+  UpdateComboBlendOp;
   tempUnder.Free;
   LazPaintInstance.ShowTopmost(topmostInfo);
   if LazPaintInstance.Image.CurrentLayerIndex = 0 then

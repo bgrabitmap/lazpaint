@@ -65,15 +65,18 @@ begin
   ComboBox_ArrowStart.OnChange := @ComboBox_ArrowStartChange;
   ComboBox_ArrowStart.OnDrawItem := @ComboBox_ArrowStartDrawItem;
   ComboBox_ArrowStart.OnDrawSelectedItem := @ComboBox_ArrowStartDrawSelectedItem;
+  ComboBox_ArrowStart.CanvasScaleMode:= csmFullResolution;
   ComboBox_ArrowEnd.OnChange := @ComboBox_ArrowEndChange;
   ComboBox_ArrowEnd.OnDrawItem := @ComboBox_ArrowEndDrawItem;
   ComboBox_ArrowEnd.OnDrawSelectedItem := @ComboBox_ArrowEndDrawSelectedItem;
+  ComboBox_ArrowEnd.CanvasScaleMode:= csmFullResolution;
   Tool_JoinBevel.OnClick := @Tool_JoinBevelClick;
   Tool_JoinRound.OnClick := @Tool_JoinRoundClick;
   Tool_JoinMiter.OnClick := @Tool_JoinMiterClick;
   ComboBox_PenStyle.OnChange:=@ComboBox_PenStyleChange;
   ComboBox_PenStyle.OnDrawItem:=@ComboBox_PenStyleDrawItem;
   ComboBox_PenStyle.OnDrawSelectedItem:=@ComboBox_PenStyleDrawSelectedItem;
+  ComboBox_PenStyle.CanvasScaleMode:= csmFullResolution;
   for ps := psSolid to psDashDotDot do ComboBox_PenStyle.Items.Add(inttostr(ord(ps)));
   Tool_GridMoveWithoutDeformation.OnClick := @Tool_GridMoveWithoutDeformationClick;
   Combo_SplineStyle.Items.Add('Inside');
@@ -115,6 +118,7 @@ begin
   ComboBox_BrushSelect.OnChange := @ComboBox_BrushSelectChange;
   ComboBox_BrushSelect.OnDrawItem := @ComboBox_BrushSelectDrawItem;
   ComboBox_BrushSelect.OnDrawSelectedItem:= @ComboBox_BrushSelectDrawSelectedItem;
+  ComboBox_BrushSelect.CanvasScaleMode:= csmFullResolution;
   Combo_Ratio.OnChange := @Combo_RatioChange;
 
   Panel_LineCap_FullSize := Panel_LineCap.Width;

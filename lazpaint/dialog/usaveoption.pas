@@ -179,6 +179,8 @@ begin
   FFlattenedOriginal := nil;
   FSizeCaption:= Label_Size.Caption;
   LayoutRadioButtonDepth;
+  BGRAPreview.BitmapAutoScale:= false;
+  BGRAPreview.Color := clGray;
 end;
 
 procedure TFSaveOption.FormDestroy(Sender: TObject);
@@ -274,10 +276,10 @@ end;
 
 procedure TFSaveOption.BGRAPreviewRedraw(Sender: TObject;
   Bitmap: TBGRABitmap);
-var ratioX,ratioY,ratio: single;
+var ratioX,ratioY,ratio, checkerScale: single;
   picture: TBGRABitmap;
   mustFreePic: boolean;
-  x,y,visualWidth,visualHeight: integer;
+  x,y,visualWidth,visualHeight,ofs: integer;
   r: TRect;
   thumb: TBGRABitmap;
 begin
@@ -333,7 +335,17 @@ begin
   if visualHeight < 1 then visualHeight:= 1;
   x := (Bitmap.Width-visualWidth) div 2;
   y := (Bitmap.Height-visualHeight) div 2;
-  r := rect(x,y,x+visualWidth,y+visualHeight);
+  r := RectWithSize(x, y, visualWidth, visualHeight);
+
+  checkerScale := DoScaleX(60, OriginalDPI)/60;
+  if not BGRAPreview.BitmapAutoScale then
+    checkerScale *= BGRAPreview.GetCanvasScaleFactor;
+  ofs := round(4*checkerScale);
+  if visualWidth < ofs then ofs := visualWidth;
+  if visualHeight < ofs then ofs := visualHeight;
+  bitmap.FillRect(rect(x+visualWidth,y+ofs,x+ofs+visualWidth,y+ofs+visualHeight), BGRA(0,0,0,128),dmDrawWithTransparency);
+  bitmap.FillRect(rect(x+ofs,y+visualHeight,x+visualWidth,y+ofs+visualHeight), BGRA(0,0,0,128),dmDrawWithTransparency);
+
   if ImageFormat in[ifIco,ifCur] then
   begin
     thumb := GetBitmapThumbnail(picture, ImageFormat, visualWidth,visualHeight, BGRAPixelTransparent, true);
@@ -341,7 +353,7 @@ begin
     thumb.Free;
   end else
   begin
-    DrawCheckers(Bitmap, r);
+    DrawCheckers(Bitmap, r, checkerScale);
     Bitmap.StretchPutImage(r, picture, dmDrawWithTransparency);
   end;
   if mustFreePic then picture.Free;
