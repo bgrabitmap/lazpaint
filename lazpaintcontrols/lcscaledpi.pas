@@ -9,7 +9,8 @@ uses
   Forms, Graphics, Controls, ComCtrls;
 
 procedure ScaleForms(FromDPI: Integer);
-procedure ScaleControl(Control: TControl; FromDPI: Integer; ToDPI_X: Integer = 0; ToDPI_Y: Integer = 0);
+procedure ScaleControl(Control: TControl; FromDPI: Integer;
+  ToDPI_X: Integer = 0; ToDPI_Y: Integer = 0; ScaleToolbar: boolean = false);
 procedure ScaleImageList(SourceList: TImageList; newWidth, newHeight: Integer; TargetList: TImageList);
 function DoScaleX(Size: Integer; FromDPI: Integer; ToDPI: Integer = 0): integer;
 function DoScaleY(Size: Integer; FromDPI: Integer; ToDPI: Integer = 0): integer;
@@ -104,7 +105,8 @@ begin
     Result := Size * ToDPI / FromDPI;
 end;
 
-procedure ScaleControl(Control: TControl; FromDPI: Integer; ToDPI_X: Integer; ToDPI_Y: integer);
+procedure ScaleControl(Control: TControl; FromDPI: Integer; ToDPI_X: Integer; ToDPI_Y: integer;
+  ScaleToolbar: boolean = false);
 var
   n: Integer;
   WinControl: TWinControl;
@@ -129,11 +131,13 @@ begin
   end;
 
   if Control is TToolBar then begin
+    if not ScaleToolbar then exit;
     ToolBarControl:=TToolBar(Control);
     with ToolBarControl do begin
       ButtonWidth:=DoScaleX(ButtonWidth,FromDPI,ToDPI_X);
       ButtonHeight:=DoScaleY(ButtonHeight,FromDPI,ToDPI_Y);
     end;
+    exit;
   end;
 
   if Control is TWinControl then begin
