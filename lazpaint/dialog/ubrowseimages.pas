@@ -271,8 +271,8 @@ begin
   ScaleImageList(ImageListToolbar, DoScaleX(32, OriginalDPI),
     DoScaleY(32, OriginalDPI), ImageListToolbar);
 
-  ScaleControl(Panel1, OriginalDPI);
-  ScaleControl(Panel2, OriginalDPI);
+  ScaleControl(Panel1, OriginalDPI, 0,0, true);
+  ScaleControl(Panel2, OriginalDPI, 0,0, true);
 
   DarkThemeInstance.Apply(ComboBox_FileExtension, False, 0.40);
   vsList.BitmapAutoScale:= false;

@@ -277,7 +277,7 @@ uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTra
      USharpen, uposterize, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
 
-     ugraph, LCScaleDPI, ucommandline, uabout, UPython;
+     ugraph, LCScaleDPI, ucommandline, uabout, UPython, BGRAGraphics;
 
 { TLazPaintInstance }
 
@@ -1250,8 +1250,44 @@ begin
 end;
 
 function TLazPaintInstance.GetIcons(ASize: integer): TImageList;
+
+  function GetUnscaledIcons(ASize: integer): TImageList;
+  begin
+    if ASize < 24 then
+    begin;
+      if ASize = 16 then
+      begin
+        result := TImageList.Create(nil);
+        result.Assign(FMain.ImageList16);
+      end
+      else
+      begin
+        result := TImageList.Create(nil);
+        ScaleImageList(FMain.ImageList16, ASize,ASize, result);
+      end;
+    end
+    else
+    begin
+      if ASize = 48 then
+      begin
+        result := TImageList.Create(nil);
+        result.Assign(FMain.ImageList48);
+      end
+      else
+      begin
+        result := TImageList.Create(nil);
+        ScaleImageList(FMain.ImageList48, ASize,ASize, result);
+      end;
+    end;
+  end;
+
 var
   i: Integer;
+  {$IFDEF DARWIN}
+  retina, unscaled: TImageList;
+  bmpUnscaled, bmpRetina: TBitmap;
+  {$ENDIF}
+
 begin
   if Assigned(FMain) then
   begin
@@ -1259,28 +1295,42 @@ begin
       if FCustomImageList[i].Height = ASize then
         exit(FCustomImageList[i]);
 
-    if ASize < 24 then
-    begin;
-      if ASize = 16 then
-        result := FMain.ImageList16
-      else
-      begin
-        result := TImageList.Create(nil);
-        ScaleImageList(FMain.ImageList16, ASize,ASize, result);
-        FCustomImageList.Add(result);
-      end;
-    end
-    else
+    {$IFDEF DARWIN}
+    unscaled := GetUnscaledIcons(ASize);
+    retina := GetUnscaledIcons(ASize*2);
+    bmpUnscaled := TBitmap.Create;
+    bmpRetina := TBitmap.Create;
+
+    result := TImageList.Create(nil);
+    result.Width := ASize;
+    result.Height := ASize;
+    result.Scaled := true;
+    result.RegisterResolutions([ASize, ASize*2]);
+    for i := 0 to unscaled.Count-1 do
     begin
-      if ASize = 48 then
-        result := FMain.ImageList48
-      else
-      begin
-        result := TImageList.Create(nil);
-        ScaleImageList(FMain.ImageList48, ASize,ASize, result);
-        FCustomImageList.Add(result);
-      end;
+      unscaled.GetBitmap(i, bmpUnscaled);
+      retina.GetBitmap(i, bmpRetina);
+      result.AddMultipleResolutions([bmpUnscaled, bmpRetina]);
     end;
+
+    bmpUnscaled.Free;
+    bmpRetina.Free;
+    unscaled.Free;
+    retina.Free;
+    {$ELSE}
+    if ASize = 16 then
+    begin
+      result := FMain.ImageList16;
+      exit
+    end else
+    if ASize = 48 then
+    begin
+      result := FMain.ImageList48;
+      exit;
+    end else
+      result := GetUnscaledIcons(ASize);
+    {$ENDIF}
+    FCustomImageList.Add(result);
   end else
     result := nil;
 end;

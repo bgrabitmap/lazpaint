@@ -792,6 +792,7 @@ procedure DrawPenStyle(AComboBox: TBCComboBox; ARect: TRect;
   APenStyle: TPenStyle; State: TOwnerDrawState);
 var bmp : TBGRABitmap;
   c,c2: TBGRAPixel;
+  scale: Double;
 begin
   if odSelected in State then
   begin
@@ -803,9 +804,10 @@ begin
     c := ColorToBGRA(AComboBox.DropDownFontColor);
     c2 := ColorToBGRA(AComboBox.DropDownColor);
   end;
-  with Size(ARect) do bmp := TBGRABitmap.Create(cx,cy,c2);
-  DrawPenStyle(bmp, rect(0,0,ARect.Width,ARect.Height),APenStyle, c);
-  bmp.Draw(ACombobox.Canvas,ARect.Left,ARect.Top,true);
+  scale := AComboBox.GetCanvasScaleFactor;
+  with Size(ARect) do bmp := TBGRABitmap.Create(round(cx*scale),round(cy*scale),c2);
+  DrawPenStyle(bmp, bmp.ClipRect,APenStyle, c);
+  bmp.Draw(ACombobox.Canvas,ARect,true);
   bmp.Free;
 end;
 
@@ -821,6 +823,7 @@ end;
 procedure DrawArrow(AComboBox: TBCComboBox; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState);
 var mask, bmp : TBGRABitmap;
   c,c2: TBGRAPixel;
+  scale: Double;
 begin
   if odSelected in State then
   begin
@@ -831,11 +834,12 @@ begin
     c2 := ColorToBGRA(AComboBox.DropDownColor);
     c := ColorToBGRA(AComboBox.DropDownFontColor);
   end;
-  with Size(ARect) do mask:= TBGRABitmap.Create(cx,cy,BGRABlack);
+  scale := AComboBox.GetCanvasScaleFactor;
+  with Size(ARect) do mask:= TBGRABitmap.Create(round(cx*scale),round(cy*scale),BGRABlack);
   DrawArrowMask(mask, AStart, AKindStr, ALineCap);
   bmp := TBGRABitmap.Create(mask.Width,mask.Height,c2);
   bmp.FillMask(0,0,mask,c,dmDrawWithTransparency);
-  bmp.Draw(ACombobox.Canvas,ARect.Left,ARect.Top,true);
+  bmp.Draw(ACombobox.Canvas,ARect,true);
   bmp.Free;
   mask.Free;
 end;
