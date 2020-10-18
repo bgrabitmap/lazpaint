@@ -1,12 +1,11 @@
 object FBrowseImages: TFBrowseImages
   Left = 376
-  Height = 375
+  Height = 300
   Top = 101
-  Width = 855
+  Width = 684
   Caption = 'Browse images'
-  ClientHeight = 375
-  ClientWidth = 855
-  DesignTimePPI = 120
+  ClientHeight = 300
+  ClientWidth = 684
   KeyPreview = True
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
@@ -18,119 +17,118 @@ object FBrowseImages: TFBrowseImages
   OnUTF8KeyPress = FormUTF8KeyPress
   Position = poScreenCenter
   ShowInTaskBar = stAlways
-  LCLVersion = '2.0.2.0'
+  LCLVersion = '2.0.10.0'
   object Panel1: TPanel
-    Left = 580
-    Height = 375
+    Left = 464
+    Height = 300
     Top = 0
-    Width = 275
+    Width = 220
     Align = alClient
-    ClientHeight = 375
-    ClientWidth = 275
+    ClientHeight = 300
+    ClientWidth = 220
     ParentFont = False
-    TabOrder = 0
+    TabOrder = 1
     object Label_Status: TLabel
-      Left = 4
-      Height = 22
-      Top = 6
-      Width = 4
+      Left = 3
+      Height = 15
+      Top = 5
+      Width = 3
       Caption = '.'
       ParentColor = False
       ParentFont = False
     end
     object vsPreview: TBGRAVirtualScreen
-      Left = 4
-      Height = 338
-      Top = 32
-      Width = 267
+      Left = 3
+      Height = 270
+      Top = 26
+      Width = 214
       Alignment = taLeftJustify
       Anchors = [akTop, akLeft, akRight, akBottom]
       Color = clGray
       ParentColor = False
       ParentFont = False
-      TabOrder = 0
+      TabOrder = 2
     end
     object ListBox_RecentDirs: TListBox
-      Left = 4
-      Height = 337
-      Top = 32
-      Width = 265
+      Left = 3
+      Height = 269
+      Top = 26
+      Width = 212
       Anchors = [akTop, akLeft, akRight, akBottom]
       ItemHeight = 0
       OnClick = ListBox_RecentDirsClick
       ParentFont = False
       ScrollWidth = 263
       TabOrder = 1
-      TopIndex = -1
     end
     object CheckBox_UseDirectoryOnStartup: TCheckBox
-      Left = 70
-      Height = 26
-      Top = 4
-      Width = 222
+      Left = 56
+      Height = 19
+      Top = 3
+      Width = 168
       Caption = 'Use this directory on startup'
       ParentFont = False
-      TabOrder = 2
+      TabOrder = 0
       Visible = False
     end
   end
   object Splitter1: TSplitter
-    Left = 572
-    Height = 375
+    Left = 458
+    Height = 300
     Top = 0
-    Width = 8
+    Width = 6
     MinSize = 64
   end
   object Panel2: TPanel
     Left = 0
-    Height = 375
+    Height = 300
     Top = 0
-    Width = 572
+    Width = 458
     Align = alLeft
-    ClientHeight = 375
-    ClientWidth = 572
+    ClientHeight = 300
+    ClientWidth = 458
     ParentFont = False
     TabOrder = 2
     object Panel3: TPanel
       Left = 1
-      Height = 91
+      Height = 73
       Top = 1
-      Width = 570
+      Width = 456
       Align = alTop
-      ClientHeight = 91
-      ClientWidth = 570
+      ClientHeight = 73
+      ClientWidth = 456
       ParentFont = False
       TabOrder = 0
       object ToolBar1: TToolBar
         Left = 1
-        Height = 41
+        Height = 33
         Top = 2
-        Width = 248
+        Width = 198
         Align = alNone
-        ButtonHeight = 40
-        ButtonWidth = 40
+        ButtonHeight = 32
+        ButtonWidth = 32
         EdgeBorders = []
         Images = ImageListToolbar
         ParentFont = False
         ParentShowHint = False
         ShowHint = True
-        TabOrder = 0
+        TabOrder = 3
         object ToolButton_GoUp: TToolButton
-          Left = 161
+          Left = 145
           Hint = 'Go one directory up'
           Top = 0
           ImageIndex = 0
           OnClick = ToolButton_GoUpClick
         end
         object ToolButton_ViewBigIcon: TToolButton
-          Left = 81
+          Left = 73
           Hint = 'Show big icons'
           Top = 0
           ImageIndex = 2
           OnClick = ToolButton_ViewBigIconClick
         end
         object ToolButton_ViewDetails: TToolButton
-          Left = 41
+          Left = 37
           Hint = 'Show details and preview'
           Top = 0
           ImageIndex = 3
@@ -145,7 +143,7 @@ object FBrowseImages: TFBrowseImages
           OnClick = ToolButton_OpenSelectedFilesClick
         end
         object Tool_SelectDrive: TToolButton
-          Left = 121
+          Left = 109
           Hint = 'Select drive'
           Top = 0
           ImageIndex = 6
@@ -153,41 +151,42 @@ object FBrowseImages: TFBrowseImages
           Visible = False
         end
         object ToolButton_CreateFolderOrContainer: TToolButton
-          Left = 201
+          Left = 1
           Hint = 'Create folder or container'
-          Top = 0
+          Top = 32
           ImageIndex = 8
           OnClick = ToolButton_CreateFolderOrContainerClick
         end
       end
       object Edit_Filename: TEdit
-        Left = 280
-        Height = 34
-        Top = 50
-        Width = 280
+        Left = 224
+        Height = 23
+        Top = 40
+        Width = 224
         Anchors = [akTop, akLeft, akRight]
         OnChange = Edit_FilenameChange
         ParentFont = False
-        TabOrder = 1
+        TabOrder = 2
       end
       object DirectoryEdit1: TEdit
-        Left = 250
-        Height = 34
-        Top = 6
-        Width = 310
+        Left = 200
+        Height = 23
+        Top = 5
+        Width = 248
         Anchors = [akTop, akLeft, akRight]
         OnChange = DirectoryEdit1Change
         ParentFont = False
-        TabOrder = 2
+        TabOrder = 0
       end
       object ComboBox_FileExtension: TBCComboBox
-        Left = 8
-        Height = 34
-        Top = 50
-        Width = 262
+        Left = 6
+        Height = 27
+        Top = 40
+        Width = 210
         ItemIndex = -1
         ArrowSize = 8
         ArrowWidth = 16
+        FocusBorderOpacity = 0
         GlobalOpacity = 255
         MemoryUsage = bmuHigh
         Rounding.RoundX = 3
@@ -195,16 +194,10 @@ object FBrowseImages: TFBrowseImages
         StateClicked.Background.Gradient1.StartColor = clBtnShadow
         StateClicked.Background.Gradient1.EndColor = clBtnFace
         StateClicked.Background.Gradient1.GradientType = gtLinear
-        StateClicked.Background.Gradient1.Point1XPercent = 0
-        StateClicked.Background.Gradient1.Point1YPercent = 0
-        StateClicked.Background.Gradient1.Point2XPercent = 0
         StateClicked.Background.Gradient1.Point2YPercent = 250
         StateClicked.Background.Gradient2.StartColor = clBtnShadow
         StateClicked.Background.Gradient2.EndColor = clBtnText
         StateClicked.Background.Gradient2.GradientType = gtLinear
-        StateClicked.Background.Gradient2.Point1XPercent = 0
-        StateClicked.Background.Gradient2.Point1YPercent = 0
-        StateClicked.Background.Gradient2.Point2XPercent = 0
         StateClicked.Background.Gradient2.Point2YPercent = 100
         StateClicked.Background.Gradient1EndPercent = 70
         StateClicked.Background.Style = bbsGradient
@@ -224,16 +217,10 @@ object FBrowseImages: TFBrowseImages
         StateHover.Background.Gradient1.StartColor = clBtnFace
         StateHover.Background.Gradient1.EndColor = clBtnHighlight
         StateHover.Background.Gradient1.GradientType = gtLinear
-        StateHover.Background.Gradient1.Point1XPercent = 0
-        StateHover.Background.Gradient1.Point1YPercent = 0
-        StateHover.Background.Gradient1.Point2XPercent = 0
         StateHover.Background.Gradient1.Point2YPercent = 150
         StateHover.Background.Gradient2.StartColor = clBtnFace
         StateHover.Background.Gradient2.EndColor = clBtnShadow
         StateHover.Background.Gradient2.GradientType = gtLinear
-        StateHover.Background.Gradient2.Point1XPercent = 0
-        StateHover.Background.Gradient2.Point1YPercent = 0
-        StateHover.Background.Gradient2.Point2XPercent = 0
         StateHover.Background.Gradient2.Point2YPercent = 100
         StateHover.Background.Gradient1EndPercent = 85
         StateHover.Background.Style = bbsGradient
@@ -253,16 +240,10 @@ object FBrowseImages: TFBrowseImages
         StateNormal.Background.Gradient1.StartColor = clBtnFace
         StateNormal.Background.Gradient1.EndColor = clBtnHighlight
         StateNormal.Background.Gradient1.GradientType = gtLinear
-        StateNormal.Background.Gradient1.Point1XPercent = 0
-        StateNormal.Background.Gradient1.Point1YPercent = 0
-        StateNormal.Background.Gradient1.Point2XPercent = 0
         StateNormal.Background.Gradient1.Point2YPercent = 150
         StateNormal.Background.Gradient2.StartColor = clBtnFace
         StateNormal.Background.Gradient2.EndColor = clBtnShadow
         StateNormal.Background.Gradient2.GradientType = gtLinear
-        StateNormal.Background.Gradient2.Point1XPercent = 0
-        StateNormal.Background.Gradient2.Point1YPercent = 0
-        StateNormal.Background.Gradient2.Point2XPercent = 0
         StateNormal.Background.Gradient2.Point2YPercent = 100
         StateNormal.Background.Gradient1EndPercent = 70
         StateNormal.Background.Style = bbsGradient
@@ -281,13 +262,14 @@ object FBrowseImages: TFBrowseImages
         StateNormal.FontEx.PaddingLeft = 3
         StaticButton = False
         OnChange = ComboBox_FileExtensionChange
+        TabOrder = 1
       end
     end
     object vsList: TBGRAVirtualScreen
       Left = 1
-      Height = 282
-      Top = 92
-      Width = 570
+      Height = 225
+      Top = 74
+      Width = 456
       Align = alClient
       Alignment = taLeftJustify
       Color = clWindow
@@ -300,8 +282,8 @@ object FBrowseImages: TFBrowseImages
   object ImageList128: TImageList
     Height = 128
     Width = 128
-    left = 50
-    top = 220
+    Left = 40
+    Top = 176
     Bitmap = {
       4C69080000008000000080000000FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
       FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
@@ -16694,14 +16676,14 @@ object FBrowseImages: TFBrowseImages
     Enabled = False
     Interval = 30
     OnTimer = Timer1Timer
-    left = 320
-    top = 220
+    Left = 256
+    Top = 176
   end
   object ImageListToolbar: TImageList
     Height = 32
     Width = 32
-    left = 234
-    top = 221
+    Left = 187
+    Top = 177
     Bitmap = {
       4C69090000002000000020000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
