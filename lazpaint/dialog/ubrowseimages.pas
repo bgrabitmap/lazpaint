@@ -258,7 +258,7 @@ begin
 end;
 
 procedure TFBrowseImages.FormCreate(Sender: TObject);
-var bmp : TBitmap; delta: integer;
+var bmp : TBitmap;
 begin
   FLastDirectory := '';
   FOverwritePrompt:= true;
@@ -309,17 +309,8 @@ begin
   BGRAPaintNet.RegisterPaintNetFormat;
   BGRAOpenRaster.RegisterOpenRasterFormat;
 
-  if FileManager.CanGetFileSystems then
-  begin
-    Tool_SelectDrive.Visible := true;
-  end else
-  begin
-    Tool_SelectDrive.Visible := false;
-    delta := ImageListToolbar.Width+Toolbar1.Indent;
-    ToolBar1.Width := ToolBar1.Width-delta;
-    DirectoryEdit1.Left := DirectoryEdit1.Left-delta;
-    DirectoryEdit1.Width := DirectoryEdit1.Width+delta;
-  end;
+  Tool_SelectDrive.Visible := FileManager.CanGetFileSystems;
+  Toolbar1.AutoSize := true;
 
   FCreateFolderOrContainerCaption := ToolButton_CreateFolderOrContainer.Hint;
   ToolButton_CreateFolderOrContainer.Hint := ToolButton_CreateFolderOrContainer.Hint + '...';
@@ -396,10 +387,15 @@ begin
 end;
 
 procedure TFBrowseImages.FormShow(Sender: TObject);
-var r:TRect; i: integer;
+var r:TRect; i, delta: integer;
 begin
   if FInFormShow then exit;
   FInFormShow:= true;
+
+  delta := DirectoryEdit1.Left - (Toolbar1.Left + Toolbar1.Width
+    + DoScaleX(4, OriginalDPI));
+  DirectoryEdit1.Left := DirectoryEdit1.Left-delta;
+  DirectoryEdit1.Width := DirectoryEdit1.Width+delta;
 
   BGRAThumbnail.CheckersScale:= GetCanvasScaleFactor;
   ShellListView1.FontHeight:= ScaleY(round(13*GetCanvasScaleFactor),OriginalDPI);
