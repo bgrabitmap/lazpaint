@@ -3029,8 +3029,8 @@ msgstr "Carpeta"
 msgid "Folder or container already exists."
 msgstr "La carpeta o el contenedor ya existe."
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "Estos errores han ocurrido:"
 
 #: uresourcestrings.rsframes

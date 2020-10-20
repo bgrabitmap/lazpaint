@@ -3041,8 +3041,8 @@ msgstr "Mape"
 msgid "Folder or container already exists."
 msgstr "Mape vai resursu datne jau ir."
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "Kļūda:"
 
 #: uresourcestrings.rsframes

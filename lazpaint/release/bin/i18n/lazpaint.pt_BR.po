@@ -3045,8 +3045,8 @@ msgstr "Pasta"
 msgid "Folder or container already exists."
 msgstr "Pasta ou contêiner já existe."
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "Ocorreram os seguintes erros:"
 
 #: uresourcestrings.rsframes

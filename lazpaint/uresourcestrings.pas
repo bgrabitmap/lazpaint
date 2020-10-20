@@ -208,7 +208,7 @@ resourcestring
   rsTotalImages= 'Total images: %1';
   rsToDoImages= 'Images left: %1';
   rsErrorOnOpeningFile='Error on opening file "%1"';
-  rsFollowingErrorsOccured='Following errors occured:';
+  rsFollowingErrorsOccurred='Following errors occurred:';
 
   rsRemovableDrive = 'Removable';
   rsFixedDrive = 'Fixed';

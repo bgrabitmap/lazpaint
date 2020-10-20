@@ -2166,7 +2166,7 @@ begin
               if Length(Errors)>0 then
               begin
                 topmost := LazPaintInstance.HideTopmost;
-                QuestionDlg (rsError,rsFollowingErrorsOccured+ LineEnding+ Errors, mtError,[11,rsOkay],'');
+                QuestionDlg (rsError,rsFollowingErrorsOccurred+ LineEnding+ Errors, mtError,[11,rsOkay],'');
                 LazPaintInstance.ShowTopmost(topmost);
               end;
               for i := 0 to high(loadedLayers) do

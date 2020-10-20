@@ -3038,8 +3038,8 @@ msgstr "Složka"
 msgid "Folder or container already exists."
 msgstr "Složka nebo zásobník již existují."
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "Nastaly následující chyby:"
 
 #: uresourcestrings.rsframes

@@ -3013,8 +3013,8 @@ msgstr "Mapp"
 msgid "Folder or container already exists."
 msgstr "Mappen eller behållaren finns redan."
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "Följande fel har inträffat:"
 
 #: uresourcestrings.rsframes

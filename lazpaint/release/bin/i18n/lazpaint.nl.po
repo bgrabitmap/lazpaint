@@ -3059,8 +3059,8 @@ msgstr "Folder"
 msgid "Folder or container already exists."
 msgstr "Map of container bestaat al."
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "De volgende fouten zijn opgetreden:"
 
 #: uresourcestrings.rsframes

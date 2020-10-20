@@ -3028,8 +3028,8 @@ msgstr "文件夹"
 msgid "Folder or container already exists."
 msgstr "文件夹或容器已存在。"
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "发生以下错误："
 
 #: uresourcestrings.rsframes

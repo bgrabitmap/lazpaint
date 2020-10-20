@@ -3030,8 +3030,8 @@ msgstr "مجلد"
 msgid "Folder or container already exists."
 msgstr ""
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr ""
 
 #: uresourcestrings.rsframes

@@ -3044,8 +3044,8 @@ msgstr "Ordner"
 msgid "Folder or container already exists."
 msgstr "Ordner oder Container existiert schon."
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "Folgende Fehler traten auf:"
 
 #: uresourcestrings.rsframes

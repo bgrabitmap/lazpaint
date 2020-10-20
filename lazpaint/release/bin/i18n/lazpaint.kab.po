@@ -3029,8 +3029,8 @@ msgstr "Akaram"
 msgid "Folder or container already exists."
 msgstr "Akaram neɣ anagbar yella yakan."
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "Ḍrant-d tuccḍiwin-agi:"
 
 #: uresourcestrings.rsframes
