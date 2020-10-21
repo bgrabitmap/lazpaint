@@ -7,7 +7,7 @@ Package: lazpaint
 Architecture: any
 Version: 7.1.5
 Depends: ${shlibs:Depends}
-Description: Graphics viewer and editor. 
+Description: Image editor with raster and vector layers
  Can read layered files (lzp, ora, pdn, oXo), multi-images (gif, ico, tiff), 
  flat files (bmp, jpeg, pcx, png, tga, xpm, xwd), vectorial (svg), 3D (obj).
  Has drawing tools, phong shading, curve adjustments,
