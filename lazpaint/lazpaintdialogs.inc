@@ -54,7 +54,8 @@ var
   vW,vH,vBack: TScriptVariableReference;
   w,h: NativeInt;
   back: TBGRAPixel;
-  whDefined: boolean;
+  whDefined, dlgSuccess: boolean;
+  topMostInfo: TTopMostInfo;
 begin
   if ToolManager.ToolSleeping then
   begin
@@ -104,7 +105,13 @@ begin
     bitmapRepl := MakeNewBitmapReplacement(w,h,back)
   else
   begin
-    if not ShowNewImageDlg(bitmapRepl) then
+    topMostInfo := HideTopmost;
+    try
+      dlgSuccess := ShowNewImageDlg(bitmapRepl);
+    finally
+      ShowTopmost(topMostInfo);
+    end;
+    if not dlgSuccess then
     begin
       result := srCancelledByUser;
       exit;

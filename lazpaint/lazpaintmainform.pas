@@ -1670,6 +1670,7 @@ procedure TFMain.FilterAnyExecute(Sender: TObject);
 var filterName: string;
     params: TVariableSet;
 begin
+  if Assigned(LazPaintInstance) then LazPaintInstance.ExitColorEditor;
   if Sender is TAction then
   begin
     filterName := (Sender as TAction).Name;
@@ -1740,6 +1741,7 @@ procedure TFMain.RenderAnyExecute(Sender: TObject);
 var filterName: string;
     params: TVariableSet;
 begin
+  if Assigned(LazPaintInstance) then LazPaintInstance.ExitColorEditor;
   if Sender is TAction then
   begin
     filterName := (Sender as TAction).Name;
@@ -2796,6 +2798,7 @@ var toolName: string;
   texMapBounds: TRect;
 begin
   if ToolManager.ToolSleeping then exit;
+  LazPaintInstance.ExitColorEditor;
   texMapBounds := EmptyRect;
   toolName := AVars.Strings['Name'];
   Tool := StrToPaintToolType(toolName);
@@ -3630,7 +3633,9 @@ end;
 
 procedure TFMain.EditPasteUpdate(Sender: TObject);
 begin
-  EditPaste.Enabled := ToolManager.ToolProvideCommand(tcPaste) or Image.CurrentLayerVisible;
+  if Assigned(LazPaintInstance) and LazPaintInstance.ColorEditorActive then
+    EditPaste.Enabled := false
+    else EditPaste.Enabled := ToolManager.ToolProvideCommand(tcPaste) or Image.CurrentLayerVisible;
 end;
 
 procedure TFMain.EditDeselectUpdate(Sender: TObject);
@@ -3652,6 +3657,8 @@ end;
 procedure TFMain.ScriptExecute(Sender: TObject);
 var actionName: string;
 begin
+  if Assigned(LazPaintInstance) then
+    LazPaintInstance.ExitColorEditor;
   if Sender is TAction then
   begin
     actionName := (Sender as TAction).Name;

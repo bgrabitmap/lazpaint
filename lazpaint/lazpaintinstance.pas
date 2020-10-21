@@ -217,6 +217,7 @@ type
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
     procedure ExitColorEditor; override;
+    function ColorEditorActive: boolean; override;
     function ShowSaveOptionDlg({%H-}AParameters: TVariableSet; AOutputFilenameUTF8: string;
       ASkipOptions: boolean; AExport: boolean): boolean; override;
     function ShowColorIntensityDlg(AParameters: TVariableSet): TScriptResult; override;
@@ -1536,6 +1537,7 @@ function TLazPaintInstance.HideTopmost: TTopMostInfo;
 begin
   result.defined:= false;
   if FDestroying then exit;
+  ExitColorEditor;
 
   if (FFormToolbox <> nil) and FFormToolbox.Visible then
   begin
@@ -1786,6 +1788,13 @@ end;
 procedure TLazPaintInstance.ExitColorEditor;
 begin
   if Assigned(FChooseColor) then FChooseColor.HideEditor;
+end;
+
+function TLazPaintInstance.ColorEditorActive: boolean;
+begin
+  if Assigned(FChooseColor) then
+    result := FChooseColor.EditorVisible
+    else result := false;
 end;
 
 function TLazPaintInstance.ShowSaveOptionDlg(AParameters: TVariableSet;

@@ -130,6 +130,8 @@ procedure TLayerStackInterface.ComboBox_BlendOpChange(Sender: TObject);
 var blendOp: TBlendOperation;
   itemStr: string;
 begin
+  if Assigned(LazPaintInstance) then
+    LazPaintInstance.ExitColorEditor;
   if not FUpdatingComboBlendOp then
   begin
     if ComboBox_BlendOp.ItemIndex <> -1 then
@@ -175,6 +177,7 @@ procedure TLayerStackInterface.BGRALayerStack_MouseDown(Sender: TObject;
 var i: integer;
   str: string;
 begin
+  if Assigned(LazPaintInstance) then LazPaintInstance.ExitColorEditor;
   X := round(X*FScaling);
   Y := round(Y*FScaling);
   if PtInRect(Point(X,Y),FScrollButtonRect) then exit;
@@ -923,11 +926,15 @@ end;
 
 procedure TLayerStackInterface.ToolZoomLayerStackIn_Click(Sender: TObject);
 begin
+  if Assigned(LazPaintInstance) then
+    LazPaintInstance.ExitColorEditor;
   ZoomFactor := ZoomFactor * 1.3;
 end;
 
 procedure TLayerStackInterface.ToolZoomLayerStackOut_Click(Sender: TObject);
 begin
+  if Assigned(LazPaintInstance) then
+    LazPaintInstance.ExitColorEditor;
   ZoomFactor := ZoomFactor / 1.3;
 end;
 
