@@ -755,11 +755,52 @@ begin
 end;
 
 procedure TFMain.TimerArrangeTimer(Sender: TObject);
+  procedure SetTarget(AFillControl: TLCVectorialFillControl);
+  begin
+    if (AFillControl.FillType = vftGradient) then
+    begin
+      if AFillControl = VectorialFill_Pen then
+        LazPaintInstance.ChooseColorTarget:= ctForeColorStartGrad else
+      if AFillControl = VectorialFill_Back then
+        LazPaintInstance.ChooseColorTarget:= ctBackColorStartGrad else
+      if AFillControl = VectorialFill_Outline then
+        LazPaintInstance.ChooseColorTarget:= ctOutlineColorStartGrad;
+    end else
+    begin
+      if AFillControl = VectorialFill_Pen then
+        LazPaintInstance.ChooseColorTarget:= ctForeColorSolid else
+      if AFillControl = VectorialFill_Back then
+        LazPaintInstance.ChooseColorTarget:= ctBackColorSolid else
+      if AFillControl = VectorialFill_Outline then
+        LazPaintInstance.ChooseColorTarget:= ctOutlineColorSolid;
+    end;
+  end;
+var
+  ct: TContextualToolbars;
 begin
   if Assigned(FLayout) then
   begin
     UpdateAllowedFillTypes;
     FLayout.Arrange;
+    ct := ToolManager.GetContextualToolbars;
+    if (LazPaintInstance.ChooseColorTarget in [ctForeColorSolid, ctForeColorStartGrad,
+      ctForeColorEndGrad]) and not (ctPenFill in ct) then
+    begin
+      if ctBackFill in ct then SetTarget(VectorialFill_Back)
+      else if ctOutlineFill in ct then SetTarget(VectorialFill_Outline);
+    end else
+    if (LazPaintInstance.ChooseColorTarget in [ctBackColorSolid, ctBackColorStartGrad,
+      ctBackColorEndGrad]) and not (ctBackFill in ct) then
+    begin
+      if ctOutlineFill in ct then SetTarget(VectorialFill_Outline)
+      else if ctPenFill in ct then SetTarget(VectorialFill_Pen);
+    end else
+    if (LazPaintInstance.ChooseColorTarget in [ctOutlineColorSolid, ctOutlineColorStartGrad,
+      ctOutlineColorEndGrad]) and not (ctOutlineFill in ct) then
+    begin
+      if ctBackFill in ct then SetTarget(VectorialFill_Back)
+      else if ctPenFill in ct then SetTarget(VectorialFill_Pen);
+    end;
   end;
   TimerArrange.Enabled:= false;
 end;

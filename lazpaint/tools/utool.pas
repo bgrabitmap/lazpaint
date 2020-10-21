@@ -466,6 +466,7 @@ type
     function GetCurrentToolType: TPaintToolType;
     function SetCurrentToolType(tool: TPaintToolType): boolean;
     function UpdateContextualToolbars: boolean;
+    function GetContextualToolbars: TContextualToolbars;
     function ToolCanBeUsed: boolean;
     function ToolHasLineCap: boolean;
     procedure ToolWakeUp;
@@ -1576,14 +1577,9 @@ function TToolManager.ToolHasLineCap: boolean;
 var
   contextualToolbars: TContextualToolbars;
 begin
-  if CurrentTool = nil then
-    result := false
-  else
-  begin
-    contextualToolbars := CurrentTool.GetContextualToolbars;
-    result := (ctLineCap in contextualToolbars) and CurrentTool.HasPen and
-              (not (toCloseShape in ShapeOptions) or not (ctCloseShape in contextualToolbars));
-  end;
+  contextualToolbars := GetContextualToolbars;
+  result := (ctLineCap in contextualToolbars) and CurrentTool.HasPen and
+            (not (toCloseShape in ShapeOptions) or not (ctCloseShape in contextualToolbars));
 end;
 
 function TToolManager.GetBackColor: TBGRAPixel;
@@ -3177,16 +3173,10 @@ var
 
 begin
   result := false;
+  contextualToolbars := GetContextualToolbars;
   if Assigned(FCurrentTool) then
-  begin
-    contextualToolbars := FCurrentTool.GetContextualToolbars;
-    hasPen := FCurrentTool.HasPen;
-  end
-  else
-  begin
-    contextualToolbars := [ctPenFill, ctBackFill];
-    hasPen := false;
-  end;
+    hasPen := FCurrentTool.HasPen
+    else hasPen := false;
 
   if (ctBackFill in contextualToolbars) and not (ctPenFill in contextualToolbars) then
     OrResult(SetControlsVisible(FillControls, True, 'Panel_BackFill')) else
@@ -3222,6 +3212,14 @@ begin
   OrResult(SetControlsVisible(DonateControls, FCurrentToolType = ptHand));
 
   if result and Assigned(FOnToolbarChanged) then FOnToolbarChanged(self);
+end;
+
+function TToolManager.GetContextualToolbars: TContextualToolbars;
+begin
+  if Assigned(FCurrentTool) then
+    result := FCurrentTool.GetContextualToolbars
+  else
+    result := [ctPenFill, ctBackFill];
 end;
 
 function TToolManager.InternalBitmapToVirtualScreen(PtF: TPointF): TPointF;
