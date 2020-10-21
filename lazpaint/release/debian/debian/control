@@ -8,7 +8,8 @@ Architecture: any
 Version: 7.1.5
 Depends: ${shlibs:Depends}
 Description: Image editor with raster and vector layers
- Can read layered files (lzp, ora, pdn, oXo), multi-images (gif, ico, tiff), 
- flat files (bmp, jpeg, pcx, png, tga, xpm, xwd), vectorial (svg), 3D (obj).
- Has drawing tools, phong shading, curve adjustments,
- filters and render some textures.
+ Can read layered files (lzp, ora, pdn, oXo, flat psd), multi-images (gif,
+ ico, tiff), flat files (bmp, jpeg, pcx, png, tga, webp, xpm, xwd),
+ raw images (dng, cr2, nef, arw...), vectorial (svg), 3D (obj). Has drawing
+ tools, vector shapes, phong shading, curve adjustments, filters, render
+ some textures, Python scripting.
