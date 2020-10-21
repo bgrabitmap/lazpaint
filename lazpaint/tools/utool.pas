@@ -171,6 +171,7 @@ type
 
   TOnToolChangedHandler = procedure(sender: TToolManager; ANewToolType: TPaintToolType) of object;
   TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage; AKey: Word; AAlways: boolean) of object;
+  TOnQueryColorTargetHandler = procedure(sender: TToolManager; ATarget: TVectorialFill) of object;
 
   TShapeOption = (toAliasing, toDrawShape, toFillShape, toCloseShape);
   TShapeOptions = set of TShapeOption;
@@ -186,6 +187,7 @@ type
   TToolManager = class
   private
     FConfigProvider: IConfigProvider;
+    FOnQueryColorTarget: TOnQueryColorTargetHandler;
     FShouldExitTool: boolean;
     FImage: TLazPaintImage;
     FBlackAndWhite: boolean;
@@ -414,6 +416,7 @@ type
     procedure SetLightAltitude(AValue: integer);
     procedure SetLightPosition(AValue: TPointF);
     procedure SetLineCap(AValue: TPenEndCap);
+    procedure SetOnQueryColorTarget(AValue: TOnQueryColorTargetHandler);
     procedure SetOutlineColor(AValue: TBGRAPixel);
     procedure SetPerspectiveOptions(AValue: TPerspectiveOptions);
     procedure SetPhongShapeAltitude(AValue: integer);
@@ -495,6 +498,7 @@ type
     function IsBackEditGradTexPoints: boolean;
     function IsOutlineEditGradTexPoints: boolean;
     procedure QueryExitTool;
+    procedure QueryColorTarget(ATarget: TVectorialFill);
 
     function RenderTool(formBitmap: TBGRABitmap): TRect;
     function GetRenderBounds(VirtualScreenWidth, VirtualScreenHeight: integer): TRect;
@@ -580,6 +584,7 @@ type
     property OnPopup: TOnPopupToolHandler read FOnPopupToolHandler write FOnPopupToolHandler;
     property OnEraserChanged: TNotifyEvent read FOnEraserChanged write FOnEraserChanged;
     property OnFillChanged: TNotifyEvent read FOnFillChanged write FOnFillChanged;
+    property OnQueryColorTarget: TOnQueryColorTargetHandler read FOnQueryColorTarget write SetOnQueryColorTarget;
     property OnPenWidthChanged: TNotifyEvent read FOnPenWidthChanged write FOnPenWidthChanged;
     property OnBrushChanged: TNotifyEvent read FOnBrushChanged write FOnBrushChanged;
     property OnBrushListChanged: TNotifyEvent read FOnBrushListChanged write FOnBrushListChanged;
@@ -1390,6 +1395,12 @@ begin
   FLineCap:=AValue;
   ToolUpdate;
   if Assigned(FOnLineCapChanged) then FOnLineCapChanged(self);
+end;
+
+procedure TToolManager.SetOnQueryColorTarget(AValue: TOnQueryColorTargetHandler);
+begin
+  if FOnQueryColorTarget=AValue then Exit;
+  FOnQueryColorTarget:=AValue;
 end;
 
 procedure TToolManager.SetOutlineColor(AValue: TBGRAPixel);
@@ -3789,6 +3800,12 @@ end;
 procedure TToolManager.QueryExitTool;
 begin
   FShouldExitTool:= true;
+end;
+
+procedure TToolManager.QueryColorTarget(ATarget: TVectorialFill);
+begin
+  if Assigned(OnQueryColorTarget) then
+    OnQueryColorTarget(self, ATarget);
 end;
 
 function TToolManager.RenderTool(formBitmap: TBGRABitmap): TRect;

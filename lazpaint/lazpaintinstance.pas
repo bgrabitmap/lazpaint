@@ -6,7 +6,7 @@ unit LazpaintInstance;
 interface
 
 uses
-  Classes, SysUtils, LazPaintType, BGRABitmap, BGRABitmapTypes, BGRALayers,
+  Classes, SysUtils, LazPaintType, BGRABitmap, BGRABitmapTypes, BGRALayers, LCVectorialFill,
   Menus, Controls, fgl,
 
   LazPaintMainForm, UMainFormLayout,
@@ -69,6 +69,7 @@ type
     procedure PythonBusy({%H-}Sender: TObject);
     function ScriptShowMessage(AVars: TVariableSet): TScriptResult;
     function ScriptInputBox(AVars: TVariableSet): TScriptResult;
+    procedure ToolQueryColorTarget(sender: TToolManager; ATarget: TVectorialFill);
 
   protected
     InColorFromFChooseColor: boolean;
@@ -454,6 +455,7 @@ begin
   UseConfig(TIniFile.Create(''));
   FToolManager.OnPopup := @OnToolPopup;
   FToolManager.OnFillChanged:= @ToolFillChanged;
+  FToolManager.OnQueryColorTarget:=@ToolQueryColorTarget;
   FSelectionEditConfig := nil;
   FTextureEditConfig := nil;
   FImageAction := TImageActions.Create(self);
@@ -835,6 +837,29 @@ begin
     result := srOk;
   end else
     result := srCancelledByUser;
+end;
+
+procedure TLazPaintInstance.ToolQueryColorTarget(sender: TToolManager;
+  ATarget: TVectorialFill);
+begin
+  if ATarget = ToolManager.ForeFill then
+  begin
+    if ToolManager.ForeFill.FillType = vftGradient then
+      ChooseColorTarget := ctForeColorStartGrad
+      else ChooseColorTarget := ctForeColorSolid;
+  end else
+  if ATarget = ToolManager.BackFill then
+  begin
+    if ToolManager.BackFill.FillType = vftGradient then
+      ChooseColorTarget := ctBackColorStartGrad
+      else ChooseColorTarget := ctBackColorSolid;
+  end else
+  if ATarget = ToolManager.OutlineFill then
+  begin
+    if ToolManager.OutlineFill.FillType = vftGradient then
+      ChooseColorTarget := ctOutlineColorStartGrad
+      else ChooseColorTarget := ctOutlineColorSolid;
+  end;
 end;
 
 procedure TLazPaintInstance.OnLayeredBitmapLoadStartHandler(AFilenameUTF8: string);
