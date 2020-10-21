@@ -4,8 +4,11 @@ BIN_DIR = $(USER_DIR)/bin
 SHARE_DIR=$(USER_DIR)/share
 RESOURCE_DIR=$(SHARE_DIR)/lazpaint
 DOC_DIR=$(SHARE_DIR)/doc/lazpaint
+ICON_DIR=$(SHARE_DIR)/icons/hicolor
+DEBIAN_ICON_SIZES=16x16 24x24 32x32 48x48 96x96 128x128 256x256 512x512
 SOURCE_BIN_DIR=lazpaint/release/bin
 SOURCE_SCRIPT_DIR=resources/scripts
+SOURCE_ICON_DIR=resources/icon
 SOURCE_DEBIAN_DIR=lazpaint/release/debian
 PO_FILES:=$(shell find "$(SOURCE_BIN_DIR)/i18n" -maxdepth 1 -type f -name *.po -printf "\"%f\" ")
 MODEL_FILES:=$(shell find "$(SOURCE_BIN_DIR)/models" -maxdepth 1 -type f -printf "\"%f\" ")
@@ -38,7 +41,8 @@ else ifeq ($(shell uname),Linux)
 	for f in $(SCRIPT_FILES); do install -D "$(SOURCE_SCRIPT_DIR)/$$f" "${RESOURCE_DIR}/scripts/$$f"; done
 	for f in $(SCRIPT_RUNTIME_FILES); do install -D "$(SOURCE_SCRIPT_DIR)/lazpaint/$$f" "${RESOURCE_DIR}/scripts/lazpaint/$$f"; done
 	install -D "$(SOURCE_DEBIAN_DIR)/applications/lazpaint.desktop" "$(SHARE_DIR)/applications/lazpaint.desktop"
-	install -D "$(SOURCE_DEBIAN_DIR)/pixmaps/lazpaint.png" "$(SHARE_DIR)/pixmaps/lazpaint.png"
+	install -D "$(SOURCE_ICON_DIR)/48x48.png" "$(SHARE_DIR)/pixmaps/lazpaint.png"
+	for s in $(DEBIAN_ICON_SIZES); do install -D "$(SOURCE_ICON_DIR)/$$s.png" "$(ICON_DIR)/$$s/apps/lazpaint.png"; done
 	install -d "$(SHARE_DIR)/man/man1"
 	gzip -9 -n -c "$(SOURCE_DEBIAN_DIR)/man/man1/lazpaint.1" >"$(SHARE_DIR)/man/man1/lazpaint.1.gz"
 	chmod 0644 "$(SHARE_DIR)/man/man1/lazpaint.1.gz"
@@ -60,6 +64,7 @@ else ifeq ($(shell uname),Linux)
 	$(REMOVEDIR) $(DOC_DIR)
 	$(REMOVE) "$(SHARE_DIR)/applications/lazpaint.desktop"
 	$(REMOVE) "$(SHARE_DIR)/pixmaps/lazpaint.png"
+	for s in $(DEBIAN_ICON_SIZES); do $(REMOVE) "$(ICON_DIR)/$$s/apps/lazpaint.png"; done
 	$(REMOVE) "$(SHARE_DIR)/man/man1/lazpaint.1.gz"
 else
 	echo Unhandled OS
