@@ -120,6 +120,8 @@ resourcestring
   rsBack = 'Back';
   rsTextOutline = 'Text outline';
 
+  rsAddToPalette = 'Add color to palette';
+  rsRemoveFromPalette = 'Remove color from palette';
   rsColors='Colors';
   rsLight='Light';
   rsOpacity='Opacity';

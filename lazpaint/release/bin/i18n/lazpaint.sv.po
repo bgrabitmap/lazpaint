@@ -231,11 +231,11 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Bredd :"
 
-#: tfchoosecolor.bcbutton_addtopalette.hint
+#: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
 msgstr "Lägg till färg till palett"
 
-#: tfchoosecolor.bcbutton_removefrompalette.hint
+#: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
 msgstr "Ta bort färg från palett"
 

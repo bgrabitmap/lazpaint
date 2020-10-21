@@ -1052,9 +1052,13 @@ begin
   BCButton_AddToPalette := TBCButton.Create(vsColorView);
   BCButton_AddToPalette.Parent := vsColorView;
   BCButton_AddToPalette.OnClick := @BCButton_AddToPaletteClick;
+  BCButton_AddToPalette.Hint := rsAddToPalette;
+  BCButton_AddToPalette.ShowHint := true;
   BCButton_RemoveFromPalette := TBCButton.Create(vsColorView);
   BCButton_RemoveFromPalette.Parent := vsColorView;
   BCButton_RemoveFromPalette.OnClick := @BCButton_RemoveFromPaletteClick;
+  BCButton_RemoveFromPalette.Hint := rsRemoveFromPalette;
+  BCButton_RemoveFromPalette.ShowHint := true;
   ApplyTheme;
 
   EColor.Font.Height := FontEmHeightSign * DoScaleY(11, OriginalDPI, FDPI) + 1;

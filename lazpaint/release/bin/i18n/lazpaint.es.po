@@ -241,11 +241,11 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Ancho:"
 
-#: tfchoosecolor.bcbutton_addtopalette.hint
+#: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
 msgstr "Agregar color a la paleta"
 
-#: tfchoosecolor.bcbutton_removefrompalette.hint
+#: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
 msgstr "Quitar color de la paleta"
 

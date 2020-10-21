@@ -239,11 +239,11 @@ msgctxt "TFCANVASSIZE.LABEL_WIDTH.CAPTION"
 msgid "Width :"
 msgstr "Ширина:"
 
-#: tfchoosecolor.bcbutton_addtopalette.hint
+#: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
 msgstr "Добавяне на цвета в палитрата"
 
-#: tfchoosecolor.bcbutton_removefrompalette.hint
+#: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
 msgstr "Премахване на цвета от палитрата"
 
