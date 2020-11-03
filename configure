@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+echo For help type: ./configure --help
+args=("$@")
+haserror=false
+defaultfpc=fpc
+wantedfpc=$defaultfpc
+if [ -f "debian/CONFIGURE_DEFAULT_FPCBIN" ]; then
+	wantedfpc=$(cat debian/CONFIGURE_DEFAULT_FPCBIN)
+fi
+defaultprefix=/usr/local
+wantedprefix=$defaultprefix
+if [ -f "debian/CONFIGURE_DEFAULT_LAZDIR" ]; then
+	wantedlazdir=$(cat debian/CONFIGURE_DEFAULT_LAZDIR)
+else
+	wantedlazdir=
+fi
+for param in "${args[@]}"
+do
+	if [ "$param" == "-h" ] || [ "$param" == "--help" ]; then
+		echo "Usage: ./configure [OPTIONS]"
+		echo ""
+		echo "    --prefix=PREFIX"
+		echo "        Specifies the install prefix."
+		echo "        By default prefix is \"$defaultprefix\"" 
+		echo "        For packages use \"/usr\""
+		echo ""
+		echo "    --lazdir=BASE_DIRECTORY_OF_LAZARUS"
+		echo "        Specifies to compile with FPC using the specified Lazarus sources."
+		echo "        Otherwise lazbuild will be used."
+		echo ""
+		echo "    --fpcbin=FPC_BINARY"
+		echo "        Specifies the command to call Free Pascal Compiler."
+		echo "        Default is \"$defaultfpc\""
+		exit 0
+	elif [ "${param:0:9}" == "--prefix=" ]; then
+		wantedprefix=${param:9}
+	elif [ "${param:0:9}" == "--lazdir=" ]; then
+		wantedlazdir=${param:9}
+	elif [ "${param:0:9}" == "--fpcbin=" ]; then
+		wantedfpc=${param:9}
+	else
+		echo "Warning: unknown option $param"
+	fi
+done
+echo "Prefix set to: $wantedprefix"
+echo $wantedprefix >prefix
+if [ "$wantedlazdir" == "" ]; then
+	echo "Using lazbuild"
+	rm -f lazdir
+	touch lazdir
+	rm -f fpcbin
+else
+	echo "Using FPC with Lazarus source: $wantedlazdir"
+	if [ ! -d "$wantedlazdir" ]; then
+		echo "Error: directory not found!"
+		haserror=true
+	elif [ ! -d "$wantedlazdir/lcl" ]; then
+		echo "Warning: it does not seem to be the directory of Lazarus!"
+	fi
+	echo $wantedlazdir >lazdir
+	echo "Compiler set to: $wantedfpc"
+	rm -f fpcbin
+	echo $wantedfpc >fpcbin
+fi
+if [ "$haserror" = true ]; then
+	exit 1
+else
+	if [ "$(uname)" == "FreeBSD" ]; then
+		echo "You can now type: gmake"
+	else
+		echo "You can now type: make"
+	fi
+	exit 0
+fi
