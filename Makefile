@@ -12,6 +12,7 @@ ifeq ($(OS),Windows_NT)     # true for Windows_NT or later
   ECHOFILE := type
   THEN := &
   RUN :=
+  NOERROR :=
 else
   UNAME := $(shell uname)
   ifeq ($(UNAME),FreeBSD)
@@ -26,15 +27,16 @@ else
   ECHOFILE := cat
   THEN := ;
   RUN := ./
+  NOERROR := 2>/dev/null
 endif
 
-lazdir := $(shell $(ECHOFILE) lazdir)
-fpcbin := $(shell $(ECHOFILE) fpcbin)
+lazdir := $(shell $(ECHOFILE) lazdir $(NOERROR))
+fpcbin := $(shell $(ECHOFILE) fpcbin $(NOERROR))
 package := lazpaint
 
 ifeq ($(UNAME),Linux)
   TARGET ?= Gtk2
-  prefix := $(shell $(ECHOFILE) prefix)
+  prefix := $(shell $(ECHOFILE) prefix $(NOERROR))
   ifeq ($(MULTIBIN),1)
     package := lazpaint-$(shell echo $(TARGET) | tr A-Z a-z)
     prefix := /../$(package)$(prefix)
@@ -77,10 +79,8 @@ ifeq ($(TARGET),Qt5)
   BUILDMODE:=ReleaseQt5
 endif
 
-# Lazarus custom packages explicitely compiled only if preparing Debian package
-ifeq "$(DESTDIR)" ""
-  FOREIGN_PACKAGES=
-else
+# Lazarus custom packages explicitely compiled
+ifeq "$(FOREIGN_LPK)" "1"
   FOREIGN_PACKAGES=bgrabitmap/bgrabitmappack.lpk bgracontrols/bgracontrols.lpk
 endif
 
@@ -139,6 +139,7 @@ clean_bgracontrols:
 	$(REMOVEDIR) "bgracontrols/backup"
 
 clean_lazpaint:
+	$(REMOVEDIR) "lazpaintcontrols/lib"
 	$(REMOVEDIR) "lazpaint/debug"
 	$(REMOVEDIR) "lazpaint/release/lib"
 	$(REMOVE) "lazpaint/lazpaint.res"

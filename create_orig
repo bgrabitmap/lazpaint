@@ -1,0 +1,27 @@
+#!/bin/bash
+dirname=${PWD##*/}
+if ! [[ "$dirname" =~ ^lazpaint-[0-9]+(\.[0-9]+)*$ ]]; then
+    echo "Parent folder name must be \"lazpaint-#[.#][.#]\" but is \"$dirname\" instead"
+    echo "where #[.#][.#] is the app version number"
+    exit 1
+fi
+archive=${dirname/-/_}.orig.tar.gz
+read -p "Create \"../${archive}\" file (y/n)?" -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    make distclean
+
+    cd ..
+    tar --exclude=./${dirname}/debian --exclude-vcs -zcvf ${archive} ./${dirname}
+    cd "$dirname"
+    echo "Done creating ../${archive}"
+    echo
+    read -p "Launch \"debuild -us -uc\" on the package now (y/n)?" -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+    	debuild -us -uc
+    fi
+fi
+
