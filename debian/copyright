@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: lazpaint
 Upstream-Contact: Johann ELSASS <circular@operamail.com>
-Source: https://github.com/bgrabitmap/lazpaint/archive/v7.1.5.tar.gz
+Source: https://github.com/bgrabitmap/lazpaint-upstream/releases
 
 Files: *
 Copyright: 2011-2019 Johann ELSASS <circular@operamail.com>
