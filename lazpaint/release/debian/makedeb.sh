@@ -35,7 +35,8 @@ echo "Creating package..."
 rm -rf "${STAGING_DIR}"
 mkdir "${STAGING_DIR}"
 pushd ../../..
-make install prefix=/usr "DESTDIR=$STAGING_DIR"
+./configure --prefix=/usr
+make install "DESTDIR=$STAGING_DIR"
 popd
 
 mkdir "${STAGING_DIR}/DEBIAN"
@@ -61,8 +62,8 @@ NO_INSTALL_ARCHIVE="${PACKAGE_NAME}_no_install.tar.gz"
 
 echo "Making ${NO_INSTALL_ARCHIVE}..."
 mv "${BIN_DIR}/lazpaint" "${RESOURCE_DIR}/lazpaint"
-mv "${DOC_DIR}/copyright" "${RESOURCE_DIR}/copyright"
-mv "${DOC_DIR}/README" "${RESOURCE_DIR}/README"
+cp "debian/copyright" "${RESOURCE_DIR}/copyright"
+cp "../bin/readme.txt" "${RESOURCE_DIR}/README"
 pushd ${SHARE_DIR}
 tar -czf "../../../${NO_INSTALL_ARCHIVE}" "lazpaint"
 popd
