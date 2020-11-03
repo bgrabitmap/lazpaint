@@ -83,6 +83,7 @@
     <RequiredPkgs Count="3">
       <Item1>
         <PackageName Value="bgracontrols"/>
+        <MinVersion Major="7" Valid="True"/>
       </Item1>
       <Item2>
         <PackageName Value="LCL"/>
