@@ -5,6 +5,14 @@ if ! [[ "$dirname" =~ ^lazpaint-[0-9]+(\.[0-9]+)*$ ]]; then
     echo "where #[.#][.#] is the app version number"
     exit 1
 fi
+if ! [ -d bgrabitmap ] || ! [ -d bgracontrols ]; then
+    echo "Cannot find bgrabitmap or bgracontrols subdirectories."
+    exit 1
+fi
+if [ -d bgrabitmap/test ] || [ -d lazpaint/release/windows ]; then
+    echo "Lazarus custom packages have not been pruned. Call ./prune_lpk first"
+    exit 1
+fi
 archive=${dirname/-/_}.orig.tar.gz
 read -p "Create \"../${archive}\" file (y/n)?" -n 1 -r
 echo

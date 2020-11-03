@@ -2,6 +2,9 @@
 # On FreeBSD, TARGET can be Gtk2 (default) or Qt5
 # On Windows, TARGET can be Win32 (default) or Qt5
 
+BGRABITMAP_DIR := bgrabitmap/bgrabitmap
+BGRACONTROLS_DIR := bgracontrols
+
 ifeq ($(OS),Windows_NT)     # true for Windows_NT or later
   SHELL := C:/Windows/System32/cmd.exe /c
   UNAME := Windows
@@ -81,7 +84,7 @@ endif
 
 # Lazarus custom packages explicitely compiled
 ifeq "$(FOREIGN_LPK)" "1"
-  FOREIGN_PACKAGES=bgrabitmap/bgrabitmappack.lpk bgracontrols/bgracontrols.lpk
+  FOREIGN_PACKAGES=$(BGRABITMAP_DIR)/bgrabitmappack.lpk $(BGRACONTROLS_DIR)/bgracontrols.lpk
 endif
 
 all: compile
@@ -95,8 +98,8 @@ ifeq ($(UNAME),Linux)
 	install -D "$(SOURCE_BIN_DIR)/$(package)" "$(BIN_DIR)/lazpaint"
 	for f in $(PO_FILES); do install -D --mode=0644 "$(SOURCE_BIN_DIR)/i18n/$$f" "$(RESOURCE_DIR)/i18n/$$f"; done
 	for f in $(MODEL_FILES); do install -D --mode=0644 "$(SOURCE_BIN_DIR)/models/$$f" "${RESOURCE_DIR}/models/$$f"; done
-	for f in $(SCRIPT_FILES); do install -D "$(SOURCE_SCRIPT_DIR)/$$f" "${RESOURCE_DIR}/scripts/$$f"; done
-	for f in $(SCRIPT_RUNTIME_FILES); do install -D "$(SOURCE_SCRIPT_DIR)/lazpaint/$$f" "${RESOURCE_DIR}/scripts/lazpaint/$$f"; done
+	for f in $(SCRIPT_FILES); do install -D --mode=0644 "$(SOURCE_SCRIPT_DIR)/$$f" "${RESOURCE_DIR}/scripts/$$f"; done
+	for f in $(SCRIPT_RUNTIME_FILES); do install -D --mode=0644 "$(SOURCE_SCRIPT_DIR)/lazpaint/$$f" "${RESOURCE_DIR}/scripts/lazpaint/$$f"; done
 	install -D "$(SOURCE_DEBIAN_UPSTREAM)/applications/lazpaint.desktop" "$(SHARE_DIR)/applications/lazpaint.desktop"
 	install -D "$(EXTRACTED_ICONS_DIR)/48x48.png" "$(SHARE_DIR)/pixmaps/lazpaint.png"
 	for s in $(EXTRACTED_ICONS); do install -D --mode=0644 "$(EXTRACTED_ICONS_DIR)/$$s.png" "$(ICON_DIR)/$$s/apps/lazpaint.png"; done
@@ -131,12 +134,12 @@ clean_icons:
 	$(REMOVEDIR) "icons"
 
 clean_bgrabitmap:
-	$(REMOVEDIR) "bgrabitmap/lib"
-	$(REMOVEDIR) "bgrabitmap/backup"
+	$(REMOVEDIR) "$(BGRABITMAP_DIR)/lib"
+	$(REMOVEDIR) "$(BGRABITMAP_DIR)/backup"
 
 clean_bgracontrols:
-	$(REMOVEDIR) "bgracontrols/lib"
-	$(REMOVEDIR) "bgracontrols/backup"
+	$(REMOVEDIR) "$(BGRACONTROLS_DIR)/lib"
+	$(REMOVEDIR) "$(BGRACONTROLS_DIR)/backup"
 
 clean_lazpaint:
 	$(REMOVEDIR) "lazpaintcontrols/lib"
@@ -144,13 +147,13 @@ clean_lazpaint:
 	$(REMOVEDIR) "lazpaint/release/lib"
 	$(REMOVE) "lazpaint/lazpaint.res"
 ifeq ($(UNAME),Windows)
-	$(REMOVE) "lazpaint/release/lazpaint.exe"
-	$(REMOVE) "lazpaint/release/lazpaint32.exe"
-	$(REMOVE) "lazpaint/release/lazpaint_x64.exe"
+	$(REMOVE) "lazpaint/release/bin/lazpaint.exe"
+	$(REMOVE) "lazpaint/release/bin/lazpaint32.exe"
+	$(REMOVE) "lazpaint/release/bin/lazpaint_x64.exe"
 else
-	$(REMOVE) "lazpaint/release/lazpaint"
-	$(REMOVE) "lazpaint/release/lazpaint-gtk2"
-	$(REMOVE) "lazpaint/release/lazpaint-qt5"
+	$(REMOVE) "lazpaint/release/bin/lazpaint"
+	$(REMOVE) "lazpaint/release/bin/lazpaint-gtk2"
+	$(REMOVE) "lazpaint/release/bin/lazpaint-qt5"
 endif
 	$(REMOVEDIR) "lazpaint/backup"
 	$(REMOVEDIR) "lazpaint/test_embedded/backup"
@@ -165,7 +168,7 @@ ifeq "$(lazdir)" ""
 else
 	$(COPY) "resources/lazpaint.res" "lazpaint/lazpaint.res"
 	$(CREATEDIR) "lazpaint/release/lib"
-	cd lazpaint $(THEN) $(fpcbin) -orelease/lazpaint -Fu./buttons -Fi./buttons -Fu./image -Fi./image -Fu./cursors -Fi./cursors -Fu./buttons -Fi./buttons -Fu./* -Fi./* -Fu../bgracontrols -Fi../bgracontrols -Fu../bgrabitmap -Fi../bgrabitmap $(LAZARUSDIRECTORIES) -MObjFPC -Scgi -Cg -OoREGVAR -Xs -XX -l -vewnhibq -O3 -CX -vi -FUrelease/lib/ -dLCL -d$(INTERFACE) lazpaint.lpr
+	cd lazpaint $(THEN) $(fpcbin) -orelease/lazpaint -Fu./buttons -Fi./buttons -Fu./image -Fi./image -Fu./cursors -Fi./cursors -Fu./buttons -Fi./buttons -Fu./* -Fi./* -Fu../$(BGRACONTROLS_DIR) -Fi../$(BGRACONTROLS_DIR) -Fu../$(BGRABITMAP_DIR) -Fi../$(BGRABITMAP_DIR) $(LAZARUSDIRECTORIES) -MObjFPC -Scgi -Cg -OoREGVAR -Xs -XX -l -vewnhibq -O3 -CX -vi -FUrelease/lib/ -dLCL -d$(INTERFACE) lazpaint.lpr
 endif
 ifeq ($(MULTIBIN),1)
 	mv "$(SOURCE_BIN_DIR)/lazpaint" "$(SOURCE_BIN_DIR)/$(package)"
