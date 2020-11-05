@@ -7,6 +7,7 @@ Package: lazpaint
 Architecture: any
 Version: 7.1.5
 Depends: ${shlibs:Depends}
+Conflicts: lazpaint-gtk2, lazpaint-gtk3, lazpaint-qt4, lazpaint-qt5
 Description: Image editor with raster and vector layers
  Can read layered files (lzp, ora, pdn, oXo, flat psd), multi-images (gif,
  ico, tiff), flat files (bmp, jpeg, pcx, png, tga, webp, xpm, xwd),
