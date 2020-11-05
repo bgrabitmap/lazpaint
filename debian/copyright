@@ -23,6 +23,10 @@ Files: bgracontrols/test/test_extra/game_puzzle/unit1.pas
 Copyright: 2012 lainz http://sourceforge.net/users/lainz
 License: LGPL-2+
 
+Files: bgrabitmap/*
+Copyright: 2016 Johann ELSASS
+License: LGPL-2
+
 Files: bgrabitmap/bgrareadpsd.pas
 Copyright: 2008 by the Free Pascal development team
 License: LGPL-2
