@@ -747,6 +747,7 @@ procedure TChooseColorInterface.UpdateButtonLayout;
 var
   iconSize: Integer;
   tmpIcon: TBitmap;
+  scaling, invScaling: single;
 begin
   FButtonSize := round(FBarWidth);
   BCButton_AddToPalette.Width := FButtonSize;
@@ -770,17 +771,23 @@ begin
     BCButton_RemoveFromPalette.Left := BCButton_AddToPalette.Left + BCButton_AddToPalette.Width;
     BCButton_RemoveFromPalette.Top := round(FMargin / 2);
   end;
-  iconSize := FButtonSize-4;
-  if not Assigned(BCButton_AddToPalette.Glyph) or (BCButton_AddToPalette.Glyph.Width <> iconSize) then
+  scaling := Container.GetCanvasScaleFactor;
+  iconSize := round((FButtonSize-4)*scaling);
+  invScaling := 1/scaling;
+  if not Assigned(BCButton_AddToPalette.Glyph) or (BCButton_AddToPalette.Glyph.Width <> iconSize)
+     or (BCButton_AddToPalette.GlyphScale <> invScaling) then
   begin
     tmpIcon:= MakeAddIcon(iconSize);
     BCButton_AddToPalette.Glyph.Assign(tmpIcon);
+    BCButton_AddToPalette.GlyphScale:= invScaling;
     tmpIcon.Free;
   end;
-  if not Assigned(BCButton_RemoveFromPalette.Glyph) or (BCButton_RemoveFromPalette.Glyph.Width <> iconSize) then
+  if not Assigned(BCButton_RemoveFromPalette.Glyph) or (BCButton_RemoveFromPalette.Glyph.Width <> iconSize)
+     or (BCButton_RemoveFromPalette.GlyphScale <> invScaling) then
   begin
     tmpIcon:= MakeRemoveIcon(iconSize);
     BCButton_RemoveFromPalette.Glyph.Assign(tmpIcon);
+    BCButton_RemoveFromPalette.GlyphScale:= invScaling;
     tmpIcon.Free;
   end;
 end;

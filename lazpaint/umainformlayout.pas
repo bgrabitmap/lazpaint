@@ -767,6 +767,8 @@ begin
   HideToolboxGroups;
   if Assigned(FMenu) then
     FMenu.RepaintToolbar;
+  if Assigned(FPaletteToolbar) then
+    FPaletteToolbar.Arrange;
 end;
 
 procedure TMainFormLayout.CheckDelayedUpdate;
