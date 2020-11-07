@@ -160,6 +160,14 @@ object FBlendOp: TFBlendOp
       'LinearExclusion'
       'LinearSubtract'
       'Divide'
+      'LinearHue'
+      'LinearColor'
+      'LinearLightness'
+      'LinearSaturation'
+      'CorrectedHue'
+      'CorrectedColor'
+      'CorrectedLightness'
+      'CorrectedSaturation'
     )
     ItemHeight = 80
     OnDblClick = ListBox_BlendDblClick
