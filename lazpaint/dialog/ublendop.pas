@@ -361,7 +361,7 @@ procedure TFBlendOp.ListBox_DrawBlendItem(Control: TWinControl; Index: Integer;
   ARect: TRect; State: TOwnerDrawState);
 var
   background,preview,over: TBGRABitmap;
-  w,h, checkerSize: integer;
+  w,h, checkerSize, shadowOfs: integer;
   BlendStr: string;
   fx: TBGRATextEffect;
   scaling: Double;
@@ -388,6 +388,8 @@ begin
     preview.Free;
     if odSelected in State then DrawPatternHighlight(background);
     fx := TBGRATextEffect.Create(BlendStr,'Arial',Max(DoScaleY(round(12*scaling),OriginalDPI),h div 10),true);
+    shadowOfs := round(DoScaleX(round(10*scaling), OriginalDPI)/10);
+    fx.DrawShadow(background,1+shadowOfs,1+shadowOfs,DoScaleX(round(2*scaling), OriginalDPI),BGRABlack);
     fx.DrawOutline(background,1,1,BGRABlack);
     fx.Draw(background,1,1,BGRAWhite);
     fx.Free;
