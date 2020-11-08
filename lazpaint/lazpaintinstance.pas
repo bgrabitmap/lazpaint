@@ -30,6 +30,7 @@ type
   private
     FScriptName: String;
 
+    procedure ChooseColorHide(Sender: TObject);
     function GetFormAdjustCurves: TFAdjustCurves;
     function GetFormCanvasSize: TFCanvasSize;
     function GetFormColorIntensity: TFColorIntensity;
@@ -38,6 +39,7 @@ type
     function GetFormShiftColors: TFShiftColors;
     function GetInitialized: boolean;
     function GetMainFormVisible: boolean;
+    procedure LayerStackHide(Sender: TObject);
     procedure OnImageActionProgress({%H-}ASender: TObject; AProgressPercent: integer);
     procedure OnLayeredBitmapLoadStartHandler(AFilenameUTF8: string);
     procedure OnLayeredBitmapLoadProgressHandler(APercentage: integer);
@@ -478,6 +480,7 @@ begin
   Application.CreateForm(TFChooseColor, FChooseColor);
   FChooseColor.LazPaintInstance := self;
   FChooseColor.DarkTheme:= Config.GetDarkTheme;
+  FChooseColor.OnHide:=@ChooseColorHide;
 
   FInFormsNeeded := false;
 end;
@@ -528,6 +531,7 @@ begin
   if Assigned(FLayerStack) then exit;
   TFLayerStack_CustomDPI := (Config.DefaultIconSize(DoScaleX(16,OriginalDPI))*96+8) div 16;
   Application.CreateForm(TFLayerStack,FLayerStack);
+  FLayerStack.OnHide:=@LayerStackHide;
   FLayerStack.LazPaintInstance := self;
   FLayerStack.DarkTheme:= Config.GetDarkTheme;
   defaultZoom := Config.DefaultLayerStackZoom;
@@ -702,6 +706,12 @@ begin
     result := false;
 end;
 
+procedure TLazPaintInstance.LayerStackHide(Sender: TObject);
+begin
+  if not DockLayersAndColors then
+    FLayerControlVisible:= false;
+end;
+
 procedure TLazPaintInstance.OnImageActionProgress(ASender: TObject;
   AProgressPercent: integer);
 begin
@@ -728,6 +738,12 @@ begin
   if FFormAdjustCurves = nil then
     Application.CreateForm(TFAdjustCurves, FFormAdjustCurves);
   result := FFormAdjustCurves;
+end;
+
+procedure TLazPaintInstance.ChooseColorHide(Sender: TObject);
+begin
+  if not DockLayersAndColors then
+    FChooseColorControlVisible:= false;
 end;
 
 function TLazPaintInstance.GetFormColorIntensity: TFColorIntensity;
