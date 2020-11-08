@@ -92,7 +92,6 @@ const
   KEYPATH = '\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize';
   KEYNAME = 'AppsUseLightTheme';
 var
-  LightKey: boolean;
   Registry: TRegistry;
 begin
   Result := dtmUnknown;
