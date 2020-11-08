@@ -556,7 +556,8 @@ begin
   begin
     result := true;
     FLastSystemDarkTheme:= newState;
-  end;
+  end else
+    result := false;
 end;
 
 initialization
