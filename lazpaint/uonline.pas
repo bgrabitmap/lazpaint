@@ -2,12 +2,16 @@
 unit UOnline;
 
 {$mode objfpc}{$H+}
+{$if defined(DARWIN) and defined(LCLcocoa)}
+  {$DEFINE USE_NS_URL_REQUEST}
+{$ENDIF}
 
 interface
 
 uses
-  fphttpclient, Classes, SysUtils,
-  UConfig, LazPaintType;
+  Classes, SysUtils,
+  UConfig, LazPaintType,
+  {$IFDEF USE_NS_URL_REQUEST}ns_url_request{$ELSE}fphttpclient, opensslsockets{$ENDIF};
 
 type
   { THttpGetThread }
@@ -89,7 +93,6 @@ begin
   inherited Create(True);
   FUrl:= AUrl;
   FreeOnTerminate := true;
-  Suspended := false;
 end;
 
 procedure THttpGetThread.Execute;
@@ -97,7 +100,11 @@ var stream: TMemoryStream;
 begin
   stream := TMemoryStream.Create;
   try
+    {$IFDEF USE_NS_URL_REQUEST}
+    TNSHTTPSendAndReceive.SimpleGet(FUrl, stream);
+    {$ELSE}
     TFPHTTPClient.SimpleGet(FUrl, stream);
+    {$ENDIF}
     setlength(FBuffer, stream.Size);
     stream.Position:= 0;
     stream.Read(FBuffer[1], length(FBuffer));
@@ -225,6 +232,7 @@ begin
     FThread.OnSuccess := @OnThreadSuccess;
     FThread.OnError := @OnThreadError;
     FThread.OnTerminate := @OnThreadTerminate;
+    FThread.Suspended := false;
     result := true;
   end else
     result := false;
