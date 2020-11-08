@@ -4152,7 +4152,10 @@ begin
   if LazPaintInstance.TopMostHasFocus then
   begin
     if LazPaintInstance.TopMostOkToUnfocus then
-      SafeSetFocus(self)
+    begin
+      if ToolWindowStyle = fsStayOnTop then
+        SafeSetFocus(self);
+    end
     else
       exit;
   end;
