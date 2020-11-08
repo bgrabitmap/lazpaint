@@ -49,7 +49,8 @@ implementation
 
 uses
   BCTypes, BGRABitmap, BGRABitmapTypes, GraphType, Graphics, BGRACustomDrawn, LCScaleDPI
-  {$IFDEF DARWIN}, CocoaAll, CocoaUtils{$ENDIF};
+  {$IFDEF DARWIN}, CocoaAll, CocoaUtils{$ENDIF}
+  {$IFDEF WINDOWS}, Windows, Win32Proc, Registry{$ENDIF};
 
 {$IFDEF DARWIN}
 { returns true, if this app runs on macOS 10.14 Mojave or newer }
@@ -77,6 +78,39 @@ end;
 function IsMojaveDarkTheme: boolean;
 begin
   Result := pos('DARK',UpperCase(GetPrefString('AppleInterfaceStyle'))) > 0;
+end;
+{$ENDIF}
+
+{$IFDEF WINDOWS}
+type
+  TWinDarkThemeMode = (dtmLight, dtmDark, dtmUnknown);
+
+// by "jwdietrich" from Lazarus forum
+// IsDarkTheme: Detects if the Dark Theme (true) has been enabled or not (false)
+function GetWinDarkTheme: TWinDarkThemeMode;
+const
+  KEYPATH = '\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize';
+  KEYNAME = 'AppsUseLightTheme';
+var
+  LightKey: boolean;
+  Registry: TRegistry;
+begin
+  Result := dtmUnknown;
+  Registry := TRegistry.Create;
+  try
+    Registry.RootKey := HKEY_CURRENT_USER;
+    if Registry.OpenKeyReadOnly(KEYPATH) then
+      begin
+        if Registry.ValueExists(KEYNAME) then
+        begin
+          if Registry.ReadBool(KEYNAME) then
+            result := dtmLight
+            else result := dtmDark;
+        end;
+      end;
+  finally
+    Registry.Free;
+  end;
 end;
 {$ENDIF}
 
@@ -502,13 +536,16 @@ var
 begin
   {$IFDEF DARWIN}
   if IsMojaveOrNewer then
-    result := IsMojaveDarkTheme
-  else
+    exit(IsMojaveDarkTheme);
   {$ENDIF}
-  begin
-    N:= ColorToRGB(clWindow);
-    Result:= (Red(N)<cMax) and (Green(N)<cMax) and (Blue(N)<cMax);
+  {$IFDEF WINDOWS}
+  case GetWinDarkTheme of
+    dtmLight: exit(false);
+    dtmDark: exit(true);
   end;
+  {$ENDIF}
+  N:= ColorToRGB(clWindow);
+  Result:= (Red(N)<cMax) and (Green(N)<cMax) and (Blue(N)<cMax);
 end;
 
 function TDarkTheme.HasSystemDarkThemeChanged: boolean;
