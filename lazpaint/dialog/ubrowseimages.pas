@@ -274,7 +274,7 @@ begin
   ScaleControl(Panel1, OriginalDPI, 0,0, true);
   ScaleControl(Panel2, OriginalDPI, 0,0, true);
 
-  DarkThemeInstance.Apply(ComboBox_FileExtension, False, 0.40);
+  DarkThemeInstance.Apply(ComboBox_FileExtension, DarkThemeInstance.IsSystemDarkTheme, 0.40);
   vsList.BitmapAutoScale:= false;
 
   bmp := TBitmap.Create;
