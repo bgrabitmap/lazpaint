@@ -67,6 +67,8 @@ end;
 
 procedure TFLayerStack.FormCreate(Sender: TObject);
 begin
+  BorderStyle := ToolWindowSizeable;
+  FormStyle := ToolWindowStyle;
   Position := poDesigned;
   self.EnsureVisible(False);
   ClientWidth := DoScaleX(224, OriginalDPI, TFLayerStack_CustomDPI);

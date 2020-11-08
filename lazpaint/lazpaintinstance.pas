@@ -7,7 +7,7 @@ interface
 
 uses
   Classes, SysUtils, LazPaintType, BGRABitmap, BGRABitmapTypes, BGRALayers, LCVectorialFill,
-  Menus, Controls, fgl,
+  Menus, Forms, Controls, fgl,
 
   LazPaintMainForm, UMainFormLayout,
 
@@ -121,6 +121,7 @@ type
     procedure SetToolBoxWindowPopup(AValue: TPopupMenu); override;
     function GetFullscreen: boolean; override;
     procedure SetFullscreen(AValue: boolean); override;
+    function GetToolWindowVisible(AWindow: TForm; ADockedVisible: boolean = false): boolean;
     function GetDockLayersAndColors: boolean; override;
     procedure SetDockLayersAndColors(AValue: boolean); override;
     function GetScriptContext: TScriptContext; override;
@@ -274,7 +275,7 @@ type
 
 implementation
 
-uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslation,
+uses LCLType, Types, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslation,
 
      URadialBlur, UMotionBlur, UEmboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, UPixelate, unoisefilter, ufilters,
@@ -986,7 +987,7 @@ end;
 
 function TLazPaintInstance.GetLayerWindowVisible: boolean;
 begin
-  result := FLayerControlVisible;
+  result := GetToolWindowVisible(FLayerStack, FLayerControlVisible);
 end;
 
 procedure TLazPaintInstance.SetLayerWindowVisible(AValue: boolean);
@@ -1051,7 +1052,11 @@ begin
     if DockLayersAndColors then
       FLayerStack.Visible := false
     else
-      FLayerStack.Visible := FLayerControlVisible;
+    begin
+      if FLayerStack.Visible and FLayerControlVisible then
+        FLayerStack.BringToFront
+        else FLayerStack.Visible := FLayerControlVisible;
+    end;
   end;
   if FMain <> nil then
   begin
@@ -1079,7 +1084,11 @@ begin
     if DockLayersAndColors then
       FChooseColor.Visible := false
     else
-      FChooseColor.Visible := FChooseColorControlVisible;
+    begin
+      if FChooseColor.Visible and FChooseColorControlVisible then
+        FChooseColor.BringToFront
+        else FChooseColor.Visible := FChooseColorControlVisible;
+    end;
   end;
   if FMain <> nil then
   begin
@@ -1113,21 +1122,18 @@ end;
 
 function TLazPaintInstance.GetChooseColorVisible: boolean;
 begin
-  result := FChooseColorControlVisible;
+  result := GetToolWindowVisible(FChooseColor, FChooseColorControlVisible);
 end;
 
 function TLazPaintInstance.GetToolboxVisible: boolean;
 begin
-  Result:= ((FFormToolbox <> nil) and FFormToolbox.Visible) or
+  Result:= GetToolWindowVisible(FFormToolbox) or
            ((FMain <> nil) and not (FMain.Layout.ToolBoxDocking in [twNone,twWindow]));
 end;
 
 function TLazPaintInstance.GetImageListWindowVisible: boolean;
 begin
-  if FImageList <> nil then
-    Result:= FImageList.Visible
-  else
-    Result := false;
+  result := GetToolWindowVisible(FImageList);
 end;
 
 procedure TLazPaintInstance.SetChooseColorVisible(const AValue: boolean);
@@ -1413,6 +1419,17 @@ begin
     FMain.WindowState:= wsNormal;
     RestoreMainWindowPosition;
   end;
+end;
+
+function TLazPaintInstance.GetToolWindowVisible(AWindow: TForm; ADockedVisible: boolean = false): boolean;
+begin
+  if Assigned(AWindow) and AWindow.Visible then
+  begin
+    result := not ((AWindow.FormStyle <> fsStayOnTop) and (AWindow.BorderStyle <> bsDialog) and
+                   Assigned(FMain) and FMain.Active and
+                   FMain.BoundsRect.Contains(AWindow.BoundsRect));
+  end else
+    result := ADockedVisible;
 end;
 
 function TLazPaintInstance.GetDockLayersAndColors: boolean;
@@ -1973,6 +1990,8 @@ begin
     result := true;
   if (FLayerStack <> nil) and FLayerStack.Visible and FLayerStack.Active then
     result := true;
+  if (FImageList <> nil) and FImageList.Visible and FImageList.Active then
+    result := true;
 end;
 
 function TLazPaintInstance.GetTopMostVisible: boolean;
@@ -1984,7 +2003,9 @@ begin
   end;
   FormsNeeded;
   result := (Assigned(FFormToolbox) and FFormToolbox.Visible) or
-            FChooseColor.Visible or FLayerStack.Visible;
+            (Assigned(FChooseColor) and FChooseColor.Visible) or
+            (Assigned(FLayerStack) and FLayerStack.Visible) or
+            (Assigned(FImageList) and FImageList.Visible);
 end;
 
 function TLazPaintInstance.GetTopMostOkToUnfocus: boolean;

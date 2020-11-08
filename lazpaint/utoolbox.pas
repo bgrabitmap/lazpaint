@@ -96,9 +96,8 @@ end;
 
 procedure TFToolbox.FormCreate(Sender: TObject);
 begin
-  {$IFDEF LINUX}
-  BorderStyle:= bsDialog;
-  {$ENDIF}
+  BorderStyle := ToolWindowFixedSize;
+  FormStyle := ToolWindowStyle;
 end;
 
 {$R *.lfm}

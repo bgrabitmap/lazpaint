@@ -51,6 +51,8 @@ implementation
 procedure TFChooseColor.FormCreate(Sender: TObject);
 begin
   FInterface := TChooseColorInterface.Create(ChooseColorControl, TFChooseColor_CustomDPI);
+  BorderStyle := ToolWindowSizeable;
+  FormStyle := ToolWindowStyle;
 end;
 
 procedure TFChooseColor.FormDeactivate(Sender: TObject);

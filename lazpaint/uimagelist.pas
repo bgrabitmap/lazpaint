@@ -280,6 +280,8 @@ end;
 
 procedure TFImageList.FormCreate(Sender: TObject);
 begin
+  BorderStyle := ToolWindowSizeable;
+  FormStyle := ToolWindowStyle;
   WidthNormal:= DoScaleX(500, OriginalDPI);
   HeightNormal:=DoScaleY(360, OriginalDPI);
   WidthMinimal:=DoScaleX(340, OriginalDPI);

@@ -60,6 +60,9 @@ const
 
 const
   OriginalDPI = 96;
+  ToolWindowFixedSize = {$IFDEF LINUX}bsDialog{$ELSE}bsToolWindow{$ENDIF};
+  ToolWindowSizeable = {$IFDEF LINUX}bsSizeable{$ELSE}bsSizeToolWin{$ENDIF};
+  ToolWindowStyle = {$IF defined(LINUX) and defined(LCLqt5)}fsNormal{$ELSE}fsStayOnTop{$ENDIF};
 
   function LazPaintCurrentVersion : String;
 
