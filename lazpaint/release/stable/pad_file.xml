@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <XML_DIZ_INFO>
 	<MASTER_PAD_VERSION_INFO>
 		<MASTER_PAD_VERSION>3.11</MASTER_PAD_VERSION>
@@ -34,9 +34,9 @@
 	</Company_Info>
 	<Program_Info>
 		<Program_Name>LazPaint</Program_Name>
-		<Program_Version>7.1.4</Program_Version>
+		<Program_Version>7.1.5</Program_Version>
 		<Program_Release_Month>10/Program_Release_Month>
-		<Program_Release_Day>07</Program_Release_Day>
+		<Program_Release_Day>18</Program_Release_Day>
 		<Program_Release_Year>2020</Program_Release_Year>
 		<Program_Cost_Dollars />
 		<Program_Cost_Other_Code />
@@ -51,9 +51,9 @@
 		<Program_Category_Class>Graphic Apps::Editors</Program_Category_Class>
 		<Program_System_Requirements>Pentium, 32-bit processor, 200 Mbytes RAM</Program_System_Requirements>
 		<File_Info>
-			<File_Size_Bytes>6901722</File_Size_Bytes>
-			<File_Size_K>6740</File_Size_K>
-			<File_Size_MB>6.58</File_Size_MB>
+			<File_Size_Bytes>6907996</File_Size_Bytes>
+			<File_Size_K>6746</File_Size_K>
+			<File_Size_MB>6.59</File_Size_MB>
 		</File_Info>
 		<Expire_Info>
 			<Has_Expire_Info>N</Has_Expire_Info>
@@ -116,7 +116,7 @@
 			<Application_XML_File_URL>https://gitcdn.link/repo/bgrabitmap/lazpaint/master/lazpaint/release/stable/pad_file.xml</Application_XML_File_URL>
 		</Application_URLs>
 		<Download_URLs>
-			<Primary_Download_URL>https://github.com/bgrabitmap/lazpaint/releases/download/v7.1.4/lazpaint7.1.4_setup_win32_win64.exe</Primary_Download_URL>
+			<Primary_Download_URL>https://github.com/bgrabitmap/lazpaint/releases/download/v7.1.5/lazpaint7.1.5_setup_win32_win64.exe</Primary_Download_URL>
 			<Secondary_Download_URL />
 			<Additional_Download_URL_1 />
 			<Additional_Download_URL_2 />
