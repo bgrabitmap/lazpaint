@@ -4347,7 +4347,7 @@ end;
 
 procedure TFMain.SetDarkTheme(AValue: boolean);
 begin
-  if LAyout.DarkTheme<>AValue then
+  if Layout.DarkTheme<>AValue then
   begin
     Layout.DarkTheme := AValue;
     DarkThemeInstance.Apply(Panel_PenWidthPreview, AValue);

@@ -391,6 +391,7 @@ begin
     FPaletteToolbar.DarkTheme:= AValue;
   if Assigned(FMenu) then
     FMenu.DarkTheme:= AValue;
+  InvalidatePicture(true);
 end;
 
 procedure TMainFormLayout.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
