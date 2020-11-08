@@ -2599,6 +2599,11 @@ begin
     FCoordinatesCaptionCount := 0;
   end;
   FLayout.CheckDelayedUpdate;
+  if Assigned(LazPaintInstance) then
+  begin
+    if DarkThemeInstance.HasSystemDarkThemeChanged then
+      LazPaintInstance.DarkTheme := DarkThemeInstance.IsSystemDarkTheme;
+  end;
   TimerUpdate.Enabled := true;
 end;
 

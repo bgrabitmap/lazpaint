@@ -350,7 +350,7 @@ var
 
 implementation
 
-uses uparse, LCLProc, BGRAUTF8, LazFileUtils, UFileSystem;
+uses uparse, LCLProc, BGRAUTF8, LazFileUtils, UFileSystem, UDarkTheme;
 
 const maxRecentFiles = 10;
       maxRecentDirectories = 10;
@@ -1711,7 +1711,8 @@ function TLazPaintConfig.GetDarkTheme: boolean;
 begin
   if not FDarkThemeEvaluated then
   begin
-    FDarkTheme := iniOptions.ReadBool('General','DarkTheme', false);
+    FDarkTheme := iniOptions.ReadBool('General','DarkTheme', DarkThemeInstance.IsSystemDarkTheme);
+    DarkThemeInstance.HasSystemDarkThemeChanged;
     FDarkThemeEvaluated:= true;
   end;
   result := FDarkTheme;

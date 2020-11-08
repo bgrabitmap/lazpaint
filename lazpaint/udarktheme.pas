@@ -2,6 +2,7 @@
 unit UDarkTheme;
 
 {$mode objfpc}{$H+}
+{$IFDEF DARWIN}{$modeswitch objectivec1}{$ENDIF}
 
 interface
 
@@ -22,6 +23,10 @@ type
   { TDarkTheme }
 
   TDarkTheme = class
+  private
+    FLastSystemDarkTheme: boolean;
+  public
+    constructor Create;
     procedure PanelPaint(Sender: TObject);
     procedure ToolBarPaint(Sender: TObject);
     procedure ToolBarPaintButton(Sender: TToolButton; State: integer);
@@ -33,16 +38,47 @@ type
     procedure Apply(ACombo: TBCComboBox; ADarkTheme: boolean; AFontHeightRatio: single = 0.5); overload;
     procedure Apply(AUpDown: TBCTrackbarUpdown; ADarkTheme: boolean); overload;
     procedure Apply(ALabel: TLabel; ADarkTheme: boolean); overload;
+    function IsSystemDarkTheme: boolean;
+    function HasSystemDarkThemeChanged: boolean;
   end;
 
 var
   DarkThemeInstance: TDarkTheme;
 
-
 implementation
 
 uses
-  BCTypes, BGRABitmap, BGRABitmapTypes, GraphType, Graphics, BGRACustomDrawn, LCScaleDPI;
+  BCTypes, BGRABitmap, BGRABitmapTypes, GraphType, Graphics, BGRACustomDrawn, LCScaleDPI
+  {$IFDEF DARWIN}, CocoaAll, CocoaUtils{$ENDIF};
+
+{$IFDEF DARWIN}
+{ returns true, if this app runs on macOS 10.14 Mojave or newer }
+function IsMojaveOrNewer: boolean;
+var
+  minOsVer: NSOperatingSystemVersion;
+begin
+  // Setup minimum version (Mojave)
+  minOsVer.majorVersion:= 10;
+  minOsVer.minorVersion:= 14;
+  minOsVer.patchVersion:= 0;
+
+  // Check minimum version
+  if NSProcessInfo.ProcessInfo.isOperatingSystemAtLeastVersion(minOSVer) then
+    Result := True
+  else
+    Result := False;
+end;
+
+function GetPrefString(const KeyName : string) : string;
+begin
+  Result := NSStringToString(NSUserDefaults.standardUserDefaults.stringForKey(NSStr(@KeyName[1])));
+end;
+
+function IsMojaveDarkTheme: boolean;
+begin
+  Result := pos('DARK',UpperCase(GetPrefString('AppleInterfaceStyle'))) > 0;
+end;
+{$ENDIF}
 
 procedure BCAssignSystemState(AState: TBCButtonState; AFontColor, ATopColor, AMiddleTopColor, AMiddleBottomColor, ABottomColor, ABorderColor: TColor);
 begin
@@ -87,6 +123,11 @@ begin
 end;
 
 { TDarkTheme }
+
+constructor TDarkTheme.Create;
+begin
+  FLastSystemDarkTheme := IsSystemDarkTheme;
+end;
 
 procedure TDarkTheme.PanelPaint(Sender: TObject);
 var
@@ -451,6 +492,35 @@ begin
     ALabel.Font.Color := clLightText
   else
     ALabel.Font.Color := clWindowText;
+end;
+
+function TDarkTheme.IsSystemDarkTheme: boolean;
+const
+  cMax = $A0;
+var
+  N: TColor;
+begin
+  {$IFDEF DARWIN}
+  if IsMojaveOrNewer then
+    result := IsMojaveDarkTheme
+  else
+  {$ENDIF}
+  begin
+    N:= ColorToRGB(clWindow);
+    Result:= (Red(N)<cMax) and (Green(N)<cMax) and (Blue(N)<cMax);
+  end;
+end;
+
+function TDarkTheme.HasSystemDarkThemeChanged: boolean;
+var
+  newState: Boolean;
+begin
+  newState := IsSystemDarkTheme;
+  if newState <> FLastSystemDarkTheme then
+  begin
+    result := true;
+    FLastSystemDarkTheme:= newState;
+  end;
 end;
 
 initialization
