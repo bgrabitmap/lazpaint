@@ -38,6 +38,7 @@ type
     procedure Apply(ALabel: TLabel; ADarkTheme: boolean); overload;
     function IsSystemDarkTheme: boolean;
     function IsLclDarkTheme: boolean;
+    function IsLclLightThemeSafe: boolean;
     function HasSystemDarkThemeChanged: boolean;
     function GetColorButtonHighlight(ADarkTheme: boolean): TColor;
     function GetColorButtonFace(ADarkTheme: boolean): TColor;
@@ -378,7 +379,7 @@ begin
       APanel.OnPaint := @PanelPaintDark;
   end else
   begin
-    if IsLclDarkTheme then
+    if not IsLclLightThemeSafe then
     begin
       APanel.BevelOuter:= bvNone;
       APanel.OnPaint := @PanelPaintLight;
@@ -437,7 +438,7 @@ begin
       AToolbar.OnPaintButton := @ToolBarPaintButtonDark;
   end else
   begin
-    if IsLclDarkTheme then  AToolbar.OnPaintButton := @ToolBarPaintButtonLight else
+    if not IsLclLightThemeSafe then  AToolbar.OnPaintButton := @ToolBarPaintButtonLight else
     if AToolbar.OnPaintButton = @ToolBarPaintButtonDark then AToolbar.OnPaintButton := nil;
   end;
   AToolbar.Color := GetColorButtonFace(AThemeEnabled);
@@ -585,6 +586,11 @@ begin
   Result:= (Red(N)<cMax) and (Green(N)<cMax) and (Blue(N)<cMax);
 end;
 
+function TDarkTheme.IsLclLightThemeSafe: boolean;
+begin
+  result := not IsLclDarkTheme and not IsSystemDarkTheme;
+end;
+
 function TDarkTheme.HasSystemDarkThemeChanged: boolean;
 var
   newState: Boolean;
@@ -601,56 +607,56 @@ end;
 function TDarkTheme.GetColorButtonHighlight(ADarkTheme: boolean): TColor;
 begin
   if ADarkTheme then result := clDarkBtnHighlight
-  else if IsLclDarkTheme then result := $f0f0f0
+  else if not IsLclLightThemeSafe then result := $f0f0f0
   else result := clBtnHighlight;
 end;
 
 function TDarkTheme.GetColorButtonFace(ADarkTheme: boolean): TColor;
 begin
   if ADarkTheme then result := clDarkBtnFace
-  else if IsLclDarkTheme then result := $d8d8d8
+  else if not IsLclLightThemeSafe then result := $d8d8d8
   else result := clBtnFace;
 end;
 
 function TDarkTheme.GetColorForm(ADarkTheme: boolean): TColor;
 begin
   if ADarkTheme then result := clDarkBtnFace
-  else if IsLclDarkTheme then result := $d8d8d8
+  else if not IsLclLightThemeSafe then result := $d8d8d8
   else result := clForm;
 end;
 
 function TDarkTheme.GetColorEditableFace(ADarkTheme: boolean): TColor;
 begin
   if ADarkTheme then result := clDarkEditableFace
-  else if IsLclDarkTheme then result := $ffffff
+  else if not IsLclLightThemeSafe then result := $ffffff
   else result := clWindow;
 end;
 
 function TDarkTheme.GetColorEditableText(ADarkTheme: boolean): TColor;
 begin
   if ADarkTheme then result := clLightText
-  else if IsLclDarkTheme then result := $303030
+  else if not IsLclLightThemeSafe then result := $303030
   else result := clWindowText;
 end;
 
 function TDarkTheme.GetColorButtonText(ADarkTheme: boolean): TColor;
 begin
   if ADarkTheme then result := clLightText
-  else if IsLclDarkTheme then result := clBlack
+  else if not IsLclLightThemeSafe then result := clBlack
   else result := clBtnText;
 end;
 
 function TDarkTheme.GetColorPanelHighlight(ADarkTheme: boolean): TColor;
 begin
   if ADarkTheme then result := clDarkPanelHighlight
-  else if IsLclDarkTheme then result := $f0f0f0
+  else if not IsLclLightThemeSafe then result := $f0f0f0
   else result := clBtnHighlight;
 end;
 
 function TDarkTheme.GetColorPanelShadow(ADarkTheme: boolean): TColor;
 begin
   if ADarkTheme then result := clDarkPanelShadow
-  else if IsLclDarkTheme then result := $808080
+  else if not IsLclLightThemeSafe then result := $808080
   else result := clBtnShadow;
 end;
 
