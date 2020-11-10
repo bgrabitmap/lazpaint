@@ -2608,7 +2608,7 @@ begin
   begin
     if DarkThemeInstance.HasSystemDarkThemeChanged then
     begin
-      if LazPaintInstance.DarkTheme <> DarkThemeInstance.IsSystemDarkTheme then
+      if (Config.GetDarkThemePreference = dtpAuto) and (LazPaintInstance.DarkTheme <> DarkThemeInstance.IsSystemDarkTheme) then
         LazPaintInstance.DarkTheme := DarkThemeInstance.IsSystemDarkTheme
         else LazPaintInstance.NotifyThemeChanged;
     end;
@@ -2637,8 +2637,18 @@ begin
 end;
 
 procedure TFMain.ViewDarkThemeExecute(Sender: TObject);
+var
+  newDarkTheme: Boolean;
 begin
-  LazPaintInstance.DarkTheme := not LazPaintInstance.DarkTheme;
+  newDarkTheme := not LazPaintInstance.DarkTheme;
+  if newDarkTheme = DarkThemeInstance.IsSystemDarkTheme then
+    Config.SetDarkThemePreference(dtpAuto) else
+    begin
+      if newDarkTheme then
+        Config.SetDarkThemePreference(dtpDark)
+        else Config.SetDarkThemePreference(dtpLight);
+    end;
+  LazPaintInstance.DarkTheme := newDarkTheme;
 end;
 
 procedure TFMain.ViewDarkThemeUpdate(Sender: TObject);

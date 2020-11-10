@@ -16,6 +16,8 @@ type
     function GetConfig: TLazPaintConfig;
   end;
 
+  TDarkThemePreference = (dtpAuto, dtpDark, dtpLight);
+
   { TLazPaintConfig }
 
   TLazPaintConfig = class
@@ -26,6 +28,8 @@ type
     colorizePresets: TList;
     FVersion: string;
     FDarkTheme,FDarkThemeEvaluated: boolean;
+    FDarkThemePreference: TDarkThemePreference;
+    FDarkThemePreferenceEvaluated: boolean;
     FWorkspaceColor: TColor;
     FWorkspaceColorEvaluated: boolean;
     function GetBrushCount: integer;
@@ -108,6 +112,8 @@ type
     procedure SetDefaultIconSize(value: integer);
     function GetDarkTheme: boolean;
     procedure SetDarkTheme(AValue: boolean);
+    function GetDarkThemePreference: TDarkThemePreference;
+    procedure SetDarkThemePreference(AValue: TDarkThemePreference);
 
     //new image config
     function DefaultImageWidth: integer;
@@ -1711,8 +1717,12 @@ function TLazPaintConfig.GetDarkTheme: boolean;
 begin
   if not FDarkThemeEvaluated then
   begin
-    FDarkTheme := iniOptions.ReadBool('General','DarkTheme', DarkThemeInstance.IsSystemDarkTheme);
-    DarkThemeInstance.HasSystemDarkThemeChanged;
+    if GetDarkThemePreference = dtpAuto then
+    begin
+      FDarkTheme := DarkThemeInstance.IsSystemDarkTheme;
+      DarkThemeInstance.HasSystemDarkThemeChanged;
+    end else
+      FDarkTheme := iniOptions.ReadBool('General','DarkTheme', false);
     FDarkThemeEvaluated:= true;
   end;
   result := FDarkTheme;
@@ -1725,6 +1735,36 @@ begin
   FDarkTheme:= AValue;
   FDarkThemeEvaluated:= true;
   FWorkspaceColorEvaluated:= false;
+end;
+
+function TLazPaintConfig.GetDarkThemePreference: TDarkThemePreference;
+var
+  s: String;
+begin
+  if not FDarkThemePreferenceEvaluated then
+  begin
+    s := iniOptions.ReadString('General','DarkThemePreference', 'auto');
+    if CompareText(s,'dark')=0 then FDarkThemePreference:= dtpDark
+    else if CompareText(s,'light')=0 then FDarkThemePreference:= dtpLight
+    else FDarkThemePreference:= dtpAuto;
+    FDarkThemePreferenceEvaluated:= true;
+  end;
+  result := FDarkThemePreference;
+end;
+
+procedure TLazPaintConfig.SetDarkThemePreference(AValue: TDarkThemePreference);
+var
+  s: String;
+begin
+  if FDarkThemeEvaluated and (AValue = FDarkThemePreference) then exit;
+  case AValue of
+  dtpDark: s := 'Dark';
+  dtpLight: s := 'Light';
+  else s := 'Auto';
+  end;
+  iniOptions.WriteString('General','DarkThemePreference', s);
+  FDarkThemePreference:= AValue;
+  FDarkThemePreferenceEvaluated:= true;
 end;
 
 function TLazPaintConfig.ScreenSizeChanged: boolean;
