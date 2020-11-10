@@ -2646,7 +2646,7 @@ begin
     begin
       if newDarkTheme then
         Config.SetDarkThemePreference(dtpDark)
-        else Config.SetDarkThemePreference(dtpLight);
+        else Config.SetDarkThemePreference(dtpAuto);
     end;
   LazPaintInstance.DarkTheme := newDarkTheme;
 end;
