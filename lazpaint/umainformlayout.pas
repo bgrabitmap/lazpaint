@@ -340,30 +340,22 @@ begin
     colWidth := (FStatusBar.ClientWidth - spacing*2) div FStatusTextSplit.Count;
     if colWidth > spacing*2 then
     begin
-      if DarkTheme then
-        FStatusBar.Canvas.Pen.Color := clDarkPanelHighlight
-        else FStatusBar.Canvas.Pen.Color := clBtnHighlight;
+      FStatusBar.Canvas.Pen.Color := DarkThemeInstance.GetColorPanelHighlight(DarkTheme);
       FStatusBar.Canvas.Line(0,0, FStatusBar.Width,0);
       x := 0;
       for i := 0 to FStatusTextSplit.Count-1 do
       begin
         FStatusBar.Canvas.Font := FStatusBar.Font;
-        if DarkTheme then
-          FStatusBar.Canvas.Font.Color := clLightText
-          else FStatusBar.Canvas.Font.Color := clBtnText;
+        FStatusBar.Canvas.Font.Color := DarkThemeInstance.GetColorButtonText(DarkTheme);
         FStatusBar.Canvas.TextOut(x + spacing,
           (FStatusBar.ClientHeight - FStatusBar.Canvas.TextHeight('Hg')) div 2,
           FStatusTextSplit[i]);
 
         if i > 0 then
         begin
-          if DarkTheme then
-            FStatusBar.Canvas.Pen.Color := clDarkPanelShadow
-            else FStatusBar.Canvas.Pen.Color := clBtnShadow;
+          FStatusBar.Canvas.Pen.Color := DarkThemeInstance.GetColorPanelShadow(DarkTheme);
           FStatusBar.Canvas.Line(x-1,0, x-1,FStatusBar.Height);
-          if DarkTheme then
-            FStatusBar.Canvas.Pen.Color := clDarkPanelHighlight
-            else FStatusBar.Canvas.Pen.Color := clBtnHighlight;
+          FStatusBar.Canvas.Pen.Color := DarkThemeInstance.GetColorPanelHighlight(DarkTheme);
           FStatusBar.Canvas.Line(x,0, x,FStatusBar.Height);
         end;
 
@@ -669,25 +661,31 @@ procedure TMainFormLayout.ApplyTheme;
 var
   bevelOfs, newSpacing, delta, i: Integer;
 begin
+  FPanelToolBox.Color := DarkThemeInstance.GetColorButtonFace(DarkTheme);
+  FStatusBar.Color:= DarkThemeInstance.GetColorButtonFace(DarkTheme);
   if DarkTheme then
   begin
-    FPanelToolBox.Color := clDarkBtnFace;
     FDockedToolBoxToolBar.EdgeInner := esNone;
     FDockedToolBoxToolBar.EdgeOuter := esNone;
-    FDockedToolBoxToolBar.OnPaint := @DarkThemeInstance.ToolBarPaint;
-    FDockedToolBoxToolBar.OnPaintButton:= @DarkThemeInstance.ToolBarPaintButton;
-    FStatusBar.Color:= clDarkBtnFace;
+    FDockedToolBoxToolBar.OnPaint := @DarkThemeInstance.ToolBarPaintDark;
+    FDockedToolBoxToolBar.OnPaintButton:= @DarkThemeInstance.ToolBarPaintButtonDark;
   end
   else
   begin
-    FPanelToolBox.Color := clBtnFace;
     FDockedToolBoxToolBar.EdgeInner := esRaised;
     FDockedToolBoxToolBar.EdgeOuter := esNone;
-    FDockedToolBoxToolBar.OnPaint := nil;
-    FDockedToolBoxToolBar.OnPaintButton:= nil;
-    FStatusBar.Color:= clBtnFace;
+    if DarkThemeInstance.IsLclDarkTheme then
+    begin
+      FDockedToolBoxToolBar.OnPaint := @DarkThemeInstance.ToolBarPaintLight;
+      FDockedToolBoxToolBar.OnPaintButton:= @DarkThemeInstance.ToolBarPaintButtonLight;
+    end else
+    begin
+      FDockedToolBoxToolBar.OnPaint := nil;
+      FDockedToolBoxToolBar.OnPaintButton:= nil;
+    end;
   end;
   DarkThemeInstance.Apply(FDockedControlsPanel, DarkTheme, false);
+  FDockedControlsPanel.Color := DarkThemeInstance.GetColorForm(DarkTheme);
   bevelOfs := integer(FDockedControlsPanel.BevelOuter <> bvNone)*FDockedControlsPanel.BevelWidth;
   newSpacing := DoScaleX(2, OriginalDPI) - bevelOfs;
   delta := FDockedControlsPanel.ChildSizing.LeftRightSpacing - newSpacing;

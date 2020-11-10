@@ -1662,7 +1662,7 @@ begin
   bmp := TBGRABitmap.Create(round(PaintBox_PenPreview.Width*scaling),
     round(PaintBox_PenPreview.Height*scaling), Panel_PenWidthPreview.Color);
   bmp.ClipRect := rect(1,1,bmp.Width-1,bmp.Height-1);
-  if DarkTheme then c := clLightText else c := clBtnText;
+  c := DarkThemeInstance.GetColorButtonText(DarkTheme);
   x := round(bmp.Width/2);
   y := round(bmp.Height/2);
   if Assigned(Zoom) then visualSize := ToolManager.PenWidth * Zoom.Factor else visualSize := ToolManager.PenWidth;

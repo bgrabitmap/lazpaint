@@ -24,11 +24,14 @@ const
 type
   TImageListList = specialize TFPGObjectList<TImageList>;
 
+  TListeners = specialize TFPGList<TNotifyEvent>;
+
   { TLazPaintInstance }
 
   TLazPaintInstance = class(TLazPaintCustomInstance)
   private
     FScriptName: String;
+    FThemeListeners: TListeners;
 
     procedure ChooseColorHide(Sender: TObject);
     function GetFormAdjustCurves: TFAdjustCurves;
@@ -176,7 +179,6 @@ type
     function GetMainFormBounds: TRect; override;
     procedure EditSelectionHandler(var AImage: TBGRABitmap);
     function GetZoomFactor: single; override;
-    procedure ApplyTheme(ADarkTheme: boolean); override;
     procedure UpdateLayerControlVisibility;
     procedure UpdateChooseColorControlVisibility;
     property FormCanvasSize: TFCanvasSize read GetFormCanvasSize;
@@ -189,6 +191,8 @@ type
   public
     constructor Create; override;
     constructor Create(AEmbedded: boolean); override;
+    procedure RegisterThemeListener(AHandler: TNotifyEvent; ARegister: boolean); override;
+    procedure NotifyThemeChanged; override;
     procedure StartLoadingImage(AFilename: string); override;
     procedure EndLoadingImage; override;
     procedure StartSavingImage(AFilename: string); override;
@@ -296,6 +300,27 @@ end;
 constructor TLazPaintInstance.Create(AEmbedded: boolean);
 begin
   Init(AEmbedded);
+end;
+
+procedure TLazPaintInstance.RegisterThemeListener(AHandler: TNotifyEvent;
+  ARegister: boolean);
+begin
+  if ARegister then
+  begin
+    if FThemeListeners.IndexOf(AHandler) = -1 then
+      FThemeListeners.Add(AHandler);
+  end else
+  begin
+    FThemeListeners.Remove(AHandler);
+  end;
+end;
+
+procedure TLazPaintInstance.NotifyThemeChanged;
+var
+  i: Integer;
+begin
+  for i := 0 to FThemeListeners.Count-1 do
+    FThemeListeners[i](self);
 end;
 
 procedure TLazPaintInstance.StartLoadingImage(AFilename: string);
@@ -436,6 +461,7 @@ end;
 procedure TLazPaintInstance.Init(AEmbedded: boolean);
 begin
   Title := 'LazPaint ' + LazPaintCurrentVersion;
+  FThemeListeners := TListeners.Create;
   FCustomImageList := TImageListList.Create;
   FTopMostInfo.choosecolorHidden := 0;
   FTopMostInfo.layerstackHidden := 0;
@@ -1037,14 +1063,6 @@ begin
       result := inherited GetZoomFactor;
 end;
 
-procedure TLazPaintInstance.ApplyTheme(ADarkTheme: boolean);
-begin
-  if Assigned(FChooseColor) then FChooseColor.DarkTheme := ADarkTheme;
-  if Assigned(FLayerStack) then FLayerStack.DarkTheme := ADarkTheme;
-  if Assigned(FMain) then FMain.DarkTheme := ADarkTheme;
-  if Assigned(FFormToolbox) then FFormToolbox.DarkTheme:= ADarkTheme;
-end;
-
 procedure TLazPaintInstance.UpdateLayerControlVisibility;
 begin
   if FLayerStack <> nil then
@@ -1588,6 +1606,7 @@ begin
   FreeAndNil(FScriptContext);
   FreeAndNil(FImageList);
   FreeAndNil(FCustomImageList);
+  FreeAndNil(FThemeListeners);
   inherited Destroy;
 end;
 

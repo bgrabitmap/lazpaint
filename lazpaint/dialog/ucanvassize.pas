@@ -36,15 +36,19 @@ type
     procedure vsPreviewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
   private
     { private declarations }
+    FLazPaintInstance: TLazPaintCustomInstance;
     FIgnoreInput: boolean;
     FMUnit: integer;
     function GetSelectedAnchor: string;
+    procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
+    procedure ThemeChanged(Sender: TObject);
   public
     { public declarations }
-    LazPaintInstance: TLazPaintCustomInstance;
     canvasSizeResult: TLayeredBitmapAndSelection;
     repeatImage: boolean;
+    destructor Destroy; override;
     property SelectedAnchor: string read GetSelectedAnchor;
+    property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
   end;
 
 function ComputeNewCanvasSize(AInstance: TLazPaintCustomInstance; AWidth,AHeight: integer;
@@ -379,6 +383,28 @@ function TFCanvasSize.GetSelectedAnchor: string;
 begin
   if ComboBox_Anchor.ItemIndex = -1 then result := 'Middle' else
     result := ComboBox_Anchor.Items[ComboBox_Anchor.ItemIndex];
+end;
+
+procedure TFCanvasSize.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
+begin
+  if FLazPaintInstance=AValue then Exit;
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
+  FLazPaintInstance:=AValue;
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, true);
+end;
+
+procedure TFCanvasSize.ThemeChanged(Sender: TObject);
+begin
+  vsPreview.DiscardBitmap;
+end;
+
+destructor TFCanvasSize.Destroy;
+begin
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
+  inherited Destroy;
 end;
 
 {$R *.lfm}

@@ -729,15 +729,8 @@ begin
   DarkThemeInstance.Apply(BCButton_AddToPalette, FDarkTheme);
   DarkThemeInstance.Apply(BCButton_RemoveFromPalette, FDarkTheme);
   DarkThemeInstance.Apply(LColor, FDarkTheme);
-  if DarkTheme then
-  begin
-    FFormBackgroundColor := clDarkBtnFace;
-    FFormTextColor := clLightText;
-  end else
-  begin
-    FFormBackgroundColor := clForm;
-    FFormTextColor := clWindowText;
-  end;
+  FFormBackgroundColor := DarkThemeInstance.GetColorForm(FDarkTheme);
+  FFormTextColor := DarkThemeInstance.GetColorButtonText(FDarkTheme);
   Container.Color := FFormBackgroundColor;
   vsColorView.Color := FFormBackgroundColor;
   vsColorView.DiscardBitmap;

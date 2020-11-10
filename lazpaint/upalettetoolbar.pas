@@ -272,16 +272,11 @@ procedure TPaletteToolbar.ApplyTheme;
 begin
   if Assigned(FPanelPalette) then
   begin
+    FPanelPalette.Color := DarkThemeInstance.GetColorButtonFace(DarkTheme);
     if DarkTheme then
-    begin
-      FPanelPalette.Color := clDarkBtnFace;
-      FPanelPalette.BevelOuter := bvNone;
-    end
+      FPanelPalette.BevelOuter := bvNone
     else
-    begin
-      FPanelPalette.Color := clBtnFace;
       FPanelPalette.BevelOuter := bvRaised;
-    end;
     FPanelPalette.DiscardBitmap;
   end;
   if Assigned(FMenuButton) then
@@ -752,14 +747,13 @@ begin
   FCanvasScale := (Sender as TControl).GetCanvasScaleFactor;
   TVolatileScrollBar.InitDPI(FCanvasScale);
 
+  clInterm := MergeBGRA(ColorToBGRA(DarkThemeInstance.GetColorButtonFace(DarkTheme)),
+                        ColorToBGRA(DarkThemeInstance.GetColorButtonText(DarkTheme)));
   if DarkTheme then
   begin
-    clInterm := MergeBGRA(ColorToBGRA(clDarkBtnFace),ColorToBGRA(clLightText));
-    Bitmap.HorizLine(0,0,Bitmap.Width-1, ColorToBGRA(clDarkPanelHighlight));
-    Bitmap.VertLine(0,0,Bitmap.Height-1, ColorToBGRA(clDarkPanelHighlight));
-  end
-  else
-    clInterm := MergeBGRA(ColorToBGRA(ColorToRGB(clBtnFace)),ColorToBGRA(ColorToRGB(clBtnText)));
+    Bitmap.HorizLine(0,0,Bitmap.Width-1, DarkThemeInstance.GetColorPanelHighlight(DarkTheme));
+    Bitmap.VertLine(0,0,Bitmap.Height-1, DarkThemeInstance.GetColorPanelHighlight(DarkTheme));
+  end;
 
   x := round(2*FCanvasScale);
   y := round((FMenuButton.Top+FMenuButton.Height+1)*FCanvasScale);

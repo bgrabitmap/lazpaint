@@ -216,7 +216,6 @@ type
     procedure SetLayerWindowWidth(AValue: integer); virtual; abstract;
 
     function GetMainFormBounds: TRect; virtual; abstract;
-    procedure ApplyTheme(ADarkTheme: boolean); virtual; abstract;
   public
     Title,AboutText: string;
     EmbeddedResult: TModalResult;
@@ -224,6 +223,8 @@ type
 
     constructor Create; virtual; abstract;
     constructor Create(AEmbedded: boolean); virtual; abstract;
+    procedure RegisterThemeListener(AHandler: TNotifyEvent; ARegister: boolean); virtual; abstract;
+    procedure NotifyThemeChanged; virtual; abstract;
     procedure StartLoadingImage(AFilename: string); virtual; abstract;
     procedure EndLoadingImage; virtual; abstract;
     procedure StartSavingImage(AFilename: string); virtual; abstract;
@@ -617,7 +618,7 @@ begin
     if AValue <> Config.GetDarkTheme then
     begin
       Config.SetDarkTheme(AValue);
-      ApplyTheme(AValue);
+      NotifyThemeChanged;
     end;
   end;
 end;

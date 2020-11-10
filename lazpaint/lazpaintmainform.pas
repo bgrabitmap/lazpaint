@@ -668,6 +668,7 @@ type
     procedure PictureOnPaint(Sender: TObject);
     procedure PictureToolbarUpdate(Sender: TObject);
     function ScriptShowColorDialog(AVars: TVariableSet): TScriptResult;
+    procedure ThemeChanged(Sender: TObject);
     procedure VectorialFill_Change(Sender: TObject);
     procedure vectorialFill_ClickLabel(Sender: TObject);
     procedure VectorialFill_TypeChange(Sender: TObject);
@@ -938,6 +939,9 @@ end;
 
 procedure TFMain.FormDestroy(Sender: TObject);
 begin
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
+
   if Assigned(Image) then
   begin
     Image.OnSelectionChanged := nil;
@@ -999,6 +1003,7 @@ begin
     FLazPaintInstance := AValue;
     FLayout.LazPaintInstance := AValue;
     Init;
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, true);
   end;
 end;
 
@@ -2602,7 +2607,11 @@ begin
   if Assigned(LazPaintInstance) then
   begin
     if DarkThemeInstance.HasSystemDarkThemeChanged then
-      LazPaintInstance.DarkTheme := DarkThemeInstance.IsSystemDarkTheme;
+    begin
+      if LazPaintInstance.DarkTheme <> DarkThemeInstance.IsSystemDarkTheme then
+        LazPaintInstance.DarkTheme := DarkThemeInstance.IsSystemDarkTheme
+        else LazPaintInstance.NotifyThemeChanged;
+    end;
   end;
   TimerUpdate.Enabled := true;
 end;
@@ -3246,6 +3255,11 @@ begin
   else
     AVars.Remove('Result');
   result := srOk;
+end;
+
+procedure TFMain.ThemeChanged(Sender: TObject);
+begin
+  DarkTheme := LazPaintInstance.DarkTheme;
 end;
 
 procedure TFMain.BrushCreateGeometricExecute(Sender: TObject);

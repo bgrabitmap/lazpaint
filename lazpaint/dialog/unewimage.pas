@@ -63,17 +63,21 @@ type
     procedure FormShow(Sender: TObject);
     procedure SpinEdit_WidthChange(Sender: TObject);
   private
+    FLazPaintInstance: TLazPaintCustomInstance;
     FLastEnteredValue: TLastEnteredValue;
     FRatio: double;
     FRatioWasChanged: boolean;
     FRecomputing: boolean;
     FBackColor: TBGRAPixel;
+    procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
+    procedure ThemeChanged(Sender: TObject);
     procedure UpdatePreview;
     function GetBitDepth: integer;
   public
-    LazPaintInstance: TLazPaintCustomInstance;
     ForIcon: boolean;
     newImageResult: TBGRABitmap;
+    destructor Destroy; override;
+    property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
   end; 
 
 function ShowNewImageDlg(AInstance: TLazPaintCustomInstance; AForIcon: boolean; out tx,ty,bpp: integer; out back: TBGRAPixel):boolean;
@@ -357,9 +361,31 @@ begin
     else ToolBar_Rotate.Color := ColorToBGRA(FBackColor);
 end;
 
+procedure TFNewImage.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
+begin
+  if FLazPaintInstance=AValue then Exit;
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
+  FLazPaintInstance:=AValue;
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, true);
+end;
+
+procedure TFNewImage.ThemeChanged(Sender: TObject);
+begin
+  vsPreview.DiscardBitmap;
+end;
+
 function TFNewImage.GetBitDepth: integer;
 begin
   result := StrToInt(ComboBox_BitDepth.Text);
+end;
+
+destructor TFNewImage.Destroy;
+begin
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
+  inherited Destroy;
 end;
 
 {$R *.lfm}

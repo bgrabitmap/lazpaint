@@ -351,27 +351,14 @@ begin
         begin
           if (Controls[j].Name = 'Label_CurrentZoom') then
           begin
-            if FDarkTheme then
-            begin
-              Controls[j].Color := clDarkEditableFace;
-              Controls[j].Font.Color := clLightText;
-            end
-            else
-            begin
-              Controls[j].Color := clWindow;
-              Controls[j].Font.Color := clWindowText;
-            end;
+            Controls[j].Color := DarkThemeInstance.GetColorEditableFace(FDarkTheme);
+            Controls[j].Font.Color := DarkThemeInstance.GetColorEditableText(FDarkTheme);
           end;
         end;
     end;
   end;
   if Assigned(FToolbarBackground) then
-  begin
-    if FDarkTheme then
-      FToolbarBackground.Color := clDarkBtnFace
-    else
-      FToolbarBackground.Color := clBtnFace;
-  end;
+    FToolbarBackground.Color := DarkThemeInstance.GetColorButtonFace(FDarkTheme);
 end;
 
 function TMainFormMenu.GetIndividualToolbarHeight: integer;

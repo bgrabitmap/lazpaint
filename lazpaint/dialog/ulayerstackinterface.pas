@@ -54,7 +54,6 @@ type
   protected
     FDPI: integer;
     FScaling: Double;
-    FSysColorSelection: Boolean;
     FDarkTheme: boolean;
     FScrollStackItemIntoView: Boolean;
     FUpdatingComboBlendOp: Boolean;
@@ -625,7 +624,8 @@ begin
     end;
     inc(layerPos.Y, FLayerRectHeight);
   end;
-  ABitmap.HorizLine(0, 0, ABitmap.Width-1, clDarkBtnFace, dmDrawWithTransparency, 32768);
+  ABitmap.HorizLine(0, 0, ABitmap.Width-1, DarkThemeInstance.GetColorButtonFace(DarkTheme),
+    dmDrawWithTransparency, 32768);
 
   prevClip := ABitmap.ClipRect;
   if (clipping.right > clipping.left) and (clipping.bottom > clipping.top) then
@@ -948,7 +948,6 @@ begin
   Toolbar.ButtonHeight:= iconSize + DoScaleY(4, OriginalDPI, DPI);
   ComboBox_BlendOp.Width := Toolbar.ButtonWidth*7;
   ComboBox_BlendOp.Height := Toolbar.ButtonHeight;
-  FSysColorSelection:= BGRADiff(ColorToBGRA(clHighlight), clDarkBtnFace)>=64;
   DarkThemeInstance.Apply(PanelToolbar, DarkTheme);
   BGRALayerStack.Color:= GetBackColor(False);
   BGRALayerStack.DiscardBitmap;
@@ -956,10 +955,7 @@ begin
   if PanelToolbar.BevelOuter <> bvNone then dec(spacing, PanelToolbar.BevelWidth);
   PanelToolbar.ChildSizing.TopBottomSpacing:= spacing;
   PanelToolbar.ChildSizing.LeftRightSpacing:= spacing;
-  if DarkTheme then
-    Container.Color := clDarkBtnFace
-  else
-    Container.Color := clBtnFace;
+  Container.Color := DarkThemeInstance.GetColorButtonFace(DarkTheme);
 end;
 
 procedure TLayerStackInterface.SetDPI(AValue: integer);
@@ -1055,19 +1051,9 @@ end;
 
 function TLayerStackInterface.GetTextColor(ASelected: boolean): TColor;
 begin
-  if DarkTheme and not (ASelected and FSysColorSelection) then
-  begin
-    if ASelected then
-      result := clBlack
-    else
-      result := clLightText;
-  end else
-  begin
-    if ASelected then
-      result := ColorToBGRA(clHighlightText)
-    else
-      result := ColorToBGRA(clWindowText);
-  end;
+  if ASelected then
+    result := DarkThemeInstance.GetColorHighlightText(DarkTheme)
+    else result := DarkThemeInstance.GetColorEditableText(DarkTheme);
 end;
 
 procedure TLayerStackInterface.AddButton(ACaption: string;
@@ -1108,18 +1094,15 @@ end;
 
 function TLayerStackInterface.GetBackColor(ASelected: boolean): TColor;
 begin
-  if DarkTheme and not (ASelected and FSysColorSelection) then
+  if ASelected then
+    result := DarkThemeInstance.GetColorHighlightBack(DarkTheme) else
   begin
-    if ASelected then
-      result := clLightText
+    if DarkTheme then
+      result := MergeBGRAWithGammaCorrection(
+                  DarkThemeInstance.GetColorButtonFace(true), 1,
+                  DarkThemeInstance.GetColorEditableFace(true), 1)
     else
-      result := MergeBGRAWithGammaCorrection(ColorToBGRA(clDarkBtnFace), 1, ColorToBGRA(clDarkEditableFace), 1);
-  end else
-  begin
-    if ASelected then
-      result := ColorToBGRA(clHighlight)
-    else
-      result := ColorToBGRA(clWindow);
+      result := DarkThemeInstance.GetColorEditableFace(DarkTheme);
   end;
 end;
 

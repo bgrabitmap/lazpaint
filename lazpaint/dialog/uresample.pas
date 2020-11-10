@@ -38,17 +38,21 @@ type
     procedure ToolButton23Click(Sender: TObject);
     procedure vsPreviewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
   private
+    FLazPaintInstance: TLazPaintCustomInstance;
     FIgnoreInput: boolean;
     FLockedAspectRatio: single;
     FParameters: TVariableSet;
     FMUnit: integer;
+    procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
+    procedure ThemeChanged(Sender: TObject);
     procedure UpdatePreview;
     procedure ComputeAspectRatio;
     function NewHeight: integer;
     function NewWidth: integer;
   public
-    LazPaintInstance: TLazPaintCustomInstance;
-  end; 
+    destructor Destroy; override;
+    property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
+  end;
 
 function ShowResampleDialog(Instance: TLazPaintCustomInstance; AParameters: TVariableSet):boolean;
 
@@ -187,6 +191,13 @@ begin
   if result <= 1 then result := 1;
 end;
 
+destructor TFResample.Destroy;
+begin
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
+  inherited Destroy;
+end;
+
 function TFResample.NewHeight: integer;
 begin
   case FMUnit of
@@ -252,6 +263,21 @@ end;
 procedure TFResample.UpdatePreview;
 begin
   vsPreview.RedrawBitmap;
+end;
+
+procedure TFResample.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
+begin
+  if FLazPaintInstance=AValue then Exit;
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
+  FLazPaintInstance:=AValue;
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, true);
+end;
+
+procedure TFResample.ThemeChanged(Sender: TObject);
+begin
+  vsPreview.DiscardBitmap;
 end;
 
 procedure TFResample.ComputeAspectRatio;

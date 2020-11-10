@@ -22,14 +22,18 @@ type
     procedure FormShow(Sender: TObject);
   private
     FDarkTheme: boolean;
+    FLazPaintInstance: TLazPaintCustomInstance;
     procedure SetDarkTheme(AValue: boolean);
     { private declarations }
     procedure SetImages(AToolBar: TToolBar; AImages: TImageList);
+    procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
+    procedure ThemeChanged(Sender: TObject);
   public
+    destructor Destroy; override;
     { public declarations }
-    LazPaintInstance: TLazPaintCustomInstance;
     procedure AddButton(AToolBar: TToolBar; AAction: TBasicAction);
     procedure SetImages(AImages: TImageList);
+    property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     property DarkTheme: boolean read FDarkTheme write SetDarkTheme;
   end; 
 
@@ -53,7 +57,7 @@ begin
   DarkThemeInstance.Apply(ToolBar2, AValue);
   DarkThemeInstance.Apply(ToolBar3, AValue);
   DarkThemeInstance.Apply(ToolBar4, AValue);
-  if AValue then Color := clDarkBtnFace else Color := clBtnFace;
+  Color := DarkThemeInstance.GetColorButtonFace(AValue);
 end;
 
 procedure TFToolbox.AddButton(AToolBar: TToolBar; AAction: TBasicAction);
@@ -92,6 +96,28 @@ begin
   AToolBar.ButtonHeight := AImages.Height + 4;
   AToolBar.Height := AToolBar.ButtonHeight+4;
   AToolBar.Width := AToolBar.ButtonWidth*AToolBar.ButtonCount+4;
+end;
+
+procedure TFToolbox.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
+begin
+  if FLazPaintInstance=AValue then Exit;
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
+  FLazPaintInstance:=AValue;
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, true);
+end;
+
+procedure TFToolbox.ThemeChanged(Sender: TObject);
+begin
+  DarkTheme := LazPaintInstance.DarkTheme;
+end;
+
+destructor TFToolbox.Destroy;
+begin
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
+  inherited Destroy;
 end;
 
 procedure TFToolbox.FormCreate(Sender: TObject);

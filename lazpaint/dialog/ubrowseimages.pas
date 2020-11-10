@@ -70,6 +70,7 @@ type
     procedure SetCurrentDirectory(AValue: string);
     function AdaptExtension: boolean;
     procedure ShellListView1SelectionChanged(Sender: TObject);
+    procedure ThemeChanged(Sender: TObject);
   private
     FLazPaintInstance: TLazPaintCustomInstance;
     FDefaultExtension: string;
@@ -123,6 +124,7 @@ type
     procedure SelectCurrentDir;
     procedure UpdatePreview(AFilename:string); overload;
     procedure UpdatePreview; overload;
+    procedure UpdateTheme;
     procedure ShowPreview;
     procedure HidePreview;
     procedure UpdateConstraints;
@@ -264,6 +266,8 @@ begin
   FOverwritePrompt:= true;
   FOpenButtonHint:= ToolButton_OpenSelectedFiles.Hint;
 
+  UpdateTheme;
+
   FPreview := TImagePreview.Create(vsPreview, Label_Status, true);
   FPreview.OnValidate:= @PreviewValidate;
   FChosenImage := TImageEntry.Empty;
@@ -274,7 +278,6 @@ begin
   ScaleControl(Panel1, OriginalDPI, 0,0, true);
   ScaleControl(Panel2, OriginalDPI, 0,0, true);
 
-  DarkThemeInstance.Apply(ComboBox_FileExtension, DarkThemeInstance.IsSystemDarkTheme, 0.40);
   vsList.BitmapAutoScale:= false;
 
   bmp := TBitmap.Create;
@@ -319,6 +322,8 @@ end;
 
 procedure TFBrowseImages.FormDestroy(Sender: TObject);
 begin
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
   ShellListView1.VirtualScreenFreed;
   FreeAndNil(ShellListView1);
   FreeAndNil(FChosenImage.bmp);
@@ -741,6 +746,11 @@ begin
   UpdateToolButtonOpen;
 end;
 
+procedure TFBrowseImages.ThemeChanged(Sender: TObject);
+begin
+  UpdateTheme;
+end;
+
 procedure TFBrowseImages.UpdateToolButtonOpen;
 var chosenFilename: string;
 begin
@@ -810,7 +820,11 @@ end;
 procedure TFBrowseImages.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
 begin
   if FLazPaintInstance=AValue then Exit;
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
   FLazPaintInstance:=AValue;
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, true);
   if Assigned(FPreview) then
     FPreview.LazPaintInstance := AValue;
 end;
@@ -967,6 +981,11 @@ begin
     vsPreview.Visible := true;
     FPreview.Filename:= FPreviewFilename;
   end;
+end;
+
+procedure TFBrowseImages.UpdateTheme;
+begin
+  DarkThemeInstance.Apply(ComboBox_FileExtension, DarkThemeInstance.IsSystemDarkTheme, 0.40);
 end;
 
 procedure TFBrowseImages.ShowPreview;
