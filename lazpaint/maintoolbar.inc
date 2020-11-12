@@ -242,6 +242,7 @@ begin
   LabelAutosize(Label_Brush);
   LabelAutosize(Label_Spacing);
   LabelAutosize(Label_Ratio);
+  LabelAutosize(Label_Donate);
   Image_SwapColors.Hint := Image_SwapColors.Hint + ' (X)';
 
   Tool_CurveModeAuto.Hint := Tool_CurveModeAuto.Hint + ' (A)';
@@ -818,7 +819,12 @@ end;
 
 procedure TFMain.ToolButton_DonateClick(Sender: TObject);
 begin
-  LazPaintInstance.Donate;
+  if Now > FLastDonateClick + (10 / (24*60*60) ) then
+  begin
+    MessagePopup(rsDonate, 3000);
+    FLastDonateClick := Now;
+    LazPaintInstance.Donate;
+  end;
 end;
 
 procedure TFMain.SpinEdit_GridNbExit(Sender: TObject);

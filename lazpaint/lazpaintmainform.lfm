@@ -3099,9 +3099,9 @@ object FMain: TFMain
     Left = 512
     Height = 36
     Top = 152
-    Width = 44
+    Width = 89
     ClientHeight = 36
-    ClientWidth = 44
+    ClientWidth = 89
     Font.Height = -12
     ParentColor = False
     ParentFont = False
@@ -3126,11 +3126,24 @@ object FMain: TFMain
         OnClick = ToolButton_DonateClick
       end
     end
+    object Label_Donate: TLabel
+      Left = 31
+      Height = 22
+      Top = 1
+      Width = 53
+      AutoSize = False
+      Caption = 'Donate...'
+      Font.Height = -12
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+      OnClick = ToolButton_DonateClick
+    end
   end
   object Panel_OutlineFill: TPanel
     Left = 480
     Height = 36
-    Top = 240
+    Top = 241
     Width = 88
     ClientHeight = 36
     ClientWidth = 88

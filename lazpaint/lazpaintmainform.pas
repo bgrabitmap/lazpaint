@@ -25,6 +25,7 @@ type
   TFMain = class(TForm)
     FileExport: TAction;
     ExportPictureDialog: TSaveDialog;
+    Label_Donate: TLabel;
     MenuScript: TMenuItem;
     Panel_OutlineFill: TPanel;
     Panel_Donate: TPanel;
@@ -715,6 +716,7 @@ type
     FCoordinatesCaptionCount: NativeInt;
     FToolbarElementsInitDone: boolean;
     FPenPlusMinus: integer;
+    FLastDonateClick: TDateTime;
 
     function GetDarkTheme: boolean;
     function GetImageAction: TImageActions;

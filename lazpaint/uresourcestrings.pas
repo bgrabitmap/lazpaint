@@ -18,6 +18,7 @@ const
 
 resourcestring
   rsLazPaint = 'LazPaint';
+  rsDonate = 'Donate...';
   rsScript = 'Script';
   rsFunctionNotDefined = 'The function %1 is not defined.';
   rsPythonUnexpectedVersion = 'Expected Python version %1 but %2 found.';
