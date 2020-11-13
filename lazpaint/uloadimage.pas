@@ -12,14 +12,14 @@ function LoadFlatImageUTF8(AFilename: string; AEntryToLoad: integer = -1): TImag
 procedure FreeMultiImage(var images: ArrayOfImageEntry);
 function AbleToLoadUTF8(AFilename: string): boolean;
 function LoadSVGImageUTF8(AFilename: string): TBGRALayeredBitmap;
-function LoadSVGOriginalUTF8(AFilename: string): TBGRALayerSVGOriginal;
+function LoadSVGOriginalUTF8(AFilename: string; AContainerWidth, AContainerHeight: integer): TBGRALayerSVGOriginal;
 
 implementation
 
 uses FileUtil, BGRAAnimatedGif, Graphics, UMultiImage,
   BGRAReadLzp, LCLProc, BGRABitmapTypes, BGRAReadPng,
   UFileSystem, BGRAIconCursor, BGRAReadTiff,
-  Dialogs, math, URaw, UResourceStrings;
+  Dialogs, math, URaw, UResourceStrings, Forms;
 
 function LoadIcoEntryFromStream(AStream: TStream; AIndex: integer): TImageEntry;
 var ico: TBGRAIconCursor;
@@ -195,14 +195,14 @@ var
   svg: TBGRALayerSVGOriginal;
   idx: Integer;
 begin
-  svg := LoadSVGOriginalUTF8(AFilename);
-  result := TBGRALayeredBitmap.Create(ceil(svg.Width),ceil(svg.Height));
+  svg := LoadSVGOriginalUTF8(AFilename, Screen.Width, Screen.Height);
+  result := TBGRALayeredBitmap.Create(floor(svg.Width + 0.95),floor(svg.Height + 0.95));
   idx := result.AddLayerFromOwnedOriginal(svg);
   result.LayerName[idx] := rsLayer+'1';
   result.RenderLayerFromOriginal(idx);
 end;
 
-function LoadSVGOriginalUTF8(AFilename: string): TBGRALayerSVGOriginal;
+function LoadSVGOriginalUTF8(AFilename: string; AContainerWidth, AContainerHeight: integer): TBGRALayerSVGOriginal;
 var
   svg: TBGRALayerSVGOriginal;
   s: TStream;
@@ -211,7 +211,7 @@ begin
   result := nil;
   try
     svg := TBGRALayerSVGOriginal.Create;
-    svg.LoadSVGFromStream(s);
+    svg.LoadSVGFromStream(s, AContainerWidth, AContainerHeight);
     result:= svg;
     svg:= nil;
   finally

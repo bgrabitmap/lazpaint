@@ -110,7 +110,7 @@ type
 implementation
 
 uses FPimage, BGRAReadJpeg, BGRAOpenRaster, BGRAPaintNet, BGRAReadLzp, Dialogs, UNewimage,
-  LCLType, BGRAPhoxo, BGRASVG, math, URaw, UImage, LCScaleDPI;
+  LCLType, BGRAPhoxo, BGRASVG, math, URaw, UImage, LCScaleDPI, BGRAUnits;
 
 { TImagePreview }
 
@@ -966,7 +966,10 @@ begin
       ifSvg:
         begin
           svg := TBGRASVG.Create(source);
-          with ComputeAcceptableImageSize(ceil(svg.WidthAsPixel),ceil(svg.HeightAsPixel)) do
+          svg.DefaultDpi:= Screen.PixelsPerInch * CanvasScale;
+          svg.Units.ContainerWidth := FloatWithCSSUnit(Screen.Width, cuPixel);
+          svg.Units.ContainerHeight := FloatWithCSSUnit(Screen.Height, cuPixel);
+          with ComputeAcceptableImageSize(floor(svg.WidthAsPixel + 0.95),floor(svg.HeightAsPixel + 0.95)) do
             FSingleImage := TBGRABitmap.Create(cx,cy);
           svg.StretchDraw(FSingleImage.Canvas2d,0,0,FSingleImage.Width,FSingleImage.Height);
           svg.Free;

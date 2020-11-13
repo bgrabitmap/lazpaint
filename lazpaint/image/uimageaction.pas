@@ -1110,7 +1110,7 @@ begin
     case Image.DetectImageFormat(AFilenameUTF8) of
     ifSvg:
     begin
-      svgOrig := LoadSVGOriginalUTF8(AFilenameUTF8);
+      svgOrig := LoadSVGOriginalUTF8(AFilenameUTF8, Image.Width, Image.Height);
       m := ComputeStretchMatrix(svgOrig.Width, svgOrig.Height);
       AddLayerFromOriginal(svgOrig, ExtractFileName(AFilenameUTF8), m);
       setlength(result, 1);
