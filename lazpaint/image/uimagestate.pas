@@ -91,6 +91,7 @@ type
 
     function RotateCW: TCustomImageDifference;
     function RotateCCW: TCustomImageDifference;
+    function Rotate180: TCustomImageDifference;
     function HorizontalFlip: TCustomImageDifference; overload;
     function VerticalFlip: TCustomImageDifference; overload;
     procedure Resample(AWidth,AHeight: integer; AQuality: TResampleMode; AFilter: TResampleFilter);
@@ -1224,6 +1225,14 @@ begin
     result := nil
   else
   result := TInversibleStateDifference.Create(self, iaRotateCCW);
+end;
+
+function TImageState.Rotate180: TCustomImageDifference;
+begin
+  if LayeredBitmap = nil then
+    result := nil
+  else
+  result := TInversibleStateDifference.Create(self, iaRotate180);
 end;
 
 function TImageState.ComputeLayerOffsetDifference(AOffsetX, AOffsetY: integer): TCustomImageDifference;

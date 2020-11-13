@@ -1111,6 +1111,10 @@ msgstr "Pagriezt pa 90° pretēji pulkstenim"
 msgid "Rotate 90° CW"
 msgstr "Pagriezt pa 90°"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Pagriezt pa 180°"
+
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr "Palielināt attēlu trīskārtīgi"

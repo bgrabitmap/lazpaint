@@ -66,6 +66,7 @@ type
     procedure VerticalFlip(AOption: TFlipOption);
     procedure RotateCW;
     procedure RotateCCW;
+    procedure Rotate180;
     procedure LinearNegativeAll;
     procedure NegativeAll;
     procedure SwapRedBlueAll;
@@ -151,6 +152,7 @@ begin
   Scripting.RegisterScriptFunction('SelectionVerticalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageRotateCW',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageRotateCCW',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageRotate180',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageLinearNegative',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageNegative',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageSwapRedBlue',@GenericScriptFunction,ARegister);
@@ -242,6 +244,7 @@ begin
   if f = 'ImageFlatten' then Flatten else
   if f = 'ImageRotateCW' then RotateCW else
   if f = 'ImageRotateCCW' then RotateCCW else
+  if f = 'ImageRotate180' then Rotate180 else
   if f = 'ImageLinearNegative' then LinearNegativeAll else
   if f = 'ImageNegative' then NegativeAll else
   if f = 'ImageSwapRedBlue' then SwapRedBlueAll else
@@ -1338,6 +1341,11 @@ end;
 procedure TImageActions.RotateCCW;
 begin
   Image.RotateCCW;
+end;
+
+procedure TImageActions.Rotate180;
+begin
+  Image.Rotate180;
 end;
 
 procedure TImageActions.LinearNegativeAll;

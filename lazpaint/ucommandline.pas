@@ -11,7 +11,7 @@ uses classes, LazpaintType, uresourcestrings;
   {$DEFINE SHOW_MANUAL_IN_WINDOW }
 {$ENDIF}
 
-const Manual: array[0..61] of string = (
+const Manual: array[0..64] of string = (
 'NAME',
 '       LazPaint - Image editor',
 '',
@@ -73,7 +73,10 @@ const Manual: array[0..61] of string = (
 '              rotates the image clockwise.',
 '',
 '       -rotateccw',
-'              rotates the image counter-clockwise.');
+'              rotates the image counter-clockwise.',
+'',
+'       -rotate180',
+'              rotates the image 180 degrees.');
 
 procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved, quitQuery: boolean);
 function ParamStrUTF8(AIndex: integer): string;
@@ -317,6 +320,7 @@ begin
         if LowerCmd='smartzoom3' then AImageActions.SmartZoom3 else
         if LowerCmd='rotatecw' then AImageActions.RotateCW else
         if LowerCmd='rotateccw' then AImageActions.RotateCCW else
+        if LowerCmd='rotate180' then AImageActions.Rotate180 else
         if copy(lowerCmd,1,9)='gradient(' then begin if not DoGradient then exit end else
         if lowerCmd = 'gradient' then begin if not NextAsFuncParam or not DoGradient then exit end else
         if copy(lowerCmd,1,8)='opacity(' then begin if not DoOpacity then exit end else

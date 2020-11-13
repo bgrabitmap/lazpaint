@@ -1112,11 +1112,15 @@ msgstr "Ponownie próbkuj obraz"
 
 #: tfmain.imagerotateccw.caption
 msgid "Rotate 90° CCW"
-msgstr "Obróć o 90 ° w lewo"
+msgstr "Obróć o 90° w lewo"
 
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
-msgstr "Obróć o 90 ° w prawo"
+msgstr "Obróć o 90° w prawo"
+
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Obróć o 180°"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"

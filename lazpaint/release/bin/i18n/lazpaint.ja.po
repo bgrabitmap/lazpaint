@@ -1100,11 +1100,15 @@ msgstr "Resample image"
 
 #: tfmain.imagerotateccw.caption
 msgid "Rotate 90° CCW"
-msgstr "Rotate 90° CCW"
+msgstr "反時計回りに90°回転"
 
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
-msgstr "Rotate 90° CW"
+msgstr "時計回りに90°回転"
+
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "180°回転"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"

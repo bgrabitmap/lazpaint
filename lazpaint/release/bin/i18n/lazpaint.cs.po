@@ -1107,6 +1107,10 @@ msgstr "Otočit 90° CCW"
 msgid "Rotate 90° CW"
 msgstr "Otočit 90° CW"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Otočit 180°"
+
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr "Chytré zvětšení x3"

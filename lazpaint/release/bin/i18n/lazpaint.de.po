@@ -1118,6 +1118,10 @@ msgstr "Drehung 90° gegen den UZS"
 msgid "Rotate 90° CW"
 msgstr "Drehung 90° im Uhrzeigersinn (UZS)"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Drehung 90°"
+
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr "Smart Zoom x3"

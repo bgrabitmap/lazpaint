@@ -1095,6 +1095,10 @@ msgstr "Завъртане на 270°"
 msgid "Rotate 90° CW"
 msgstr "Завъртане на 90°"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Завъртане на 180°"
+
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr "Умно увеличаване х 3"

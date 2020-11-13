@@ -1106,6 +1106,10 @@ msgstr "Rotation 90° (horloge à rebours)"
 msgid "Rotate 90° CW"
 msgstr "Rotation 90° (horloge)"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Rotation 180°"
+
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr "Zoom intelligent x3"

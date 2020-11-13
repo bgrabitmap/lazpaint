@@ -1092,6 +1092,10 @@ msgstr "Kierrä 90° vastapäivään"
 msgid "Rotate 90° CW"
 msgstr "Kierrä 90° myötäpäivään"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Kierrä 180°"
+
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr ""

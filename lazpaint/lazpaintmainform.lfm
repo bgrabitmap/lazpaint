@@ -7709,6 +7709,12 @@ object FMain: TFMain
       ImageIndex = 44
       OnExecute = ScriptExecute
     end
+    object ImageRotate180: TAction
+      Category = 'Image'
+      Caption = 'Rotate 180°'
+      ImageIndex = -1
+      OnExecute = ScriptExecute
+    end
     object ColorIntensity: TAction
       Category = 'Colors'
       Caption = 'Intensity...'

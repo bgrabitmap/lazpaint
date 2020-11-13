@@ -247,6 +247,7 @@ type
     RenderClouds: TAction;
     ImageRotateCCW: TAction;
     ImageRotateCW: TAction;
+    ImageRotate180: TAction;
     ImageChangeCanvasSize: TAction;
     ImageFillBackground: TAction;
     ImageClearAlpha: TAction;

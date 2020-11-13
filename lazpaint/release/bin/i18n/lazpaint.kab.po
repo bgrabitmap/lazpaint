@@ -1100,6 +1100,10 @@ msgstr "Tuzzya 90° (mgal tanila n temrilt)"
 msgid "Rotate 90° CW"
 msgstr "Tuzzya 90° (di tnila n temrilt)"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Tuzzya 180°"
+
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr "Asemɣer amegzu x3"

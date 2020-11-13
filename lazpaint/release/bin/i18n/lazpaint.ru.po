@@ -1101,6 +1101,10 @@ msgstr "Поворот на 90° против часовой стрелки"
 msgid "Rotate 90° CW"
 msgstr "Поворот на 90° по часовой стрелке"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Поворот на 180°"
+
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr "Интеллектуальное увеличение x3"

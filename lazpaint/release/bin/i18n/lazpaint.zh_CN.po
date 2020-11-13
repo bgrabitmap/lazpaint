@@ -1099,6 +1099,10 @@ msgstr "逆时针旋转 90°"
 msgid "Rotate 90° CW"
 msgstr "顺时针旋转 90°"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "旋转 180°"
+
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
 msgstr "智能变焦 x3"

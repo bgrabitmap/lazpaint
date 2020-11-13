@@ -225,6 +225,7 @@ type
     procedure VerticalFlip; overload;
     procedure RotateCW;
     procedure RotateCCW;
+    procedure Rotate180;
     procedure Resample(AWidth, AHeight: integer; filter: TResampleFilter);
     function ApplySmartZoom3: boolean;
 
@@ -2223,6 +2224,17 @@ begin
   try
     AddUndo(FCurrentState.RotateCCW);
   except on ex: exception do NotifyException('RotateCCW',ex);
+  end;
+  ImageMayChangeCompletely;
+  SelectionMaskMayChangeCompletely;
+end;
+
+procedure TLazPaintImage.Rotate180;
+begin
+  if not CheckNoAction then exit;
+  try
+    AddUndo(FCurrentState.Rotate180);
+  except on ex: exception do NotifyException('Rotate180',ex);
   end;
   ImageMayChangeCompletely;
   SelectionMaskMayChangeCompletely;
