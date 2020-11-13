@@ -44,6 +44,7 @@ type
     FOnSelectedLayerIndexChanging: TOnCurrentLayerIndexChanged;
     FOnSelectionMaskChanged: TOnSelectionMaskChanged;
     FOnSelectedLayerIndexChanged: TOnCurrentLayerIndexChanged;
+    FOnSizeChanged: TNotifyEvent;
     FOnStackChanged: TOnStackChanged;
     FOnQueryExitToolHandler: TOnQueryExitToolHandler;
     FCurrentState: TImageState;
@@ -81,6 +82,7 @@ type
     function GetSelectionTransform: TAffineMatrix;
     procedure LayeredActionDone(Sender: TObject);
     procedure LayeredActionProgress({%H-}ASender: TObject; AProgressPercent: integer);
+    procedure LayeredSizeChanged(Sender: TObject);
     procedure NeedSelectionLayerAfterMask;
     function GetBlendOperation(AIndex: integer): TBlendOperation;
     function GetCurrentFilenameUTF8: string;
@@ -122,6 +124,7 @@ type
     procedure CompressUndoIfNecessary;
     procedure NotifyException(AFunctionName: string; AException: Exception);
     procedure SetOnActionProgress(AValue: TLayeredActionProgressEvent);
+    procedure SetOnSizeChanged(AValue: TNotifyEvent);
     procedure SetSelectionTransform(ATransform: TAffineMatrix);
     procedure UpdateIconFileUTF8(AFilename: string; AOutputFilename: string = ''; AExport: boolean = false);
     procedure UpdateTiffFileUTF8(AFilename: string; AOutputFilename: string = ''; AExport: boolean = false);
@@ -266,6 +269,7 @@ type
     property OnImageRenderChanged: TNotifyEvent read FOnImageRenderChanged write FOnImageRenderChanged;
     property OnImageSaving: TLazPaintImageObservable read FOnImageSaving;
     property OnImageExport: TLazPaintImageObservable read FOnImageExport;
+    property OnSizeChanged: TNotifyEvent read FOnSizeChanged write SetOnSizeChanged;
     property OnActionProgress: TLayeredActionProgressEvent read FOnActionProgress write SetOnActionProgress;
     property NbLayers: integer read GetNbLayers;
     property Empty: boolean read GetEmpty;
@@ -916,6 +920,12 @@ begin
   FOnActionProgress:=AValue;
 end;
 
+procedure TLazPaintImage.SetOnSizeChanged(AValue: TNotifyEvent);
+begin
+  if FOnSizeChanged=AValue then Exit;
+  FOnSizeChanged:=AValue;
+end;
+
 procedure TLazPaintImage.SetSelectionTransform(ATransform: TAffineMatrix);
 
   procedure InvalidateTransformedSelection;
@@ -1503,6 +1513,12 @@ procedure TLazPaintImage.LayeredActionProgress(ASender: TObject;
 begin
   if Assigned(OnActionProgress) then
     OnActionProgress(self, AProgressPercent);
+end;
+
+procedure TLazPaintImage.LayeredSizeChanged(Sender: TObject);
+begin
+  if Assigned(FOnSizeChanged) then
+    FOnSizeChanged(self);
 end;
 
 procedure TLazPaintImage.NeedSelectionLayerAfterMask;
@@ -2368,6 +2384,7 @@ begin
   FCurrentState.OnOriginalLoadError:=@OriginalLoadError;
   FCurrentState.OnActionProgress:= @LayeredActionProgress;
   FCurrentState.OnActionDone:=@LayeredActionDone;
+  FCurrentState.OnSizeChanged:=@LayeredSizeChanged;
   FRenderUpdateRectInPicCoord := rect(0,0,0,0);
   FRenderUpdateRectInVSCoord := rect(0,0,0,0);
   FOnSelectionMaskChanged := nil;

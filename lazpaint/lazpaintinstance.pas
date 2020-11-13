@@ -50,6 +50,7 @@ type
     procedure OnLayeredBitmapSavedHandler();
     procedure OnLayeredBitmapSaveProgressHandler(APercentage: integer);
     procedure OnLayeredBitmapSaveStartHandler(AFilenameUTF8: string);
+    procedure OnSizeChanged(Sender: TObject);
     procedure RegisterScripts(ARegister: Boolean);
     function ScriptColorColorize(AVars: TVariableSet): TScriptResult;
     function ScriptColorCurves(AVars: TVariableSet): TScriptResult;
@@ -480,6 +481,7 @@ begin
   FImage.OnStackChanged:= @OnStackChanged;
   FImage.OnException := @OnFunctionException;
   FImage.OnActionProgress:=@OnImageActionProgress;
+  FImage.OnSizeChanged:=@OnSizeChanged;
   FToolManager := TToolManager.Create(FImage, self, nil, BlackAndWhite, FScriptContext);
   UseConfig(TIniFile.Create(''));
   FToolManager.OnPopup := @OnToolPopup;
@@ -988,6 +990,11 @@ begin
   finally
     if Assigned(FMain) then FMain.UpdatingPopup:= false;
   end;
+end;
+
+procedure TLazPaintInstance.OnSizeChanged(Sender: TObject);
+begin
+  if FMain <> nil then FMain.Layout.InvalidatePicture(true);
 end;
 
 procedure TLazPaintInstance.PythonBusy(Sender: TObject);
