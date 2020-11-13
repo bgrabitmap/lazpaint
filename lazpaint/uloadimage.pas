@@ -20,7 +20,8 @@ implementation
 uses FileUtil, BGRAAnimatedGif, Graphics, UMultiImage,
   BGRAReadLzp, LCLProc, BGRABitmapTypes, BGRAReadPng,
   UFileSystem, BGRAIconCursor, BGRAReadTiff,
-  Dialogs, math, URaw, UResourceStrings, Forms, BGRASVG, BGRAUnits;
+  Dialogs, math, URaw, UResourceStrings, Forms, BGRASVG, BGRAUnits,
+  UGraph;
 
 function LoadIcoEntryFromStream(AStream: TStream; AIndex: integer): TImageEntry;
 var ico: TBGRAIconCursor;
@@ -194,6 +195,7 @@ end;
 function LoadSVGImageUTF8(AFilename: string): TBGRALayeredBitmap;
 var
   svg, svgLayer: TBGRASVG;
+  visualWidth, visualHeight: single;
   svgOrig: TBGRALayerSVGOriginal;
   idx, i, j: Integer;
   stream: TStream;
@@ -206,9 +208,13 @@ begin
     svg := TBGRASVG.Create;
     svg.LoadFromStream(stream);
     FreeAndNil(stream);
+    svg.DefaultDpi:= Screen.PixelsPerInch * CanvasScale;
     svg.Units.ContainerWidth := FloatWithCSSUnit(Screen.Width, cuPixel);
     svg.Units.ContainerHeight := FloatWithCSSUnit(Screen.Height, cuPixel);
-
+    visualWidth := svg.Units.ConvertWidth(svg.VisualWidth, cuPixel).value;
+    visualHeight := svg.Units.ConvertHeight(svg.VisualHeight, cuPixel).value;
+    svg.WidthAsPixel:= visualWidth;
+    svg.HeightAsPixel:= visualHeight;
     image := TBGRALayeredBitmap.Create(floor(svg.WidthAsPixel + 0.95),floor(svg.HeightAsPixel + 0.95));
     if svg.LayerCount > 0 then
     begin
