@@ -967,9 +967,10 @@ begin
       ifSvg:
         begin
           svg := TBGRASVG.Create(source);
+          FImageNbLayers:= max(1, svg.LayerCount);
           svg.DefaultDpi:= Screen.PixelsPerInch * CanvasScale;
-          svg.Units.ContainerWidth := FloatWithCSSUnit(Screen.Width, cuPixel);
-          svg.Units.ContainerHeight := FloatWithCSSUnit(Screen.Height, cuPixel);
+          svg.Units.ContainerWidth := FloatWithCSSUnit(Screen.Width * CanvasScale, cuPixel);
+          svg.Units.ContainerHeight := FloatWithCSSUnit(Screen.Height * CanvasScale, cuPixel);
           visualWidth := svg.Units.ConvertWidth(svg.VisualWidth, cuPixel).value;
           visualHeight := svg.Units.ConvertHeight(svg.VisualHeight, cuPixel).value;
           svg.WidthAsPixel:= visualWidth;
@@ -978,7 +979,6 @@ begin
             FSingleImage := TBGRABitmap.Create(cx,cy);
           svg.StretchDraw(FSingleImage.Canvas2d,0,0,FSingleImage.Width,FSingleImage.Height, true);
           svg.Free;
-          FImageNbLayers:= 1;
         end
       else
         begin
