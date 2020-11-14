@@ -4018,16 +4018,6 @@ var
     end else FreeAndNil(picture.bmp);
   end;
 
-  procedure ImportSvg;
-  var
-    layered: TBGRALayeredBitmap;
-  begin
-    StartImport(filenameUTF8);
-    layered := LoadSVGImageUTF8(filenameUTF8);
-    Image.Assign(layered,true, false);
-    EndImport;
-  end;
-
 begin
   result := false;
   if filenameUTF8 = '' then exit;
@@ -4040,11 +4030,7 @@ begin
   picture := TImageEntry.Empty;
   try
     format := Image.DetectImageFormat(filenameUTF8);
-    if format = ifSvg then
-    begin
-      ImportSvg;
-    end else
-    if Assigned(ALoadedImage) and Assigned(ALoadedImage^.bmp) then
+    if (format <> ifSvg) and Assigned(ALoadedImage) and Assigned(ALoadedImage^.bmp) then
     begin
       picture := ALoadedImage^;
       ALoadedImage^.bmp := nil;

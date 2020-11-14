@@ -319,7 +319,7 @@ uses UGraph, UResourceStrings, Dialogs,
     BGRAPalette, BGRAColorQuantization, UFileSystem,
     BGRAThumbnail, BGRAIconCursor, UTiff, LazPaintType,
     BGRALazPaint, BGRAAnimatedGif,
-    BGRAGradientScanner;
+    BGRAGradientScanner, BGRASVGOriginal, Forms;
 
 function ComputeAcceptableImageSize(AWidth, AHeight: integer): TSize;
 var ratio,newRatio: single;
@@ -712,6 +712,14 @@ begin
     layeredBmp := TryCreateLayeredBitmapReader(ext);
     if Assigned(layeredBmp) then
     begin
+      if layeredBmp is TBGRALayeredSVG then
+      with TBGRALayeredSVG(layeredBmp) do
+      begin
+        DPI:= Screen.PixelsPerInch * CanvasScale;
+        ContainerWidth := Screen.Width * CanvasScale;
+        ContainerHeight := Screen.Height * CanvasScale;
+        DefaultLayerName:= rsLayer;
+      end;
       layeredBmp.LoadFromStream(s);
       with ComputeAcceptableImageSize(layeredBmp.Width,layeredBmp.Height) do
         if (cx < layeredBmp.Width) or (cy < layeredBmp.Height) then

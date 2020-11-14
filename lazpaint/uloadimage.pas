@@ -6,13 +6,11 @@ unit ULoadImage;
 interface
 
 uses
-  Classes, SysUtils, LazPaintType, BGRABitmap, BGRALayers, BGRASVGOriginal,
-  BGRASVGShapes;
+  Classes, SysUtils, LazPaintType, BGRABitmap, BGRALayers, BGRASVGOriginal;
 
 function LoadFlatImageUTF8(AFilename: string; AEntryToLoad: integer = -1): TImageEntry;
 procedure FreeMultiImage(var images: ArrayOfImageEntry);
 function AbleToLoadUTF8(AFilename: string): boolean;
-function LoadSVGImageUTF8(AFilename: string): TBGRALayeredBitmap;
 function LoadSVGOriginalUTF8(AFilename: string; AContainerWidth, AContainerHeight: integer): TBGRALayerSVGOriginal;
 
 implementation
@@ -20,8 +18,7 @@ implementation
 uses FileUtil, BGRAAnimatedGif, Graphics, UMultiImage,
   BGRAReadLzp, LCLProc, BGRABitmapTypes, BGRAReadPng,
   UFileSystem, BGRAIconCursor, BGRAReadTiff,
-  Dialogs, math, URaw, UResourceStrings, Forms, BGRASVG, BGRAUnits,
-  UGraph;
+  Dialogs, math, URaw, UResourceStrings;
 
 function LoadIcoEntryFromStream(AStream: TStream; AIndex: integer): TImageEntry;
 var ico: TBGRAIconCursor;
@@ -189,76 +186,6 @@ begin
     result := DefaultBGRAImageReader[DetectFileFormat(s, ExtractFileExt(AFilename))] <> nil;
   finally
     s.Free;
-  end;
-end;
-
-function LoadSVGImageUTF8(AFilename: string): TBGRALayeredBitmap;
-var
-  svg, svgLayer: TBGRASVG;
-  visualWidth, visualHeight: single;
-  svgOrig: TBGRALayerSVGOriginal;
-  idx, i, j: Integer;
-  stream: TStream;
-  image: TBGRALayeredBitmap;
-  layer: TSVGGroup;
-begin
-  stream := FileManager.CreateFileStream(AFilename, fmOpenRead or fmShareDenyWrite);
-  image := nil;
-  try
-    svg := TBGRASVG.Create;
-    svg.LoadFromStream(stream);
-    FreeAndNil(stream);
-    svg.DefaultDpi:= Screen.PixelsPerInch * CanvasScale;
-    svg.Units.ContainerWidth := FloatWithCSSUnit(Screen.Width, cuPixel);
-    svg.Units.ContainerHeight := FloatWithCSSUnit(Screen.Height, cuPixel);
-    visualWidth := svg.Units.ConvertWidth(svg.VisualWidth, cuPixel).value;
-    visualHeight := svg.Units.ConvertHeight(svg.VisualHeight, cuPixel).value;
-    svg.WidthAsPixel:= visualWidth;
-    svg.HeightAsPixel:= visualHeight;
-    image := TBGRALayeredBitmap.Create(floor(svg.WidthAsPixel + 0.95),floor(svg.HeightAsPixel + 0.95));
-    if svg.LayerCount > 0 then
-    begin
-      for i := 0 to svg.LayerCount-1 do
-      begin
-        layer := svg.Layer[i];
-        svgLayer := TBGRASVG.Create(svg.WidthAsPixel, svg.HeightAsPixel, cuPixel);
-        svgLayer.ViewBox := svg.ViewBox;
-        try
-          for j := 0 to svg.Content.IndexOfElement(layer)-1 do
-            if svg.Content.ElementObject[j] is TSVGDefine then
-              svgLayer.Content.CopyElement(svg.Content.ElementObject[j]);
-          for j := 0 to layer.Content.ElementCount-1 do
-            svgLayer.Content.CopyElement(layer.Content.ElementObject[j]);
-          svgOrig := TBGRALayerSVGOriginal.Create;
-          svgOrig.SetSVG(svgLayer, image.Width, image.Height);
-          svgLayer := nil;
-          idx := image.AddLayerFromOwnedOriginal(svgOrig);
-          image.LayerName[idx] := layer.Name;
-          image.LayerVisible[idx] := layer.Visible;
-          image.LayerOpacity[idx] := min(255,max(0,round(layer.opacity*255)));
-          image.BlendOperation[idx] := layer.mixBlendMode;
-          image.LayerOriginalMatrix[idx] := layer.matrix[cuPixel];
-          image.RenderLayerFromOriginal(idx);
-        finally
-          svgLayer.Free;
-        end;
-      end;
-    end else
-    begin
-      svgOrig := TBGRALayerSVGOriginal.Create;
-      svgOrig.SetSVG(svg, Screen.Width, Screen.Height);
-      svg := nil;
-      idx := image.AddLayerFromOwnedOriginal(svgOrig);
-      image.LayerName[idx] := rsLayer+'1';
-      image.RenderLayerFromOriginal(idx);
-    end;
-
-    result := image;
-    image := nil;
-  finally
-    stream.Free;
-    svg.Free;
-    image.Free;
   end;
 end;
 
