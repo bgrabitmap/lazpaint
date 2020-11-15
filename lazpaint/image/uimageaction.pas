@@ -109,7 +109,7 @@ implementation
 uses Controls, Dialogs, UResourceStrings, UObject3D,
      ULoadImage, UGraph, UClipboard, Types, BGRAGradientOriginal,
      BGRATransform, ULoading, math, LCVectorClipboard, LCVectorOriginal, LCVectorRectShapes,
-     BGRALayers, BGRAUTF8, UFileSystem;
+     BGRALayers, BGRAUTF8, UFileSystem, Forms;
 
 { TImageActions }
 
@@ -1113,7 +1113,8 @@ begin
     case Image.DetectImageFormat(AFilenameUTF8) of
     ifSvg:
     begin
-      svgOrig := LoadSVGOriginalUTF8(AFilenameUTF8, Image.Width, Image.Height);
+      svgOrig := LoadSVGOriginalUTF8(AFilenameUTF8, Image.Width, Image.Height,
+        CanvasScale * Screen.PixelsPerInch / 96);
       m := ComputeStretchMatrix(svgOrig.Width, svgOrig.Height);
       AddLayerFromOriginal(svgOrig, ExtractFileName(AFilenameUTF8), m);
       setlength(result, 1);

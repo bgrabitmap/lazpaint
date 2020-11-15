@@ -715,9 +715,8 @@ begin
       if layeredBmp is TBGRALayeredSVG then
       with TBGRALayeredSVG(layeredBmp) do
       begin
-        DPI:= Screen.PixelsPerInch * CanvasScale;
-        ContainerWidth := Screen.Width * CanvasScale;
-        ContainerHeight := Screen.Height * CanvasScale;
+        ContainerWidth := Screen.Width;
+        ContainerHeight := Screen.Height;
         DefaultLayerName:= rsLayer;
       end;
       layeredBmp.LoadFromStream(s);

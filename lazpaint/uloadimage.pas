@@ -11,7 +11,8 @@ uses
 function LoadFlatImageUTF8(AFilename: string; AEntryToLoad: integer = -1): TImageEntry;
 procedure FreeMultiImage(var images: ArrayOfImageEntry);
 function AbleToLoadUTF8(AFilename: string): boolean;
-function LoadSVGOriginalUTF8(AFilename: string; AContainerWidth, AContainerHeight: integer): TBGRALayerSVGOriginal;
+function LoadSVGOriginalUTF8(AFilename: string; AContainerWidth, AContainerHeight: integer;
+  AScaleDPI: single): TBGRALayerSVGOriginal;
 
 implementation
 
@@ -189,7 +190,8 @@ begin
   end;
 end;
 
-function LoadSVGOriginalUTF8(AFilename: string; AContainerWidth, AContainerHeight: integer): TBGRALayerSVGOriginal;
+function LoadSVGOriginalUTF8(AFilename: string; AContainerWidth, AContainerHeight: integer;
+  AScaleDPI: single): TBGRALayerSVGOriginal;
 var
   svg: TBGRALayerSVGOriginal;
   s: TStream;
@@ -198,7 +200,7 @@ begin
   result := nil;
   try
     svg := TBGRALayerSVGOriginal.Create;
-    svg.LoadSVGFromStream(s, AContainerWidth, AContainerHeight);
+    svg.LoadSVGFromStream(s, AContainerWidth, AContainerHeight, AScaleDPI);
     result:= svg;
     svg:= nil;
   finally

@@ -874,10 +874,13 @@ var reader: TFPCustomImageReader;
   svg: TBGRASVG;
   visualWidth, visualHeight: single;
   tr: TTiffError;
+  screenDpi: Integer;
+  singleSize: string;
 begin
   if FInUpdatePreview then
   begin
     source := nil;
+    singleSize := '';
     try
       source := FileManager.CreateFileStream(FFilename, fmOpenRead or fmShareDenyWrite);
       FImageFormat := DetectFileFormat(source,ExtractFileExt(FFilename));
@@ -967,14 +970,24 @@ begin
       ifSvg:
         begin
           svg := TBGRASVG.Create(source);
+          singleSize := svg.Units.formatValue(svg.Width) + ' x ' + svg.Units.formatValue(svg.Height);
           FImageNbLayers:= max(1, svg.LayerCount);
-          svg.DefaultDpi:= Screen.PixelsPerInch * CanvasScale;
-          svg.Units.ContainerWidth := FloatWithCSSUnit(Screen.Width * CanvasScale, cuPixel);
-          svg.Units.ContainerHeight := FloatWithCSSUnit(Screen.Height * CanvasScale, cuPixel);
-          visualWidth := svg.Units.ConvertWidth(svg.VisualWidth, cuPixel).value;
-          visualHeight := svg.Units.ConvertHeight(svg.VisualHeight, cuPixel).value;
-          svg.WidthAsPixel:= visualWidth;
-          svg.HeightAsPixel:= visualHeight;
+          screenDpi:= Screen.PixelsPerInch * CanvasScale;
+          svg.Units.ContainerWidth := FloatWithCSSUnit(Screen.Width * CanvasScale / screenDpi * svg.DefaultDpi, cuPixel);
+          svg.Units.ContainerHeight := FloatWithCSSUnit(Screen.Height * CanvasScale / screenDpi * svg.DefaultDpi, cuPixel);
+          if not svg.preserveAspectRatio.Preserve then
+          begin
+            visualWidth := svg.WidthAsPixel;
+            visualHeight := svg.HeightAsPixel;
+          end else
+          begin
+            visualWidth := svg.VisualWidthAsPixel;
+            visualHeight := svg.VisualHeightAsPixel;
+            svg.WidthAsPixel:= visualWidth;
+            svg.HeightAsPixel:= visualHeight;
+          end;
+          visualWidth:= visualWidth * screenDpi / svg.DefaultDpi;
+          visualHeight:= visualHeight * screenDpi / svg.DefaultDpi;
           with ComputeAcceptableImageSize(floor(visualWidth + 0.95), floor(visualHeight + 0.95)) do
             FSingleImage := TBGRABitmap.Create(cx,cy);
           svg.StretchDraw(FSingleImage.Canvas2d,0,0,FSingleImage.Width,FSingleImage.Height, true);
@@ -1028,7 +1041,8 @@ begin
     end else
     if Assigned(FSingleImage) then
     begin
-      FStatus.Caption := rsCanvasSize + ': ' + IntToStr(FSingleImage.Width)+'x'+IntToStr(FSingleImage.Height)+', '+
+      if singleSize = '' then singleSize := IntToStr(FSingleImage.Width)+'x'+IntToStr(FSingleImage.Height);
+      FStatus.Caption := rsCanvasSize + ': ' + singleSize +', '+
                          rsLayers+': '+IntToStr(FImageNbLayers);
     end else
     if FLoadError <> '' then

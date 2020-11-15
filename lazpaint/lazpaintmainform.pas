@@ -2126,7 +2126,8 @@ begin
                   case DetectFileFormat(Filenames[i]) of
                    ifSvg:
                      begin
-                       svgOrig := LoadSVGOriginalUTF8(Filenames[i], Screen.Width, Screen.Height);
+                       svgOrig := LoadSVGOriginalUTF8(Filenames[i], Screen.Width, Screen.Height,
+                         Screen.PixelsPerInch / 96 * CanvasScale);
                        loadedLayers[i].orig := svgOrig;
                        tx := max(tx, floor(svgOrig.Width + 0.95));
                        ty := max(ty, floor(svgOrig.Height + 0.95));
