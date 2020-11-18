@@ -975,19 +975,11 @@ begin
           screenDpi:= Screen.PixelsPerInch * CanvasScale;
           svg.Units.ContainerWidth := FloatWithCSSUnit(Screen.Width * CanvasScale / screenDpi * svg.DefaultDpi, cuPixel);
           svg.Units.ContainerHeight := FloatWithCSSUnit(Screen.Height * CanvasScale / screenDpi * svg.DefaultDpi, cuPixel);
-          if not svg.preserveAspectRatio.Preserve then
-          begin
-            visualWidth := svg.WidthAsPixel;
-            visualHeight := svg.HeightAsPixel;
-          end else
-          begin
-            visualWidth := svg.VisualWidthAsPixel;
-            visualHeight := svg.VisualHeightAsPixel;
-            svg.WidthAsPixel:= visualWidth;
-            svg.HeightAsPixel:= visualHeight;
-          end;
-          visualWidth:= visualWidth * screenDpi / svg.DefaultDpi;
-          visualHeight:= visualHeight * screenDpi / svg.DefaultDpi;
+          //keep only view box
+          visualWidth:= svg.VisualWidthAsPixel * screenDpi / svg.DefaultDpi;
+          visualHeight:= svg.VisualHeightAsPixel * screenDpi / svg.DefaultDpi;
+          svg.WidthAsPixel:= visualWidth;
+          svg.HeightAsPixel:= visualHeight;
           with ComputeAcceptableImageSize(floor(visualWidth + 0.95), floor(visualHeight + 0.95)) do
             FSingleImage := TBGRABitmap.Create(cx,cy);
           svg.StretchDraw(FSingleImage.Canvas2d,0,0,FSingleImage.Width,FSingleImage.Height, true);
