@@ -468,7 +468,8 @@ function TLazPaintImage.AbleToSaveAsUTF8(AFilename: string): boolean;
 var format: TBGRAImageFormat;
 begin
   format := SuggestImageFormat(AFilename);
-  result := (DefaultBGRAImageWriter[format] <> nil) or (format in [ifIco,ifCur]);
+  result := (DefaultBGRAImageWriter[format] <> nil) or
+    (format in [ifIco,ifCur,ifSvg]);
   if result and (format = ifXPixMap) then
   begin
     if (Width > 256) or (Height > 256) then
@@ -495,7 +496,7 @@ var s: TStream;
   format: TBGRAImageFormat;
 begin
   format := SuggestImageFormat(AFilename);
-  if format in[ifOpenRaster,ifPhoxo,ifLazPaint] then
+  if format in[ifOpenRaster,ifPhoxo,ifLazPaint,ifSvg] then
   begin
     s := FileManager.CreateFileStream(AFilename, fmCreate);
     try

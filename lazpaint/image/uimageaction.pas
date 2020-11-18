@@ -1111,20 +1111,18 @@ begin
   end;
   try
     case Image.DetectImageFormat(AFilenameUTF8) of
-    ifSvg:
-    begin
-      svgOrig := LoadSVGOriginalUTF8(AFilenameUTF8, Image.Width, Image.Height,
-        CanvasScale * Screen.PixelsPerInch / 96);
-      m := ComputeStretchMatrix(svgOrig.Width, svgOrig.Height);
-      AddLayerFromOriginal(svgOrig, ExtractFileName(AFilenameUTF8), m);
-      setlength(result, 1);
-      result[0] := Image.LayerId[image.CurrentLayerIndex];
-      FreeAndNil(ALoadedImage);
-    end;
-    ifLazPaint, ifOpenRaster, ifPaintDotNet, ifPhoxo:
+    ifLazPaint, ifOpenRaster, ifSvg, ifPaintDotNet, ifPhoxo:
     begin
       ext := UTF8LowerCase(ExtractFileExt(AFilenameUTF8));
       layeredBmp := TryCreateLayeredBitmapReader(ext);
+      if layeredBmp is TBGRALayeredSVG then
+      with TBGRALayeredSVG(layeredBmp) do
+      begin
+        ContainerWidth := Image.Width;
+        ContainerHeight := Image.Height;
+        DPI:= Screen.PixelsPerInch;
+        DefaultLayerName:= rsLayer;
+      end;
       try
         s := FileManager.CreateFileStream(AFilenameUTF8, fmOpenRead or fmShareDenyWrite);
         try
