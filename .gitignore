@@ -32,3 +32,5 @@ resources/createresource/backup/
 lazpaint/units/
 /bgracontrols
 /bgrabitmap
+
+*.deb
