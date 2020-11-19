@@ -873,7 +873,6 @@ var reader: TFPCustomImageReader;
   jpegReader: TBGRAReaderJpeg;
   source: TStream;
   svg: TBGRASVG;
-  visualWidth, visualHeight: single;
   tr: TTiffError;
   screenDpi: Integer;
   singleSize: string;
@@ -976,12 +975,8 @@ begin
           screenDpi:= Screen.PixelsPerInch * CanvasScale;
           svg.Units.ContainerWidth := FloatWithCSSUnit(Screen.Width * CanvasScale / screenDpi * svg.DefaultDpi, cuPixel);
           svg.Units.ContainerHeight := FloatWithCSSUnit(Screen.Height * CanvasScale / screenDpi * svg.DefaultDpi, cuPixel);
-          //keep only view box
-          visualWidth:= svg.VisualWidthAsPixel * screenDpi / svg.DefaultDpi;
-          visualHeight:= svg.VisualHeightAsPixel * screenDpi / svg.DefaultDpi;
-          svg.WidthAsPixel:= visualWidth;
-          svg.HeightAsPixel:= visualHeight;
-          with ComputeAcceptableImageSize(floor(visualWidth + 0.95), floor(visualHeight + 0.95)) do
+          svg.CropToViewBox(screenDpi / svg.DefaultDpi);
+          with ComputeAcceptableImageSize(floor(svg.WidthAsPixel + 0.95), floor(svg.HeightAsPixel + 0.95)) do
             FSingleImage := TBGRABitmap.Create(cx,cy);
           svg.StretchDraw(FSingleImage.Canvas2d,0,0,FSingleImage.Width,FSingleImage.Height, true);
           svg.Free;
