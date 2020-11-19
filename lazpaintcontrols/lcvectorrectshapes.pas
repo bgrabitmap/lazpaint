@@ -7,7 +7,7 @@ interface
 
 uses
   Classes, SysUtils, Types, LCVectorOriginal, BGRABitmapTypes, BGRALayerOriginal,
-  BGRABitmap, BGRATransform, BGRAGradients;
+  BGRABitmap, BGRATransform, BGRAGradients, BGRASVGShapes, BGRASVGType, BGRAUnits;
 
 type
   TCustomRectShape = class;
@@ -100,6 +100,7 @@ type
     function GetCornerPositition: single; override;
   public
     class function Fields: TVectorShapeFields; override;
+    function AppendToSVG(AContent: TSVGContent): TSVGElement; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
@@ -118,6 +119,7 @@ type
   public
     constructor Create(AContainer: TVectorOriginal); override;
     class function Fields: TVectorShapeFields; override;
+    function AppendToSVG(AContent: TSVGContent): TSVGElement; override;
     function GetAlignBounds(const {%H-}ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
@@ -179,6 +181,7 @@ type
     function GetCornerPositition: single; override;
     class function Fields: TVectorShapeFields; override;
     class function PreferPixelCentered: boolean; override;
+    function AppendToSVG(AContent: TSVGContent): TSVGElement; override;
     function GetAlignBounds(const ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
@@ -927,6 +930,28 @@ begin
   Result:= [vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill];
 end;
 
+function TRectShape.AppendToSVG(AContent: TSVGContent): TSVGElement;
+var
+  topLeft, u, v: TPointF;
+  w, h: Single;
+begin
+  topLeft := Origin - (XAxis - Origin) - (YAxis - Origin);
+  w := Width*2; h := Height*2;
+  result := AContent.AppendRect(topLeft, PointF(w, h));
+  if (XAxis.y <> 0) or (YAxis.x <> 0) then
+  begin
+    u := XAxis - Origin;
+    if w > 0 then u *= (2/w);
+    v := YAxis - Origin;
+    if h > 0 then v *= (2/h);
+    result.Matrix[cuPixel] := AffineMatrixTranslation(topLeft.X, topLeft.Y) *
+                              AffineMatrix(u, v, PointF(0, 0)) *
+                              AffineMatrixTranslation(-topLeft.X, -topLeft.Y);
+  end;
+  ApplyStrokeStyleToSVG(result);
+  ApplyFillStyleToSVG(result);
+end;
+
 procedure TRectShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
   ADraft: boolean);
 const GradientDithering = false;
@@ -1146,6 +1171,29 @@ end;
 class function TEllipseShape.Fields: TVectorShapeFields;
 begin
   Result:= [vsfPenFill, vsfPenWidth, vsfPenStyle, vsfBackFill];
+end;
+
+function TEllipseShape.AppendToSVG(AContent: TSVGContent): TSVGElement;
+var
+  u, v: TPointF;
+  rx, ry: Single;
+begin
+  rx := Width; ry := Height;
+  if rx <> ry then
+    result := AContent.AppendEllipse(Origin, PointF(rx, ry))
+    else result := AContent.AppendCircle(Origin, rx);
+  if (XAxis.y <> 0) or (YAxis.x <> 0) then
+  begin
+    u := XAxis - Origin;
+    if rx > 0 then u *= (1/rx);
+    v := YAxis - Origin;
+    if ry > 0 then v *= (1/ry);
+    result.matrix[cuPixel] := AffineMatrixTranslation(Origin.X, Origin.Y) *
+                              AffineMatrix(u, v, PointF(0, 0)) *
+                              AffineMatrixTranslation(-Origin.X, -Origin.Y);
+  end;
+  ApplyStrokeStyleToSVG(result);
+  ApplyFillStyleToSVG(result);
 end;
 
 function TEllipseShape.GetAlignBounds(const ALayoutRect: TRect;
@@ -1513,6 +1561,44 @@ end;
 class function TPhongShape.PreferPixelCentered: boolean;
 begin
   Result:= false;
+end;
+
+function TPhongShape.AppendToSVG(AContent: TSVGContent): TSVGElement;
+var
+  u, v: TPointF;
+  rx, ry: Single;
+  p: TBGRAPath;
+begin
+  rx := Width; ry := Height;
+  case ShapeKind of
+    pskHalfSphere, pskConeTop:
+        if rx <> ry then
+          result := AContent.AppendEllipse(Origin, PointF(rx, ry))
+          else result := AContent.AppendCircle(Origin, rx);
+    pskConeSide: begin
+      p := TBGRAPath.Create;
+      p.moveTo(Origin.x, origin.y - ry);
+      p.lineTo(Origin.x + rx, Origin.y + ry);
+      p.lineTo(Origin.x - rx, Origin.y + ry);
+      result := AContent.AppendPath(p);
+      p.Free;
+    end
+    else {pskRectangle, pskRoundRectangle, pskHorizCylinder, pskVertCylinder}
+      result := AContent.AppendRect(Origin.x - rx, Origin.y - ry, rx*2, ry*2);
+  end;
+
+  if (XAxis.y <> 0) or (YAxis.x <> 0) then
+  begin
+    u := XAxis - Origin;
+    if rx > 0 then u *= (1/rx);
+    v := YAxis - Origin;
+    if ry > 0 then v *= (1/ry);
+    result.matrix[cuPixel] := AffineMatrixTranslation(Origin.X, Origin.Y) *
+                              AffineMatrix(u, v, PointF(0, 0)) *
+                              AffineMatrixTranslation(-Origin.X, -Origin.Y);
+  end;
+  result.strokeNone;
+  ApplyFillStyleToSVG(result);
 end;
 
 function TPhongShape.GetAlignBounds(const ALayoutRect: TRect;

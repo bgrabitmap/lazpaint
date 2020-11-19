@@ -7,7 +7,8 @@ interface
 
 uses
   Classes, SysUtils, Types, LCVectorOriginal, BGRABitmapTypes, BGRALayerOriginal,
-  BGRABitmap, BGRATransform, BGRAGradients, BGRAGraphics;
+  BGRABitmap, BGRATransform, BGRAGradients, BGRAGraphics,
+  BGRASVGShapes, BGRASVGType, BGRAUnits, BGRAPath;
 
 type
   TArrowKind = (akNone, akTail, akTip, akNormal, akCut, akFlipped, akFlippedCut,
@@ -90,6 +91,7 @@ type
     procedure OnMoveCenterPoint({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; APointIndex: integer; {%H-}AShift: TShiftState);
     function GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF; virtual;
+    function GetPath(AMatrix: TAffineMatrix): TBGRAPath;
     procedure SetUsermode(AValue: TVectorShapeUsermode); override;
     function GetClosed: boolean; virtual;
     procedure SetClosed(AValue: boolean); virtual;
@@ -140,6 +142,7 @@ type
   public
     class function Fields: TVectorShapeFields; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
+    function AppendToSVG(AContent: TSVGContent): TSVGElement; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
@@ -202,7 +205,7 @@ procedure ApplyArrowStyle(AArrow: TBGRACustomArrow; AStart: boolean; AKind: TArr
 
 implementation
 
-uses BGRAPen, BGRAFillInfo, BGRAPath, math, LCVectorialFill,
+uses BGRAPen, BGRAFillInfo, math, LCVectorialFill,
   BGRAArrow, LCVectorRectShapes, LCResourceString;
 
 function StrToArrowKind(AStr: string): TArrowKind;
@@ -604,6 +607,11 @@ begin
   m:= MatrixForPixelCentered(AMatrix);
   for i := 0 to PointCount-1 do
     result[i] := m*Points[i];
+end;
+
+function TCustomPolypointShape.GetPath(AMatrix: TAffineMatrix): TBGRAPath;
+begin
+  result := TBGRAPath.Create(GetCurve(AMatrix));
 end;
 
 class function TCustomPolypointShape.Usermodes: TVectorShapeUsermodes;
@@ -1214,6 +1222,19 @@ begin
 
     penScan.Free;
   end;
+end;
+
+function TPolylineShape.AppendToSVG(AContent: TSVGContent): TSVGElement;
+var
+  p: TBGRAPath;
+begin
+  p := GetPath(AffineMatrixIdentity);
+  result := AContent.AppendPath(p.SvgString);
+  p.Free;
+  ApplyStrokeStyleToSVG(result);
+  if PenVisible then
+    result.strokeLineCapLCL := LineCap;
+  ApplyFillStyleToSVG(result);
 end;
 
 function TPolylineShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions): TRectF;

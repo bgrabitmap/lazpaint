@@ -7,7 +7,8 @@ interface
 
 uses
   Classes, SysUtils, LCVectorRectShapes, BGRATextBidi, BGRABitmapTypes, LCVectorOriginal,
-  BGRAGraphics, BGRABitmap, BGRALayerOriginal, BGRACanvas2D, LCVectorialFill;
+  BGRAGraphics, BGRABitmap, BGRALayerOriginal, BGRACanvas2D, LCVectorialFill,
+  BGRASVGShapes, BGRASVGType, BGRAUnits;
 
 type
   TTextShape = class;
@@ -165,6 +166,7 @@ type
     class function CreateEmpty: boolean; override;
     class function StorageClassName: RawByteString; override;
     class function Usermodes: TVectorShapeUsermodes; override;
+    function AppendToSVG(AContent: TSVGContent): TSVGElement; override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
@@ -2360,6 +2362,67 @@ end;
 class function TTextShape.Usermodes: TVectorShapeUsermodes;
 begin
   Result:=inherited Usermodes + [vsuEditText];
+end;
+
+function TTextShape.AppendToSVG(AContent: TSVGContent): TSVGElement;
+var
+  topLeft, u, v: TPointF;
+  w, h, zoom: Single;
+  t: TSVGText;
+  tl: TBidiTextLayout;
+  i: Integer;
+  span: TSVGTSpan;
+  fm: TFontPixelMetric;
+  rF: TRectF;
+begin
+  topLeft := Origin - (XAxis - Origin) - (YAxis - Origin);
+  w := Width*2; h := Height*2;
+  result := AContent.AppendText(topLeft, '');
+  if (XAxis.y <> 0) or (YAxis.x <> 0) then
+  begin
+    u := XAxis - Origin;
+    if w > 0 then u *= (2/w);
+    v := YAxis - Origin;
+    if h > 0 then v *= (2/h);
+    result.matrix[cuPixel] := AffineMatrixTranslation(topLeft.X, topLeft.Y) *
+                              AffineMatrix(u, v, PointF(0, 0)) *
+                              AffineMatrixTranslation(-topLeft.X, -topLeft.Y);
+  end;
+  if PenVisible then
+    result.fillColor := PenColor
+    else result.fillNone;
+  if OutlineVisible then
+  begin
+    result.strokeColor := OutlineFill.AverageColor;
+    result.strokeWidth := FloatWithCSSUnit(OutlineWidth, cuCustom);
+    result.strokeLineJoinLCL:= pjsRound;
+  end else
+    result.strokeNone;
+  t := TSVGText(result);
+  t.fontStyleLCL:= FontStyle;
+  t.fontSize := FloatWithCSSUnit(FontEmHeight, cuPixel);
+  t.fontFamily:= FontName;
+  SetGlobalMatrix(AffineMatrixIdentity);
+  zoom := GetTextRenderZoom;
+  tl := GetTextLayout;
+  fm := tl.FontRenderer.GetFontPixelMetric;
+  for i := 0 to tl.PartCount-1 do
+  begin
+    rF := tl.PartRectF[i];
+    if rF.IsEmpty then continue;
+    rF.OffseT(topLeft.x, topLeft.y);
+    span := t.Content.AppendTextSpan(tl.GetTextPart(i, true));
+    if tl.PartRightToLeft[i] then
+      span.textDirection:= stdRtl
+      else span.textDirection:= stdLtr;
+    with rF do
+    begin
+      span.x := [FloatWithCSSUnit(Left/zoom, cuCustom)];
+      span.y := [FloatWithCSSUnit((Top + fm.Baseline)/zoom, cuCustom)];
+      span.textLength := FloatWithCSSUnit(Width/zoom, cuCustom);
+    end;
+  end;
+
 end;
 
 initialization

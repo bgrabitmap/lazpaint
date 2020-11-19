@@ -8,7 +8,8 @@ interface
 
 uses
   Classes, SysUtils, BGRABitmap, BGRALayerOriginal, fgl, BGRAGradientOriginal, BGRABitmapTypes,
-  BGRAPen, LCVectorialFill, LCResourceString;
+  BGRAPen, LCVectorialFill, LCResourceString, BGRASVGShapes, BGRASVGType,
+  BGRASVG, BGRAUnits;
 
 const
   InfiniteRect : TRect = (Left: -MaxLongInt; Top: -MaxLongInt; Right: MaxLongInt; Bottom: MaxLongInt);
@@ -252,11 +253,14 @@ type
     function GetPenVisibleNow: boolean;
     function GetBackVisible: boolean; virtual;
     function GetOutlineVisible: boolean; virtual;
+    procedure ApplyStrokeStyleToSVG(AElement: TSVGElement);
+    procedure ApplyFillStyleToSVG(AElement: TSVGElement);
     property Stroker: TBGRAPenStroker read GetStroker;
   public
     constructor Create(AContainer: TVectorOriginal); virtual;
     class function CreateFromStorage(AStorage: TBGRACustomOriginalStorage; AContainer: TVectorOriginal): TVectorShape;
     destructor Destroy; override;
+    function AppendToSVG(AContent: TSVGContent): TSVGElement; virtual; abstract;
     procedure BeginUpdate(ADiffHandler: TVectorShapeDiffAny=nil); virtual;
     procedure EndUpdate; virtual;
     procedure FillFit;
@@ -433,6 +437,7 @@ type
     constructor Create; override;
     destructor Destroy; override;
     procedure Clear;
+    function ConvertToSVG(out AOffset: TPoint): TObject; override;
     function AddTexture(ATexture: TBGRABitmap): integer;
     function GetTexture(AId: integer): TBGRABitmap;
     procedure DiscardUnusedTextures;
@@ -468,6 +473,7 @@ type
     procedure MoveShapeToIndex(AFromIndex, AToIndex: integer); overload;
     procedure MoveShapeToIndex(AFromIndex, AToIndex: array of integer); overload;
     class function StorageClassName: RawByteString; override;
+    class function CanConvertToSVG: boolean; override;
     property OnSelectShape: TVectorOriginalSelectShapeEvent read FOnSelectShape write FOnSelectShape;
     property SelectedShape: TVectorShape read FSelectedShape;
     property ShapeCount: integer read GetShapeCount;
@@ -1870,6 +1876,34 @@ begin
             (not (vsfOutlineWidth in Fields) or (OutlineWidth > 0));
 end;
 
+procedure TVectorShape.ApplyStrokeStyleToSVG(AElement: TSVGElement);
+var ps: array of single;
+  i: Integer;
+begin
+  if PenVisible then
+  begin
+    AElement.strokeColor := PenColor;
+    if IsSolidPenStyle(PenStyle) then
+      AElement.strokeDashArrayNone else
+      begin
+        setlength(ps, length(PenStyle));
+        for i := 0 to high(ps) do
+          ps[i] := PenStyle[i] * PenWidth;
+        AElement.strokeDashArrayF := ps;
+      end;
+    AElement.strokeLineJoinLCL := JoinStyle;
+    AElement.strokeWidth := FloatWithCSSUnit(PenWidth, cuCustom);
+  end else
+    AElement.strokeNone;
+end;
+
+procedure TVectorShape.ApplyFillStyleToSVG(AElement: TSVGElement);
+begin
+  if BackVisible then
+    AElement.fillColor := BackFill.AverageColor
+    else AElement.fillNone;
+end;
+
 procedure TVectorShape.TransformFill(const AMatrix: TAffineMatrix; ABackOnly: boolean);
 begin
   BeginUpdate;
@@ -2853,6 +2887,26 @@ begin
   end;
 end;
 
+function TVectorOriginal.ConvertToSVG(out AOffset: TPoint): TObject;
+var
+  svg: TBGRASVG;
+  rb: TRect;
+  vb: TSVGViewBox;
+  i: Integer;
+begin
+  svg := TBGRASVG.Create;
+  result := svg;
+  rb := GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+  svg.WidthAsPixel:= rb.Width;
+  svg.HeightAsPixel := rb.Height;
+  AOffset := rb.TopLeft;
+  vb.min := PointF(rb.Left, rb.Top);
+  vb.size := PointF(rb.Width, rb.Height);
+  svg.ViewBox := vb;
+  for i := 0 to ShapeCount-1 do
+    Shape[i].AppendToSVG(svg.Content);
+end;
+
 function TVectorOriginal.AddTexture(ATexture: TBGRABitmap): integer;
 begin
   result := GetTextureId(ATexture);
@@ -3635,6 +3689,11 @@ end;
 class function TVectorOriginal.StorageClassName: RawByteString;
 begin
   result := 'vector';
+end;
+
+class function TVectorOriginal.CanConvertToSVG: boolean;
+begin
+  result := true;
 end;
 
 initialization
