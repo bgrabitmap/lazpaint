@@ -380,10 +380,16 @@ begin
                         LazPaintInstance.Image.LayerOffset[ALayerIndex].Y,
                         LazPaintInstance.Image.LayerBitmap[ALayerIndex].Width,
                         LazPaintInstance.Image.LayerBitmap[ALayerIndex].Height);
-  reducedBounds.Left := round(reducedBounds.Left*reduced.Width/LazPaintInstance.Image.Width);
-  reducedBounds.Top := round(reducedBounds.Top*reduced.Height/LazPaintInstance.Image.Height);
-  reducedBounds.Right := round(reducedBounds.Right*reduced.Width/LazPaintInstance.Image.Width);
-  reducedBounds.Bottom := round(reducedBounds.Bottom*reduced.Height/LazPaintInstance.Image.Height);
+  if LazPaintInstance.Image.Width <> 0 then
+  begin
+    reducedBounds.Left := round(reducedBounds.Left*reduced.Width/LazPaintInstance.Image.Width);
+    reducedBounds.Right := round(reducedBounds.Right*reduced.Width/LazPaintInstance.Image.Width);
+  end;
+  if LazPaintInstance.Image.Height <> 0 then
+  begin
+    reducedBounds.Top := round(reducedBounds.Top*reduced.Height/LazPaintInstance.Image.Height);
+    reducedBounds.Bottom := round(reducedBounds.Bottom*reduced.Height/LazPaintInstance.Image.Height);
+  end;
   reduced.StretchPutImage(reducedBounds, LazPaintInstance.Image.LayerBitmap[ALayerIndex], dmDrawWithTransparency);
 
   result.PreviewPts[0].y += 0.5;
