@@ -1252,6 +1252,7 @@ begin
   else
   begin
     result := FData[AIndex].displayRect;
+    if FScaling <> 0 then
     with result do
     begin
       left := round(left/FScaling);
