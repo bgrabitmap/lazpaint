@@ -437,7 +437,7 @@ type
     constructor Create; override;
     destructor Destroy; override;
     procedure Clear;
-    function ConvertToSVG(out AOffset: TPoint): TObject; override;
+    function ConvertToSVG(const AMatrix: TAffineMatrix; out AOffset: TPoint): TObject; override;
     function AddTexture(ATexture: TBGRABitmap): integer;
     function GetTexture(AId: integer): TBGRABitmap;
     procedure DiscardUnusedTextures;
@@ -2887,13 +2887,16 @@ begin
   end;
 end;
 
-function TVectorOriginal.ConvertToSVG(out AOffset: TPoint): TObject;
+function TVectorOriginal.ConvertToSVG(const AMatrix: TAffineMatrix; out AOffset: TPoint): TObject;
 var
   svg: TBGRASVG;
   rb: TRect;
   vb: TSVGViewBox;
   i: Integer;
+  sCopy: TVectorShape;
+  m: TAffineMatrix;
 begin
+  m := AffineMatrixTranslation(0.5, 0.5) * AMatrix;
   svg := TBGRASVG.Create;
   result := svg;
   rb := GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
@@ -2904,7 +2907,19 @@ begin
   vb.size := PointF(rb.Width, rb.Height);
   svg.ViewBox := vb;
   for i := 0 to ShapeCount-1 do
-    Shape[i].AppendToSVG(svg.Content);
+  begin
+    if not IsAffineMatrixIdentity(m) then
+    begin
+      sCopy := Shape[i].Duplicate;
+      try
+        sCopy.Transform(m);
+        sCopy.AppendToSVG(svg.Content);
+      finally
+        sCopy.Free;
+      end;
+    end else
+      Shape[i].AppendToSVG(svg.Content);
+  end;
 end;
 
 function TVectorOriginal.AddTexture(ATexture: TBGRABitmap): integer;
