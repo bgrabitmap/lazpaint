@@ -142,7 +142,7 @@ type
   public
     class function Fields: TVectorShapeFields; override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
-    function AppendToSVG(AContent: TSVGContent): TSVGElement; override;
+    function AppendToSVG(AContent: TSVGContent; ADefs: TSVGDefine): TSVGElement; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
     function PointInShape(APoint: TPointF): boolean; overload; override;
     function PointInShape(APoint: TPointF; ARadius: single): boolean; overload; override;
@@ -1224,17 +1224,17 @@ begin
   end;
 end;
 
-function TPolylineShape.AppendToSVG(AContent: TSVGContent): TSVGElement;
+function TPolylineShape.AppendToSVG(AContent: TSVGContent; ADefs: TSVGDefine): TSVGElement;
 var
   p: TBGRAPath;
 begin
   p := GetPath(AffineMatrixIdentity);
   result := AContent.AppendPath(p.SvgString);
   p.Free;
-  ApplyStrokeStyleToSVG(result);
+  ApplyStrokeStyleToSVG(result, ADefs);
   if PenVisible then
     result.strokeLineCapLCL := LineCap;
-  ApplyFillStyleToSVG(result);
+  ApplyFillStyleToSVG(result, ADefs);
 end;
 
 function TPolylineShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions): TRectF;

@@ -166,7 +166,7 @@ type
     class function CreateEmpty: boolean; override;
     class function StorageClassName: RawByteString; override;
     class function Usermodes: TVectorShapeUsermodes; override;
-    function AppendToSVG(AContent: TSVGContent): TSVGElement; override;
+    function AppendToSVG(AContent: TSVGContent; ADefs: TSVGDefine): TSVGElement; override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
@@ -2377,7 +2377,7 @@ begin
   Result:=inherited Usermodes + [vsuEditText];
 end;
 
-function TTextShape.AppendToSVG(AContent: TSVGContent): TSVGElement;
+function TTextShape.AppendToSVG(AContent: TSVGContent; ADefs: TSVGDefine): TSVGElement;
 var
   topLeft, u, v: TPointF;
   w, h, zoom: Single;
@@ -2387,6 +2387,7 @@ var
   span: TSVGTSpan;
   fm: TFontPixelMetric;
   rF: TRectF;
+  penFillId, outlineFillId: String;
 begin
   topLeft := Origin - (XAxis - Origin) - (YAxis - Origin);
   w := Width*2; h := Height*2;
@@ -2402,11 +2403,25 @@ begin
                               AffineMatrixTranslation(-topLeft.X, -topLeft.Y);
   end;
   if PenVisible then
-    result.fillColor := PenColor
+  begin
+    if IsAffineMatrixInversible(result.Matrix[cuPixel]) then
+      penFillId := AppendVectorialFillToSVGDefs(PenFill,
+        AffineMatrixInverse(result.Matrix[cuPixel]), ADefs, 'fill')
+      else penFillId := '';
+    if penFillId <> '' then
+      result.fill := 'url(#' + penFillId + ')'
+      else result.fillColor := PenColor;
+  end
     else result.fillNone;
   if OutlineVisible then
   begin
-    result.strokeColor := OutlineFill.AverageColor;
+    if IsAffineMatrixInversible(result.Matrix[cuPixel]) then
+      outlineFillId := AppendVectorialFillToSVGDefs(OutlineFill,
+        AffineMatrixInverse(result.Matrix[cuPixel]), ADefs, 'stroke')
+      else outlineFillId:= '';
+    if outlineFillId <> '' then
+      result.stroke := 'url(#' + outlineFillId + ')'
+      else result.strokeColor := OutlineFill.AverageColor;
     result.strokeWidth := FloatWithCSSUnit(OutlineWidth, cuCustom);
     result.strokeLineJoinLCL:= pjsRound;
   end else
