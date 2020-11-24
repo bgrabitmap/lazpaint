@@ -978,7 +978,7 @@ begin
           svg.CropToViewBox(screenDpi / svg.DefaultDpi);
           with ComputeAcceptableImageSize(floor(svg.WidthAsPixel + 0.95), floor(svg.HeightAsPixel + 0.95)) do
             FSingleImage := TBGRABitmap.Create(cx,cy);
-          svg.StretchDraw(FSingleImage.Canvas2d,0,0,FSingleImage.Width,FSingleImage.Height, true);
+          svg.StretchDraw(FSingleImage.Canvas2d,0,0,FSingleImage.Width,FSingleImage.Height);
           svg.Free;
         end
       else
