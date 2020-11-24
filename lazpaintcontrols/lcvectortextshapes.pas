@@ -1330,17 +1330,15 @@ var
   pad, paraIndex, fileIdx: Integer;
   sourceRectF,transfRectF,sourceInvRect,destF: TRectF;
   transfRect, tmpRenderRect, brokenLineRectBounds: TRect;
-  tmpSource, tmpTransf: TBGRABitmap;
+  tmpTransf: TBGRABitmap;
   tmpBroken: TBGRAMemoryStreamBitmap;
   tmpTransfOutline, tmpBrokenMask: TGrayscaleMask;
-  rf: TResampleFilter;
   storeImage, useBrokenLinesRender, redrawPen, redrawOutline,
     outlineWidthChange, penPhongChange: Boolean;
   storage: TShapeRenderStorage;
   startBrokenIndex, endBrokenIndex, brokenIndex: LongInt;
-  imgStream: TMemoryStream;
   tempRenderNewList, tempRenderCurList: TStringList;
-  renderObj, phongObj, tempStorage: TBGRACustomOriginalStorage;
+  phongObj, tempStorage: TBGRACustomOriginalStorage;
   brokenRenderOfs: TPoint;
   brokenLinePoints: Array of TPointF;
   brokenLineBoundsF: TRectF;
@@ -1513,7 +1511,6 @@ var
 
   procedure StoreRGBAImage(var AImageId: int64; AImage: TBGRAMemoryStreamBitmap; AImageOffset: TPoint);
   var
-    imgStream: TMemoryStream;
     renderObj: TBGRACustomOriginalStorage;
   begin
     if AImageId = 0 then
@@ -1645,7 +1642,11 @@ var
       size := renderObj.PointF['size'].Round;
       AOffset := (renderObj.PointF['offset'] + PointF(ARenderOffset)).Round;
       imgStream := renderObj.GetFileStream('mask.data');
-      if not Assigned(imgStream) or (imgStream.Size = 0) then exit;
+      if not Assigned(imgStream) or (imgStream.Size = 0) then
+      begin
+        renderObj.Free;
+        exit;
+      end;
       tempRenderNewList.Add(inttostr(AMaskId));
       AMask := TGrayscaleMask.Create;
       AMask.SetSize(size.x, size.y);
@@ -1696,7 +1697,11 @@ var
       size := renderObj.PointF['size'].Round;
       brokenRenderOfs := (renderObj.PointF['offset'] + PointF(ARenderOffset)).Round;
       imgStream := renderObj.GetFileStream('image.data');
-      if (imgStream = nil) or (imgStream.Size = 0) then exit;
+      if (imgStream = nil) or (imgStream.Size = 0) then
+      begin
+        renderObj.Free;
+        exit;
+      end;
       tempRenderNewList.Add(inttostr(AImageId));
       tmpBroken := TBGRAMemoryStreamBitmap.Create(size.x, size.y,
                      imgStream as TMemoryStream, 0, false);
@@ -1800,12 +1805,20 @@ begin
   transfRectF := (m*TAffineBox.AffineBox(sourceRectF)).RectBoundsF;
   transfRectF := TRectF.Intersect(transfRectF, destF);
 
-  if not IsAffineMatrixInversible(m) then exit;
+  if not IsAffineMatrixInversible(m) then
+  begin
+    tempRenderNewList.Free;
+    exit;
+  end;
   sourceInvRect := (AffineMatrixInverse(m)*TAffineBox.AffineBox(transfRectF)).RectBoundsF;
   sourceInvRect.Top := floor(sourceInvRect.Top);
   sourceInvRect.Bottom := ceil(sourceInvRect.Bottom);
   sourceRectF := TRectF.Intersect(sourceRectF,sourceInvRect);
-  if IsEmptyRectF(sourceRectF) then exit;
+  if IsEmptyRectF(sourceRectF) then
+  begin
+    tempRenderNewList.Free;
+    exit;
+  end;
   sourceRectF.Left := floor(sourceRectF.Left);
   sourceRectF.Top := floor(sourceRectF.Top);
   sourceRectF.Right := floor(sourceRectF.Right);
@@ -1973,7 +1986,6 @@ begin
       if tempRenderNewList.IndexOf(tempRenderCurList[fileIdx]) = -1 then
         tempStorage.RemoveObject(tempRenderCurList[fileIdx]);
     tempRenderCurList.Free;
-    tempRenderNewList.Free;
 
     tempStorage.AffineMatrix['last-matrix'] := AMatrix;
     tempStorage.PointF['origin'] := Origin;
@@ -1994,6 +2006,7 @@ begin
       tempStorage.RemoveObject('pen-phong');
   end;
   storage.Close;
+  tempRenderNewList.Free;
 
   ApplyClipBox(tmpTransf);
   ADest.PutImage(transfRect.Left, transfRect.Top, tmpTransf, dmDrawWithTransparency);
