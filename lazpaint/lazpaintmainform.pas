@@ -1365,6 +1365,7 @@ var
       LazPaintInstance.ShowError(dialogTitle, rsFileExtensionNotSupported);
       result := srException;
     end else
+    if not Image.CheckNoAction then result := srException else
     begin
       try
         saved := false;
@@ -1537,6 +1538,7 @@ begin
     begin
       AskMergeSelection(rsSave);
       try
+        if not Image.CheckNoAction then result := srException else
         if SuggestImageFormat(Image.currentFilenameUTF8) in [ifIco,ifCur,ifTiff,ifGif] then
         begin
            LazPaintInstance.StartSavingImage(Image.currentFilenameUTF8);
