@@ -148,7 +148,48 @@
           </Linking>
         </CompilerOptions>
       </Item4>
-      <Item5 Name="Release macOS">
+      <Item5 Name="Debug macOS">
+        <MacroValues Count="1">
+          <Macro1 Name="LCLWidgetType" Value="cocoa"/>
+        </MacroValues>
+        <CompilerOptions>
+          <Version Value="11"/>
+          <PathDelim Value="\"/>
+          <SearchPaths>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
+            <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
+          </SearchPaths>
+          <CodeGeneration>
+            <Checks>
+              <RangeChecks Value="True"/>
+              <OverflowChecks Value="True"/>
+              <StackChecks Value="True"/>
+            </Checks>
+            <VerifyObjMethodCallValidity Value="True"/>
+            <TargetCPU Value="x86_64"/>
+            <TargetOS Value="darwin"/>
+            <Optimizations>
+              <OptimizationLevel Value="0"/>
+            </Optimizations>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <DebugInfoType Value="dsDwarf2Set"/>
+              <UseHeaptrc Value="True"/>
+            </Debugging>
+            <Options>
+              <Win32>
+                <GraphicApplication Value="True"/>
+              </Win32>
+            </Options>
+          </Linking>
+          <Other>
+            <CustomOptions Value="-dDEBUG"/>
+          </Other>
+        </CompilerOptions>
+      </Item5>
+      <Item6 Name="Release macOS">
         <MacroValues Count="1">
           <Macro1 Name="LCLWidgetType" Value="cocoa"/>
         </MacroValues>
@@ -179,6 +220,7 @@
           <Linking>
             <Debugging>
               <GenerateDebugInfo Value="False"/>
+              <DebugInfoType Value="dsDwarf2Set"/>
               <UseLineInfoUnit Value="False"/>
               <StripSymbols Value="True"/>
             </Debugging>
@@ -189,46 +231,6 @@
               </Win32>
             </Options>
           </Linking>
-        </CompilerOptions>
-      </Item5>
-      <Item6 Name="Debug macOS">
-        <MacroValues Count="1">
-          <Macro1 Name="LCLWidgetType" Value="cocoa"/>
-        </MacroValues>
-        <CompilerOptions>
-          <Version Value="11"/>
-          <PathDelim Value="\"/>
-          <SearchPaths>
-            <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
-          </SearchPaths>
-          <CodeGeneration>
-            <Checks>
-              <RangeChecks Value="True"/>
-              <OverflowChecks Value="True"/>
-              <StackChecks Value="True"/>
-            </Checks>
-            <VerifyObjMethodCallValidity Value="True"/>
-            <TargetCPU Value="x86_64"/>
-            <TargetOS Value="darwin"/>
-            <Optimizations>
-              <OptimizationLevel Value="0"/>
-            </Optimizations>
-          </CodeGeneration>
-          <Linking>
-            <Debugging>
-              <UseHeaptrc Value="True"/>
-            </Debugging>
-            <Options>
-              <Win32>
-                <GraphicApplication Value="True"/>
-              </Win32>
-            </Options>
-          </Linking>
-          <Other>
-            <CustomOptions Value="-dDEBUG"/>
-          </Other>
         </CompilerOptions>
       </Item6>
       <Item7 Name="Release Linux32">
