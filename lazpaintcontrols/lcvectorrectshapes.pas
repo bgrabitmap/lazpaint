@@ -965,6 +965,7 @@ begin
     ApproxPointEqual(YAxis + PointF(0.5, 0.5), BackFill.TextureMatrix * PointF(BackFill.Texture.Width/2, BackFill.Texture.Height)) then
   begin
     result := AContent.AppendImage(topLeft, PointF(w,h), BackFill.Texture, false);
+    result.opacity:= BackFill.TextureOpacity/255;
     result.Matrix[cuPixel] := m;
   end else
   begin
