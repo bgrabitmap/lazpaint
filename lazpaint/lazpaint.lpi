@@ -161,7 +161,7 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="release\lib\$$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer)"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer)"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
