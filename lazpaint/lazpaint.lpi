@@ -40,7 +40,7 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer)"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -78,7 +78,7 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer)"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -118,7 +118,7 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer)"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -161,7 +161,7 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer)"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -201,7 +201,7 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer)"/>
+            <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <CodeGeneration>
             <Checks>
@@ -241,7 +241,7 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer)"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -281,7 +281,7 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer)"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -321,7 +321,7 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer)"/>
+            <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <CodeGeneration>
             <Optimizations>
@@ -356,7 +356,7 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer)"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -1055,7 +1055,7 @@
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
       <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-      <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer)"/>
+      <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
     </SearchPaths>
     <CodeGeneration>
       <Optimizations>
