@@ -91,7 +91,7 @@ type
     procedure OnMoveCenterPoint({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; APointIndex: integer; {%H-}AShift: TShiftState);
     function GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF; virtual;
-    function GetPath(AMatrix: TAffineMatrix): TBGRAPath;
+    function GetPath(AMatrix: TAffineMatrix): TBGRAPath; virtual;
     procedure SetUsermode(AValue: TVectorShapeUsermode); override;
     function GetClosed: boolean; virtual;
     procedure SetClosed(AValue: boolean); virtual;
@@ -183,6 +183,7 @@ type
     procedure SetSplineStyle(AValue: TSplineStyle);
   protected
     function GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF; override;
+    function GetPath(AMatrix: TAffineMatrix): TBGRAPath; override;
     function CanMovePoints: boolean; override;
     procedure DoClickPoint(APointIndex: integer; {%H-}AShift: TShiftState); override;
   public
@@ -1442,6 +1443,29 @@ begin
   begin
     if Closed then result := ComputeClosedSpline(pts, FSplineStyle)
     else result := ComputeOpenedSpline(pts, FSplineStyle);
+  end;
+end;
+
+function TCurveShape.GetPath(AMatrix: TAffineMatrix): TBGRAPath;
+var
+  pts: array of TPointF;
+  cm: array of TEasyBezierCurveMode;
+  i: Integer;
+  eb: TEasyBezierCurve;
+begin
+  pts := inherited GetCurve(AMatrix);
+  result := TBGRAPath.Create;
+  if FSplineStyle = ssEasyBezier then
+  begin
+    setlength(cm, PointCount);
+    for i := 0 to PointCount-1 do
+      cm[i] := CurveMode[i];
+    eb := EasyBezierCurve(pts, Closed, cm, CosineAngle);
+    eb.CopyToPath(result);
+  end else
+  begin
+    if Closed then result.closedSpline(pts, FSplineStyle)
+    else result.openedSpline(pts, FSplineStyle);
   end;
 end;
 
