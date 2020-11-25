@@ -101,6 +101,7 @@ type
     function CatchToolKeyPress(var AKey: TUTF8Char): boolean;
     function CatchToolKeyUp(var AKey: Word): boolean;
     procedure Arrange;
+    procedure FocusImage;
     procedure CheckDelayedUpdate;
     procedure DockedToolBoxAddButton(AAction: TBasicAction);
     procedure DockedToolBoxAddGroup(AActions: array of TBasicAction);
@@ -768,6 +769,11 @@ begin
     FMenu.RepaintToolbar;
   if Assigned(FPaletteToolbar) then
     FPaletteToolbar.Arrange;
+end;
+
+procedure TMainFormLayout.FocusImage;
+begin
+  if Assigned(FPaintBox) then SafeSetFocus(FPaintBox);
 end;
 
 procedure TMainFormLayout.CheckDelayedUpdate;

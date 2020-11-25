@@ -4180,7 +4180,7 @@ begin
     else
       exit;
   end;
-  if (CurrentTool in[ptText,ptEditShape]) and TextSpinEditFocused then VectorialFill_Pen.SetFocus;
+  if (CurrentTool in[ptText,ptEditShape]) and TextSpinEditFocused then Layout.FocusImage;
 end;
 
 procedure TFMain.PictureOnPaint(Sender: TObject);
