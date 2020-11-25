@@ -149,9 +149,11 @@ clean_lazpaint:
 ifeq ($(UNAME),Windows)
 	$(REMOVE) "lazpaint/release/bin/lazpaint.exe"
 	$(REMOVE) "lazpaint/release/bin/lazpaint32.exe"
-	$(REMOVE) "lazpaint/release/bin/lazpaint_x64.exe"
+	$(REMOVE) "lazpaint/release/bin/lazpaint64.exe"
 else
 	$(REMOVE) "lazpaint/release/bin/lazpaint"
+	$(REMOVE) "lazpaint/release/bin/lazpaint32"
+	$(REMOVE) "lazpaint/release/bin/lazpaint64"
 	$(REMOVE) "lazpaint/release/bin/lazpaint-gtk2"
 	$(REMOVE) "lazpaint/release/bin/lazpaint-qt5"
 endif
