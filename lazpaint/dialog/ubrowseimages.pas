@@ -82,6 +82,7 @@ type
     FIsSaveDialog: boolean;
     FOverwritePrompt: boolean;
     ShellListView1: TLCShellListView;
+    FUpdateListBounds: boolean;
     FInFormShow: boolean;
     FChosenImage: TImageEntry;
     FPreview: TImagePreview;
@@ -619,7 +620,11 @@ begin
     end;
     AddToCache(newFilenames, newLastModifications, ShellListView1.LargeIconSize);
   end;
-  vsList.SetBounds(vsList.Left, vsList.Top, Panel2.Width, Panel2.Height-Panel3.Height);
+  if FUpdateListBounds then
+  begin
+    vsList.SetBounds(vsList.Left, vsList.Top, Panel2.Width, Panel2.Height-Panel3.Height);
+    FUpdateListBounds := false;
+  end;
   ShellListView1.Update;
   Timer1.Enabled:= true;
 end;
@@ -1020,6 +1025,7 @@ begin
     Panel2.Constraints.MaxWidth := ClientWidth-Splitter1.Width-64
   else
     Panel2.Constraints.MaxWidth := 0;
+  FUpdateListBounds := true;
 end;
 
 procedure TFBrowseImages.ViewDetails;
