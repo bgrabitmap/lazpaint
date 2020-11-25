@@ -934,22 +934,45 @@ function TRectShape.AppendToSVG(AContent: TSVGContent; ADefs: TSVGDefine): TSVGE
 var
   topLeft, u, v: TPointF;
   w, h: Single;
+  m: TAffineMatrix;
+
+  function ApproxPointEqual(const APoint1, APoint2: TPointF): boolean;
+  var
+    precision: Single;
+  begin
+    precision := (VectLen(APoint1) + VectLen(APoint2))*1e-6;
+    result := VectLen(APoint2-APoint1) <= precision;
+  end;
+
 begin
   topLeft := Origin - (XAxis - Origin) - (YAxis - Origin);
   w := Width*2; h := Height*2;
-  result := AContent.AppendRect(topLeft, PointF(w, h));
   if (XAxis.y <> 0) or (YAxis.x <> 0) then
   begin
     u := XAxis - Origin;
     if w > 0 then u *= (2/w);
     v := YAxis - Origin;
     if h > 0 then v *= (2/h);
-    result.Matrix[cuPixel] := AffineMatrixTranslation(topLeft.X, topLeft.Y) *
-                              AffineMatrix(u, v, PointF(0, 0)) *
-                              AffineMatrixTranslation(-topLeft.X, -topLeft.Y);
+    m := AffineMatrixTranslation(topLeft.X, topLeft.Y) *
+        AffineMatrix(u, v, PointF(0, 0)) *
+        AffineMatrixTranslation(-topLeft.X, -topLeft.Y);
+  end else
+    m := AffineMatrixIdentity;
+  if not PenVisible and (BackFill.FillType = vftTexture) and
+    (BackFill.TextureRepetition = trNone) and Assigned(BackFill.Texture) and
+    ApproxPointEqual(Origin + PointF(0.5, 0.5), BackFill.TextureMatrix * PointF(BackFill.Texture.Width/2, BackFill.Texture.Height/2)) and
+    ApproxPointEqual(XAxis + PointF(0.5, 0.5), BackFill.TextureMatrix * PointF(BackFill.Texture.Width, BackFill.Texture.Height/2)) and
+    ApproxPointEqual(YAxis + PointF(0.5, 0.5), BackFill.TextureMatrix * PointF(BackFill.Texture.Width/2, BackFill.Texture.Height)) then
+  begin
+    result := AContent.AppendImage(topLeft, PointF(w,h), BackFill.Texture, false);
+    result.Matrix[cuPixel] := m;
+  end else
+  begin
+    result := AContent.AppendRect(topLeft, PointF(w, h));
+    result.Matrix[cuPixel] := m;
+    ApplyStrokeStyleToSVG(result, ADefs);
+    ApplyFillStyleToSVG(result, ADefs);
   end;
-  ApplyStrokeStyleToSVG(result, ADefs);
-  ApplyFillStyleToSVG(result, ADefs);
 end;
 
 procedure TRectShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
