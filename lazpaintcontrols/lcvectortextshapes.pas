@@ -2424,6 +2424,7 @@ begin
       else result.strokeColor := OutlineFill.AverageColor;
     result.strokeWidth := FloatWithCSSUnit(OutlineWidth, cuCustom);
     result.strokeLineJoinLCL:= pjsRound;
+    result.paintOrder:= spoStrokeFillMarkers;
   end else
     result.strokeNone;
   t := TSVGText(result);
