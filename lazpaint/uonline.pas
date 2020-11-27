@@ -82,7 +82,7 @@ procedure MyHttpGet(AURL: string; ADestStream: TStream);
 {$IFDEF USE_NS_URL_REQUEST}
 begin
   TNSHTTPSendAndReceive.SimpleGet(AURL, ADestStream);
-end
+end;
 {$ELSE}
 var client: TFPHTTPClient;
 begin
