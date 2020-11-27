@@ -31,7 +31,7 @@ implementation
 uses Dialogs, BGRABitmapTypes, Clipbrd, Graphics, LCLIntf, LCLType, GraphType
     {$IFDEF PDN_CLIPBOARD_FORMAT}, math, BGRADNetDeserial{$ENDIF}
     {$IFDEF BMP_CLIPBOARD_FORMAT}, FPWriteBMP{$ENDIF}
-    {$IFDEF HTML_CLIPBOARD_FORMAT}, fphttpclient{$ENDIF};
+    {$IFDEF HTML_CLIPBOARD_FORMAT}, UOnline{$ENDIF};
 
 {$IFDEF DEBUG_CLIPBOARD}
 const
@@ -216,6 +216,7 @@ var
   stream: TMemoryStream;
   url: string;
 begin
+  result := nil;
   if tokens.Count > 0 then
   begin
     if UpperCase(tokens[0]) = 'IMG' then
@@ -229,7 +230,7 @@ begin
           delete(url,5,1);
         stream := TMemoryStream.Create;
         try
-          TFPHttpClient.SimpleGet(url,stream);
+          MyHttpGet(url,stream);
           stream.Position:= 0;
           result := TBGRABitmap.Create(stream);
         except on ex: exception do begin

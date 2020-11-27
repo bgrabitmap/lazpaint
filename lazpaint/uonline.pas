@@ -57,6 +57,8 @@ type
     destructor Destroy; override;
   end;
 
+procedure MyHttpGet(AURL: string; ADestStream: TStream);
+
 implementation
 
 uses LazFileUtils, Dialogs,
@@ -75,6 +77,25 @@ begin
     else
       exit;
 end;
+
+procedure MyHttpGet(AURL: string; ADestStream: TStream);
+{$IFDEF USE_NS_URL_REQUEST}
+begin
+  TNSHTTPSendAndReceive.SimpleGet(AURL, ADestStream);
+end
+{$ELSE}
+var client: TFPHTTPClient;
+begin
+  client := TFPHTTPClient.Create(nil);
+  try
+    client.KeepConnection:= false;
+    client.AllowRedirect:= true;
+    client.Get(AURL, ADestStream);
+  finally
+    client.Free;
+  end;
+end;
+{$ENDIF}
 
 { THttpGetThread }
 
@@ -100,11 +121,7 @@ var stream: TMemoryStream;
 begin
   stream := TMemoryStream.Create;
   try
-    {$IFDEF USE_NS_URL_REQUEST}
-    TNSHTTPSendAndReceive.SimpleGet(FUrl, stream);
-    {$ELSE}
-    TFPHTTPClient.SimpleGet(FUrl, stream);
-    {$ENDIF}
+    MyHttpGet(FUrl, stream);
     setlength(FBuffer, stream.Size);
     stream.Position:= 0;
     stream.Read(FBuffer[1], length(FBuffer));
