@@ -342,7 +342,11 @@ begin
           inTag := false;
           result := GetBitmapFromTag(tagTokens);
           tagTokens.clear;
-          if result <> nil then exit;
+          if result <> nil then
+          begin
+            tagTokens.Free;
+            exit;
+          end;
         end else
           if data[p]>#32 then
             tagTokens.Add(data[p]);

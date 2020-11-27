@@ -62,7 +62,8 @@ procedure MyHttpGet(AURL: string; ADestStream: TStream);
 implementation
 
 uses LazFileUtils, Dialogs,
-    UTranslation, UFileSystem;
+    UTranslation, UFileSystem,
+    base64;
 
 const OnlineResourcesURL = 'https://gitcdn.link/repo/bgrabitmap/lazpaint/master/lazpaint/release/stable/';
 
@@ -79,23 +80,55 @@ begin
 end;
 
 procedure MyHttpGet(AURL: string; ADestStream: TStream);
-{$IFDEF USE_NS_URL_REQUEST}
-begin
-  TNSHTTPSendAndReceive.SimpleGet(AURL, ADestStream);
-end;
-{$ELSE}
-var client: TFPHTTPClient;
-begin
-  client := TFPHTTPClient.Create(nil);
-  try
-    client.KeepConnection:= false;
-    client.AllowRedirect:= true;
-    client.Get(AURL, ADestStream);
-  finally
-    client.Free;
-  end;
-end;
+var
+  posDelim: SizeInt;
+  stream64: TStringStream;
+  decoder: TBase64DecodingStream;
+{$IFNDEF USE_NS_URL_REQUEST}
+  client: TFPHTTPClient;
 {$ENDIF}
+begin
+  if AURL.StartsWith('data:') then
+  begin
+    posDelim := pos(';', AURL);
+    if posDelim > 0 then
+    begin
+      if copy(AURL, posDelim+1, 7) = 'base64,' then
+      begin
+        stream64 := TStringStream.Create(AURL);
+        try
+          stream64.Position:= posDelim+7;
+          decoder := TBase64DecodingStream.Create(stream64, bdmMIME);
+          try
+            ADestStream.CopyFrom(decoder, decoder.Size);
+            exit;
+          finally
+            decoder.Free;
+          end;
+        finally
+          stream64.Free;
+        end;
+      end;
+    end;
+    raise exception.Create('Invalid data URL format');
+  end else
+  {$IFDEF USE_NS_URL_REQUEST}
+  begin
+    TNSHTTPSendAndReceive.SimpleGet(AURL, ADestStream);
+  end;
+  {$ELSE}
+  begin
+    client := TFPHTTPClient.Create(nil);
+    try
+      client.KeepConnection:= false;
+      client.AllowRedirect:= true;
+      client.Get(AURL, ADestStream);
+    finally
+      client.Free;
+    end;
+  end;
+  {$ENDIF}
+end;
 
 { THttpGetThread }
 
