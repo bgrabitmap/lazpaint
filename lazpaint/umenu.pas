@@ -187,6 +187,7 @@ begin
           AddSubItem('16px', @IconSizeItemClick, 16);
           AddSubItem('24px', @IconSizeItemClick, 24);
           AddSubItem('32px', @IconSizeItemClick, 32);
+          AddSubItem('40px', @IconSizeItemClick, 40);
           AddSubItem('48px', @IconSizeItemClick, 48);
           AddSubItem(rsAutodetect, @IconSizeItemClick, 0);
           AMenu.Add(item);
