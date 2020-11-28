@@ -267,8 +267,6 @@ begin
   FOverwritePrompt:= true;
   FOpenButtonHint:= ToolButton_OpenSelectedFiles.Hint;
 
-  UpdateTheme;
-
   FPreview := TImagePreview.Create(vsPreview, Label_Status, true);
   FPreview.OnValidate:= @PreviewValidate;
   FChosenImage := TImageEntry.Empty;
@@ -278,6 +276,8 @@ begin
 
   ScaleControl(Panel1, OriginalDPI, 0,0, true);
   ScaleControl(Panel2, OriginalDPI, 0,0, true);
+
+  UpdateTheme;
 
   vsList.BitmapAutoScale:= false;
 
