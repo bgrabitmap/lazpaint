@@ -211,7 +211,7 @@ type
     function ProcessCommands(commands: TStringList): boolean; override;
     procedure ChangeIconSize(size: integer); override;
     procedure Show; override;
-    procedure Hide; override;
+    function Hide: boolean; override;
     procedure Run; override;
     procedure Restart; override;
     procedure CancelRestart; override;
@@ -1530,9 +1530,14 @@ begin
   FMain.Show;
 end;
 
-procedure TLazPaintInstance.Hide;
+function TLazPaintInstance.Hide: boolean;
 begin
-  if MainFormVisible then FMain.Hide;
+  if MainFormVisible then
+  begin
+    FMain.Hide;
+    result := true;
+  end
+  else result := false;
 end;
 
 procedure TLazPaintInstance.Run;

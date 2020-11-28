@@ -1889,24 +1889,19 @@ begin
         FBrowseSelections.AllowMultiSelect := false;
         FBrowseSelections.Caption := LoadSelectionDialog.Title;
       end;
-      self.Hide;
-      try
-        FBrowseSelections.FilterIndex:= LoadSelectionDialog.FilterIndex;
-        if FBrowseSelections.ShowModal = mrOK then
-        begin
-          LoadSelectionDialog.FilterIndex := FBrowseSelections.FilterIndex;
-          LazPaintInstance.ShowTopmost(topmost);
-          selectionFileName := FBrowseSelections.Filename;
-          loadedImage := FBrowseSelections.GetChosenImage;
-          Config.AddRecentDirectory(ExtractFilePath(selectionFileName));
-        end else
-        begin
-          result := srCancelledByUser;
-          LazPaintInstance.ShowTopmost(topmost);
-          exit;
-        end;
-      finally
-        self.Show;
+      FBrowseSelections.FilterIndex:= LoadSelectionDialog.FilterIndex;
+      if FBrowseSelections.ShowModal = mrOK then
+      begin
+        LoadSelectionDialog.FilterIndex := FBrowseSelections.FilterIndex;
+        LazPaintInstance.ShowTopmost(topmost);
+        selectionFileName := FBrowseSelections.Filename;
+        loadedImage := FBrowseSelections.GetChosenImage;
+        Config.AddRecentDirectory(ExtractFilePath(selectionFileName));
+      end else
+      begin
+        result := srCancelledByUser;
+        LazPaintInstance.ShowTopmost(topmost);
+        exit;
       end;
     end else
     begin
@@ -3828,18 +3823,13 @@ begin
         FBrowseBrushes.AllowMultiSelect := false;
         FBrowseBrushes.Caption := OpenBrushDialog.Title;
       end;
-      self.Hide;
-      try
-        FBrowseBrushes.InitialDirectory := Config.DefaultBrushDirectory;
-        FBrowseBrushes.FilterIndex:= OpenBrushDialog.FilterIndex;
-        if FBrowseBrushes.ShowModal = mrOK then
-        begin
-          OpenBrushDialog.FilterIndex := FBrowseBrushes.FilterIndex;
-          brushFilename := FBrowseBrushes.Filename;
-          newBrushBmp := FBrowseBrushes.GetChosenImage.bmp;
-        end;
-      finally
-        self.Show;
+      FBrowseBrushes.InitialDirectory := Config.DefaultBrushDirectory;
+      FBrowseBrushes.FilterIndex:= OpenBrushDialog.FilterIndex;
+      if FBrowseBrushes.ShowModal = mrOK then
+      begin
+        OpenBrushDialog.FilterIndex := FBrowseBrushes.FilterIndex;
+        brushFilename := FBrowseBrushes.Filename;
+        newBrushBmp := FBrowseBrushes.GetChosenImage.bmp;
       end;
     end else
     begin

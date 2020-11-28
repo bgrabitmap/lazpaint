@@ -146,6 +146,7 @@ type
     ShowRememberStartupDirectory: boolean;
     function GetChosenImage: TImageEntry;
     procedure FreeChosenImage;
+    function ShowModal: Integer; override;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     property Filename: string read FFilename;
     property SelectedFileCount: integer read GetSelectedFileCount;
@@ -1282,6 +1283,31 @@ end;
 procedure TFBrowseImages.FreeChosenImage;
 begin
   FreeAndNil(FChosenImage.bmp);
+end;
+
+function TFBrowseImages.ShowModal: Integer;
+var
+  mainHidden: Boolean;
+begin
+  mainHidden := FLazPaintInstance.Hide;
+  try
+    {$IFDEF LCLqt5}
+    Show;
+    ModalResult := mrNone;
+    repeat
+      Application.ProcessMessages;
+      Sleep(50);
+    until (ModalResult <> mrNone) or not Visible;
+    if Visible then Hide;
+    if ModalResult = mrNone then
+      result := mrAbort
+      else result := ModalResult;
+    {$ELSE}
+    Result:=inherited ShowModal;
+    {$ENDIf}
+  finally
+    if mainHidden then FLazPaintInstance.Show;
+  end;
 end;
 
 end.

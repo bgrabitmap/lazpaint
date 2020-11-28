@@ -242,7 +242,7 @@ type
     function ProcessCommands(commands: TStringList): boolean; virtual; abstract;
     procedure ChangeIconSize(size: integer); virtual; abstract;
     procedure Show; virtual; abstract;
-    procedure Hide; virtual; abstract;
+    function Hide: boolean; virtual; abstract;
     procedure Run; virtual; abstract;
     procedure Restart; virtual; abstract;
     procedure CancelRestart; virtual; abstract;
