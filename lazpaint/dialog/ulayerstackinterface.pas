@@ -30,7 +30,7 @@ type
     LazPaintInstance: TLazPaintCustomInstance;
     Container: TWinControl;
     BGRALayerStack: TBGRAVirtualScreen;
-    TimerScroll: TTimer;
+    TimerScroll, TimerQuery: TTimer;
     PanelToolbar: TPanel;
     Toolbar: TToolbar;
     ComboBox_BlendOp: TBCComboBox;
@@ -45,6 +45,7 @@ type
       WheelDelta: Integer; {%H-}MousePos: TPoint; var Handled: Boolean);
     procedure BGRALayerStack_Redraw(Sender: TObject; Bitmap: TBGRABitmap);
     procedure ComboBox_BlendOpChange(Sender: TObject);
+    procedure TimerQuery_Timer(Sender: TObject);
     procedure TimerScroll_Timer(Sender: TObject);
     procedure Toolbar_Resize(Sender: TObject);
     procedure ToolSelectBlendOperation_Click(Sender: TObject);
@@ -56,7 +57,7 @@ type
     FScaling: Double;
     FDarkTheme: boolean;
     FScrollStackItemIntoView: Boolean;
-    FUpdatingComboBlendOp: Boolean;
+    FUpdatingComboBlendOp, FQuerySelectBlendOp: Boolean;
     FPartialRedraw: Boolean;
     FRenaming: Boolean;
     FDontUpdateStack: Boolean;
@@ -82,6 +83,7 @@ type
     function GetTextColor(ASelected: boolean): TColor;
     procedure UpdateComboBlendOp;
     procedure SelectBlendOp;
+    procedure QuerySelectBlendOp;
     procedure SetZoomFactor(AValue: single);
     function DrawLayerItem(ABitmap: TBGRABitmap; ALayerPos: TPoint; ALayerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
     procedure DrawLayerStack(ABitmap: TBGRABitmap; ALayout: boolean; AUpdateItem: Integer);
@@ -147,10 +149,22 @@ begin
         if LazPaintInstance.Image.CurrentLayerIndex = 0 then
           LazPaintInstance.ToolManager.ToolPopup(tpmBlendOpBackground);
         FDontUpdateStack := false;
+        FQuerySelectBlendOp:= false;
       end else
-        SelectBlendOp;
+        QuerySelectBlendOp;
     end;
   end;
+end;
+
+procedure TLayerStackInterface.TimerQuery_Timer(Sender: TObject);
+begin
+  if FQuerySelectBlendOp then
+  begin
+    FQuerySelectBlendOp := false;
+    SelectBlendOp;
+  end
+  else
+    TimerQuery.Enabled:= false;
 end;
 
 procedure TLayerStackInterface.TimerScroll_Timer(Sender: TObject);
@@ -875,6 +889,7 @@ var
 begin
   if FUpdatingComboBlendOp then exit;
   FUpdatingComboBlendOp := true;
+  FQuerySelectBlendOp:= false;
   blendOps := TStringList.Create;
   selectedStr := '';
   blendOps.AddStrings(ComboBox_BlendOp.Items);
@@ -928,6 +943,12 @@ begin
   LazPaintInstance.ShowTopmost(topmostInfo);
   if LazPaintInstance.Image.CurrentLayerIndex = 0 then
     LazPaintInstance.ToolManager.ToolPopup(tpmBlendOpBackground);
+end;
+
+procedure TLayerStackInterface.QuerySelectBlendOp;
+begin
+  TimerQuery.Enabled := true;
+  FQuerySelectBlendOp := true;
 end;
 
 procedure TLayerStackInterface.ToolZoomLayerStackIn_Click(Sender: TObject);
@@ -1029,6 +1050,11 @@ begin
   TimerScroll.Enabled := false;
   TimerScroll.Interval := 30;
   TimerScroll.OnTimer:=@TimerScroll_Timer;
+  TimerQuery := TTimer.Create(Container);
+  TimerQuery.Enabled := false;
+  TimerQuery.Interval := 200;
+  TimerQuery.OnTimer:=@TimerQuery_Timer;
+  FQuerySelectBlendOp:= false;
 
   ApplyThemeAndDPI;
   LazPaintInstance.Image.OnImageChanged.AddObserver(@LazPaint_ImageChanged);
