@@ -1097,8 +1097,6 @@ begin
   else exit;
 
   AHandled := true;
-  if (ToolWindowStyle <> fsStayOnTop) and
-     (AButton = mbLeft) then LazPaintInstance.ChooseColorVisible := true;
   if LazPaintInstance.ChooseColorVisible and (AButton = mbLeft) then
     LazPaintInstance.ChooseColorTarget := target
   else

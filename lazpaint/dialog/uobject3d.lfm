@@ -240,7 +240,7 @@ object FObject3D: TFObject3D
           Top = 28
           Width = 20
           Enabled = False
-          OnMouseDown = Shape_MaterialColorMouseDown
+          OnMouseUp = Shape_MaterialColorMouseUp
         end
         object SpinEdit_SpecularIndex: TSpinEdit
           Left = 90
