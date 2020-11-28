@@ -1061,8 +1061,8 @@ begin
   BCButton_RemoveFromPalette.ShowHint := true;
   ApplyTheme;
 
-  EColor.Font.Height := FontEmHeightSign * DoScaleY(11, OriginalDPI, FDPI) + 1;
-  LColor.Font.Height := FontEmHeightSign * DoScaleY(11, OriginalDPI, FDPI) + 1;
+  EColor.Font.Height := FontEmHeightSign * (DoScaleY(11, OriginalDPI, FDPI) + 1);
+  LColor.Font.Height := FontEmHeightSign * (DoScaleY(11, OriginalDPI, FDPI) + 1);
   EColor.Text:= '#FFFFFF';
   LColor.Visible := true;
   LColor.Caption := '#FFFFFF';
