@@ -385,6 +385,11 @@ begin
     ResetDirectory(false, true);
     SelectFile(Edit_Filename.Text);
     Key := 0;
+  end else
+  if (KEY = VK_ESCAPE) then
+  begin
+    Close;
+    Key := 0;
   end;
 end;
 
