@@ -121,6 +121,8 @@ var
 begin
   iconImg := TBGRALazPaintImage.Create;
   iconImg.LoadFromResource(AFilename);
+  if AImages.ResolutionCount = 0 then
+    AImages.RegisterResolutions([AImages.Width]);
   setlength(iconFlat, AImages.ResolutionCount);
   setlength(bmpArray, length(iconFlat));
   for i := 0 to high(iconFlat) do

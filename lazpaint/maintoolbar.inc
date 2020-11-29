@@ -225,24 +225,6 @@ begin
   Label_Coordinates.Caption := '';
   FCoordinatesCaption:= '';
   FCoordinatesCaptionCount := 0;
-  LabelAutosize(Label_Pen);
-  LabelAutosize(Label_Back);
-  LabelAutosize(Label_PenWidth);
-  LabelAutosize(Label_Eraser);
-  LabelAutosize(Label_Tolerance);
-  LabelAutosize(Label_Grid);
-  LabelAutosize(Label_Curve);
-  LabelAutosize(Label_Text);
-  LabelAutosize(Label_TextBlur);
-  LabelAutosize(Label_ShadowOffset);
-  LabelAutosize(Label_Shape);
-  LabelAutosize(Label_PhongBorder);
-  LabelAutosize(Label_Altitude);
-  LabelAutosize(Label_OutlineWidth);
-  LabelAutosize(Label_Brush);
-  LabelAutosize(Label_Spacing);
-  LabelAutosize(Label_Ratio);
-  LabelAutosize(Label_Donate);
   Image_SwapColors.Hint := Image_SwapColors.Hint + ' (X)';
 
   Tool_CurveModeAuto.Hint := Tool_CurveModeAuto.Hint + ' (A)';
