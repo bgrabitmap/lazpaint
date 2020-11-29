@@ -538,7 +538,10 @@ begin
            else
              vfc.Height := vfc.PreferredSize.cy;
          end else
-           tb.Controls[j].Height := tbNormalHeight-3;
+         if tb.Controls[j] is TLabel then
+           tb.Controls[j].Height := tbNormalHeight - DoScaleY(3, OriginalDPI, FTargetDPI)
+         else
+           tb.Controls[j].Height := tbNormalHeight - DoScaleY(2, OriginalDPI, FTargetDPI);
          if tb.Controls[j] is TToolBar then
          begin
            minNextX := MaxLongInt;
