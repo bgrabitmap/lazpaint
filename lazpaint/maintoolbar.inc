@@ -255,18 +255,18 @@ begin
   end;
 end;
 
-procedure TFMain.LabelAutosize(ALabel: TLabel);
+procedure TFMain.LabelAutosize(ALabel: TLabel; ATargetDPI: integer);
 var
   delta, nextPos: integer;
   container: TWinControl;
   nextControl: TControl;
   I, prefWidth, prefHeight: Integer;
 begin
-  ALabel.Font.Height := -DoScaleY(12, OriginalDPI);
+  ALabel.Font.Height := -DoScaleY(12, OriginalDPI, ATargetDPI);
   prefWidth := ALabel.Width;
   prefHeight := ALabel.Width;
   ALabel.GetPreferredSize(prefWidth, prefHeight);
-  ALabel.Width := prefWidth+DoScaleX(5, OriginalDPI);
+  ALabel.Width := prefWidth+DoScaleX(5, OriginalDPI, ATargetDPI);
   nextPos := MaxLongInt;
   container := ALabel.Parent;
   for i := 0 to container.ControlCount-1 do
