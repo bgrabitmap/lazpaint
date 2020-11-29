@@ -885,7 +885,7 @@ begin
   FLayout.OnPictureMouseMove:=@PictureMouseMove;
   FLayout.OnPictureMouseBefore:=@PictureMouseBefore;
 
-  ScaleControl(Self,OriginalDPI);
+  //ScaleControl(Self,OriginalDPI);
   self.Color := clBtnFace; //toolbar color inherited on mac
 
   //mac interface
@@ -1118,6 +1118,8 @@ procedure TFMain.FormShow(Sender: TObject);
 var
   m: TMainFormMenu;
   startFillControlWidth: LongInt;
+  iconSize: Integer;
+  toolbarDPI: integer;
 begin
   if FLayout.Menu = nil then
   begin
@@ -1131,7 +1133,12 @@ begin
       Panel_CloseShape,Panel_LineCap,Panel_Aliasing,
       Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_Text,Panel_Altitude,Panel_TextShadow,Panel_TextOutline,
       Panel_OutlineFill,Panel_PhongShape,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio,Panel_Donate],Panel_ToolbarBackground);
-    m.ImageList := LazPaintInstance.Icons[ScaleY(16, 96)];
+    iconSize := round(Config.DefaultIconSize(ScaleY(16, 96)) * 16 / 20);
+    if iconSize < 16 then iconSize := 16;
+    toolbarDPI := round(96*iconSize/16);
+    m.ScaleToolbars(toolbarDPI);
+    ScaleControl(Panel_PenWidthPreview, OriginalDPI, toolbarDPI, toolbarDPI);
+    m.ImageList := LazPaintInstance.Icons[iconSize];
     m.Apply;
     FLayout.Menu := m;
 

@@ -33,6 +33,7 @@ type
   protected
     FInstance: TLazPaintCustomInstance;
     FInstalledScripts: TStringList;
+    FTargetDPI: integer;
     procedure AddMenus(AMenu: TMenuItem; AActionList: TActionList; AActionsCommaText: string; AIndex: integer = -1); overload;
     procedure AddMenus(AMenuName: string; AActionsCommaText: string); overload;
     procedure AddInstalledScripts(AMenu: TMenuItem; AIndex: integer = -1);
@@ -45,6 +46,7 @@ type
     destructor Destroy; override;
     procedure PredefinedMainMenus(const AMainMenus: array of TMenuItem);
     procedure Toolbars(const AToolbars: array of TPanel; AToolbarBackground: TPanel);
+    procedure ScaleToolbars(ATargetDPI: integer);
     procedure CycleTool(var ATool: TPaintToolType; var AShortCut: TUTF8Char);
     procedure Apply;
     procedure ArrangeToolbars(ClientWidth: integer);
@@ -185,6 +187,7 @@ begin
           item.Caption := rsIconSize;
           item.OnClick:=@IconSizeMenuClick;
           AddSubItem('16px', @IconSizeItemClick, 16);
+          AddSubItem('20px', @IconSizeItemClick, 20);
           AddSubItem('24px', @IconSizeItemClick, 24);
           AddSubItem('32px', @IconSizeItemClick, 32);
           AddSubItem('40px', @IconSizeItemClick, 40);
@@ -364,7 +367,7 @@ end;
 
 function TMainFormMenu.GetIndividualToolbarHeight: integer;
 begin
-  result := DoScaleY(26,OriginalDPI);
+  result := DoScaleY(24,OriginalDPI,FTargetDPI);
 end;
 
 constructor TMainFormMenu.Create(AInstance: TLazPaintCustomInstance; AActionList: TActionList);
@@ -372,6 +375,7 @@ begin
   FInstance := AInstance;
   FActionList := AActionList;
   FToolbarsHeight := 0;
+  FTargetDPI := OriginalDPI;
 end;
 
 destructor TMainFormMenu.Destroy;
@@ -410,6 +414,15 @@ begin
     end;
   end;
   FToolbarBackground := AToolbarBackground;
+end;
+
+procedure TMainFormMenu.ScaleToolbars(ATargetDPI: integer);
+var
+  i: Integer;
+begin
+  FTargetDPI := ATargetDPI;
+  for i := 0 to high(FToolbars) do
+    ScaleControl(FToolbars[i].tb, OriginalDPI, ATargetDPI, ATargetDPI, true);
 end;
 
 procedure TMainFormMenu.CycleTool(var ATool: TPaintToolType;
@@ -516,7 +529,7 @@ begin
      begin
        for j := 0 to tb.ControlCount-1 do
        begin
-         tb.Controls[j].Top := 1;
+         tb.Controls[j].Top := DoScaleY(1, OriginalDPI, FTargetDPI);
          if tb.Controls[j] is TLCVectorialFillControl then
          begin
            vfc := TLCVectorialFillControl(tb.Controls[j]);

@@ -270,6 +270,10 @@ begin
   FImageList.Clear;
   FImageList.Width := FImageListSize.cx;
   FImageList.Height := FImageListSize.cy;
+  {$IFDEF DARWIN}
+  FImageList.Scaled := true;
+  FImageList.RegisterResolutions([FImageListSize.cx, FImageListSize.cx*2]);
+  {$ENDIF}
 
   lst := TStringList.Create;
   lst.CommaText := GetResourceString('fillimages.lst');

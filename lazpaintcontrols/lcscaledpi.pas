@@ -105,8 +105,8 @@ begin
     Result := Size * ToDPI / FromDPI;
 end;
 
-procedure ScaleControl(Control: TControl; FromDPI: Integer; ToDPI_X: Integer; ToDPI_Y: integer;
-  ScaleToolbar: boolean = false);
+procedure ScaleControl(Control: TControl; FromDPI: Integer; ToDPI_X: Integer;
+  ToDPI_Y: Integer; ScaleToolbar: boolean);
 var
   n: Integer;
   WinControl: TWinControl;
@@ -123,11 +123,12 @@ begin
     Top:=DoScaleY(Top,FromDPI,ToDPI_Y);
     Width:=DoScaleX(Width,FromDPI,ToDPI_X);
     Height:=DoScaleY(Height,FromDPI,ToDPI_Y);
-    {$IFDEF LCL Qt}
-      Font.Size := 0;
-    {$ELSE}
-      Font.Height := ScaleY(Font.GetTextHeight('Hg'),FromDPI);
-    {$ENDIF}
+    if Font.Size = 0 then
+    begin
+      if ToDPI_Y <> Screen.PixelsPerInch then
+        Font.Height := DoScaleY(Font.GetTextHeight('Hg'),FromDPI,ToDPI_Y);
+    end else
+      Font.Size:= round(Font.Size * ToDPI_Y / Screen.PixelsPerInch);
   end;
 
   if Control is TToolBar then begin
