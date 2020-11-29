@@ -1,5 +1,5 @@
 object FBrowseImages: TFBrowseImages
-  Left = 376
+  Left = 110
   Height = 300
   Top = 101
   Width = 684
@@ -20,17 +20,17 @@ object FBrowseImages: TFBrowseImages
   LCLVersion = '2.0.10.0'
   object Panel1: TPanel
     Left = 464
-    Height = 300
-    Top = 0
+    Height = 227
+    Top = 73
     Width = 220
     Align = alClient
-    ClientHeight = 300
+    ClientHeight = 227
     ClientWidth = 220
     ParentFont = False
     TabOrder = 1
     object Label_Status: TLabel
       Left = 3
-      Height = 15
+      Height = 14
       Top = 5
       Width = 3
       Caption = '.'
@@ -39,7 +39,7 @@ object FBrowseImages: TFBrowseImages
     end
     object vsPreview: TBGRAVirtualScreen
       Left = 3
-      Height = 270
+      Height = 197
       Top = 26
       Width = 214
       Alignment = taLeftJustify
@@ -51,21 +51,22 @@ object FBrowseImages: TFBrowseImages
     end
     object ListBox_RecentDirs: TListBox
       Left = 3
-      Height = 269
+      Height = 196
       Top = 26
       Width = 212
       Anchors = [akTop, akLeft, akRight, akBottom]
       ItemHeight = 0
       OnClick = ListBox_RecentDirsClick
       ParentFont = False
-      ScrollWidth = 263
+      ScrollWidth = 210
       TabOrder = 1
+      TopIndex = -1
     end
     object CheckBox_UseDirectoryOnStartup: TCheckBox
       Left = 56
-      Height = 19
+      Height = 23
       Top = 3
-      Width = 168
+      Width = 196
       Caption = 'Use this directory on startup'
       ParentFont = False
       TabOrder = 0
@@ -74,209 +75,227 @@ object FBrowseImages: TFBrowseImages
   end
   object Splitter1: TSplitter
     Left = 458
-    Height = 300
-    Top = 0
+    Height = 227
+    Top = 73
     Width = 6
     MinSize = 64
   end
   object Panel2: TPanel
     Left = 0
-    Height = 300
-    Top = 0
+    Height = 227
+    Top = 73
     Width = 458
     Align = alLeft
-    ClientHeight = 300
+    ClientHeight = 227
     ClientWidth = 458
     ParentFont = False
     TabOrder = 2
-    object Panel3: TPanel
-      Left = 1
-      Height = 73
-      Top = 1
-      Width = 456
-      Align = alTop
-      ClientHeight = 73
-      ClientWidth = 456
-      ParentFont = False
-      TabOrder = 0
-      object ToolBar1: TToolBar
-        Left = 1
-        Height = 33
-        Top = 2
-        Width = 198
-        Align = alNone
-        ButtonHeight = 32
-        ButtonWidth = 32
-        EdgeBorders = []
-        Images = ImageListToolbar
-        ParentFont = False
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 3
-        object ToolButton_GoUp: TToolButton
-          Left = 145
-          Hint = 'Go one directory up'
-          Top = 0
-          ImageIndex = 0
-          OnClick = ToolButton_GoUpClick
-        end
-        object ToolButton_ViewBigIcon: TToolButton
-          Left = 73
-          Hint = 'Show big icons'
-          Top = 0
-          ImageIndex = 2
-          OnClick = ToolButton_ViewBigIconClick
-        end
-        object ToolButton_ViewDetails: TToolButton
-          Left = 37
-          Hint = 'Show details and preview'
-          Top = 0
-          ImageIndex = 3
-          OnClick = ToolButton_ViewDetailsClick
-        end
-        object ToolButton_OpenSelectedFiles: TToolButton
-          Left = 1
-          Hint = 'Open selected files'
-          Top = 0
-          Enabled = False
-          ImageIndex = 5
-          OnClick = ToolButton_OpenSelectedFilesClick
-        end
-        object Tool_SelectDrive: TToolButton
-          Left = 109
-          Hint = 'Select drive'
-          Top = 0
-          ImageIndex = 6
-          OnClick = Tool_SelectDriveClick
-          Visible = False
-        end
-        object ToolButton_CreateFolderOrContainer: TToolButton
-          Left = 1
-          Hint = 'Create folder or container'
-          Top = 32
-          ImageIndex = 8
-          OnClick = ToolButton_CreateFolderOrContainerClick
-        end
-      end
-      object Edit_Filename: TEdit
-        Left = 224
-        Height = 23
-        Top = 40
-        Width = 224
-        Anchors = [akTop, akLeft, akRight]
-        OnChange = Edit_FilenameChange
-        ParentFont = False
-        TabOrder = 2
-      end
-      object DirectoryEdit1: TEdit
-        Left = 200
-        Height = 23
-        Top = 5
-        Width = 248
-        Anchors = [akTop, akLeft, akRight]
-        OnChange = DirectoryEdit1Change
-        ParentFont = False
-        TabOrder = 0
-      end
-      object ComboBox_FileExtension: TBCComboBox
-        Left = 6
-        Height = 27
-        Top = 40
-        Width = 210
-        ItemIndex = -1
-        ArrowSize = 8
-        ArrowWidth = 16
-        FocusBorderOpacity = 0
-        GlobalOpacity = 255
-        MemoryUsage = bmuHigh
-        Rounding.RoundX = 3
-        Rounding.RoundY = 3
-        StateClicked.Background.Gradient1.StartColor = clBtnShadow
-        StateClicked.Background.Gradient1.EndColor = clBtnFace
-        StateClicked.Background.Gradient1.GradientType = gtLinear
-        StateClicked.Background.Gradient1.Point2YPercent = 250
-        StateClicked.Background.Gradient2.StartColor = clBtnShadow
-        StateClicked.Background.Gradient2.EndColor = clBtnText
-        StateClicked.Background.Gradient2.GradientType = gtLinear
-        StateClicked.Background.Gradient2.Point2YPercent = 100
-        StateClicked.Background.Gradient1EndPercent = 70
-        StateClicked.Background.Style = bbsGradient
-        StateClicked.Border.Color = clBtnShadow
-        StateClicked.Border.LightOpacity = 100
-        StateClicked.Border.LightWidth = 1
-        StateClicked.Border.Style = bboSolid
-        StateClicked.FontEx.Color = clBtnText
-        StateClicked.FontEx.FontQuality = fqFineAntialiasing
-        StateClicked.FontEx.Shadow = False
-        StateClicked.FontEx.ShadowRadius = 5
-        StateClicked.FontEx.ShadowOffsetX = 5
-        StateClicked.FontEx.ShadowOffsetY = 5
-        StateClicked.FontEx.Style = []
-        StateClicked.FontEx.TextAlignment = bcaLeftCenter
-        StateClicked.FontEx.PaddingLeft = 3
-        StateHover.Background.Gradient1.StartColor = clBtnFace
-        StateHover.Background.Gradient1.EndColor = clBtnHighlight
-        StateHover.Background.Gradient1.GradientType = gtLinear
-        StateHover.Background.Gradient1.Point2YPercent = 150
-        StateHover.Background.Gradient2.StartColor = clBtnFace
-        StateHover.Background.Gradient2.EndColor = clBtnShadow
-        StateHover.Background.Gradient2.GradientType = gtLinear
-        StateHover.Background.Gradient2.Point2YPercent = 100
-        StateHover.Background.Gradient1EndPercent = 85
-        StateHover.Background.Style = bbsGradient
-        StateHover.Border.Color = clBtnShadow
-        StateHover.Border.LightOpacity = 200
-        StateHover.Border.LightWidth = 1
-        StateHover.Border.Style = bboSolid
-        StateHover.FontEx.Color = clBtnText
-        StateHover.FontEx.FontQuality = fqFineAntialiasing
-        StateHover.FontEx.Shadow = False
-        StateHover.FontEx.ShadowRadius = 5
-        StateHover.FontEx.ShadowOffsetX = 5
-        StateHover.FontEx.ShadowOffsetY = 5
-        StateHover.FontEx.Style = []
-        StateHover.FontEx.TextAlignment = bcaLeftCenter
-        StateHover.FontEx.PaddingLeft = 3
-        StateNormal.Background.Gradient1.StartColor = clBtnFace
-        StateNormal.Background.Gradient1.EndColor = clBtnHighlight
-        StateNormal.Background.Gradient1.GradientType = gtLinear
-        StateNormal.Background.Gradient1.Point2YPercent = 150
-        StateNormal.Background.Gradient2.StartColor = clBtnFace
-        StateNormal.Background.Gradient2.EndColor = clBtnShadow
-        StateNormal.Background.Gradient2.GradientType = gtLinear
-        StateNormal.Background.Gradient2.Point2YPercent = 100
-        StateNormal.Background.Gradient1EndPercent = 70
-        StateNormal.Background.Style = bbsGradient
-        StateNormal.Border.Color = clBtnShadow
-        StateNormal.Border.LightOpacity = 200
-        StateNormal.Border.LightWidth = 1
-        StateNormal.Border.Style = bboSolid
-        StateNormal.FontEx.Color = clBtnText
-        StateNormal.FontEx.FontQuality = fqFineAntialiasing
-        StateNormal.FontEx.Shadow = False
-        StateNormal.FontEx.ShadowRadius = 5
-        StateNormal.FontEx.ShadowOffsetX = 5
-        StateNormal.FontEx.ShadowOffsetY = 5
-        StateNormal.FontEx.Style = []
-        StateNormal.FontEx.TextAlignment = bcaLeftCenter
-        StateNormal.FontEx.PaddingLeft = 3
-        StaticButton = False
-        OnChange = ComboBox_FileExtensionChange
-        TabOrder = 1
-      end
-    end
     object vsList: TBGRAVirtualScreen
       Left = 1
       Height = 225
-      Top = 74
+      Top = 1
       Width = 456
       Align = alClient
       Alignment = taLeftJustify
       Color = clWindow
       ParentColor = False
       ParentFont = False
-      TabOrder = 1
+      TabOrder = 0
       TabStop = True
+    end
+  end
+  object Panel3: TPanel
+    Left = 0
+    Height = 73
+    Top = 0
+    Width = 684
+    Align = alTop
+    ClientHeight = 73
+    ClientWidth = 684
+    ParentFont = False
+    TabOrder = 3
+    object ToolBar1: TToolBar
+      Left = 1
+      Height = 33
+      Top = 2
+      Width = 198
+      Align = alNone
+      ButtonHeight = 32
+      ButtonWidth = 32
+      EdgeBorders = []
+      Images = ImageListToolbar
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+      object ToolButton_GoUp: TToolButton
+        Left = 145
+        Hint = 'Go one directory up'
+        Top = 0
+        ImageIndex = 0
+        OnClick = ToolButton_GoUpClick
+      end
+      object ToolButton_ViewBigIcon: TToolButton
+        Left = 73
+        Hint = 'Show big icons'
+        Top = 0
+        ImageIndex = 2
+        OnClick = ToolButton_ViewBigIconClick
+      end
+      object ToolButton_ViewDetails: TToolButton
+        Left = 37
+        Hint = 'Show details and preview'
+        Top = 0
+        ImageIndex = 3
+        OnClick = ToolButton_ViewDetailsClick
+      end
+      object ToolButton_OpenSelectedFiles: TToolButton
+        Left = 1
+        Hint = 'Open selected files'
+        Top = 0
+        Enabled = False
+        ImageIndex = 5
+        OnClick = ToolButton_OpenSelectedFilesClick
+      end
+      object Tool_SelectDrive: TToolButton
+        Left = 109
+        Hint = 'Select drive'
+        Top = 0
+        ImageIndex = 6
+        OnClick = Tool_SelectDriveClick
+        Visible = False
+      end
+      object ToolButton_CreateFolderOrContainer: TToolButton
+        Left = 1
+        Hint = 'Create folder or container'
+        Top = 32
+        ImageIndex = 8
+        OnClick = ToolButton_CreateFolderOrContainerClick
+      end
+    end
+    object Edit_Filename: TEdit
+      Left = 288
+      Height = 27
+      Top = 40
+      Width = 388
+      Anchors = [akTop, akLeft, akRight]
+      OnChange = Edit_FilenameChange
+      ParentFont = False
+      TabOrder = 2
+    end
+    object DirectoryEdit1: TEdit
+      Left = 200
+      Height = 27
+      Top = 5
+      Width = 476
+      Anchors = [akTop, akLeft, akRight]
+      OnChange = DirectoryEdit1Change
+      ParentFont = False
+      TabOrder = 0
+    end
+    object ComboBox_FileExtension: TBCComboBox
+      Left = 6
+      Height = 27
+      Top = 40
+      Width = 274
+      ItemIndex = -1
+      ArrowSize = 8
+      ArrowWidth = 16
+      FocusBorderOpacity = 0
+      GlobalOpacity = 255
+      MemoryUsage = bmuHigh
+      Rounding.RoundX = 3
+      Rounding.RoundY = 3
+      StateClicked.Background.Gradient1.StartColor = clBtnShadow
+      StateClicked.Background.Gradient1.EndColor = clBtnFace
+      StateClicked.Background.Gradient1.GradientType = gtLinear
+      StateClicked.Background.Gradient1.Point1XPercent = 50
+      StateClicked.Background.Gradient1.Point1YPercent = 100
+      StateClicked.Background.Gradient1.Point2XPercent = 0
+      StateClicked.Background.Gradient1.Point2YPercent = 250
+      StateClicked.Background.Gradient2.StartColor = clBtnShadow
+      StateClicked.Background.Gradient2.EndColor = clBtnText
+      StateClicked.Background.Gradient2.GradientType = gtLinear
+      StateClicked.Background.Gradient2.Point1XPercent = 0
+      StateClicked.Background.Gradient2.Point1YPercent = 0
+      StateClicked.Background.Gradient2.Point2XPercent = 0
+      StateClicked.Background.Gradient2.Point2YPercent = 100
+      StateClicked.Background.Gradient1EndPercent = 70
+      StateClicked.Background.Style = bbsGradient
+      StateClicked.Border.Color = clBtnShadow
+      StateClicked.Border.LightOpacity = 100
+      StateClicked.Border.LightWidth = 1
+      StateClicked.Border.Style = bboSolid
+      StateClicked.FontEx.Color = clBtnText
+      StateClicked.FontEx.FontQuality = fqFineAntialiasing
+      StateClicked.FontEx.Shadow = False
+      StateClicked.FontEx.ShadowRadius = 5
+      StateClicked.FontEx.ShadowOffsetX = 5
+      StateClicked.FontEx.ShadowOffsetY = 5
+      StateClicked.FontEx.Style = []
+      StateClicked.FontEx.TextAlignment = bcaLeftCenter
+      StateClicked.FontEx.PaddingLeft = 3
+      StateHover.Background.Gradient1.StartColor = clBtnFace
+      StateHover.Background.Gradient1.EndColor = clBtnHighlight
+      StateHover.Background.Gradient1.GradientType = gtLinear
+      StateHover.Background.Gradient1.Point1XPercent = 50
+      StateHover.Background.Gradient1.Point1YPercent = 100
+      StateHover.Background.Gradient1.Point2XPercent = 0
+      StateHover.Background.Gradient1.Point2YPercent = 150
+      StateHover.Background.Gradient2.StartColor = clBtnFace
+      StateHover.Background.Gradient2.EndColor = clBtnShadow
+      StateHover.Background.Gradient2.GradientType = gtLinear
+      StateHover.Background.Gradient2.Point1XPercent = 0
+      StateHover.Background.Gradient2.Point1YPercent = 0
+      StateHover.Background.Gradient2.Point2XPercent = 0
+      StateHover.Background.Gradient2.Point2YPercent = 100
+      StateHover.Background.Gradient1EndPercent = 85
+      StateHover.Background.Style = bbsGradient
+      StateHover.Border.Color = clBtnShadow
+      StateHover.Border.LightOpacity = 200
+      StateHover.Border.LightWidth = 1
+      StateHover.Border.Style = bboSolid
+      StateHover.FontEx.Color = clBtnText
+      StateHover.FontEx.FontQuality = fqFineAntialiasing
+      StateHover.FontEx.Shadow = False
+      StateHover.FontEx.ShadowRadius = 5
+      StateHover.FontEx.ShadowOffsetX = 5
+      StateHover.FontEx.ShadowOffsetY = 5
+      StateHover.FontEx.Style = []
+      StateHover.FontEx.TextAlignment = bcaLeftCenter
+      StateHover.FontEx.PaddingLeft = 3
+      StateNormal.Background.Gradient1.StartColor = clBtnFace
+      StateNormal.Background.Gradient1.EndColor = clBtnHighlight
+      StateNormal.Background.Gradient1.GradientType = gtLinear
+      StateNormal.Background.Gradient1.Point1XPercent = 0
+      StateNormal.Background.Gradient1.Point1YPercent = 0
+      StateNormal.Background.Gradient1.Point2XPercent = 0
+      StateNormal.Background.Gradient1.Point2YPercent = 150
+      StateNormal.Background.Gradient2.StartColor = clBtnFace
+      StateNormal.Background.Gradient2.EndColor = clBtnShadow
+      StateNormal.Background.Gradient2.GradientType = gtLinear
+      StateNormal.Background.Gradient2.Point1XPercent = 50
+      StateNormal.Background.Gradient2.Point1YPercent = 100
+      StateNormal.Background.Gradient2.Point2XPercent = 0
+      StateNormal.Background.Gradient2.Point2YPercent = 100
+      StateNormal.Background.Gradient1EndPercent = 70
+      StateNormal.Background.Style = bbsGradient
+      StateNormal.Border.Color = clBtnShadow
+      StateNormal.Border.LightOpacity = 200
+      StateNormal.Border.LightWidth = 1
+      StateNormal.Border.Style = bboSolid
+      StateNormal.FontEx.Color = clBtnText
+      StateNormal.FontEx.FontQuality = fqFineAntialiasing
+      StateNormal.FontEx.Shadow = False
+      StateNormal.FontEx.ShadowRadius = 5
+      StateNormal.FontEx.ShadowOffsetX = 5
+      StateNormal.FontEx.ShadowOffsetY = 5
+      StateNormal.FontEx.Style = []
+      StateNormal.FontEx.TextAlignment = bcaLeftCenter
+      StateNormal.FontEx.PaddingLeft = 3
+      StaticButton = False
+      OnChange = ComboBox_FileExtensionChange
+      TabOrder = 1
     end
   end
   object ImageList128: TImageList
