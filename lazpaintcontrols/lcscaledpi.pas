@@ -123,12 +123,13 @@ begin
     Top:=DoScaleY(Top,FromDPI,ToDPI_Y);
     Width:=DoScaleX(Width,FromDPI,ToDPI_X);
     Height:=DoScaleY(Height,FromDPI,ToDPI_Y);
-    if Font.Size = 0 then
+    if not IsParentFont then
     begin
-      if ToDPI_Y <> Screen.PixelsPerInch then
-        Font.Height := DoScaleY(Font.GetTextHeight('Hg'),FromDPI,ToDPI_Y);
-    end else
-      Font.Size:= round(Font.Size * ToDPI_Y / Screen.PixelsPerInch);
+      if Font.Size = 0 then
+        Font.Height := -DoScaleY(12,FromDPI,ToDPI_Y)
+      else
+        Font.Size:= round(Font.Size * ToDPI_Y / FromDPI);
+    end;
   end;
 
   if Control is TToolBar then begin

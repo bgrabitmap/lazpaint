@@ -409,7 +409,7 @@ begin
         if (Controls[j].Name = 'Label_Coordinates') or
            (Controls[j].Name = 'Label_CurrentZoom') or
            (Controls[j].Name = 'Label_CurrentDiff') then
-          Controls[j].Font.Height := -DoScaleY(12, OriginalDPI);
+          Controls[j].Font.Height := -DoScaleY(12, OriginalDPI, FTargetDPI);
       end;
     end;
   end;
