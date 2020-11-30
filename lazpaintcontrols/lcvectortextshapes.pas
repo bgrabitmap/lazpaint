@@ -152,6 +152,7 @@ type
     function HasOutline: boolean;
     procedure InsertUnicodeValue;
     procedure FillChange(ASender: TObject; var ADiff: TCustomVectorialFillDiff); override;
+    procedure InvalidateAll;
   public
     constructor Create(AContainer: TVectorOriginal); override;
     procedure QuickDefine(constref APoint1,APoint2: TPointF); override;
@@ -551,6 +552,7 @@ begin
   if FFontBidiMode=AValue then Exit;
   BeginUpdate(TTextShapeFontDiff);
   FFontBidiMode:=AValue;
+  InvalidateAll;
   EndUpdate;
 end;
 
@@ -718,7 +720,7 @@ begin
   if FFontName=AValue then Exit;
   BeginUpdate(TTextShapeFontDiff);
   FFontName:=AValue;
-  if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
+  InvalidateAll;
   EndUpdate;
 end;
 
@@ -727,7 +729,7 @@ begin
   if FFontStyle=AValue then Exit;
   BeginUpdate(TTextShapeFontDiff);
   FFontStyle:=AValue;
-  if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
+  InvalidateAll;
   EndUpdate;
 end;
 
@@ -1063,6 +1065,12 @@ procedure TTextShape.FillChange(ASender: TObject;
 begin
   if ASender = PenFill then inc(FPenFillIteration);
   inherited FillChange(ASender, ADiff);
+end;
+
+procedure TTextShape.InvalidateAll;
+begin
+  if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
+  FParagraphLayout := nil;
 end;
 
 constructor TTextShape.Create(AContainer: TVectorOriginal);
