@@ -7,7 +7,7 @@ interface
 
 uses
   Classes, SysUtils, Controls, ComCtrls, ExtCtrls, BGRAVirtualScreen, BCComboBox,
-  BGRABitmap, BGRABitmapTypes, BGRAGraphics,
+  BGRABitmap, BGRABitmapTypes, BGRAGraphics, Menus,
   LazPaintType, UDarkTheme, UVolatileScrollBar, UImageObservation;
 
 type
@@ -74,8 +74,12 @@ type
     FMovingItemBitmap: TBGRABitmap;
     FMovingItemSourceIndex: integer;
     FMovingItemMousePos, FMovingItemMouseOrigin, FMovingItemOrigin: TPoint;
+    FRightClickOrigin: TPoint;
     FTimerScrollDeltaY: integer;
     FInHandleSelectLayer: Boolean;
+    FLayerMenu: TPopupMenu;
+    FQueryLayerMenu: boolean;
+    FLayerMenuCoord: TPoint;
     procedure ApplyThemeAndDPI;
     procedure SetDPI(AValue: integer);
     procedure SetDarkTheme(AValue: boolean);
@@ -90,7 +94,7 @@ type
     procedure ComputeLayout(ABitmap: TBGRABitmap);
     procedure ComputeScrolling(AWithHorzScrollBar,AWithVertScrollBar: boolean);
     procedure DoScrollVertically(AAmount: integer);
-    procedure HandleSelectLayer(i,x,y: integer);
+    function HandleSelectLayer(i,x,y: integer; AStartMoving: boolean = true): boolean;
     procedure HandleChangeLayerOpacity(X,{%H-}Y: integer);
     procedure UpdateLayerStackItem(AIndex: integer);
     procedure NeedCheckers;
@@ -99,6 +103,7 @@ type
     destructor Destroy; override;
     procedure AddButton(AAction: TBasicAction);
     procedure AddButton(ACaption: string; AImageIndex: integer; AOnClick: TNotifyEvent);
+    procedure AddLayerMenu(AAction: TBasicAction);
     procedure ScrollToItem(AIndex: integer; AUpdateStack: boolean = true);
     procedure InvalidateStack(AScrollIntoView: boolean);
     function GetWidthFor(AButtonCount: integer): integer;
@@ -162,6 +167,12 @@ begin
   begin
     FQuerySelectBlendOp := false;
     SelectBlendOp;
+  end else
+  if FQueryLayerMenu then
+  begin
+    FQueryLayerMenu := false;
+    with FLayerMenuCoord do
+      FLayerMenu.PopUp(X, Y);
   end
   else
     TimerQuery.Enabled:= false;
@@ -254,7 +265,9 @@ begin
         end;
         exit;
       end;
-  end;
+  end else
+  if Button = mbRight then
+    FRightClickOrigin := Point(X,Y);
 end;
 
 procedure TLayerStackInterface.BGRALayerStack_MouseMove(Sender: TObject;
@@ -295,7 +308,7 @@ end;
 
 procedure TLayerStackInterface.BGRALayerStack_MouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var destinationIndex, prevIndex: integer;
+var destinationIndex, prevIndex, i: integer;
   indexF: single;
   res: TModalResult;
   topmostInfo: TTopMostInfo;
@@ -348,6 +361,23 @@ begin
       FInHandleSelectLayer := false;
       FAskTransferSelectionLayerIndex := -1;
     end;
+  end else
+  if (Button = mbRight) and (Abs(X - FRightClickOrigin.X) <= 2) and
+    (Abs(Y - FRightClickOrigin.Y) <= 2) then
+  begin
+    for i := 0 to high(FLayerInfo) do
+      if IsPointInPolygon(FLayerInfo[i].RightPart.PreviewPts,pointF(FRightClickOrigin.x,FRightClickOrigin.y),true) then
+      begin
+        if HandleSelectLayer(i,x,y,false) then
+        begin
+          FQueryLayerMenu := true;
+          FLayerMenuCoord := BGRALayerStack.ClientToScreen(Point(
+            round(FRightClickOrigin.X / FScaling),
+            round(FRightClickOrigin.Y / FScaling)));
+          TimerQuery.Enabled:= true;
+        end;
+        exit;
+      end;
   end;
 end;
 
@@ -795,9 +825,10 @@ begin
   end;
 end;
 
-procedure TLayerStackInterface.HandleSelectLayer(i, x, y: integer);
+function TLayerStackInterface.HandleSelectLayer(i, x, y: integer; AStartMoving: boolean): boolean;
 var prevIndex: integer;
 begin
+  result := false;
   FInHandleSelectLayer := true;
   if (i < LazPaintInstance.Image.NbLayers) then
   begin
@@ -812,11 +843,15 @@ begin
     begin
       FRenaming := false;
       UpdateLayerStackItem(prevIndex);
-      FMovingItemStart := true;
-      FMovingItemSourceIndex := i;
-      FMovingItemMouseOrigin := point(x,y);
-      FMovingItemMousePos := point(x,y);
+      if AStartMoving then
+      begin
+        FMovingItemStart := true;
+        FMovingItemSourceIndex := i;
+        FMovingItemMouseOrigin := point(x,y);
+        FMovingItemMousePos := point(x,y);
+      end;
       UpdateLayerStackItem(i);
+      result := true;
     end;
   end;
   FInHandleSelectLayer := false;
@@ -1056,6 +1091,9 @@ begin
   TimerQuery.OnTimer:=@TimerQuery_Timer;
   FQuerySelectBlendOp:= false;
 
+  FLayerMenu := TPopupMenu.Create(AContainer);
+  FQueryLayerMenu:= false;
+
   ApplyThemeAndDPI;
   LazPaintInstance.Image.OnImageChanged.AddObserver(@LazPaint_ImageChanged);
 end;
@@ -1099,6 +1137,15 @@ begin
   button.Style := tbsButton;
   button.Parent := Toolbar;
   button.OnClick := AOnClick;
+end;
+
+procedure TLayerStackInterface.AddLayerMenu(AAction: TBasicAction);
+var
+  item: TMenuItem;
+begin
+  item := TMenuItem.Create(FLayerMenu);
+  item.Action := AAction;
+  FLayerMenu.Items.Add(item);
 end;
 
 procedure TLayerStackInterface.ScrollToItem(AIndex: integer; AUpdateStack: boolean);

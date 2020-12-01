@@ -579,6 +579,10 @@ begin
   FLayerStack.AddButton(FMain.LayerHorizontalFlip);
   FLayerStack.AddButton(FMain.LayerVerticalFlip);
   FLayerStack.AddButton(FMain.ToolLayerMapping);
+
+  FLayerStack.AddLayerMenu(FMain.LayerRemoveCurrent);
+  FLayerStack.AddLayerMenu(FMain.LayerDuplicate);
+  FLayerStack.AddLayerMenu(FMain.LayerRasterize);
 end;
 
 procedure TLazPaintInstance.CreateToolBox;

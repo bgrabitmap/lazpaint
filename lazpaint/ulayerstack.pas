@@ -33,6 +33,7 @@ type
     { public declarations }
     procedure ScrollToItem(AIndex: integer; AUpdateStack: boolean = true);
     procedure AddButton(AAction: TBasicAction);
+    procedure AddLayerMenu(AAction: TBasicAction);
     procedure InvalidateStack(AScrollIntoView: boolean);
     property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
     property StackInterface: TLayerStackInterface read GetInterface;
@@ -105,6 +106,12 @@ procedure TFLayerStack.AddButton(AAction: TBasicAction);
 begin
   if Assigned(StackInterface) then
     StackInterface.AddButton(AAction);
+end;
+
+procedure TFLayerStack.AddLayerMenu(AAction: TBasicAction);
+begin
+  if Assigned(StackInterface) then
+    StackInterface.AddLayerMenu(AAction);
 end;
 
 procedure TFLayerStack.InvalidateStack(AScrollIntoView: boolean);
