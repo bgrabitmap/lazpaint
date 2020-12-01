@@ -25,14 +25,26 @@ PACKAGE_NAME="lazpaint${VERSION}_${OS_NAME}"
 echo "Version is $VERSION"
 echo "Target OS is ${OS_NAME}"
 
-echo "Creating package..."
-
 rm -rf "${STAGING_DIR}"
 mkdir "${STAGING_DIR}"
 pushd ../../..
-make distclean
-./configure --prefix=/usr
-make
+
+if [ ! -f "${SOURCE_BIN}/lazpaint" ]; then
+    if [ -z "$1" ]; then
+        echo "Usage: ./makedeb [TARGET]"
+        echo "where TARGET can be Gtk2, Win32 or Qt5"
+        exit 1
+    fi
+    echo "Compiling..."
+    make distclean
+    ./configure --prefix=/usr
+    make TARGET=$1
+else
+    echo "Using already compiled binary."
+fi
+
+echo "Creating package..."
+
 make install "DESTDIR=$STAGING_DIR"
 popd
 
