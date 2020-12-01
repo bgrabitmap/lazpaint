@@ -13,23 +13,23 @@ License: GPL-3+
 
 Files: bgracontrols/*
 Copyright: 2012 Krzysztof Dibowski <dibowski@interia.pl>
-License: LGPL-3
+License: LGPL-3-linking-exception
 
 Files: bgracontrols/bgraimagemanipulation.pas
 Copyright: 2011 Emerson Cavalcanti
-License: LGPL-3
+License: LGPL-3-linking-exception
 
 Files: bgrabitmap/*
 Copyright: 2016 Johann ELSASS
-License: LGPL-3
+License: LGPL-3-linking-exception
 
 Files: bgrabitmap/bgrareadtiff.pas bgrabitmap/bgrawritetiff.pas
 Copyright: 2012-2013 by the Free Pascal development team
-License: LGPL-3
+License: LGPL-3-linking-exception
 
 Files: bgrabitmap/bgrareadpsd.pas
 Copyright: 2008 by the Free Pascal development team
-License: LGPL-3
+License: LGPL-3-linking-exception
 
 Files: bgrabitmap/libwebp.pas
 Copyright: 2010 Google Inc.
@@ -37,13 +37,13 @@ License: BSD-3-Clause
 
 Files: bgrabitmap/bgrawritepng.pas bgrabitmap/bgrareadpng.pas
 Copyright: 2003 by the Free Pascal development team
-License: LGPL-3
+License: LGPL-3-linking-exception
 
 Files: bgrabitmap/bgrareadtga.pas bgrabitmap/bgrareadbmp.pas
 Copyright: 2003 by Mazen NEIFER of the Free Pascal development team
-License: LGPL-3
+License: LGPL-3-linking-exception
 
-License: LGPL-3
+License: LGPL-3-linking-exception
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License as published
  by the Free Software Foundation; version 3, with the following modification:
