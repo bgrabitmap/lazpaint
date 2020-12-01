@@ -25,17 +25,14 @@ PACKAGE_NAME="lazpaint${VERSION}_${OS_NAME}"
 echo "Version is $VERSION"
 echo "Target OS is ${OS_NAME}"
 
-if [ ! -f "${SOURCE_BIN}/lazpaint" ]; then
-  echo "Cannot find binary file."  
-  exit 1
-fi
-
 echo "Creating package..."
 
 rm -rf "${STAGING_DIR}"
 mkdir "${STAGING_DIR}"
 pushd ../../..
+make distclean
 ./configure --prefix=/usr
+make
 make install "DESTDIR=$STAGING_DIR"
 popd
 
