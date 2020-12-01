@@ -43,6 +43,12 @@ mkdir "${STAGING_DIR}/DEBIAN"
 cp "debian/control" "${STAGING_DIR}/DEBIAN"
 sed -i -e "s/Architecture: any/Architecture: ${TARGET_ARCHITECTURE}/" "${STAGING_DIR}/DEBIAN/control"
 
+mkdir "${DOC_PARENT_DIR}"
+mkdir "${DOC_DIR}"
+cp "debian/changelog" "${DOC_DIR}"
+cp "debian/copyright" "${DOC_DIR}"
+gzip -9 -n "${DOC_DIR}/changelog"
+
 echo "Determining dependencies..."
 dpkg-shlibdeps "${BIN_DIR}/lazpaint"
 DEPENDENCIES="$(sed -n 's/^shlibs:Depends=//p' debian/substvars)"
