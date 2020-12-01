@@ -657,6 +657,7 @@ begin
   FDockedControlsPanel.Anchors := FDockedControlsPanel.Anchors - [akLeft];
   FPaintBox.AnchorSideRight.Control := nil;
   FPaintBox.Anchors := FPaintBox.Anchors - [akRight];
+  FStatusBar.AnchorSideRight.Control := nil;
 
   if FDockedControlsPanel.ControlCount > 0 then
   begin
@@ -707,6 +708,8 @@ begin
     FPaintBox.AnchorSideRight.Side := asrLeft;
     FPaintBox.AnchorSideRight.Control := FVerticalSplitter;
     FPaintBox.Anchors := FPaintBox.Anchors + [akRight];
+    FStatusBar.AnchorSideRight.Side := asrLeft;
+    FStatusBar.AnchorSideRight.Control := FVerticalSplitter;
     FVerticalSplitter.Visible := true;
     FVerticalSplitter.OnMoved:=@VerticalSplitterMoved;
   end else
@@ -715,7 +718,7 @@ end;
 
 procedure TMainFormLayout.ApplyTheme;
 var
-  bevelOfs, newSpacing, delta, i: Integer;
+  bevelOfs, newSpacing, i: Integer;
 begin
   FPanelToolBox.Color := DarkThemeInstance.GetColorButtonFace(DarkTheme);
   FStatusBar.Color:= DarkThemeInstance.GetColorButtonFace(DarkTheme);
@@ -741,13 +744,12 @@ begin
     end;
   end;
   DarkThemeInstance.Apply(FDockedControlsPanel, DarkTheme, false);
+  FVerticalSplitter.Color := DarkThemeInstance.GetColorButtonFace(DarkTheme);
   FDockedControlsPanel.Color := DarkThemeInstance.GetColorForm(DarkTheme);
   bevelOfs := integer(FDockedControlsPanel.BevelOuter <> bvNone)*FDockedControlsPanel.BevelWidth;
   newSpacing := DoScaleX(2, OriginalDPI) - bevelOfs;
-  delta := FDockedControlsPanel.ChildSizing.LeftRightSpacing - newSpacing;
   FDockedControlsPanel.ChildSizing.LeftRightSpacing:= newSpacing;
   FDockedControlsPanel.ChildSizing.TopBottomSpacing:= newSpacing;
-  FDockedControlsPanel.Width := FDockedControlsPanel.Width + delta*2;
   for i := 0 to High(FDockedToolboxGroup) do
     ApplyThemeToDockedToolboxGroup(i);
 end;
