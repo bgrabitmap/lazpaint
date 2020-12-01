@@ -7,6 +7,8 @@ then
     rm -rf bgrabitmap/test
     rm -rf bgrabitmap/libwebp
     rm -rf bgracontrols/test
+    rm -rf bgracontrols/lcl
+    rm -rf bgracontrols/mouseandkeyinput
     rm -rf lazpaint/release/windows
     rm -rf lazpaint/release/macOS
     rm -rf lazpaint/release/stable

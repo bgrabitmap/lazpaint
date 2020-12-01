@@ -13,36 +13,40 @@ License: GPL-3+
 
 Files: bgracontrols/*
 Copyright: 2012 Krzysztof Dibowski <dibowski@interia.pl>
-License: LGPL-2+
+License: LGPL-3
 
 Files: bgracontrols/bgraimagemanipulation.pas
 Copyright: 2011 Emerson Cavalcanti
-License: LGPL-2+
-
-Files: bgracontrols/test/test_extra/game_puzzle/unit1.pas
-Copyright: 2012 lainz http://sourceforge.net/users/lainz
-License: LGPL-2+
+License: LGPL-3
 
 Files: bgrabitmap/*
 Copyright: 2016 Johann ELSASS
-License: LGPL-2
+License: LGPL-3
+
+Files: bgrabitmap/bgrareadtiff.pas bgrabitmap/bgrawritetiff.pas
+Copyright: 2012-2013 by the Free Pascal development team
+License: LGPL-3
 
 Files: bgrabitmap/bgrareadpsd.pas
 Copyright: 2008 by the Free Pascal development team
-License: LGPL-2
+License: LGPL-3
+
+Files: bgrabitmap/libwebp.pas
+Copyright: 2010 Google Inc.
+License: BSD-3-Clause
 
 Files: bgrabitmap/bgrawritepng.pas bgrabitmap/bgrareadpng.pas
 Copyright: 2003 by the Free Pascal development team
-License: LGPL-2
+License: LGPL-3
 
 Files: bgrabitmap/bgrareadtga.pas bgrabitmap/bgrareadbmp.pas
 Copyright: 2003 by Mazen NEIFER of the Free Pascal development team
-License: LGPL-2
+License: LGPL-3
 
-License: LGPL-2
+License: LGPL-3
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License as published
- by the Free Software Foundation; version 2, with the following modification:
+ by the Free Software Foundation; version 3, with the following modification:
  .
  As a special exception, the copyright holders of this library give you
  permission to link this library with independent modules to produce an
@@ -65,38 +69,35 @@ License: LGPL-2
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  .
  On Debian systems, the full text of the GNU Lesser General Public
- License version 2 can be found in the file
- '/usr/share/common-licenses/LGPL-2'.
+ License version 3 can be found in the file
+ '/usr/share/common-licenses/LGPL-3'.
 
-License: LGPL-2+
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU Lesser General Public License as published
- by the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version, with the following modification:
+License: BSD-3-Clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
  .
- As a special exception, the copyright holders of this library give you
- permission to link this library with independent modules to produce an
- executable, regardless of the license terms of these independent modules,
- and to copy and distribute the resulting executable under terms of your choice,
- provided that you also meet, for each linked independent module, the terms
- and conditions of the license of that module. An independent module is a
- module which is not derived from or based on this library. If you modify this
- library, you may extend this exception to your version of the library, but
- you are not obligated to do so. If you do not wish to do so, delete this
- exception statement from your version.
+ Redistributions of source code must retain the above copyright notice, this
+ list of conditions and the following disclaimer.
  .
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- GNU Lesser General Public License for more details.
+ Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the documentation
+ and/or other materials provided with the distribution.
  .
- You should have received a copy of the GNU Lesser General Public License
- along with this program; if not, write to the Free Software Foundation,
- Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ Neither the name of Google nor the names of its contributors may be used to
+ endorse or promote products derived from this software without specific prior
+ written permission.
  .
- On Debian systems, the full text of the GNU Lesser General Public
- License version 2 can be found in the file
- '/usr/share/common-licenses/LGPL-2'.
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
 
 License: GPL-3+
  This program is free software; you can redistribute it and/or modify
