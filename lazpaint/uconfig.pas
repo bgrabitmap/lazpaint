@@ -515,7 +515,7 @@ end;
 
 function TLazPaintConfig.DefaultDockLayersAndColors: boolean;
 begin
-  result := iniOptions.ReadBool('Window','DockLayersAndColors',false);
+  result := iniOptions.ReadBool('Window','DockLayersAndColors',true);
 end;
 
 procedure TLazPaintConfig.SetDefaultDockLayersAndColors(value: boolean);
