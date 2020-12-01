@@ -103,6 +103,7 @@ resourcestring
   rsRepeatImage='Repeat image';
   rsCanvasSize='Canvas size';
   rsResamplingImage='Resampling image...';
+  rsFlattenImage='Flatten image';
 
   rsRed='Red';
   rsGreen='Green';

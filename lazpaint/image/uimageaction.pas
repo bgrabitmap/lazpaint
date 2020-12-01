@@ -109,7 +109,7 @@ implementation
 uses Controls, Dialogs, UResourceStrings, UObject3D,
      ULoadImage, UGraph, UClipboard, Types, BGRAGradientOriginal,
      BGRATransform, ULoading, math, LCVectorClipboard, LCVectorOriginal, LCVectorRectShapes,
-     BGRALayers, BGRAUTF8, UFileSystem, Forms;
+     BGRALayers, BGRAUTF8, UFileSystem, Forms, UTranslation;
 
 { TImageActions }
 
@@ -1090,16 +1090,58 @@ function TImageActions.TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: 
   end;
 
 var
-  newPicture: TBGRABitmap;
-  svgOrig: TBGRALayerSVGOriginal;
-  m: TAffineMatrix;
-  ofsF: TPointF;
-  ext: String;
   layeredBmp: TBGRACustomLayeredBitmap;
-  bmpOrig: TBGRALayerImageOriginal;
+
+  procedure ImportLayeredBmp;
+  var
+    m: TAffineMatrix;
+    i: Integer;
+    ofsF: TPointF;
+    bmpOrig: TBGRALayerImageOriginal;
+    doFound, somethingDone: boolean;
+  begin
+    m := ComputeStretchMatrix(layeredBmp.Width, layeredBmp.Height);
+    try
+      Image.DoBegin;
+      for i := 0 to layeredBmp.NbLayers-1 do
+      begin
+        if (layeredBmp.LayerOriginalGuid[i] <> GUID_NULL) and
+           layeredBmp.LayerOriginalKnown[i] then
+        begin
+          if not AddLayerFromOriginal(layeredBmp.LayerOriginal[i].Duplicate,
+            layeredBmp.LayerName[i], m*layeredBmp.LayerOriginalMatrix[i],
+            layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
+        end else
+        begin
+          if IsAffineMatrixTranslation(m) then
+          begin
+            ofsF := m*PointF(layeredBmp.LayerOffset[i].x, layeredBmp.LayerOffset[i].y);
+            if not NewLayer(layeredBmp.GetLayerBitmapCopy(i), layeredBmp.LayerName[i],
+                     Point(round(ofsF.X), round(ofsF.Y)),
+                     layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
+          end else
+          begin
+            bmpOrig := TBGRALayerImageOriginal.Create;
+            bmpOrig.AssignImage(layeredBmp.GetLayerBitmapDirectly(i));
+            if not AddLayerFromOriginal(bmpOrig, layeredBmp.LayerName[i],
+              m * AffineMatrixTranslation(layeredBmp.LayerOffset[i].x, layeredBmp.LayerOffset[i].y),
+              layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
+          end;
+        end;
+        setlength(result, length(result)+1);
+        result[high(result)] := Image.LayerId[image.CurrentLayerIndex];
+      end;
+    finally
+      image.DoEnd(doFound, somethingDone);
+    end;
+  end;
+
+var
+  imgFormat: TBGRAImageFormat;
   s: TStream;
-  i: Integer;
-  doFound, somethingDone: boolean;
+  newPicture: TBGRABitmap;
+  flattened: TBGRABitmap;
+  ext: String;
 
 begin
   result := nil;
@@ -1110,7 +1152,8 @@ begin
     exit;
   end;
   try
-    case Image.DetectImageFormat(AFilenameUTF8) of
+    imgFormat := Image.DetectImageFormat(AFilenameUTF8);
+    case imgFormat of
     ifLazPaint, ifOpenRaster, ifSvg, ifPaintDotNet, ifPhoxo:
     begin
       ext := UTF8LowerCase(ExtractFileExt(AFilenameUTF8));
@@ -1132,40 +1175,21 @@ begin
           finally
             if Assigned(FInstance) then FInstance.EndLoadingImage;
           end;
-          m := ComputeStretchMatrix(layeredBmp.Width, layeredBmp.Height);
-          try
-            Image.DoBegin;
-            for i := 0 to layeredBmp.NbLayers-1 do
-            begin
-              if (layeredBmp.LayerOriginalGuid[i] <> GUID_NULL) and
-                 layeredBmp.LayerOriginalKnown[i] then
-              begin
-                if not AddLayerFromOriginal(layeredBmp.LayerOriginal[i].Duplicate,
-                  layeredBmp.LayerName[i], m*layeredBmp.LayerOriginalMatrix[i],
-                  layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
-              end else
-              begin
-                if IsAffineMatrixTranslation(m) then
-                begin
-                  ofsF := m*PointF(layeredBmp.LayerOffset[i].x, layeredBmp.LayerOffset[i].y);
-                  if not NewLayer(layeredBmp.GetLayerBitmapCopy(i), layeredBmp.LayerName[i],
-                           Point(round(ofsF.X), round(ofsF.Y)),
-                           layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
-                end else
-                begin
-                  bmpOrig := TBGRALayerImageOriginal.Create;
-                  bmpOrig.AssignImage(layeredBmp.GetLayerBitmapDirectly(i));
-                  if not AddLayerFromOriginal(bmpOrig, layeredBmp.LayerName[i],
-                    m * AffineMatrixTranslation(layeredBmp.LayerOffset[i].x, layeredBmp.LayerOffset[i].y),
-                    layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
-                end;
+          if layeredBmp.NbLayers > 1 then
+          begin
+            case QuestionDlg(rsOpen, AppendQuestionMark(rsFlattenImage), mtInformation,
+              [mrYes, rsYes, mrNo, rsNo, mrCancel, rsCancel], 0) of
+            mrYes: begin
+                flattened := layeredBmp.ComputeFlatImage;
+                FreeAndNil(layeredBmp);
+                layeredBmp:= TBGRALayeredBitmap.Create(flattened.Width, flattened.Height);
+                TBGRALayeredBitmap(layeredBmp).AddOwnedLayer(flattened);
+                ImportLayeredBmp;
               end;
-              setlength(result, length(result)+1);
-              result[high(result)] := Image.LayerId[image.CurrentLayerIndex];
+            mrNo: ImportLayeredBmp;
             end;
-          finally
-            image.DoEnd(doFound, somethingDone);
-          end;
+          end else
+            ImportLayeredBmp;
         finally
           s.Free;
         end;
