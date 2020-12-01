@@ -143,6 +143,8 @@ type
     function DefaultScreenSize: TRect;
     function DefaultDockLayersAndColors: boolean;
     procedure SetDefaultDockLayersAndColors(value: boolean);
+    function DefaultDockLayersAndColorsWidth: integer;
+    procedure SetDefaultDockLayersAndColorsWidth(AValue: integer);
     function ScreenSizeChanged: boolean;
     procedure SetDefaultScreenSize(value: TRect);
     function DefaultMainWindowMaximized: boolean;
@@ -521,9 +523,19 @@ begin
   iniOptions.WriteBool('Window','DockLayersAndColors',value);
 end;
 
+function TLazPaintConfig.DefaultDockLayersAndColorsWidth: integer;
+begin
+  result := iniOptions.ReadInteger('Window','DockLayersAndColorsWidth',0);
+end;
+
+procedure TLazPaintConfig.SetDefaultDockLayersAndColorsWidth(AValue: integer);
+begin
+  iniOptions.WriteInteger('Window','DockLayersAndColorsWidth',AValue);
+end;
+
 procedure TLazPaintConfig.SetDefaultScreenSize(value: TRect);
 begin
- iniOptions.WriteString('Window','ScreenSize',RectToStr(value));
+  iniOptions.WriteString('Window','ScreenSize',RectToStr(value));
 end;
 
 function TLazPaintConfig.DefaultMainWindowMaximized: boolean;

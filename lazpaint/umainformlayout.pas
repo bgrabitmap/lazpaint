@@ -10,12 +10,13 @@ uses
   Menus, UPaletteToolbar, BGRABitmapTypes, Controls, UImageView;
 
 const SelectionPaintDelay = 100/(1000*60*60*24);
+  VerticalSplitterWidth = 4;
 
 type
   TOnPictureAreaChange = procedure(ASender: TObject; ANewArea: TRect) of object;
   TToolWindowDocking = (twNone, twWindow, twLeft, twTop, twRight, twBottom);
   TLayoutStage = (lsAfterTopToolbar, lsAfterDockedToolBox, lsAfterPaletteToolbar,
-               lsAfterDockedControlsPanel, lsAfterStatusBar);
+               lsAfterDockedControlsPanel, lsAfterVerticalSplitter, lsAfterStatusBar);
 
   { TMainFormLayout }
 
@@ -41,6 +42,7 @@ type
     FDarkTheme: boolean;
     FDockedControlsPanel: TPanel;
     FDockedChooseColorSplitter: TSplitter;
+    FVerticalSplitter: TSplitter;
     FPaintBox: TOpaquePaintBox;
     FImageView: TImageView;
     function GetFillSelectionHighlight: boolean;
@@ -76,6 +78,7 @@ type
     procedure ToolboxGroupToolbarButton_MouseLeave(Sender: TObject);
     procedure ToolboxSimpleButton_Click(Sender: TObject);
     procedure PaletteVisibilityChangedByUser(Sender: TObject);
+    procedure VerticalSplitterMoved(Sender: TObject);
     procedure ZoomChanged(sender: TZoom; ANewZoom: single);
   protected
     FDockedToolboxGroup: array of record
@@ -86,9 +89,11 @@ type
       end;
     function GetWorkArea: TRect; override;
     function GetWorkAreaAt(AStage: TLayoutStage): TRect;
+    function VerticalSplitterNeeded: boolean;
     procedure DoArrange;
     procedure ApplyTheme;
     function DockedControlsPanelWidth: integer;
+    function DockedControlsPanelInnerMargin: integer;
     procedure ApplyThemeToDockedToolboxGroup(AGroupIndex: integer);
     procedure ShowToolboxGroup(AGroupIndex: integer);
     procedure HideToolboxGroup(AGroupIndex: integer);
@@ -201,6 +206,13 @@ begin
   FPaletteToolbar.OnVisibilityChangedByUser:= @PaletteVisibilityChangedByUser;
   FPaletteToolbar.Container := FForm;
 
+  FVerticalSplitter := TSplitter.Create(nil);
+  FVerticalSplitter.Visible := False;
+  FVerticalSplitter.Align := alNone;
+  FVerticalSplitter.Width := DoScaleX(VerticalSplitterWidth, OriginalDPI);
+  FVerticalSplitter.Anchors := [akRight,akTop,akBottom];
+  FForm.InsertControl(FVerticalSplitter);
+
   FDockedControlsPanel := TPanel.Create(nil);
   FDockedControlsPanel.Visible := false;
   FDockedControlsPanel.Anchors:= [akRight,akTop,akBottom];
@@ -228,9 +240,12 @@ end;
 destructor TMainFormLayout.Destroy;
 begin
   FZoom.Layout := nil;
+  if not FDockedControlsPanel.Visible then
+    LazPaintInstance.Config.SetDefaultDockLayersAndColorsWidth(0);
   FreeAndNil(FImageView);
   FreeAndNil(FPaintBox);
   FreeAndNil(FDockedControlsPanel);
+  FreeAndNil(FVerticalSplitter);
   FreeAndNil(FStatusBar);
   FreeAndNil(FStatusTextSplit);
   FreeAndNil(FPaletteToolbar);
@@ -428,6 +443,12 @@ begin
   Arrange;
 end;
 
+procedure TMainFormLayout.VerticalSplitterMoved(Sender: TObject);
+begin
+  LazPaintInstance.Config.SetDefaultDockLayersAndColorsWidth(
+    FDockedControlsPanel.Width - DockedControlsPanelInnerMargin);
+end;
+
 procedure TMainFormLayout.ZoomChanged(sender: TZoom; ANewZoom: single);
 begin
   if Assigned(FImageView) then
@@ -570,11 +591,20 @@ begin
   if PaletteVisible then result.Right -= FPaletteToolbar.Width;
   if AStage = lsAfterPaletteToolbar then exit;
 
-  if FDockedControlsPanel.ControlCount > 0 then result.Right -= DockedControlsPanelWidth;
+  if VerticalSplitterNeeded then result.Right -= DockedControlsPanelWidth;
   if AStage = lsAfterDockedControlsPanel then exit;
+
+  if (AStage = lsAfterVerticalSplitter) and VerticalSplitterNeeded then
+    result.Right -= DoScaleX(VerticalSplitterWidth, OriginalDPI);
+  if AStage = lsAfterVerticalSplitter then exit;
 
   if StatusBarVisible then result.Bottom -= FStatusBar.Height;
   if AStage = lsAfterStatusBar then exit;
+end;
+
+function TMainFormLayout.VerticalSplitterNeeded: boolean;
+begin
+  result := FDockedControlsPanel.ControlCount > 0;
 end;
 
 procedure TMainFormLayout.DoArrange;
@@ -620,6 +650,14 @@ begin
   if PaletteVisible then
     with GetWorkAreaAt(lsAfterDockedToolBox) do
       FPaletteToolbar.SetBounds(Right - FPaletteToolbar.Width,Top,FPaletteToolbar.Width,Bottom-Top);
+
+  //temporarily disable controlside anchors
+  FVerticalSplitter.OnMoved:= nil;
+  FDockedControlsPanel.AnchorSideLeft.Control := nil;
+  FDockedControlsPanel.Anchors := FDockedControlsPanel.Anchors - [akLeft];
+  FPaintBox.AnchorSideRight.Control := nil;
+  FPaintBox.Anchors := FPaintBox.Anchors - [akRight];
+
   if FDockedControlsPanel.ControlCount > 0 then
   begin
     with GetWorkAreaAt(lsAfterPaletteToolbar) do
@@ -630,7 +668,7 @@ begin
       for i := 0 to FDockedControlsPanel.ControlCount-1 do
         if FDockedControlsPanel.Controls[i].Name = 'ChooseColorControl' then
         begin
-          FDockedControlsPanel.Controls[i].Width := w - integer(FDockedControlsPanel.BevelOuter <> bvNone)*FDockedControlsPanel.BevelWidth*2 - FDockedControlsPanel.ChildSizing.LeftRightSpacing*2;
+          FDockedControlsPanel.Controls[i].Width := w - DockedControlsPanelInnerMargin;
           if updateChooseColorHeight then
             LazPaintInstance.AdjustChooseColorHeight;
         end;
@@ -644,7 +682,7 @@ begin
     FDockedControlsPanel.Visible:= false;
   if StatusBarVisible then
   begin
-    with GetWorkAreaAt(lsAfterDockedControlsPanel) do
+    with GetWorkAreaAt(lsAfterVerticalSplitter) do
       FStatusBar.SetBounds(Left,Bottom-FStatusBar.Height,Right-Left,FStatusBar.Height);
     if not FStatusBar.Visible then
     begin
@@ -656,6 +694,23 @@ begin
   if Assigned(FImageView) then
     with WorkArea do
     FImageView.SetBounds(Left, Top, Width, Height);
+
+  // enable controlside anchors
+  if VerticalSplitterNeeded then
+  begin
+    FVerticalSplitter.Left := FDockedControlsPanel.Left - FVerticalSplitter.Width;
+    FVerticalSplitter.Top := FDockedControlsPanel.Top;
+    FVerticalSplitter.Height := FDockedControlsPanel.Height;
+    FDockedControlsPanel.AnchorSideLeft.Side := asrRight;
+    FDockedControlsPanel.AnchorSideLeft.Control := FVerticalSplitter;
+    FDockedControlsPanel.Anchors := FDockedControlsPanel.Anchors + [akLeft];
+    FPaintBox.AnchorSideRight.Side := asrLeft;
+    FPaintBox.AnchorSideRight.Control := FVerticalSplitter;
+    FPaintBox.Anchors := FPaintBox.Anchors + [akRight];
+    FVerticalSplitter.Visible := true;
+    FVerticalSplitter.OnMoved:=@VerticalSplitterMoved;
+  end else
+    FVerticalSplitter.Visible := false;
 end;
 
 procedure TMainFormLayout.ApplyTheme;
@@ -699,17 +754,29 @@ end;
 
 function TMainFormLayout.DockedControlsPanelWidth: integer;
 var
-  w, i, bevelOfs: Integer;
+  w, i: Integer;
 begin
   w := 0;
   if FDockedControlsPanel.ControlCount > 0 then
   begin
-    for i := 0 to FDockedControlsPanel.ControlCount-1 do
-      w := max(w, FDockedControlsPanel.Controls[i].Tag);
-    bevelOfs := integer(FDockedControlsPanel.BevelOuter <> bvNone)*FDockedControlsPanel.BevelWidth;
-    inc(w, (FDockedControlsPanel.ChildSizing.LeftRightSpacing + bevelOfs)*2);
+    w := LazPaintInstance.Config.DefaultDockLayersAndColorsWidth;
+    if w = 0 then
+    begin
+      for i := 0 to FDockedControlsPanel.ControlCount-1 do
+        w := max(w, FDockedControlsPanel.Controls[i].Tag);
+    end;
+    w := min(w, GetWorkAreaAt(lsAfterPaletteToolbar).Width * 3 div 4);
+    inc(w, DockedControlsPanelInnerMargin);
   end;
   result := w;
+end;
+
+function TMainFormLayout.DockedControlsPanelInnerMargin: integer;
+var
+  bevelOfs: Integer;
+begin
+  bevelOfs := integer(FDockedControlsPanel.BevelOuter <> bvNone)*FDockedControlsPanel.BevelWidth;
+  result := (FDockedControlsPanel.ChildSizing.LeftRightSpacing + bevelOfs)*2;
 end;
 
 procedure TMainFormLayout.ApplyThemeToDockedToolboxGroup(AGroupIndex: integer);
