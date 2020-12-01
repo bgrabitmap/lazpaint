@@ -447,6 +447,8 @@ procedure TMainFormLayout.VerticalSplitterMoved(Sender: TObject);
 begin
   LazPaintInstance.Config.SetDefaultDockLayersAndColorsWidth(
     FDockedControlsPanel.Width - DockedControlsPanelInnerMargin);
+  if Assigned(FImageView) then
+    FImageView.InvalidatePicture(true);
 end;
 
 procedure TMainFormLayout.ZoomChanged(sender: TZoom; ANewZoom: single);
