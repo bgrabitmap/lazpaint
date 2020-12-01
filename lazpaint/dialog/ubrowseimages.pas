@@ -277,6 +277,7 @@ begin
 
   ScaleControl(Panel1, OriginalDPI, 0,0, true);
   ScaleControl(Panel2, OriginalDPI, 0,0, true);
+  ScaleControl(Panel3, OriginalDPI, 0,0, true);
 
   UpdateTheme;
 
