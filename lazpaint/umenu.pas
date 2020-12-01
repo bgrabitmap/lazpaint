@@ -491,7 +491,7 @@ begin
       begin
         if assigned(FImageList) then TToolbar(Controls[j]).Images := FImageList;
         TToolbar(Controls[j]).ButtonWidth := TToolbar(Controls[j]).Images.Width+ScaleX(6, 96);
-        TToolbar(Controls[j]).ButtonHeight := TToolbar(Controls[j]).Images.Height+ScaleY(6, 96);
+        TToolbar(Controls[j]).ButtonHeight := TToolbar(Controls[j]).Images.Height+ScaleY(5, 96);
       end else
       if Controls[j] is TLCVectorialFillControl then
       begin
@@ -534,7 +534,8 @@ begin
          begin
            vfc := TLCVectorialFillControl(tb.Controls[j]);
            if tb.Height < vfc.PreferredSize.cy then
-             vfc.Height := vfc.ToolIconSize + vfc.VerticalPadding
+             vfc.Height := min(vfc.ToolIconSize + vfc.VerticalPadding,
+                               tb.Height - tb.Controls[j].Top - 1)
            else
              vfc.Height := vfc.PreferredSize.cy;
          end else

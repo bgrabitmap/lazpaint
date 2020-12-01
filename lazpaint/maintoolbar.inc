@@ -567,7 +567,8 @@ end;
 
 procedure TFMain.QueryArrange;
 begin
-  if FShouldArrange then
+  if FShouldArrange and not (Assigned(FLayout) and FLayout.Arranging)
+     and not FInHideFill then
     TimerArrange.Enabled := true;
 end;
 
@@ -791,12 +792,20 @@ end;
 procedure TFMain.TimerHideFillTimer(Sender: TObject);
 begin
   TimerHideFill.Enabled := false;
-  VectorialFill_Pen.Height := VectorialFill_Pen.ToolIconSize + VectorialFill_Pen.VerticalPadding;
-  VectorialFill_Back.Height := VectorialFill_Back.ToolIconSize + VectorialFill_Back.VerticalPadding;
-  VectorialFill_Outline.Height := VectorialFill_Outline.ToolIconSize + VectorialFill_Outline.VerticalPadding;
+  FInHideFill := true;
+  VectorialFill_Pen.Height := min(VectorialFill_Pen.ToolIconSize + VectorialFill_Pen.VerticalPadding,
+                               Panel_SwapColor.ClientHeight - VectorialFill_Pen.Top - 1);
+  VectorialFill_Pen.Tag := 0;
+  VectorialFill_Back.Height := min(VectorialFill_Back.ToolIconSize + VectorialFill_Back.VerticalPadding,
+                               Panel_SwapColor.ClientHeight - VectorialFill_Back.Top - 1);
+  VectorialFill_Back.Tag := 0;
+  VectorialFill_Outline.Height := min(VectorialFill_Outline.ToolIconSize + VectorialFill_Outline.VerticalPadding,
+                                  Panel_SwapColor.ClientHeight - VectorialFill_Outline.Top - 1);
+  VectorialFill_Outline.Tag := 0;
   Panel_PenFill.Height := Panel_SwapColor.Height;
   Panel_BackFill.Height := Panel_SwapColor.Height;
   Panel_OutlineFill.Height := Panel_SwapColor.Height;
+  FInHideFill := false
 end;
 
 procedure TFMain.ToolButton_DonateClick(Sender: TObject);
@@ -1546,14 +1555,19 @@ begin
   AFillControl.BringToFront;
   AFillControl.Height := AFillControl.PreferredSize.cy;
   APanel.Height := AFillControl.Top + AFillControl.Height + DoScaleY(3, OriginalDPI);
+  AFillControl.Tag := 1;
   HideFill(3000, true);
 end;
 
 procedure TFMain.HideFill(ATimeMs: Integer; AClearTime: boolean);
 begin
-  if AClearTime then TimerHideFill.Enabled := false;
-  TimerHideFill.Interval := ATimeMs;
-  TimerHideFill.Enabled := true;
+  if (VectorialFill_Pen.Tag = 1) or (VectorialFill_Back.Tag = 1) or
+     (VectorialFill_Outline.Tag = 1) then
+  begin
+    if AClearTime then TimerHideFill.Enabled := false;
+    TimerHideFill.Interval := ATimeMs;
+    TimerHideFill.Enabled := true;
+  end;
 end;
 
 procedure TFMain.Panel_ToolbarBackgroundMouseMove(Sender: TObject;

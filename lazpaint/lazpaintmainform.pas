@@ -718,6 +718,7 @@ type
     FToolbarElementsInitDone: boolean;
     FPenPlusMinus: integer;
     FLastDonateClick: TDateTime;
+    FInHideFill: boolean;
 
     function GetDarkTheme: boolean;
     function GetImageAction: TImageActions;
@@ -884,6 +885,7 @@ begin
   FLayout.OnToolbarUpdate:=@PictureToolbarUpdate;
   FLayout.OnPictureMouseMove:=@PictureMouseMove;
   FLayout.OnPictureMouseBefore:=@PictureMouseBefore;
+  FInHideFill := false;
 
   //ScaleControl(Self,OriginalDPI);
   self.Color := clBtnFace; //toolbar color inherited on mac

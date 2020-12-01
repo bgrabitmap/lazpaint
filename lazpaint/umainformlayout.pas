@@ -45,6 +45,7 @@ type
     FVerticalSplitter: TSplitter;
     FPaintBox: TOpaquePaintBox;
     FImageView: TImageView;
+    FArranging: boolean;
     function GetFillSelectionHighlight: boolean;
     function GetMouseButtonState: TShiftState;
     function GetPaletteVisible: boolean;
@@ -119,6 +120,7 @@ type
     procedure InvalidatePicture(AInvalidateAll: boolean);
     procedure ShowNoPicture;
     property Menu: TMainFormMenu read FMenu write FMenu;
+    property Arranging: boolean read FArranging;
     property ToolBoxDocking: TToolWindowDocking read FToolBoxDocking write SetToolBoxDocking;
     property ToolBoxVisible: boolean read GetToolBoxVisible write SetToolBoxVisible;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
@@ -233,6 +235,7 @@ begin
   FPaintBox := TOpaquePaintBox.Create(nil);
   FForm.InsertControl(FPaintBox,0);
   FImageView := nil;
+  FArranging := false;
 
   ApplyTheme;
 end;
@@ -712,7 +715,11 @@ begin
     FPaintBox.Anchors := FPaintBox.Anchors + [akRight];
     FStatusBar.AnchorSideRight.Side := asrLeft;
     FStatusBar.AnchorSideRight.Control := FVerticalSplitter;
-    FVerticalSplitter.Visible := true;
+    if not FVerticalSplitter.Visible then
+    begin
+      FVerticalSplitter.Visible := true;
+      FVerticalSplitter.SendToBack;
+    end;
     FVerticalSplitter.OnMoved:=@VerticalSplitterMoved;
   end else
     FVerticalSplitter.Visible := false;
@@ -834,12 +841,18 @@ end;
 
 procedure TMainFormLayout.Arrange;
 begin
-  DoArrange;
-  HideToolboxGroups;
-  if Assigned(FMenu) then
-    FMenu.RepaintToolbar;
-  if Assigned(FPaletteToolbar) then
-    FPaletteToolbar.Arrange;
+  if FArranging then exit;
+  FArranging := true;
+  try
+    DoArrange;
+    HideToolboxGroups;
+    if Assigned(FMenu) then
+      FMenu.RepaintToolbar;
+    if Assigned(FPaletteToolbar) then
+      FPaletteToolbar.Arrange;
+  finally
+    FArranging := false;
+  end;
 end;
 
 procedure TMainFormLayout.FocusImage;
