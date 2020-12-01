@@ -9,7 +9,7 @@ SHARE_DIR="${USER_DIR}/share"
 RESOURCE_DIR="${SHARE_DIR}/lazpaint"
 DOC_PARENT_DIR="${SHARE_DIR}/doc"
 DOC_DIR="${DOC_PARENT_DIR}/lazpaint"
-SOURCE_BIN="../bin"
+SOURCE_BIN=$(readlink --canonicalize "../bin")
 TARGET_ARCHITECTURE="$(dpkg --print-architecture)"
 VERSION="$(sed -n 's/^Version: //p' debian/control)"
 
