@@ -44,7 +44,7 @@ else
 fi
 
 echo "Creating package..."
-
+./configure --prefix=/usr
 make install "DESTDIR=$STAGING_DIR"
 popd
 
