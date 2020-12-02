@@ -8,7 +8,7 @@ if ! [ ${OSTYPE:0:6} = "darwin" ]; then
 fi
 
 appname=LazPaint
-appversion=7.1.5
+appversion=7.1.6
 pkgversion=0
 appnamenospaces=lazpaint
 appbundle="$appname.app"

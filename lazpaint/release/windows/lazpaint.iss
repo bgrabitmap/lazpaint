@@ -1,7 +1,7 @@
 #define MyAppName "LazPaint"
 #define MyAppOutputName "lazpaint"
 #define MyInstallerSuffix "_setup_win32_win64"
-#define MyAppVersion "7.1.5"
+#define MyAppVersion "7.1.6"
 #define MyAppPublisher "Circular, Fabien Wang, Lainz and others"
 #define MyAppURL "http://sourceforge.net/projects/lazpaint/"
 #define MyAppExeName "lazpaint.exe"
