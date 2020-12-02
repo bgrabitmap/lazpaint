@@ -2,7 +2,8 @@
 unit UDarkTheme;
 
 {$mode objfpc}{$H+}
-{$IFDEF DARWIN}{$modeswitch objectivec1}{$ENDIF}
+{$IF defined(DARWIN) and defined(LCLcocoa)}{$DEFINE DARWIN_DARK_THEME}{$ENDIF}
+{$IFDEF DARWIN_DARK_THEME}{$modeswitch objectivec1}{$ENDIF}
 
 interface
 
@@ -59,7 +60,7 @@ implementation
 
 uses
   BCTypes, BGRABitmap, BGRABitmapTypes, GraphType, BGRACustomDrawn, LCScaleDPI
-  {$IFDEF DARWIN}, CocoaAll, CocoaUtils{$ENDIF}
+  {$IFDEF DARWIN_DARK_THEME}, CocoaAll, CocoaUtils{$ENDIF}
   {$IFDEF WINDOWS}, Windows, Win32Proc, Registry{$ENDIF};
 
 const
@@ -70,7 +71,7 @@ const
   clDarkPanelHighlight = $909090;
   clDarkPanelShadow = $404040;
 
-{$IFDEF DARWIN}
+{$IFDEF DARWIN_DARK_THEME}
 { returns true, if this app runs on macOS 10.14 Mojave or newer }
 function IsMojaveOrNewer: boolean;
 var
@@ -563,7 +564,7 @@ end;
 
 function TDarkTheme.IsSystemDarkTheme: boolean;
 begin
-  {$IFDEF DARWIN}
+  {$IFDEF DARWIN_DARK_THEME}
   if IsMojaveOrNewer then
     exit(IsMojaveDarkTheme);
   {$ENDIF}
