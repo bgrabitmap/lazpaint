@@ -426,6 +426,7 @@ begin
     end else
     begin
       layerCopy := TBGRABitmap.Create(Image.Width, Image.Height);
+      layerCopy.FillTransparent;
       writer := CreateBGRAImageWriter(imgFormat, true);
       try
         layerCopy.PutImage(Image.LayerOffset[layerIdx].x, Image.LayerOffset[layerIdx].y,
