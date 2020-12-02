@@ -34,7 +34,7 @@ lazpaint (7.1.6-1) unstable; urgency=medium
   * interface: grouping tools in toolbar to save space
   * interface: draw shape editor outside of image area
   * interface: handle retina display on MacOS
-  * translation: add Dutch, Kabyle, Latvian and Polish
+  * translation: add Bulgarian, Dutch, Kabyle, Latvian and Polish
   * optimize selection and image rendering
   * dark theme support
   * image browser: load thumbnails in thread, F5 to update
