@@ -23,8 +23,10 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    LayerExport: TAction;
     FileExport: TAction;
     ExportPictureDialog: TSaveDialog;
+    Label_Donate: TLabel;
     MenuScript: TMenuItem;
     Panel_OutlineFill: TPanel;
     Panel_Donate: TPanel;
@@ -246,6 +248,7 @@ type
     RenderClouds: TAction;
     ImageRotateCCW: TAction;
     ImageRotateCW: TAction;
+    ImageRotate180: TAction;
     ImageChangeCanvasSize: TAction;
     ImageFillBackground: TAction;
     ImageClearAlpha: TAction;
@@ -479,6 +482,7 @@ type
     procedure ItemDockLayersAndColorsClick(Sender: TObject);
     procedure ItemFullscreenClick(Sender: TObject);
     procedure ItemViewDockToolboxClick(Sender: TObject);
+    procedure LayerExportExecute(Sender: TObject);
     procedure LayerRasterizeUpdate(Sender: TObject);
     procedure LayerZoomExecute(Sender: TObject);
     procedure LayerZoomUpdate(Sender: TObject);
@@ -668,6 +672,7 @@ type
     procedure PictureOnPaint(Sender: TObject);
     procedure PictureToolbarUpdate(Sender: TObject);
     function ScriptShowColorDialog(AVars: TVariableSet): TScriptResult;
+    procedure ThemeChanged(Sender: TObject);
     procedure VectorialFill_Change(Sender: TObject);
     procedure vectorialFill_ClickLabel(Sender: TObject);
     procedure VectorialFill_TypeChange(Sender: TObject);
@@ -714,6 +719,8 @@ type
     FCoordinatesCaptionCount: NativeInt;
     FToolbarElementsInitDone: boolean;
     FPenPlusMinus: integer;
+    FLastDonateClick: TDateTime;
+    FInHideFill: boolean;
 
     function GetDarkTheme: boolean;
     function GetImageAction: TImageActions;
@@ -780,7 +787,7 @@ type
     procedure HideFill(ATimeMs: Integer = 300; AClearTime: boolean = false);
     procedure OnImageChangedHandler({%H-}AEvent: TLazPaintImageObservationEvent);
     procedure OnImageRenderChanged({%H-}Sender: TObject);
-    procedure LabelAutosize(ALabel: TLabel);
+    procedure LabelAutosize(ALabel: TLabel; ATargetDPI: integer);
     procedure AskMergeSelection(ACaption: string);
     procedure UpdateSpecialKeys({%H-}Shift: TShiftState);
     procedure UpdateCurveModeToolbar;
@@ -880,8 +887,9 @@ begin
   FLayout.OnToolbarUpdate:=@PictureToolbarUpdate;
   FLayout.OnPictureMouseMove:=@PictureMouseMove;
   FLayout.OnPictureMouseBefore:=@PictureMouseBefore;
+  FInHideFill := false;
 
-  ScaleControl(Self,OriginalDPI);
+  //ScaleControl(Self,OriginalDPI);
   self.Color := clBtnFace; //toolbar color inherited on mac
 
   //mac interface
@@ -938,6 +946,9 @@ end;
 
 procedure TFMain.FormDestroy(Sender: TObject);
 begin
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
+
   if Assigned(Image) then
   begin
     Image.OnSelectionChanged := nil;
@@ -999,6 +1010,7 @@ begin
     FLazPaintInstance := AValue;
     FLayout.LazPaintInstance := AValue;
     Init;
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, true);
   end;
 end;
 
@@ -1110,6 +1122,8 @@ procedure TFMain.FormShow(Sender: TObject);
 var
   m: TMainFormMenu;
   startFillControlWidth: LongInt;
+  iconSize: Integer;
+  toolbarDPI: integer;
 begin
   if FLayout.Menu = nil then
   begin
@@ -1123,7 +1137,30 @@ begin
       Panel_CloseShape,Panel_LineCap,Panel_Aliasing,
       Panel_SplineStyle,Panel_Eraser,Panel_Tolerance,Panel_Text,Panel_Altitude,Panel_TextShadow,Panel_TextOutline,
       Panel_OutlineFill,Panel_PhongShape,Panel_PerspectiveOption,Panel_Brush,Panel_Ratio,Panel_Donate],Panel_ToolbarBackground);
-    m.ImageList := LazPaintInstance.Icons[ScaleY(16, 96)];
+    iconSize := round(Config.DefaultIconSize(ScaleY(16, 96)) * 16 / 20);
+    if iconSize < 16 then iconSize := 16;
+    toolbarDPI := round(96*iconSize/16);
+    m.ScaleToolbars(toolbarDPI);
+    ScaleControl(Panel_PenWidthPreview, OriginalDPI, toolbarDPI, toolbarDPI);
+    LabelAutosize(Label_Pen, toolbarDPI);
+    LabelAutosize(Label_Back, toolbarDPI);
+    LabelAutosize(Label_PenWidth, toolbarDPI);
+    LabelAutosize(Label_Eraser, toolbarDPI);
+    LabelAutosize(Label_Tolerance, toolbarDPI);
+    LabelAutosize(Label_Grid, toolbarDPI);
+    LabelAutosize(Label_Curve, toolbarDPI);
+    LabelAutosize(Label_Text, toolbarDPI);
+    LabelAutosize(Label_TextBlur, toolbarDPI);
+    LabelAutosize(Label_ShadowOffset, toolbarDPI);
+    LabelAutosize(Label_Shape, toolbarDPI);
+    LabelAutosize(Label_PhongBorder, toolbarDPI);
+    LabelAutosize(Label_Altitude, toolbarDPI);
+    LabelAutosize(Label_OutlineWidth, toolbarDPI);
+    LabelAutosize(Label_Brush, toolbarDPI);
+    LabelAutosize(Label_Spacing, toolbarDPI);
+    LabelAutosize(Label_Ratio, toolbarDPI);
+    LabelAutosize(Label_Donate, toolbarDPI);
+    m.ImageList := LazPaintInstance.Icons[iconSize];
     m.Apply;
     FLayout.Menu := m;
 
@@ -1357,6 +1394,7 @@ var
       LazPaintInstance.ShowError(dialogTitle, rsFileExtensionNotSupported);
       result := srException;
     end else
+    if not Image.CheckNoAction then result := srException else
     begin
       try
         saved := false;
@@ -1529,6 +1567,7 @@ begin
     begin
       AskMergeSelection(rsSave);
       try
+        if not Image.CheckNoAction then result := srException else
         if SuggestImageFormat(Image.currentFilenameUTF8) in [ifIco,ifCur,ifTiff,ifGif] then
         begin
            LazPaintInstance.StartSavingImage(Image.currentFilenameUTF8);
@@ -1670,6 +1709,7 @@ procedure TFMain.FilterAnyExecute(Sender: TObject);
 var filterName: string;
     params: TVariableSet;
 begin
+  if Assigned(LazPaintInstance) then LazPaintInstance.ExitColorEditor;
   if Sender is TAction then
   begin
     filterName := (Sender as TAction).Name;
@@ -1740,6 +1780,7 @@ procedure TFMain.RenderAnyExecute(Sender: TObject);
 var filterName: string;
     params: TVariableSet;
 begin
+  if Assigned(LazPaintInstance) then LazPaintInstance.ExitColorEditor;
   if Sender is TAction then
   begin
     filterName := (Sender as TAction).Name;
@@ -1877,24 +1918,19 @@ begin
         FBrowseSelections.AllowMultiSelect := false;
         FBrowseSelections.Caption := LoadSelectionDialog.Title;
       end;
-      self.Hide;
-      try
-        FBrowseSelections.FilterIndex:= LoadSelectionDialog.FilterIndex;
-        if FBrowseSelections.ShowModal = mrOK then
-        begin
-          LoadSelectionDialog.FilterIndex := FBrowseSelections.FilterIndex;
-          LazPaintInstance.ShowTopmost(topmost);
-          selectionFileName := FBrowseSelections.Filename;
-          loadedImage := FBrowseSelections.GetChosenImage;
-          Config.AddRecentDirectory(ExtractFilePath(selectionFileName));
-        end else
-        begin
-          result := srCancelledByUser;
-          LazPaintInstance.ShowTopmost(topmost);
-          exit;
-        end;
-      finally
-        self.Show;
+      FBrowseSelections.FilterIndex:= LoadSelectionDialog.FilterIndex;
+      if FBrowseSelections.ShowModal = mrOK then
+      begin
+        LoadSelectionDialog.FilterIndex := FBrowseSelections.FilterIndex;
+        LazPaintInstance.ShowTopmost(topmost);
+        selectionFileName := FBrowseSelections.Filename;
+        loadedImage := FBrowseSelections.GetChosenImage;
+        Config.AddRecentDirectory(ExtractFilePath(selectionFileName));
+      end else
+      begin
+        result := srCancelledByUser;
+        LazPaintInstance.ShowTopmost(topmost);
+        exit;
       end;
     end else
     begin
@@ -2116,10 +2152,11 @@ begin
                   case DetectFileFormat(Filenames[i]) of
                    ifSvg:
                      begin
-                       svgOrig := LoadSVGOriginalUTF8(Filenames[i]);
+                       svgOrig := LoadSVGOriginalUTF8(Filenames[i], Screen.Width, Screen.Height,
+                         Screen.PixelsPerInch / 96 * CanvasScale);
                        loadedLayers[i].orig := svgOrig;
-                       if ceil(svgOrig.Width) > tx then tx := ceil(svgOrig.Width);
-                       if ceil(svgOrig.Height) > ty then ty := ceil(svgOrig.Height);
+                       tx := max(tx, floor(svgOrig.Width + 0.95));
+                       ty := max(ty, floor(svgOrig.Height + 0.95));
                      end
                    else
                      begin
@@ -2166,7 +2203,7 @@ begin
               if Length(Errors)>0 then
               begin
                 topmost := LazPaintInstance.HideTopmost;
-                QuestionDlg (rsError,rsFollowingErrorsOccured+ LineEnding+ Errors, mtError,[11,rsOkay],'');
+                QuestionDlg (rsError,rsFollowingErrorsOccurred+ LineEnding+ Errors, mtError,[11,rsOkay],'');
                 LazPaintInstance.ShowTopmost(topmost);
               end;
               for i := 0 to high(loadedLayers) do
@@ -2597,6 +2634,15 @@ begin
     FCoordinatesCaptionCount := 0;
   end;
   FLayout.CheckDelayedUpdate;
+  if Assigned(LazPaintInstance) then
+  begin
+    if DarkThemeInstance.HasSystemDarkThemeChanged then
+    begin
+      if (Config.GetDarkThemePreference = dtpAuto) and (LazPaintInstance.DarkTheme <> DarkThemeInstance.IsSystemDarkTheme) then
+        LazPaintInstance.DarkTheme := DarkThemeInstance.IsSystemDarkTheme
+        else LazPaintInstance.NotifyThemeChanged;
+    end;
+  end;
   TimerUpdate.Enabled := true;
 end;
 
@@ -2621,8 +2667,18 @@ begin
 end;
 
 procedure TFMain.ViewDarkThemeExecute(Sender: TObject);
+var
+  newDarkTheme: Boolean;
 begin
-  LazPaintInstance.DarkTheme := not LazPaintInstance.DarkTheme;
+  newDarkTheme := not LazPaintInstance.DarkTheme;
+  if newDarkTheme = DarkThemeInstance.IsSystemDarkTheme then
+    Config.SetDarkThemePreference(dtpAuto) else
+    begin
+      if newDarkTheme then
+        Config.SetDarkThemePreference(dtpDark)
+        else Config.SetDarkThemePreference(dtpAuto);
+    end;
+  LazPaintInstance.DarkTheme := newDarkTheme;
 end;
 
 procedure TFMain.ViewDarkThemeUpdate(Sender: TObject);
@@ -2796,6 +2852,7 @@ var toolName: string;
   texMapBounds: TRect;
 begin
   if ToolManager.ToolSleeping then exit;
+  LazPaintInstance.ExitColorEditor;
   texMapBounds := EmptyRect;
   toolName := AVars.Strings['Name'];
   Tool := StrToPaintToolType(toolName);
@@ -3240,6 +3297,11 @@ begin
   result := srOk;
 end;
 
+procedure TFMain.ThemeChanged(Sender: TObject);
+begin
+  DarkTheme := LazPaintInstance.DarkTheme;
+end;
+
 procedure TFMain.BrushCreateGeometricExecute(Sender: TObject);
 var b: TLazPaintBrush;
 begin
@@ -3548,6 +3610,76 @@ begin
     Layout.ToolBoxDocking := twWindow;
 end;
 
+procedure TFMain.LayerExportExecute(Sender: TObject);
+var
+  topMost: TTopMostInfo;
+  saveDlg: TSaveDialog;
+  layerIdx, mr: Integer;
+  defaultExt, filename: String;
+
+  procedure DoExportLayer(AFilename: string);
+  var
+    vars: TVariableSet;
+  begin
+    FExportInitialDir := extractFilePath(AFilename);
+    if Config.DefaultRememberStartupExportDirectory then
+      Config.SetStartupExportDirectory(FExportInitialDir);
+
+    vars := TVariableSet.Create('LayerSaveAs');
+    vars.Strings['FileName'] := AFilename;
+    CallScriptFunction(vars);
+    vars.Free;
+  end;
+
+begin
+  layerIdx := Image.CurrentLayerIndex;
+  if not Image.LayerOriginalDefined[layerIdx] then
+    defaultExt := '.png' else
+  if Image.LayerOriginalClass[layerIdx] = TBGRALayerSVGOriginal then
+    defaultExt := '.svg'
+  else
+    defaultExt := '.lzp';
+  filename := FileManager.GetValidFilename(Image.LayerName[layerIdx]) + defaultExt;
+  topMost := LazPaintInstance.HideTopmost;
+  saveDlg := ExportPictureDialog;
+  if UseImageBrowser then
+  begin
+    if not assigned(FSaveImage) then
+    begin
+      FSaveImage := TFBrowseImages.Create(self);
+      FSaveImage.LazPaintInstance := LazPaintInstance;
+      FSaveImage.IsSaveDialog := true;
+      FSaveImage.ShowRememberStartupDirectory:= true;
+      if Config.DefaultRememberSaveFormat then
+        FSaveImage.DefaultExtensions:= Config.DefaultSaveExtensions;
+    end;
+    FSaveImage.Filter := saveDlg.Filter;
+    FSaveImage.Caption := saveDlg.Title;
+    FSaveImage.InitialFilename := filename;
+    FSaveImage.DefaultExtension := defaultExt;
+    FSaveImage.InitialDirectory:= FExportInitialDir;
+    FSaveImage.RememberStartDirectory:= FLazPaintInstance.Config.DefaultRememberStartupExportDirectory;
+    FSaveImage.FilterIndex := saveDlg.FilterIndex;
+    mr := FSaveImage.ShowModal;
+    LazPaintInstance.Config.SetRememberStartupExportDirectory(FSaveImage.RememberStartDirectory);
+    if mr = mrOK then
+    begin
+      saveDlg.FilterIndex := FSaveImage.FilterIndex;
+      DoExportLayer(FSaveImage.FileName);
+    end;
+  end else
+  begin
+    saveDlg.FileName := filename;
+    saveDlg.DefaultExt := defaultExt;
+    saveDlg.InitialDir:= FExportInitialDir;
+    if saveDlg.Execute then
+    begin
+      DoExportLayer(saveDlg.FileName);
+    end;
+  end;
+  LazPaintInstance.ShowTopmost(topMost);
+end;
+
 procedure TFMain.LayerRasterizeUpdate(Sender: TObject);
 begin
   LayerRasterize.Enabled := Image.LayerOriginalDefined[Image.CurrentLayerIndex];
@@ -3630,7 +3762,9 @@ end;
 
 procedure TFMain.EditPasteUpdate(Sender: TObject);
 begin
-  EditPaste.Enabled := ToolManager.ToolProvideCommand(tcPaste) or Image.CurrentLayerVisible;
+  if Assigned(LazPaintInstance) and LazPaintInstance.ColorEditorActive then
+    EditPaste.Enabled := false
+    else EditPaste.Enabled := ToolManager.ToolProvideCommand(tcPaste) or Image.CurrentLayerVisible;
 end;
 
 procedure TFMain.EditDeselectUpdate(Sender: TObject);
@@ -3652,6 +3786,8 @@ end;
 procedure TFMain.ScriptExecute(Sender: TObject);
 var actionName: string;
 begin
+  if Assigned(LazPaintInstance) then
+    LazPaintInstance.ExitColorEditor;
   if Sender is TAction then
   begin
     actionName := (Sender as TAction).Name;
@@ -3786,18 +3922,13 @@ begin
         FBrowseBrushes.AllowMultiSelect := false;
         FBrowseBrushes.Caption := OpenBrushDialog.Title;
       end;
-      self.Hide;
-      try
-        FBrowseBrushes.InitialDirectory := Config.DefaultBrushDirectory;
-        FBrowseBrushes.FilterIndex:= OpenBrushDialog.FilterIndex;
-        if FBrowseBrushes.ShowModal = mrOK then
-        begin
-          OpenBrushDialog.FilterIndex := FBrowseBrushes.FilterIndex;
-          brushFilename := FBrowseBrushes.Filename;
-          newBrushBmp := FBrowseBrushes.GetChosenImage.bmp;
-        end;
-      finally
-        self.Show;
+      FBrowseBrushes.InitialDirectory := Config.DefaultBrushDirectory;
+      FBrowseBrushes.FilterIndex:= OpenBrushDialog.FilterIndex;
+      if FBrowseBrushes.ShowModal = mrOK then
+      begin
+        OpenBrushDialog.FilterIndex := FBrowseBrushes.FilterIndex;
+        brushFilename := FBrowseBrushes.Filename;
+        newBrushBmp := FBrowseBrushes.GetChosenImage.bmp;
       end;
     end else
     begin
@@ -3979,16 +4110,6 @@ var
     end else FreeAndNil(picture.bmp);
   end;
 
-  procedure ImportSvg;
-  var
-    layered: TBGRALayeredBitmap;
-  begin
-    StartImport(filenameUTF8);
-    layered := LoadSVGImageUTF8(filenameUTF8);
-    Image.Assign(layered,true, false);
-    EndImport;
-  end;
-
 begin
   result := false;
   if filenameUTF8 = '' then exit;
@@ -4001,11 +4122,7 @@ begin
   picture := TImageEntry.Empty;
   try
     format := Image.DetectImageFormat(filenameUTF8);
-    if format = ifSvg then
-    begin
-      ImportSvg;
-    end else
-    if Assigned(ALoadedImage) and Assigned(ALoadedImage^.bmp) then
+    if (format <> ifSvg) and Assigned(ALoadedImage) and Assigned(ALoadedImage^.bmp) then
     begin
       picture := ALoadedImage^;
       ALoadedImage^.bmp := nil;
@@ -4145,11 +4262,14 @@ begin
   if LazPaintInstance.TopMostHasFocus then
   begin
     if LazPaintInstance.TopMostOkToUnfocus then
-      SafeSetFocus(self)
+    begin
+      if ToolWindowStyle = fsStayOnTop then
+        SafeSetFocus(self);
+    end
     else
       exit;
   end;
-  if (CurrentTool in[ptText,ptEditShape]) and TextSpinEditFocused then VectorialFill_Pen.SetFocus;
+  if (CurrentTool in[ptText,ptEditShape]) and TextSpinEditFocused then Layout.FocusImage;
 end;
 
 procedure TFMain.PictureOnPaint(Sender: TObject);
@@ -4337,7 +4457,7 @@ end;
 
 procedure TFMain.SetDarkTheme(AValue: boolean);
 begin
-  if LAyout.DarkTheme<>AValue then
+  if Layout.DarkTheme<>AValue then
   begin
     Layout.DarkTheme := AValue;
     DarkThemeInstance.Apply(Panel_PenWidthPreview, AValue);

@@ -7,7 +7,7 @@ interface
 
 uses
   Classes, SysUtils, Controls, ComCtrls, ExtCtrls, BGRAVirtualScreen, BCComboBox,
-  BGRABitmap, BGRABitmapTypes, BGRAGraphics,
+  BGRABitmap, BGRABitmapTypes, BGRAGraphics, Menus,
   LazPaintType, UDarkTheme, UVolatileScrollBar, UImageObservation;
 
 type
@@ -30,7 +30,7 @@ type
     LazPaintInstance: TLazPaintCustomInstance;
     Container: TWinControl;
     BGRALayerStack: TBGRAVirtualScreen;
-    TimerScroll: TTimer;
+    TimerScroll, TimerQuery: TTimer;
     PanelToolbar: TPanel;
     Toolbar: TToolbar;
     ComboBox_BlendOp: TBCComboBox;
@@ -45,6 +45,7 @@ type
       WheelDelta: Integer; {%H-}MousePos: TPoint; var Handled: Boolean);
     procedure BGRALayerStack_Redraw(Sender: TObject; Bitmap: TBGRABitmap);
     procedure ComboBox_BlendOpChange(Sender: TObject);
+    procedure TimerQuery_Timer(Sender: TObject);
     procedure TimerScroll_Timer(Sender: TObject);
     procedure Toolbar_Resize(Sender: TObject);
     procedure ToolSelectBlendOperation_Click(Sender: TObject);
@@ -54,10 +55,9 @@ type
   protected
     FDPI: integer;
     FScaling: Double;
-    FSysColorSelection: Boolean;
     FDarkTheme: boolean;
     FScrollStackItemIntoView: Boolean;
-    FUpdatingComboBlendOp: Boolean;
+    FUpdatingComboBlendOp, FQuerySelectBlendOp: Boolean;
     FPartialRedraw: Boolean;
     FRenaming: Boolean;
     FDontUpdateStack: Boolean;
@@ -74,8 +74,12 @@ type
     FMovingItemBitmap: TBGRABitmap;
     FMovingItemSourceIndex: integer;
     FMovingItemMousePos, FMovingItemMouseOrigin, FMovingItemOrigin: TPoint;
+    FRightClickOrigin: TPoint;
     FTimerScrollDeltaY: integer;
     FInHandleSelectLayer: Boolean;
+    FLayerMenu: TPopupMenu;
+    FQueryLayerMenu: boolean;
+    FLayerMenuCoord: TPoint;
     procedure ApplyThemeAndDPI;
     procedure SetDPI(AValue: integer);
     procedure SetDarkTheme(AValue: boolean);
@@ -83,13 +87,14 @@ type
     function GetTextColor(ASelected: boolean): TColor;
     procedure UpdateComboBlendOp;
     procedure SelectBlendOp;
+    procedure QuerySelectBlendOp;
     procedure SetZoomFactor(AValue: single);
     function DrawLayerItem(ABitmap: TBGRABitmap; ALayerPos: TPoint; ALayerIndex: integer; ASelected: boolean): TDrawLayerItemResult;
     procedure DrawLayerStack(ABitmap: TBGRABitmap; ALayout: boolean; AUpdateItem: Integer);
     procedure ComputeLayout(ABitmap: TBGRABitmap);
     procedure ComputeScrolling(AWithHorzScrollBar,AWithVertScrollBar: boolean);
     procedure DoScrollVertically(AAmount: integer);
-    procedure HandleSelectLayer(i,x,y: integer);
+    function HandleSelectLayer(i,x,y: integer; AStartMoving: boolean = true): boolean;
     procedure HandleChangeLayerOpacity(X,{%H-}Y: integer);
     procedure UpdateLayerStackItem(AIndex: integer);
     procedure NeedCheckers;
@@ -98,6 +103,7 @@ type
     destructor Destroy; override;
     procedure AddButton(AAction: TBasicAction);
     procedure AddButton(ACaption: string; AImageIndex: integer; AOnClick: TNotifyEvent);
+    procedure AddLayerMenu(AAction: TBasicAction);
     procedure ScrollToItem(AIndex: integer; AUpdateStack: boolean = true);
     procedure InvalidateStack(AScrollIntoView: boolean);
     function GetWidthFor(AButtonCount: integer): integer;
@@ -130,6 +136,8 @@ procedure TLayerStackInterface.ComboBox_BlendOpChange(Sender: TObject);
 var blendOp: TBlendOperation;
   itemStr: string;
 begin
+  if Assigned(LazPaintInstance) then
+    LazPaintInstance.ExitColorEditor;
   if not FUpdatingComboBlendOp then
   begin
     if ComboBox_BlendOp.ItemIndex <> -1 then
@@ -146,10 +154,28 @@ begin
         if LazPaintInstance.Image.CurrentLayerIndex = 0 then
           LazPaintInstance.ToolManager.ToolPopup(tpmBlendOpBackground);
         FDontUpdateStack := false;
+        FQuerySelectBlendOp:= false;
       end else
-        SelectBlendOp;
+        QuerySelectBlendOp;
     end;
   end;
+end;
+
+procedure TLayerStackInterface.TimerQuery_Timer(Sender: TObject);
+begin
+  if FQuerySelectBlendOp then
+  begin
+    FQuerySelectBlendOp := false;
+    SelectBlendOp;
+  end else
+  if FQueryLayerMenu then
+  begin
+    FQueryLayerMenu := false;
+    with FLayerMenuCoord do
+      FLayerMenu.PopUp(X, Y);
+  end
+  else
+    TimerQuery.Enabled:= false;
 end;
 
 procedure TLayerStackInterface.TimerScroll_Timer(Sender: TObject);
@@ -175,6 +201,7 @@ procedure TLayerStackInterface.BGRALayerStack_MouseDown(Sender: TObject;
 var i: integer;
   str: string;
 begin
+  if Assigned(LazPaintInstance) then LazPaintInstance.ExitColorEditor;
   X := round(X*FScaling);
   Y := round(Y*FScaling);
   if PtInRect(Point(X,Y),FScrollButtonRect) then exit;
@@ -238,7 +265,9 @@ begin
         end;
         exit;
       end;
-  end;
+  end else
+  if Button = mbRight then
+    FRightClickOrigin := Point(X,Y);
 end;
 
 procedure TLayerStackInterface.BGRALayerStack_MouseMove(Sender: TObject;
@@ -279,7 +308,7 @@ end;
 
 procedure TLayerStackInterface.BGRALayerStack_MouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var destinationIndex, prevIndex: integer;
+var destinationIndex, prevIndex, i: integer;
   indexF: single;
   res: TModalResult;
   topmostInfo: TTopMostInfo;
@@ -332,6 +361,23 @@ begin
       FInHandleSelectLayer := false;
       FAskTransferSelectionLayerIndex := -1;
     end;
+  end else
+  if (Button = mbRight) and (Abs(X - FRightClickOrigin.X) <= 2) and
+    (Abs(Y - FRightClickOrigin.Y) <= 2) then
+  begin
+    for i := 0 to high(FLayerInfo) do
+      if IsPointInPolygon(FLayerInfo[i].RightPart.PreviewPts,pointF(FRightClickOrigin.x,FRightClickOrigin.y),true) then
+      begin
+        if HandleSelectLayer(i,x,y,false) then
+        begin
+          FQueryLayerMenu := true;
+          FLayerMenuCoord := BGRALayerStack.ClientToScreen(Point(
+            round(FRightClickOrigin.X / FScaling),
+            round(FRightClickOrigin.Y / FScaling)));
+          TimerQuery.Enabled:= true;
+        end;
+        exit;
+      end;
   end;
 end;
 
@@ -378,10 +424,16 @@ begin
                         LazPaintInstance.Image.LayerOffset[ALayerIndex].Y,
                         LazPaintInstance.Image.LayerBitmap[ALayerIndex].Width,
                         LazPaintInstance.Image.LayerBitmap[ALayerIndex].Height);
-  reducedBounds.Left := round(reducedBounds.Left*reduced.Width/LazPaintInstance.Image.Width);
-  reducedBounds.Top := round(reducedBounds.Top*reduced.Height/LazPaintInstance.Image.Height);
-  reducedBounds.Right := round(reducedBounds.Right*reduced.Width/LazPaintInstance.Image.Width);
-  reducedBounds.Bottom := round(reducedBounds.Bottom*reduced.Height/LazPaintInstance.Image.Height);
+  if LazPaintInstance.Image.Width <> 0 then
+  begin
+    reducedBounds.Left := round(reducedBounds.Left*reduced.Width/LazPaintInstance.Image.Width);
+    reducedBounds.Right := round(reducedBounds.Right*reduced.Width/LazPaintInstance.Image.Width);
+  end;
+  if LazPaintInstance.Image.Height <> 0 then
+  begin
+    reducedBounds.Top := round(reducedBounds.Top*reduced.Height/LazPaintInstance.Image.Height);
+    reducedBounds.Bottom := round(reducedBounds.Bottom*reduced.Height/LazPaintInstance.Image.Height);
+  end;
   reduced.StretchPutImage(reducedBounds, LazPaintInstance.Image.LayerBitmap[ALayerIndex], dmDrawWithTransparency);
 
   result.PreviewPts[0].y += 0.5;
@@ -622,7 +674,8 @@ begin
     end;
     inc(layerPos.Y, FLayerRectHeight);
   end;
-  ABitmap.HorizLine(0, 0, ABitmap.Width-1, clDarkBtnFace, dmDrawWithTransparency, 32768);
+  ABitmap.HorizLine(0, 0, ABitmap.Width-1, DarkThemeInstance.GetColorButtonFace(DarkTheme),
+    dmDrawWithTransparency, 32768);
 
   prevClip := ABitmap.ClipRect;
   if (clipping.right > clipping.left) and (clipping.bottom > clipping.top) then
@@ -772,9 +825,10 @@ begin
   end;
 end;
 
-procedure TLayerStackInterface.HandleSelectLayer(i, x, y: integer);
+function TLayerStackInterface.HandleSelectLayer(i, x, y: integer; AStartMoving: boolean): boolean;
 var prevIndex: integer;
 begin
+  result := false;
   FInHandleSelectLayer := true;
   if (i < LazPaintInstance.Image.NbLayers) then
   begin
@@ -789,11 +843,15 @@ begin
     begin
       FRenaming := false;
       UpdateLayerStackItem(prevIndex);
-      FMovingItemStart := true;
-      FMovingItemSourceIndex := i;
-      FMovingItemMouseOrigin := point(x,y);
-      FMovingItemMousePos := point(x,y);
+      if AStartMoving then
+      begin
+        FMovingItemStart := true;
+        FMovingItemSourceIndex := i;
+        FMovingItemMouseOrigin := point(x,y);
+        FMovingItemMousePos := point(x,y);
+      end;
       UpdateLayerStackItem(i);
+      result := true;
     end;
   end;
   FInHandleSelectLayer := false;
@@ -866,6 +924,7 @@ var
 begin
   if FUpdatingComboBlendOp then exit;
   FUpdatingComboBlendOp := true;
+  FQuerySelectBlendOp:= false;
   blendOps := TStringList.Create;
   selectedStr := '';
   blendOps.AddStrings(ComboBox_BlendOp.Items);
@@ -921,13 +980,23 @@ begin
     LazPaintInstance.ToolManager.ToolPopup(tpmBlendOpBackground);
 end;
 
+procedure TLayerStackInterface.QuerySelectBlendOp;
+begin
+  TimerQuery.Enabled := true;
+  FQuerySelectBlendOp := true;
+end;
+
 procedure TLayerStackInterface.ToolZoomLayerStackIn_Click(Sender: TObject);
 begin
+  if Assigned(LazPaintInstance) then
+    LazPaintInstance.ExitColorEditor;
   ZoomFactor := ZoomFactor * 1.3;
 end;
 
 procedure TLayerStackInterface.ToolZoomLayerStackOut_Click(Sender: TObject);
 begin
+  if Assigned(LazPaintInstance) then
+    LazPaintInstance.ExitColorEditor;
   ZoomFactor := ZoomFactor / 1.3;
 end;
 
@@ -939,9 +1008,9 @@ begin
   Toolbar.Images := LazPaintInstance.Icons[iconSize];
   Toolbar.ButtonWidth:= iconSize + DoScaleX(4, OriginalDPI, DPI);
   Toolbar.ButtonHeight:= iconSize + DoScaleY(4, OriginalDPI, DPI);
+  FLayerMenu.Images := LazPaintInstance.Icons[DoScaleX(20,OriginalDPI)];
   ComboBox_BlendOp.Width := Toolbar.ButtonWidth*7;
   ComboBox_BlendOp.Height := Toolbar.ButtonHeight;
-  FSysColorSelection:= BGRADiff(ColorToBGRA(clHighlight), clDarkBtnFace)>=64;
   DarkThemeInstance.Apply(PanelToolbar, DarkTheme);
   BGRALayerStack.Color:= GetBackColor(False);
   BGRALayerStack.DiscardBitmap;
@@ -949,10 +1018,7 @@ begin
   if PanelToolbar.BevelOuter <> bvNone then dec(spacing, PanelToolbar.BevelWidth);
   PanelToolbar.ChildSizing.TopBottomSpacing:= spacing;
   PanelToolbar.ChildSizing.LeftRightSpacing:= spacing;
-  if DarkTheme then
-    Container.Color := clDarkBtnFace
-  else
-    Container.Color := clBtnFace;
+  Container.Color := DarkThemeInstance.GetColorButtonFace(DarkTheme);
 end;
 
 procedure TLayerStackInterface.SetDPI(AValue: integer);
@@ -1020,6 +1086,14 @@ begin
   TimerScroll.Enabled := false;
   TimerScroll.Interval := 30;
   TimerScroll.OnTimer:=@TimerScroll_Timer;
+  TimerQuery := TTimer.Create(Container);
+  TimerQuery.Enabled := false;
+  TimerQuery.Interval := 200;
+  TimerQuery.OnTimer:=@TimerQuery_Timer;
+  FQuerySelectBlendOp:= false;
+
+  FLayerMenu := TPopupMenu.Create(AContainer);
+  FQueryLayerMenu:= false;
 
   ApplyThemeAndDPI;
   LazPaintInstance.Image.OnImageChanged.AddObserver(@LazPaint_ImageChanged);
@@ -1048,19 +1122,9 @@ end;
 
 function TLayerStackInterface.GetTextColor(ASelected: boolean): TColor;
 begin
-  if DarkTheme and not (ASelected and FSysColorSelection) then
-  begin
-    if ASelected then
-      result := clBlack
-    else
-      result := clLightText;
-  end else
-  begin
-    if ASelected then
-      result := ColorToBGRA(clHighlightText)
-    else
-      result := ColorToBGRA(clWindowText);
-  end;
+  if ASelected then
+    result := DarkThemeInstance.GetColorHighlightText(DarkTheme)
+    else result := DarkThemeInstance.GetColorEditableText(DarkTheme);
 end;
 
 procedure TLayerStackInterface.AddButton(ACaption: string;
@@ -1074,6 +1138,15 @@ begin
   button.Style := tbsButton;
   button.Parent := Toolbar;
   button.OnClick := AOnClick;
+end;
+
+procedure TLayerStackInterface.AddLayerMenu(AAction: TBasicAction);
+var
+  item: TMenuItem;
+begin
+  item := TMenuItem.Create(FLayerMenu);
+  item.Action := AAction;
+  FLayerMenu.Items.Add(item);
 end;
 
 procedure TLayerStackInterface.ScrollToItem(AIndex: integer; AUpdateStack: boolean);
@@ -1101,18 +1174,15 @@ end;
 
 function TLayerStackInterface.GetBackColor(ASelected: boolean): TColor;
 begin
-  if DarkTheme and not (ASelected and FSysColorSelection) then
+  if ASelected then
+    result := DarkThemeInstance.GetColorHighlightBack(DarkTheme) else
   begin
-    if ASelected then
-      result := clLightText
+    if DarkTheme then
+      result := MergeBGRAWithGammaCorrection(
+                  DarkThemeInstance.GetColorButtonFace(true), 1,
+                  DarkThemeInstance.GetColorEditableFace(true), 1)
     else
-      result := MergeBGRAWithGammaCorrection(ColorToBGRA(clDarkBtnFace), 1, ColorToBGRA(clDarkEditableFace), 1);
-  end else
-  begin
-    if ASelected then
-      result := ColorToBGRA(clHighlight)
-    else
-      result := ColorToBGRA(clWindow);
+      result := DarkThemeInstance.GetColorEditableFace(DarkTheme);
   end;
 end;
 

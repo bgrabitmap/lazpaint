@@ -8,7 +8,8 @@ interface
 
 uses
   Classes, SysUtils, BGRABitmap, BGRALayerOriginal, fgl, BGRAGradientOriginal, BGRABitmapTypes,
-  BGRAPen, LCVectorialFill, LCResourceString;
+  BGRAPen, LCVectorialFill, LCResourceString, BGRASVGShapes, BGRASVGType,
+  BGRASVG, BGRAUnits;
 
 const
   InfiniteRect : TRect = (Left: -MaxLongInt; Top: -MaxLongInt; Right: MaxLongInt; Bottom: MaxLongInt);
@@ -252,11 +253,16 @@ type
     function GetPenVisibleNow: boolean;
     function GetBackVisible: boolean; virtual;
     function GetOutlineVisible: boolean; virtual;
+    function AppendVectorialFillToSVGDefs(AFill: TVectorialFill; const AMatrix: TAffineMatrix;
+      ADefs: TSVGDefine; ANamePrefix: string): string;
+    procedure ApplyStrokeStyleToSVG(AElement: TSVGElement; ADefs: TSVGDefine);
+    procedure ApplyFillStyleToSVG(AElement: TSVGElement; ADefs: TSVGDefine);
     property Stroker: TBGRAPenStroker read GetStroker;
   public
     constructor Create(AContainer: TVectorOriginal); virtual;
     class function CreateFromStorage(AStorage: TBGRACustomOriginalStorage; AContainer: TVectorOriginal): TVectorShape;
     destructor Destroy; override;
+    function AppendToSVG(AContent: TSVGContent; ADefs: TSVGDefine): TSVGElement; virtual; abstract;
     procedure BeginUpdate(ADiffHandler: TVectorShapeDiffAny=nil); virtual;
     procedure EndUpdate; virtual;
     procedure FillFit;
@@ -433,6 +439,7 @@ type
     constructor Create; override;
     destructor Destroy; override;
     procedure Clear;
+    function ConvertToSVG(const AMatrix: TAffineMatrix; out AOffset: TPoint): TObject; override;
     function AddTexture(ATexture: TBGRABitmap): integer;
     function GetTexture(AId: integer): TBGRABitmap;
     procedure DiscardUnusedTextures;
@@ -468,6 +475,7 @@ type
     procedure MoveShapeToIndex(AFromIndex, AToIndex: integer); overload;
     procedure MoveShapeToIndex(AFromIndex, AToIndex: array of integer); overload;
     class function StorageClassName: RawByteString; override;
+    class function CanConvertToSVG: boolean; override;
     property OnSelectShape: TVectorOriginalSelectShapeEvent read FOnSelectShape write FOnSelectShape;
     property SelectedShape: TVectorShape read FSelectedShape;
     property ShapeCount: integer read GetShapeCount;
@@ -1870,6 +1878,67 @@ begin
             (not (vsfOutlineWidth in Fields) or (OutlineWidth > 0));
 end;
 
+function TVectorShape.AppendVectorialFillToSVGDefs(AFill: TVectorialFill; const AMatrix: TAffineMatrix;
+  ADefs: TSVGDefine; ANamePrefix: string): string;
+var
+  grad: TSVGGradient;
+begin
+  if AFill.FillType = vftGradient then
+  begin
+    grad := AFill.Gradient.AddToSVGDefs(AMatrix, ADefs) as TSVGGradient;
+    if grad = nil then exit('');
+    grad.ID := ANamePrefix + 'grad' + inttostr(Id);
+    result := grad.ID;
+  end else
+    result := '';
+end;
+
+procedure TVectorShape.ApplyStrokeStyleToSVG(AElement: TSVGElement; ADefs: TSVGDefine);
+var ps: array of single;
+  i: Integer;
+  fillId: String;
+begin
+  if PenVisible then
+  begin
+    if IsAffineMatrixInversible(AElement.matrix[cuPixel]) then
+      fillId := AppendVectorialFillToSVGDefs(PenFill,
+        AffineMatrixInverse(AElement.matrix[cuPixel]), ADefs, 'stroke')
+      else fillId := '';
+    if fillId <> '' then
+      AElement.stroke:= 'url(#'+fillId+')'
+      else AElement.strokeColor := PenColor;
+
+    if IsSolidPenStyle(PenStyle) then
+      AElement.strokeDashArrayNone else
+      begin
+        setlength(ps, length(PenStyle));
+        for i := 0 to high(ps) do
+          ps[i] := PenStyle[i] * PenWidth;
+        AElement.strokeDashArrayF := ps;
+      end;
+    AElement.strokeLineJoinLCL := JoinStyle;
+    AElement.strokeWidth := FloatWithCSSUnit(PenWidth, cuCustom);
+  end else
+    AElement.strokeNone;
+end;
+
+procedure TVectorShape.ApplyFillStyleToSVG(AElement: TSVGElement; ADefs: TSVGDefine);
+var
+  fillId: String;
+begin
+  if BackVisible then
+  begin
+    if IsAffineMatrixInversible(AElement.matrix[cuPixel]) then
+      fillId := AppendVectorialFillToSVGDefs(BackFill,
+        AffineMatrixInverse(AElement.matrix[cuPixel]), ADefs, 'fill')
+      else fillId := '';
+    if fillId <> '' then
+      AElement.fill:= 'url(#'+fillId+')'
+      else AElement.fillColor := BackFill.AverageColor;
+  end
+  else AElement.fillNone;
+end;
+
 procedure TVectorShape.TransformFill(const AMatrix: TAffineMatrix; ABackOnly: boolean);
 begin
   BeginUpdate;
@@ -2853,6 +2922,45 @@ begin
   end;
 end;
 
+function TVectorOriginal.ConvertToSVG(const AMatrix: TAffineMatrix; out AOffset: TPoint): TObject;
+var
+  svg: TBGRASVG;
+  rb: TRect;
+  vb: TSVGViewBox;
+  i: Integer;
+  sCopy: TVectorShape;
+  m: TAffineMatrix;
+  defs: TSVGDefine;
+begin
+  m := AffineMatrixTranslation(0.5, 0.5) * AMatrix;
+  svg := TBGRASVG.Create;
+  defs := svg.Content.AppendDefine;
+  result := svg;
+  rb := GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+  svg.WidthAsPixel:= rb.Width;
+  svg.HeightAsPixel := rb.Height;
+  AOffset := rb.TopLeft;
+  vb.min := PointF(rb.Left, rb.Top);
+  vb.size := PointF(rb.Width, rb.Height);
+  svg.ViewBox := vb;
+  for i := 0 to ShapeCount-1 do
+  begin
+    if not IsAffineMatrixIdentity(m) then
+    begin
+      sCopy := Shape[i].Duplicate;
+      try
+        sCopy.Transform(m);
+        sCopy.AppendToSVG(svg.Content, defs);
+      finally
+        sCopy.Free;
+      end;
+    end else
+      Shape[i].AppendToSVG(svg.Content, defs);
+  end;
+  if defs.Content.ElementCount = 0 then
+    svg.Content.RemoveElement(defs);
+end;
+
 function TVectorOriginal.AddTexture(ATexture: TBGRABitmap): integer;
 begin
   result := GetTextureId(ATexture);
@@ -3635,6 +3743,11 @@ end;
 class function TVectorOriginal.StorageClassName: RawByteString;
 begin
   result := 'vector';
+end;
+
+class function TVectorOriginal.CanConvertToSVG: boolean;
+begin
+  result := true;
 end;
 
 initialization

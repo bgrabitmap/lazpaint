@@ -83,10 +83,12 @@ type
       {%H-}Shift: TShiftState; X, Y: Integer);
     procedure CreatePopupMenu;
     procedure ApplyTheme;
+    procedure ComputeMenuButtonGlyph;
     property PanelPalette: TBGRAVirtualScreen read GetPanelPalette;
   public
     constructor Create;
     destructor Destroy; override;
+    procedure Arrange;
     procedure AddColor(AColor: TBGRAPixel);
     procedure RemoveColor(AColor: TBGRAPixel);
     procedure SetBounds(ALeft,ATop,AWidth,AHeight: integer);
@@ -270,20 +272,43 @@ procedure TPaletteToolbar.ApplyTheme;
 begin
   if Assigned(FPanelPalette) then
   begin
+    FPanelPalette.Color := DarkThemeInstance.GetColorButtonFace(DarkTheme);
     if DarkTheme then
-    begin
-      FPanelPalette.Color := clDarkBtnFace;
-      FPanelPalette.BevelOuter := bvNone;
-    end
+      FPanelPalette.BevelOuter := bvNone
     else
-    begin
-      FPanelPalette.Color := clBtnFace;
       FPanelPalette.BevelOuter := bvRaised;
-    end;
     FPanelPalette.DiscardBitmap;
   end;
   if Assigned(FMenuButton) then
     DarkThemeInstance.Apply(FMenuButton, DarkTheme);
+end;
+
+procedure TPaletteToolbar.ComputeMenuButtonGlyph;
+var
+  glyphBmp: TBitmap;
+  size: Integer;
+  glyphScale: single;
+begin
+  glyphScale := 1/UGraph.CanvasScale;
+  if Assigned(FMenuButton.Glyph) and not FMenuButton.Glyph.Empty and
+    (FMenuButton.GlyphScale = glyphScale) then exit;
+  glyphBmp := TBitmap.Create;
+  size := DoScaleY(FPaletteItemHeight*3 div 5, OriginalDPI, Screen.PixelsPerInch * UGraph.CanvasScale);
+  if not odd(size) then size += 1;
+  glyphBmp.Width := size;
+  glyphBmp.Height := size;
+  glyphBmp.Canvas.Pen.Color := clBlack;
+  glyphBmp.Canvas.Brush.Color := BGRAToColor(CSSLawnGreen);
+  glyphBmp.Canvas.Rectangle(0,0,glyphBmp.Width div 2+1,glyphBmp.Height div 2+1);
+  glyphBmp.Canvas.Brush.Color := clYellow;
+  glyphBmp.Canvas.Rectangle(glyphBmp.Width div 2,0,glyphBmp.Width,glyphBmp.Height div 2+1);
+  glyphBmp.Canvas.Brush.Color := BGRAToColor(CSSDodgerBlue);
+  glyphBmp.Canvas.Rectangle(0,glyphBmp.Height div 2,glyphBmp.Width div 2+1,glyphBmp.Height);
+  glyphBmp.Canvas.Brush.Color := BGRAToColor(CSSBlue);
+  glyphBmp.Canvas.Rectangle(glyphBmp.Width div 2,glyphBmp.Height div 2,glyphBmp.Width,glyphBmp.Height);
+  FMenuButton.Glyph := glyphBmp;
+  FMenuButton.GlyphScale := glyphScale;
+  glyphBmp.Free;
 end;
 
 procedure TPaletteToolbar.DoClearPalette(Sender: TObject);
@@ -467,9 +492,6 @@ begin
 end;
 
 function TPaletteToolbar.GetPanelPalette: TBGRAVirtualScreen;
-var
-  glyphBmp: TBitmap;
-  size: integer;
 begin
   if not Assigned(FPanelPalette) then
   begin
@@ -500,22 +522,6 @@ begin
     DarkThemeInstance.Apply(FMenuButton, DarkTheme);
     FMenuButton.DropDownArrow := true;
     FMenuButton.DropDownArrowSize := DoScaleY(FPaletteItemHeight div 2, OriginalDPI);
-    glyphBmp := TBitmap.Create;
-    size := DoScaleY(FPaletteItemHeight*3 div 5, OriginalDPI);
-    if not odd(size) then size += 1;
-    glyphBmp.Width := size;
-    glyphBmp.Height := size;
-    glyphBmp.Canvas.Pen.Color := clBlack;
-    glyphBmp.Canvas.Brush.Color := BGRAToColor(CSSLawnGreen);
-    glyphBmp.Canvas.Rectangle(0,0,glyphBmp.Width div 2+1,glyphBmp.Height div 2+1);
-    glyphBmp.Canvas.Brush.Color := clYellow;
-    glyphBmp.Canvas.Rectangle(glyphBmp.Width div 2,0,glyphBmp.Width,glyphBmp.Height div 2+1);
-    glyphBmp.Canvas.Brush.Color := BGRAToColor(CSSDodgerBlue);
-    glyphBmp.Canvas.Rectangle(0,glyphBmp.Height div 2,glyphBmp.Width div 2+1,glyphBmp.Height);
-    glyphBmp.Canvas.Brush.Color := BGRAToColor(CSSBlue);
-    glyphBmp.Canvas.Rectangle(glyphBmp.Width div 2,glyphBmp.Height div 2,glyphBmp.Width,glyphBmp.Height);
-    FMenuButton.Glyph := glyphBmp;
-    glyphBmp.Free;
     FMenuButton.DropDownStyle := bdsCommon;
     FMenuButton.Caption := '';
     FMenuButton.SetBounds(2,2,FPanelPalette.Width-4, DoScaleY(FPaletteItemHeight*4 div 3, OriginalDPI));
@@ -741,14 +747,13 @@ begin
   FCanvasScale := (Sender as TControl).GetCanvasScaleFactor;
   TVolatileScrollBar.InitDPI(FCanvasScale);
 
+  clInterm := MergeBGRA(ColorToBGRA(DarkThemeInstance.GetColorButtonFace(DarkTheme)),
+                        ColorToBGRA(DarkThemeInstance.GetColorButtonText(DarkTheme)));
   if DarkTheme then
   begin
-    clInterm := MergeBGRA(ColorToBGRA(clDarkBtnFace),ColorToBGRA(clLightText));
-    Bitmap.HorizLine(0,0,Bitmap.Width-1, ColorToBGRA(clDarkPanelHighlight));
-    Bitmap.VertLine(0,0,Bitmap.Height-1, ColorToBGRA(clDarkPanelHighlight));
-  end
-  else
-    clInterm := MergeBGRA(ColorToBGRA(ColorToRGB(clBtnFace)),ColorToBGRA(ColorToRGB(clBtnText)));
+    Bitmap.HorizLine(0,0,Bitmap.Width-1, DarkThemeInstance.GetColorPanelHighlight(DarkTheme));
+    Bitmap.VertLine(0,0,Bitmap.Height-1, DarkThemeInstance.GetColorPanelHighlight(DarkTheme));
+  end;
 
   x := round(2*FCanvasScale);
   y := round((FMenuButton.Top+FMenuButton.Height+1)*FCanvasScale);
@@ -853,6 +858,11 @@ begin
   FreeAndNil(FPanelPalette);
   FreeAndNil(FColors);
   inherited Destroy;
+end;
+
+procedure TPaletteToolbar.Arrange;
+begin
+  ComputeMenuButtonGlyph;
 end;
 
 procedure TPaletteToolbar.AddColor(AColor: TBGRAPixel);

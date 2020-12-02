@@ -225,23 +225,6 @@ begin
   Label_Coordinates.Caption := '';
   FCoordinatesCaption:= '';
   FCoordinatesCaptionCount := 0;
-  LabelAutosize(Label_Pen);
-  LabelAutosize(Label_Back);
-  LabelAutosize(Label_PenWidth);
-  LabelAutosize(Label_Eraser);
-  LabelAutosize(Label_Tolerance);
-  LabelAutosize(Label_Grid);
-  LabelAutosize(Label_Curve);
-  LabelAutosize(Label_Text);
-  LabelAutosize(Label_TextBlur);
-  LabelAutosize(Label_ShadowOffset);
-  LabelAutosize(Label_Shape);
-  LabelAutosize(Label_PhongBorder);
-  LabelAutosize(Label_Altitude);
-  LabelAutosize(Label_OutlineWidth);
-  LabelAutosize(Label_Brush);
-  LabelAutosize(Label_Spacing);
-  LabelAutosize(Label_Ratio);
   Image_SwapColors.Hint := Image_SwapColors.Hint + ' (X)';
 
   Tool_CurveModeAuto.Hint := Tool_CurveModeAuto.Hint + ' (A)';
@@ -272,18 +255,18 @@ begin
   end;
 end;
 
-procedure TFMain.LabelAutosize(ALabel: TLabel);
+procedure TFMain.LabelAutosize(ALabel: TLabel; ATargetDPI: integer);
 var
   delta, nextPos: integer;
   container: TWinControl;
   nextControl: TControl;
   I, prefWidth, prefHeight: Integer;
 begin
-  ALabel.Font.Height := -DoScaleY(12, OriginalDPI);
+  ALabel.Font.Height := -DoScaleY(12, OriginalDPI, ATargetDPI);
   prefWidth := ALabel.Width;
   prefHeight := ALabel.Width;
   ALabel.GetPreferredSize(prefWidth, prefHeight);
-  ALabel.Width := prefWidth+DoScaleX(5, OriginalDPI);
+  ALabel.Width := prefWidth+DoScaleX(5, OriginalDPI, ATargetDPI);
   nextPos := MaxLongInt;
   container := ALabel.Parent;
   for i := 0 to container.ControlCount-1 do
@@ -584,7 +567,8 @@ end;
 
 procedure TFMain.QueryArrange;
 begin
-  if FShouldArrange then
+  if FShouldArrange and not (Assigned(FLayout) and FLayout.Arranging)
+     and not FInHideFill then
     TimerArrange.Enabled := true;
 end;
 
@@ -755,11 +739,52 @@ begin
 end;
 
 procedure TFMain.TimerArrangeTimer(Sender: TObject);
+  procedure SetTarget(AFillControl: TLCVectorialFillControl);
+  begin
+    if (AFillControl.FillType = vftGradient) then
+    begin
+      if AFillControl = VectorialFill_Pen then
+        LazPaintInstance.ChooseColorTarget:= ctForeColorStartGrad else
+      if AFillControl = VectorialFill_Back then
+        LazPaintInstance.ChooseColorTarget:= ctBackColorStartGrad else
+      if AFillControl = VectorialFill_Outline then
+        LazPaintInstance.ChooseColorTarget:= ctOutlineColorStartGrad;
+    end else
+    begin
+      if AFillControl = VectorialFill_Pen then
+        LazPaintInstance.ChooseColorTarget:= ctForeColorSolid else
+      if AFillControl = VectorialFill_Back then
+        LazPaintInstance.ChooseColorTarget:= ctBackColorSolid else
+      if AFillControl = VectorialFill_Outline then
+        LazPaintInstance.ChooseColorTarget:= ctOutlineColorSolid;
+    end;
+  end;
+var
+  ct: TContextualToolbars;
 begin
   if Assigned(FLayout) then
   begin
     UpdateAllowedFillTypes;
     FLayout.Arrange;
+    ct := ToolManager.GetContextualToolbars;
+    if (LazPaintInstance.ChooseColorTarget in [ctForeColorSolid, ctForeColorStartGrad,
+      ctForeColorEndGrad]) and not (ctPenFill in ct) then
+    begin
+      if ctBackFill in ct then SetTarget(VectorialFill_Back)
+      else if ctOutlineFill in ct then SetTarget(VectorialFill_Outline);
+    end else
+    if (LazPaintInstance.ChooseColorTarget in [ctBackColorSolid, ctBackColorStartGrad,
+      ctBackColorEndGrad]) and not (ctBackFill in ct) then
+    begin
+      if ctOutlineFill in ct then SetTarget(VectorialFill_Outline)
+      else if ctPenFill in ct then SetTarget(VectorialFill_Pen);
+    end else
+    if (LazPaintInstance.ChooseColorTarget in [ctOutlineColorSolid, ctOutlineColorStartGrad,
+      ctOutlineColorEndGrad]) and not (ctOutlineFill in ct) then
+    begin
+      if ctBackFill in ct then SetTarget(VectorialFill_Back)
+      else if ctPenFill in ct then SetTarget(VectorialFill_Pen);
+    end;
   end;
   TimerArrange.Enabled:= false;
 end;
@@ -767,17 +792,30 @@ end;
 procedure TFMain.TimerHideFillTimer(Sender: TObject);
 begin
   TimerHideFill.Enabled := false;
-  VectorialFill_Pen.Height := VectorialFill_Pen.ToolIconSize + VectorialFill_Pen.VerticalPadding;
-  VectorialFill_Back.Height := VectorialFill_Back.ToolIconSize + VectorialFill_Back.VerticalPadding;
-  VectorialFill_Outline.Height := VectorialFill_Outline.ToolIconSize + VectorialFill_Outline.VerticalPadding;
+  FInHideFill := true;
+  VectorialFill_Pen.Height := min(VectorialFill_Pen.ToolIconSize + VectorialFill_Pen.VerticalPadding,
+                               Panel_SwapColor.ClientHeight - VectorialFill_Pen.Top - 1);
+  VectorialFill_Pen.Tag := 0;
+  VectorialFill_Back.Height := min(VectorialFill_Back.ToolIconSize + VectorialFill_Back.VerticalPadding,
+                               Panel_SwapColor.ClientHeight - VectorialFill_Back.Top - 1);
+  VectorialFill_Back.Tag := 0;
+  VectorialFill_Outline.Height := min(VectorialFill_Outline.ToolIconSize + VectorialFill_Outline.VerticalPadding,
+                                  Panel_SwapColor.ClientHeight - VectorialFill_Outline.Top - 1);
+  VectorialFill_Outline.Tag := 0;
   Panel_PenFill.Height := Panel_SwapColor.Height;
   Panel_BackFill.Height := Panel_SwapColor.Height;
   Panel_OutlineFill.Height := Panel_SwapColor.Height;
+  FInHideFill := false
 end;
 
 procedure TFMain.ToolButton_DonateClick(Sender: TObject);
 begin
-  LazPaintInstance.Donate;
+  if Now > FLastDonateClick + (10 / (24*60*60) ) then
+  begin
+    MessagePopup(rsDonate, 3000);
+    FLastDonateClick := Now;
+    LazPaintInstance.Donate;
+  end;
 end;
 
 procedure TFMain.SpinEdit_GridNbExit(Sender: TObject);
@@ -1517,14 +1555,19 @@ begin
   AFillControl.BringToFront;
   AFillControl.Height := AFillControl.PreferredSize.cy;
   APanel.Height := AFillControl.Top + AFillControl.Height + DoScaleY(3, OriginalDPI);
+  AFillControl.Tag := 1;
   HideFill(3000, true);
 end;
 
 procedure TFMain.HideFill(ATimeMs: Integer; AClearTime: boolean);
 begin
-  if AClearTime then TimerHideFill.Enabled := false;
-  TimerHideFill.Interval := ATimeMs;
-  TimerHideFill.Enabled := true;
+  if (VectorialFill_Pen.Tag = 1) or (VectorialFill_Back.Tag = 1) or
+     (VectorialFill_Outline.Tag = 1) then
+  begin
+    if AClearTime then TimerHideFill.Enabled := false;
+    TimerHideFill.Interval := ATimeMs;
+    TimerHideFill.Enabled := true;
+  end;
 end;
 
 procedure TFMain.Panel_ToolbarBackgroundMouseMove(Sender: TObject;
@@ -1619,7 +1662,7 @@ begin
   bmp := TBGRABitmap.Create(round(PaintBox_PenPreview.Width*scaling),
     round(PaintBox_PenPreview.Height*scaling), Panel_PenWidthPreview.Color);
   bmp.ClipRect := rect(1,1,bmp.Width-1,bmp.Height-1);
-  if DarkTheme then c := clLightText else c := clBtnText;
+  c := DarkThemeInstance.GetColorButtonText(DarkTheme);
   x := round(bmp.Width/2);
   y := round(bmp.Height/2);
   if Assigned(Zoom) then visualSize := ToolManager.PenWidth * Zoom.Factor else visualSize := ToolManager.PenWidth;

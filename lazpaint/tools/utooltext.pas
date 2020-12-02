@@ -163,8 +163,9 @@ begin
     PenPhong := Manager.TextPhong;
   end;
   if (Manager.TextShadow <> FPrevShadow) or
-     (Manager.TextShadowBlurRadius <> FPrevShadowRadius) or
-     (Manager.TextShadowOffset <> FPrevShadowOffset) then
+     (FPrevShadow and
+     ((Manager.TextShadowBlurRadius <> FPrevShadowRadius) or
+     (Manager.TextShadowOffset <> FPrevShadowOffset))) then
   begin
     toolDest := GetToolDrawingLayer;
     r:= UpdateShape(toolDest);

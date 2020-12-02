@@ -19,22 +19,26 @@ type
     procedure FormShow(Sender: TObject);
   private
     FStackInterface: TLayerStackInterface;
+    FLazPaintInstance: TLazPaintCustomInstance;
     { private declarations }
     function GetDarkTheme: boolean;
     function GetInterface: TLayerStackInterface;
     function GetZoomFactor: single;
     procedure SetDarkTheme(AValue: boolean);
     procedure CreateStackInterface;
+    procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
     procedure SetZoomFactor(AValue: single);
+    procedure ThemeChanged(Sender: TObject);
   public
-    LazPaintInstance: TLazPaintCustomInstance;
     { public declarations }
     procedure ScrollToItem(AIndex: integer; AUpdateStack: boolean = true);
     procedure AddButton(AAction: TBasicAction);
+    procedure AddLayerMenu(AAction: TBasicAction);
     procedure InvalidateStack(AScrollIntoView: boolean);
     property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
     property StackInterface: TLayerStackInterface read GetInterface;
     property ZoomFactor: single read GetZoomFactor write SetZoomFactor;
+    property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
   end;
 
 var TFLayerStack_CustomDPI: integer = 96;
@@ -67,6 +71,8 @@ end;
 
 procedure TFLayerStack.FormCreate(Sender: TObject);
 begin
+  BorderStyle := ToolWindowSizeable;
+  FormStyle := ToolWindowStyle;
   Position := poDesigned;
   self.EnsureVisible(False);
   ClientWidth := DoScaleX(224, OriginalDPI, TFLayerStack_CustomDPI);
@@ -80,6 +86,8 @@ end;
 
 procedure TFLayerStack.FormDestroy(Sender: TObject);
 begin
+  if Assigned(LazPaintInstance) then
+    LazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
   FreeAndNil(FStackInterface);
 end;
 
@@ -98,6 +106,12 @@ procedure TFLayerStack.AddButton(AAction: TBasicAction);
 begin
   if Assigned(StackInterface) then
     StackInterface.AddButton(AAction);
+end;
+
+procedure TFLayerStack.AddLayerMenu(AAction: TBasicAction);
+begin
+  if Assigned(StackInterface) then
+    StackInterface.AddLayerMenu(AAction);
 end;
 
 procedure TFLayerStack.InvalidateStack(AScrollIntoView: boolean);
@@ -122,10 +136,23 @@ begin
   end;
 end;
 
+procedure TFLayerStack.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
+begin
+  if FLazPaintInstance=AValue then Exit;
+  if Assigned(FLazPaintInstance) then FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
+  FLazPaintInstance:=AValue;
+  if Assigned(FLazPaintInstance) then FLazPaintInstance.RegisterThemeListener(@ThemeChanged, true);
+end;
+
 procedure TFLayerStack.SetZoomFactor(AValue: single);
 begin
   if Assigned(StackInterface) then
     StackInterface.ZoomFactor := AValue;
+end;
+
+procedure TFLayerStack.ThemeChanged(Sender: TObject);
+begin
+  DarkTheme := LazPaintInstance.DarkTheme;
 end;
 
 {$R *.lfm}

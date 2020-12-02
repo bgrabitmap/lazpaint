@@ -62,6 +62,7 @@ type
     FInstance: TLazPaintCustomInstance;
     FFilterConnector: TFilterConnector;
     FPreviousGraphWidth, FPreviousGraphHeight: integer;
+    FPreviousDarkTheme: boolean;
     FGraphBackgroundLeft, FGraphBackgroundBottom: TBGRABitmap;
     FPoint0,FPoint1: TPointF;
     FNbGrid: integer;
@@ -96,6 +97,7 @@ type
     procedure SetPointCoord(AIndex: integer; ACoord: TPointF);
     function RemovePoint(AIndex :integer): boolean;
     procedure SetPosterize(AValue: boolean);
+    procedure ThemeChanged(Sender: TObject);
     procedure TryRemovePoint;
     procedure PreviewNeeded;
     function NeedHistogram(ATab: integer): boolean;
@@ -162,7 +164,8 @@ begin
   if (Bitmap.Width <> FPreviousGraphWidth) or
    (Bitmap.Height <> FPreviousGraphHeight) or
     (FGraphBackgroundLeft = nil) or (FGraphBackgroundBottom = nil) or
-    (FHueTabPrecomputed <> HueTabSelected) then
+    (FHueTabPrecomputed <> HueTabSelected)  or
+    (FPreviousDarkTheme <> (assigned(FInstance) and FInstance.DarkTheme)) then
       RecomputeGraphBackground(Bitmap.Width,Bitmap.Height);
   if (FGraphBackgroundLeft = nil) or (FGraphBackgroundBottom = nil) then exit;
   Bitmap.PutImage(0,0,FGraphBackgroundLeft,dmSet);
@@ -506,7 +509,7 @@ const maxValueX = 1; maxValueY = 1.20;
 var
   th, w, leftMargin, bottomMargin, rightMargin, i: integer;
   labels: array of string;
-  axesColor : TBGRAPixel;
+  axesColor , backgroundColor: TBGRAPixel;
   Bitmap: TBGRABitmap;
   totalLabelLength,maxLabelLength: integer;
 
@@ -553,8 +556,16 @@ begin
   FTickSize := th div 4;
   if FTickSize = 0 then exit;
 
-  Bitmap := TBGRABitmap.Create(AWidth,AHeight,BGRAWhite);
-  axesColor := BGRA(76,84,96);
+  if assigned(FInstance) and FInstance.DarkTheme then
+  begin
+    backgroundColor := BGRABlack;
+    axesColor := clSilver;
+  end else
+  begin
+    backgroundColor := BGRAWhite;
+    axesColor := BGRA(76,84,96);
+  end;
+  Bitmap := TBGRABitmap.Create(AWidth,AHeight,backgroundColor);
   FGridColor := axesColor;
   FGridColor.alpha := 128;
   Bitmap.FontQuality := fqFineAntialiasing;
@@ -597,6 +608,7 @@ begin
   FHueTabPrecomputed:= HueTabSelected;
   FPreviousGraphWidth:= AWidth;
   FPreviousGraphHeight:= AHeight;
+  FPreviousDarkTheme := assigned(FInstance) and FInstance.DarkTheme;
 end;
 
 function TFAdjustCurves.CoordToBitmap(x, y: single): TPointF;
@@ -795,6 +807,14 @@ begin
     FEffectUpdated:= false;
     vsChart.RedrawBitmap;
   end;
+end;
+
+procedure TFAdjustCurves.ThemeChanged(Sender: TObject);
+begin
+  if FInstance.DarkTheme then
+    vsChart.Color := clBlack
+    else vsChart.Color := clWhite;
+  vsChart.DiscardBitmap;
 end;
 
 procedure TFAdjustCurves.TryRemovePoint;
@@ -1005,6 +1025,7 @@ begin
   end;
   try
     FInstance := AInstance;
+    FInstance.RegisterThemeListener(@ThemeChanged, true);
     EnsureCurveExist(tempParameters,'Red');
     EnsureCurveExist(tempParameters,'Green');
     EnsureCurveExist(tempParameters,'Blue');
@@ -1045,6 +1066,7 @@ begin
     CopyCurveIfNonTrivial(tempParameters,'Lightness');
 
   finally
+    FInstance.RegisterThemeListener(@ThemeChanged, false);
     FreeAndNil(FFilterConnector);
     tempParameters.Free;
     FInstance := nil;

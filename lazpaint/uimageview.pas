@@ -2,8 +2,9 @@
 unit UImageView;
 
 {$mode objfpc}{$H+}
-{$IFDEF LINUX}{$DEFINE IMAGEVIEW_DIRECTUPDATE}{$ENDIF}
+{$IF defined(LINUX) and not defined(LCLqt5)}{$DEFINE IMAGEVIEW_DIRECTUPDATE}{$ENDIF}
 {$DEFINE DRAW_TOOL_OUTSIDE_IMAGE}
+{$IF not defined(DARWIN) and not defined(LCLqt5)}{$DEFINE IMAGEVIEW_QUICKUPDATE}{$ENDIF}
 
 interface
 
@@ -942,7 +943,7 @@ begin
   {$ELSE}
   FQueryPaintVirtualScreen := True;
   FPaintBox.InvalidateRect(area);
-  {$IFNDEF DARWIN}FPaintBox.Update;{$ENDIF}
+  {$IFDEF IMAGEVIEW_QUICKUPDATE}FPaintBox.Update;{$ENDIF}
   FQueryPaintVirtualScreen := False;
   {$ENDIF}
 end;
@@ -1025,7 +1026,7 @@ begin
   if IntersectRect(updateArea, updateArea, AWorkArea) then
   begin
     FPaintBox.InvalidateRect(updateArea);
-    {$IFNDEF DARWIN}FPaintBox.Update;{$ENDIF}
+    {$IFDEF IMAGEVIEW_QUICKUPDATE}FPaintBox.Update;{$ENDIF}
   end;
   {$ENDIF}
 end;

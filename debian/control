@@ -1,0 +1,35 @@
+Source: lazpaint
+Section: graphics
+Priority: optional
+Maintainer: Johann ELSASS <circular@operamail.com>
+Uploaders: Gürkan Myczko <gurkan@phys.ethz.ch>
+Build-Depends: fpc, lcl, lazarus, libqt5pas-dev, debhelper-compat (= 13)
+Rules-Requires-Root: no
+Standards-Version: 4.5.0
+Homepage: https://wiki.freepascal.org/LazPaint
+Vcs-Git: https://github.com/bgrabitmap/lazpaint-upstream.git
+Vcs-Browser: https://github.com/bgrabitmap/lazpaint-upstream
+
+Package: lazpaint-gtk2
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Conflicts: lazpaint, lazpaint-gtk3, lazpaint-qt4, lazpaint-qt5
+Description: Image editor with raster and vector layers (gtk2)
+ Can read layered files (lzp, ora, pdn, oXo, flat psd), multi-images (gif,
+ ico, tiff), flat files (bmp, jpeg, pcx, png, tga, webp, xpm, xwd),
+ raw images (dng, cr2, nef, arw...), vectorial (svg), 3D (obj). Has drawing
+ tools, vector shapes, phong shading, curve adjustments, filters, render
+ some textures, Python scripting.
+ Uses Gtk2 widgetset.
+
+Package: lazpaint-qt5
+Conflicts: lazpaint, lazpaint-gtk2, lazpaint-gtk3, lazpaint-qt4
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Image editor with raster and  vector layers (qt5)
+ Can read layered files (lzp, ora, pdn, oXo, flat psd), multi-images (gif,
+ ico, tiff), flat files (bmp, jpeg, pcx, png, tga, webp, xpm, xwd),
+ raw images (dng, cr2, nef, arw...), vectorial (svg), 3D (obj). Has drawing
+ tools, vector shapes, phong shading, curve adjustments, filters, render
+ some textures, Python scripting.
+ Uses Qt5 widgetset.

@@ -6,8 +6,8 @@ unit LazpaintInstance;
 interface
 
 uses
-  Classes, SysUtils, LazPaintType, BGRABitmap, BGRABitmapTypes, BGRALayers,
-  Menus, Controls, fgl,
+  Classes, SysUtils, LazPaintType, BGRABitmap, BGRABitmapTypes, BGRALayers, LCVectorialFill,
+  Menus, Forms, Controls, fgl,
 
   LazPaintMainForm, UMainFormLayout,
 
@@ -24,12 +24,16 @@ const
 type
   TImageListList = specialize TFPGObjectList<TImageList>;
 
+  TListeners = specialize TFPGList<TNotifyEvent>;
+
   { TLazPaintInstance }
 
   TLazPaintInstance = class(TLazPaintCustomInstance)
   private
     FScriptName: String;
+    FThemeListeners: TListeners;
 
+    procedure ChooseColorHide(Sender: TObject);
     function GetFormAdjustCurves: TFAdjustCurves;
     function GetFormCanvasSize: TFCanvasSize;
     function GetFormColorIntensity: TFColorIntensity;
@@ -38,6 +42,7 @@ type
     function GetFormShiftColors: TFShiftColors;
     function GetInitialized: boolean;
     function GetMainFormVisible: boolean;
+    procedure LayerStackHide(Sender: TObject);
     procedure OnImageActionProgress({%H-}ASender: TObject; AProgressPercent: integer);
     procedure OnLayeredBitmapLoadStartHandler(AFilenameUTF8: string);
     procedure OnLayeredBitmapLoadProgressHandler(APercentage: integer);
@@ -45,6 +50,7 @@ type
     procedure OnLayeredBitmapSavedHandler();
     procedure OnLayeredBitmapSaveProgressHandler(APercentage: integer);
     procedure OnLayeredBitmapSaveStartHandler(AFilenameUTF8: string);
+    procedure OnSizeChanged(Sender: TObject);
     procedure RegisterScripts(ARegister: Boolean);
     function ScriptColorColorize(AVars: TVariableSet): TScriptResult;
     function ScriptColorCurves(AVars: TVariableSet): TScriptResult;
@@ -69,6 +75,7 @@ type
     procedure PythonBusy({%H-}Sender: TObject);
     function ScriptShowMessage(AVars: TVariableSet): TScriptResult;
     function ScriptInputBox(AVars: TVariableSet): TScriptResult;
+    procedure ToolQueryColorTarget(sender: TToolManager; ATarget: TVectorialFill);
 
   protected
     InColorFromFChooseColor: boolean;
@@ -118,6 +125,7 @@ type
     procedure SetToolBoxWindowPopup(AValue: TPopupMenu); override;
     function GetFullscreen: boolean; override;
     procedure SetFullscreen(AValue: boolean); override;
+    function GetToolWindowVisible(AWindow: TForm; ADockedVisible: boolean = false): boolean;
     function GetDockLayersAndColors: boolean; override;
     procedure SetDockLayersAndColors(AValue: boolean); override;
     function GetScriptContext: TScriptContext; override;
@@ -172,7 +180,6 @@ type
     function GetMainFormBounds: TRect; override;
     procedure EditSelectionHandler(var AImage: TBGRABitmap);
     function GetZoomFactor: single; override;
-    procedure ApplyTheme(ADarkTheme: boolean); override;
     procedure UpdateLayerControlVisibility;
     procedure UpdateChooseColorControlVisibility;
     property FormCanvasSize: TFCanvasSize read GetFormCanvasSize;
@@ -185,6 +192,8 @@ type
   public
     constructor Create; override;
     constructor Create(AEmbedded: boolean); override;
+    procedure RegisterThemeListener(AHandler: TNotifyEvent; ARegister: boolean); override;
+    procedure NotifyThemeChanged; override;
     procedure StartLoadingImage(AFilename: string); override;
     procedure EndLoadingImage; override;
     procedure StartSavingImage(AFilename: string); override;
@@ -202,7 +211,7 @@ type
     function ProcessCommands(commands: TStringList): boolean; override;
     procedure ChangeIconSize(size: integer); override;
     procedure Show; override;
-    procedure Hide; override;
+    function Hide: boolean; override;
     procedure Run; override;
     procedure Restart; override;
     procedure CancelRestart; override;
@@ -217,6 +226,7 @@ type
     procedure ColorFromFChooseColor; override;
     procedure ColorToFChooseColor; override;
     procedure ExitColorEditor; override;
+    function ColorEditorActive: boolean; override;
     function ShowSaveOptionDlg({%H-}AParameters: TVariableSet; AOutputFilenameUTF8: string;
       ASkipOptions: boolean; AExport: boolean): boolean; override;
     function ShowColorIntensityDlg(AParameters: TVariableSet): TScriptResult; override;
@@ -270,7 +280,7 @@ type
 
 implementation
 
-uses LCLType, Types, Forms, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslation,
+uses LCLType, Types, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslation,
 
      URadialBlur, UMotionBlur, UEmboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, UPixelate, unoisefilter, ufilters,
@@ -291,6 +301,27 @@ end;
 constructor TLazPaintInstance.Create(AEmbedded: boolean);
 begin
   Init(AEmbedded);
+end;
+
+procedure TLazPaintInstance.RegisterThemeListener(AHandler: TNotifyEvent;
+  ARegister: boolean);
+begin
+  if ARegister then
+  begin
+    if FThemeListeners.IndexOf(AHandler) = -1 then
+      FThemeListeners.Add(AHandler);
+  end else
+  begin
+    FThemeListeners.Remove(AHandler);
+  end;
+end;
+
+procedure TLazPaintInstance.NotifyThemeChanged;
+var
+  i: Integer;
+begin
+  for i := 0 to FThemeListeners.Count-1 do
+    FThemeListeners[i](self);
 end;
 
 procedure TLazPaintInstance.StartLoadingImage(AFilename: string);
@@ -431,6 +462,7 @@ end;
 procedure TLazPaintInstance.Init(AEmbedded: boolean);
 begin
   Title := 'LazPaint ' + LazPaintCurrentVersion;
+  FThemeListeners := TListeners.Create;
   FCustomImageList := TImageListList.Create;
   FTopMostInfo.choosecolorHidden := 0;
   FTopMostInfo.layerstackHidden := 0;
@@ -449,10 +481,12 @@ begin
   FImage.OnStackChanged:= @OnStackChanged;
   FImage.OnException := @OnFunctionException;
   FImage.OnActionProgress:=@OnImageActionProgress;
+  FImage.OnSizeChanged:=@OnSizeChanged;
   FToolManager := TToolManager.Create(FImage, self, nil, BlackAndWhite, FScriptContext);
   UseConfig(TIniFile.Create(''));
   FToolManager.OnPopup := @OnToolPopup;
   FToolManager.OnFillChanged:= @ToolFillChanged;
+  FToolManager.OnQueryColorTarget:=@ToolQueryColorTarget;
   FSelectionEditConfig := nil;
   FTextureEditConfig := nil;
   FImageAction := TImageActions.Create(self);
@@ -475,6 +509,7 @@ begin
   Application.CreateForm(TFChooseColor, FChooseColor);
   FChooseColor.LazPaintInstance := self;
   FChooseColor.DarkTheme:= Config.GetDarkTheme;
+  FChooseColor.OnHide:=@ChooseColorHide;
 
   FInFormsNeeded := false;
 end;
@@ -525,6 +560,7 @@ begin
   if Assigned(FLayerStack) then exit;
   TFLayerStack_CustomDPI := (Config.DefaultIconSize(DoScaleX(16,OriginalDPI))*96+8) div 16;
   Application.CreateForm(TFLayerStack,FLayerStack);
+  FLayerStack.OnHide:=@LayerStackHide;
   FLayerStack.LazPaintInstance := self;
   FLayerStack.DarkTheme:= Config.GetDarkTheme;
   defaultZoom := Config.DefaultLayerStackZoom;
@@ -543,6 +579,11 @@ begin
   FLayerStack.AddButton(FMain.LayerHorizontalFlip);
   FLayerStack.AddButton(FMain.LayerVerticalFlip);
   FLayerStack.AddButton(FMain.ToolLayerMapping);
+
+  FLayerStack.AddLayerMenu(FMain.LayerDuplicate);
+  FLayerStack.AddLayerMenu(FMain.LayerRemoveCurrent);
+  FLayerStack.AddLayerMenu(FMain.LayerRasterize);
+  FLayerStack.AddLayerMenu(FMain.LayerExport);
 end;
 
 procedure TLazPaintInstance.CreateToolBox;
@@ -699,6 +740,12 @@ begin
     result := false;
 end;
 
+procedure TLazPaintInstance.LayerStackHide(Sender: TObject);
+begin
+  if not DockLayersAndColors then
+    FLayerControlVisible:= false;
+end;
+
 procedure TLazPaintInstance.OnImageActionProgress(ASender: TObject;
   AProgressPercent: integer);
 begin
@@ -725,6 +772,12 @@ begin
   if FFormAdjustCurves = nil then
     Application.CreateForm(TFAdjustCurves, FFormAdjustCurves);
   result := FFormAdjustCurves;
+end;
+
+procedure TLazPaintInstance.ChooseColorHide(Sender: TObject);
+begin
+  if not DockLayersAndColors then
+    FChooseColorControlVisible:= false;
 end;
 
 function TLazPaintInstance.GetFormColorIntensity: TFColorIntensity;
@@ -836,6 +889,29 @@ begin
     result := srCancelledByUser;
 end;
 
+procedure TLazPaintInstance.ToolQueryColorTarget(sender: TToolManager;
+  ATarget: TVectorialFill);
+begin
+  if ATarget = ToolManager.ForeFill then
+  begin
+    if ToolManager.ForeFill.FillType = vftGradient then
+      ChooseColorTarget := ctForeColorStartGrad
+      else ChooseColorTarget := ctForeColorSolid;
+  end else
+  if ATarget = ToolManager.BackFill then
+  begin
+    if ToolManager.BackFill.FillType = vftGradient then
+      ChooseColorTarget := ctBackColorStartGrad
+      else ChooseColorTarget := ctBackColorSolid;
+  end else
+  if ATarget = ToolManager.OutlineFill then
+  begin
+    if ToolManager.OutlineFill.FillType = vftGradient then
+      ChooseColorTarget := ctOutlineColorStartGrad
+      else ChooseColorTarget := ctOutlineColorSolid;
+  end;
+end;
+
 procedure TLazPaintInstance.OnLayeredBitmapLoadStartHandler(AFilenameUTF8: string);
 begin
   if FLoadingLayers = nil then FLoadingLayers := TFLoading.Create(nil);
@@ -921,6 +997,11 @@ begin
   end;
 end;
 
+procedure TLazPaintInstance.OnSizeChanged(Sender: TObject);
+begin
+  if FMain <> nil then FMain.Layout.InvalidatePicture(true);
+end;
+
 procedure TLazPaintInstance.PythonBusy(Sender: TObject);
 begin
   Application.ProcessMessages;
@@ -944,7 +1025,7 @@ end;
 
 function TLazPaintInstance.GetLayerWindowVisible: boolean;
 begin
-  result := FLayerControlVisible;
+  result := GetToolWindowVisible(FLayerStack, FLayerControlVisible);
 end;
 
 procedure TLazPaintInstance.SetLayerWindowVisible(AValue: boolean);
@@ -994,14 +1075,6 @@ begin
       result := inherited GetZoomFactor;
 end;
 
-procedure TLazPaintInstance.ApplyTheme(ADarkTheme: boolean);
-begin
-  if Assigned(FChooseColor) then FChooseColor.DarkTheme := ADarkTheme;
-  if Assigned(FLayerStack) then FLayerStack.DarkTheme := ADarkTheme;
-  if Assigned(FMain) then FMain.DarkTheme := ADarkTheme;
-  if Assigned(FFormToolbox) then FFormToolbox.DarkTheme:= ADarkTheme;
-end;
-
 procedure TLazPaintInstance.UpdateLayerControlVisibility;
 begin
   if FLayerStack <> nil then
@@ -1009,7 +1082,11 @@ begin
     if DockLayersAndColors then
       FLayerStack.Visible := false
     else
-      FLayerStack.Visible := FLayerControlVisible;
+    begin
+      if FLayerStack.Visible and FLayerControlVisible then
+        FLayerStack.BringToFront
+        else FLayerStack.Visible := FLayerControlVisible;
+    end;
   end;
   if FMain <> nil then
   begin
@@ -1037,7 +1114,11 @@ begin
     if DockLayersAndColors then
       FChooseColor.Visible := false
     else
-      FChooseColor.Visible := FChooseColorControlVisible;
+    begin
+      if FChooseColor.Visible and FChooseColorControlVisible then
+        FChooseColor.BringToFront
+        else FChooseColor.Visible := FChooseColorControlVisible;
+    end;
   end;
   if FMain <> nil then
   begin
@@ -1071,21 +1152,18 @@ end;
 
 function TLazPaintInstance.GetChooseColorVisible: boolean;
 begin
-  result := FChooseColorControlVisible;
+  result := GetToolWindowVisible(FChooseColor, FChooseColorControlVisible);
 end;
 
 function TLazPaintInstance.GetToolboxVisible: boolean;
 begin
-  Result:= ((FFormToolbox <> nil) and FFormToolbox.Visible) or
+  Result:= GetToolWindowVisible(FFormToolbox) or
            ((FMain <> nil) and not (FMain.Layout.ToolBoxDocking in [twNone,twWindow]));
 end;
 
 function TLazPaintInstance.GetImageListWindowVisible: boolean;
 begin
-  if FImageList <> nil then
-    Result:= FImageList.Visible
-  else
-    Result := false;
+  result := GetToolWindowVisible(FImageList);
 end;
 
 procedure TLazPaintInstance.SetChooseColorVisible(const AValue: boolean);
@@ -1373,6 +1451,17 @@ begin
   end;
 end;
 
+function TLazPaintInstance.GetToolWindowVisible(AWindow: TForm; ADockedVisible: boolean = false): boolean;
+begin
+  if Assigned(AWindow) and AWindow.Visible then
+  begin
+    result := not ((AWindow.FormStyle <> fsStayOnTop) and (AWindow.BorderStyle <> bsDialog) and
+                   Assigned(FMain) and FMain.Active and
+                   FMain.BoundsRect.Contains(AWindow.BoundsRect));
+  end else
+    result := ADockedVisible;
+end;
+
 function TLazPaintInstance.GetDockLayersAndColors: boolean;
 begin
   result := FDockLayersAndColors;
@@ -1446,9 +1535,14 @@ begin
   FMain.Show;
 end;
 
-procedure TLazPaintInstance.Hide;
+function TLazPaintInstance.Hide: boolean;
 begin
-  if MainFormVisible then FMain.Hide;
+  if MainFormVisible then
+  begin
+    FMain.Hide;
+    result := true;
+  end
+  else result := false;
 end;
 
 procedure TLazPaintInstance.Run;
@@ -1529,6 +1623,7 @@ begin
   FreeAndNil(FScriptContext);
   FreeAndNil(FImageList);
   FreeAndNil(FCustomImageList);
+  FreeAndNil(FThemeListeners);
   inherited Destroy;
 end;
 
@@ -1536,6 +1631,7 @@ function TLazPaintInstance.HideTopmost: TTopMostInfo;
 begin
   result.defined:= false;
   if FDestroying then exit;
+  ExitColorEditor;
 
   if (FFormToolbox <> nil) and FFormToolbox.Visible then
   begin
@@ -1788,6 +1884,13 @@ begin
   if Assigned(FChooseColor) then FChooseColor.HideEditor;
 end;
 
+function TLazPaintInstance.ColorEditorActive: boolean;
+begin
+  if Assigned(FChooseColor) then
+    result := FChooseColor.EditorVisible
+    else result := false;
+end;
+
 function TLazPaintInstance.ShowSaveOptionDlg(AParameters: TVariableSet;
   AOutputFilenameUTF8: string; ASkipOptions: boolean; AExport: boolean): boolean;
 begin
@@ -1923,6 +2026,8 @@ begin
     result := true;
   if (FLayerStack <> nil) and FLayerStack.Visible and FLayerStack.Active then
     result := true;
+  if (FImageList <> nil) and FImageList.Visible and FImageList.Active then
+    result := true;
 end;
 
 function TLazPaintInstance.GetTopMostVisible: boolean;
@@ -1934,7 +2039,9 @@ begin
   end;
   FormsNeeded;
   result := (Assigned(FFormToolbox) and FFormToolbox.Visible) or
-            FChooseColor.Visible or FLayerStack.Visible;
+            (Assigned(FChooseColor) and FChooseColor.Visible) or
+            (Assigned(FLayerStack) and FLayerStack.Visible) or
+            (Assigned(FImageList) and FImageList.Visible);
 end;
 
 function TLazPaintInstance.GetTopMostOkToUnfocus: boolean;

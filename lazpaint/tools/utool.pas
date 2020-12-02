@@ -171,6 +171,7 @@ type
 
   TOnToolChangedHandler = procedure(sender: TToolManager; ANewToolType: TPaintToolType) of object;
   TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage; AKey: Word; AAlways: boolean) of object;
+  TOnQueryColorTargetHandler = procedure(sender: TToolManager; ATarget: TVectorialFill) of object;
 
   TShapeOption = (toAliasing, toDrawShape, toFillShape, toCloseShape);
   TShapeOptions = set of TShapeOption;
@@ -186,6 +187,7 @@ type
   TToolManager = class
   private
     FConfigProvider: IConfigProvider;
+    FOnQueryColorTarget: TOnQueryColorTargetHandler;
     FShouldExitTool: boolean;
     FImage: TLazPaintImage;
     FBlackAndWhite: boolean;
@@ -414,6 +416,7 @@ type
     procedure SetLightAltitude(AValue: integer);
     procedure SetLightPosition(AValue: TPointF);
     procedure SetLineCap(AValue: TPenEndCap);
+    procedure SetOnQueryColorTarget(AValue: TOnQueryColorTargetHandler);
     procedure SetOutlineColor(AValue: TBGRAPixel);
     procedure SetPerspectiveOptions(AValue: TPerspectiveOptions);
     procedure SetPhongShapeAltitude(AValue: integer);
@@ -466,6 +469,7 @@ type
     function GetCurrentToolType: TPaintToolType;
     function SetCurrentToolType(tool: TPaintToolType): boolean;
     function UpdateContextualToolbars: boolean;
+    function GetContextualToolbars: TContextualToolbars;
     function ToolCanBeUsed: boolean;
     function ToolHasLineCap: boolean;
     procedure ToolWakeUp;
@@ -494,6 +498,7 @@ type
     function IsBackEditGradTexPoints: boolean;
     function IsOutlineEditGradTexPoints: boolean;
     procedure QueryExitTool;
+    procedure QueryColorTarget(ATarget: TVectorialFill);
 
     function RenderTool(formBitmap: TBGRABitmap): TRect;
     function GetRenderBounds(VirtualScreenWidth, VirtualScreenHeight: integer): TRect;
@@ -579,6 +584,7 @@ type
     property OnPopup: TOnPopupToolHandler read FOnPopupToolHandler write FOnPopupToolHandler;
     property OnEraserChanged: TNotifyEvent read FOnEraserChanged write FOnEraserChanged;
     property OnFillChanged: TNotifyEvent read FOnFillChanged write FOnFillChanged;
+    property OnQueryColorTarget: TOnQueryColorTargetHandler read FOnQueryColorTarget write SetOnQueryColorTarget;
     property OnPenWidthChanged: TNotifyEvent read FOnPenWidthChanged write FOnPenWidthChanged;
     property OnBrushChanged: TNotifyEvent read FOnBrushChanged write FOnBrushChanged;
     property OnBrushListChanged: TNotifyEvent read FOnBrushListChanged write FOnBrushListChanged;
@@ -1391,6 +1397,12 @@ begin
   if Assigned(FOnLineCapChanged) then FOnLineCapChanged(self);
 end;
 
+procedure TToolManager.SetOnQueryColorTarget(AValue: TOnQueryColorTargetHandler);
+begin
+  if FOnQueryColorTarget=AValue then Exit;
+  FOnQueryColorTarget:=AValue;
+end;
+
 procedure TToolManager.SetOutlineColor(AValue: TBGRAPixel);
 begin
   FOutlineFill.SolidColor := AValue;
@@ -1576,14 +1588,9 @@ function TToolManager.ToolHasLineCap: boolean;
 var
   contextualToolbars: TContextualToolbars;
 begin
-  if CurrentTool = nil then
-    result := false
-  else
-  begin
-    contextualToolbars := CurrentTool.GetContextualToolbars;
-    result := (ctLineCap in contextualToolbars) and CurrentTool.HasPen and
-              (not (toCloseShape in ShapeOptions) or not (ctCloseShape in contextualToolbars));
-  end;
+  contextualToolbars := GetContextualToolbars;
+  result := (ctLineCap in contextualToolbars) and CurrentTool.HasPen and
+            (not (toCloseShape in ShapeOptions) or not (ctCloseShape in contextualToolbars));
 end;
 
 function TToolManager.GetBackColor: TBGRAPixel;
@@ -3177,16 +3184,10 @@ var
 
 begin
   result := false;
+  contextualToolbars := GetContextualToolbars;
   if Assigned(FCurrentTool) then
-  begin
-    contextualToolbars := FCurrentTool.GetContextualToolbars;
-    hasPen := FCurrentTool.HasPen;
-  end
-  else
-  begin
-    contextualToolbars := [ctPenFill, ctBackFill];
-    hasPen := false;
-  end;
+    hasPen := FCurrentTool.HasPen
+    else hasPen := false;
 
   if (ctBackFill in contextualToolbars) and not (ctPenFill in contextualToolbars) then
     OrResult(SetControlsVisible(FillControls, True, 'Panel_BackFill')) else
@@ -3222,6 +3223,14 @@ begin
   OrResult(SetControlsVisible(DonateControls, FCurrentToolType = ptHand));
 
   if result and Assigned(FOnToolbarChanged) then FOnToolbarChanged(self);
+end;
+
+function TToolManager.GetContextualToolbars: TContextualToolbars;
+begin
+  if Assigned(FCurrentTool) then
+    result := FCurrentTool.GetContextualToolbars
+  else
+    result := [ctPenFill, ctBackFill];
 end;
 
 function TToolManager.InternalBitmapToVirtualScreen(PtF: TPointF): TPointF;
@@ -3791,6 +3800,12 @@ end;
 procedure TToolManager.QueryExitTool;
 begin
   FShouldExitTool:= true;
+end;
+
+procedure TToolManager.QueryColorTarget(ATarget: TVectorialFill);
+begin
+  if Assigned(OnQueryColorTarget) then
+    OnQueryColorTarget(self, ATarget);
 end;
 
 function TToolManager.RenderTool(formBitmap: TBGRABitmap): TRect;

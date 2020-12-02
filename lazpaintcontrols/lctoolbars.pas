@@ -27,7 +27,7 @@ procedure LoadToolbarImage(AImages: TImageList; AIndex: integer; AFilename: stri
 
 implementation
 
-uses BGRALazPaint, BGRABitmap, BGRABitmapTypes, math, Toolwin;
+uses BGRALazPaint, Graphics, BGRABitmap, BGRABitmapTypes, math, Toolwin;
 
 function CreateToolBar(AImages: TImageList; AOwner: TComponent): TToolbar;
 begin
@@ -115,19 +115,35 @@ end;
 procedure LoadToolbarImage(AImages: TImageList; AIndex: integer; AFilename: string);
 var
   iconImg: TBGRALazPaintImage;
-  iconFlat: TBGRABitmap;
+  iconFlat: array of TBGRABitmap;
+  bmpArray: array of TCustomBitmap;
+  i: Integer;
 begin
   iconImg := TBGRALazPaintImage.Create;
   iconImg.LoadFromResource(AFilename);
-  iconImg.Resample(AImages.Width,AImages.Height,rmFineResample,rfBestQuality);
-  iconFlat := TBGRABitmap.Create(iconImg.Width,iconImg.Height);
-  iconImg.Draw(iconFlat,0,0);
-  if AImages.Count < AIndex then
-    AImages.Replace(AIndex, iconFlat.Bitmap,nil)
-  else
-    AImages.Add(iconFlat.Bitmap,nil);
-  iconFlat.Free;
+  if AImages.ResolutionCount = 0 then
+    AImages.RegisterResolutions([AImages.Width]);
+  setlength(iconFlat, AImages.ResolutionCount);
+  setlength(bmpArray, length(iconFlat));
+  for i := 0 to high(iconFlat) do
+  begin
+    iconImg.Resample(AImages.ResolutionByIndex[i].Width,
+                      AImages.ResolutionByIndex[i].Height,
+                      rmFineResample,rfBestQuality);
+    iconFlat[i] := TBGRABitmap.Create(iconImg.Width, iconImg.Height);
+    iconImg.Draw(iconFlat[i],0,0);
+    bmpArray[i] := iconFlat[i].Bitmap;
+  end;
   iconImg.Free;
+  if AImages.Count < AIndex then
+  begin
+    for i := 0 to high(iconFlat) do
+      AImages.Replace(AIndex, bmpArray[i],nil, false);
+  end
+  else
+    AImages.AddMultipleResolutions(bmpArray);
+  for i := 0 to high(iconFlat) do
+    iconFlat[i].Free;
 end;
 
 function AddToolbarLabel(AToolbar: TToolbar; ACaption: string;

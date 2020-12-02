@@ -239,11 +239,11 @@ msgctxt "TFCANVASSIZE.LABEL_WIDTH.CAPTION"
 msgid "Width :"
 msgstr "Ширина:"
 
-#: tfchoosecolor.bcbutton_addtopalette.hint
+#: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
 msgstr "Добавяне на цвета в палитрата"
 
-#: tfchoosecolor.bcbutton_removefrompalette.hint
+#: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
 msgstr "Премахване на цвета от палитрата"
 
@@ -1094,6 +1094,10 @@ msgstr "Завъртане на 270°"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "Завъртане на 90°"
+
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Завъртане на 180°"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -3007,8 +3011,8 @@ msgstr "Папка"
 msgid "Folder or container already exists."
 msgstr ""
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr ""
 
 #: uresourcestrings.rsframes

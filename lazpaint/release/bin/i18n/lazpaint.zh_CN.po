@@ -241,11 +241,11 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "宽度 :"
 
-#: tfchoosecolor.bcbutton_addtopalette.hint
+#: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
 msgstr "向调色板添加颜色"
 
-#: tfchoosecolor.bcbutton_removefrompalette.hint
+#: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
 msgstr "从调色板中删除颜色"
 
@@ -1098,6 +1098,10 @@ msgstr "逆时针旋转 90°"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "顺时针旋转 90°"
+
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "旋转 180°"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -3028,8 +3032,8 @@ msgstr "文件夹"
 msgid "Folder or container already exists."
 msgstr "文件夹或容器已存在。"
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "发生以下错误："
 
 #: uresourcestrings.rsframes

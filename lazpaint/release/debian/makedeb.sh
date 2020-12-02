@@ -9,7 +9,7 @@ SHARE_DIR="${USER_DIR}/share"
 RESOURCE_DIR="${SHARE_DIR}/lazpaint"
 DOC_PARENT_DIR="${SHARE_DIR}/doc"
 DOC_DIR="${DOC_PARENT_DIR}/lazpaint"
-SOURCE_BIN="../bin"
+SOURCE_BIN=$(readlink --canonicalize "../bin")
 TARGET_ARCHITECTURE="$(dpkg --print-architecture)"
 VERSION="$(sed -n 's/^Version: //p' debian/control)"
 
@@ -25,22 +25,38 @@ PACKAGE_NAME="lazpaint${VERSION}_${OS_NAME}"
 echo "Version is $VERSION"
 echo "Target OS is ${OS_NAME}"
 
+rm -rf "${STAGING_DIR}"
+mkdir "${STAGING_DIR}"
+pushd ../../..
+
 if [ ! -f "${SOURCE_BIN}/lazpaint" ]; then
-  echo "Cannot find binary file."  
-  exit 1
+    if [ -z "$1" ]; then
+        echo "Usage: ./makedeb [TARGET]"
+        echo "where TARGET can be Gtk2, Win32 or Qt5"
+        exit 1
+    fi
+    echo "Compiling..."
+    make distclean
+    ./configure --prefix=/usr
+    make TARGET=$1
+else
+    echo "Using already compiled binary."
 fi
 
 echo "Creating package..."
 
-rm -rf "${STAGING_DIR}"
-mkdir "${STAGING_DIR}"
-pushd ../../..
-make install prefix=/usr "DESTDIR=$STAGING_DIR"
+make install "DESTDIR=$STAGING_DIR"
 popd
 
 mkdir "${STAGING_DIR}/DEBIAN"
 cp "debian/control" "${STAGING_DIR}/DEBIAN"
 sed -i -e "s/Architecture: any/Architecture: ${TARGET_ARCHITECTURE}/" "${STAGING_DIR}/DEBIAN/control"
+
+mkdir "${DOC_PARENT_DIR}"
+mkdir "${DOC_DIR}"
+cp "debian/changelog" "${DOC_DIR}"
+cp "debian/copyright" "${DOC_DIR}"
+gzip -9 -n "${DOC_DIR}/changelog"
 
 echo "Determining dependencies..."
 dpkg-shlibdeps "${BIN_DIR}/lazpaint"
@@ -61,8 +77,8 @@ NO_INSTALL_ARCHIVE="${PACKAGE_NAME}_no_install.tar.gz"
 
 echo "Making ${NO_INSTALL_ARCHIVE}..."
 mv "${BIN_DIR}/lazpaint" "${RESOURCE_DIR}/lazpaint"
-mv "${DOC_DIR}/copyright" "${RESOURCE_DIR}/copyright"
-mv "${DOC_DIR}/README" "${RESOURCE_DIR}/README"
+cp "debian/copyright" "${RESOURCE_DIR}/copyright"
+cp "../bin/readme.txt" "${RESOURCE_DIR}/README"
 pushd ${SHARE_DIR}
 tar -czf "../../../${NO_INSTALL_ARCHIVE}" "lazpaint"
 popd

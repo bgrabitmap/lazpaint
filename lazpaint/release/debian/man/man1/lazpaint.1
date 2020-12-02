@@ -19,12 +19,17 @@ If supplied, the INPUT FILE is loaded. If the OUTPUT FILE is supplied, the image
 DIRECTORY
 .RS
 set the directory where Python scripts for LazPaint are located.
-
 .RE
+
 .B -script
 FILENAME
 .RS
 runs the specified Python script. It must have a ".py" extension.
+.RE
+
+.B -quit
+.RS
+quits the program even if no output file was provided. Can be useful when only running scripts.
 .RE
 
 .B -new
@@ -81,8 +86,7 @@ rotates the image clockwise.
 rotates the image counter-clockwise.
 .RE
 
-.B -quit
+.B -rotate180
 .RS
-quits the program even if no output file was provided. Can be useful when only running scripts.
+rotates the image 180 degrees.
 .RE
-

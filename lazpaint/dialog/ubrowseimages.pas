@@ -70,6 +70,7 @@ type
     procedure SetCurrentDirectory(AValue: string);
     function AdaptExtension: boolean;
     procedure ShellListView1SelectionChanged(Sender: TObject);
+    procedure ThemeChanged(Sender: TObject);
   private
     FLazPaintInstance: TLazPaintCustomInstance;
     FDefaultExtension: string;
@@ -81,6 +82,7 @@ type
     FIsSaveDialog: boolean;
     FOverwritePrompt: boolean;
     ShellListView1: TLCShellListView;
+    FUpdateListBounds: boolean;
     FInFormShow: boolean;
     FChosenImage: TImageEntry;
     FPreview: TImagePreview;
@@ -123,6 +125,7 @@ type
     procedure SelectCurrentDir;
     procedure UpdatePreview(AFilename:string); overload;
     procedure UpdatePreview; overload;
+    procedure UpdateTheme;
     procedure ShowPreview;
     procedure HidePreview;
     procedure UpdateConstraints;
@@ -143,6 +146,7 @@ type
     ShowRememberStartupDirectory: boolean;
     function GetChosenImage: TImageEntry;
     procedure FreeChosenImage;
+    function ShowModal: Integer; override;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     property Filename: string read FFilename;
     property SelectedFileCount: integer read GetSelectedFileCount;
@@ -273,8 +277,10 @@ begin
 
   ScaleControl(Panel1, OriginalDPI, 0,0, true);
   ScaleControl(Panel2, OriginalDPI, 0,0, true);
+  ScaleControl(Panel3, OriginalDPI, 0,0, true);
 
-  DarkThemeInstance.Apply(ComboBox_FileExtension, False, 0.40);
+  UpdateTheme;
+
   vsList.BitmapAutoScale:= false;
 
   bmp := TBitmap.Create;
@@ -319,6 +325,8 @@ end;
 
 procedure TFBrowseImages.FormDestroy(Sender: TObject);
 begin
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
   ShellListView1.VirtualScreenFreed;
   FreeAndNil(ShellListView1);
   FreeAndNil(FChosenImage.bmp);
@@ -377,6 +385,11 @@ begin
   begin
     ResetDirectory(false, true);
     SelectFile(Edit_Filename.Text);
+    Key := 0;
+  end else
+  if (KEY = VK_ESCAPE) then
+  begin
+    Close;
     Key := 0;
   end;
 end;
@@ -614,7 +627,11 @@ begin
     end;
     AddToCache(newFilenames, newLastModifications, ShellListView1.LargeIconSize);
   end;
-  vsList.SetBounds(vsList.Left, vsList.Top, Panel2.Width, Panel2.Height-Panel3.Height);
+  if FUpdateListBounds then
+  begin
+    vsList.SetBounds(vsList.Left, vsList.Top, Panel2.Width, Panel2.Height-Panel3.Height);
+    FUpdateListBounds := false;
+  end;
   ShellListView1.Update;
   Timer1.Enabled:= true;
 end;
@@ -741,6 +758,11 @@ begin
   UpdateToolButtonOpen;
 end;
 
+procedure TFBrowseImages.ThemeChanged(Sender: TObject);
+begin
+  UpdateTheme;
+end;
+
 procedure TFBrowseImages.UpdateToolButtonOpen;
 var chosenFilename: string;
 begin
@@ -810,7 +832,11 @@ end;
 procedure TFBrowseImages.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
 begin
   if FLazPaintInstance=AValue then Exit;
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
   FLazPaintInstance:=AValue;
+  if Assigned(FLazPaintInstance) then
+    FLazPaintInstance.RegisterThemeListener(@ThemeChanged, true);
   if Assigned(FPreview) then
     FPreview.LazPaintInstance := AValue;
 end;
@@ -969,6 +995,11 @@ begin
   end;
 end;
 
+procedure TFBrowseImages.UpdateTheme;
+begin
+  DarkThemeInstance.Apply(ComboBox_FileExtension, DarkThemeInstance.IsSystemDarkTheme, 0.40);
+end;
+
 procedure TFBrowseImages.ShowPreview;
 begin
   if FInShowPreview or Panel1.Visible then exit;
@@ -1001,6 +1032,7 @@ begin
     Panel2.Constraints.MaxWidth := ClientWidth-Splitter1.Width-64
   else
     Panel2.Constraints.MaxWidth := 0;
+  FUpdateListBounds := true;
 end;
 
 procedure TFBrowseImages.ViewDetails;
@@ -1257,6 +1289,31 @@ end;
 procedure TFBrowseImages.FreeChosenImage;
 begin
   FreeAndNil(FChosenImage.bmp);
+end;
+
+function TFBrowseImages.ShowModal: Integer;
+var
+  mainHidden: Boolean;
+begin
+  mainHidden := FLazPaintInstance.Hide;
+  try
+    {$IFDEF LCLqt5}
+    Show;
+    ModalResult := mrNone;
+    repeat
+      Application.ProcessMessages;
+      Sleep(50);
+    until (ModalResult <> mrNone) or not Visible;
+    if Visible then Hide;
+    if ModalResult = mrNone then
+      result := mrAbort
+      else result := ModalResult;
+    {$ELSE}
+    Result:=inherited ShowModal;
+    {$ENDIf}
+  finally
+    if mainHidden then FLazPaintInstance.Show;
+  end;
 end;
 
 end.

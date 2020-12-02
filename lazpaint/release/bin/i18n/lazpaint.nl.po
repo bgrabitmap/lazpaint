@@ -266,11 +266,11 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Breedte :"
 
-#: tfchoosecolor.bcbutton_addtopalette.hint
+#: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
 msgstr "Kleur toevoegen aan palet"
 
-#: tfchoosecolor.bcbutton_removefrompalette.hint
+#: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
 msgstr "Verwijder kleur van palet"
 
@@ -1123,6 +1123,10 @@ msgstr "90° naar links draaien"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "90° naar rechts draaien"
+
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "180° draaien"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -3047,8 +3051,8 @@ msgstr "Folder"
 msgid "Folder or container already exists."
 msgstr "Map of container bestaat al."
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "De volgende fouten zijn opgetreden:"
 
 #: uresourcestrings.rsframes

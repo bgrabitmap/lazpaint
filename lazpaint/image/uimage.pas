@@ -44,6 +44,7 @@ type
     FOnSelectedLayerIndexChanging: TOnCurrentLayerIndexChanged;
     FOnSelectionMaskChanged: TOnSelectionMaskChanged;
     FOnSelectedLayerIndexChanged: TOnCurrentLayerIndexChanged;
+    FOnSizeChanged: TNotifyEvent;
     FOnStackChanged: TOnStackChanged;
     FOnQueryExitToolHandler: TOnQueryExitToolHandler;
     FCurrentState: TImageState;
@@ -81,6 +82,7 @@ type
     function GetSelectionTransform: TAffineMatrix;
     procedure LayeredActionDone(Sender: TObject);
     procedure LayeredActionProgress({%H-}ASender: TObject; AProgressPercent: integer);
+    procedure LayeredSizeChanged(Sender: TObject);
     procedure NeedSelectionLayerAfterMask;
     function GetBlendOperation(AIndex: integer): TBlendOperation;
     function GetCurrentFilenameUTF8: string;
@@ -122,6 +124,7 @@ type
     procedure CompressUndoIfNecessary;
     procedure NotifyException(AFunctionName: string; AException: Exception);
     procedure SetOnActionProgress(AValue: TLayeredActionProgressEvent);
+    procedure SetOnSizeChanged(AValue: TNotifyEvent);
     procedure SetSelectionTransform(ATransform: TAffineMatrix);
     procedure UpdateIconFileUTF8(AFilename: string; AOutputFilename: string = ''; AExport: boolean = false);
     procedure UpdateTiffFileUTF8(AFilename: string; AOutputFilename: string = ''; AExport: boolean = false);
@@ -222,6 +225,7 @@ type
     procedure VerticalFlip; overload;
     procedure RotateCW;
     procedure RotateCCW;
+    procedure Rotate180;
     procedure Resample(AWidth, AHeight: integer; filter: TResampleFilter);
     function ApplySmartZoom3: boolean;
 
@@ -266,6 +270,7 @@ type
     property OnImageRenderChanged: TNotifyEvent read FOnImageRenderChanged write FOnImageRenderChanged;
     property OnImageSaving: TLazPaintImageObservable read FOnImageSaving;
     property OnImageExport: TLazPaintImageObservable read FOnImageExport;
+    property OnSizeChanged: TNotifyEvent read FOnSizeChanged write SetOnSizeChanged;
     property OnActionProgress: TLayeredActionProgressEvent read FOnActionProgress write SetOnActionProgress;
     property NbLayers: integer read GetNbLayers;
     property Empty: boolean read GetEmpty;
@@ -314,7 +319,7 @@ uses UGraph, UResourceStrings, Dialogs,
     BGRAPalette, BGRAColorQuantization, UFileSystem,
     BGRAThumbnail, BGRAIconCursor, UTiff, LazPaintType,
     BGRALazPaint, BGRAAnimatedGif,
-    BGRAGradientScanner;
+    BGRAGradientScanner, BGRASVGOriginal, Forms;
 
 function ComputeAcceptableImageSize(AWidth, AHeight: integer): TSize;
 var ratio,newRatio: single;
@@ -463,7 +468,8 @@ function TLazPaintImage.AbleToSaveAsUTF8(AFilename: string): boolean;
 var format: TBGRAImageFormat;
 begin
   format := SuggestImageFormat(AFilename);
-  result := (DefaultBGRAImageWriter[format] <> nil) or (format in [ifIco,ifCur]);
+  result := (DefaultBGRAImageWriter[format] <> nil) or
+    (format in [ifIco,ifCur,ifSvg]);
   if result and (format = ifXPixMap) then
   begin
     if (Width > 256) or (Height > 256) then
@@ -490,7 +496,7 @@ var s: TStream;
   format: TBGRAImageFormat;
 begin
   format := SuggestImageFormat(AFilename);
-  if format in[ifOpenRaster,ifPhoxo,ifLazPaint] then
+  if format in[ifOpenRaster,ifPhoxo,ifLazPaint,ifSvg] then
   begin
     s := FileManager.CreateFileStream(AFilename, fmCreate);
     try
@@ -707,6 +713,13 @@ begin
     layeredBmp := TryCreateLayeredBitmapReader(ext);
     if Assigned(layeredBmp) then
     begin
+      if layeredBmp is TBGRALayeredSVG then
+      with TBGRALayeredSVG(layeredBmp) do
+      begin
+        ContainerWidth := Screen.Width;
+        ContainerHeight := Screen.Height;
+        DefaultLayerName:= rsLayer;
+      end;
       layeredBmp.LoadFromStream(s);
       with ComputeAcceptableImageSize(layeredBmp.Width,layeredBmp.Height) do
         if (cx < layeredBmp.Width) or (cy < layeredBmp.Height) then
@@ -914,6 +927,12 @@ procedure TLazPaintImage.SetOnActionProgress(AValue: TLayeredActionProgressEvent
 begin
   if FOnActionProgress=AValue then Exit;
   FOnActionProgress:=AValue;
+end;
+
+procedure TLazPaintImage.SetOnSizeChanged(AValue: TNotifyEvent);
+begin
+  if FOnSizeChanged=AValue then Exit;
+  FOnSizeChanged:=AValue;
 end;
 
 procedure TLazPaintImage.SetSelectionTransform(ATransform: TAffineMatrix);
@@ -1503,6 +1522,12 @@ procedure TLazPaintImage.LayeredActionProgress(ASender: TObject;
 begin
   if Assigned(OnActionProgress) then
     OnActionProgress(self, AProgressPercent);
+end;
+
+procedure TLazPaintImage.LayeredSizeChanged(Sender: TObject);
+begin
+  if Assigned(FOnSizeChanged) then
+    FOnSizeChanged(self);
 end;
 
 procedure TLazPaintImage.NeedSelectionLayerAfterMask;
@@ -2212,6 +2237,17 @@ begin
   SelectionMaskMayChangeCompletely;
 end;
 
+procedure TLazPaintImage.Rotate180;
+begin
+  if not CheckNoAction then exit;
+  try
+    AddUndo(FCurrentState.Rotate180);
+  except on ex: exception do NotifyException('Rotate180',ex);
+  end;
+  ImageMayChangeCompletely;
+  SelectionMaskMayChangeCompletely;
+end;
+
 function TLazPaintImage.CheckCurrentLayerVisible: boolean;
 begin
   result := CurrentLayerVisible;
@@ -2368,6 +2404,7 @@ begin
   FCurrentState.OnOriginalLoadError:=@OriginalLoadError;
   FCurrentState.OnActionProgress:= @LayeredActionProgress;
   FCurrentState.OnActionDone:=@LayeredActionDone;
+  FCurrentState.OnSizeChanged:=@LayeredSizeChanged;
   FRenderUpdateRectInPicCoord := rect(0,0,0,0);
   FRenderUpdateRectInVSCoord := rect(0,0,0,0);
   FOnSelectionMaskChanged := nil;

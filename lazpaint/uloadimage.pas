@@ -11,8 +11,8 @@ uses
 function LoadFlatImageUTF8(AFilename: string; AEntryToLoad: integer = -1): TImageEntry;
 procedure FreeMultiImage(var images: ArrayOfImageEntry);
 function AbleToLoadUTF8(AFilename: string): boolean;
-function LoadSVGImageUTF8(AFilename: string): TBGRALayeredBitmap;
-function LoadSVGOriginalUTF8(AFilename: string): TBGRALayerSVGOriginal;
+function LoadSVGOriginalUTF8(AFilename: string; AContainerWidth, AContainerHeight: integer;
+  AScaleDPI: single): TBGRALayerSVGOriginal;
 
 implementation
 
@@ -190,19 +190,8 @@ begin
   end;
 end;
 
-function LoadSVGImageUTF8(AFilename: string): TBGRALayeredBitmap;
-var
-  svg: TBGRALayerSVGOriginal;
-  idx: Integer;
-begin
-  svg := LoadSVGOriginalUTF8(AFilename);
-  result := TBGRALayeredBitmap.Create(ceil(svg.Width),ceil(svg.Height));
-  idx := result.AddLayerFromOwnedOriginal(svg);
-  result.LayerName[idx] := rsLayer+'1';
-  result.RenderLayerFromOriginal(idx);
-end;
-
-function LoadSVGOriginalUTF8(AFilename: string): TBGRALayerSVGOriginal;
+function LoadSVGOriginalUTF8(AFilename: string; AContainerWidth, AContainerHeight: integer;
+  AScaleDPI: single): TBGRALayerSVGOriginal;
 var
   svg: TBGRALayerSVGOriginal;
   s: TStream;
@@ -211,7 +200,7 @@ begin
   result := nil;
   try
     svg := TBGRALayerSVGOriginal.Create;
-    svg.LoadSVGFromStream(s);
+    svg.LoadSVGFromStream(s, AContainerWidth, AContainerHeight, AScaleDPI);
     result:= svg;
     svg:= nil;
   finally

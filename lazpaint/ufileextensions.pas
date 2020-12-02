@@ -323,7 +323,7 @@ initialization
   RegisterPicExt('Portable Network Graphic','png', [eoReadable,eoWritable]);
   RegisterPicExt(rsPhotoshop,'psd', [eoReadable]);
   BGRASVG.RegisterSvgFormat;
-  RegisterPicExt('Scalable Vector Graphic','svg', [eoReadable]);
+  RegisterPicExt('Scalable Vector Graphic','svg', [eoReadable, eoWritable]);
   RegisterPicExt('Targa','tga', [eoReadable,eoWritable]);
   RegisterPicExt('Tiff','tif;tiff', [eoReadable,eoWritable]);
   RegisterPicExt('WebP','webp', [eoReadable,eoWritable]);

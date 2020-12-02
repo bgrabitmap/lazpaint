@@ -231,11 +231,11 @@ msgctxt "TFCANVASSIZE.LABEL_WIDTH.CAPTION"
 msgid "Width :"
 msgstr "Leveys :"
 
-#: tfchoosecolor.bcbutton_addtopalette.hint
+#: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
 msgstr "Lisää väri väripalettiin"
 
-#: tfchoosecolor.bcbutton_removefrompalette.hint
+#: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
 msgstr "Poista väri väripaletista"
 
@@ -1091,6 +1091,10 @@ msgstr "Kierrä 90° vastapäivään"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "Kierrä 90° myötäpäivään"
+
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Kierrä 180°"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -3019,8 +3023,8 @@ msgstr "Kansio"
 msgid "Folder or container already exists."
 msgstr ""
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr ""
 
 #: uresourcestrings.rsframes

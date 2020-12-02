@@ -241,11 +241,11 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Ancho:"
 
-#: tfchoosecolor.bcbutton_addtopalette.hint
+#: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
 msgstr "Agregar color a la paleta"
 
-#: tfchoosecolor.bcbutton_removefrompalette.hint
+#: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
 msgstr "Quitar color de la paleta"
 
@@ -1098,6 +1098,10 @@ msgstr "Rotar 90º CCR"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CR"
 msgstr "Rotar 90º CR"
+
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Rotar 180º"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -3029,8 +3033,8 @@ msgstr "Carpeta"
 msgid "Folder or container already exists."
 msgstr "La carpeta o el contenedor ya existe."
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "Estos errores han ocurrido:"
 
 #: uresourcestrings.rsframes

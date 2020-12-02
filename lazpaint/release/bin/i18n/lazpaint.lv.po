@@ -249,11 +249,11 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Platums:"
 
-#: tfchoosecolor.bcbutton_addtopalette.hint
+#: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
 msgstr "Pievienot krāsu paletei"
 
-#: tfchoosecolor.bcbutton_removefrompalette.hint
+#: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
 msgstr "Izņemt krāsu no paletes"
 
@@ -1110,6 +1110,10 @@ msgstr "Pagriezt pa 90° pretēji pulkstenim"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "Pagriezt pa 90°"
+
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Pagriezt pa 180°"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -3041,8 +3045,8 @@ msgstr "Mape"
 msgid "Folder or container already exists."
 msgstr "Mape vai resursu datne jau ir."
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "Kļūda:"
 
 #: uresourcestrings.rsframes

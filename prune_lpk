@@ -1,0 +1,16 @@
+#!/bin/bash
+echo "Warning: make sure you have saved your changes."
+read -p "Delete unnecessary files for Debian package (y/n)?" -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    rm -rf bgrabitmap/test
+    rm -rf bgrabitmap/libwebp
+    rm -rf bgracontrols/test
+    rm -rf bgracontrols/lcl
+    rm -rf bgracontrols/mouseandkeyinput
+    rm -rf lazpaint/release/windows
+    rm -rf lazpaint/release/macOS
+    rm -rf lazpaint/release/stable
+    echo Done.
+fi

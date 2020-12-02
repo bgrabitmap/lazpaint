@@ -116,7 +116,7 @@ type
     procedure PaintBox_LightPosPaint(Sender: TObject);
     procedure Shape_LightColorMouseUp(Sender: TObject; {%H-}Button: TMouseButton;
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
-    procedure Shape_MaterialColorMouseDown(Sender: TObject;
+    procedure Shape_MaterialColorMouseUp(Sender: TObject;
       {%H-}Button: TMouseButton; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure SpinEdit_ColorOpacityChange(Sender: TObject);
     procedure SpinEdit_ColorOpacityKeyPress(Sender: TObject; var Key: char);
@@ -638,7 +638,7 @@ begin
   end;
 end;
 
-procedure TFObject3D.Shape_MaterialColorMouseDown(Sender: TObject;
+procedure TFObject3D.Shape_MaterialColorMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   if materialIndex <> -1 then

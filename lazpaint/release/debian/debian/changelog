@@ -1,3 +1,30 @@
+lazpaint (7.1.6) stable; urgency=low
+
+  * Debian: various icon sizes for Linux application menu
+  * Debian: compatibility with debuild (to release in Debian distributions)
+  * MacOS: retina scaling of button glyphs
+  * MacOS: fix online requests (version check)
+  * clipboard: supports paste from redirected URL and HTML inline data
+  * color chooser: window switches to available fill options
+  * color chooser: copy/paste color definition
+  * language: add Polish translation
+  * interface: add support for Qt5
+  * interface: repaint on theme change
+  * interface: detect system dark theme
+  * interface: scale top toolbar, more icon sizes
+  * interface: larger textboxes in image browser, Escape to close
+  * interface: vertical splitter to resize docked controls / image view
+  * layers: add HSL and corrected HSL blend modes
+  * layers: add context menu for layer
+  * layers: export layer (in context menu)
+  * image: add 180-degree rotation
+  * SVG: read/write layered SVG (interoperates with Inkscape)
+  * SVG: exports vectorial layers to SVG
+  * SVG: fix scaling, better support for text
+  * OpenRaster: support for SVG layers (interoperates with MyPaint)
+
+ -- circular <circular@operamail.com>  Wed, 2 Dec 2020 10:25:00 +0100
+  
 lazpaint (7.1.5) stable; urgency=low
 
   * image browser: can move to trash on MacOS

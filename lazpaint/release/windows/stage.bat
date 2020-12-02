@@ -41,11 +41,11 @@ goto donebin32
 echo Error: 32-bit binary not found
 :donebin32
 
-if not exist ..\bin\lazpaint_x64.exe goto :missingbin64
+if not exist ..\bin\lazpaint64.exe goto :missingbin64
 echo Staging 64-bit version...
 if not exist lazpaint64 mkdir lazpaint64
-copy ..\bin\lazpaint_x64.exe lazpaint64\lazpaint.exe >nul
-copy dcraw\dcraw_x64.exe lazpaint64\dcraw.exe >nul
+copy ..\bin\lazpaint64.exe lazpaint64\lazpaint.exe >nul
+copy dcraw\dcraw64.exe lazpaint64\dcraw.exe >nul
 copy libwebp\libwebp64.dll lazpaint64 >nul
 copy ..\bin\readme.txt lazpaint64 >nul
 copy ..\bin\*.ini lazpaint64 >nul

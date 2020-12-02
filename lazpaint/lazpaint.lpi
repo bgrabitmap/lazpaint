@@ -24,11 +24,11 @@
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="7"/>
       <MinorVersionNr Value="1"/>
-      <RevisionNr Value="5"/>
+      <RevisionNr Value="6"/>
       <CharSet Value="04B0"/>
       <StringTable CompanyName="http://sourceforge.net/projects/lazpaint/" FileDescription="LazPaint" InternalName="lazpaint" OriginalFilename="lazpaint.exe" ProductName="LazPaint"/>
     </VersionInfo>
-    <BuildModes Count="8">
+    <BuildModes Count="10">
       <Item1 Name="Debug" Default="True"/>
       <Item2 Name="Release">
         <CompilerOptions>
@@ -40,7 +40,7 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -78,7 +78,7 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -113,12 +113,12 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\bin\lazpaint_x64"/>
+            <Filename Value="release\bin\lazpaint64"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -148,7 +148,48 @@
           </Linking>
         </CompilerOptions>
       </Item4>
-      <Item5 Name="Release macOS">
+      <Item5 Name="Debug macOS">
+        <MacroValues Count="1">
+          <Macro1 Name="LCLWidgetType" Value="cocoa"/>
+        </MacroValues>
+        <CompilerOptions>
+          <Version Value="11"/>
+          <PathDelim Value="\"/>
+          <SearchPaths>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
+            <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
+          </SearchPaths>
+          <CodeGeneration>
+            <Checks>
+              <RangeChecks Value="True"/>
+              <OverflowChecks Value="True"/>
+              <StackChecks Value="True"/>
+            </Checks>
+            <VerifyObjMethodCallValidity Value="True"/>
+            <TargetCPU Value="x86_64"/>
+            <TargetOS Value="darwin"/>
+            <Optimizations>
+              <OptimizationLevel Value="0"/>
+            </Optimizations>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <DebugInfoType Value="dsDwarf2Set"/>
+              <UseHeaptrc Value="True"/>
+            </Debugging>
+            <Options>
+              <Win32>
+                <GraphicApplication Value="True"/>
+              </Win32>
+            </Options>
+          </Linking>
+          <Other>
+            <CustomOptions Value="-dDEBUG"/>
+          </Other>
+        </CompilerOptions>
+      </Item5>
+      <Item6 Name="Release macOS">
         <MacroValues Count="1">
           <Macro1 Name="LCLWidgetType" Value="cocoa"/>
         </MacroValues>
@@ -161,7 +202,7 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -179,6 +220,7 @@
           <Linking>
             <Debugging>
               <GenerateDebugInfo Value="False"/>
+              <DebugInfoType Value="dsDwarf2Set"/>
               <UseLineInfoUnit Value="False"/>
               <StripSymbols Value="True"/>
             </Debugging>
@@ -190,58 +232,18 @@
             </Options>
           </Linking>
         </CompilerOptions>
-      </Item5>
-      <Item6 Name="Debug macOS">
-        <MacroValues Count="1">
-          <Macro1 Name="LCLWidgetType" Value="cocoa"/>
-        </MacroValues>
-        <CompilerOptions>
-          <Version Value="11"/>
-          <PathDelim Value="\"/>
-          <SearchPaths>
-            <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)"/>
-          </SearchPaths>
-          <CodeGeneration>
-            <Checks>
-              <RangeChecks Value="True"/>
-              <OverflowChecks Value="True"/>
-              <StackChecks Value="True"/>
-            </Checks>
-            <VerifyObjMethodCallValidity Value="True"/>
-            <TargetCPU Value="x86_64"/>
-            <TargetOS Value="darwin"/>
-            <Optimizations>
-              <OptimizationLevel Value="0"/>
-            </Optimizations>
-          </CodeGeneration>
-          <Linking>
-            <Debugging>
-              <UseHeaptrc Value="True"/>
-            </Debugging>
-            <Options>
-              <Win32>
-                <GraphicApplication Value="True"/>
-              </Win32>
-            </Options>
-          </Linking>
-          <Other>
-            <CustomOptions Value="-dDEBUG"/>
-          </Other>
-        </CompilerOptions>
       </Item6>
       <Item7 Name="Release Linux32">
         <CompilerOptions>
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\bin\lazpaint"/>
+            <Filename Value="release\bin\lazpaint32"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -276,12 +278,12 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="release\bin\lazpaint"/>
+            <Filename Value="release\bin\lazpaint64"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -311,8 +313,82 @@
           </Linking>
         </CompilerOptions>
       </Item8>
-      <SharedMatrixOptions Count="1">
-        <Item1 ID="061641364023" Modes="Debug macOS,Release macOS" Type="IDEMacro" MacroName="LCLWidgetType" Value="cocoa"/>
+      <Item9 Name="DebugQt5">
+        <MacroValues Count="1">
+          <Macro2 Name="LCLWidgetType" Value="qt5"/>
+        </MacroValues>
+        <CompilerOptions>
+          <Version Value="11"/>
+          <PathDelim Value="\"/>
+          <SearchPaths>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
+            <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
+          </SearchPaths>
+          <CodeGeneration>
+            <Optimizations>
+              <OptimizationLevel Value="0"/>
+            </Optimizations>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <UseHeaptrc Value="True"/>
+            </Debugging>
+            <Options>
+              <Win32>
+                <GraphicApplication Value="True"/>
+              </Win32>
+            </Options>
+          </Linking>
+          <Other>
+            <CustomOptions Value="-dDEBUG"/>
+          </Other>
+        </CompilerOptions>
+      </Item9>
+      <Item10 Name="ReleaseQt5">
+        <MacroValues Count="1">
+          <Macro2 Name="LCLWidgetType" Value="qt5"/>
+        </MacroValues>
+        <CompilerOptions>
+          <Version Value="11"/>
+          <PathDelim Value="\"/>
+          <Target>
+            <Filename Value="release\bin\lazpaint"/>
+          </Target>
+          <SearchPaths>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
+            <UnitOutputDirectory Value="release\lib\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
+          </SearchPaths>
+          <Parsing>
+            <SyntaxOptions>
+              <UseAnsiStrings Value="False"/>
+            </SyntaxOptions>
+          </Parsing>
+          <CodeGeneration>
+            <Optimizations>
+              <OptimizationLevel Value="3"/>
+              <VariablesInRegisters Value="True"/>
+            </Optimizations>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <GenerateDebugInfo Value="False"/>
+              <UseLineInfoUnit Value="False"/>
+              <StripSymbols Value="True"/>
+            </Debugging>
+            <LinkSmart Value="True"/>
+            <Options>
+              <Win32>
+                <GraphicApplication Value="True"/>
+              </Win32>
+            </Options>
+          </Linking>
+        </CompilerOptions>
+      </Item10>
+      <SharedMatrixOptions Count="2">
+        <Item1 ID="061641364023" Modes="Release macOS,Debug macOS" Type="IDEMacro" MacroName="LCLWidgetType" Value="cocoa"/>
+        <Item2 ID="477649945430" Modes="ReleaseQt5,DebugQt5" Type="IDEMacro" MacroName="LCLWidgetType" Value="qt5"/>
       </SharedMatrixOptions>
     </BuildModes>
     <PublishOptions>
@@ -334,11 +410,11 @@
     <RequiredPackages Count="5">
       <Item1>
         <PackageName Value="BGRABitmapPack"/>
-        <MinVersion Major="11" Minor="2" Release="5" Valid="True"/>
+        <MinVersion Major="11" Minor="3" Release="1" Valid="True"/>
       </Item1>
       <Item2>
         <PackageName Value="bgracontrols"/>
-        <MinVersion Major="7" Minor="0" Valid="True"/>
+        <MinVersion Major="7" Minor="1" Valid="True"/>
       </Item2>
       <Item3>
         <PackageName Value="lazpaintcontrols"/>
@@ -981,7 +1057,7 @@
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
       <OtherUnitFiles Value="tablet;tools;dialog;dialog\color;dialog\filter;image"/>
-      <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)"/>
+      <UnitOutputDirectory Value="debug\$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer).nosync"/>
     </SearchPaths>
     <CodeGeneration>
       <Optimizations>

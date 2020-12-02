@@ -110,7 +110,7 @@ type
 implementation
 
 uses FPimage, BGRAReadJpeg, BGRAOpenRaster, BGRAPaintNet, BGRAReadLzp, Dialogs, UNewimage,
-  LCLType, BGRAPhoxo, BGRASVG, math, URaw, UImage, LCScaleDPI;
+  LCLType, BGRAPhoxo, BGRASVG, math, URaw, UImage, LCScaleDPI, BGRAUnits;
 
 { TImagePreview }
 
@@ -125,6 +125,7 @@ begin
   result := (FImageFormat in[ifJpeg,     {compression loss}
                              ifLazPaint, {layer loss}
                              ifOpenRaster,
+                             ifSvg,      {vector loss}
                              ifPhoxo,
                              ifPaintDotNet])
          or (FAnimate and Assigned(FAnimatedGif) and (FAnimatedGif.Count > 1)); {frame loss}
@@ -873,10 +874,13 @@ var reader: TFPCustomImageReader;
   source: TStream;
   svg: TBGRASVG;
   tr: TTiffError;
+  screenDpi: Integer;
+  singleSize: string;
 begin
   if FInUpdatePreview then
   begin
     source := nil;
+    singleSize := '';
     try
       source := FileManager.CreateFileStream(FFilename, fmOpenRead or fmShareDenyWrite);
       FImageFormat := DetectFileFormat(source,ExtractFileExt(FFilename));
@@ -966,11 +970,16 @@ begin
       ifSvg:
         begin
           svg := TBGRASVG.Create(source);
-          with ComputeAcceptableImageSize(ceil(svg.WidthAsPixel),ceil(svg.HeightAsPixel)) do
+          singleSize := svg.Units.formatValue(svg.Width) + ' x ' + svg.Units.formatValue(svg.Height);
+          FImageNbLayers:= max(1, svg.LayerCount);
+          screenDpi:= Screen.PixelsPerInch * CanvasScale;
+          svg.Units.ContainerWidth := FloatWithCSSUnit(Screen.Width * CanvasScale / screenDpi * svg.DefaultDpi, cuPixel);
+          svg.Units.ContainerHeight := FloatWithCSSUnit(Screen.Height * CanvasScale / screenDpi * svg.DefaultDpi, cuPixel);
+          svg.CropToViewBox(screenDpi / svg.DefaultDpi);
+          with ComputeAcceptableImageSize(floor(svg.WidthAsPixel + 0.95), floor(svg.HeightAsPixel + 0.95)) do
             FSingleImage := TBGRABitmap.Create(cx,cy);
           svg.StretchDraw(FSingleImage.Canvas2d,0,0,FSingleImage.Width,FSingleImage.Height);
           svg.Free;
-          FImageNbLayers:= 1;
         end
       else
         begin
@@ -1020,7 +1029,8 @@ begin
     end else
     if Assigned(FSingleImage) then
     begin
-      FStatus.Caption := rsCanvasSize + ': ' + IntToStr(FSingleImage.Width)+'x'+IntToStr(FSingleImage.Height)+', '+
+      if singleSize = '' then singleSize := IntToStr(FSingleImage.Width)+'x'+IntToStr(FSingleImage.Height);
+      FStatus.Caption := rsCanvasSize + ': ' + singleSize +', '+
                          rsLayers+': '+IntToStr(FImageNbLayers);
     end else
     if FLoadError <> '' then

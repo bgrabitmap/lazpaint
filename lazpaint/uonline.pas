@@ -2,12 +2,16 @@
 unit UOnline;
 
 {$mode objfpc}{$H+}
+{$if defined(DARWIN) and defined(LCLcocoa)}
+  {$DEFINE USE_NS_URL_REQUEST}
+{$ENDIF}
 
 interface
 
 uses
-  fphttpclient, Classes, SysUtils,
-  UConfig, LazPaintType;
+  Classes, SysUtils,
+  UConfig, LazPaintType,
+  {$IFDEF USE_NS_URL_REQUEST}ns_url_request{$ELSE}fphttpclient, opensslsockets{$ENDIF};
 
 type
   { THttpGetThread }
@@ -53,10 +57,13 @@ type
     destructor Destroy; override;
   end;
 
+procedure MyHttpGet(AURL: string; ADestStream: TStream);
+
 implementation
 
 uses LazFileUtils, Dialogs,
-    UTranslation, UFileSystem;
+    UTranslation, UFileSystem,
+    base64;
 
 const OnlineResourcesURL = 'https://gitcdn.link/repo/bgrabitmap/lazpaint/master/lazpaint/release/stable/';
 
@@ -70,6 +77,57 @@ begin
       Result := Result + char(s[i])
     else
       exit;
+end;
+
+procedure MyHttpGet(AURL: string; ADestStream: TStream);
+var
+  posDelim: SizeInt;
+  stream64: TStringStream;
+  decoder: TBase64DecodingStream;
+{$IFNDEF USE_NS_URL_REQUEST}
+  client: TFPHTTPClient;
+{$ENDIF}
+begin
+  if AURL.StartsWith('data:') then
+  begin
+    posDelim := pos(';', AURL);
+    if posDelim > 0 then
+    begin
+      if copy(AURL, posDelim+1, 7) = 'base64,' then
+      begin
+        stream64 := TStringStream.Create(AURL);
+        try
+          stream64.Position:= posDelim+7;
+          decoder := TBase64DecodingStream.Create(stream64, bdmMIME);
+          try
+            ADestStream.CopyFrom(decoder, decoder.Size);
+            exit;
+          finally
+            decoder.Free;
+          end;
+        finally
+          stream64.Free;
+        end;
+      end;
+    end;
+    raise exception.Create('Invalid data URL format');
+  end else
+  {$IFDEF USE_NS_URL_REQUEST}
+  begin
+    TNSHTTPSendAndReceive.SimpleGet(AURL, ADestStream);
+  end;
+  {$ELSE}
+  begin
+    client := TFPHTTPClient.Create(nil);
+    try
+      client.KeepConnection:= false;
+      client.AllowRedirect:= true;
+      client.Get(AURL, ADestStream);
+    finally
+      client.Free;
+    end;
+  end;
+  {$ENDIF}
 end;
 
 { THttpGetThread }
@@ -89,7 +147,6 @@ begin
   inherited Create(True);
   FUrl:= AUrl;
   FreeOnTerminate := true;
-  Suspended := false;
 end;
 
 procedure THttpGetThread.Execute;
@@ -97,7 +154,7 @@ var stream: TMemoryStream;
 begin
   stream := TMemoryStream.Create;
   try
-    TFPHTTPClient.SimpleGet(FUrl, stream);
+    MyHttpGet(FUrl, stream);
     setlength(FBuffer, stream.Size);
     stream.Position:= 0;
     stream.Read(FBuffer[1], length(FBuffer));
@@ -225,6 +282,7 @@ begin
     FThread.OnSuccess := @OnThreadSuccess;
     FThread.OnError := @OnThreadError;
     FThread.OnTerminate := @OnThreadTerminate;
+    FThread.Suspended := false;
     result := true;
   end else
     result := false;

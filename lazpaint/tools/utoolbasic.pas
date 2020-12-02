@@ -451,8 +451,15 @@ begin
       if ssShift in ShiftState then
         c := Manager.Image.RenderedImage.GetPixel(pt.X,pt.Y)
         else c := toolDest.GetPixel(pt.X,pt.Y);
-      if colorpickingRight then Manager.BackColor := c
-        else Manager.ForeColor := c;
+      if colorpickingRight then
+      begin
+        Manager.BackColor := c;
+        Manager.QueryColorTarget(Manager.BackFill);
+      end else
+      begin
+        Manager.ForeColor := c;
+        Manager.QueryColorTarget(Manager.ForeFill);
+      end;
     end;
   end;
 end;

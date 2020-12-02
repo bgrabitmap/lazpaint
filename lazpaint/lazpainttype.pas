@@ -11,7 +11,7 @@ uses
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
-  LazPaintVersion = 7010500;
+  LazPaintVersion = 7010600;
 
   function LazPaintVersionStr: string;
 
@@ -60,6 +60,9 @@ const
 
 const
   OriginalDPI = 96;
+  ToolWindowFixedSize = {$IFDEF LINUX}bsDialog{$ELSE}bsToolWindow{$ENDIF};
+  ToolWindowSizeable = {$IFDEF LINUX}bsSizeable{$ELSE}bsSizeToolWin{$ENDIF};
+  ToolWindowStyle = {$IF defined(LINUX) and defined(LCLqt5)}fsNormal{$ELSE}fsStayOnTop{$ENDIF};
 
   function LazPaintCurrentVersion : String;
 
@@ -213,7 +216,6 @@ type
     procedure SetLayerWindowWidth(AValue: integer); virtual; abstract;
 
     function GetMainFormBounds: TRect; virtual; abstract;
-    procedure ApplyTheme(ADarkTheme: boolean); virtual; abstract;
   public
     Title,AboutText: string;
     EmbeddedResult: TModalResult;
@@ -221,6 +223,8 @@ type
 
     constructor Create; virtual; abstract;
     constructor Create(AEmbedded: boolean); virtual; abstract;
+    procedure RegisterThemeListener(AHandler: TNotifyEvent; ARegister: boolean); virtual; abstract;
+    procedure NotifyThemeChanged; virtual; abstract;
     procedure StartLoadingImage(AFilename: string); virtual; abstract;
     procedure EndLoadingImage; virtual; abstract;
     procedure StartSavingImage(AFilename: string); virtual; abstract;
@@ -238,7 +242,7 @@ type
     function ProcessCommands(commands: TStringList): boolean; virtual; abstract;
     procedure ChangeIconSize(size: integer); virtual; abstract;
     procedure Show; virtual; abstract;
-    procedure Hide; virtual; abstract;
+    function Hide: boolean; virtual; abstract;
     procedure Run; virtual; abstract;
     procedure Restart; virtual; abstract;
     procedure CancelRestart; virtual; abstract;
@@ -253,6 +257,7 @@ type
     procedure ColorFromFChooseColor; virtual; abstract;
     procedure ColorToFChooseColor; virtual; abstract;
     procedure ExitColorEditor; virtual; abstract;
+    function ColorEditorActive: boolean; virtual; abstract;
     function GetColor(ATarget: TColorTarget): TBGRAPixel;
     procedure SetColor(ATarget: TColorTarget; AColor: TBGRAPixel);
     function ShowSaveOptionDlg(AParameters: TVariableSet; AOutputFilenameUTF8: string;
@@ -613,7 +618,7 @@ begin
     if AValue <> Config.GetDarkTheme then
     begin
       Config.SetDarkTheme(AValue);
-      ApplyTheme(AValue);
+      NotifyThemeChanged;
     end;
   end;
 end;

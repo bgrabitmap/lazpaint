@@ -7,7 +7,8 @@ interface
 
 uses
   Classes, SysUtils, LCVectorRectShapes, BGRATextBidi, BGRABitmapTypes, LCVectorOriginal,
-  BGRAGraphics, BGRABitmap, BGRALayerOriginal, BGRACanvas2D, LCVectorialFill;
+  BGRAGraphics, BGRABitmap, BGRALayerOriginal, BGRACanvas2D, LCVectorialFill,
+  BGRASVGShapes, BGRASVGType, BGRAUnits;
 
 type
   TTextShape = class;
@@ -151,6 +152,7 @@ type
     function HasOutline: boolean;
     procedure InsertUnicodeValue;
     procedure FillChange(ASender: TObject; var ADiff: TCustomVectorialFillDiff); override;
+    procedure InvalidateAll;
   public
     constructor Create(AContainer: TVectorOriginal); override;
     procedure QuickDefine(constref APoint1,APoint2: TPointF); override;
@@ -165,6 +167,7 @@ type
     class function CreateEmpty: boolean; override;
     class function StorageClassName: RawByteString; override;
     class function Usermodes: TVectorShapeUsermodes; override;
+    function AppendToSVG(AContent: TSVGContent; ADefs: TSVGDefine): TSVGElement; override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
     procedure Render(ADest: TBGRABitmap; ARenderOffset: TPoint; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
     function GetRenderBounds({%H-}ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions = []): TRectF; override;
@@ -549,6 +552,7 @@ begin
   if FFontBidiMode=AValue then Exit;
   BeginUpdate(TTextShapeFontDiff);
   FFontBidiMode:=AValue;
+  InvalidateAll;
   EndUpdate;
 end;
 
@@ -716,7 +720,7 @@ begin
   if FFontName=AValue then Exit;
   BeginUpdate(TTextShapeFontDiff);
   FFontName:=AValue;
-  if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
+  InvalidateAll;
   EndUpdate;
 end;
 
@@ -725,7 +729,7 @@ begin
   if FFontStyle=AValue then Exit;
   BeginUpdate(TTextShapeFontDiff);
   FFontStyle:=AValue;
-  if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
+  InvalidateAll;
   EndUpdate;
 end;
 
@@ -1063,6 +1067,12 @@ begin
   inherited FillChange(ASender, ADiff);
 end;
 
+procedure TTextShape.InvalidateAll;
+begin
+  if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
+  FParagraphLayout := nil;
+end;
+
 constructor TTextShape.Create(AContainer: TVectorOriginal);
 begin
   inherited Create(AContainer);
@@ -1328,17 +1338,15 @@ var
   pad, paraIndex, fileIdx: Integer;
   sourceRectF,transfRectF,sourceInvRect,destF: TRectF;
   transfRect, tmpRenderRect, brokenLineRectBounds: TRect;
-  tmpSource, tmpTransf: TBGRABitmap;
+  tmpTransf: TBGRABitmap;
   tmpBroken: TBGRAMemoryStreamBitmap;
   tmpTransfOutline, tmpBrokenMask: TGrayscaleMask;
-  rf: TResampleFilter;
   storeImage, useBrokenLinesRender, redrawPen, redrawOutline,
     outlineWidthChange, penPhongChange: Boolean;
   storage: TShapeRenderStorage;
   startBrokenIndex, endBrokenIndex, brokenIndex: LongInt;
-  imgStream: TMemoryStream;
   tempRenderNewList, tempRenderCurList: TStringList;
-  renderObj, phongObj, tempStorage: TBGRACustomOriginalStorage;
+  phongObj, tempStorage: TBGRACustomOriginalStorage;
   brokenRenderOfs: TPoint;
   brokenLinePoints: Array of TPointF;
   brokenLineBoundsF: TRectF;
@@ -1511,7 +1519,6 @@ var
 
   procedure StoreRGBAImage(var AImageId: int64; AImage: TBGRAMemoryStreamBitmap; AImageOffset: TPoint);
   var
-    imgStream: TMemoryStream;
     renderObj: TBGRACustomOriginalStorage;
   begin
     if AImageId = 0 then
@@ -1643,7 +1650,11 @@ var
       size := renderObj.PointF['size'].Round;
       AOffset := (renderObj.PointF['offset'] + PointF(ARenderOffset)).Round;
       imgStream := renderObj.GetFileStream('mask.data');
-      if not Assigned(imgStream) or (imgStream.Size = 0) then exit;
+      if not Assigned(imgStream) or (imgStream.Size = 0) then
+      begin
+        renderObj.Free;
+        exit;
+      end;
       tempRenderNewList.Add(inttostr(AMaskId));
       AMask := TGrayscaleMask.Create;
       AMask.SetSize(size.x, size.y);
@@ -1694,7 +1705,11 @@ var
       size := renderObj.PointF['size'].Round;
       brokenRenderOfs := (renderObj.PointF['offset'] + PointF(ARenderOffset)).Round;
       imgStream := renderObj.GetFileStream('image.data');
-      if (imgStream = nil) or (imgStream.Size = 0) then exit;
+      if (imgStream = nil) or (imgStream.Size = 0) then
+      begin
+        renderObj.Free;
+        exit;
+      end;
       tempRenderNewList.Add(inttostr(AImageId));
       tmpBroken := TBGRAMemoryStreamBitmap.Create(size.x, size.y,
                      imgStream as TMemoryStream, 0, false);
@@ -1798,12 +1813,20 @@ begin
   transfRectF := (m*TAffineBox.AffineBox(sourceRectF)).RectBoundsF;
   transfRectF := TRectF.Intersect(transfRectF, destF);
 
-  if not IsAffineMatrixInversible(m) then exit;
+  if not IsAffineMatrixInversible(m) then
+  begin
+    tempRenderNewList.Free;
+    exit;
+  end;
   sourceInvRect := (AffineMatrixInverse(m)*TAffineBox.AffineBox(transfRectF)).RectBoundsF;
   sourceInvRect.Top := floor(sourceInvRect.Top);
   sourceInvRect.Bottom := ceil(sourceInvRect.Bottom);
   sourceRectF := TRectF.Intersect(sourceRectF,sourceInvRect);
-  if IsEmptyRectF(sourceRectF) then exit;
+  if IsEmptyRectF(sourceRectF) then
+  begin
+    tempRenderNewList.Free;
+    exit;
+  end;
   sourceRectF.Left := floor(sourceRectF.Left);
   sourceRectF.Top := floor(sourceRectF.Top);
   sourceRectF.Right := floor(sourceRectF.Right);
@@ -1971,7 +1994,6 @@ begin
       if tempRenderNewList.IndexOf(tempRenderCurList[fileIdx]) = -1 then
         tempStorage.RemoveObject(tempRenderCurList[fileIdx]);
     tempRenderCurList.Free;
-    tempRenderNewList.Free;
 
     tempStorage.AffineMatrix['last-matrix'] := AMatrix;
     tempStorage.PointF['origin'] := Origin;
@@ -1992,6 +2014,7 @@ begin
       tempStorage.RemoveObject('pen-phong');
   end;
   storage.Close;
+  tempRenderNewList.Free;
 
   ApplyClipBox(tmpTransf);
   ADest.PutImage(transfRect.Left, transfRect.Top, tmpTransf, dmDrawWithTransparency);
@@ -2360,6 +2383,83 @@ end;
 class function TTextShape.Usermodes: TVectorShapeUsermodes;
 begin
   Result:=inherited Usermodes + [vsuEditText];
+end;
+
+function TTextShape.AppendToSVG(AContent: TSVGContent; ADefs: TSVGDefine): TSVGElement;
+var
+  topLeft, u, v: TPointF;
+  w, h, zoom: Single;
+  t: TSVGText;
+  tl: TBidiTextLayout;
+  i: Integer;
+  span: TSVGTSpan;
+  fm: TFontPixelMetric;
+  rF: TRectF;
+  penFillId, outlineFillId: String;
+begin
+  topLeft := Origin - (XAxis - Origin) - (YAxis - Origin);
+  w := Width*2; h := Height*2;
+  result := AContent.AppendText(topLeft, '');
+  if (XAxis.y <> 0) or (YAxis.x <> 0) then
+  begin
+    u := XAxis - Origin;
+    if w > 0 then u *= (2/w);
+    v := YAxis - Origin;
+    if h > 0 then v *= (2/h);
+    result.matrix[cuPixel] := AffineMatrixTranslation(topLeft.X, topLeft.Y) *
+                              AffineMatrix(u, v, PointF(0, 0)) *
+                              AffineMatrixTranslation(-topLeft.X, -topLeft.Y);
+  end;
+  if PenVisible then
+  begin
+    if IsAffineMatrixInversible(result.Matrix[cuPixel]) then
+      penFillId := AppendVectorialFillToSVGDefs(PenFill,
+        AffineMatrixInverse(result.Matrix[cuPixel]), ADefs, 'fill')
+      else penFillId := '';
+    if penFillId <> '' then
+      result.fill := 'url(#' + penFillId + ')'
+      else result.fillColor := PenColor;
+  end
+    else result.fillNone;
+  if OutlineVisible then
+  begin
+    if IsAffineMatrixInversible(result.Matrix[cuPixel]) then
+      outlineFillId := AppendVectorialFillToSVGDefs(OutlineFill,
+        AffineMatrixInverse(result.Matrix[cuPixel]), ADefs, 'stroke')
+      else outlineFillId:= '';
+    if outlineFillId <> '' then
+      result.stroke := 'url(#' + outlineFillId + ')'
+      else result.strokeColor := OutlineFill.AverageColor;
+    result.strokeWidth := FloatWithCSSUnit(OutlineWidth, cuCustom);
+    result.strokeLineJoinLCL:= pjsRound;
+    result.paintOrder:= spoStrokeFillMarkers;
+  end else
+    result.strokeNone;
+  t := TSVGText(result);
+  t.fontStyleLCL:= FontStyle;
+  t.fontSize := FloatWithCSSUnit(FontEmHeight, cuPixel);
+  t.fontFamily:= FontName;
+  SetGlobalMatrix(AffineMatrixIdentity);
+  zoom := GetTextRenderZoom;
+  tl := GetTextLayout;
+  fm := tl.FontRenderer.GetFontPixelMetric;
+  for i := 0 to tl.PartCount-1 do
+  begin
+    rF := tl.PartRectF[i];
+    if rF.IsEmpty then continue;
+    rF.OffseT(topLeft.x, topLeft.y);
+    span := t.Content.AppendTextSpan(tl.GetTextPart(i, true));
+    if tl.PartRightToLeft[i] then
+      span.textDirection:= stdRtl
+      else span.textDirection:= stdLtr;
+    with rF do
+    begin
+      span.x := [FloatWithCSSUnit(Left/zoom, cuCustom)];
+      span.y := [FloatWithCSSUnit((Top + fm.Baseline)/zoom, cuCustom)];
+      span.textLength := FloatWithCSSUnit(Width/zoom, cuCustom);
+    end;
+  end;
+
 end;
 
 initialization

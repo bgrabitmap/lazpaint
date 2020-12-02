@@ -7,7 +7,7 @@
       <Version Value="11"/>
       <SearchPaths>
         <IncludeFiles Value="../resources"/>
-        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer)"/>
       </SearchPaths>
       <CodeGeneration>
         <Optimizations>
@@ -83,6 +83,7 @@
     <RequiredPkgs Count="3">
       <Item1>
         <PackageName Value="bgracontrols"/>
+        <MinVersion Major="7" Valid="True"/>
       </Item1>
       <Item2>
         <PackageName Value="LCL"/>

@@ -231,11 +231,11 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Bredd :"
 
-#: tfchoosecolor.bcbutton_addtopalette.hint
+#: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
 msgstr "Lägg till färg till palett"
 
-#: tfchoosecolor.bcbutton_removefrompalette.hint
+#: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
 msgstr "Ta bort färg från palett"
 
@@ -1089,6 +1089,10 @@ msgstr "Rotera 90° moturs"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "Rotera 90° medurs"
+
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Rotera 180°"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -3013,8 +3017,8 @@ msgstr "Mapp"
 msgid "Folder or container already exists."
 msgstr "Mappen eller behållaren finns redan."
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "Följande fel har inträffat:"
 
 #: uresourcestrings.rsframes

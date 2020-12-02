@@ -1,9 +1,9 @@
 @echo off
 if "%~1" == "" goto argument
 setlocal
-set DIRNAME=%1
+set DIRNAME=%~1
 set DIRNAME=%DIRNAME:/=\%
-if exist %DIRNAME% rd /s /q %DIRNAME%
+if exist "%DIRNAME%\" rd /s /q "%DIRNAME%"
 exit /b 0
 
 :argument

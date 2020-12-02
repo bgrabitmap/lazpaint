@@ -18,6 +18,7 @@ const
 
 resourcestring
   rsLazPaint = 'LazPaint';
+  rsDonate = 'Donate...';
   rsScript = 'Script';
   rsFunctionNotDefined = 'The function %1 is not defined.';
   rsPythonUnexpectedVersion = 'Expected Python version %1 but %2 found.';
@@ -102,6 +103,7 @@ resourcestring
   rsRepeatImage='Repeat image';
   rsCanvasSize='Canvas size';
   rsResamplingImage='Resampling image...';
+  rsFlattenImage='Flatten image';
 
   rsRed='Red';
   rsGreen='Green';
@@ -120,6 +122,8 @@ resourcestring
   rsBack = 'Back';
   rsTextOutline = 'Text outline';
 
+  rsAddToPalette = 'Add color to palette';
+  rsRemoveFromPalette = 'Remove color from palette';
   rsColors='Colors';
   rsLight='Light';
   rsOpacity='Opacity';
@@ -208,7 +212,7 @@ resourcestring
   rsTotalImages= 'Total images: %1';
   rsToDoImages= 'Images left: %1';
   rsErrorOnOpeningFile='Error on opening file "%1"';
-  rsFollowingErrorsOccured='Following errors occured:';
+  rsFollowingErrorsOccurred='Following errors occurred:';
 
   rsRemovableDrive = 'Removable';
   rsFixedDrive = 'Fixed';

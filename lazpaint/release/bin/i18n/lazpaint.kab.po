@@ -242,11 +242,11 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Tehri :"
 
-#: tfchoosecolor.bcbutton_addtopalette.hint
+#: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
 msgstr "Rnu ini ɣer tpaliḍt"
 
-#: tfchoosecolor.bcbutton_removefrompalette.hint
+#: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
 msgstr "Kkes ini si tpaliḍt"
 
@@ -1099,6 +1099,10 @@ msgstr "Tuzzya 90° (mgal tanila n temrilt)"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "Tuzzya 90° (di tnila n temrilt)"
+
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Tuzzya 180°"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -3029,8 +3033,8 @@ msgstr "Akaram"
 msgid "Folder or container already exists."
 msgstr "Akaram neɣ anagbar yella yakan."
 
-#: uresourcestrings.rsfollowingerrorsoccured
-msgid "Following errors occured:"
+#: uresourcestrings.rsfollowingerrorsoccurred
+msgid "Following errors occurred:"
 msgstr "Ḍrant-d tuccḍiwin-agi:"
 
 #: uresourcestrings.rsframes

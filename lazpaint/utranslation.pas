@@ -31,6 +31,7 @@ procedure FillLanguageList(AConfig: TLazPaintConfig);
 procedure TranslateLazPaint(AConfig: TIniFile);
 function GetResourcePath(AResource: string): string;
 function DoTranslate(AId, AText: string): string;
+function AppendQuestionMark(AText: string): string;
 
 implementation
 
@@ -123,6 +124,18 @@ begin
     end;
   end;
   result := AText;
+end;
+
+function AppendQuestionMark(AText: string): string;
+begin
+  if ActiveLanguage = 'es' then
+    result := '¿'+AText+'?'
+  else if ActiveLanguage = 'ar' then
+    result := AText+'؟'
+  else if (ActiveLanguage = 'fr') or (ActiveLanguage = 'kab') then
+    result := Atext+' ?'
+  else
+    result := AText+'?';
 end;
 
 function LanguagePathUTF8: string;

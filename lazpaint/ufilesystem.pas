@@ -92,6 +92,7 @@ type
     function DeleteDirectory(APathUTF8: string): boolean;
     function FileExists(AFilenameUTF8: string): boolean;
     procedure DeleteFile(AFilenameUTF8: string);
+    function GetValidFilename(ASuggested: string): string;
   end;
 
 var
@@ -1187,6 +1188,21 @@ begin
       CurrentMultiFileAge:= FileAgeUTF8(CurrentMultiFileName);
     end;
   end;
+end;
+
+function TFileManager.GetValidFilename(ASuggested: string): string;
+var
+  i: Integer;
+begin
+  result := ASuggested;
+  for i := 1 to length(result) do
+    case result[i] of
+    '/','\',':','|': result[i] := '-';
+    '?','%','*': result[i] := '_';
+    '"': result[i] := '''';
+    '<': result[i] := '(';
+    '>': result[i] := ')';
+    end;
 end;
 
 initialization

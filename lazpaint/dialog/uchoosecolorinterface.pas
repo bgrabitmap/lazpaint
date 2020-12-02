@@ -729,15 +729,8 @@ begin
   DarkThemeInstance.Apply(BCButton_AddToPalette, FDarkTheme);
   DarkThemeInstance.Apply(BCButton_RemoveFromPalette, FDarkTheme);
   DarkThemeInstance.Apply(LColor, FDarkTheme);
-  if DarkTheme then
-  begin
-    FFormBackgroundColor := clDarkBtnFace;
-    FFormTextColor := clLightText;
-  end else
-  begin
-    FFormBackgroundColor := clForm;
-    FFormTextColor := clWindowText;
-  end;
+  FFormBackgroundColor := DarkThemeInstance.GetColorForm(FDarkTheme);
+  FFormTextColor := DarkThemeInstance.GetColorButtonText(FDarkTheme);
   Container.Color := FFormBackgroundColor;
   vsColorView.Color := FFormBackgroundColor;
   vsColorView.DiscardBitmap;
@@ -747,6 +740,7 @@ procedure TChooseColorInterface.UpdateButtonLayout;
 var
   iconSize: Integer;
   tmpIcon: TBitmap;
+  scaling, invScaling: single;
 begin
   FButtonSize := round(FBarWidth);
   BCButton_AddToPalette.Width := FButtonSize;
@@ -770,17 +764,23 @@ begin
     BCButton_RemoveFromPalette.Left := BCButton_AddToPalette.Left + BCButton_AddToPalette.Width;
     BCButton_RemoveFromPalette.Top := round(FMargin / 2);
   end;
-  iconSize := FButtonSize-4;
-  if not Assigned(BCButton_AddToPalette.Glyph) or (BCButton_AddToPalette.Glyph.Width <> iconSize) then
+  scaling := Container.GetCanvasScaleFactor;
+  iconSize := round((FButtonSize-4)*scaling);
+  invScaling := 1/scaling;
+  if not Assigned(BCButton_AddToPalette.Glyph) or (BCButton_AddToPalette.Glyph.Width <> iconSize)
+     or (BCButton_AddToPalette.GlyphScale <> invScaling) then
   begin
     tmpIcon:= MakeAddIcon(iconSize);
     BCButton_AddToPalette.Glyph.Assign(tmpIcon);
+    BCButton_AddToPalette.GlyphScale:= invScaling;
     tmpIcon.Free;
   end;
-  if not Assigned(BCButton_RemoveFromPalette.Glyph) or (BCButton_RemoveFromPalette.Glyph.Width <> iconSize) then
+  if not Assigned(BCButton_RemoveFromPalette.Glyph) or (BCButton_RemoveFromPalette.Glyph.Width <> iconSize)
+     or (BCButton_RemoveFromPalette.GlyphScale <> invScaling) then
   begin
     tmpIcon:= MakeRemoveIcon(iconSize);
     BCButton_RemoveFromPalette.Glyph.Assign(tmpIcon);
+    BCButton_RemoveFromPalette.GlyphScale:= invScaling;
     tmpIcon.Free;
   end;
 end;
@@ -1052,13 +1052,17 @@ begin
   BCButton_AddToPalette := TBCButton.Create(vsColorView);
   BCButton_AddToPalette.Parent := vsColorView;
   BCButton_AddToPalette.OnClick := @BCButton_AddToPaletteClick;
+  BCButton_AddToPalette.Hint := rsAddToPalette;
+  BCButton_AddToPalette.ShowHint := true;
   BCButton_RemoveFromPalette := TBCButton.Create(vsColorView);
   BCButton_RemoveFromPalette.Parent := vsColorView;
   BCButton_RemoveFromPalette.OnClick := @BCButton_RemoveFromPaletteClick;
+  BCButton_RemoveFromPalette.Hint := rsRemoveFromPalette;
+  BCButton_RemoveFromPalette.ShowHint := true;
   ApplyTheme;
 
-  EColor.Font.Height := FontEmHeightSign * DoScaleY(11, OriginalDPI, FDPI) + 1;
-  LColor.Font.Height := FontEmHeightSign * DoScaleY(11, OriginalDPI, FDPI) + 1;
+  EColor.Font.Height := FontEmHeightSign * (DoScaleY(11, OriginalDPI, FDPI) + 1);
+  LColor.Font.Height := FontEmHeightSign * (DoScaleY(11, OriginalDPI, FDPI) + 1);
   EColor.Text:= '#FFFFFF';
   LColor.Visible := true;
   LColor.Caption := '#FFFFFF';

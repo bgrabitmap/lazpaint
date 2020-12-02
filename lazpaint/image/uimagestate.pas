@@ -22,6 +22,7 @@ type
     FOnOriginalChange: TEmbeddedOriginalChangeEvent;
     FOnOriginalEditingChange: TEmbeddedOriginalEditingChangeEvent;
     FOnOriginalLoadError: TEmbeddedOriginalLoadErrorEvent;
+    FOnSizeChanged: TNotifyEvent;
     FSelectionMask: TBGRABitmap;
     FLastSelectionMaskBoundsIsDefined,
     FLastSelectionLayerBoundsIsDefined: TBoundsState;
@@ -62,8 +63,11 @@ type
     procedure SetLinearBlend(AValue: boolean);
     procedure SetOnActionDone(AValue: TNotifyEvent);
     procedure SetOnActionProgress(AValue: TLayeredActionProgressEvent);
+    procedure SetOnSizeChanged(AValue: TNotifyEvent);
     procedure SetSelectionMask(AValue: TBGRABitmap);
     function MakeLayerName: string;
+    procedure CheckSizeChanged(APrevSize: TSize);
+    function GetSize: TSize;
   public
     SelectionLayer: TBGRABitmap;
     selectedLayerId: integer;
@@ -80,12 +84,14 @@ type
 
     // whole image
     procedure SetSize(AWidth,AHeight: integer);
+    procedure NotifySizeChanged;
     procedure Assign(AValue: TBGRABitmap; AOwned: boolean);
     procedure Assign(AValue: TBGRACustomLayeredBitmap; AOwned: boolean);
     procedure Assign(AValue: TImageState; AOwned: boolean);
 
     function RotateCW: TCustomImageDifference;
     function RotateCCW: TCustomImageDifference;
+    function Rotate180: TCustomImageDifference;
     function HorizontalFlip: TCustomImageDifference; overload;
     function VerticalFlip: TCustomImageDifference; overload;
     procedure Resample(AWidth,AHeight: integer; AQuality: TResampleMode; AFilter: TResampleFilter);
@@ -186,6 +192,7 @@ type
     property OnOriginalLoadError: TEmbeddedOriginalLoadErrorEvent read FOnOriginalLoadError write FOnOriginalLoadError;
     property OnActionProgress: TLayeredActionProgressEvent read FOnActionProgress write SetOnActionProgress;
     property OnActionDone: TNotifyEvent read FOnActionDone write SetOnActionDone;
+    property OnSizeChanged: TNotifyEvent read FOnSizeChanged write SetOnSizeChanged;
   end;
 
 implementation
@@ -549,6 +556,12 @@ begin
   FOnActionProgress:=AValue;
 end;
 
+procedure TImageState.SetOnSizeChanged(AValue: TNotifyEvent);
+begin
+  if FOnSizeChanged=AValue then Exit;
+  FOnSizeChanged:=AValue;
+end;
+
 procedure TImageState.SetSelectionMask(AValue: TBGRABitmap);
 begin
   If AValue = FSelectionMask then exit;
@@ -578,6 +591,18 @@ begin
     result := rsLayer + inttostr(i);
     if not LayerNameUsed(result) and not LayerNameUsed('Layer' + inttostr(i)) then exit;
   end;
+end;
+
+procedure TImageState.CheckSizeChanged(APrevSize: TSize);
+begin
+  if GetSize <> APrevSize then NotifySizeChanged;
+end;
+
+function TImageState.GetSize: TSize;
+begin
+  if Assigned(FLayeredBitmap) then
+    result := Size(FLayeredBitmap.Width, FLayeredBitmap.Height)
+    else result := Size(0,0);
 end;
 
 procedure TImageState.SetLayerBitmap(layer: integer; ABitmap: TBGRABitmap;
@@ -683,9 +708,20 @@ begin
 end;
 
 procedure TImageState.SetSize(AWidth, AHeight: integer);
+var
+  prevSize: TSize;
 begin
   if LayeredBitmap <> nil then
+  begin
+    prevSize := GetSize;
     LayeredBitmap.SetSize(AWidth,AHeight);
+    CheckSizeChanged(prevSize);
+  end;
+end;
+
+procedure TImageState.NotifySizeChanged;
+begin
+  if Assigned(OnSizeChanged) then OnSizeChanged(self);
 end;
 
 procedure TImageState.PrepareForRendering;
@@ -706,7 +742,10 @@ procedure TImageState.Assign(AValue: TBGRABitmap; AOwned: boolean);
 var
   xorMask: TBGRABitmap;
   idx: Integer;
+  prevSize: TSize;
 begin
+  prevSize := GetSize;
+
   if LayeredBitmap = nil then
     SetLayeredBitmap(TBGRALayeredBitmap.Create);
 
@@ -738,14 +777,20 @@ begin
     end;
   end;
   SelectedImageLayerIndex := 0;
+
+  CheckSizeChanged(prevSize);
 end;
 
 procedure TImageState.Assign(AValue: TBGRACustomLayeredBitmap; AOwned: boolean);
+var
+  prevSize: TSize;
 begin
   if AOwned and (AValue is TBGRALayeredBitmap) then
   begin
+    prevSize := GetSize;
     FreeAndNil(FLayeredBitmap);
     SetLayeredBitmap(TBGRALayeredBitmap(AValue));
+    CheckSizeChanged(prevSize);
   end else
   begin
     LayeredBitmap.Assign(AValue, true, true);
@@ -1180,6 +1225,14 @@ begin
     result := nil
   else
   result := TInversibleStateDifference.Create(self, iaRotateCCW);
+end;
+
+function TImageState.Rotate180: TCustomImageDifference;
+begin
+  if LayeredBitmap = nil then
+    result := nil
+  else
+  result := TInversibleStateDifference.Create(self, iaRotate180);
 end;
 
 function TImageState.ComputeLayerOffsetDifference(AOffsetX, AOffsetY: integer): TCustomImageDifference;

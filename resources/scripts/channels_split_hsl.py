@@ -40,7 +40,7 @@ channels_id = []
 for ch in channels:
   layer.select_id(layer_id)
   layer.duplicate()
-  filters.filter_function(hue = ch["hue"], saturation = ch["saturation"], lightness = ch["lightness"], alpha = ch["alpha"], gamma_correction = False)
+  filters.filter_function(hue = ch["hue"], saturation = ch["saturation"], lightness = ch["lightness"], alpha = ch["alpha"], gamma_correction = False, corrected_hue = False)
   layer.set_name(translation[ch["name"]])
   layer.set_opacity(layer_opacity)
   if ch["channel"] != channels[-1]:

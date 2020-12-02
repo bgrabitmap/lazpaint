@@ -1,5 +1,4 @@
 [Desktop Entry]
-Encoding=UTF-8
 Name=LazPaint
 Name[fr]=LazPaint
 Comment=LazPaint
@@ -10,3 +9,4 @@ Terminal=false
 Type=Application
 Categories=Graphics
 GenericName=LazPaint
+Keywords=image; editor; raster; vectorial; paint; layer; photo

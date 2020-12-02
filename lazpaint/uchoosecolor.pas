@@ -28,6 +28,7 @@ type
     procedure SetColorTarget(AValue: TColorTarget);
     procedure SetDarkTheme(AValue: boolean);
     procedure SetLazPaintInstance(AValue: TLazPaintCustomInstance);
+    procedure ThemeChanged(Sender: TObject);
   protected
     FInterface: TChooseColorInterface;
   public
@@ -51,6 +52,8 @@ implementation
 procedure TFChooseColor.FormCreate(Sender: TObject);
 begin
   FInterface := TChooseColorInterface.Create(ChooseColorControl, TFChooseColor_CustomDPI);
+  BorderStyle := ToolWindowSizeable;
+  FormStyle := ToolWindowStyle;
 end;
 
 procedure TFChooseColor.FormDeactivate(Sender: TObject);
@@ -60,6 +63,8 @@ end;
 
 procedure TFChooseColor.FormDestroy(Sender: TObject);
 begin
+  if Assigned(LazPaintInstance) then
+    LazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
   FreeAndNil(FInterface);
 end;
 
@@ -108,7 +113,11 @@ procedure TFChooseColor.SetLazPaintInstance(AValue: TLazPaintCustomInstance);
 begin
   if Assigned(FInterface) then
   begin
+    if Assigned(FInterface.LazPaintInstance) then
+      FInterface.LazPaintInstance.RegisterThemeListener(@ThemeChanged, false);
     FInterface.LazPaintInstance:= AValue;
+    if Assigned(FInterface.LazPaintInstance) then
+      FInterface.LazPaintInstance.RegisterThemeListener(@ThemeChanged, true);
 
     with FInterface.GetPreferredSize do
     begin
@@ -120,6 +129,12 @@ begin
     Constraints.MinWidth := ClientWidth div 2 + (Width - ClientWidth);
     Constraints.MinHeight := ClientHeight div 2 + (Height - ClientHeight);
   end;
+end;
+
+procedure TFChooseColor.ThemeChanged(Sender: TObject);
+begin
+  if Assigned(FInterface) and Assigned(LazPaintInstance) then
+    FInterface.DarkTheme := LazPaintInstance.DarkTheme;
 end;
 
 function TFChooseColor.GetDarkTheme: boolean;

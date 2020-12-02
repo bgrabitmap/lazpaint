@@ -2272,12 +2272,14 @@ begin
       if imgState.SelectionMask <> nil then newSelectionMask := imgState.SelectionMask.RotateCW as TBGRABitmap else newSelectionMask := nil;
       if imgState.SelectionLayer <> nil then newSelectionLayer := imgState.SelectionLayer.RotateCW as TBGRABitmap else newSelectionLayer := nil;
       imgState.ReplaceSelection(newSelectionMask, newSelectionLayer);
+      if (imgState.Width <> imgState.Height) then imgState.NotifySizeChanged;
     end;
   iaRotateCCW: begin
       imgState.LayeredBitmap.RotateCCW;
       if imgState.SelectionMask <> nil then newSelectionMask := imgState.SelectionMask.RotateCCW as TBGRABitmap else newSelectionMask := nil;
       if imgState.SelectionLayer <> nil then newSelectionLayer := imgState.SelectionLayer.RotateCCW as TBGRABitmap else newSelectionLayer := nil;
       imgState.ReplaceSelection(newSelectionMask, newSelectionLayer);
+      if (imgState.Width <> imgState.Height) then imgState.NotifySizeChanged;
     end;
   end;
 end;

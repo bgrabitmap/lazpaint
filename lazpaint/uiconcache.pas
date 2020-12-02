@@ -30,6 +30,11 @@ type
     FFilenames: array of string;
     FLastModifications: array of TDateTime;
     FIconSize: integer;
+    FSyncStream: TStream;
+    FSyncExtension: string;
+    FSyncBitmap: TBGRABitmap;
+    FSyncResult: boolean;
+    procedure GetStreamThumbnailSync;
   public
     constructor Create(AFilenames: array of string;
       ALastModifications: array of TDateTime; AIconSize: integer);
@@ -87,6 +92,12 @@ end;
 
 { TIconCacheThread }
 
+procedure TIconCacheThread.GetStreamThumbnailSync;
+begin
+  FSyncResult := GetStreamThumbnail(FSyncStream, FIconSize, FIconSize,
+    BGRAPixelTransparent, True, FSyncExtension, FSyncBitmap) <> nil;
+end;
+
 constructor TIconCacheThread.Create(AFilenames: array of string;
   ALastModifications: array of TDateTime; AIconSize: integer);
 var
@@ -132,8 +143,18 @@ begin
           found := GetRawStreamThumbnail(s, FIconSize, FIconSize, BGRAPixelTransparent,
                                          True, bmpIcon) <> nil;
         end else
-          found := GetStreamThumbnail(s, FIconSize, FIconSize, BGRAPixelTransparent,
-                                         True, ExtractFileExt(FFilenames[i]), bmpIcon) <> nil;
+        begin
+          if DetectFileFormat(s) = ifSvg then
+          begin
+            FSyncStream := s;
+            FSyncExtension := ExtractFileExt(FFilenames[i]);
+            FSyncBitmap := bmpIcon;
+            Synchronize(@GetStreamThumbnailSync);
+            found := FSyncResult;
+          end else
+            found := GetStreamThumbnail(s, FIconSize, FIconSize, BGRAPixelTransparent,
+                                           True, ExtractFileExt(FFilenames[i]), bmpIcon) <> nil;
+        end;
       finally
         s.Free;
       end;

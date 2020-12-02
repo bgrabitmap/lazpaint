@@ -66,6 +66,7 @@ type
     procedure VerticalFlip(AOption: TFlipOption);
     procedure RotateCW;
     procedure RotateCCW;
+    procedure Rotate180;
     procedure LinearNegativeAll;
     procedure NegativeAll;
     procedure SwapRedBlueAll;
@@ -108,7 +109,7 @@ implementation
 uses Controls, Dialogs, UResourceStrings, UObject3D,
      ULoadImage, UGraph, UClipboard, Types, BGRAGradientOriginal,
      BGRATransform, ULoading, math, LCVectorClipboard, LCVectorOriginal, LCVectorRectShapes,
-     BGRALayers, BGRAUTF8, UFileSystem;
+     BGRALayers, BGRAUTF8, UFileSystem, Forms, UTranslation;
 
 { TImageActions }
 
@@ -151,6 +152,7 @@ begin
   Scripting.RegisterScriptFunction('SelectionVerticalFlip',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageRotateCW',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageRotateCCW',@GenericScriptFunction,ARegister);
+  Scripting.RegisterScriptFunction('ImageRotate180',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageLinearNegative',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageNegative',@GenericScriptFunction,ARegister);
   Scripting.RegisterScriptFunction('ImageSwapRedBlue',@GenericScriptFunction,ARegister);
@@ -242,6 +244,7 @@ begin
   if f = 'ImageFlatten' then Flatten else
   if f = 'ImageRotateCW' then RotateCW else
   if f = 'ImageRotateCCW' then RotateCCW else
+  if f = 'ImageRotate180' then Rotate180 else
   if f = 'ImageLinearNegative' then LinearNegativeAll else
   if f = 'ImageNegative' then NegativeAll else
   if f = 'ImageSwapRedBlue' then SwapRedBlueAll else
@@ -377,39 +380,73 @@ function TImageActions.ScriptLayerSaveAs(AVars: TVariableSet): TScriptResult;
 var
   name, ext: String;
   layerCopy: TBGRABitmap;
-  layerIdx: Integer;
+  layerIdx, origIdx: Integer;
   writer: TFPCustomImageWriter;
-  imgFormat: TBGRAImageFormat;
+  imgFormat, imgFormatFromName: TBGRAImageFormat;
+  streamOut: TStream;
+  layeredCopy: TBGRALayeredBitmap;
 begin
   name := AVars.Strings['FileName'];
+  imgFormatFromName := SuggestImageFormat(name);
   if AVars.Strings['Format'] = '' then
-    imgFormat := SuggestImageFormat(name)
+    imgFormat := imgFormatFromName
   else
     imgFormat := SuggestImageFormat(AVars.Strings['Format']);
-  if imgFormat = ifUnknown then imgFormat := ifPng;
   ext := UTF8LowerCase(ExtractFileExt(name));
-  if ext = '.tmp' then
+  if imgFormat = ifUnknown then
   begin
-    layerCopy := TBGRABitmap.Create(Image.Width, Image.Height);
-    writer := CreateBGRAImageWriter(imgFormat, true);
-    try
-      layerIdx := Image.CurrentLayerIndex;
-      layerCopy.PutImage(Image.LayerOffset[layerIdx].x, Image.LayerOffset[layerIdx].y,
-        Image.LayerBitmap[layerIdx], dmSet);
-      layerCopy.SaveToFileUTF8(name, writer);
-      result := srOk;
-      AVars.Strings['Result'] := name;
-    except
-      on ex: Exception do
-      begin
-        FInstance.ShowError(rsSave, ex.Message);
-        result := srException;
-      end;
-    end;
-    layerCopy.Free;
-    writer.Free;
-  end else
+    if ext = '.tmp' then
+      imgFormat := ifPng
+    else
+      exit(srInvalidParameters);
+  end;
+  //wont overwrite a file that is probably not an image
+  if FileManager.FileExists(name) and (imgFormatFromName = ifUnknown) then
     exit(srInvalidParameters);
+  streamOut := FileManager.CreateFileStream(name, fmCreate);
+  try
+    layerIdx := Image.CurrentLayerIndex;
+    if imgFormatFromName in[ifLazPaint, ifPhoxo, ifSvg, ifOpenRaster] then
+    begin
+      layeredCopy := TBGRALayeredBitmap.Create(Image.Width,Image.Height);
+      try
+        if Image.LayerOriginalDefined[layerIdx] and Image.LayerOriginalKnown[layerIdx] then
+        begin
+          origIdx := layeredCopy.AddOriginal(Image.LayerOriginal[layerIdx], false);
+          layeredCopy.AddLayerFromOriginal(layeredCopy.Original[origIdx].Guid,
+            Image.LayerOriginalMatrix[layerIdx], Image.BlendOperation[layerIdx],
+            Image.LayerOpacity[layerIdx]);
+          layeredCopy.LayerName[0] := Image.LayerName[layerIdx];
+        end;
+        layeredCopy.RenderOriginalsIfNecessary;
+        layeredCopy.SaveToStreamAs(streamOut, SuggestImageExtension(imgFormat));
+      finally
+        layeredCopy.Free;
+      end;
+    end else
+    begin
+      layerCopy := TBGRABitmap.Create(Image.Width, Image.Height);
+      layerCopy.FillTransparent;
+      writer := CreateBGRAImageWriter(imgFormat, true);
+      try
+        layerCopy.PutImage(Image.LayerOffset[layerIdx].x, Image.LayerOffset[layerIdx].y,
+          Image.LayerBitmap[layerIdx], dmSet);
+        layerCopy.SaveToStream(streamOut, writer);
+        result := srOk;
+        AVars.Strings['Result'] := name;
+      except
+        on ex: Exception do
+        begin
+          FInstance.ShowError(rsSave, ex.Message);
+          result := srException;
+        end;
+      end;
+      layerCopy.Free;
+      writer.Free;
+    end;
+  finally
+    streamOut.Free;
+  end;
 end;
 
 function TImageActions.ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
@@ -1087,16 +1124,58 @@ function TImageActions.TryAddLayerFromFile(AFilenameUTF8: string; ALoadedImage: 
   end;
 
 var
-  newPicture: TBGRABitmap;
-  svgOrig: TBGRALayerSVGOriginal;
-  m: TAffineMatrix;
-  ofsF: TPointF;
-  ext: String;
   layeredBmp: TBGRACustomLayeredBitmap;
-  bmpOrig: TBGRALayerImageOriginal;
+
+  procedure ImportLayeredBmp;
+  var
+    m: TAffineMatrix;
+    i: Integer;
+    ofsF: TPointF;
+    bmpOrig: TBGRALayerImageOriginal;
+    doFound, somethingDone: boolean;
+  begin
+    m := ComputeStretchMatrix(layeredBmp.Width, layeredBmp.Height);
+    try
+      Image.DoBegin;
+      for i := 0 to layeredBmp.NbLayers-1 do
+      begin
+        if (layeredBmp.LayerOriginalGuid[i] <> GUID_NULL) and
+           layeredBmp.LayerOriginalKnown[i] then
+        begin
+          if not AddLayerFromOriginal(layeredBmp.LayerOriginal[i].Duplicate,
+            layeredBmp.LayerName[i], m*layeredBmp.LayerOriginalMatrix[i],
+            layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
+        end else
+        begin
+          if IsAffineMatrixTranslation(m) then
+          begin
+            ofsF := m*PointF(layeredBmp.LayerOffset[i].x, layeredBmp.LayerOffset[i].y);
+            if not NewLayer(layeredBmp.GetLayerBitmapCopy(i), layeredBmp.LayerName[i],
+                     Point(round(ofsF.X), round(ofsF.Y)),
+                     layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
+          end else
+          begin
+            bmpOrig := TBGRALayerImageOriginal.Create;
+            bmpOrig.AssignImage(layeredBmp.GetLayerBitmapDirectly(i));
+            if not AddLayerFromOriginal(bmpOrig, layeredBmp.LayerName[i],
+              m * AffineMatrixTranslation(layeredBmp.LayerOffset[i].x, layeredBmp.LayerOffset[i].y),
+              layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
+          end;
+        end;
+        setlength(result, length(result)+1);
+        result[high(result)] := Image.LayerId[image.CurrentLayerIndex];
+      end;
+    finally
+      image.DoEnd(doFound, somethingDone);
+    end;
+  end;
+
+var
+  imgFormat: TBGRAImageFormat;
   s: TStream;
-  i: Integer;
-  doFound, somethingDone: boolean;
+  newPicture: TBGRABitmap;
+  flattened: TBGRABitmap;
+  ext: String;
 
 begin
   result := nil;
@@ -1107,20 +1186,20 @@ begin
     exit;
   end;
   try
-    case Image.DetectImageFormat(AFilenameUTF8) of
-    ifSvg:
-    begin
-      svgOrig := LoadSVGOriginalUTF8(AFilenameUTF8);
-      m := ComputeStretchMatrix(svgOrig.Width, svgOrig.Height);
-      AddLayerFromOriginal(svgOrig, ExtractFileName(AFilenameUTF8), m);
-      setlength(result, 1);
-      result[0] := Image.LayerId[image.CurrentLayerIndex];
-      FreeAndNil(ALoadedImage);
-    end;
-    ifLazPaint, ifOpenRaster, ifPaintDotNet, ifPhoxo:
+    imgFormat := Image.DetectImageFormat(AFilenameUTF8);
+    case imgFormat of
+    ifLazPaint, ifOpenRaster, ifSvg, ifPaintDotNet, ifPhoxo:
     begin
       ext := UTF8LowerCase(ExtractFileExt(AFilenameUTF8));
       layeredBmp := TryCreateLayeredBitmapReader(ext);
+      if layeredBmp is TBGRALayeredSVG then
+      with TBGRALayeredSVG(layeredBmp) do
+      begin
+        ContainerWidth := Image.Width;
+        ContainerHeight := Image.Height;
+        DPI:= Screen.PixelsPerInch;
+        DefaultLayerName:= rsLayer;
+      end;
       try
         s := FileManager.CreateFileStream(AFilenameUTF8, fmOpenRead or fmShareDenyWrite);
         try
@@ -1130,40 +1209,21 @@ begin
           finally
             if Assigned(FInstance) then FInstance.EndLoadingImage;
           end;
-          m := ComputeStretchMatrix(layeredBmp.Width, layeredBmp.Height);
-          try
-            Image.DoBegin;
-            for i := 0 to layeredBmp.NbLayers-1 do
-            begin
-              if (layeredBmp.LayerOriginalGuid[i] <> GUID_NULL) and
-                 layeredBmp.LayerOriginalKnown[i] then
-              begin
-                if not AddLayerFromOriginal(layeredBmp.LayerOriginal[i].Duplicate,
-                  layeredBmp.LayerName[i], m*layeredBmp.LayerOriginalMatrix[i],
-                  layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
-              end else
-              begin
-                if IsAffineMatrixTranslation(m) then
-                begin
-                  ofsF := m*PointF(layeredBmp.LayerOffset[i].x, layeredBmp.LayerOffset[i].y);
-                  if not NewLayer(layeredBmp.GetLayerBitmapCopy(i), layeredBmp.LayerName[i],
-                           Point(round(ofsF.X), round(ofsF.Y)),
-                           layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
-                end else
-                begin
-                  bmpOrig := TBGRALayerImageOriginal.Create;
-                  bmpOrig.AssignImage(layeredBmp.GetLayerBitmapDirectly(i));
-                  if not AddLayerFromOriginal(bmpOrig, layeredBmp.LayerName[i],
-                    m * AffineMatrixTranslation(layeredBmp.LayerOffset[i].x, layeredBmp.LayerOffset[i].y),
-                    layeredBmp.BlendOperation[i], layeredBmp.LayerOpacity[i]) then break;
-                end;
+          if layeredBmp.NbLayers > 1 then
+          begin
+            case QuestionDlg(rsOpen, AppendQuestionMark(rsFlattenImage), mtInformation,
+              [mrYes, rsYes, mrNo, rsNo, mrCancel, rsCancel], 0) of
+            mrYes: begin
+                flattened := layeredBmp.ComputeFlatImage;
+                FreeAndNil(layeredBmp);
+                layeredBmp:= TBGRALayeredBitmap.Create(flattened.Width, flattened.Height);
+                TBGRALayeredBitmap(layeredBmp).AddOwnedLayer(flattened);
+                ImportLayeredBmp;
               end;
-              setlength(result, length(result)+1);
-              result[high(result)] := Image.LayerId[image.CurrentLayerIndex];
+            mrNo: ImportLayeredBmp;
             end;
-          finally
-            image.DoEnd(doFound, somethingDone);
-          end;
+          end else
+            ImportLayeredBmp;
         finally
           s.Free;
         end;
@@ -1338,6 +1398,11 @@ end;
 procedure TImageActions.RotateCCW;
 begin
   Image.RotateCCW;
+end;
+
+procedure TImageActions.Rotate180;
+begin
+  Image.Rotate180;
 end;
 
 procedure TImageActions.LinearNegativeAll;
