@@ -23,6 +23,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    LayerExport: TAction;
     FileExport: TAction;
     ExportPictureDialog: TSaveDialog;
     Label_Donate: TLabel;
@@ -481,6 +482,7 @@ type
     procedure ItemDockLayersAndColorsClick(Sender: TObject);
     procedure ItemFullscreenClick(Sender: TObject);
     procedure ItemViewDockToolboxClick(Sender: TObject);
+    procedure LayerExportExecute(Sender: TObject);
     procedure LayerRasterizeUpdate(Sender: TObject);
     procedure LayerZoomExecute(Sender: TObject);
     procedure LayerZoomUpdate(Sender: TObject);
@@ -3606,6 +3608,76 @@ begin
     Layout.ToolBoxDocking := twLeft
   else
     Layout.ToolBoxDocking := twWindow;
+end;
+
+procedure TFMain.LayerExportExecute(Sender: TObject);
+var
+  topMost: TTopMostInfo;
+  saveDlg: TSaveDialog;
+  layerIdx, mr: Integer;
+  defaultExt, filename: String;
+
+  procedure DoExportLayer(AFilename: string);
+  var
+    vars: TVariableSet;
+  begin
+    FExportInitialDir := extractFilePath(AFilename);
+    if Config.DefaultRememberStartupExportDirectory then
+      Config.SetStartupExportDirectory(FExportInitialDir);
+
+    vars := TVariableSet.Create('LayerSaveAs');
+    vars.Strings['FileName'] := AFilename;
+    CallScriptFunction(vars);
+    vars.Free;
+  end;
+
+begin
+  layerIdx := Image.CurrentLayerIndex;
+  if not Image.LayerOriginalDefined[layerIdx] then
+    defaultExt := '.png' else
+  if Image.LayerOriginalClass[layerIdx] = TBGRALayerSVGOriginal then
+    defaultExt := '.svg'
+  else
+    defaultExt := '.lzp';
+  filename := FileManager.GetValidFilename(Image.LayerName[layerIdx]) + defaultExt;
+  topMost := LazPaintInstance.HideTopmost;
+  saveDlg := ExportPictureDialog;
+  if UseImageBrowser then
+  begin
+    if not assigned(FSaveImage) then
+    begin
+      FSaveImage := TFBrowseImages.Create(self);
+      FSaveImage.LazPaintInstance := LazPaintInstance;
+      FSaveImage.IsSaveDialog := true;
+      FSaveImage.ShowRememberStartupDirectory:= true;
+      if Config.DefaultRememberSaveFormat then
+        FSaveImage.DefaultExtensions:= Config.DefaultSaveExtensions;
+    end;
+    FSaveImage.Filter := saveDlg.Filter;
+    FSaveImage.Caption := saveDlg.Title;
+    FSaveImage.InitialFilename := filename;
+    FSaveImage.DefaultExtension := defaultExt;
+    FSaveImage.InitialDirectory:= FExportInitialDir;
+    FSaveImage.RememberStartDirectory:= FLazPaintInstance.Config.DefaultRememberStartupExportDirectory;
+    FSaveImage.FilterIndex := saveDlg.FilterIndex;
+    mr := FSaveImage.ShowModal;
+    LazPaintInstance.Config.SetRememberStartupExportDirectory(FSaveImage.RememberStartDirectory);
+    if mr = mrOK then
+    begin
+      saveDlg.FilterIndex := FSaveImage.FilterIndex;
+      DoExportLayer(FSaveImage.FileName);
+    end;
+  end else
+  begin
+    saveDlg.FileName := filename;
+    saveDlg.DefaultExt := defaultExt;
+    saveDlg.InitialDir:= FExportInitialDir;
+    if saveDlg.Execute then
+    begin
+      DoExportLayer(saveDlg.FileName);
+    end;
+  end;
+  LazPaintInstance.ShowTopmost(topMost);
 end;
 
 procedure TFMain.LayerRasterizeUpdate(Sender: TObject);

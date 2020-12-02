@@ -8633,6 +8633,12 @@ object FMain: TFMain
       OnExecute = FileExportExecute
       ShortCut = 49221
     end
+    object LayerExport: TAction
+      Category = 'Layer'
+      Hint = 'Export...'
+      ImageIndex = 3
+      OnExecute = LayerExportExecute
+    end
   end
   object ColorDialog1: TColorDialog
     Title = 'Choose color'

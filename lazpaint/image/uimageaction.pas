@@ -380,39 +380,72 @@ function TImageActions.ScriptLayerSaveAs(AVars: TVariableSet): TScriptResult;
 var
   name, ext: String;
   layerCopy: TBGRABitmap;
-  layerIdx: Integer;
+  layerIdx, origIdx: Integer;
   writer: TFPCustomImageWriter;
-  imgFormat: TBGRAImageFormat;
+  imgFormat, imgFormatFromName: TBGRAImageFormat;
+  streamOut: TStream;
+  layeredCopy: TBGRALayeredBitmap;
 begin
   name := AVars.Strings['FileName'];
+  imgFormatFromName := SuggestImageFormat(name);
   if AVars.Strings['Format'] = '' then
-    imgFormat := SuggestImageFormat(name)
+    imgFormat := imgFormatFromName
   else
     imgFormat := SuggestImageFormat(AVars.Strings['Format']);
-  if imgFormat = ifUnknown then imgFormat := ifPng;
   ext := UTF8LowerCase(ExtractFileExt(name));
-  if ext = '.tmp' then
+  if imgFormat = ifUnknown then
   begin
-    layerCopy := TBGRABitmap.Create(Image.Width, Image.Height);
-    writer := CreateBGRAImageWriter(imgFormat, true);
-    try
-      layerIdx := Image.CurrentLayerIndex;
-      layerCopy.PutImage(Image.LayerOffset[layerIdx].x, Image.LayerOffset[layerIdx].y,
-        Image.LayerBitmap[layerIdx], dmSet);
-      layerCopy.SaveToFileUTF8(name, writer);
-      result := srOk;
-      AVars.Strings['Result'] := name;
-    except
-      on ex: Exception do
-      begin
-        FInstance.ShowError(rsSave, ex.Message);
-        result := srException;
-      end;
-    end;
-    layerCopy.Free;
-    writer.Free;
-  end else
+    if ext = '.tmp' then
+      imgFormat := ifPng
+    else
+      exit(srInvalidParameters);
+  end;
+  //wont overwrite a file that is probably not an image
+  if FileManager.FileExists(name) and (imgFormatFromName = ifUnknown) then
     exit(srInvalidParameters);
+  streamOut := FileManager.CreateFileStream(name, fmCreate);
+  try
+    layerIdx := Image.CurrentLayerIndex;
+    if imgFormatFromName in[ifLazPaint, ifPhoxo, ifSvg, ifOpenRaster] then
+    begin
+      layeredCopy := TBGRALayeredBitmap.Create(Image.Width,Image.Height);
+      try
+        if Image.LayerOriginalDefined[layerIdx] and Image.LayerOriginalKnown[layerIdx] then
+        begin
+          origIdx := layeredCopy.AddOriginal(Image.LayerOriginal[layerIdx], false);
+          layeredCopy.AddLayerFromOriginal(layeredCopy.Original[origIdx].Guid,
+            Image.LayerOriginalMatrix[layerIdx], Image.BlendOperation[layerIdx],
+            Image.LayerOpacity[layerIdx]);
+          layeredCopy.LayerName[0] := Image.LayerName[layerIdx];
+        end;
+        layeredCopy.RenderOriginalsIfNecessary;
+        layeredCopy.SaveToStreamAs(streamOut, SuggestImageExtension(imgFormat));
+      finally
+        layeredCopy.Free;
+      end;
+    end else
+    begin
+      layerCopy := TBGRABitmap.Create(Image.Width, Image.Height);
+      writer := CreateBGRAImageWriter(imgFormat, true);
+      try
+        layerCopy.PutImage(Image.LayerOffset[layerIdx].x, Image.LayerOffset[layerIdx].y,
+          Image.LayerBitmap[layerIdx], dmSet);
+        layerCopy.SaveToStream(streamOut, writer);
+        result := srOk;
+        AVars.Strings['Result'] := name;
+      except
+        on ex: Exception do
+        begin
+          FInstance.ShowError(rsSave, ex.Message);
+          result := srException;
+        end;
+      end;
+      layerCopy.Free;
+      writer.Free;
+    end;
+  finally
+    streamOut.Free;
+  end;
 end;
 
 function TImageActions.ScriptLayerSelectId(AVars: TVariableSet): TScriptResult;
