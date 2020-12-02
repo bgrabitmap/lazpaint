@@ -1008,6 +1008,7 @@ begin
   Toolbar.Images := LazPaintInstance.Icons[iconSize];
   Toolbar.ButtonWidth:= iconSize + DoScaleX(4, OriginalDPI, DPI);
   Toolbar.ButtonHeight:= iconSize + DoScaleY(4, OriginalDPI, DPI);
+  FLayerMenu.Images := LazPaintInstance.Icons[DoScaleX(20,OriginalDPI)];
   ComboBox_BlendOp.Width := Toolbar.ButtonWidth*7;
   ComboBox_BlendOp.Height := Toolbar.ButtonHeight;
   DarkThemeInstance.Apply(PanelToolbar, DarkTheme);
