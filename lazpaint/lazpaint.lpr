@@ -144,7 +144,7 @@ begin
   {$ENDIF}
   Report += LineEnding;
   if Initialized then
-    Report += 'It is recommanded to save a backup of your image and restart the application.'
+    Report += 'It is recommended to save a backup of your image and restart the application.'
   else
     Report += 'Application will now close.';
   ShowError(rsLazPaint, Report);
