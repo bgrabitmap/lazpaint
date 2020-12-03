@@ -2396,6 +2396,7 @@ var
   fm: TFontPixelMetric;
   rF: TRectF;
   penFillId, outlineFillId: String;
+  a: ArrayOfTFloatWithCSSUnit;
 begin
   topLeft := Origin - (XAxis - Origin) - (YAxis - Origin);
   w := Width*2; h := Height*2;
@@ -2454,8 +2455,11 @@ begin
       else span.textDirection:= stdLtr;
     with rF do
     begin
-      span.x := [FloatWithCSSUnit(Left/zoom, cuCustom)];
-      span.y := [FloatWithCSSUnit((Top + fm.Baseline)/zoom, cuCustom)];
+      setlength(a, 1);
+      a[0] := FloatWithCSSUnit(Left/zoom, cuCustom);
+      span.x := a;
+      a[0] := FloatWithCSSUnit((Top + fm.Baseline)/zoom, cuCustom);
+      span.y := a;
       span.textLength := FloatWithCSSUnit(Width/zoom, cuCustom);
     end;
   end;
