@@ -2,7 +2,7 @@
 # On FreeBSD, TARGET can be Gtk2 (default) or Qt5
 # On Windows, TARGET can be Win32 (default) or Qt5
 
-BGRABITMAP_DIR := bgrabitmap/bgrabitmap
+BGRABITMAP_DIR := bgrabitmap
 BGRACONTROLS_DIR := bgracontrols
 
 ifeq ($(OS),Windows_NT)     # true for Windows_NT or later

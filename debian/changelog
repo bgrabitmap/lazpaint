@@ -1,7 +1,7 @@
 lazpaint (7.1.6-1) unstable; urgency=medium
 
   * zoom and rotate raster layers without rasterizing
-  * vectorial layers to allow to edit existing shapes
+  * vectorial layers to allow one to edit existing shapes
   * shapes can be rotated and transformed (right-click or Alt)
   * shapes can be aligned horizontally/vertically
   * shapes can be brought to front or sent to back
