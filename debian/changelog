@@ -8,7 +8,7 @@ lazpaint (7.1.6-1) unstable; urgency=medium
     - use license LGPL-3-linking-exception
   * d/rules: update rules to specify usage of custom packages
 
- -- Johann ELSASS <circular@operamail.com>  Wed, 4 Dec 2020 08:35:00 +0100
+ -- Johann ELSASS <circular@operamail.com>  Fri, 4 Dec 2020 08:35:00 +0100
 
 lazpaint (6.4.1-1) unstable; urgency=medium
 
