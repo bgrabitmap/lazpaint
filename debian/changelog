@@ -3,7 +3,7 @@ lazpaint (7.1.6-1) unstable; urgency=medium
   * new upstream version
   * d/control: update description with new features
   * d/copyright: 
-    - add entry for bgrabitmap folder
+    - add entry for bgrabitmap folder (Closes: #973774)
     - add copyright for new files
     - use license LGPL-3-linking-exception
   * d/rules: update rules to specify usage of custom packages
