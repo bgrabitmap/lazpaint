@@ -2,7 +2,7 @@
 unit UDarkTheme;
 
 {$mode objfpc}{$H+}
-{$IF defined(DARWIN) and defined(LCLcocoa)}{$DEFINE DARWIN_DARK_THEME}{$ENDIF}
+{$IF defined(DARWIN) and defined(CPU64)}{$DEFINE DARWIN_DARK_THEME}{$ENDIF}
 {$IFDEF DARWIN_DARK_THEME}{$modeswitch objectivec1}{$ENDIF}
 
 interface
