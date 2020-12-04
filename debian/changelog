@@ -1,56 +1,14 @@
 lazpaint (7.1.6-1) unstable; urgency=medium
 
-  * zoom and rotate raster layers without rasterizing
-  * vectorial layers to allow one to edit existing shapes
-  * shapes can be rotated and transformed (right-click or Alt)
-  * shapes can be aligned horizontally/vertically
-  * shapes can be brought to front or sent to back
-  * shape information in status bar
-  * polygon/curve: shift-click to start new subpolygon
-  * polygon/curve: close shape by clicking first point
-  * radial/diamond gradient can be sheared
-  * scripting in Python
-  * scripts provided: layer effects, channels splitting
-  * ICO/CUR format: edit/add/remove specific size
-  * GIF format: edit/add/remove frames
-  * SVG format: read/write, layers compatible with Inkscape
-  * TIFF format: added read support for Lab colorspace
-  * OpenRaster format: support for SVG layers like MyPaint
-  * read support for PBM, PGM, PPM
-  * read support for raw images (digital camera)
-  * read/write support for WebP images
-  * LRS/RES resource container: add/remove files within
-  * add polyline/curve tool (not filled)
-  * text tool: layout box, alignment, better Unicode
-  * pen tool: shift-click to retrieve color
-  * close tool: shift-click to clone from flattened image
-  * pen/brush/eraser: alt+mousewheel to change width
-  * eraser: add lighten/darken/blur/sharpen modes
-  * add wave displacement filter
-  * blend modes: add HSL, corrected HSL and mask
-  * filter function: add Lab colorspace, add min/max/avg
-  * adjust curves: show source histograms
-  * interface: color and layer windows dockable
-  * interface: grouping tools in toolbar to save space
-  * interface: draw shape editor outside of image area
-  * interface: handle retina display on MacOS
-  * translation: add Bulgarian, Dutch, Kabyle, Latvian and Polish
-  * optimize selection and image rendering
-  * dark theme support
-  * image browser: load thumbnails in thread, F5 to update
-  * print dialog: show message and count
-  * layers: context menu with right-click, export
-  * command line: parenthesis optional
-  * Debian menu: various icon sizes
+  * new upstream version
+  * d/control: update description with new features
+  * d/copyright: 
+    - add entry for bgrabitmap folder
+    - add copyright for new files
+    - use license LGPL-3-linking-exception
+  * d/rules: update rules to specify usage of custom packages
 
- -- Johann ELSASS <circular@operamail.com>  Wed, 2 Dec 2020 13:31:00 +0100
-
-lazpaint (6.4.1-2) unstable; urgency=medium
-
-  * Copyright: add link exception in description
-  * Copyright: add entry for bgrabitmap folder
-
- -- Johann ELSASS <circular@operamail.com>  Sun, 29 Nov 2020 09:22:00 +0100
+ -- Johann ELSASS <circular@operamail.com>  Wed, 4 Dec 2020 08:35:00 +0100
 
 lazpaint (6.4.1-1) unstable; urgency=medium
 
