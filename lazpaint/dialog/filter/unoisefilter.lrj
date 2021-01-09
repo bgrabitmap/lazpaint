@@ -1,0 +1,8 @@
+{"version":1,"strings":[
+{"hash":60437426,"name":"tfnoisefilter.caption","sourcebytes":[78,111,105,115,101,32,102,105,108,116,101,114],"value":"Noise filter"},
+{"hash":243178037,"name":"tfnoisefilter.radio_grayscalenoise.caption","sourcebytes":[71,114,97,121,115,99,97,108,101,32,110,111,105,115,101],"value":"Grayscale noise"},
+{"hash":74782245,"name":"tfnoisefilter.radio_rgbnoise.caption","sourcebytes":[82,71,66,32,110,111,105,115,101],"value":"RGB noise"},
+{"hash":108662442,"name":"tfnoisefilter.label_opacity.caption","sourcebytes":[79,112,97,99,105,116,121,58],"value":"Opacity:"},
+{"hash":1339,"name":"tfnoisefilter.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfnoisefilter.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"}
+]}

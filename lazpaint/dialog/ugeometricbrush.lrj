@@ -1,0 +1,7 @@
+{"version":1,"strings":[
+{"hash":55929256,"name":"tfgeometricbrush.caption","sourcebytes":[71,101,111,109,101,116,114,105,99,32,98,114,117,115,104],"value":"Geometric brush"},
+{"hash":1339,"name":"tfgeometricbrush.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfgeometricbrush.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":257877466,"name":"tfgeometricbrush.label1.caption","sourcebytes":[78,117,109,98,101,114,32,111,102,32,115,105,100,101,115,58],"value":"Number of sides:"},
+{"hash":41168068,"name":"tfgeometricbrush.checkbox_isgradient.caption","sourcebytes":[79,112,97,99,105,116,121,32,103,114,97,100,105,101,110,116],"value":"Opacity gradient"}
+]}

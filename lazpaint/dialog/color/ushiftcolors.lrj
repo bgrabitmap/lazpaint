@@ -1,0 +1,8 @@
+{"version":1,"strings":[
+{"hash":52227059,"name":"tfshiftcolors.caption","sourcebytes":[83,104,105,102,116,32,99,111,108,111,114,115],"value":"Shift colors"},
+{"hash":20405,"name":"tfshiftcolors.label1.caption","sourcebytes":[72,117,101],"value":"Hue"},
+{"hash":210581742,"name":"tfshiftcolors.label2.caption","sourcebytes":[83,97,116,117,114,97,116,105,111,110],"value":"Saturation"},
+{"hash":1339,"name":"tfshiftcolors.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfshiftcolors.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":72944099,"name":"tfshiftcolors.checkbox_gsba.caption","sourcebytes":[67,111,114,114,101,99,116,101,100,32,104,117,101,32,97,110,100,32,108,105,103,104,116,110,101,115,115],"value":"Corrected hue and lightness"}
+]}

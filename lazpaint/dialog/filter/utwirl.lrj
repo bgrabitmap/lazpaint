@@ -1,0 +1,7 @@
+{"version":1,"strings":[
+{"hash":6021260,"name":"tftwirl.caption","sourcebytes":[84,119,105,114,108],"value":"Twirl"},
+{"hash":129024186,"name":"tftwirl.label_radius.caption","sourcebytes":[82,97,100,105,117,115,32,58],"value":"Radius :"},
+{"hash":139339642,"name":"tftwirl.label_angle.caption","sourcebytes":[65,110,103,108,101,32,58],"value":"Angle :"},
+{"hash":1339,"name":"tftwirl.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tftwirl.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"}
+]}

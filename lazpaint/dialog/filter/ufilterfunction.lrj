@@ -1,0 +1,21 @@
+{"version":1,"strings":[
+{"hash":221847054,"name":"tffilterfunction.caption","sourcebytes":[65,112,112,108,121,32,102,117,110,99,116,105,111,110],"value":"Apply function"},
+{"hash":1339,"name":"tffilterfunction.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tffilterfunction.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":46,"name":"tffilterfunction.label_alphaequals.caption","sourcebytes":[46],"value":"."},
+{"hash":22194,"name":"tffilterfunction.tabsheet_rgb.caption","sourcebytes":[82,71,66],"value":"RGB"},
+{"hash":193524366,"name":"tffilterfunction.checkbox_gamma.caption","sourcebytes":[71,97,109,109,97,32,99,111,114,114,101,99,116,105,111,110],"value":"Gamma correction"},
+{"hash":46,"name":"tffilterfunction.label_redequals.caption","sourcebytes":[46],"value":"."},
+{"hash":46,"name":"tffilterfunction.label_greenequals.caption","sourcebytes":[46],"value":"."},
+{"hash":46,"name":"tffilterfunction.label_blueequals.caption","sourcebytes":[46],"value":"."},
+{"hash":19836,"name":"tffilterfunction.tabsheet_hsl.caption","sourcebytes":[72,83,76],"value":"HSL"},
+{"hash":72944099,"name":"tffilterfunction.checkbox_gsba.caption","sourcebytes":[67,111,114,114,101,99,116,101,100,32,104,117,101,32,97,110,100,32,108,105,103,104,116,110,101,115,115],"value":"Corrected hue and lightness"},
+{"hash":46,"name":"tffilterfunction.label_hueequals.caption","sourcebytes":[46],"value":"."},
+{"hash":46,"name":"tffilterfunction.label_saturationequals.caption","sourcebytes":[46],"value":"."},
+{"hash":46,"name":"tffilterfunction.label_lightnessequals.caption","sourcebytes":[46],"value":"."},
+{"hash":21106,"name":"tffilterfunction.tabsheet_lab.caption","sourcebytes":[76,97,98],"value":"Lab"},
+{"hash":46,"name":"tffilterfunction.label_lequals.caption","sourcebytes":[46],"value":"."},
+{"hash":46,"name":"tffilterfunction.label_aequals.caption","sourcebytes":[46],"value":"."},
+{"hash":46,"name":"tffilterfunction.label_bequals.caption","sourcebytes":[46],"value":"."},
+{"hash":133057994,"name":"tffilterfunction.label_variables.caption","sourcebytes":[86,97,114,105,97,98,108,101,115,32,58],"value":"Variables :"}
+]}

@@ -1,0 +1,8 @@
+{"version":1,"strings":[
+{"hash":96229746,"name":"tfcustomblur.caption","sourcebytes":[67,117,115,116,111,109,32,98,108,117,114],"value":"Custom blur"},
+{"hash":1339,"name":"tfcustomblur.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfcustomblur.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":113031038,"name":"tfcustomblur.button_loadmask.caption","sourcebytes":[76,111,97,100,32,109,97,115,107,46,46,46],"value":"Load mask..."},
+{"hash":120776574,"name":"tfcustomblur.button_editmask.caption","sourcebytes":[69,100,105,116,32,109,97,115,107,46,46,46],"value":"Edit mask..."},
+{"hash":210391541,"name":"tfcustomblur.openpicturedialog1.title","sourcebytes":[79,112,101,110,32,103,114,97,121,115,99,97,108,101,32,102,105,108,101],"value":"Open grayscale file"}
+]}

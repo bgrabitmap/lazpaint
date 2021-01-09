@@ -1,0 +1,11 @@
+{"version":1,"strings":[
+{"hash":4691652,"name":"tfabout.caption","sourcebytes":[65,98,111,117,116],"value":"About"},
+{"hash":261901482,"name":"tfabout.label_licence.caption","sourcebytes":[76,105,99,101,110,99,101,58],"value":"Licence:"},
+{"hash":212823530,"name":"tfabout.label_authors.caption","sourcebytes":[65,117,116,104,111,114,115,58],"value":"Authors:"},
+{"hash":63320810,"name":"tfabout.label_homepage.caption","sourcebytes":[72,111,109,101,112,97,103,101,58],"value":"Homepage:"},
+{"hash":217335370,"name":"tfabout.label_libraries.caption","sourcebytes":[76,105,98,114,97,114,105,101,115,32,117,115,101,100,58],"value":"Libraries used:"},
+{"hash":207727017,"name":"tfabout.label_opensource.caption","sourcebytes":[79,112,101,110,32,115,111,117,114,99,101,32,40,71,80,76,118,51,41],"value":"Open source (GPLv3)"},
+{"hash":86255315,"name":"tfabout.label_authorsvalue.caption","sourcebytes":[67,105,114,99,117,108,97,114,32,104,101,108,112,101,100,32,98,121,32,70,97,98,105,101,110,87,97,110,103,44,32,76,97,105,110,122,32,97,110,100,32,111,116,104,101,114,115],"value":"Circular helped by FabienWang, Lainz and others"},
+{"hash":97681487,"name":"tfabout.labelurl.caption","sourcebytes":[104,116,116,112,58,47,47,115,111,117,114,99,101,102,111,114,103,101,46,110,101,116,47,112,114,111,106,101,99,116,115,47,108,97,122,112,97,105,110,116,47],"value":"http://sourceforge.net/projects/lazpaint/"},
+{"hash":76172398,"name":"tfabout.button_donate.caption","sourcebytes":[68,111,110,97,116,101,46,46,46],"value":"Donate..."}
+]}

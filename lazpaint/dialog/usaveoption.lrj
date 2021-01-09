@@ -1,0 +1,19 @@
+{"version":1,"strings":[
+{"hash":366789,"name":"tfsaveoption.caption","sourcebytes":[83,97,118,101],"value":"Save"},
+{"hash":34229498,"name":"tfsaveoption.label_colordepth.caption","sourcebytes":[67,111,108,111,114,32,100,101,112,116,104,58],"value":"Color depth:"},
+{"hash":111556051,"name":"tfsaveoption.radiobutton_2colors.caption","sourcebytes":[50,32,99,111,108,111,114,115],"value":"2 colors"},
+{"hash":111550995,"name":"tfsaveoption.radiobutton_16colors.caption","sourcebytes":[49,54,32,99,111,108,111,114,115],"value":"16 colors"},
+{"hash":111644179,"name":"tfsaveoption.radiobutton_256colors.caption","sourcebytes":[50,53,54,32,99,111,108,111,114,115],"value":"256 colors"},
+{"hash":88097664,"name":"tfsaveoption.radiobutton_miomap.caption","sourcebytes":[77,105,111,77,97,112],"value":"MioMap"},
+{"hash":90607747,"name":"tfsaveoption.radiobutton_24bitsperpixel.caption","sourcebytes":[50,52,32,98,105,116,115],"value":"24 bits"},
+{"hash":105287811,"name":"tfsaveoption.radiobutton_32bitsperpixel.caption","sourcebytes":[51,50,32,98,105,116,115],"value":"32 bits"},
+{"hash":183289159,"name":"tfsaveoption.checkbox_dithering.caption","sourcebytes":[68,105,116,104,101,114,105,110,103],"value":"Dithering"},
+{"hash":193138250,"name":"tfsaveoption.label1.caption","sourcebytes":[81,117,97,108,105,116,121,58],"value":"Quality:"},
+{"hash":13360,"name":"tfsaveoption.label_1.caption","sourcebytes":[49,48,48],"value":"100"},
+{"hash":48,"name":"tfsaveoption.label_0.caption","sourcebytes":[48],"value":"0"},
+{"hash":896,"name":"tfsaveoption.label_50.caption","sourcebytes":[53,48],"value":"50"},
+{"hash":111815059,"name":"tfsaveoption.checkbox_lossless.caption","sourcebytes":[76,111,115,115,108,101,115,115],"value":"Lossless"},
+{"hash":5902474,"name":"tfsaveoption.label_size.caption","sourcebytes":[83,105,122,101,58],"value":"Size:"},
+{"hash":1339,"name":"tfsaveoption.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfsaveoption.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"}
+]}

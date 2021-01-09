@@ -1,0 +1,5 @@
+{"version":1,"strings":[
+{"hash":66146629,"name":"tfmultiimage.caption","sourcebytes":[67,104,111,111,115,101,32,105,109,97,103,101],"value":"Choose image"},
+{"hash":1339,"name":"tfmultiimage.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfmultiimage.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"}
+]}

@@ -1,0 +1,5 @@
+{"version":1,"strings":[
+{"hash":197831646,"name":"tfquestion.caption","sourcebytes":[81,117,101,115,116,105,111,110],"value":"Question"},
+{"hash":46,"name":"tfquestion.label_message.caption","sourcebytes":[46],"value":"."},
+{"hash":249148037,"name":"tfquestion.checkbox_rememberchoice.caption","sourcebytes":[82,101,109,101,109,98,101,114,32,116,104,105,115,32,99,104,111,105,99,101],"value":"Remember this choice"}
+]}
