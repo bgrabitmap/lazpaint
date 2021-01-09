@@ -239,22 +239,10 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Largeur :"
 
-#: uresourcestrings.rsaddtopalette
-msgid "Add color to palette"
-msgstr "Ajouter à la palette des couleurs"
-
-#: uresourcestrings.rsremovefrompalette
-msgid "Remove color from palette"
-msgstr "Retirer de la palette des couleurs"
-
 #: tfchoosecolor.caption
 msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "Couleur"
-
-#: tfchoosecolor.lcolor.hint
-msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr "Description de la couleur : cliquez pour entrer une couleur avec le clavier en utilisant les noms de couleurs ou la notation CSS."
 
 #: tfcolorintensity.button_cancel.caption
 msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
@@ -393,8 +381,20 @@ msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
 msgstr "Teinte et luminosité corrigées"
 
+#: tffilterfunction.label_aequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_aequals.caption"
+msgid "."
+msgstr "."
+
 #: tffilterfunction.label_alphaequals.caption
 msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_bequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_bequals.caption"
 msgid "."
 msgstr "."
 
@@ -410,6 +410,12 @@ msgstr "."
 
 #: tffilterfunction.label_hueequals.caption
 msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_lequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_lequals.caption"
 msgid "."
 msgstr "."
 
@@ -435,6 +441,10 @@ msgstr "Variables :"
 #: tffilterfunction.tabsheet_hsl.caption
 msgid "HSL"
 msgstr "HSL"
+
+#: tffilterfunction.tabsheet_lab.caption
+msgid "Lab"
+msgstr ""
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
@@ -579,21 +589,6 @@ msgstr "Décocher toutes les images pour traitement"
 msgctxt "tflayerstack.caption"
 msgid "Layers"
 msgstr "Calques"
-
-#: tflayerstack.toolblendop.hint
-msgctxt "tflayerstack.toolblendop.hint"
-msgid "Select blend operation"
-msgstr "Choisir un mode de fusion"
-
-#: tflayerstack.toolzoomlayerstackin.hint
-msgctxt "tflayerstack.toolzoomlayerstackin.hint"
-msgid "Zoom layer stack in"
-msgstr "Zoomer la pile des calques"
-
-#: tflayerstack.toolzoomlayerstackout.hint
-msgctxt "tflayerstack.toolzoomlayerstackout.hint"
-msgid "Zoom layer stack out"
-msgstr "Dézoomer la pile des calques"
 
 #: tfloading.caption
 msgctxt "tfloading.caption"
@@ -806,6 +801,7 @@ msgid "Choose entry within file"
 msgstr "Choisir une entrée dans le fichier"
 
 #: tfmain.fileexport.caption
+msgctxt "tfmain.fileexport.caption"
 msgid "Export..."
 msgstr "Exporter..."
 
@@ -1055,6 +1051,7 @@ msgid "Fill background with antialiasing"
 msgstr "Colorer le fond avec anticrénelage"
 
 #: tfmain.imageflatten.caption
+msgctxt "tfmain.imageflatten.caption"
 msgid "Flatten image"
 msgstr "Aplatir l'image"
 
@@ -1090,6 +1087,10 @@ msgstr "Redimensionner..."
 msgid "Resample image"
 msgstr "Redimensionner image"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Rotation 180°"
+
 #: tfmain.imagerotateccw.caption
 msgid "Rotate 90° CCW"
 msgstr "Rotation 90° (horloge à rebours)"
@@ -1097,10 +1098,6 @@ msgstr "Rotation 90° (horloge à rebours)"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "Rotation 90° (horloge)"
-
-#: tfmain.imagerotate180.caption
-msgid "Rotate 180°"
-msgstr "Rotation 180°"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -1156,6 +1153,7 @@ msgid "Altitude"
 msgstr "Hauteur"
 
 #: tfmain.label_back.caption
+msgctxt "tfmain.label_back.caption"
 msgid "Back"
 msgstr "Fond"
 
@@ -1196,6 +1194,12 @@ msgstr "Zoom en cours"
 msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
 msgid "Curve"
 msgstr "Courbe"
+
+#: tfmain.label_donate.caption
+#, fuzzy
+msgctxt "tfmain.label_donate.caption"
+msgid "Donate..."
+msgstr "Faire un don..."
 
 #: tfmain.label_eraser.caption
 msgctxt "tfmain.label_eraser.caption"
@@ -1274,6 +1278,12 @@ msgstr "Ajouter un nouveau calque"
 msgctxt "tfmain.layerduplicate.hint"
 msgid "Duplicate selected layer"
 msgstr "Dupliquer le calque sélectionné"
+
+#: tfmain.layerexport.hint
+#, fuzzy
+msgctxt "tfmain.layerexport.hint"
+msgid "Export..."
+msgstr "Exporter..."
 
 #: tfmain.layerfromfile.hint
 msgctxt "tfmain.layerfromfile.hint"
@@ -1601,6 +1611,12 @@ msgstr "Taille du texte"
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
 msgstr "Pinceau"
+
+#: tfmain.toolbutton_donate.hint
+#, fuzzy
+msgctxt "tfmain.toolbutton_donate.hint"
+msgid "Donate..."
+msgstr "Faire un don..."
 
 #: tfmain.toolchangedocking.hint
 msgctxt "tfmain.toolchangedocking.hint"
@@ -2063,6 +2079,46 @@ msgstr "OK"
 msgid "Choose image"
 msgstr "Choisir une image"
 
+#: tfnewimage.bgrashape1.caption
+msgid "BGRAShape1"
+msgstr ""
+
+#: tfnewimage.bgrashape10.caption
+msgid "BGRAShape10"
+msgstr ""
+
+#: tfnewimage.bgrashape2.caption
+msgid "BGRAShape2"
+msgstr ""
+
+#: tfnewimage.bgrashape3.caption
+msgid "BGRAShape3"
+msgstr ""
+
+#: tfnewimage.bgrashape4.caption
+msgid "BGRAShape4"
+msgstr ""
+
+#: tfnewimage.bgrashape5.caption
+msgid "BGRAShape5"
+msgstr ""
+
+#: tfnewimage.bgrashape6.caption
+msgid "BGRAShape6"
+msgstr ""
+
+#: tfnewimage.bgrashape7.caption
+msgid "BGRAShape7"
+msgstr ""
+
+#: tfnewimage.bgrashape8.caption
+msgid "BGRAShape8"
+msgstr ""
+
+#: tfnewimage.bgrashape9.caption
+msgid "BGRAShape9"
+msgstr ""
+
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2103,6 +2159,14 @@ msgstr "Mémoire nécessaire :"
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "Largeur :"
+
+#: tfnewimage.toolbar_ratio.caption
+msgid "ToolBar_Ratio"
+msgstr ""
+
+#: tfnewimage.toolbutton_clearratio.caption
+msgid "ToolButton_ClearRatio"
+msgstr ""
 
 #: tfnoisefilter.button_cancel.caption
 msgctxt "tfnoisefilter.button_cancel.caption"
@@ -2568,6 +2632,10 @@ msgstr "Enregistrer"
 msgid "Dithering"
 msgstr "Tramage"
 
+#: tfsaveoption.checkbox_lossless.caption
+msgid "Lossless"
+msgstr ""
+
 #: tfsaveoption.label1.caption
 msgid "Quality:"
 msgstr "Qualité :"
@@ -2729,6 +2797,10 @@ msgstr "Action en cours"
 msgid "Add files to the image processing list"
 msgstr "Ajouter des fichiers pour traitement"
 
+#: uresourcestrings.rsaddtopalette
+msgid "Add color to palette"
+msgstr "Ajouter à la palette des couleurs"
+
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
 msgstr "Aligner la forme"
@@ -2752,6 +2824,12 @@ msgstr "GIF animé"
 #: uresourcestrings.rsautodetect
 msgid "Autodetect"
 msgstr "Détecter"
+
+#: uresourcestrings.rsback
+#, fuzzy
+msgctxt "uresourcestrings.rsback"
+msgid "Back"
+msgstr "Fond"
 
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
@@ -2898,6 +2976,16 @@ msgstr "Le dossier n'est pas vide"
 msgid "Dither layer using palette"
 msgstr "Tramer le calque en utilisant la palette"
 
+#: uresourcestrings.rsdonate
+#, fuzzy
+msgctxt "uresourcestrings.rsdonate"
+msgid "Donate..."
+msgstr "Faire un don..."
+
+#: uresourcestrings.rsdownload
+msgid "Download"
+msgstr "Télécharger"
+
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
 msgstr "Dupliquer l'image"
@@ -3027,6 +3115,12 @@ msgstr "Type"
 msgid "Fixed"
 msgstr "Fixe"
 
+#: uresourcestrings.rsflattenimage
+#, fuzzy
+msgctxt "uresourcestrings.rsflattenimage"
+msgid "Flatten image"
+msgstr "Aplatir l'image"
+
 #: uresourcestrings.rsfolder
 msgid "Folder"
 msgstr "Dossier"
@@ -3118,10 +3212,6 @@ msgstr "Infinité"
 msgid "Information"
 msgstr "Informations"
 
-#: uresourcestrings.rsdownload
-msgid "Download"
-msgstr "Télécharger"
-
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
 msgid "Intensity"
@@ -3172,6 +3262,11 @@ msgstr "Paysage"
 msgid "The latest version of LazPaint available online is"
 msgstr "La dernière version de LazPaint disponible en ligne est la"
 
+#: uresourcestrings.rslayer
+msgctxt "uresourcestrings.rslayer"
+msgid "Layer"
+msgstr "Calque"
+
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr "Image avec calques"
@@ -3180,11 +3275,6 @@ msgstr "Image avec calques"
 msgctxt "uresourcestrings.rslayers"
 msgid "Layers"
 msgstr "Calques"
-
-#: uresourcestrings.rslayer
-msgctxt "uresourcestrings.rslayer"
-msgid "Layer"
-msgstr "Calque"
 
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
@@ -3361,6 +3451,12 @@ msgstr "Inclure le canal alpha dans la palette"
 msgid "Palette options"
 msgstr "Options de la palette"
 
+#: uresourcestrings.rspen
+#, fuzzy
+msgctxt "uresourcestrings.rspen"
+msgid "Pen"
+msgstr "Crayon"
+
 #: uresourcestrings.rspercent
 msgctxt "uresourcestrings.rspercent"
 msgid "%"
@@ -3414,6 +3510,10 @@ msgstr "L'image a été modifiée. Voulez-vous vraiment recharger ?"
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
 msgstr "Amovible"
+
+#: uresourcestrings.rsremovefrompalette
+msgid "Remove color from palette"
+msgstr "Retirer de la palette des couleurs"
 
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
@@ -3498,6 +3598,12 @@ msgstr "Spline"
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
 msgstr "Support"
+
+#: uresourcestrings.rstextoutline
+#, fuzzy
+msgctxt "uresourcestrings.rstextoutline"
+msgid "Text outline"
+msgstr "Contour de texte"
 
 #: uresourcestrings.rstexturemapping
 msgctxt "uresourcestrings.rstexturemapping"

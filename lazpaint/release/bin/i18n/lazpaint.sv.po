@@ -231,22 +231,10 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Bredd :"
 
-#: uresourcestrings.rsaddtopalette
-msgid "Add color to palette"
-msgstr "Lägg till färg till palett"
-
-#: uresourcestrings.rsremovefrompalette
-msgid "Remove color from palette"
-msgstr "Ta bort färg från palett"
-
 #: tfchoosecolor.caption
 msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "Färg"
-
-#: tfchoosecolor.lcolor.hint
-msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr "Färgbeskrivning: klicka för att skriva in en färg med tangentbordet genom färgnamn eller CSS-notation"
 
 #: tfcolorintensity.button_cancel.caption
 msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
@@ -385,40 +373,65 @@ msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
 msgstr "Korrigerad ton och ljusstyrka"
 
+#: tffilterfunction.label_aequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_aequals.caption"
+msgid "."
+msgstr "."
+
 #: tffilterfunction.label_alphaequals.caption
+#, fuzzy
 msgctxt "tffilterfunction.label_alphaequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
+
+#: tffilterfunction.label_bequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_bequals.caption"
+msgid "."
+msgstr "."
 
 #: tffilterfunction.label_blueequals.caption
+#, fuzzy
 msgctxt "tffilterfunction.label_blueequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_greenequals.caption
+#, fuzzy
 msgctxt "tffilterfunction.label_greenequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_hueequals.caption
+#, fuzzy
 msgctxt "tffilterfunction.label_hueequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
+
+#: tffilterfunction.label_lequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_lequals.caption"
+msgid "."
+msgstr "."
 
 #: tffilterfunction.label_lightnessequals.caption
+#, fuzzy
 msgctxt "tffilterfunction.label_lightnessequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_redequals.caption
+#, fuzzy
 msgctxt "tffilterfunction.label_redequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_saturationequals.caption
+#, fuzzy
 msgctxt "tffilterfunction.label_saturationequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_variables.caption
 msgid "Variables :"
@@ -427,6 +440,10 @@ msgstr "Variabler:"
 #: tffilterfunction.tabsheet_hsl.caption
 msgid "HSL"
 msgstr "HSL"
+
+#: tffilterfunction.tabsheet_lab.caption
+msgid "Lab"
+msgstr ""
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
@@ -571,21 +588,6 @@ msgstr "Avmarkera alla bilder för behandling"
 msgctxt "tflayerstack.caption"
 msgid "Layers"
 msgstr "Lager"
-
-#: tflayerstack.toolblendop.hint
-msgctxt "tflayerstack.toolblendop.hint"
-msgid "Select blend operation"
-msgstr "Välj blandningsläge"
-
-#: tflayerstack.toolzoomlayerstackin.hint
-msgctxt "tflayerstack.toolzoomlayerstackin.hint"
-msgid "Zoom layer stack in"
-msgstr "Zooma in lagerlista"
-
-#: tflayerstack.toolzoomlayerstackout.hint
-msgctxt "tflayerstack.toolzoomlayerstackout.hint"
-msgid "Zoom layer stack out"
-msgstr "Zooma ut lagerlista"
 
 #: tfloading.caption
 msgctxt "tfloading.caption"
@@ -798,6 +800,7 @@ msgid "Choose entry within file"
 msgstr "Välj post i fil"
 
 #: tfmain.fileexport.caption
+msgctxt "tfmain.fileexport.caption"
 msgid "Export..."
 msgstr "Exportera..."
 
@@ -1047,6 +1050,7 @@ msgid "Fill background with antialiasing"
 msgstr "Fyll bakgrund med kantutjämning"
 
 #: tfmain.imageflatten.caption
+msgctxt "tfmain.imageflatten.caption"
 msgid "Flatten image"
 msgstr "Platta till bild"
 
@@ -1082,6 +1086,10 @@ msgstr "Resampla..."
 msgid "Resample image"
 msgstr "Resampla bild"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Rotera 180°"
+
 #: tfmain.imagerotateccw.caption
 msgid "Rotate 90° CCW"
 msgstr "Rotera 90° moturs"
@@ -1089,10 +1097,6 @@ msgstr "Rotera 90° moturs"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "Rotera 90° medurs"
-
-#: tfmain.imagerotate180.caption
-msgid "Rotate 180°"
-msgstr "Rotera 180°"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -1148,6 +1152,7 @@ msgid "Altitude"
 msgstr "Altitud"
 
 #: tfmain.label_back.caption
+msgctxt "tfmain.label_back.caption"
 msgid "Back"
 msgstr "Bakåt"
 
@@ -1188,6 +1193,12 @@ msgstr "Nuvarande zoom"
 msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
 msgid "Curve"
 msgstr "Kurva"
+
+#: tfmain.label_donate.caption
+#, fuzzy
+msgctxt "tfmain.label_donate.caption"
+msgid "Donate..."
+msgstr "Donera..."
 
 #: tfmain.label_eraser.caption
 msgctxt "tfmain.label_eraser.caption"
@@ -1266,6 +1277,12 @@ msgstr "Nytt lager"
 msgctxt "tfmain.layerduplicate.hint"
 msgid "Duplicate selected layer"
 msgstr "Dubblera valt lager"
+
+#: tfmain.layerexport.hint
+#, fuzzy
+msgctxt "tfmain.layerexport.hint"
+msgid "Export..."
+msgstr "Exportera..."
 
 #: tfmain.layerfromfile.hint
 msgctxt "tfmain.layerfromfile.hint"
@@ -1591,6 +1608,12 @@ msgstr "Textstorlek"
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
 msgstr "Pensel"
+
+#: tfmain.toolbutton_donate.hint
+#, fuzzy
+msgctxt "tfmain.toolbutton_donate.hint"
+msgid "Donate..."
+msgstr "Donera..."
 
 #: tfmain.toolchangedocking.hint
 msgctxt "tfmain.toolchangedocking.hint"
@@ -2053,6 +2076,46 @@ msgstr "OK"
 msgid "Choose image"
 msgstr "Välj bild"
 
+#: tfnewimage.bgrashape1.caption
+msgid "BGRAShape1"
+msgstr ""
+
+#: tfnewimage.bgrashape10.caption
+msgid "BGRAShape10"
+msgstr ""
+
+#: tfnewimage.bgrashape2.caption
+msgid "BGRAShape2"
+msgstr ""
+
+#: tfnewimage.bgrashape3.caption
+msgid "BGRAShape3"
+msgstr ""
+
+#: tfnewimage.bgrashape4.caption
+msgid "BGRAShape4"
+msgstr ""
+
+#: tfnewimage.bgrashape5.caption
+msgid "BGRAShape5"
+msgstr ""
+
+#: tfnewimage.bgrashape6.caption
+msgid "BGRAShape6"
+msgstr ""
+
+#: tfnewimage.bgrashape7.caption
+msgid "BGRAShape7"
+msgstr ""
+
+#: tfnewimage.bgrashape8.caption
+msgid "BGRAShape8"
+msgstr ""
+
+#: tfnewimage.bgrashape9.caption
+msgid "BGRAShape9"
+msgstr ""
+
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2093,6 +2156,14 @@ msgstr "Minne som krävs:"
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "Bredd :"
+
+#: tfnewimage.toolbar_ratio.caption
+msgid "ToolBar_Ratio"
+msgstr ""
+
+#: tfnewimage.toolbutton_clearratio.caption
+msgid "ToolButton_ClearRatio"
+msgstr ""
 
 #: tfnoisefilter.button_cancel.caption
 msgctxt "tfnoisefilter.button_cancel.caption"
@@ -2373,9 +2444,10 @@ msgid "Preview"
 msgstr "Förhandsvisning"
 
 #: tfpreviewdialog.lstatus.caption
+#, fuzzy
 msgctxt "tfpreviewdialog.lstatus.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfprint.button_configureprinter.caption
 msgid "Configure..."
@@ -2412,14 +2484,16 @@ msgid "Bottom:"
 msgstr "Undersidan:"
 
 #: tfprint.label_dpix.caption
+#, fuzzy
 msgctxt "tfprint.label_dpix.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfprint.label_dpiy.caption
+#, fuzzy
 msgctxt "tfprint.label_dpiy.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfprint.label_height.caption
 msgid "Height:"
@@ -2458,9 +2532,10 @@ msgid "Remember this choice"
 msgstr "Kom ihåg det här valet"
 
 #: tfquestion.label_message.caption
+#, fuzzy
 msgctxt "tfquestion.label_message.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfradialblur.button_cancel.caption
 msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
@@ -2557,6 +2632,10 @@ msgstr "Spara"
 #: tfsaveoption.checkbox_dithering.caption
 msgid "Dithering"
 msgstr "Ditrering"
+
+#: tfsaveoption.checkbox_lossless.caption
+msgid "Lossless"
+msgstr ""
 
 #: tfsaveoption.label1.caption
 msgid "Quality:"
@@ -2719,6 +2798,10 @@ msgstr "Åtgärd utförs"
 msgid "Add files to the image processing list"
 msgstr "Lägg till filer i bildbehandlingslistan"
 
+#: uresourcestrings.rsaddtopalette
+msgid "Add color to palette"
+msgstr "Lägg till färg till palett"
+
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
 msgstr "Justera figur"
@@ -2742,6 +2825,12 @@ msgstr "Animerad GIF"
 #: uresourcestrings.rsautodetect
 msgid "Autodetect"
 msgstr "Upptäck automatiskt"
+
+#: uresourcestrings.rsback
+#, fuzzy
+msgctxt "uresourcestrings.rsback"
+msgid "Back"
+msgstr "Bakåt"
 
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
@@ -2885,6 +2974,16 @@ msgstr "Mappen är inte tom"
 msgid "Dither layer using palette"
 msgstr "Ditrera lager med aktiv palett"
 
+#: uresourcestrings.rsdonate
+#, fuzzy
+msgctxt "uresourcestrings.rsdonate"
+msgid "Donate..."
+msgstr "Donera..."
+
+#: uresourcestrings.rsdownload
+msgid "Download"
+msgstr "Ladda ner"
+
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
 msgstr "Dubblera bilden"
@@ -3009,6 +3108,12 @@ msgstr "Typ"
 msgid "Fixed"
 msgstr "Fast"
 
+#: uresourcestrings.rsflattenimage
+#, fuzzy
+msgctxt "uresourcestrings.rsflattenimage"
+msgid "Flatten image"
+msgstr "Platta till bild"
+
 #: uresourcestrings.rsfolder
 msgid "Folder"
 msgstr "Mapp"
@@ -3099,10 +3204,6 @@ msgstr "Oändlig"
 msgid "Information"
 msgstr "Information"
 
-#: uresourcestrings.rsdownload
-msgid "Download"
-msgstr "Ladda ner"
-
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
 msgid "Intensity"
@@ -3152,6 +3253,11 @@ msgstr "Landskap"
 msgid "The latest version of LazPaint available online is"
 msgstr "Senaste versionen av LazPaint som finns tillgänglig online är"
 
+#: uresourcestrings.rslayer
+msgctxt "uresourcestrings.rslayer"
+msgid "Layer"
+msgstr "Lager"
+
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr "Bild med lager"
@@ -3159,11 +3265,6 @@ msgstr "Bild med lager"
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
 msgid "Layers"
-msgstr "Lager"
-
-#: uresourcestrings.rslayer
-msgctxt "uresourcestrings.rslayer"
-msgid "Layer"
 msgstr "Lager"
 
 #: uresourcestrings.rslazpaint
@@ -3333,6 +3434,12 @@ msgstr "Paletten innehåller en alfakanal"
 msgid "Palette options"
 msgstr "Alternativ för palett"
 
+#: uresourcestrings.rspen
+#, fuzzy
+msgctxt "uresourcestrings.rspen"
+msgid "Pen"
+msgstr "Penna"
+
 #: uresourcestrings.rspercent
 msgctxt "uresourcestrings.rspercent"
 msgid "%"
@@ -3386,6 +3493,10 @@ msgstr "Bitmap har ändrats. Vill du verkligen ladda om?"
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
 msgstr "Löstagbar"
+
+#: uresourcestrings.rsremovefrompalette
+msgid "Remove color from palette"
+msgstr "Ta bort färg från palett"
 
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
@@ -3467,6 +3578,12 @@ msgstr "Spline"
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
 msgstr "Enhet"
+
+#: uresourcestrings.rstextoutline
+#, fuzzy
+msgctxt "uresourcestrings.rstextoutline"
+msgid "Text outline"
+msgstr "Textkontur"
 
 #: uresourcestrings.rstexturemapping
 msgctxt "uresourcestrings.rstexturemapping"

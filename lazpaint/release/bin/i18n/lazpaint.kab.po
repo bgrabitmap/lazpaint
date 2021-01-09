@@ -242,22 +242,10 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Tehri :"
 
-#: uresourcestrings.rsaddtopalette
-msgid "Add color to palette"
-msgstr "Rnu ini ɣer tpaliḍt"
-
-#: uresourcestrings.rsremovefrompalette
-msgid "Remove color from palette"
-msgstr "Kkes ini si tpaliḍt"
-
 #: tfchoosecolor.caption
 msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "Ini"
-
-#: tfchoosecolor.lcolor.hint
-msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr "Aglam n yini: sit iwakken ad teskecmeḍ ini s unasiw s yismawen-nnsen neɣ s tira n CSS."
 
 #: tfcolorintensity.button_cancel.caption
 msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
@@ -396,8 +384,20 @@ msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
 msgstr "Tiɣmi akked tifawit yettwaseɣtan"
 
+#: tffilterfunction.label_aequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_aequals.caption"
+msgid "."
+msgstr "."
+
 #: tffilterfunction.label_alphaequals.caption
 msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_bequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_bequals.caption"
 msgid "."
 msgstr "."
 
@@ -413,6 +413,12 @@ msgstr "."
 
 #: tffilterfunction.label_hueequals.caption
 msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_lequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_lequals.caption"
 msgid "."
 msgstr "."
 
@@ -438,6 +444,10 @@ msgstr "Imuttiyen :"
 #: tffilterfunction.tabsheet_hsl.caption
 msgid "HSL"
 msgstr "HSL"
+
+#: tffilterfunction.tabsheet_lab.caption
+msgid "Lab"
+msgstr ""
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
@@ -582,21 +592,6 @@ msgstr "Kkes acraḍ i yifuyla merra i wesekker"
 msgctxt "tflayerstack.caption"
 msgid "Layers"
 msgstr "Tissiyin"
-
-#: tflayerstack.toolblendop.hint
-msgctxt "tflayerstack.toolblendop.hint"
-msgid "Select blend operation"
-msgstr "Fren tamhelt n usmezdi"
-
-#: tflayerstack.toolzoomlayerstackin.hint
-msgctxt "tflayerstack.toolzoomlayerstackin.hint"
-msgid "Zoom layer stack in"
-msgstr "Semɣer tiɣbirt n tissiyin"
-
-#: tflayerstack.toolzoomlayerstackout.hint
-msgctxt "tflayerstack.toolzoomlayerstackout.hint"
-msgid "Zoom layer stack out"
-msgstr "Simecṭuḥ tiɣbirt n tissiyin"
 
 #: tfloading.caption
 msgctxt "tfloading.caption"
@@ -808,6 +803,7 @@ msgid "Choose entry within file"
 msgstr "Fren anekcum deg ufaylu"
 
 #: tfmain.fileexport.caption
+msgctxt "tfmain.fileexport.caption"
 msgid "Export..."
 msgstr "Sifeḍ..."
 
@@ -1017,7 +1013,9 @@ msgid "Twirl..."
 msgstr "Abran..."
 
 #: tfmain.filterwavedisplacement.caption
-msgid "Wave diplacement..."
+#, fuzzy
+#| msgid "Wave diplacement..."
+msgid "Wave displacement..."
 msgstr "Asekḥer n tayyugt..."
 
 #: tfmain.forgetdialoganswers.caption
@@ -1057,6 +1055,7 @@ msgid "Fill background with antialiasing"
 msgstr "Aččar agilal s umzay"
 
 #: tfmain.imageflatten.caption
+msgctxt "tfmain.imageflatten.caption"
 msgid "Flatten image"
 msgstr "Lebbeḍ tugna"
 
@@ -1092,6 +1091,10 @@ msgstr "Ales alemmec..."
 msgid "Resample image"
 msgstr "Ales alemmec i tugna"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Tuzzya 180°"
+
 #: tfmain.imagerotateccw.caption
 msgid "Rotate 90° CCW"
 msgstr "Tuzzya 90° (mgal tanila n temrilt)"
@@ -1099,10 +1102,6 @@ msgstr "Tuzzya 90° (mgal tanila n temrilt)"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "Tuzzya 90° (di tnila n temrilt)"
-
-#: tfmain.imagerotate180.caption
-msgid "Rotate 180°"
-msgstr "Tuzzya 180°"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -1158,6 +1157,7 @@ msgid "Altitude"
 msgstr "Tattayt"
 
 #: tfmain.label_back.caption
+msgctxt "tfmain.label_back.caption"
 msgid "Back"
 msgstr "Tuɣalin"
 
@@ -1196,6 +1196,12 @@ msgstr "Asemɣer amiran"
 msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
 msgid "Curve"
 msgstr "Azlig"
+
+#: tfmain.label_donate.caption
+#, fuzzy
+msgctxt "tfmain.label_donate.caption"
+msgid "Donate..."
+msgstr "Ɛiwen s wedrim..."
 
 #: tfmain.label_eraser.caption
 msgctxt "tfmain.label_eraser.caption"
@@ -1274,6 +1280,12 @@ msgstr "Rnu tissi tamaynutt"
 msgctxt "tfmain.layerduplicate.hint"
 msgid "Duplicate selected layer"
 msgstr "Sisleg tissi yettwafernen"
+
+#: tfmain.layerexport.hint
+#, fuzzy
+msgctxt "tfmain.layerexport.hint"
+msgid "Export..."
+msgstr "Sifeḍ..."
 
 #: tfmain.layerfromfile.hint
 msgctxt "tfmain.layerfromfile.hint"
@@ -1600,6 +1612,12 @@ msgstr "Tiddi n uḍris"
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
 msgstr "Amfezzu"
+
+#: tfmain.toolbutton_donate.hint
+#, fuzzy
+msgctxt "tfmain.toolbutton_donate.hint"
+msgid "Donate..."
+msgstr "Ɛiwen s wedrim..."
 
 #: tfmain.toolchangedocking.hint
 msgctxt "tfmain.toolchangedocking.hint"
@@ -2061,6 +2079,46 @@ msgstr "Ih"
 msgid "Choose image"
 msgstr "Fren tugna"
 
+#: tfnewimage.bgrashape1.caption
+msgid "BGRAShape1"
+msgstr ""
+
+#: tfnewimage.bgrashape10.caption
+msgid "BGRAShape10"
+msgstr ""
+
+#: tfnewimage.bgrashape2.caption
+msgid "BGRAShape2"
+msgstr ""
+
+#: tfnewimage.bgrashape3.caption
+msgid "BGRAShape3"
+msgstr ""
+
+#: tfnewimage.bgrashape4.caption
+msgid "BGRAShape4"
+msgstr ""
+
+#: tfnewimage.bgrashape5.caption
+msgid "BGRAShape5"
+msgstr ""
+
+#: tfnewimage.bgrashape6.caption
+msgid "BGRAShape6"
+msgstr ""
+
+#: tfnewimage.bgrashape7.caption
+msgid "BGRAShape7"
+msgstr ""
+
+#: tfnewimage.bgrashape8.caption
+msgid "BGRAShape8"
+msgstr ""
+
+#: tfnewimage.bgrashape9.caption
+msgid "BGRAShape9"
+msgstr ""
+
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2101,6 +2159,14 @@ msgstr "Takatut yettwasran :"
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "Tehri :"
+
+#: tfnewimage.toolbar_ratio.caption
+msgid "ToolBar_Ratio"
+msgstr ""
+
+#: tfnewimage.toolbutton_clearratio.caption
+msgid "ToolButton_ClearRatio"
+msgstr ""
 
 #: tfnoisefilter.button_cancel.caption
 msgctxt "tfnoisefilter.button_cancel.caption"
@@ -2566,6 +2632,10 @@ msgstr "Sekles"
 msgid "Dithering"
 msgstr "Tizḍi"
 
+#: tfsaveoption.checkbox_lossless.caption
+msgid "Lossless"
+msgstr ""
+
 #: tfsaveoption.label1.caption
 msgid "Quality:"
 msgstr "Taɣara:"
@@ -2727,6 +2797,10 @@ msgstr "Tigawin itteddun"
 msgid "Add files to the image processing list"
 msgstr "Rnu ifuyla ɣer tebdart n ukala n tugniwin"
 
+#: uresourcestrings.rsaddtopalette
+msgid "Add color to palette"
+msgstr "Rnu ini ɣer tpaliḍt"
+
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
 msgstr "Derrec talɣa"
@@ -2750,6 +2824,12 @@ msgstr "GIF yettemwwiwilen"
 #: uresourcestrings.rsautodetect
 msgid "Autodetect"
 msgstr "Tifin tawurmant"
+
+#: uresourcestrings.rsback
+#, fuzzy
+msgctxt "uresourcestrings.rsback"
+msgid "Back"
+msgstr "Tuɣalin"
 
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
@@ -2896,6 +2976,16 @@ msgstr "Akaram mačči d ilem"
 msgid "Dither layer using palette"
 msgstr "Ezḍ tissi s useqec n tpaliḍt"
 
+#: uresourcestrings.rsdonate
+#, fuzzy
+msgctxt "uresourcestrings.rsdonate"
+msgid "Donate..."
+msgstr "Ɛiwen s wedrim..."
+
+#: uresourcestrings.rsdownload
+msgid "Download"
+msgstr ""
+
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
 msgstr "Sisleg tugna"
@@ -3024,6 +3114,12 @@ msgstr "Anaw"
 #: uresourcestrings.rsfixeddrive
 msgid "Fixed"
 msgstr "Usbiḍ"
+
+#: uresourcestrings.rsflattenimage
+#, fuzzy
+msgctxt "uresourcestrings.rsflattenimage"
+msgid "Flatten image"
+msgstr "Lebbeḍ tugna"
 
 #: uresourcestrings.rsfolder
 msgid "Folder"
@@ -3166,6 +3262,11 @@ msgstr "S tehri"
 msgid "The latest version of LazPaint available online is"
 msgstr "Lqem aneggaru n LazPaint i iwejden ɣef Internet d"
 
+#: uresourcestrings.rslayer
+msgctxt "uresourcestrings.rslayer"
+msgid "Layer"
+msgstr "Tissi"
+
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr "Tugna s tissiyin"
@@ -3174,11 +3275,6 @@ msgstr "Tugna s tissiyin"
 msgctxt "uresourcestrings.rslayers"
 msgid "Layers"
 msgstr "Tissiyin"
-
-#: uresourcestrings.rslayer
-msgctxt "uresourcestrings.rslayer"
-msgid "Layer"
-msgstr "Tissi"
 
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
@@ -3355,6 +3451,12 @@ msgstr "Tapaliḍt ad tseddu abadu alfa"
 msgid "Palette options"
 msgstr "Tinefrunin n tpaliḍt"
 
+#: uresourcestrings.rspen
+#, fuzzy
+msgctxt "uresourcestrings.rspen"
+msgid "Pen"
+msgstr "Imru"
+
 #: uresourcestrings.rspercent
 msgctxt "uresourcestrings.rspercent"
 msgid "%"
@@ -3377,7 +3479,9 @@ msgid "px"
 msgstr "px"
 
 #: uresourcestrings.rspythonunexpectedversion
-msgid "Expected python version %1 but %2 found."
+#, fuzzy
+#| msgid "Expected python version %1 but %2 found."
+msgid "Expected Python version %1 but %2 found."
 msgstr "Yetturaǧu lqem n python %1 maca nufa %2."
 
 #: uresourcestrings.rsramdisk
@@ -3408,6 +3512,10 @@ msgstr "Tugna tettwabeddel. D tidet tebɣiḍ ad s-talseḍ asali ?"
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
 msgstr "Aziraz"
+
+#: uresourcestrings.rsremovefrompalette
+msgid "Remove color from palette"
+msgstr "Kkes ini si tpaliḍt"
 
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
@@ -3491,6 +3599,12 @@ msgstr "Izirig ittleɣwayen"
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
 msgstr "Ibenk"
+
+#: uresourcestrings.rstextoutline
+#, fuzzy
+msgctxt "uresourcestrings.rstextoutline"
+msgid "Text outline"
+msgstr "Azdaw n uḍris"
 
 #: uresourcestrings.rstexturemapping
 msgctxt "uresourcestrings.rstexturemapping"
@@ -3582,3 +3696,4 @@ msgstr "Semɣer taɣbirt n tissiyin"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Simecṭuḥ taɣbirt n tissiyin"
+

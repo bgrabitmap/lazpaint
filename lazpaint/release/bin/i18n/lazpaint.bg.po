@@ -239,22 +239,10 @@ msgctxt "TFCANVASSIZE.LABEL_WIDTH.CAPTION"
 msgid "Width :"
 msgstr "Ширина:"
 
-#: uresourcestrings.rsaddtopalette
-msgid "Add color to palette"
-msgstr "Добавяне на цвета в палитрата"
-
-#: uresourcestrings.rsremovefrompalette
-msgid "Remove color from palette"
-msgstr "Премахване на цвета от палитрата"
-
 #: tfchoosecolor.caption
 msgctxt "TFCHOOSECOLOR.CAPTION"
 msgid "Color"
 msgstr "Цвят"
-
-#: tfchoosecolor.lcolor.hint
-msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr "Описание на цвета: цъкнете, за да напишете цвят по име или по CSS означение"
 
 #: tfcolorintensity.button_cancel.caption
 msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
@@ -393,8 +381,20 @@ msgctxt "TFFILTERFUNCTION.CHECKBOX_GSBA.CAPTION"
 msgid "Corrected hue and lightness"
 msgstr "Поправени отенък и яркост"
 
+#: tffilterfunction.label_aequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_aequals.caption"
+msgid "."
+msgstr "."
+
 #: tffilterfunction.label_alphaequals.caption
 msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_bequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_bequals.caption"
 msgid "."
 msgstr "."
 
@@ -410,6 +410,12 @@ msgstr "."
 
 #: tffilterfunction.label_hueequals.caption
 msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_lequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_lequals.caption"
 msgid "."
 msgstr "."
 
@@ -435,6 +441,10 @@ msgstr "Променливи:"
 #: tffilterfunction.tabsheet_hsl.caption
 msgid "HSL"
 msgstr "ОНО"
+
+#: tffilterfunction.tabsheet_lab.caption
+msgid "Lab"
+msgstr ""
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
@@ -579,21 +589,6 @@ msgstr "Размятане на всички изображения"
 msgctxt "TFLAYERSTACK.CAPTION"
 msgid "Layers"
 msgstr "Слоеве"
-
-#: tflayerstack.toolblendop.hint
-msgctxt "tflayerstack.toolblendop.hint"
-msgid "Select blend operation"
-msgstr "Изберете смесване"
-
-#: tflayerstack.toolzoomlayerstackin.hint
-msgctxt "tflayerstack.toolzoomlayerstackin.hint"
-msgid "Zoom layer stack in"
-msgstr "Увеличаване на купа със слоеве"
-
-#: tflayerstack.toolzoomlayerstackout.hint
-msgctxt "tflayerstack.toolzoomlayerstackout.hint"
-msgid "Zoom layer stack out"
-msgstr "Смаляване на купа със слоеве"
 
 #: tfloading.caption
 msgctxt "tfloading.caption"
@@ -803,6 +798,7 @@ msgid "Choose entry within file"
 msgstr "Избиране на предмет от файл"
 
 #: tfmain.fileexport.caption
+msgctxt "tfmain.fileexport.caption"
 msgid "Export..."
 msgstr "Изнасяне..."
 
@@ -1052,6 +1048,7 @@ msgid "Fill background with antialiasing"
 msgstr ""
 
 #: tfmain.imageflatten.caption
+msgctxt "tfmain.imageflatten.caption"
 msgid "Flatten image"
 msgstr ""
 
@@ -1087,6 +1084,10 @@ msgstr "Преоразмеряване..."
 msgid "Resample image"
 msgstr "Преоразмеряване на изображението"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Завъртане на 180°"
+
 #: tfmain.imagerotateccw.caption
 msgid "Rotate 90° CCW"
 msgstr "Завъртане на 270°"
@@ -1094,10 +1095,6 @@ msgstr "Завъртане на 270°"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "Завъртане на 90°"
-
-#: tfmain.imagerotate180.caption
-msgid "Rotate 180°"
-msgstr "Завъртане на 180°"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -1153,6 +1150,7 @@ msgid "Altitude"
 msgstr "Височина"
 
 #: tfmain.label_back.caption
+msgctxt "tfmain.label_back.caption"
 msgid "Back"
 msgstr "Подцв."
 
@@ -1191,6 +1189,12 @@ msgstr "Текущо увеличение"
 msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
 msgid "Curve"
 msgstr "Крива"
+
+#: tfmain.label_donate.caption
+#, fuzzy
+msgctxt "tfmain.label_donate.caption"
+msgid "Donate..."
+msgstr "Дарение..."
 
 #: tfmain.label_eraser.caption
 msgctxt "TFMAIN.LABEL_ERASER.CAPTION"
@@ -1269,6 +1273,12 @@ msgstr "Добавяне на нов слой"
 msgctxt "tfmain.layerduplicate.hint"
 msgid "Duplicate selected layer"
 msgstr "Повтаряне на избрания слой"
+
+#: tfmain.layerexport.hint
+#, fuzzy
+msgctxt "tfmain.layerexport.hint"
+msgid "Export..."
+msgstr "Изнасяне..."
 
 #: tfmain.layerfromfile.hint
 msgctxt "TFMAIN.LAYERFROMFILE.HINT"
@@ -1591,6 +1601,12 @@ msgstr "Размер на текста"
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
 msgstr "Четка"
+
+#: tfmain.toolbutton_donate.hint
+#, fuzzy
+msgctxt "tfmain.toolbutton_donate.hint"
+msgid "Donate..."
+msgstr "Дарение..."
 
 #: tfmain.toolchangedocking.hint
 msgid "Change docking"
@@ -2048,6 +2064,46 @@ msgstr "Добре"
 msgid "Choose image"
 msgstr "Избиране на изображение"
 
+#: tfnewimage.bgrashape1.caption
+msgid "BGRAShape1"
+msgstr ""
+
+#: tfnewimage.bgrashape10.caption
+msgid "BGRAShape10"
+msgstr ""
+
+#: tfnewimage.bgrashape2.caption
+msgid "BGRAShape2"
+msgstr ""
+
+#: tfnewimage.bgrashape3.caption
+msgid "BGRAShape3"
+msgstr ""
+
+#: tfnewimage.bgrashape4.caption
+msgid "BGRAShape4"
+msgstr ""
+
+#: tfnewimage.bgrashape5.caption
+msgid "BGRAShape5"
+msgstr ""
+
+#: tfnewimage.bgrashape6.caption
+msgid "BGRAShape6"
+msgstr ""
+
+#: tfnewimage.bgrashape7.caption
+msgid "BGRAShape7"
+msgstr ""
+
+#: tfnewimage.bgrashape8.caption
+msgid "BGRAShape8"
+msgstr ""
+
+#: tfnewimage.bgrashape9.caption
+msgid "BGRAShape9"
+msgstr ""
+
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2088,6 +2144,14 @@ msgstr "Необходима памет: "
 msgctxt "TFNEWIMAGE.LABEL_WIDTH.CAPTION"
 msgid "Width :"
 msgstr "Ширина:"
+
+#: tfnewimage.toolbar_ratio.caption
+msgid "ToolBar_Ratio"
+msgstr ""
+
+#: tfnewimage.toolbutton_clearratio.caption
+msgid "ToolButton_ClearRatio"
+msgstr ""
 
 #: tfnoisefilter.button_cancel.caption
 msgctxt "tfnoisefilter.button_cancel.caption"
@@ -2554,6 +2618,10 @@ msgstr "Съхраняване"
 msgid "Dithering"
 msgstr ""
 
+#: tfsaveoption.checkbox_lossless.caption
+msgid "Lossless"
+msgstr ""
+
 #: tfsaveoption.label1.caption
 msgid "Quality:"
 msgstr "Качество:"
@@ -2715,6 +2783,10 @@ msgstr "Действието се извършва"
 msgid "Add files to the image processing list"
 msgstr "Добавяне към списък за обработка"
 
+#: uresourcestrings.rsaddtopalette
+msgid "Add color to palette"
+msgstr "Добавяне на цвета в палитрата"
+
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
 msgstr "Подравняване на формата"
@@ -2738,6 +2810,12 @@ msgstr "Раздвижен GIF"
 #: uresourcestrings.rsautodetect
 msgid "Autodetect"
 msgstr "Самоопределяне"
+
+#: uresourcestrings.rsback
+#, fuzzy
+msgctxt "uresourcestrings.rsback"
+msgid "Back"
+msgstr "Подцв."
 
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
@@ -2879,6 +2957,16 @@ msgstr "Папката не е празна"
 msgid "Dither layer using palette"
 msgstr ""
 
+#: uresourcestrings.rsdonate
+#, fuzzy
+msgctxt "uresourcestrings.rsdonate"
+msgid "Donate..."
+msgstr "Дарение..."
+
+#: uresourcestrings.rsdownload
+msgid "Download"
+msgstr ""
+
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
 msgstr ""
@@ -3001,6 +3089,11 @@ msgstr "Вид"
 
 #: uresourcestrings.rsfixeddrive
 msgid "Fixed"
+msgstr ""
+
+#: uresourcestrings.rsflattenimage
+msgctxt "uresourcestrings.rsflattenimage"
+msgid "Flatten image"
 msgstr ""
 
 #: uresourcestrings.rsfolder
@@ -3139,6 +3232,11 @@ msgstr "Пейзаж"
 msgid "The latest version of LazPaint available online is"
 msgstr "Най-новото издание на LazPaint, което може да се свали е"
 
+#: uresourcestrings.rslayer
+msgctxt "uresourcestrings.rslayer"
+msgid "Layer"
+msgstr "слой"
+
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr ""
@@ -3147,11 +3245,6 @@ msgstr ""
 msgctxt "uresourcestrings.rslayers"
 msgid "Layers"
 msgstr "Слоеве"
-
-#: uresourcestrings.rslayer
-msgctxt "uresourcestrings.rslayer"
-msgid "Layer"
-msgstr "слой"
 
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
@@ -3320,6 +3413,12 @@ msgstr ""
 msgid "Palette options"
 msgstr "Възможности на палитрата"
 
+#: uresourcestrings.rspen
+#, fuzzy
+msgctxt "uresourcestrings.rspen"
+msgid "Pen"
+msgstr "Молив"
+
 #: uresourcestrings.rspercent
 msgctxt "uresourcestrings.rspercent"
 msgid "%"
@@ -3342,7 +3441,9 @@ msgid "px"
 msgstr "точки"
 
 #: uresourcestrings.rspythonunexpectedversion
-msgid "Expected python version %1 but %2 found."
+#, fuzzy
+#| msgid "Expected python version %1 but %2 found."
+msgid "Expected Python version %1 but %2 found."
 msgstr "Нужен е Python v. %1, но имате v. %2."
 
 #: uresourcestrings.rsramdisk
@@ -3373,6 +3474,10 @@ msgstr "Изображението е променено. Наистина ли 
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
 msgstr "Премахваем"
+
+#: uresourcestrings.rsremovefrompalette
+msgid "Remove color from palette"
+msgstr "Премахване на цвета от палитрата"
 
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
@@ -3453,6 +3558,12 @@ msgstr "Сплайн (кривка)"
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
 msgstr "Устройство"
+
+#: uresourcestrings.rstextoutline
+#, fuzzy
+msgctxt "uresourcestrings.rstextoutline"
+msgid "Text outline"
+msgstr "Обрамчване на текста"
 
 #: uresourcestrings.rstexturemapping
 msgctxt "uresourcestrings.rstexturemapping"
@@ -3544,3 +3655,4 @@ msgstr "Увеличаване на купа"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Отдалечаване на купа"
+
