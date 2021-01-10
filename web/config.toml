@@ -1,7 +1,11 @@
 baseURL = "https://lazpaint.github.io/"
 defaultContentLanguage = "en"
 title = "download_lazpaint"
-disableKinds = ["taxonomy", "taxonomyTerm"]
+disableKinds = ["taxonomyTerm"]
+
+[params]
+  repo = "https://github.com/bgrabitmap/lazpaint/releases/download/"
+  version = "7.1.6"
 
 [languages]
   [languages.de]
@@ -32,7 +36,7 @@ disableKinds = ["taxonomy", "taxonomyTerm"]
     weight = 1
   [[menu.main]]
     name = "last_changes"
-    url = "https://github.com/bgrabitmap/lazpaint/releases"
+    url = "/last/"
     weight = 2
    [[menu.main]]
     name = "documentation"
@@ -50,7 +54,3 @@ disableKinds = ["taxonomy", "taxonomyTerm"]
     name = "forum"
     url = "https://forum.lazarus.freepascal.org/index.php/board,46.0.html"
     weight = 6    
-    
-[params]
-  repo = "https://github.com/bgrabitmap/lazpaint/releases/download/"
-  version = "7.1.6"

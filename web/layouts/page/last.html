@@ -1,0 +1,16 @@
+{{ partial "header.html" . }}
+{{ $url := "https://api.github.com/repos/bgrabitmap/lazpaint/releases/latest" -}}
+{{ $last := getJSON $url -}}
+{{ $text := printf "\n%s" $last.body -}}
+{{ $text := replace $text "  *" "-" -}}
+{{ $text := replace $text "\n-" "\n•" -}}
+{{ $text := trim $text "\n\r\t " -}}
+<main id="main">
+	<div class="text-center download">
+		<div class="card2">
+			<h1>{{ $last.name }}<br/><a class="btn btn-primary" href="https://github.com/bgrabitmap/lazpaint">GitHub</a></h1>
+			<div class="text-left" style="white-space: pre-line; display: inline-block; padding-bottom: 2em">{{ $text }}</div>
+		</div>
+	</div>
+</main>
+{{ partial "footer.html" . }}
