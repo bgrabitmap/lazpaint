@@ -1,0 +1,56 @@
+[blog]
+other = "Blog"
+
+[last_changes]
+other = "Letzte Änderungen"
+
+[documentation]
+other = "Dokumentation"
+
+[download]
+other = "Herunterladen"
+
+[download_lazpaint]
+other = "LazPaint herunterladen"
+
+[download_version]
+other = "LazPaint %s herunterladen"
+
+[screenshots]
+other = "Bildschirmfotos"
+
+[forum]
+other = "Forum"
+
+[app_description]
+other = "Kostenloser plattformübergreifender Bildeditor mit Raster- und Vektorebenen, geschrieben in Lazarus (Free Pascal)."
+
+[donate]
+other = "Spenden"
+
+[your_os_is]
+other = "Ihr aktuelles Betriebssystem ist %s"
+
+[installation]
+other = "Installation"
+
+[archive]
+other = "%s Archiv"
+
+[portable]
+other = "Tragbare"
+
+[deb_package]
+other = "%s Debian-Paket"
+
+[no_install]
+other = "keine Installation"
+
+[bit_32]
+other = "32-Bit"
+
+[bit_64]
+other = "64-Bit"
+
+[bit_32_and_64]
+other = "32- und 64-Bit"

@@ -1,0 +1,20 @@
+            <div id="nav-border" class="container">
+                <nav id="nav" class="nav">
+                {{- $page := . -}}
+                {{- range .Site.Menus.main -}}
+                    {{- $item := newScratch -}}
+                    {{- $item.Set "Text" (print .Name | safeHTML) -}}
+                    {{- $item.Set "URL" (relLangURL .URL) -}}
+                    {{- if and (eq .Name "documentation") (ne $page.Language.Lang "en") -}}
+                        {{- $item.Set "URL" (printf "%s/%s" ($item.Get "URL") $page.Language.Lang) -}}
+                    {{- end -}}
+                    {{- if eq (relURL $page.Permalink) (relLangURL .URL) -}}
+                        {{- $item.Set "Class" "btn-outline-light" -}} 
+                    {{- else -}}
+                        {{- $item.Set "Class" "btn btn-outline-secondary " -}}
+                    {{- end }}
+                    <a href="{{ $item.Get "URL" }}" class="btn text-uppercase {{ $item.Get "Class" }}">{{ i18n ($item.Get "Text") }}</a>&nbsp;
+                {{- end }}
+                    <a href="https://www.facebook.com/LazPaint" class="btn btn-primary">f</a>
+                </nav>
+            </div>

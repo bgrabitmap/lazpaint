@@ -1,0 +1,56 @@
+[blog]
+other = "Blog"
+
+[last_changes]
+other = "Viimeiset muutokset"
+
+[documentation]
+other = "Dokumentointi"
+
+[download]
+other = "Ladata"
+
+[download_lazpaint]
+other = "Lataa LazPaint"
+
+[download_version]
+other = "Lataa LazPaint %s"
+
+[screenshots]
+other = "Kuvakaappauksia"
+
+[forum]
+other = "Foorumi"
+
+[app_description]
+other = "Ilmainen alustojen välinen kuvankäsittelyohjelma rasteri- ja vektorikerroksilla, kirjoitettu Lasaruksessa (Free Pascal)."
+
+[donate]
+other = "Lahjoittaa"
+
+[your_os_is]
+other = "Nykyinen käyttöjärjestelmäsi on %s"
+
+[installation]
+other = "Asennus"
+
+[archive]
+other = "Arkisto %s"
+
+[portable]
+other = "Kannettava"
+
+[deb_package]
+other = "%s Deb-paketti"
+
+[no_install]
+other = "Ei asennusta"
+
+[bit_32]
+other = "32-bittinen"
+
+[bit_64]
+other = "64-bittinen"
+
+[bit_32_and_64]
+other = "32- ja 64-bittinen"
