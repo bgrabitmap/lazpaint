@@ -1,0 +1,23 @@
+{"version":1,"strings":[
+{"hash":158360341,"name":"tfnewimage.caption","sourcebytes":[78,101,119,32,105,109,97,103,101],"value":"New image"},
+{"hash":234596970,"name":"tfnewimage.label_width.caption","sourcebytes":[87,105,100,116,104,32,58],"value":"Width :"},
+{"hash":201192154,"name":"tfnewimage.label_height.caption","sourcebytes":[72,101,105,103,104,116,32,58],"value":"Height :"},
+{"hash":1339,"name":"tfnewimage.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfnewimage.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":143327594,"name":"tfnewimage.label_height1.caption","sourcebytes":[82,97,116,105,111,32,58],"value":"Ratio :"},
+{"hash":110815969,"name":"tfnewimage.bgrashape1.caption","sourcebytes":[66,71,82,65,83,104,97,112,101,49],"value":"BGRAShape1"},
+{"hash":110815970,"name":"tfnewimage.bgrashape2.caption","sourcebytes":[66,71,82,65,83,104,97,112,101,50],"value":"BGRAShape2"},
+{"hash":110815971,"name":"tfnewimage.bgrashape3.caption","sourcebytes":[66,71,82,65,83,104,97,112,101,51],"value":"BGRAShape3"},
+{"hash":110815972,"name":"tfnewimage.bgrashape4.caption","sourcebytes":[66,71,82,65,83,104,97,112,101,52],"value":"BGRAShape4"},
+{"hash":110815973,"name":"tfnewimage.bgrashape5.caption","sourcebytes":[66,71,82,65,83,104,97,112,101,53],"value":"BGRAShape5"},
+{"hash":110815974,"name":"tfnewimage.bgrashape6.caption","sourcebytes":[66,71,82,65,83,104,97,112,101,54],"value":"BGRAShape6"},
+{"hash":110815975,"name":"tfnewimage.bgrashape7.caption","sourcebytes":[66,71,82,65,83,104,97,112,101,55],"value":"BGRAShape7"},
+{"hash":110815976,"name":"tfnewimage.bgrashape8.caption","sourcebytes":[66,71,82,65,83,104,97,112,101,56],"value":"BGRAShape8"},
+{"hash":110815977,"name":"tfnewimage.bgrashape9.caption","sourcebytes":[66,71,82,65,83,104,97,112,101,57],"value":"BGRAShape9"},
+{"hash":162442784,"name":"tfnewimage.bgrashape10.caption","sourcebytes":[66,71,82,65,83,104,97,112,101,49,48],"value":"BGRAShape10"},
+{"hash":65863386,"name":"tfnewimage.label_memoryrequired.caption","sourcebytes":[77,101,109,111,114,121,32,114,101,113,117,105,114,101,100,32,58],"value":"Memory required :"},
+{"hash":177122394,"name":"tfnewimage.label_bitdepth.caption","sourcebytes":[66,105,116,32,100,101,112,116,104,32,58],"value":"Bit depth :"},
+{"hash":866,"name":"tfnewimage.combobox_bitdepth.text","sourcebytes":[51,50],"value":"32"},
+{"hash":221151791,"name":"tfnewimage.toolbar_ratio.caption","sourcebytes":[84,111,111,108,66,97,114,95,82,97,116,105,111],"value":"ToolBar_Ratio"},
+{"hash":204642463,"name":"tfnewimage.toolbutton_clearratio.caption","sourcebytes":[84,111,111,108,66,117,116,116,111,110,95,67,108,101,97,114,82,97,116,105,111],"value":"ToolButton_ClearRatio"}
+]}

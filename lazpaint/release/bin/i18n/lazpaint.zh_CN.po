@@ -241,22 +241,10 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "宽度 :"
 
-#: uresourcestrings.rsaddtopalette
-msgid "Add color to palette"
-msgstr "向调色板添加颜色"
-
-#: uresourcestrings.rsremovefrompalette
-msgid "Remove color from palette"
-msgstr "从调色板中删除颜色"
-
 #: tfchoosecolor.caption
 msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "颜色"
-
-#: tfchoosecolor.lcolor.hint
-msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr "颜色说明：单击以键入颜色名称或 CSS 表示。"
 
 #: tfcolorintensity.button_cancel.caption
 msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
@@ -395,8 +383,20 @@ msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
 msgstr "修正色调和亮度"
 
+#: tffilterfunction.label_aequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_aequals.caption"
+msgid "."
+msgstr "."
+
 #: tffilterfunction.label_alphaequals.caption
 msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_bequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_bequals.caption"
 msgid "."
 msgstr "."
 
@@ -412,6 +412,12 @@ msgstr "."
 
 #: tffilterfunction.label_hueequals.caption
 msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_lequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_lequals.caption"
 msgid "."
 msgstr "."
 
@@ -437,6 +443,10 @@ msgstr "变量 :"
 #: tffilterfunction.tabsheet_hsl.caption
 msgid "HSL"
 msgstr "HSL"
+
+#: tffilterfunction.tabsheet_lab.caption
+msgid "Lab"
+msgstr ""
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
@@ -581,21 +591,6 @@ msgstr "取消选中所有待处理文件"
 msgctxt "tflayerstack.caption"
 msgid "Layers"
 msgstr "图层"
-
-#: tflayerstack.toolblendop.hint
-msgctxt "tflayerstack.toolblendop.hint"
-msgid "Select blend operation"
-msgstr "选择混合操作"
-
-#: tflayerstack.toolzoomlayerstackin.hint
-msgctxt "tflayerstack.toolzoomlayerstackin.hint"
-msgid "Zoom layer stack in"
-msgstr "将图层堆栈放大"
-
-#: tflayerstack.toolzoomlayerstackout.hint
-msgctxt "tflayerstack.toolzoomlayerstackout.hint"
-msgid "Zoom layer stack out"
-msgstr "将图层堆栈缩小"
 
 #: tfloading.caption
 msgctxt "tfloading.caption"
@@ -807,6 +802,7 @@ msgid "Choose entry within file"
 msgstr "选择文件中的条目"
 
 #: tfmain.fileexport.caption
+msgctxt "tfmain.fileexport.caption"
 msgid "Export..."
 msgstr "导出..."
 
@@ -1056,6 +1052,7 @@ msgid "Fill background with antialiasing"
 msgstr "使用防锯齿填充背景"
 
 #: tfmain.imageflatten.caption
+msgctxt "tfmain.imageflatten.caption"
 msgid "Flatten image"
 msgstr "拼合图像"
 
@@ -1091,6 +1088,10 @@ msgstr "重新采样..."
 msgid "Resample image"
 msgstr "重新采样图像"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "旋转 180°"
+
 #: tfmain.imagerotateccw.caption
 msgid "Rotate 90° CCW"
 msgstr "逆时针旋转 90°"
@@ -1098,10 +1099,6 @@ msgstr "逆时针旋转 90°"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "顺时针旋转 90°"
-
-#: tfmain.imagerotate180.caption
-msgid "Rotate 180°"
-msgstr "旋转 180°"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -1157,6 +1154,7 @@ msgid "Altitude"
 msgstr "高度"
 
 #: tfmain.label_back.caption
+msgctxt "tfmain.label_back.caption"
 msgid "Back"
 msgstr "返回"
 
@@ -1195,6 +1193,12 @@ msgstr "当前缩放"
 msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
 msgid "Curve"
 msgstr "曲线"
+
+#: tfmain.label_donate.caption
+#, fuzzy
+msgctxt "tfmain.label_donate.caption"
+msgid "Donate..."
+msgstr "捐赠..."
 
 #: tfmain.label_eraser.caption
 msgctxt "tfmain.label_eraser.caption"
@@ -1273,6 +1277,12 @@ msgstr "添加新图层"
 msgctxt "tfmain.layerduplicate.hint"
 msgid "Duplicate selected layer"
 msgstr "复制所选图层"
+
+#: tfmain.layerexport.hint
+#, fuzzy
+msgctxt "tfmain.layerexport.hint"
+msgid "Export..."
+msgstr "导出..."
 
 #: tfmain.layerfromfile.hint
 msgctxt "tfmain.layerfromfile.hint"
@@ -1599,6 +1609,12 @@ msgstr "文本大小"
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
 msgstr "笔刷"
+
+#: tfmain.toolbutton_donate.hint
+#, fuzzy
+msgctxt "tfmain.toolbutton_donate.hint"
+msgid "Donate..."
+msgstr "捐赠..."
 
 #: tfmain.toolchangedocking.hint
 msgctxt "tfmain.toolchangedocking.hint"
@@ -2060,6 +2076,46 @@ msgstr "确定"
 msgid "Choose image"
 msgstr "选择图像"
 
+#: tfnewimage.bgrashape1.caption
+msgid "BGRAShape1"
+msgstr ""
+
+#: tfnewimage.bgrashape10.caption
+msgid "BGRAShape10"
+msgstr ""
+
+#: tfnewimage.bgrashape2.caption
+msgid "BGRAShape2"
+msgstr ""
+
+#: tfnewimage.bgrashape3.caption
+msgid "BGRAShape3"
+msgstr ""
+
+#: tfnewimage.bgrashape4.caption
+msgid "BGRAShape4"
+msgstr ""
+
+#: tfnewimage.bgrashape5.caption
+msgid "BGRAShape5"
+msgstr ""
+
+#: tfnewimage.bgrashape6.caption
+msgid "BGRAShape6"
+msgstr ""
+
+#: tfnewimage.bgrashape7.caption
+msgid "BGRAShape7"
+msgstr ""
+
+#: tfnewimage.bgrashape8.caption
+msgid "BGRAShape8"
+msgstr ""
+
+#: tfnewimage.bgrashape9.caption
+msgid "BGRAShape9"
+msgstr ""
+
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2100,6 +2156,14 @@ msgstr "需要内存 :"
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "宽度 :"
+
+#: tfnewimage.toolbar_ratio.caption
+msgid "ToolBar_Ratio"
+msgstr ""
+
+#: tfnewimage.toolbutton_clearratio.caption
+msgid "ToolButton_ClearRatio"
+msgstr ""
 
 #: tfnoisefilter.button_cancel.caption
 msgctxt "tfnoisefilter.button_cancel.caption"
@@ -2565,6 +2629,10 @@ msgstr "保存"
 msgid "Dithering"
 msgstr "抖动"
 
+#: tfsaveoption.checkbox_lossless.caption
+msgid "Lossless"
+msgstr ""
+
 #: tfsaveoption.label1.caption
 msgid "Quality:"
 msgstr "品质:"
@@ -2726,6 +2794,10 @@ msgstr "操作正在进行中"
 msgid "Add files to the image processing list"
 msgstr "将文件添加到图像处理列表"
 
+#: uresourcestrings.rsaddtopalette
+msgid "Add color to palette"
+msgstr "向调色板添加颜色"
+
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
 msgstr "对齐形状"
@@ -2749,6 +2821,12 @@ msgstr "动画 GIF"
 #: uresourcestrings.rsautodetect
 msgid "Autodetect"
 msgstr "自动检测"
+
+#: uresourcestrings.rsback
+#, fuzzy
+msgctxt "uresourcestrings.rsback"
+msgid "Back"
+msgstr "返回"
 
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
@@ -2895,6 +2973,16 @@ msgstr "目录不为空"
 msgid "Dither layer using palette"
 msgstr "使用调色板的抖动图层"
 
+#: uresourcestrings.rsdonate
+#, fuzzy
+msgctxt "uresourcestrings.rsdonate"
+msgid "Donate..."
+msgstr "捐赠..."
+
+#: uresourcestrings.rsdownload
+msgid "Download"
+msgstr "下载"
+
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
 msgstr "重复图像"
@@ -3024,6 +3112,12 @@ msgstr "类型"
 msgid "Fixed"
 msgstr "固定"
 
+#: uresourcestrings.rsflattenimage
+#, fuzzy
+msgctxt "uresourcestrings.rsflattenimage"
+msgid "Flatten image"
+msgstr "拼合图像"
+
 #: uresourcestrings.rsfolder
 msgid "Folder"
 msgstr "文件夹"
@@ -3115,10 +3209,6 @@ msgstr "无限"
 msgid "Information"
 msgstr "信息"
 
-#: uresourcestrings.rsdownload
-msgid "Download"
-msgstr "下载"
-
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
 msgid "Intensity"
@@ -3169,6 +3259,11 @@ msgstr "景观"
 msgid "The latest version of LazPaint available online is"
 msgstr "最新 LazPaint 版本是"
 
+#: uresourcestrings.rslayer
+msgctxt "uresourcestrings.rslayer"
+msgid "Layer"
+msgstr "层"
+
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr "分层图像"
@@ -3177,11 +3272,6 @@ msgstr "分层图像"
 msgctxt "uresourcestrings.rslayers"
 msgid "Layers"
 msgstr "图层"
-
-#: uresourcestrings.rslayer
-msgctxt "uresourcestrings.rslayer"
-msgid "Layer"
-msgstr "层"
 
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
@@ -3358,6 +3448,12 @@ msgstr "调色板包含 Alpha 通道"
 msgid "Palette options"
 msgstr "调色板选项"
 
+#: uresourcestrings.rspen
+#, fuzzy
+msgctxt "uresourcestrings.rspen"
+msgid "Pen"
+msgstr "钢笔"
+
 #: uresourcestrings.rspercent
 msgctxt "uresourcestrings.rspercent"
 msgid "%"
@@ -3411,6 +3507,10 @@ msgstr "位图已被修改。您真的想重新加载吗？"
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
 msgstr "可移动"
+
+#: uresourcestrings.rsremovefrompalette
+msgid "Remove color from palette"
+msgstr "从调色板中删除颜色"
 
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
@@ -3494,6 +3594,12 @@ msgstr "插值"
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
 msgstr "设备"
+
+#: uresourcestrings.rstextoutline
+#, fuzzy
+msgctxt "uresourcestrings.rstextoutline"
+msgid "Text outline"
+msgstr "文本发光"
 
 #: uresourcestrings.rstexturemapping
 msgctxt "uresourcestrings.rstexturemapping"
@@ -3585,3 +3691,4 @@ msgstr "将图层堆栈放大"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "将图层堆栈缩小"
+

@@ -1,0 +1,9 @@
+{"version":1,"strings":[
+{"hash":136193733,"name":"tfcanvassize.caption","sourcebytes":[67,97,110,118,97,115,32,115,105,122,101],"value":"Canvas size"},
+{"hash":234596970,"name":"tfcanvassize.label_width.caption","sourcebytes":[87,105,100,116,104,32,58],"value":"Width :"},
+{"hash":201192154,"name":"tfcanvassize.label_height.caption","sourcebytes":[72,101,105,103,104,116,32,58],"value":"Height :"},
+{"hash":77553850,"name":"tfcanvassize.label_anchor.caption","sourcebytes":[65,110,99,104,111,114,32,58],"value":"Anchor :"},
+{"hash":1339,"name":"tfcanvassize.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfcanvassize.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":2590869,"name":"tfcanvassize.checkbox_flipmode.caption","sourcebytes":[70,108,105,112,32,109,111,100,101],"value":"Flip mode"}
+]}

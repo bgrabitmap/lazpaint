@@ -1,0 +1,20 @@
+{"version":1,"strings":[
+{"hash":179572208,"name":"tfphongfilter.caption","sourcebytes":[83,104,97,100,101,100,32,109,97,112],"value":"Shaded map"},
+{"hash":1339,"name":"tfphongfilter.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfphongfilter.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":118747402,"name":"tfphongfilter.label_altitude.caption","sourcebytes":[71,108,111,98,97,108,32,97,108,116,105,116,117,100,101,32,58],"value":"Global altitude :"},
+{"hash":4875106,"name":"tfphongfilter.groupbox_color.caption","sourcebytes":[67,111,108,111,114],"value":"Color"},
+{"hash":6952354,"name":"tfphongfilter.radio_usepencolor.caption","sourcebytes":[80,101,110,32,99,111,108,111,114],"value":"Pen color"},
+{"hash":225371890,"name":"tfphongfilter.radio_usebackcolor.caption","sourcebytes":[66,97,99,107,32,99,111,108,111,114],"value":"Back color"},
+{"hash":54763573,"name":"tfphongfilter.radio_usetexture.caption","sourcebytes":[67,117,114,114,101,110,116,32,116,101,120,116,117,114,101],"value":"Current texture"},
+{"hash":334784,"name":"tfphongfilter.radio_usekeep.caption","sourcebytes":[75,101,101,112],"value":"Keep"},
+{"hash":265165162,"name":"tfphongfilter.label_lightposition.caption","sourcebytes":[76,105,103,104,116,32,112,111,115,105,116,105,111,110,32,58],"value":"Light position :"},
+{"hash":254075696,"name":"tfphongfilter.groupbox_color1.caption","sourcebytes":[65,108,116,105,116,117,100,101,32,109,97,112],"value":"Altitude map"},
+{"hash":4732641,"name":"tfphongfilter.radio_mapalpha.caption","sourcebytes":[65,108,112,104,97],"value":"Alpha"},
+{"hash":210581742,"name":"tfphongfilter.radio_mapsaturation.caption","sourcebytes":[83,97,116,117,114,97,116,105,111,110],"value":"Saturation"},
+{"hash":82,"name":"tfphongfilter.radio_mapred.caption","sourcebytes":[82],"value":"R"},
+{"hash":234561107,"name":"tfphongfilter.radio_maplightness.caption","sourcebytes":[76,105,103,104,116,110,101,115,115],"value":"Lightness"},
+{"hash":71,"name":"tfphongfilter.radio_mapgreen.caption","sourcebytes":[71],"value":"G"},
+{"hash":66,"name":"tfphongfilter.radio_mapblue.caption","sourcebytes":[66],"value":"B"},
+{"hash":108801555,"name":"tfphongfilter.radio_maplinearlightness.caption","sourcebytes":[76,105,110,101,97,114,32,108,105,103,104,116,110,101,115,115],"value":"Linear lightness"}
+]}

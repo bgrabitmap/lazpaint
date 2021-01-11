@@ -8,9 +8,7 @@ debug
 __pycache__
 *.res
 *.lrt
-/lazpaint/*.lrj
 lazpaint/backup/
-*.lrj
 vectoredit/vectoredit
 vectoredit/backup/
 lazpaint/test_embedded/backup/

@@ -1,0 +1,8 @@
+{"version":1,"strings":[
+{"hash":9900292,"name":"tfwavedisplacement.caption","sourcebytes":[87,97,118,101,32,100,105,115,112,108,97,99,101,109,101,110,116],"value":"Wave displacement"},
+{"hash":261514778,"name":"tfwavedisplacement.label_wavelength.caption","sourcebytes":[87,97,118,101,108,101,110,103,116,104,32,58],"value":"Wavelength :"},
+{"hash":211645722,"name":"tfwavedisplacement.label_displacement.caption","sourcebytes":[68,105,115,112,108,97,99,101,109,101,110,116,32,58],"value":"Displacement :"},
+{"hash":115906410,"name":"tfwavedisplacement.label_phase.caption","sourcebytes":[80,104,97,115,101,32,58],"value":"Phase :"},
+{"hash":1339,"name":"tfwavedisplacement.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfwavedisplacement.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"}
+]}

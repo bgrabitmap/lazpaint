@@ -1,0 +1,7 @@
+{"version":1,"strings":[
+{"hash":180736233,"name":"tfcolorintensity.caption","sourcebytes":[73,110,116,101,110,115,105,116,121],"value":"Intensity"},
+{"hash":205194361,"name":"tfcolorintensity.label_multiply.caption","sourcebytes":[77,117,108,116,105,112,108,121],"value":"Multiply"},
+{"hash":5894100,"name":"tfcolorintensity.label_shift.caption","sourcebytes":[83,104,105,102,116],"value":"Shift"},
+{"hash":1339,"name":"tfcolorintensity.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfcolorintensity.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"}
+]}
