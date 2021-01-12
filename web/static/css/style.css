@@ -32,6 +32,10 @@ body {
     backdrop-filter: blur(2px);
 }*/
 
+.btn {
+    border-radius: 0.32rem;
+}
+
 .download {
     min-height: 100vh;
     background-image: url('../img/lzpwall.jpg');
