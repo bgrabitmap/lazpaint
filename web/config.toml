@@ -23,6 +23,9 @@ disableKinds = ["taxonomyTerm"]
   [languages.fr]
     languageName = "Français"
     weight = 5
+  [languages.ru]
+    languageName = "Русский"
+    weight = 6
 
 [permalinks]
   blog = "/:filename/"
