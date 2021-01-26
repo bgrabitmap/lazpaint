@@ -33,3 +33,4 @@ lazpaint/units/
 
 *.deb
 lazpaint/release/debian/lazpaint*_no_install.tar.gz
+/web/public/*
