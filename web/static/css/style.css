@@ -12,7 +12,7 @@ body {
 }
 
 .jumbotron {
-    background-image: url('../img/blog-back.webp');
+    background-image: url('../img/blog-back.jpg');
     background-size: cover;
     background-repeat: no-repeat;
     margin: 0px;
@@ -38,7 +38,7 @@ body {
 
 .download {
     min-height: 100vh;
-    background-image: url('../img/lzpwall.webp');
+    background-image: url('../img/lzpwall.jpg');
     background-size: cover;
     background-position: center;
     color: white;
