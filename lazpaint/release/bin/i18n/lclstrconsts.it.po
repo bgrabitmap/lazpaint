@@ -415,7 +415,7 @@ msgstr "Ricerca il file interamente"
 #: lclstrconsts.rserror
 msgctxt "lclstrconsts.rserror"
 msgid "Error"
-msgstr "Errpre"
+msgstr "Errore"
 
 #: lclstrconsts.rserrorcreatingdevicecontext
 msgid "Error creating device context for %s.%s"
