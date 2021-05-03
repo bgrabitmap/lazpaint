@@ -1159,10 +1159,9 @@ msgid "Brush"
 msgstr "Кисть"
 
 #: tfmain.label_coordinates.caption
-#, fuzzy
 #| msgid "99999x99999"
 msgid "9999x9999"
-msgstr "99999x99999"
+msgstr "9999x9999"
 
 #: tfmain.label_coordinates.hint
 msgid "Coordinates"
