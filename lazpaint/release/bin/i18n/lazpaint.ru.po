@@ -722,7 +722,6 @@ msgid "Select all"
 msgstr "Выбрать все"
 
 #: tfmain.editselectall.hint
-#, fuzzy
 msgctxt "tfmain.editselectall.hint"
 msgid "Select all"
 msgstr "Выбрать все"
@@ -794,11 +793,11 @@ msgstr "Экспортировать как..."
 
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
-msgstr ""
+msgstr "Выбрать запись..."
 
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
-msgstr ""
+msgstr "Выбрать запись в файле..."
 
 #: tfmain.fileexport.caption
 msgid "Export..."
@@ -1754,7 +1753,6 @@ msgid "Curve"
 msgstr "Кривая"
 
 #: tfmain.toolspline.hint
-#, fuzzy
 msgctxt "tfmain.toolspline.hint"
 msgid "Curve"
 msgstr "Кривая"
@@ -2924,7 +2922,7 @@ msgstr "Введите имя слоя:"
 
 #: uresourcestrings.rsentries
 msgid "Entries"
-msgstr ""
+msgstr "Записи"
 
 #: uresourcestrings.rserror
 msgid "Error"
@@ -3051,7 +3049,6 @@ msgid "Hold %1 to snap to pixels"
 msgstr "Удерживайте %1 для привязки к пикселям"
 
 #: uresourcestrings.rsholdkeysscalemode
-#, fuzzy
 msgctxt "uresourcestrings.rsholdkeysscalemode"
 msgid "Hold %1 or %2 to scale"
 msgstr "Удерживайте %1 или %2 для масштабирования"
@@ -3553,13 +3550,11 @@ msgid "Yes"
 msgstr "Да"
 
 #: uresourcestrings.rszoomlayerstackin
-#, fuzzy
 msgctxt "uresourcestrings.rszoomlayerstackin"
 msgid "Zoom layer stack in"
 msgstr "Увеличить размер стопки слоев"
 
 #: uresourcestrings.rszoomlayerstackout
-#, fuzzy
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Уменьшить размер стопки слоев"
