@@ -874,7 +874,7 @@ msgstr "Сохранить в той же папке..."
 #: tfmain.filesaveselectionas.caption
 msgctxt "TFMAIN.FILESAVESELECTIONAS.CAPTION"
 msgid "Save selection as..."
-msgstr "Сохранить область выделения как..."
+msgstr "Сохранить выделенную область как..."
 
 #: tfmain.fileuseimagebrowser.caption
 msgctxt "tfmain.fileuseimagebrowser.caption"
@@ -1714,7 +1714,7 @@ msgstr "Прямоугольник"
 #: tfmain.toolrotateselection.hint
 msgctxt "TFMAIN.TOOLROTATESELECTION.HINT"
 msgid "Rotate selection"
-msgstr "Повернуть область выделения"
+msgstr "Повернуть выделенную область"
 
 #: tfmain.toolselectellipse.hint
 msgctxt "TFMAIN.TOOLSELECTELLIPSE.HINT"
@@ -1729,7 +1729,7 @@ msgstr "Выделить пером"
 #: tfmain.toolselectpen.hint
 msgctxt "tfmain.toolselectpen.hint"
 msgid "Draw selection with pen"
-msgstr "Нарисовать область выделения пером"
+msgstr "Выделить область пером"
 
 #: tfmain.toolselectpoly.hint
 msgctxt "TFMAIN.TOOLSELECTPOLY.HINT"
@@ -2905,7 +2905,7 @@ msgstr "Слой пуст"
 
 #: uresourcestrings.rsemptyselection
 msgid "Selection is empty"
-msgstr "Область выделения пуста"
+msgstr "Выделенная область пуста"
 
 #: uresourcestrings.rsendwithoutmatchingbegin
 msgid "End without matching begin"
@@ -3092,7 +3092,7 @@ msgstr "Изображение слишком большое"
 #: uresourcestrings.rsinfinity
 msgctxt "uresourcestrings.rsinfinity"
 msgid "Infinity"
-msgstr ""
+msgstr "Бесконечно"
 
 #: uresourcestrings.rsinformation
 msgid "Information"
@@ -3551,10 +3551,10 @@ msgstr "Да"
 #: uresourcestrings.rszoomlayerstackin
 msgctxt "uresourcestrings.rszoomlayerstackin"
 msgid "Zoom layer stack in"
-msgstr "Увеличить размер стопки слоев"
+msgstr "Увеличить размер в стопке слоев"
 
 #: uresourcestrings.rszoomlayerstackout
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
-msgstr "Уменьшить размер стопки слоев"
+msgstr "Уменьшить размер в стопке слоев"
 
