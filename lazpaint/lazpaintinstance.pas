@@ -286,6 +286,7 @@ uses LCLType, Types, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslatio
      unewimage, uresample, UPixelate, unoisefilter, ufilters,
      USharpen, uposterize, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
+     {$IFDEF DARWIN}BGRAGraphics,{$ENDIF}
 
      ugraph, LCScaleDPI, ucommandline, uabout, UPython;
 
