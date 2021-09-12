@@ -10,6 +10,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: tablet.getprocfailed
+#, object-pascal-format
 msgid "Procedure %s failed to load properly."
 msgstr ""
 

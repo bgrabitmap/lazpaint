@@ -36,6 +36,7 @@ msgstr ""
 "X-Poedit-Language: Dutch\n"
 
 #: tablet.getprocfailed
+#, object-pascal-format
 msgid "Procedure %s failed to load properly."
 msgstr "Procedure %s is niet correct geladen."
 
@@ -63,7 +64,6 @@ msgid "Authors:"
 msgstr "Auteurs:"
 
 #: tfabout.label_authorsvalue.caption
-#| msgid "Circular help by FabienWang and Lainz"
 msgctxt "tfabout.label_authorsvalue.caption"
 msgid "Circular helped by FabienWang, Lainz and others"
 msgstr "Circular geholpen door FabienWang, Lainz en anderen"
@@ -1206,7 +1206,6 @@ msgid "Color difference"
 msgstr "Kleurverschil"
 
 #: tfmain.label_currentzoom.caption
-#| msgid "100%"
 msgctxt "TFMAIN.LABEL_CURRENTZOOM.CAPTION"
 msgid "%"
 msgstr "%"
@@ -1469,7 +1468,6 @@ msgid "Show zoom toolbar"
 msgstr "Zoom-werkbalk weergeven"
 
 #: tfmain.open3dobjectdialog.title
-#| msgid "Open existing file"
 msgctxt "tfmain.open3dobjectdialog.title"
 msgid "Import 3D object"
 msgstr "3D object importeren"
@@ -2752,7 +2750,6 @@ msgid "Hue"
 msgstr "Kleurtint"
 
 #: tfshiftcolors.label2.caption
-#| msgid "Colorness"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Verzadiging"

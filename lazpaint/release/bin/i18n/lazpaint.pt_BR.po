@@ -12,6 +12,7 @@ msgstr ""
 "X-Generator: Poedit 1.5.4\n"
 
 #: tablet.getprocfailed
+#, object-pascal-format
 msgid "Procedure %s failed to load properly."
 msgstr "O procedimento %s falhou ao carregar corretamente."
 

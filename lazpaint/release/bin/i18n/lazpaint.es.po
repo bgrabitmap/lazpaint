@@ -12,6 +12,7 @@ msgstr ""
 "Language: es\n"
 
 #: tablet.getprocfailed
+#, object-pascal-format
 msgid "Procedure %s failed to load properly."
 msgstr "Procedimiento %s falló al cargar."
 

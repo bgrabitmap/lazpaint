@@ -28,6 +28,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: tablet.getprocfailed
+#, object-pascal-format
 msgid "Procedure %s failed to load properly."
 msgstr "Procedura %s nie została prawidłowo zainicjonowana."
 
@@ -55,7 +56,6 @@ msgid "Authors:"
 msgstr "Autorzy:"
 
 #: tfabout.label_authorsvalue.caption
-#| msgid "Circular help by FabienWang and Lainz"
 msgctxt "tfabout.label_authorsvalue.caption"
 msgid "Circular helped by FabienWang, Lainz and others"
 msgstr "Okólnik wspomagany przez FabienWanga, Lainza i innych"
@@ -650,7 +650,6 @@ msgid "Intensity..."
 msgstr "Intensywność..."
 
 #: tfmain.colorlightness.caption
-#| msgid "Lightness..."
 msgid "Brightness / Contrast..."
 msgstr "Jasność / kontrast..."
 
@@ -1442,7 +1441,6 @@ msgid "Show palette"
 msgstr "Pokaż paletę"
 
 #: tfmain.menutool.caption
-#| msgid "Tool"
 msgctxt "tfmain.menutool.caption"
 msgid "Tools"
 msgstr "Narzędzia"
@@ -1968,7 +1966,6 @@ msgid "Choose font..."
 msgstr "Wybierz czcionkę..."
 
 #: tfmain.tool_textoutline.hint
-#| msgid "Progressive floodfill"
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
 msgid "Text outline"
 msgstr "Zarys tekstu"
