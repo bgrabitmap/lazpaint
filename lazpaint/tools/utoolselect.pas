@@ -295,6 +295,7 @@ begin
     if Assigned(VirtualScreen) then
     begin
       ptsF := ab.AsPolygon;
+      pts := nil;
       setlength(pts, length(ptsF));
       for i := 0 to high(ptsF) do
         pts[i] := (ptsF[i]+PointF(0.5,0.5)).Round;
@@ -346,6 +347,7 @@ begin
       with TCustomRectShape(FShape) do
         ptsF := BGRAPath.ComputeEllipse(FEditor.Matrix*Origin,
                     FEditor.Matrix*XAxis,FEditor.Matrix*YAxis);
+      pts := nil;
       setlength(pts, length(ptsF));
       for i := 0 to high(ptsF) do
         pts[i] := ptsF[i].Round;

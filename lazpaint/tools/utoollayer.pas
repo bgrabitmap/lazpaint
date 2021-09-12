@@ -434,6 +434,7 @@ begin
             BitmapToVirtualScreen(m*PointF(FLayerBounds.Right-0.001,FLayerBounds.Top+0.001)),
             BitmapToVirtualScreen(m*PointF(FLayerBounds.Left+0.001,FLayerBounds.Bottom-0.001)));
   ptsF := ab.AsPolygon;
+  pts := nil;
   setlength(pts, length(ptsF));
   for i := 0 to high(pts) do
     pts[i] := ptsF[i].Round;
@@ -758,6 +759,7 @@ begin
             BitmapToVirtualScreen(m*PointF(FOriginalBounds.Right-0.001,FOriginalBounds.Top+0.001)),
             BitmapToVirtualScreen(m*PointF(FOriginalBounds.Left+0.001,FOriginalBounds.Bottom-0.001)));
   ptsF := ab.AsPolygon;
+  pts := nil;
   setlength(pts, length(ptsF));
   for i := 0 to high(pts) do
     pts[i] := ptsF[i].Round;

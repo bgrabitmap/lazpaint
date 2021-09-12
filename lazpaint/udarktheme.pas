@@ -26,7 +26,7 @@ type
     procedure ToolBarPaint(Sender: TObject; ADarkTheme: boolean);
     procedure ToolBarPaintLight(Sender: TObject);
     procedure ToolBarPaintDark(Sender: TObject);
-    procedure ToolBarPaintButton(Sender: TToolButton; State: integer; ADarkTheme: boolean);
+    procedure ToolBarPaintButton(Sender: TToolButton; State: integer; {%H-}ADarkTheme: boolean);
     procedure ToolBarPaintButtonLight(Sender: TToolButton; State: integer);
     procedure ToolBarPaintButtonDark(Sender: TToolButton; State: integer);
     procedure Apply(AForm: TForm; AThemeEnabled: boolean; ARecursive: boolean = true); overload;
@@ -61,7 +61,7 @@ implementation
 uses
   BCTypes, BGRABitmap, BGRABitmapTypes, GraphType, BGRACustomDrawn, LCScaleDPI
   {$IFDEF DARWIN_DARK_THEME}, CocoaAll, CocoaUtils{$ENDIF}
-  {$IFDEF WINDOWS}, Windows, Win32Proc, Registry{$ENDIF};
+  {$IFDEF WINDOWS}, Win32Proc, Registry{$ENDIF};
 
 const
   clDarkBtnHighlight = $e0e0e0;

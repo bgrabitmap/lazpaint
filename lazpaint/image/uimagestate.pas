@@ -55,7 +55,7 @@ type
       AOriginal: TBGRALayerCustomOriginal; var ADiff: TBGRAOriginalDiff);
     procedure OriginalEditingChange({%H-}ASender: TObject;
       AOriginal: TBGRALayerCustomOriginal);
-    procedure OriginalLoadError(ASender: TObject; AError: string;
+    procedure OriginalLoadError({%H-}ASender: TObject; AError: string;
       var ARaise: boolean);
     procedure SelectImageLayer(AValue: TBGRABitmap);
     procedure SelectImageLayerByIndex(AValue: integer);

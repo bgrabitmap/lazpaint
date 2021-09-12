@@ -129,6 +129,7 @@ begin
         result.FillEllipseAntialias((result.Width-1)/2,(result.Height-1)/2,ASize/2,ASize/2,BGRABlack);
       end else
       begin
+        pts := nil;
         setlength(pts, brushSides);
         for i := 0 to high(pts) do
           pts[i] := PointF((result.Width-1)/2+sin(i*2*Pi/brushSides)*ASize/2,

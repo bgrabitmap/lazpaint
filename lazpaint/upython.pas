@@ -202,6 +202,7 @@ begin
     if Assigned(FOnOutputLine) then
     begin
       finalLine := FLinePrefix+ALine;
+      displayedLine := '';
       setlength(displayedLine, 80);
       curDisplayPos := 1;
       maxDisplayLen := 0;

@@ -1310,6 +1310,7 @@ begin
           if mr = mrOK then
           begin
             OpenPictureDialog1.FilterIndex := FBrowseImages.FilterIndex;
+            chosenFiles := nil;
             setlength(chosenFiles, FBrowseImages.SelectedFileCount);
             for i := 0 to high(chosenFiles) do
               chosenFiles[i] := FBrowseImages.SelectedFile[i];
@@ -2140,6 +2141,7 @@ begin
               end; //case
               //When files are open this way, they get the name of the first of them.
               //They shall have no name, in order to prevent saving with Save (it then gets redirected to Save As)
+              loadedLayers := nil;
               setlength(loadedLayers,length(FileNames));
               tx := 0;
               ty := 0;
@@ -3201,6 +3203,7 @@ begin
     needUpdate := false;
     p := @txt[1];
     pEnd := @txt[length(txt)];
+    utf8char := '';
     while p <= pEnd do
     begin
       utf8len := min(UTF8CharacterLength(p), (pEnd-p)+1);

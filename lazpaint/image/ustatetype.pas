@@ -197,7 +197,7 @@ type
 
 implementation
 
-uses Math, BGRALzpCommon, UFileSystem;
+uses Math, UFileSystem;
 
 { TComposedImageDifference }
 

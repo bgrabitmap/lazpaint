@@ -634,8 +634,10 @@ begin
     exit;
   end;
   nbRealFiles:= 0;
+  realFiles := nil;
   setlength(realFiles, length(AFilenamesUTF8));
   nbContainedFiles:= 0;
+  containedFiles := nil;
   setlength(containedFiles, length(AFilenamesUTF8));
   for i := 0 to high(AFilenamesUTF8) do
     if ParseExtendedFilename(AFilenamesUTF8[i]).SubFilename = '' then

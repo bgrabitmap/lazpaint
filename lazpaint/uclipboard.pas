@@ -101,6 +101,7 @@ begin
                  poly := deserial.GetObjectField(segment,j) as TSerializedArray;
                  if poly <> nil then
                  begin
+                   polyPts := nil;
                    setlength(polyPts, poly.FieldCount);
                    for k := 0 to high(polyPts) do
                    begin
@@ -162,6 +163,7 @@ begin
   end;
   if isWidestring then
   begin
+    w := '';
     setlength(w, length(data) div 2);
     move(data[1],w[1],length(data));
     result := UTF8Encode(w);
@@ -499,6 +501,7 @@ begin
     begin
        Stream := TMemoryStream.Create;
        Clipboard.GetFormat(Clipboard.Formats[i],Stream);
+       data := '';
        if stream.Size > 65536 then
         setlength(data,65536) else
           setlength(data,stream.size);

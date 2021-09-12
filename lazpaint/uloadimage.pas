@@ -19,7 +19,7 @@ implementation
 uses FileUtil, BGRAAnimatedGif, Graphics, UMultiImage,
   BGRAReadLzp, LCLProc, BGRABitmapTypes, BGRAReadPng,
   UFileSystem, BGRAIconCursor, BGRAReadTiff,
-  Dialogs, math, URaw, UResourceStrings;
+  Dialogs, URaw;
 
 function LoadIcoEntryFromStream(AStream: TStream; AIndex: integer): TImageEntry;
 var ico: TBGRAIconCursor;
@@ -46,6 +46,7 @@ begin
   ico := TBGRAIconCursor.Create;
   try
     ico.LoadFromStream(AStream);
+    result := nil;
     setlength(result,ico.Count);
     for i := 0 to ico.Count-1 do
     begin
@@ -84,6 +85,7 @@ var gif: TBGRAAnimatedGif; i: integer;
 begin
   gif := TBGRAAnimatedGif.Create(AStream);
   try
+    result := nil;
     setlength(result,gif.Count);
     for i := 0 to gif.Count-1 do
     begin
@@ -123,6 +125,7 @@ begin
   tiff := TBGRAReaderTiff.Create;
   try
     tiff.LoadFromStream(AStream);
+    result := nil;
     setlength(result,tiff.ImageCount);
     for i := 0 to tiff.ImageCount-1 do
     begin

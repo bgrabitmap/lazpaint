@@ -289,7 +289,6 @@ procedure TMainFormMenu.AddInstalledScripts(AMenu: TMenuItem; AIndex: integer);
 var
   path, fullname, title: String;
   searchRec: TSearchRec;
-  t: textFile;
   item: TMenuItem;
   items: TStringList;
   i: Integer;

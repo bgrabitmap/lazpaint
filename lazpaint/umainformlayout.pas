@@ -55,7 +55,7 @@ type
     function GetToolBoxVisible: boolean;
     function GetUpdatingPopup: boolean;
     procedure ImageToolbarUpdate(Sender: TObject);
-    procedure ImageViewMouseBefore(ASender: TObject; AShift: TShiftState);
+    procedure ImageViewMouseBefore({%H-}ASender: TObject; AShift: TShiftState);
     procedure ImageViewMouseMove(Sender: TObject; APosition: TPointF);
     procedure ImageViewOnPaint(Sender: TObject);
     procedure SetFillSelectionHighlight(AValue: boolean);

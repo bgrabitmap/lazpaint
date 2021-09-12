@@ -763,6 +763,7 @@ var
 begin
   case ValueType of
   tvtAscii: begin
+      result := '';
       setlength(result, ValueCount-1);
       if result <> '' then
         move(Data^, result[1], length(result));
@@ -975,6 +976,7 @@ begin
     end;
   if wordSized then
   begin
+    words := nil;
     setlength(words, length(AValues));
     for i := 0 to high(AValues) do
       words[i] := AValues[i];
@@ -1162,7 +1164,9 @@ begin
     exit;
   end;
 
+  offsets := nil;
   setlength(offsets, AList.Count);
+  byteCounts := nil;
   setlength(byteCounts, AList.Count);
 
   for i := 0 to AList.Count-1 do
@@ -1205,6 +1209,7 @@ begin
   subError := AInput.ReadWord(dirCount);
   if subError <> teNone then Exit(subError);
 
+  rawEntries := nil;
   setlength(rawEntries, dirCount);
   subError := AInput.ReadBuffer(rawEntries[0], dirCount*sizeof(TTiffRawDirEntry));
   if subError <> teNone then Exit(subError);
@@ -1240,6 +1245,7 @@ begin
   SaveChunks(AOutput);
 
   SortEntries;
+  rawEntries := nil;
   setlength(rawEntries, EntryCount);
   for i := 0 to EntryCount-1 do
     Entry[i]^.SaveToOutput(AOutput, rawEntries[i]);
@@ -1441,6 +1447,7 @@ procedure TTiff.SaveToStream(AStream: TStream);
 var indices: array of integer;
   i: Integer;
 begin
+  indices := nil;
   setlength(indices, Count);
   for i := 0 to high(indices) do
     indices[i] := i;

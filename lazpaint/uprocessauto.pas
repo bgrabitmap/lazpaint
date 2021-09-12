@@ -60,6 +60,7 @@ type
 
   procedure InitBuffer(out Buffer: TReceiveBuffer; ASize: integer; AOnReceive: TReceiveLineEvent);
   begin
+    Buffer.Data := '';
     setlength(Buffer.Data, ASize);
     Buffer.Length:= 0;
     Buffer.OnReceive:= AOnReceive;

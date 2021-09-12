@@ -75,7 +75,7 @@ type
     procedure PythonBusy({%H-}Sender: TObject);
     function ScriptShowMessage(AVars: TVariableSet): TScriptResult;
     function ScriptInputBox(AVars: TVariableSet): TScriptResult;
-    procedure ToolQueryColorTarget(sender: TToolManager; ATarget: TVectorialFill);
+    procedure ToolQueryColorTarget({%H-}sender: TToolManager; ATarget: TVectorialFill);
 
   protected
     InColorFromFChooseColor: boolean;
@@ -287,7 +287,7 @@ uses LCLType, Types, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslatio
      USharpen, uposterize, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
 
-     ugraph, LCScaleDPI, ucommandline, uabout, UPython, BGRAGraphics;
+     ugraph, LCScaleDPI, ucommandline, uabout, UPython;
 
 { TLazPaintInstance }
 
