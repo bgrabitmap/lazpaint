@@ -100,7 +100,7 @@ var
 
 implementation
 
-uses BGRAUTF8, BGRAWinResource, BGRALazResource, LazFileUtils, Dialogs, Masks
+uses BGRAUTF8, BGRAWinResource, BGRALazResource, LazFileUtils, Dialogs
 {$IFDEF WINDOWS}, Windows{$ENDIF}
 {$IFDEF LINUX}, Process{$ENDIF}
 {$IFDEF DARWIN}, Process{$ENDIF};
@@ -1002,8 +1002,6 @@ begin
   end;
 end;
 
-{$i getfilesindir.inc}
-
 procedure TFileManager.GetDirectoryElements(const ABaseDir: string; AMask: string;
   AObjectTypes: TObjectTypes; AResult: TFileInfoList; AFileSortType: TFileSortType);
 var p: string;
@@ -1053,7 +1051,7 @@ begin
   begin
     temp := TStringList.Create;
     temp.OwnsObjects := true;
-    GetFilesInDir(ABaseDir,AMask,AObjectTypes,temp,fstNone);
+    TCustomShellTreeView.GetFilesInDir(ABaseDir,AMask,AObjectTypes,temp,fstNone);
     for i := 0 to temp.Count-1 do
     begin
       fullname := IncludeTrailingPathDelimiter(ABaseDir)+temp[i];
@@ -1085,7 +1083,7 @@ begin
     if otFolders in AObjectTypes then
     begin
       temp.Clear;
-      GetFilesInDir(ABaseDir,'*.res;*.Res;*.RES;*.lrs;*.Lrs;*.LRS',[otNonFolders],temp,fstNone);
+      TCustomShellTreeView.GetFilesInDir(ABaseDir,'*.res;*.Res;*.RES;*.lrs;*.Lrs;*.LRS',[otNonFolders],temp,fstNone);
       for i := 0 to temp.Count-1 do
       begin
         fullname := IncludeTrailingPathDelimiter(ABaseDir)+temp[i];
