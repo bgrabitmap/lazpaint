@@ -610,6 +610,12 @@ msgstr "Charger un pinceau depuis un fichier..."
 msgid "Remove current brush"
 msgstr "Supprimer le pinceau actuel"
 
+#: tfmain.button_donate.caption
+#, fuzzy
+msgctxt "tfmain.button_donate.caption"
+msgid "Donate..."
+msgstr "Faire un don..."
+
 #: tfmain.caption
 msgctxt "tfmain.caption"
 msgid "LazPaint"
@@ -1196,12 +1202,6 @@ msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
 msgid "Curve"
 msgstr "Courbe"
 
-#: tfmain.label_donate.caption
-#, fuzzy
-msgctxt "tfmain.label_donate.caption"
-msgid "Donate..."
-msgstr "Faire un don..."
-
 #: tfmain.label_eraser.caption
 msgctxt "tfmain.label_eraser.caption"
 msgid "Erase"
@@ -1612,12 +1612,6 @@ msgstr "Taille du texte"
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
 msgstr "Pinceau"
-
-#: tfmain.toolbutton_donate.hint
-#, fuzzy
-msgctxt "tfmain.toolbutton_donate.hint"
-msgid "Donate..."
-msgstr "Faire un don..."
 
 #: tfmain.toolchangedocking.hint
 msgctxt "tfmain.toolchangedocking.hint"

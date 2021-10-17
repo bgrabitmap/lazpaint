@@ -599,6 +599,12 @@ msgstr "Carica spazzola da file"
 msgid "Remove current brush"
 msgstr "Rimuovi spazzola corrente"
 
+#: tfmain.button_donate.caption
+#, fuzzy
+msgctxt "tfmain.button_donate.caption"
+msgid "Donate..."
+msgstr "Dona..."
+
 #: tfmain.caption
 msgctxt "tfmain.caption"
 msgid "LazPaint"
@@ -1183,12 +1189,6 @@ msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
 msgid "Curve"
 msgstr "Curva"
 
-#: tfmain.label_donate.caption
-#, fuzzy
-msgctxt "tfmain.label_donate.caption"
-msgid "Donate..."
-msgstr "Dona..."
-
 #: tfmain.label_eraser.caption
 msgctxt "tfmain.label_eraser.caption"
 msgid "Erase"
@@ -1598,12 +1598,6 @@ msgstr "Misura del testo"
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
 msgstr "Spazzola"
-
-#: tfmain.toolbutton_donate.hint
-#, fuzzy
-msgctxt "tfmain.toolbutton_donate.hint"
-msgid "Donate..."
-msgstr "Dona..."
 
 #: tfmain.toolchangedocking.hint
 msgctxt "tfmain.toolchangedocking.hint"

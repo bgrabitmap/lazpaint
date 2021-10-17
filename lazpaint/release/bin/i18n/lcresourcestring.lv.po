@@ -178,3 +178,4 @@ msgstr "Atkārtot uz augšu/leju"
 #: lcresourcestring.rsunknownshapeclass
 msgid "Unknown shape class \"%1\""
 msgstr "Nepazīstama objekta klase \"%1\""
+

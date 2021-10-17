@@ -133,6 +133,7 @@ end;
 {$ENDIF}
 
 procedure BCAssignSystemState(AState: TBCButtonState; AFontColor, ATopColor, AMiddleTopColor, AMiddleBottomColor, ABottomColor, ABorderColor: TColor);
+var middleColor: TColor;
 begin
   with AState do
   begin
@@ -147,6 +148,8 @@ begin
     FontEx.ShadowOffsetX := 1;
     FontEx.ShadowOffsetY := 1;
     FontEx.ShadowRadius := 2;
+    middleColor := MergeBGRA(AMiddleTopColor.ToExpandedPixel, AMiddleBottomColor.ToExpandedPixel);
+    FontEx.DisabledColor := MergeBGRA(middleColor.ToExpandedPixel, AFontColor.ToExpandedPixel);
     Background.Gradient1EndPercent := 60;
     Background.Style := bbsGradient;
     // Gradient1
@@ -398,6 +401,8 @@ begin
       Apply(TPanel(APanel.Controls[i]), AThemeEnabled) else
     if APanel.Controls[i] is TToolBar then
       Apply(TToolBar(APanel.Controls[i]), AThemeEnabled) else
+    if APanel.Controls[i] is TBCButton then
+      Apply(TBCButton(APanel.Controls[i]), AThemeEnabled) else
     if APanel.Controls[i] is TBCComboBox then
       Apply(TBCComboBox(APanel.Controls[i]), AThemeEnabled) else
     if APanel.Controls[i] is TBCTrackbarUpdown then

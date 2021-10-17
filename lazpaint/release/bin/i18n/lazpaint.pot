@@ -568,6 +568,11 @@ msgstr ""
 msgid "Remove current brush"
 msgstr ""
 
+#: tfmain.button_donate.caption
+msgctxt "tfmain.button_donate.caption"
+msgid "Donate..."
+msgstr ""
+
 #: tfmain.caption
 msgctxt "tfmain.caption"
 msgid "LazPaint"
@@ -1130,11 +1135,6 @@ msgctxt "tfmain.label_curve.caption"
 msgid "Curve"
 msgstr ""
 
-#: tfmain.label_donate.caption
-msgctxt "tfmain.label_donate.caption"
-msgid "Donate..."
-msgstr ""
-
 #: tfmain.label_eraser.caption
 msgid "Erase"
 msgstr ""
@@ -1500,11 +1500,6 @@ msgstr ""
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
-msgstr ""
-
-#: tfmain.toolbutton_donate.hint
-msgctxt "tfmain.toolbutton_donate.hint"
-msgid "Donate..."
 msgstr ""
 
 #: tfmain.toolchangedocking.hint

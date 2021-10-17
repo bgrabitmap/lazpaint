@@ -608,6 +608,12 @@ msgstr "Зареждане на четка от файл..."
 msgid "Remove current brush"
 msgstr "Премахване на текущата четка"
 
+#: tfmain.button_donate.caption
+#, fuzzy
+msgctxt "tfmain.button_donate.caption"
+msgid "Donate..."
+msgstr "Дарение..."
+
 #: tfmain.caption
 msgctxt "TFMAIN.CAPTION"
 msgid "LazPaint"
@@ -1191,12 +1197,6 @@ msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
 msgid "Curve"
 msgstr "Крива"
 
-#: tfmain.label_donate.caption
-#, fuzzy
-msgctxt "tfmain.label_donate.caption"
-msgid "Donate..."
-msgstr "Дарение..."
-
 #: tfmain.label_eraser.caption
 msgctxt "TFMAIN.LABEL_ERASER.CAPTION"
 msgid "Erase"
@@ -1602,12 +1602,6 @@ msgstr "Размер на текста"
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
 msgstr "Четка"
-
-#: tfmain.toolbutton_donate.hint
-#, fuzzy
-msgctxt "tfmain.toolbutton_donate.hint"
-msgid "Donate..."
-msgstr "Дарение..."
 
 #: tfmain.toolchangedocking.hint
 msgid "Change docking"

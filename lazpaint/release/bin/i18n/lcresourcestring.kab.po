@@ -178,3 +178,4 @@ msgstr "Ales Y"
 #: lcresourcestring.rsunknownshapeclass
 msgid "Unknown shape class \"%1\""
 msgstr "Taserkemt n talɣa tarussint \"%1\""
+

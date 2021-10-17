@@ -1,4 +1,4 @@
-﻿msgid ""
+msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
 #: tablet.getprocfailed
@@ -600,6 +600,11 @@ msgstr ""
 msgid "Remove current brush"
 msgstr ""
 
+#: tfmain.button_donate.caption
+msgctxt "tfmain.button_donate.caption"
+msgid "Donate..."
+msgstr ""
+
 #: tfmain.caption
 msgctxt "TFMAIN.CAPTION"
 msgid "LazPaint"
@@ -1186,11 +1191,6 @@ msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
 msgid "Curve"
 msgstr "Muodokas"
 
-#: tfmain.label_donate.caption
-msgctxt "tfmain.label_donate.caption"
-msgid "Donate..."
-msgstr ""
-
 #: tfmain.label_eraser.caption
 msgctxt "TFMAIN.LABEL_ERASER.CAPTION"
 msgid "Erase"
@@ -1600,11 +1600,6 @@ msgstr "Kirjaisimen koko"
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
 msgstr "Suti"
-
-#: tfmain.toolbutton_donate.hint
-msgctxt "tfmain.toolbutton_donate.hint"
-msgid "Donate..."
-msgstr ""
 
 #: tfmain.toolchangedocking.hint
 msgctxt "TFMAIN.TOOLCHANGEDOCKING.HINT"

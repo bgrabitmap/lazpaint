@@ -613,6 +613,12 @@ msgstr "Sali-d amfezzu seg ufaylu..."
 msgid "Remove current brush"
 msgstr "Kkes amfezzu amiran"
 
+#: tfmain.button_donate.caption
+#, fuzzy
+msgctxt "tfmain.button_donate.caption"
+msgid "Donate..."
+msgstr "Ɛiwen s wedrim..."
+
 #: tfmain.caption
 msgctxt "tfmain.caption"
 msgid "LazPaint"
@@ -1198,12 +1204,6 @@ msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
 msgid "Curve"
 msgstr "Azlig"
 
-#: tfmain.label_donate.caption
-#, fuzzy
-msgctxt "tfmain.label_donate.caption"
-msgid "Donate..."
-msgstr "Ɛiwen s wedrim..."
-
 #: tfmain.label_eraser.caption
 msgctxt "tfmain.label_eraser.caption"
 msgid "Erase"
@@ -1613,12 +1613,6 @@ msgstr "Tiddi n uḍris"
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
 msgstr "Amfezzu"
-
-#: tfmain.toolbutton_donate.hint
-#, fuzzy
-msgctxt "tfmain.toolbutton_donate.hint"
-msgid "Donate..."
-msgstr "Ɛiwen s wedrim..."
 
 #: tfmain.toolchangedocking.hint
 msgctxt "tfmain.toolchangedocking.hint"

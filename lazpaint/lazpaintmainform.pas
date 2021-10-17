@@ -23,15 +23,13 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    Button_Donate: TBCButton;
     LayerExport: TAction;
     FileExport: TAction;
     ExportPictureDialog: TSaveDialog;
-    Label_Donate: TLabel;
     MenuScript: TMenuItem;
     Panel_OutlineFill: TPanel;
     Panel_Donate: TPanel;
-    ToolButton_Donate: TToolButton;
-    ToolBar25: TToolBar;
     ToolOpenedCurve: TAction;
     ToolPolyline: TAction;
     FileRunScript: TAction;
@@ -639,6 +637,7 @@ type
     procedure WMEraseBkgnd(var {%H-}Message: TLMEraseBkgnd); message LM_ERASEBKGND;
 
   private
+    function CanClickDonate: boolean;
     procedure ComboBox_PenStyleChange(Sender: TObject);
     procedure ComboBox_PenStyleDrawItem({%H-}Control: TWinControl; Index: Integer;
       ARect: TRect; State: TOwnerDrawState);
@@ -1123,7 +1122,7 @@ var
   m: TMainFormMenu;
   startFillControlWidth: LongInt;
   iconSize: Integer;
-  toolbarDPI: integer;
+  toolbarDPI, w, h: integer;
 begin
   if FLayout.Menu = nil then
   begin
@@ -1159,7 +1158,10 @@ begin
     LabelAutosize(Label_Brush, toolbarDPI);
     LabelAutosize(Label_Spacing, toolbarDPI);
     LabelAutosize(Label_Ratio, toolbarDPI);
-    LabelAutosize(Label_Donate, toolbarDPI);
+    w := Button_Donate.Width; h := Button_Donate.Height;
+    Button_Donate.GetPreferredSize(w, h);
+    Button_Donate.Width := w;
+
     m.ImageList := LazPaintInstance.Icons[iconSize];
     m.Apply;
     FLayout.Menu := m;
@@ -2645,6 +2647,7 @@ begin
         else LazPaintInstance.NotifyThemeChanged;
     end;
   end;
+  Button_Donate.Enabled := CanClickDonate;
   TimerUpdate.Enabled := true;
 end;
 
