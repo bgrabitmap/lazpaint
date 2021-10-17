@@ -8,7 +8,7 @@ interface
 uses classes, LazpaintType, uresourcestrings;
 
 {$IFDEF WINDOWS}
-  {$DEFINE SHOW_MANUAL_IN_WINDOW }
+  {$DEFINE SHOW_MANUAL_IN_WINDOW}
 {$ENDIF}
 
 const Manual: array[0..64] of string = (
@@ -85,7 +85,8 @@ implementation
 
 uses
   SysUtils, BGRAUTF8, LazFileUtils, BGRABitmap, BGRABitmapTypes, Dialogs, uparse,
-  UImage, UImageAction, ULayerAction, UScripting, UPython, Forms, StdCtrls, Controls;
+  UImage, UImageAction, ULayerAction, UScripting, UPython, Forms, StdCtrls, Controls,
+  UFileSystem;
 
 function ParamStrUTF8(AIndex: integer): string;
 begin
@@ -279,6 +280,12 @@ begin
     if not (InputFilename[1] in commandPrefix) then
     begin
       iStart := 1;
+      if not FileManager.FileExists(ExpandFileNameUTF8(InputFilename)) then
+      begin
+        instance.ShowError(rsOpen, rsFileNotFound);
+        errorEncountered := true;
+        exit;
+      end else
       if not instance.TryOpenFileUTF8(ExpandFileNameUTF8(InputFilename), true) then
       begin
         instance.ShowError(rsOpen, rsUnableToLoadFile+InputFilename);
