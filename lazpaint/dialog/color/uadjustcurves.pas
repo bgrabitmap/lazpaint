@@ -406,8 +406,12 @@ begin
   Y := round(Y*FScaling);
   if FMovingPoint then
   begin
-    SetPointCoord(FSelectedPoint, BitmapToCoord(X,Y));
-    vsChart.DiscardBitmap;
+    if not (ssLeft in Shift) then FMovingPoint := false
+    else
+    begin
+      SetPointCoord(FSelectedPoint, BitmapToCoord(X,Y));
+      vsChart.DiscardBitmap;
+    end;
   end;
 end;
 
