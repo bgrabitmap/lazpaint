@@ -3264,7 +3264,7 @@ msgstr "Только LazPaint"
 
 #: uresourcestrings.rslight
 msgid "Light"
-msgstr "Свет"
+msgstr "Яркость"
 
 #: uresourcestrings.rslightness
 msgctxt "uresourcestrings.rslightness"
