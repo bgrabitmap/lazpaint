@@ -2982,7 +2982,7 @@ msgstr "Редактировать выделение"
 
 #: uresourcestrings.rsedittexture
 msgid "Edit texture"
-msgstr "Редактироватьтекстуру"
+msgstr "Редактировать текстуру"
 
 #: uresourcestrings.rsemptylayer
 msgid "Layer is empty"
