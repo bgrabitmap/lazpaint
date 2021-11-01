@@ -46,7 +46,7 @@ object FPosterize: TFPosterize
       Top = 0
       Width = 65
       Constraints.MinWidth = 65
-      MaxValue = 16
+      MaxValue = 32
       MinValue = 2
       OnChange = SpinEdit_LevelsChange
       TabOrder = 0

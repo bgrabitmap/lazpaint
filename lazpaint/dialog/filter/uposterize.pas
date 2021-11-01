@@ -41,7 +41,7 @@ function ShowPosterizeDlg(AInstance: TLazPaintCustomInstance; AParameters: TVari
 
 implementation
 
-uses BGRABitmapTypes, LCScaleDPI, UMac, UColorFilters;
+uses BGRABitmapTypes, LCScaleDPI, UMac, UColorFilters, math;
 
 function ShowPosterizeDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult;
 var FPosterize: TFPosterize;
@@ -158,7 +158,7 @@ var params:TVariableSet;
   end;
 
 begin
-  levels := SpinEdit_Levels.Value;
+  levels := min(SpinEdit_Levels.Value, SpinEdit_Levels.MaxValue);
   params := TVariableSet.Create('');
   if CheckBox_ByLightness.Checked then
     AddPosterize('Lightness') else
