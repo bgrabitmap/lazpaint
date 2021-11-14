@@ -1,7 +1,5 @@
 # Layer effect > Color overlay
 # (fr) Effet de calque > Couleur superposée
-# (es) Efectos de capa > Color superpuesto
-# (de) Ebeneneffekte > Farbüberlagerung
 from lazpaint import image, colors, layer, filters
 
 color = colors.show_dialog(layer.get_registry("overlay-color"))

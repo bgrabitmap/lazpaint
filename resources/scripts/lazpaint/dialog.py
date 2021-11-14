@@ -20,6 +20,9 @@ def show_color_dialog(color=None) -> str:
 def translate_text(text) -> str:
   return command.send('TranslateText?', Text=text)
 
+def translate_dict(texts) -> dict:
+  return dict(zip(texts, dialog.translate_text(texts)))
+
 def get_language() -> str:
   return command.send('TranslateGetLanguage?')
 

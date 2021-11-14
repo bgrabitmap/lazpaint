@@ -232,7 +232,7 @@ begin
   Tool_CurveModeCurve.Hint := Tool_CurveModeCurve.Hint + ' (S)';
   Tool_CurveMovePoint.Hint := Tool_CurveMovePoint.Hint + ' (Z)';
 
-
+  Button_Donate.Caption := DoTranslate('', 'Donate...');
 end;
 
 procedure TFMain.UpdateTextSizeIncrement;

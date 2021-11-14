@@ -95,18 +95,30 @@ var
 begin
   if Assigned(FMainPoFile) then
   begin
-    item := FMainPoFile.FindPoItem(AId);
-    if (AId <> '') and Assigned(item) then
-      exit(item.Translation);
+    if AId <> '' then
+    begin
+      item := FMainPoFile.FindPoItem(AId);
+      if Assigned(item) then
+        exit(item.Translation);
+    end;
 
     item := FMainPoFile.OriginalToItem(AText);
-    if Assigned(item) then exit(item.Translation);
+    if Assigned(item) then
+    begin
+      if item.Translation = '' then
+        result := AText
+      else
+        exit(item.Translation);
+    end;
 
     item := FMainPoFile.OriginalToItem(AText+':');
     if item = nil then item := FMainPoFile.OriginalToItem(AText+' :');
     if Assigned(item) then
     begin
-      result := item.Translation.TrimRight;
+      if item.Translation = '' then
+        result := AText
+      else
+        result := item.Translation.TrimRight;
       if result.EndsWith(':') then
       begin
         delete(result, length(result), 1);
@@ -118,7 +130,10 @@ begin
     item := FMainPoFile.OriginalToItem(AText+'...');
     if Assigned(item) then
     begin
-      result := item.Translation.TrimRight;
+      if item.Translation = '' then
+        result := AText
+      else
+        result := item.Translation.TrimRight;
       if result.EndsWith('...') then delete(result, length(result)-2, 3);
       exit;
     end;

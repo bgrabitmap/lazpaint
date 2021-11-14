@@ -1,16 +1,9 @@
 # Channels > Split HSL
 # (fr) Canaux > Séparer TSL
-# (es) Canales > Dividir HSL
-# (de) Kanäle > HSL teilen
 from lazpaint import image, dialog, layer, filters
 
-translation = dialog.select_translation(
-  en = {"Layer already split": "Layer already split", "Hue": "Hue", "Saturation": "Saturation", "Lightness": "Lightness", "Alpha": "Alpha"}, 
-  fr = {"Layer already split": "Le calque est déjà séparé", "Hue": "Teinte", "Saturation": "Saturation", "Lightness": "Luminosité", "Alpha": "Alpha"}, 
-  es = {"Layer already split": "La capa ya está dividida", "Hue": "Matiz", "Saturation": "Saturación", "Lightness": "Luminosidad", "Alpha": "Alpha"}, 
-  de = {"Layer already split": "Die Ebene ist bereits geteilt", "Hue": "Farbwinkel", "Saturation": "Farbsättigung", "Lightness": "Farbhelligkeit", "Alpha": "Alpha"}
-  )
-  
+translation = dialog.translate_dict(["Layer already split", "Hue", "Saturation", "Lightness", "Alpha": "Alpha"])
+
 # check if it is a channel
 if layer.get_registry("split-channel") is not None:
   dialog.show_message(translation["Layer already split"])

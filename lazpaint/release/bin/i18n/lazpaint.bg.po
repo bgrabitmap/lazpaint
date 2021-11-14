@@ -2059,46 +2059,6 @@ msgstr "Добре"
 msgid "Choose image"
 msgstr "Избиране на изображение"
 
-#: tfnewimage.bgrashape1.caption
-msgid "BGRAShape1"
-msgstr ""
-
-#: tfnewimage.bgrashape10.caption
-msgid "BGRAShape10"
-msgstr ""
-
-#: tfnewimage.bgrashape2.caption
-msgid "BGRAShape2"
-msgstr ""
-
-#: tfnewimage.bgrashape3.caption
-msgid "BGRAShape3"
-msgstr ""
-
-#: tfnewimage.bgrashape4.caption
-msgid "BGRAShape4"
-msgstr ""
-
-#: tfnewimage.bgrashape5.caption
-msgid "BGRAShape5"
-msgstr ""
-
-#: tfnewimage.bgrashape6.caption
-msgid "BGRAShape6"
-msgstr ""
-
-#: tfnewimage.bgrashape7.caption
-msgid "BGRAShape7"
-msgstr ""
-
-#: tfnewimage.bgrashape8.caption
-msgid "BGRAShape8"
-msgstr ""
-
-#: tfnewimage.bgrashape9.caption
-msgid "BGRAShape9"
-msgstr ""
-
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2139,14 +2099,6 @@ msgstr "Необходима памет: "
 msgctxt "TFNEWIMAGE.LABEL_WIDTH.CAPTION"
 msgid "Width :"
 msgstr "Ширина:"
-
-#: tfnewimage.toolbar_ratio.caption
-msgid "ToolBar_Ratio"
-msgstr ""
-
-#: tfnewimage.toolbutton_clearratio.caption
-msgid "ToolButton_ClearRatio"
-msgstr ""
 
 #: tfnoisefilter.button_cancel.caption
 msgctxt "tfnoisefilter.button_cancel.caption"
@@ -2824,6 +2776,10 @@ msgstr "Качество на сбиване на JPG"
 msgid "Bitmap"
 msgstr ""
 
+#: uresourcestrings.rsblack
+msgid "Black"
+msgstr ""
+
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
 msgstr ""
@@ -2866,6 +2822,10 @@ msgstr "Размер на платното"
 msgid "CD"
 msgstr ""
 
+#: uresourcestrings.rschannels
+msgid "Channels"
+msgstr ""
+
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
 msgstr ""
@@ -2876,6 +2836,10 @@ msgstr "Заявка за затваряне"
 
 #: uresourcestrings.rscmd
 msgid "CMD"
+msgstr ""
+
+#: uresourcestrings.rscoloroverlay
+msgid "Color overlay"
 msgstr ""
 
 #: uresourcestrings.rscolors
@@ -2927,8 +2891,16 @@ msgstr "Орязване"
 msgid "CTRL"
 msgstr "CTRL"
 
+#: uresourcestrings.rscurrentlayernotsplit
+msgid "Current layer is not split"
+msgstr ""
+
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
+msgstr ""
+
+#: uresourcestrings.rscyan
+msgid "Cyan"
 msgstr ""
 
 #: uresourcestrings.rsdefaultpalette
@@ -2960,6 +2932,10 @@ msgstr "Дарение..."
 
 #: uresourcestrings.rsdownload
 msgid "Download"
+msgstr ""
+
+#: uresourcestrings.rsdropshadow
+msgid "Drop shadow"
 msgstr ""
 
 #: uresourcestrings.rsduplicateimage
@@ -3103,6 +3079,10 @@ msgstr ""
 msgid "Following errors occurred:"
 msgstr ""
 
+#: uresourcestrings.rsfractaltree
+msgid "Fractal tree"
+msgstr ""
+
 #: uresourcestrings.rsframes
 msgid "Frames"
 msgstr ""
@@ -3178,6 +3158,14 @@ msgstr "Безкрайност"
 msgid "Information"
 msgstr ""
 
+#: uresourcestrings.rsinnerlight
+msgid "Inner light"
+msgstr ""
+
+#: uresourcestrings.rsinnershadow
+msgid "Inner shadow"
+msgstr ""
+
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
 msgid "Intensity"
@@ -3186,6 +3174,10 @@ msgstr "Наситеност"
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
 msgstr "Вътрешна грешка"
+
+#: uresourcestrings.rsinvalidangle
+msgid "Invalid angle"
+msgstr ""
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
@@ -3227,13 +3219,25 @@ msgstr "Пейзаж"
 msgid "The latest version of LazPaint available online is"
 msgstr "Най-новото издание на LazPaint, което може да се свали е"
 
+#: uresourcestrings.rslava
+msgid "Lava"
+msgstr ""
+
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
 msgid "Layer"
 msgstr "слой"
 
+#: uresourcestrings.rslayeralreadysplit
+msgid "Layer already split"
+msgstr ""
+
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
+msgstr ""
+
+#: uresourcestrings.rslayereffect
+msgid "Layer effect"
 msgstr ""
 
 #: uresourcestrings.rslayers
@@ -3287,8 +3291,28 @@ msgstr "Зареждане на палитра..."
 msgid "Loop count"
 msgstr "Брой повторения"
 
+#: uresourcestrings.rsmagenta
+msgid "Magenta"
+msgstr ""
+
+#: uresourcestrings.rsmakemonochromatic
+msgid "Make monochromatic"
+msgstr ""
+
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
+msgstr ""
+
+#: uresourcestrings.rsmask
+msgid "Mask"
+msgstr ""
+
+#: uresourcestrings.rsmaskfromalphachannel
+msgid "Mask from alpha channel"
+msgstr ""
+
+#: uresourcestrings.rsmerge
+msgid "Merge"
 msgstr ""
 
 #: uresourcestrings.rsmergeselection
@@ -3324,6 +3348,10 @@ msgctxt "uresourcestrings.rsnewimage"
 msgid "New image"
 msgstr "Ново изображение"
 
+#: uresourcestrings.rsnewmask
+msgid "New mask"
+msgstr ""
+
 #: uresourcestrings.rsno
 msgid "No"
 msgstr "Не"
@@ -3347,6 +3375,10 @@ msgstr "без име"
 #: uresourcestrings.rsnormalblendop
 msgid "Normal"
 msgstr "Обикновен"
+
+#: uresourcestrings.rsnotchromaticchannel
+msgid "This is not a chromatic channel"
+msgstr ""
 
 #: uresourcestrings.rsnothingtobedeformed
 msgid "There is nothing to be deformed"
@@ -3474,6 +3506,12 @@ msgstr "Премахваем"
 msgid "Remove color from palette"
 msgstr "Премахване на цвета от палитрата"
 
+#: uresourcestrings.rsrender
+#, fuzzy
+msgctxt "uresourcestrings.rsrender"
+msgid "Render"
+msgstr "Измазване"
+
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
 msgid "Repeat image"
@@ -3550,9 +3588,25 @@ msgctxt "uresourcestrings.rsspline"
 msgid "Spline"
 msgstr "Сплайн (кривка)"
 
+#: uresourcestrings.rssplitcmyk
+msgid "Split CMYK"
+msgstr ""
+
+#: uresourcestrings.rssplithsl
+msgid "Split HSL"
+msgstr ""
+
+#: uresourcestrings.rssplitrgb
+msgid "Split RGB"
+msgstr ""
+
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
 msgstr "Устройство"
+
+#: uresourcestrings.rsstroke
+msgid "Stroke"
+msgstr ""
 
 #: uresourcestrings.rstextoutline
 #, fuzzy
@@ -3636,6 +3690,18 @@ msgstr "Неизвестен произход"
 #: uresourcestrings.rsvectoriallayer
 msgid "Vectorial layer"
 msgstr "Векторен слой"
+
+#: uresourcestrings.rsversion
+msgid "Version"
+msgstr ""
+
+#: uresourcestrings.rsverticalsize
+msgid "Vertical size"
+msgstr ""
+
+#: uresourcestrings.rsyellow
+msgid "Yellow"
+msgstr ""
 
 #: uresourcestrings.rsyes
 msgid "Yes"

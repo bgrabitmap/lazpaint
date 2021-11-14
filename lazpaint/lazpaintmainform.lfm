@@ -5,7 +5,7 @@ object FMain: TFMain
   Width = 739
   AllowDropFiles = True
   Caption = 'LazPaint'
-  ClientHeight = 597
+  ClientHeight = 577
   ClientWidth = 739
   Constraints.MinWidth = 320
   Font.Height = -12
@@ -179,7 +179,7 @@ object FMain: TFMain
     end
     object Edit_Zoom: TEdit
       Left = 3
-      Height = 21
+      Height = 23
       Top = 24
       Width = 38
       Font.Height = -12
@@ -2586,11 +2586,11 @@ object FMain: TFMain
     TabOrder = 25
     object Combo_Ratio: TComboBox
       Left = 42
-      Height = 20
+      Height = 23
       Top = 1
       Width = 96
       Font.Height = -12
-      ItemHeight = 19
+      ItemHeight = 15
       Items.Strings = (
         ''
         '2:1'
@@ -3195,7 +3195,7 @@ object FMain: TFMain
     object Button_Donate: TBCButton
       Left = 0
       Height = 20
-      Top = 2
+      Top = 1
       Width = 79
       StateClicked.Background.Color = 15981500
       StateClicked.Background.Gradient1.StartColor = 15981500
@@ -3224,6 +3224,7 @@ object FMain: TFMain
       StateClicked.FontEx.ShadowOffsetX = 5
       StateClicked.FontEx.ShadowOffsetY = 5
       StateClicked.FontEx.Style = []
+      StateClicked.FontEx.PaddingLeft = 3
       StateHover.Background.Gradient1.StartColor = 16577773
       StateHover.Background.Gradient1.EndColor = 16310217
       StateHover.Background.Gradient1.GradientType = gtLinear
@@ -3251,6 +3252,7 @@ object FMain: TFMain
       StateHover.FontEx.ShadowOffsetX = 5
       StateHover.FontEx.ShadowOffsetY = 5
       StateHover.FontEx.Style = []
+      StateHover.FontEx.PaddingLeft = 3
       StateNormal.Background.Gradient1.StartColor = clWhite
       StateNormal.Background.Gradient1.EndColor = 15855597
       StateNormal.Background.Gradient1.GradientType = gtLinear
@@ -3277,12 +3279,14 @@ object FMain: TFMain
       StateNormal.FontEx.ShadowOffsetX = 5
       StateNormal.FontEx.ShadowOffsetY = 5
       StateNormal.FontEx.Style = []
+      StateNormal.FontEx.PaddingLeft = 3
       Caption = 'Donate...'
       Color = clNone
       DropDownWidth = 16
       DropDownArrowSize = 4
       GlobalOpacity = 255
-      GlyphMargin = 4
+      GlyphOldPlacement = False
+      GlyphMargin = 3
       OnClick = ToolButton_DonateClick
       ParentColor = False
       Rounding.RoundX = 3

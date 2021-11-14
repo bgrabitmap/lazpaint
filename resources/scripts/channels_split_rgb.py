@@ -1,16 +1,9 @@
 # Channels > Split RGB
 # (fr) Canaux > Séparer RVB
-# (es) Canales > Dividir RGB
-# (de) Kanäle > RVB teilen
 from lazpaint import image, dialog, layer, filters
 
-translation = dialog.select_translation(
-  en = {"Layer already split": "Layer already split", "Alpha": "Alpha", "Red": "Red", "Green": "Green", "Blue": "Blue"}, 
-  fr = {"Layer already split": "Le calque est déjà séparé", "Alpha": "Alpha", "Red": "Rouge", "Green": "Vert", "Blue": "Bleu"}, 
-  es = {"Layer already split": "La capa ya está dividida", "Alpha": "Alpha", "Red": "Rojo", "Green": "Verde", "Blue": "Azul"}, 
-  de = {"Layer already split": "Die Ebene ist bereits geteilt", "Alpha": "Alpha", "Red": "Rot", "Green": "Grün", "Blue": "Blau"}
-  )
-  
+translation = dialog.translate_dict(["Layer already split", "Alpha", "Red", "Green", "Blue"])
+
 # check if it is a channel
 if layer.get_registry("split-channel") is not None:
   dialog.show_message(translation["Layer already split"])

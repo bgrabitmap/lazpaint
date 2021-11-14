@@ -145,6 +145,34 @@ resourcestring
   rsInfinity='Infinity';
 
   rsEditMask='Edit mask';
+  rsMask='Mask';
+  rsChannels='Channels';
+  rsMakeMonochromatic='Make monochromatic';
+  rsNotChromaticChannel='This is not a chromatic channel';
+  rsMerge='Merge';
+  rsCurrentLayerNotSplit='Current layer is not split';
+  rsSplitRGB='Split RGB';
+  rsSplitCMYK='Split CMYK';
+  rsCyan='Cyan';
+  rsMagenta='Magenta';
+  rsYellow='Yellow';
+  rsBlack='Black';
+  rsSplitHSL='Split HSL';
+  rsLayerAlreadySplit='Layer already split';
+  rsLayerEffect='Layer effect';
+  rsRender='Render';
+  rsVersion='Version';
+  rsColorOverlay='Color overlay';
+  rsDropShadow='Drop shadow';
+  rsInnerLight='Inner light';
+  rsInnerShadow='Inner shadow';
+  rsStroke='Stroke';
+  rsMaskFromAlphaChannel='Mask from alpha channel';
+  rsNewMask='New mask';
+  rsFractalTree='Fractal tree';
+  rsInvalidAngle='Invalid angle';
+  rsVerticalSize='Vertical size';
+  rsLava='Lava';
 
   rsFast='Fast';
   rsLinear='Linear';

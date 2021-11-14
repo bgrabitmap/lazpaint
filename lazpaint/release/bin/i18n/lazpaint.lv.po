@@ -2077,46 +2077,6 @@ msgstr "Labi"
 msgid "Choose image"
 msgstr "Izvēlies attēlu"
 
-#: tfnewimage.bgrashape1.caption
-msgid "BGRAShape1"
-msgstr ""
-
-#: tfnewimage.bgrashape10.caption
-msgid "BGRAShape10"
-msgstr ""
-
-#: tfnewimage.bgrashape2.caption
-msgid "BGRAShape2"
-msgstr ""
-
-#: tfnewimage.bgrashape3.caption
-msgid "BGRAShape3"
-msgstr ""
-
-#: tfnewimage.bgrashape4.caption
-msgid "BGRAShape4"
-msgstr ""
-
-#: tfnewimage.bgrashape5.caption
-msgid "BGRAShape5"
-msgstr ""
-
-#: tfnewimage.bgrashape6.caption
-msgid "BGRAShape6"
-msgstr ""
-
-#: tfnewimage.bgrashape7.caption
-msgid "BGRAShape7"
-msgstr ""
-
-#: tfnewimage.bgrashape8.caption
-msgid "BGRAShape8"
-msgstr ""
-
-#: tfnewimage.bgrashape9.caption
-msgid "BGRAShape9"
-msgstr ""
-
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2157,14 +2117,6 @@ msgstr "Nepieciešamā atmiņa:"
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "Platums:"
-
-#: tfnewimage.toolbar_ratio.caption
-msgid "ToolBar_Ratio"
-msgstr ""
-
-#: tfnewimage.toolbutton_clearratio.caption
-msgid "ToolButton_ClearRatio"
-msgstr ""
 
 #: tfnoisefilter.button_cancel.caption
 msgctxt "tfnoisefilter.button_cancel.caption"
@@ -2843,6 +2795,10 @@ msgstr "Labākā kvalitāte"
 msgid "Bitmap"
 msgstr "Rastrs"
 
+#: uresourcestrings.rsblack
+msgid "Black"
+msgstr ""
+
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
 msgstr "Sapludināšanu var pielietot tikai tad, ja apakša ir vēl kāds slānis"
@@ -2885,6 +2841,10 @@ msgstr "Audekla izmērs"
 msgid "CD"
 msgstr "CD"
 
+#: uresourcestrings.rschannels
+msgid "Channels"
+msgstr ""
+
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
 msgstr "Notīrīt paleti"
@@ -2896,6 +2856,10 @@ msgstr "Aizvērt pieprasījumu"
 
 #: uresourcestrings.rscmd
 msgid "CMD"
+msgstr ""
+
+#: uresourcestrings.rscoloroverlay
+msgid "Color overlay"
 msgstr ""
 
 #: uresourcestrings.rscolors
@@ -2950,9 +2914,17 @@ msgstr "Apcirpt"
 msgid "CTRL"
 msgstr ""
 
+#: uresourcestrings.rscurrentlayernotsplit
+msgid "Current layer is not split"
+msgstr ""
+
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
 msgstr "Spied [S] vai [X], lai uzdotu līknes pēdējā punkta veidu"
+
+#: uresourcestrings.rscyan
+msgid "Cyan"
+msgstr ""
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
@@ -2984,6 +2956,10 @@ msgstr "Ziedot ..."
 #: uresourcestrings.rsdownload
 msgid "Download"
 msgstr "Lejupielādēt"
+
+#: uresourcestrings.rsdropshadow
+msgid "Drop shadow"
+msgstr ""
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
@@ -3132,6 +3108,10 @@ msgstr "Mape vai resursu datne jau ir."
 msgid "Following errors occurred:"
 msgstr "Kļūda:"
 
+#: uresourcestrings.rsfractaltree
+msgid "Fractal tree"
+msgstr ""
+
 #: uresourcestrings.rsframes
 msgid "Frames"
 msgstr "Kadri"
@@ -3211,6 +3191,14 @@ msgstr "Bezgalība"
 msgid "Information"
 msgstr "Informācija"
 
+#: uresourcestrings.rsinnerlight
+msgid "Inner light"
+msgstr ""
+
+#: uresourcestrings.rsinnershadow
+msgid "Inner shadow"
+msgstr ""
+
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
 msgid "Intensity"
@@ -3219,6 +3207,10 @@ msgstr "Spilgtums"
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
 msgstr "Iekšējā kļūda"
+
+#: uresourcestrings.rsinvalidangle
+msgid "Invalid angle"
+msgstr ""
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
@@ -3261,14 +3253,26 @@ msgstr "Guleniski"
 msgid "The latest version of LazPaint available online is"
 msgstr "Tīmeklī piejamā LazPaint versija ir"
 
+#: uresourcestrings.rslava
+msgid "Lava"
+msgstr ""
+
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
 msgid "Layer"
 msgstr "Slaņim"
 
+#: uresourcestrings.rslayeralreadysplit
+msgid "Layer already split"
+msgstr ""
+
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr "Attēls ar slāņiem"
+
+#: uresourcestrings.rslayereffect
+msgid "Layer effect"
+msgstr ""
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
@@ -3323,9 +3327,29 @@ msgstr "Ielasīt paleti ..."
 msgid "Loop count"
 msgstr "Atkārtojuma reizes"
 
+#: uresourcestrings.rsmagenta
+msgid "Magenta"
+msgstr ""
+
+#: uresourcestrings.rsmakemonochromatic
+msgid "Make monochromatic"
+msgstr ""
+
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
 msgstr "Izveidot no attēla %1 krāsu paleti"
+
+#: uresourcestrings.rsmask
+msgid "Mask"
+msgstr ""
+
+#: uresourcestrings.rsmaskfromalphachannel
+msgid "Mask from alpha channel"
+msgstr ""
+
+#: uresourcestrings.rsmerge
+msgid "Merge"
+msgstr ""
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -3362,6 +3386,10 @@ msgctxt "uresourcestrings.rsnewimage"
 msgid "New image"
 msgstr "Jauns attēls"
 
+#: uresourcestrings.rsnewmask
+msgid "New mask"
+msgstr ""
+
 #: uresourcestrings.rsno
 msgid "No"
 msgstr "Nē"
@@ -3386,6 +3414,10 @@ msgstr "bez_vaarda"
 #: uresourcestrings.rsnormalblendop
 msgid "Normal"
 msgstr "Parasta"
+
+#: uresourcestrings.rsnotchromaticchannel
+msgid "This is not a chromatic channel"
+msgstr ""
 
 #: uresourcestrings.rsnothingtobedeformed
 msgctxt "uresourcestrings.rsnothingtobedeformed"
@@ -3514,6 +3546,12 @@ msgstr "Noņemams"
 msgid "Remove color from palette"
 msgstr "Izņemt krāsu no paletes"
 
+#: uresourcestrings.rsrender
+#, fuzzy
+msgctxt "uresourcestrings.rsrender"
+msgid "Render"
+msgstr "Atveidot"
+
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
 msgid "Repeat image"
@@ -3596,9 +3634,25 @@ msgctxt "uresourcestrings.rsspline"
 msgid "Spline"
 msgstr "Pielāgots"
 
+#: uresourcestrings.rssplitcmyk
+msgid "Split CMYK"
+msgstr ""
+
+#: uresourcestrings.rssplithsl
+msgid "Split HSL"
+msgstr ""
+
+#: uresourcestrings.rssplitrgb
+msgid "Split RGB"
+msgstr ""
+
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
 msgstr "Ierīce"
+
+#: uresourcestrings.rsstroke
+msgid "Stroke"
+msgstr ""
 
 #: uresourcestrings.rstextoutline
 #, fuzzy
@@ -3682,6 +3736,18 @@ msgstr "Nepazīstams oriģināls"
 #: uresourcestrings.rsvectoriallayer
 msgid "Vectorial layer"
 msgstr "Vektoru slānis"
+
+#: uresourcestrings.rsversion
+msgid "Version"
+msgstr ""
+
+#: uresourcestrings.rsverticalsize
+msgid "Vertical size"
+msgstr ""
+
+#: uresourcestrings.rsyellow
+msgid "Yellow"
+msgstr ""
 
 #: uresourcestrings.rsyes
 msgid "Yes"

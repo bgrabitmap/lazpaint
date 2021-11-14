@@ -1158,13 +1158,15 @@ begin
     LabelAutosize(Label_Brush, toolbarDPI);
     LabelAutosize(Label_Spacing, toolbarDPI);
     LabelAutosize(Label_Ratio, toolbarDPI);
-    w := Button_Donate.Width; h := Button_Donate.Height;
-    Button_Donate.GetPreferredSize(w, h);
-    Button_Donate.Width := w;
 
     m.ImageList := LazPaintInstance.Icons[iconSize];
     m.Apply;
     FLayout.Menu := m;
+
+    Button_Donate.Images := m.ImageList;
+    w := Button_Donate.Width; h := Button_Donate.Height;
+    Button_Donate.GetPreferredSize(w, h);
+    Button_Donate.Width := w;
 
     Layout.DockedToolBoxAddButton(ToolChangeDocking);
 

@@ -1101,7 +1101,7 @@ msgstr ""
 
 #: tfmain.imageswapredblue.caption
 msgid "Swap red and blue channels"
-msgstr ""
+msgstr "Scambiare i canali rosso e blu"
 
 #: tfmain.imageverticalflip.caption
 msgctxt "tfmain.imageverticalflip.caption"
@@ -1389,9 +1389,10 @@ msgid "Remove transparency"
 msgstr "Rimuovi trasparenza"
 
 #: tfmain.menurender.caption
+#, fuzzy
 msgctxt "tfmain.menurender.caption"
 msgid "Render"
-msgstr ""
+msgstr "Render"
 
 #: tfmain.menuscript.caption
 msgctxt "tfmain.menuscript.caption"
@@ -2060,46 +2061,6 @@ msgstr ""
 msgid "Choose image"
 msgstr "Scegli immagine"
 
-#: tfnewimage.bgrashape1.caption
-msgid "BGRAShape1"
-msgstr ""
-
-#: tfnewimage.bgrashape10.caption
-msgid "BGRAShape10"
-msgstr ""
-
-#: tfnewimage.bgrashape2.caption
-msgid "BGRAShape2"
-msgstr ""
-
-#: tfnewimage.bgrashape3.caption
-msgid "BGRAShape3"
-msgstr ""
-
-#: tfnewimage.bgrashape4.caption
-msgid "BGRAShape4"
-msgstr ""
-
-#: tfnewimage.bgrashape5.caption
-msgid "BGRAShape5"
-msgstr ""
-
-#: tfnewimage.bgrashape6.caption
-msgid "BGRAShape6"
-msgstr ""
-
-#: tfnewimage.bgrashape7.caption
-msgid "BGRAShape7"
-msgstr ""
-
-#: tfnewimage.bgrashape8.caption
-msgid "BGRAShape8"
-msgstr ""
-
-#: tfnewimage.bgrashape9.caption
-msgid "BGRAShape9"
-msgstr ""
-
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
 msgid "Cancel"
@@ -2140,14 +2101,6 @@ msgstr ""
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "Larghezza"
-
-#: tfnewimage.toolbar_ratio.caption
-msgid "ToolBar_Ratio"
-msgstr ""
-
-#: tfnewimage.toolbutton_clearratio.caption
-msgid "ToolButton_ClearRatio"
-msgstr ""
 
 #: tfnoisefilter.button_cancel.caption
 msgctxt "tfnoisefilter.button_cancel.caption"
@@ -2826,6 +2779,10 @@ msgstr "Qualità migliore"
 msgid "Bitmap"
 msgstr ""
 
+#: uresourcestrings.rsblack
+msgid "Black"
+msgstr ""
+
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
 msgstr ""
@@ -2868,6 +2825,10 @@ msgstr ""
 msgid "CD"
 msgstr ""
 
+#: uresourcestrings.rschannels
+msgid "Channels"
+msgstr "Canali"
+
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
 msgstr "Pulisci tavolozza"
@@ -2879,6 +2840,10 @@ msgstr ""
 
 #: uresourcestrings.rscmd
 msgid "CMD"
+msgstr ""
+
+#: uresourcestrings.rscoloroverlay
+msgid "Color overlay"
 msgstr ""
 
 #: uresourcestrings.rscolors
@@ -2933,8 +2898,16 @@ msgstr "Ritaglia"
 msgid "CTRL"
 msgstr ""
 
+#: uresourcestrings.rscurrentlayernotsplit
+msgid "Current layer is not split"
+msgstr ""
+
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
+msgstr ""
+
+#: uresourcestrings.rscyan
+msgid "Cyan"
 msgstr ""
 
 #: uresourcestrings.rsdefaultpalette
@@ -2966,6 +2939,10 @@ msgstr "Dona..."
 
 #: uresourcestrings.rsdownload
 msgid "Download"
+msgstr ""
+
+#: uresourcestrings.rsdropshadow
+msgid "Drop shadow"
 msgstr ""
 
 #: uresourcestrings.rsduplicateimage
@@ -3114,6 +3091,10 @@ msgstr ""
 msgid "Following errors occurred:"
 msgstr ""
 
+#: uresourcestrings.rsfractaltree
+msgid "Fractal tree"
+msgstr ""
+
 #: uresourcestrings.rsframes
 msgid "Frames"
 msgstr ""
@@ -3193,6 +3174,14 @@ msgstr ""
 msgid "Information"
 msgstr ""
 
+#: uresourcestrings.rsinnerlight
+msgid "Inner light"
+msgstr ""
+
+#: uresourcestrings.rsinnershadow
+msgid "Inner shadow"
+msgstr ""
+
 #: uresourcestrings.rsintensity
 #, fuzzy
 msgctxt "uresourcestrings.rsintensity"
@@ -3201,6 +3190,10 @@ msgstr "intensità"
 
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
+msgstr ""
+
+#: uresourcestrings.rsinvalidangle
+msgid "Invalid angle"
 msgstr ""
 
 #: uresourcestrings.rsinvalidname
@@ -3242,6 +3235,10 @@ msgstr ""
 
 #: uresourcestrings.rslatestversion
 msgid "The latest version of LazPaint available online is"
+msgstr "L'ultima versione di LazPaint disponibile online è"
+
+#: uresourcestrings.rslava
+msgid "Lava"
 msgstr ""
 
 #: uresourcestrings.rslayer
@@ -3249,9 +3246,17 @@ msgctxt "uresourcestrings.rslayer"
 msgid "Layer"
 msgstr "Livello"
 
+#: uresourcestrings.rslayeralreadysplit
+msgid "Layer already split"
+msgstr ""
+
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr ""
+
+#: uresourcestrings.rslayereffect
+msgid "Layer effect"
+msgstr "Effetto di livello"
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
@@ -3306,9 +3311,29 @@ msgstr "Carica tavolozza"
 msgid "Loop count"
 msgstr ""
 
+#: uresourcestrings.rsmagenta
+msgid "Magenta"
+msgstr ""
+
+#: uresourcestrings.rsmakemonochromatic
+msgid "Make monochromatic"
+msgstr "Rendere monocromatico"
+
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
 msgstr ""
+
+#: uresourcestrings.rsmask
+msgid "Mask"
+msgstr "Maschera"
+
+#: uresourcestrings.rsmaskfromalphachannel
+msgid "Mask from alpha channel"
+msgstr ""
+
+#: uresourcestrings.rsmerge
+msgid "Merge"
+msgstr "Unire"
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -3345,6 +3370,10 @@ msgctxt "uresourcestrings.rsnewimage"
 msgid "New image"
 msgstr "Nuova immagine"
 
+#: uresourcestrings.rsnewmask
+msgid "New mask"
+msgstr ""
+
 #: uresourcestrings.rsno
 msgid "No"
 msgstr ""
@@ -3369,6 +3398,10 @@ msgstr ""
 #: uresourcestrings.rsnormalblendop
 msgid "Normal"
 msgstr "Normale"
+
+#: uresourcestrings.rsnotchromaticchannel
+msgid "This is not a chromatic channel"
+msgstr ""
 
 #: uresourcestrings.rsnothingtobedeformed
 msgctxt "uresourcestrings.rsnothingtobedeformed"
@@ -3497,6 +3530,11 @@ msgstr ""
 msgid "Remove color from palette"
 msgstr "Rimuovi colore"
 
+#: uresourcestrings.rsrender
+msgctxt "uresourcestrings.rsrender"
+msgid "Render"
+msgstr "Render"
+
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
 msgid "Repeat image"
@@ -3577,8 +3615,24 @@ msgctxt "uresourcestrings.rsspline"
 msgid "Spline"
 msgstr ""
 
+#: uresourcestrings.rssplitcmyk
+msgid "Split CMYK"
+msgstr "Dividere CMYK"
+
+#: uresourcestrings.rssplithsl
+msgid "Split HSL"
+msgstr "Dividere HSL"
+
+#: uresourcestrings.rssplitrgb
+msgid "Split RGB"
+msgstr "Dividere RGB"
+
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
+msgstr ""
+
+#: uresourcestrings.rsstroke
+msgid "Stroke"
 msgstr ""
 
 #: uresourcestrings.rstextoutline
@@ -3661,6 +3715,18 @@ msgstr ""
 
 #: uresourcestrings.rsvectoriallayer
 msgid "Vectorial layer"
+msgstr ""
+
+#: uresourcestrings.rsversion
+msgid "Version"
+msgstr "Versione"
+
+#: uresourcestrings.rsverticalsize
+msgid "Vertical size"
+msgstr ""
+
+#: uresourcestrings.rsyellow
+msgid "Yellow"
 msgstr ""
 
 #: uresourcestrings.rsyes

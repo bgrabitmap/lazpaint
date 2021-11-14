@@ -521,6 +521,7 @@ begin
     StateClicked.FontEx.ShadowColorOpacity:= 70;
     StateClicked.FontEx.TextAlignment:= bcaLeftCenter;
     StateClicked.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
+    GlyphMargin := DoScaleX(3, OriginalDPI);
   end;
 end;
 

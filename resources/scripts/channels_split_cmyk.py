@@ -1,15 +1,8 @@
 # Channels > Split CMYK
 # (fr) Canaux > Séparer CMJN
-# (es) Canales > Dividir CMYK
-# (de) Kanäle > CMYK teilen
 from lazpaint import image, dialog, layer, filters
 
-translation = dialog.select_translation(
-  en = {"Layer already split": "Layer already split", "Cyan": "Cyan", "Magenta": "Magenta", "Yellow": "Yellow", "Black": "Black", "Alpha": "Alpha"}, 
-  fr = {"Layer already split": "Le calque est déjà séparé", "Cyan": "Cyan", "Magenta": "Magenta", "Yellow": "Jaune", "Black": "Noir", "Alpha": "Alpha"}, 
-  es = {"Layer already split": "La capa ya está dividida", "Cyan": "Cian", "Magenta": "Magenta", "Yellow": "Amarillo", "Black": "Negro", "Alpha": "Alpha"}, 
-  de = {"Layer already split": "Die Ebene ist bereits geteilt", "Cyan": "Cyan", "Magenta": "Magenta", "Yellow": "Gelb", "Black": "Schwartz", "Alpha": "Alpha"}
-  )
+translation = dialog.translate_dict(["Layer already split", "Cyan", "Magenta", "Yellow", "Black", "Alpha"])
 
 # check if it is a channel
 if layer.get_registry("split-channel") is not None:
