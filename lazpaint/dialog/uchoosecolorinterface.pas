@@ -56,6 +56,7 @@ type
 
     FColorTarget: TColorTarget;
     FCurrentColor: TBGRAPixel;
+    FCurrentColorFormatError: boolean;
     FColorLight: word;
     FColorX,FColorY: single;
     FSelectZone: (szNone, szColorCircle, szLightScale, szAlphascale);
@@ -131,7 +132,7 @@ type
 implementation
 
 uses math, Forms, UResourceStrings, LCLType, UDarkTheme, LCScaleDPI, UGraph, BGRAText,
-  BGRAClasses;
+  BGRAClasses, ULoading;
 
 { TChooseColorInterface }
 
@@ -314,7 +315,6 @@ end;
 
 procedure TChooseColorInterface.EColorChange(Sender: TObject);
 var newColor: TBGRAPixel;
-  error: boolean;
   errPos,value: integer;
 begin
    if (FLazPaintInstance <> nil) and EColor.Visible then
@@ -324,15 +324,15 @@ begin
        val(EColor.Text,value,errPos);
        if (errPos = 0) and (value >= 0) and (value <= 255) then
        begin
-         error := false;
+         FCurrentColorFormatError := false;
          newColor.green := value;
          newColor.red := value;
          newColor.blue := value;
        end else
-         error := true;
+         FCurrentColorFormatError := true;
      end else
-       newColor := PartialStrToBGRA(EColor.Text,FColorBeforeEColor,error);
-     if not error then
+       newColor := PartialStrToBGRA(EColor.Text,FColorBeforeEColor,FCurrentColorFormatError);
+     if not FCurrentColorFormatError then
      begin
        newColor.alpha := FColorBeforeEColor.alpha;
        SetCurrentColor(newColor, true);
@@ -346,6 +346,11 @@ procedure TChooseColorInterface.EColorKeyDown(Sender: TObject; var Key: Word;
 begin
   if Key = VK_RETURN then
   begin
+    if FCurrentColorFormatError then
+    begin
+      MessagePopup(rsInvalidName, 3000);
+      FCurrentColorFormatError := false;
+    end;
     HideEditor;
     Key := 0;
   end
@@ -371,6 +376,7 @@ begin
     EColor.Text := '#' + copy(BGRAToStr(FColorBeforeEColor),1,6);
   EColor.Visible := true;
   EColor.Top := Container.ClientHeight - EColor.Height;
+  FCurrentColorFormatError := false;
   SafeSetFocus(EColor);
 end;
 
@@ -1066,6 +1072,7 @@ begin
   EColor.Text:= '#FFFFFF';
   LColor.Visible := true;
   LColor.Caption := '#FFFFFF';
+  FCurrentColorFormatError:= false;
   vsColorView.Left := ExternalMargin;
   vsColorView.Top := 0;
 
