@@ -3,23 +3,23 @@ msgstr "Content-Type: text/plain; charset=UTF-8"
 
 #: lcresourcestring.rsadjusttoshape
 msgid "Adjust to shape"
-msgstr ""
+msgstr "Регулировка фигуры"
 
 #: lcresourcestring.rscigsbnegative
 msgid "Corr. HSL CCW"
-msgstr ""
+msgstr "Корр. HSL против час.стрелке"
 
 #: lcresourcestring.rscigsbpositive
 msgid "Corr. HSL CW"
-msgstr ""
+msgstr "Корр. HSL по час.стрелке"
 
 #: lcresourcestring.rscilinearhslnegative
 msgid "HSL CCW"
-msgstr ""
+msgstr "HSL против час.стрелке"
 
 #: lcresourcestring.rscilinearhslpositive
 msgid "HSL CW"
-msgstr ""
+msgstr "HSL по час.стрелке"
 
 #: lcresourcestring.rscilinearrgb
 msgid "RGB"
@@ -35,19 +35,19 @@ msgstr "Цвет"
 
 #: lcresourcestring.rscolorinterpolation
 msgid "Color interpolation"
-msgstr "цветовая интерполяция"
+msgstr "Цветовая интерполяция"
 
 #: lcresourcestring.rseditgradtexpoints
 msgid "Edit gradient/texture points"
-msgstr ""
+msgstr "Редактировать точки градиента/текстуры"
 
 #: lcresourcestring.rsendopacity
 msgid "End opacity"
-msgstr ""
+msgstr "Окончание непрозрачности"
 
 #: lcresourcestring.rsgradientangular
 msgid "Angular"
-msgstr ""
+msgstr "Угловая"
 
 #: lcresourcestring.rsgradientdiamond
 msgid "Diamond"
@@ -55,7 +55,7 @@ msgstr "Алмазный"
 
 #: lcresourcestring.rsgradientfill
 msgid "Gradient fill"
-msgstr "Градиент"
+msgstr "Градиентная заливка"
 
 #: lcresourcestring.rsgradientlinear
 msgid "Linear"
@@ -71,27 +71,27 @@ msgstr "Отраженный"
 
 #: lcresourcestring.rsgradientrepetition
 msgid "Gradient repetition"
-msgstr ""
+msgstr "Повторение градиента"
 
 #: lcresourcestring.rsgrpad
 msgid "Pad"
-msgstr ""
+msgstr "Растянуть"
 
 #: lcresourcestring.rsgrreflect
 msgid "Reflect"
-msgstr ""
+msgstr "Отразить"
 
 #: lcresourcestring.rsgrrepeat
 msgid "Repeat"
-msgstr ""
+msgstr "Повторить"
 
 #: lcresourcestring.rsgrsine
 msgid "Sine"
-msgstr "Синусоидальный"
+msgstr "Синусойда"
 
 #: lcresourcestring.rsincompatibletype
 msgid "Incompatible type"
-msgstr ""
+msgstr "Несовместимый тип"
 
 #: lcresourcestring.rsindexoutofbounds
 msgid "Index out of bounds"
@@ -99,7 +99,7 @@ msgstr "Индекс вне диапазона"
 
 #: lcresourcestring.rslightposition
 msgid "Light position"
-msgstr "Позиция света"
+msgstr "Положение источника света"
 
 #: lcresourcestring.rsloadtexture
 msgid "Load texture"
@@ -107,11 +107,11 @@ msgstr "Загрузить текстуру"
 
 #: lcresourcestring.rsnofill
 msgid "No fill"
-msgstr ""
+msgstr "Без заливки"
 
 #: lcresourcestring.rsnottexturefill
 msgid "It is not a texture fill"
-msgstr ""
+msgstr "Это не текстурная заливка"
 
 #: lcresourcestring.rsopacity
 msgid "Opacity"
@@ -119,53 +119,53 @@ msgstr "Непроз-ть"
 
 #: lcresourcestring.rspreview
 msgid "Preview"
-msgstr ""
+msgstr "Предварительный просмотр"
 
 #: lcresourcestring.rsshapeclassnotspecified
 msgid "Shape class not specified"
-msgstr ""
+msgstr "Класс фигуры не указан"
 
 #: lcresourcestring.rsshapenotfound
 msgid "Shape not found"
-msgstr ""
+msgstr "Фигура не найдена"
 
 #: lcresourcestring.rssolidcolor
 msgid "Solid color"
-msgstr "сплошной цвет"
+msgstr "Сплошной цвет"
 
 #: lcresourcestring.rsstartopacity
 msgid "Start opacity"
-msgstr ""
+msgstr "Начало непрозрачности"
 
 #: lcresourcestring.rsswapcolors
 msgid "Swap colors"
-msgstr "Switch color"
+msgstr "Поменять цвета местами"
 
 #: lcresourcestring.rstexturefill
 msgid "Texture fill"
-msgstr ""
+msgstr "Текстурная заливка"
 
 #: lcresourcestring.rstexturerepetition
 msgid "Texture repetition"
-msgstr ""
+msgstr "Повторение текстуры"
 
 #: lcresourcestring.rstrnone
 msgid "No repetition"
-msgstr ""
+msgstr "Не повторять"
 
 #: lcresourcestring.rstrrepeatboth
 msgid "Repeat both"
-msgstr ""
+msgstr "Повторить по обеим осям"
 
 #: lcresourcestring.rstrrepeatx
 msgid "Repeat X"
-msgstr ""
+msgstr "Повторить по оси X"
 
 #: lcresourcestring.rstrrepeaty
 msgid "Repeat Y"
-msgstr ""
+msgstr "Повторить по оси Y"
 
 #: lcresourcestring.rsunknownshapeclass
 msgid "Unknown shape class \"%1\""
-msgstr ""
+msgstr "Неизвестный класс формы "%1""
 
