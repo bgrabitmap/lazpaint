@@ -36,6 +36,7 @@ msgstr ""
 "X-Poedit-Language: Dutch\n"
 
 #: tablet.getprocfailed
+#, object-pascal-format
 msgid "Procedure %s failed to load properly."
 msgstr "Procedure %s is niet correct geladen."
 
@@ -63,7 +64,6 @@ msgid "Authors:"
 msgstr "Auteurs:"
 
 #: tfabout.label_authorsvalue.caption
-#| msgid "Circular help by FabienWang and Lainz"
 msgctxt "tfabout.label_authorsvalue.caption"
 msgid "Circular helped by FabienWang, Lainz and others"
 msgstr "Circular geholpen door FabienWang, Lainz en anderen"
@@ -266,22 +266,10 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Breedte :"
 
-#: uresourcestrings.rsaddtopalette
-msgid "Add color to palette"
-msgstr "Kleur toevoegen aan palet"
-
-#: uresourcestrings.rsremovefrompalette
-msgid "Remove color from palette"
-msgstr "Verwijder kleur van palet"
-
 #: tfchoosecolor.caption
 msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "Kleur"
-
-#: tfchoosecolor.lcolor.hint
-msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr "Kleurbeschrijving: klik om een kleur in te typen met het toetsenbord middels kleurnamen of CSS notatie."
 
 #: tfcolorintensity.button_cancel.caption
 msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
@@ -420,8 +408,20 @@ msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
 msgstr "Gecorrigeerde tint en helderheid"
 
+#: tffilterfunction.label_aequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_aequals.caption"
+msgid "."
+msgstr "."
+
 #: tffilterfunction.label_alphaequals.caption
 msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_bequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_bequals.caption"
 msgid "."
 msgstr "."
 
@@ -437,6 +437,12 @@ msgstr "."
 
 #: tffilterfunction.label_hueequals.caption
 msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_lequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_lequals.caption"
 msgid "."
 msgstr "."
 
@@ -462,6 +468,10 @@ msgstr "Variabelen :"
 #: tffilterfunction.tabsheet_hsl.caption
 msgid "HSL"
 msgstr "HSL"
+
+#: tffilterfunction.tabsheet_lab.caption
+msgid "Lab"
+msgstr ""
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
@@ -607,21 +617,6 @@ msgctxt "tflayerstack.caption"
 msgid "Layers"
 msgstr "Lagen"
 
-#: tflayerstack.toolblendop.hint
-msgctxt "tflayerstack.toolblendop.hint"
-msgid "Select blend operation"
-msgstr "Kies mengoperatie"
-
-#: tflayerstack.toolzoomlayerstackin.hint
-msgctxt "tflayerstack.toolzoomlayerstackin.hint"
-msgid "Zoom layer stack in"
-msgstr "Inzoomen in lagenoverzicht"
-
-#: tflayerstack.toolzoomlayerstackout.hint
-msgctxt "tflayerstack.toolzoomlayerstackout.hint"
-msgid "Zoom layer stack out"
-msgstr "Uitzoomen uit lagenoverzicht"
-
 #: tfloading.caption
 msgctxt "tfloading.caption"
 msgid "Loading..."
@@ -640,6 +635,12 @@ msgstr "Laad kwast van bestand..."
 #: tfmain.brushremovecurrent.hint
 msgid "Remove current brush"
 msgstr "Verwijder huidige kwast"
+
+#: tfmain.button_donate.caption
+#, fuzzy
+msgctxt "tfmain.button_donate.caption"
+msgid "Donate..."
+msgstr "Doneren..."
 
 #: tfmain.caption
 msgctxt "tfmain.caption"
@@ -832,6 +833,7 @@ msgid "Choose entry within file"
 msgstr "Kies invoer in bestand"
 
 #: tfmain.fileexport.caption
+msgctxt "tfmain.fileexport.caption"
 msgid "Export..."
 msgstr "Export..."
 
@@ -1081,6 +1083,7 @@ msgid "Fill background with antialiasing"
 msgstr "Vul achtergrond met antialiasing"
 
 #: tfmain.imageflatten.caption
+msgctxt "tfmain.imageflatten.caption"
 msgid "Flatten image"
 msgstr "Alle lagen samenvoegen"
 
@@ -1116,6 +1119,10 @@ msgstr "Opnieuw samplen..."
 msgid "Resample image"
 msgstr "Afbeelding opnieuw samplen"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "180° draaien"
+
 #: tfmain.imagerotateccw.caption
 msgid "Rotate 90° CCW"
 msgstr "90° naar links draaien"
@@ -1123,10 +1130,6 @@ msgstr "90° naar links draaien"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "90° naar rechts draaien"
-
-#: tfmain.imagerotate180.caption
-msgid "Rotate 180°"
-msgstr "180° draaien"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -1182,6 +1185,7 @@ msgid "Altitude"
 msgstr "Hoogte"
 
 #: tfmain.label_back.caption
+msgctxt "tfmain.label_back.caption"
 msgid "Back"
 msgstr "Terug"
 
@@ -1208,7 +1212,6 @@ msgid "Color difference"
 msgstr "Kleurverschil"
 
 #: tfmain.label_currentzoom.caption
-#| msgid "100%"
 msgctxt "TFMAIN.LABEL_CURRENTZOOM.CAPTION"
 msgid "%"
 msgstr "%"
@@ -1299,6 +1302,12 @@ msgstr "Nieuwe laag toevoegen"
 msgctxt "tfmain.layerduplicate.hint"
 msgid "Duplicate selected layer"
 msgstr "Geselecteerde laag dupliceren"
+
+#: tfmain.layerexport.hint
+#, fuzzy
+msgctxt "tfmain.layerexport.hint"
+msgid "Export..."
+msgstr "Export..."
 
 #: tfmain.layerfromfile.hint
 msgctxt "tfmain.layerfromfile.hint"
@@ -1459,7 +1468,6 @@ msgid "Show zoom toolbar"
 msgstr "Zoom-werkbalk weergeven"
 
 #: tfmain.open3dobjectdialog.title
-#| msgid "Open existing file"
 msgctxt "tfmain.open3dobjectdialog.title"
 msgid "Import 3D object"
 msgstr "3D object importeren"
@@ -2591,6 +2599,10 @@ msgstr "Opslaan"
 msgid "Dithering"
 msgstr "Dithering"
 
+#: tfsaveoption.checkbox_lossless.caption
+msgid "Lossless"
+msgstr ""
+
 #: tfsaveoption.label1.caption
 msgid "Quality:"
 msgstr "Kwaliteit:"
@@ -2684,7 +2696,6 @@ msgid "Hue"
 msgstr "Kleurtint"
 
 #: tfshiftcolors.label2.caption
-#| msgid "Colorness"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Verzadiging"
@@ -2753,6 +2764,10 @@ msgstr "Bezig met actie"
 msgid "Add files to the image processing list"
 msgstr "Voeg bestanden toe aan afbeeldingsverwerkingslijst"
 
+#: uresourcestrings.rsaddtopalette
+msgid "Add color to palette"
+msgstr "Kleur toevoegen aan palet"
+
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
 msgstr "Vorm uitlijnen"
@@ -2777,6 +2792,12 @@ msgstr "Geanimeerde GIF"
 msgid "Autodetect"
 msgstr "Automatische detectie"
 
+#: uresourcestrings.rsback
+#, fuzzy
+msgctxt "uresourcestrings.rsback"
+msgid "Back"
+msgstr "Terug"
+
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
 msgstr "Druk BACKSPACE om het laatste punt te verwijderen"
@@ -2788,6 +2809,10 @@ msgstr "Beste kwaliteit"
 #: uresourcestrings.rsbitmap
 msgid "Bitmap"
 msgstr "Bitmap"
+
+#: uresourcestrings.rsblack
+msgid "Black"
+msgstr ""
 
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
@@ -2831,6 +2856,10 @@ msgstr "Canvasgrootte"
 msgid "CD"
 msgstr "CD"
 
+#: uresourcestrings.rschannels
+msgid "Channels"
+msgstr ""
+
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
 msgstr "Wis palet"
@@ -2842,6 +2871,10 @@ msgstr "Verzoek om te sluiten"
 #: uresourcestrings.rscmd
 msgid "CMD"
 msgstr "CMD"
+
+#: uresourcestrings.rscoloroverlay
+msgid "Color overlay"
+msgstr ""
 
 #: uresourcestrings.rscolors
 msgctxt "uresourcestrings.rscolors"
@@ -2894,9 +2927,17 @@ msgstr "Bijsnijden"
 msgid "CTRL"
 msgstr "CTRL"
 
+#: uresourcestrings.rscurrentlayernotsplit
+msgid "Current layer is not split"
+msgstr ""
+
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
 msgstr "Druk S of X om de krommingsmodus van het laatste punt in te stellen"
+
+#: uresourcestrings.rscyan
+msgid "Cyan"
+msgstr ""
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
@@ -2918,6 +2959,20 @@ msgstr "Map is niet leeg"
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
 msgstr "Ditherlaag met palet"
+
+#: uresourcestrings.rsdonate
+#, fuzzy
+msgctxt "uresourcestrings.rsdonate"
+msgid "Donate..."
+msgstr "Doneren..."
+
+#: uresourcestrings.rsdownload
+msgid "Download"
+msgstr "Downloaden"
+
+#: uresourcestrings.rsdropshadow
+msgid "Drop shadow"
+msgstr ""
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
@@ -3043,6 +3098,12 @@ msgstr "Type"
 msgid "Fixed"
 msgstr "Vast"
 
+#: uresourcestrings.rsflattenimage
+#, fuzzy
+msgctxt "uresourcestrings.rsflattenimage"
+msgid "Flatten image"
+msgstr "Alle lagen samenvoegen"
+
 #: uresourcestrings.rsfolder
 msgid "Folder"
 msgstr "Folder"
@@ -3054,6 +3115,10 @@ msgstr "Map of container bestaat al."
 #: uresourcestrings.rsfollowingerrorsoccurred
 msgid "Following errors occurred:"
 msgstr "De volgende fouten zijn opgetreden:"
+
+#: uresourcestrings.rsfractaltree
+msgid "Fractal tree"
+msgstr ""
 
 #: uresourcestrings.rsframes
 msgid "Frames"
@@ -3133,9 +3198,13 @@ msgstr "Oneindigheid"
 msgid "Information"
 msgstr "Informatie"
 
-#: uresourcestrings.rsdownload
-msgid "Download"
-msgstr "Downloaden"
+#: uresourcestrings.rsinnerlight
+msgid "Inner light"
+msgstr ""
+
+#: uresourcestrings.rsinnershadow
+msgid "Inner shadow"
+msgstr ""
 
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
@@ -3145,6 +3214,10 @@ msgstr "Intensiteit"
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
 msgstr "Interne fout"
+
+#: uresourcestrings.rsinvalidangle
+msgid "Invalid angle"
+msgstr ""
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
@@ -3186,19 +3259,31 @@ msgstr "Landschap"
 msgid "The latest version of LazPaint available online is"
 msgstr "De nieuwste online beschikbare LazPaint versie is"
 
-#: uresourcestrings.rslayeredimage
-msgid "Layered image"
-msgstr "Gelaagde afbeelding"
-
-#: uresourcestrings.rslayers
-msgctxt "uresourcestrings.rslayers"
-msgid "Layers"
-msgstr "Lagen"
+#: uresourcestrings.rslava
+msgid "Lava"
+msgstr ""
 
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
 msgid "Layer"
 msgstr "Laag"
+
+#: uresourcestrings.rslayeralreadysplit
+msgid "Layer already split"
+msgstr ""
+
+#: uresourcestrings.rslayeredimage
+msgid "Layered image"
+msgstr "Gelaagde afbeelding"
+
+#: uresourcestrings.rslayereffect
+msgid "Layer effect"
+msgstr ""
+
+#: uresourcestrings.rslayers
+msgctxt "uresourcestrings.rslayers"
+msgid "Layers"
+msgstr "Lagen"
 
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
@@ -3246,9 +3331,29 @@ msgstr "Palet laden..."
 msgid "Loop count"
 msgstr "Aantal herhalingen"
 
+#: uresourcestrings.rsmagenta
+msgid "Magenta"
+msgstr ""
+
+#: uresourcestrings.rsmakemonochromatic
+msgid "Make monochromatic"
+msgstr ""
+
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
 msgstr "Maak %1-kleurenpalet van afbeelding"
+
+#: uresourcestrings.rsmask
+msgid "Mask"
+msgstr ""
+
+#: uresourcestrings.rsmaskfromalphachannel
+msgid "Mask from alpha channel"
+msgstr ""
+
+#: uresourcestrings.rsmerge
+msgid "Merge"
+msgstr ""
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -3283,6 +3388,10 @@ msgctxt "uresourcestrings.rsnewimage"
 msgid "New image"
 msgstr "Nieuwe afbeelding"
 
+#: uresourcestrings.rsnewmask
+msgid "New mask"
+msgstr ""
+
 #: uresourcestrings.rsno
 msgid "No"
 msgstr "Nee"
@@ -3306,6 +3415,10 @@ msgstr "naamloos"
 #: uresourcestrings.rsnormalblendop
 msgid "Normal"
 msgstr "Normaal"
+
+#: uresourcestrings.rsnotchromaticchannel
+msgid "This is not a chromatic channel"
+msgstr ""
 
 #: uresourcestrings.rsnothingtobedeformed
 msgid "There is nothing to be deformed"
@@ -3367,6 +3480,12 @@ msgstr "Palet bevat alfakanaal"
 msgid "Palette options"
 msgstr "Palet opties"
 
+#: uresourcestrings.rspen
+#, fuzzy
+msgctxt "uresourcestrings.rspen"
+msgid "Pen"
+msgstr "Pen"
+
 #: uresourcestrings.rspercent
 msgctxt "uresourcestrings.rspercent"
 msgid "%"
@@ -3420,6 +3539,16 @@ msgstr "Bitmap is gewijzigd. Wilt u deze echt herladen?"
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
 msgstr "Verwijderbaar"
+
+#: uresourcestrings.rsremovefrompalette
+msgid "Remove color from palette"
+msgstr "Verwijder kleur van palet"
+
+#: uresourcestrings.rsrender
+#, fuzzy
+msgctxt "uresourcestrings.rsrender"
+msgid "Render"
+msgstr "Renderen"
 
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
@@ -3499,9 +3628,31 @@ msgctxt "uresourcestrings.rsspline"
 msgid "Spline"
 msgstr "Spline"
 
+#: uresourcestrings.rssplitcmyk
+msgid "Split CMYK"
+msgstr ""
+
+#: uresourcestrings.rssplithsl
+msgid "Split HSL"
+msgstr ""
+
+#: uresourcestrings.rssplitrgb
+msgid "Split RGB"
+msgstr ""
+
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
 msgstr "Apparaat"
+
+#: uresourcestrings.rsstroke
+msgid "Stroke"
+msgstr ""
+
+#: uresourcestrings.rstextoutline
+#, fuzzy
+msgctxt "uresourcestrings.rstextoutline"
+msgid "Text outline"
+msgstr "Progressieve vloedvulling"
 
 #: uresourcestrings.rstexturemapping
 msgctxt "uresourcestrings.rstexturemapping"
@@ -3579,6 +3730,18 @@ msgstr "Onbekend origineel"
 #: uresourcestrings.rsvectoriallayer
 msgid "Vectorial layer"
 msgstr "Vector laag"
+
+#: uresourcestrings.rsversion
+msgid "Version"
+msgstr ""
+
+#: uresourcestrings.rsverticalsize
+msgid "Vertical size"
+msgstr ""
+
+#: uresourcestrings.rsyellow
+msgid "Yellow"
+msgstr ""
 
 #: uresourcestrings.rsyes
 msgid "Yes"

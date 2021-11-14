@@ -353,6 +353,7 @@ procedure TImagePreview.DrawMenu(Bitmap: TBGRABitmap);
   begin
     ptsF := PointsF([PointF(x+sw*0.20,y+sh*0.1),PointF(x+sw*0.55,y+sh*0.1),PointF(x+sw*0.75,y+sh*0.3),
                      PointF(x+sw*0.75,y+sh*0.9),PointF(x+sw*0.20,y+sh*0.9)]);
+    ptsF2 := nil;
     setlength(ptsF2,length(ptsF));
     for j := 0 to high(ptsF) do
         ptsF2[j] := ptsF[j] + PointF(3,3);

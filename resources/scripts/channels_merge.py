@@ -1,15 +1,8 @@
 # Channels > Merge
 # (fr) Canaux > Fusionner
-# (es) Canales > Fusionar
-# (de) Kanäle > Zusammenführen
 from lazpaint import image, dialog, layer
 
-translation = dialog.select_translation(
-  en = {"Current layer is not split": "Current layer is not split"}, 
-  fr = {"Current layer is not split": "Le calque actuel n'est pas séparé"}, 
-  es = {"Current layer is not split": "La capa actual no está dividida"}, 
-  de = {"Current layer is not split": "Die aktuelle Ebene wird nicht geteilt"}, 
-  )
+translation = dialog.translate_dict(["Current layer is not split"])
 
 channels_id = None
 new_layer_index = None

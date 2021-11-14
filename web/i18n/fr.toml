@@ -1,0 +1,56 @@
+[blog]
+other = "Blog"
+
+[last_changes]
+other = "Dernières modif"
+
+[documentation]
+other = "Documentation"
+
+[download]
+other = "Télécharger"
+
+[download_lazpaint]
+other = "Télécharger LazPaint"
+
+[download_version]
+other = "Télécharger LazPaint %s"
+
+[screenshots]
+other = "Captures d'écran"
+
+[forum]
+other = "Forum"
+
+[app_description]
+other = "Éditeur d'image multiplatforme gratuit avec calques pixel et vectoriel, écrit en Lazarus (Free Pascal)."
+
+[donate]
+other = "Faire un don"
+
+[your_os_is]
+other = "Votre système d'exploitation actuel est %s"
+
+[installation]
+other = "Installation"
+
+[archive]
+other = "Archive %s"
+
+[portable]
+other = "Portable"
+
+[deb_package]
+other = "Paquet Deb %s"
+
+[no_install]
+other = "pas d'install"
+
+[bit_32]
+other = "32 bits"
+
+[bit_64]
+other = "64 bits"
+
+[bit_32_and_64]
+other = "32 et 64 bits"

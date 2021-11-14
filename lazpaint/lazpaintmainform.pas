@@ -23,15 +23,13 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    Button_Donate: TBCButton;
     LayerExport: TAction;
     FileExport: TAction;
     ExportPictureDialog: TSaveDialog;
-    Label_Donate: TLabel;
     MenuScript: TMenuItem;
     Panel_OutlineFill: TPanel;
     Panel_Donate: TPanel;
-    ToolButton_Donate: TToolButton;
-    ToolBar25: TToolBar;
     ToolOpenedCurve: TAction;
     ToolPolyline: TAction;
     FileRunScript: TAction;
@@ -639,6 +637,7 @@ type
     procedure WMEraseBkgnd(var {%H-}Message: TLMEraseBkgnd); message LM_ERASEBKGND;
 
   private
+    function CanClickDonate: boolean;
     procedure ComboBox_PenStyleChange(Sender: TObject);
     procedure ComboBox_PenStyleDrawItem({%H-}Control: TWinControl; Index: Integer;
       ARect: TRect; State: TOwnerDrawState);
@@ -1123,7 +1122,7 @@ var
   m: TMainFormMenu;
   startFillControlWidth: LongInt;
   iconSize: Integer;
-  toolbarDPI: integer;
+  toolbarDPI, w, h: integer;
 begin
   if FLayout.Menu = nil then
   begin
@@ -1159,10 +1158,15 @@ begin
     LabelAutosize(Label_Brush, toolbarDPI);
     LabelAutosize(Label_Spacing, toolbarDPI);
     LabelAutosize(Label_Ratio, toolbarDPI);
-    LabelAutosize(Label_Donate, toolbarDPI);
+
     m.ImageList := LazPaintInstance.Icons[iconSize];
     m.Apply;
     FLayout.Menu := m;
+
+    Button_Donate.Images := m.ImageList;
+    w := Button_Donate.Width; h := Button_Donate.Height;
+    Button_Donate.GetPreferredSize(w, h);
+    Button_Donate.Width := w;
 
     Layout.DockedToolBoxAddButton(ToolChangeDocking);
 
@@ -1310,6 +1314,7 @@ begin
           if mr = mrOK then
           begin
             OpenPictureDialog1.FilterIndex := FBrowseImages.FilterIndex;
+            chosenFiles := nil;
             setlength(chosenFiles, FBrowseImages.SelectedFileCount);
             for i := 0 to high(chosenFiles) do
               chosenFiles[i] := FBrowseImages.SelectedFile[i];
@@ -2140,6 +2145,7 @@ begin
               end; //case
               //When files are open this way, they get the name of the first of them.
               //They shall have no name, in order to prevent saving with Save (it then gets redirected to Save As)
+              loadedLayers := nil;
               setlength(loadedLayers,length(FileNames));
               tx := 0;
               ty := 0;
@@ -2643,6 +2649,7 @@ begin
         else LazPaintInstance.NotifyThemeChanged;
     end;
   end;
+  Button_Donate.Enabled := CanClickDonate;
   TimerUpdate.Enabled := true;
 end;
 
@@ -3201,6 +3208,7 @@ begin
     needUpdate := false;
     p := @txt[1];
     pEnd := @txt[length(txt)];
+    utf8char := '';
     while p <= pEnd do
     begin
       utf8len := min(UTF8CharacterLength(p), (pEnd-p)+1);

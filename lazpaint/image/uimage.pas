@@ -108,7 +108,7 @@ type
       AOriginal: TBGRALayerCustomOriginal; var ADiff: TBGRAOriginalDiff);
     procedure OriginalEditingChange({%H-}ASender: TObject;
       {%H-}AOriginal: TBGRALayerCustomOriginal);
-    procedure OriginalLoadError(ASender: TObject; AError: string;
+    procedure OriginalLoadError({%H-}ASender: TObject; {%H-}AError: string;
       var ARaise: boolean);
     procedure SetBlendOperation(AIndex: integer; AValue: TBlendOperation);
     procedure SetCurrentFilenameUTF8(AValue: string);
@@ -677,6 +677,7 @@ begin
       gif.ReplaceFullFrame(newFrameIndex, RenderedImage, gif.FrameDelayMs[newFrameIndex]);
     end;
 
+    gif.OptimizeFrames;
     s := FileManager.CreateFileStream(AOutputFilename,fmCreate);
     try
       gif.SaveToStream(s);

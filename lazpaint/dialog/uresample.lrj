@@ -1,0 +1,9 @@
+{"version":1,"strings":[
+{"hash":211305637,"name":"tfresample.caption","sourcebytes":[82,101,115,97,109,112,108,101],"value":"Resample"},
+{"hash":137421706,"name":"tfresample.label_quality.caption","sourcebytes":[81,117,97,108,105,116,121,32,58],"value":"Quality :"},
+{"hash":234596970,"name":"tfresample.label_width.caption","sourcebytes":[87,105,100,116,104,32,58],"value":"Width :"},
+{"hash":201192154,"name":"tfresample.label_height.caption","sourcebytes":[72,101,105,103,104,116,32,58],"value":"Height :"},
+{"hash":10706303,"name":"tfresample.checkbox_ratio.caption","sourcebytes":[75,101,101,112,32,97,115,112,101,99,116,32,114,97,116,105,111],"value":"Keep aspect ratio"},
+{"hash":1339,"name":"tfresample.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfresample.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"}
+]}

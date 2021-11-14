@@ -117,6 +117,27 @@ var t: textfile;
     end;
   end;
 
+  procedure TranslateWithPoFile(var title: string);
+  var elements: TStringList;
+    i: integer;
+    u: string;
+  begin
+    elements := TStringList.Create;
+    try
+      elements.Delimiter := '>';
+      elements.QuoteChar := #0;
+      elements.DelimitedText := StringReplace(title, ' ', #160, [rfReplaceAll]);
+      for i := 0 to elements.Count-1 do
+      begin
+        u := Trim(StringReplace(elements[i], #160, ' ', [rfReplaceAll]));
+        elements[i] := DoTranslate('', u);
+      end;
+    finally
+      title := elements.DelimitedText;
+      elements.free;
+    end;
+  end;
+
 begin
   result := '';
   assignFile(t, AFilename);
@@ -134,6 +155,8 @@ begin
           RetrieveTitle(header, false, result, matchLang);
         end else break;
       end;
+      if not matchLang then
+         TranslateWithPoFile(result);
     end;
   finally
     closefile(t);
@@ -202,6 +225,7 @@ begin
     if Assigned(FOnOutputLine) then
     begin
       finalLine := FLinePrefix+ALine;
+      displayedLine := '';
       setlength(displayedLine, 80);
       curDisplayPos := 1;
       maxDisplayLen := 0;

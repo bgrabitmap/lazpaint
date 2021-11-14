@@ -735,12 +735,16 @@ begin
     AExpr.Expression := ReplaceStats(Trim(AEdit.Text));
     AEdit.Color := clWindow;
     AEdit.Font.Color := clWindowText;
+    AEdit.Hint := '';
+    AEdit.ShowHint:= false;
     AError:= length(AExpr.Expression) = 0;
   except
     on ex:exception do
     begin
       AEdit.Color := clRed;
       AEdit.Font.Color := clWhite;
+      AEdit.Hint := ex.Message;
+      AEdit.ShowHint:= true;
       AError:= true;
     end;
   end;

@@ -51,6 +51,11 @@ begin
   p := TProcess.Create(nil);
   exe := Application.ExeName;
   p.Executable := exe;
+  if CustomScriptDirectory <> '' then
+  begin
+    p.Parameters.Add('-scriptbasedir');
+    p.Parameters.Add(CustomScriptDirectory);
+  end;
   p.Options := [];
   p.Execute;
   p.Free;
@@ -118,8 +123,10 @@ end;
 
 procedure TMyLazPaintInstance.ApplicationException(Sender: TObject; E: Exception);
 var
+  {$IFDEF DEBUG}
   I: Integer;
   Frames: PPointer;
+  {$ENDIF}
   Report: string;
 begin
   if Initialized then

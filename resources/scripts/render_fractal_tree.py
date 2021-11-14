@@ -1,17 +1,10 @@
 # Render > Fractal tree
 # (fr) Rendu > Arbre fractal
-# (es) Renderizar > Árbol fractal
-# (de) Rendering > Fraktaler Baum
 from lazpaint import tools, image, layer, dialog
 import math, random
 
-translation = dialog.select_translation(
-  en = {"Invalid angle": "Invalid angle", "Vertical size": "Vertical size"}, 
-  fr = {"Invalid angle": "Angle invalide", "Vertical size": "Taille verticale"}, 
-  es = {"Invalid angle": "Ángulo invalido", "Vertical size": "Tamaño vertical"}, 
-  de = {"Invalid angle": "Ungültiger Winkel", "Vertical size": "Vertikal Größe"}, 
-  )
-  
+translation = dialog.translate_dict(["Invalid angle", "Vertical size"])
+
 line_buf = []
 
 def line(x, y, x2, y2):

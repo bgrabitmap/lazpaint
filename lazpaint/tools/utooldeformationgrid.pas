@@ -294,6 +294,7 @@ begin
       if FHighQuality then
       begin
         dest := TBGRABitmap.Create(FCurrentBounds.Width*OversampleQuality,FCurrentBounds.Height*OversampleQuality);
+        quadHQ := nil;
         setlength(quadHQ, length(quad));
         for i := 0 to high(quad) do quadHQ[i] := (quad[i]+PointF(0.5,0.5))*OversampleQuality - PointF(0.5,0.5) - PointF(FCurrentBounds.TopLeft)*OversampleQuality;
       end
@@ -1065,6 +1066,7 @@ begin
     gridMaxY := NbY-1;
 
     //progressive drawing of deformation zones
+    gridDone := nil;
     setlength(gridDone,NbY-1,NbX-1);
     for yb := gridMinY to gridMaxY-1 do
       for xb := gridMinX to gridMaxX-1 do

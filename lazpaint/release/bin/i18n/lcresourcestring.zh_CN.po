@@ -180,3 +180,4 @@ msgstr "重复 Y"
 #: lcresourcestring.rsunknownshapeclass
 msgid "Unknown shape class \"%1\""
 msgstr "未知形状类 \"%1\""
+

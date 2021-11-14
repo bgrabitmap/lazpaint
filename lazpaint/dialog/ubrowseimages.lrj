@@ -1,0 +1,11 @@
+{"version":1,"strings":[
+{"hash":259364083,"name":"tfbrowseimages.caption","sourcebytes":[66,114,111,119,115,101,32,105,109,97,103,101,115],"value":"Browse images"},
+{"hash":46,"name":"tfbrowseimages.label_status.caption","sourcebytes":[46],"value":"."},
+{"hash":156948272,"name":"tfbrowseimages.checkbox_usedirectoryonstartup.caption","sourcebytes":[85,115,101,32,116,104,105,115,32,100,105,114,101,99,116,111,114,121,32,111,110,32,115,116,97,114,116,117,112],"value":"Use this directory on startup"},
+{"hash":61757520,"name":"tfbrowseimages.toolbutton_goup.hint","sourcebytes":[71,111,32,111,110,101,32,100,105,114,101,99,116,111,114,121,32,117,112],"value":"Go one directory up"},
+{"hash":101124403,"name":"tfbrowseimages.toolbutton_viewbigicon.hint","sourcebytes":[83,104,111,119,32,98,105,103,32,105,99,111,110,115],"value":"Show big icons"},
+{"hash":230661863,"name":"tfbrowseimages.toolbutton_viewdetails.hint","sourcebytes":[83,104,111,119,32,100,101,116,97,105,108,115,32,97,110,100,32,112,114,101,118,105,101,119],"value":"Show details and preview"},
+{"hash":137064371,"name":"tfbrowseimages.toolbutton_openselectedfiles.hint","sourcebytes":[79,112,101,110,32,115,101,108,101,99,116,101,100,32,102,105,108,101,115],"value":"Open selected files"},
+{"hash":66567013,"name":"tfbrowseimages.tool_selectdrive.hint","sourcebytes":[83,101,108,101,99,116,32,100,114,105,118,101],"value":"Select drive"},
+{"hash":20554530,"name":"tfbrowseimages.toolbutton_createfolderorcontainer.hint","sourcebytes":[67,114,101,97,116,101,32,102,111,108,100,101,114,32,111,114,32,99,111,110,116,97,105,110,101,114],"value":"Create folder or container"}
+]}

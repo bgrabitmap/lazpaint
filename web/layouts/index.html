@@ -1,0 +1,77 @@
+{{ define "main" -}}
+   {{ $prefix := printf "%sv%s/lazpaint%s" .Site.Params.repo .Site.Params.version .Site.Params.version -}} 
+   {{ $link_win32_no_install := printf "%s_win32_no_install.zip" $prefix -}}
+   {{ $link_win64_no_install := printf "%s_win64_no_install.zip" $prefix -}}
+   {{ $link_installer_win32_win64 := printf "%s_setup_win32_win64.exe" $prefix -}}
+   {{ $link_linux32_no_install := printf "%s_linux32_no_install.tar.gz" $prefix -}}
+   {{ $link_linux64_no_install := printf "%s_linux64_no_install.tar.gz" $prefix -}}
+   {{ $link_linux32_deb := printf "%s_linux32.deb" $prefix -}}
+   {{ $link_linux64_deb := printf "%s_linux64.deb" $prefix -}}
+   {{ $link_rpi32_no_install := printf "%s_raspbian-hf_no_install.tar.gz" $prefix -}}
+   {{ $link_rpi64_no_install := printf "%s_raspbian64_no_install.tar.gz" $prefix -}}
+   {{ $link_rpi32_deb := printf "%s_raspbian-hf.deb" $prefix -}}
+   {{ $link_rpi64_deb := printf "%s_raspbian64.deb" $prefix -}}
+   {{ $link_freebsd64_no_install := printf "%s_freebsd64_no_install.tar.gz" $prefix -}}
+   {{ $link_macos32_dmg := printf "%s_macos32.dmg" $prefix -}}
+   {{ $link_macos64_dmg := printf "%s_macos64.dmg" $prefix -}}
+   {{ $link_macos_brew := "https://formulae.brew.sh/cask/lazpaint" }}
+    <div class="text-center download">
+        <div class="card">
+            <h1 id="download">{{ printf (i18n "download_version") .Site.Params.version}}</h1>
+            <p><a href="http://sourceforge.net/donate/index.php?group_id=404555" class="btn btn-success">{{ i18n "donate" }}</a></p>
+            <p id="os-hint" style="visibility: hidden">{{ i18n "your_os_is" }}</p>
+            <h2>Windows</h2>
+            <p><a class="btn btn-dark" href="{{$link_installer_win32_win64}}">{{ i18n "installation" }} ({{ i18n "bit_32_and_64" }})
+                    </a>
+                <a class="btn btn-dark" href="{{$link_win32_no_install}}">{{ printf (i18n "archive") (i18n "bit_32") }}
+                    ({{ i18n "no_install" }})</a>
+                <a class="btn btn-dark" href="{{$link_win64_no_install}}">{{ printf (i18n "archive") (i18n "bit_64") }}
+                    ({{ i18n "no_install" }})</a>
+                <a href="https://portableapps.com/apps/graphics_pictures/lazpaint-portable" class="btn btn-dark">Portable ({{ i18n "bit_32_and_64" }})</a></p>
+            <h2>Linux</h2>
+            <p><a class="btn btn-dark" href="{{$link_linux32_deb}}">{{ printf (i18n "deb_package") (i18n "bit_32") }}
+                    </a>
+                <a class="btn btn-dark" href="{{$link_linux64_deb}}">{{ printf (i18n "deb_package") (i18n "bit_64") }}
+                    </a>
+                <a class="btn btn-dark" href="{{$link_linux32_no_install}}">{{ printf (i18n "archive") (i18n "bit_32") }}
+                    ({{ i18n "no_install" }})</a>
+                <a class="btn btn-dark" href="{{$link_linux64_no_install}}">{{ printf (i18n "archive") (i18n "bit_64") }}
+                    ({{ i18n "no_install" }})</a></p>
+            <h2>Rpi</h2>
+            <p><a class="btn btn-dark" href="{{$link_rpi32_deb}}">{{ printf (i18n "deb_package") (i18n "bit_32") }}
+                    </a>
+                <a class="btn btn-dark" href="{{$link_rpi64_deb}}">{{ printf (i18n "deb_package") (i18n "bit_64") }}
+                    </a>
+                <a class="btn btn-dark" href="{{$link_rpi32_no_install}}">{{ printf (i18n "archive") (i18n "bit_32") }}
+                    ({{ i18n "no_install" }})</a>
+                <a class="btn btn-dark" href="{{$link_rpi64_no_install}}">{{ printf (i18n "archive") (i18n "bit_64") }}
+                    ({{ i18n "no_install" }})</a></p>
+            <h2>FreeBSD</h2>
+             <p><a class="btn btn-dark" href="{{$link_freebsd64_no_install}}">{{ printf (i18n "archive") (i18n "bit_64") }}
+                    ({{ i18n "no_install" }})</a></p>
+            <h2>MacOS</h2>
+            <p><a class="btn btn-dark" href="{{$link_macos32_dmg}}">MacOS
+                    {{ i18n "bit_32" }}</a>
+                <a class="btn btn-dark" href="{{$link_macos64_dmg}}">MacOS
+                    {{ i18n "bit_64" }}</a>
+                <a class="btn btn-dark" href="{{$link_macos_brew}}">MacOS
+                    brew</a></p>                    
+        </div>
+    </div>
+{{- end }}
+{{ define "dynamic" }}
+	<script>
+    	var OSName = "unknown";
+    	if (navigator.appVersion.indexOf("Win") != -1) OSName = "Windows";
+    	if (navigator.appVersion.indexOf("Mac") != -1) OSName = "MacOS";
+    	if (navigator.appVersion.indexOf("X11") != -1) OSName = "UNIX";
+    	if (navigator.appVersion.indexOf("Linux") != -1) OSName = "Linux";
+
+    	if (OSName != "unknown")
+    	{
+    	    osHint = $('#os-hint');
+        	osHint.text(osHint.text().replace("%s", OSName));
+        	osHint.css("visibility", "visible");
+    	}
+	</script>
+{{- end }}

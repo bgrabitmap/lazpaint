@@ -21,7 +21,7 @@ type
 
   TOpaquePaintBox = class(TCustomControl)
   protected
-    procedure WMEraseBkgnd(var Message: TLMEraseBkgnd); message LM_ERASEBKGND;
+    procedure WMEraseBkgnd(var {%H-}Message: TLMEraseBkgnd); message LM_ERASEBKGND;
     procedure WMPaint(var Message: TLMPaint); message LM_PAINT;
   public
     PaintRect: TRect;

@@ -12,8 +12,7 @@ except ImportError:
         
 from lazpaint import colors, image, layer, filters, tools, selection
 
-english = ["Layer is empty", "Shadow of ", "Radius", "Offset", "Opacity", "Ok", "Cancel"]
-translation = dict(zip(english, dialog.translate_text(english)))
+translation = dialog.translate_dict(["Layer is empty", "Shadow of ", "Radius", "Offset", "Opacity", "Ok", "Cancel"])
 
 if layer.is_empty():
     dialog.show_message(translation["Layer is empty"])

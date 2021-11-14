@@ -1,7 +1,5 @@
 # Layer effect > Stroke
 # (fr) Effet de calque > Trait
-# (es) Efectos de capa > Trazo
-# (de) Ebeneneffekte > Strich
 from lazpaint import dialog
 
 try:
@@ -12,8 +10,7 @@ except ImportError:
         
 from lazpaint import colors, image, layer, filters, tools, selection
 
-english = ["Layer is empty", "Radius", "Color", "Opacity", "Ok", "Cancel"]
-translation = dict(zip(english, dialog.translate_text(english)))
+translation = dialog.translate_dict(["Layer is empty", "Radius", "Color", "Opacity", "Ok", "Cancel"])
 
 if layer.is_empty():
     dialog.show_message(translation["Layer is empty"])

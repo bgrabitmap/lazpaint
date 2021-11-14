@@ -1,0 +1,56 @@
+[blog]
+other = "Blog"
+
+[last_changes]
+other = "Last changes"
+
+[documentation]
+other = "Documentation"
+
+[download]
+other = "Download"
+
+[download_lazpaint]
+other = "Download LazPaint"
+
+[download_version]
+other = "Download LazPaint %s"
+
+[screenshots]
+other = "Screenshots"
+
+[forum]
+other = "Forum"
+
+[app_description]
+other = "Free cross-platform image editor with raster and vector layers, written in Lazarus (Free Pascal)."
+
+[donate]
+other = "Donate"
+
+[your_os_is]
+other = "Your current Operating System is %s"
+
+[installation]
+other = "Setup"
+
+[archive]
+other = "%s archive"
+
+[portable]
+other = "Portable"
+
+[deb_package]
+other = "%s Deb package"
+
+[no_install]
+other = "no install"
+
+[bit_32]
+other = "32-bit"
+
+[bit_64]
+other = "64-bit"
+
+[bit_32_and_64]
+other = "32-bit and 64-bit"

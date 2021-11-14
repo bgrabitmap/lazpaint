@@ -439,6 +439,7 @@ begin
   ASource.ReadBuffer({%H-}newBounds, sizeof(newBounds));
   ASource.ReadBuffer({%H-}newGrayscale, sizeof(newGrayscale));
   ASource.ReadBuffer({%H-}lenRows, sizeof(lenRows));
+  newRows := nil;
   setlength(newRows, lenRows);
   if lenRows > 0 then ASource.ReadBuffer(newRows[0], sizeof(newRows[0])*length(newRows));
   ASource.ReadBuffer({%H-}dataSize, sizeof(dataSize));

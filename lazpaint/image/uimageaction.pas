@@ -639,6 +639,7 @@ begin
     img := Image.SelectionLayerReadonly;
   end;
   try
+    str := '';
     setlength(str, img.width*img.height*8);
     strPos := 1;
     for yb := 0 to img.Height-1 do

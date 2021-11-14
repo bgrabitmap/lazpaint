@@ -1,0 +1,59 @@
+baseURL = "https://lazpaint.github.io/"
+defaultContentLanguage = "en"
+title = "download_lazpaint"
+disableKinds = ["taxonomyTerm"]
+
+[params]
+  repo = "https://github.com/bgrabitmap/lazpaint/releases/download/"
+  version = "7.1.6"
+
+[languages]
+  [languages.de]
+    languageName = "Deutch"
+    weight = 1
+  [languages.en]
+    languageName = "English"
+    weight = 2
+  [languages.es]
+    languageName = "Español"
+    weight = 3
+  [languages.fi]
+    languageName = "Suomi"
+    weight = 4
+  [languages.fr]
+    languageName = "Français"
+    weight = 5
+  [languages.ru]
+    languageName = "Русский"
+    weight = 6
+
+[permalinks]
+  blog = "/:filename/"
+
+# See https://feathericons.com/
+# The value of pre is the icon name
+[menu]
+  [[menu.main]]
+    name = "blog"
+    url = "https://lazpaint.blogspot.com/"
+    weight = 1
+  [[menu.main]]
+    name = "last_changes"
+    url = "/last/"
+    weight = 2
+   [[menu.main]]
+    name = "documentation"
+    url = "https://wiki.freepascal.org/LazPaint"
+    weight = 3
+   [[menu.main]]
+    name = "download"
+    url = "/"
+    weight = 4
+   [[menu.main]]
+    name = "screenshots"
+    url = "https://lazpaint.blogspot.com/p/screenshots.html"
+    weight = 5    
+   [[menu.main]]
+    name = "forum"
+    url = "https://forum.lazarus.freepascal.org/index.php/board,46.0.html"
+    weight = 6    

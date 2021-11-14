@@ -13,6 +13,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: tablet.getprocfailed
+#, object-pascal-format
 msgid "Procedure %s failed to load properly."
 msgstr "Tasekkirt %s ur d-tuli ara akken iwata."
 
@@ -242,22 +243,10 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Tehri :"
 
-#: uresourcestrings.rsaddtopalette
-msgid "Add color to palette"
-msgstr "Rnu ini ɣer tpaliḍt"
-
-#: uresourcestrings.rsremovefrompalette
-msgid "Remove color from palette"
-msgstr "Kkes ini si tpaliḍt"
-
 #: tfchoosecolor.caption
 msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "Ini"
-
-#: tfchoosecolor.lcolor.hint
-msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr "Aglam n yini: sit iwakken ad teskecmeḍ ini s unasiw s yismawen-nnsen neɣ s tira n CSS."
 
 #: tfcolorintensity.button_cancel.caption
 msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
@@ -396,8 +385,20 @@ msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
 msgstr "Tiɣmi akked tifawit yettwaseɣtan"
 
+#: tffilterfunction.label_aequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_aequals.caption"
+msgid "."
+msgstr "."
+
 #: tffilterfunction.label_alphaequals.caption
 msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_bequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_bequals.caption"
 msgid "."
 msgstr "."
 
@@ -413,6 +414,12 @@ msgstr "."
 
 #: tffilterfunction.label_hueequals.caption
 msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
+msgstr "."
+
+#: tffilterfunction.label_lequals.caption
+#, fuzzy
+msgctxt "tffilterfunction.label_lequals.caption"
 msgid "."
 msgstr "."
 
@@ -438,6 +445,10 @@ msgstr "Imuttiyen :"
 #: tffilterfunction.tabsheet_hsl.caption
 msgid "HSL"
 msgstr "HSL"
+
+#: tffilterfunction.tabsheet_lab.caption
+msgid "Lab"
+msgstr ""
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
@@ -583,21 +594,6 @@ msgctxt "tflayerstack.caption"
 msgid "Layers"
 msgstr "Tissiyin"
 
-#: tflayerstack.toolblendop.hint
-msgctxt "tflayerstack.toolblendop.hint"
-msgid "Select blend operation"
-msgstr "Fren tamhelt n usmezdi"
-
-#: tflayerstack.toolzoomlayerstackin.hint
-msgctxt "tflayerstack.toolzoomlayerstackin.hint"
-msgid "Zoom layer stack in"
-msgstr "Semɣer tiɣbirt n tissiyin"
-
-#: tflayerstack.toolzoomlayerstackout.hint
-msgctxt "tflayerstack.toolzoomlayerstackout.hint"
-msgid "Zoom layer stack out"
-msgstr "Simecṭuḥ tiɣbirt n tissiyin"
-
 #: tfloading.caption
 msgctxt "tfloading.caption"
 msgid "Loading..."
@@ -616,6 +612,12 @@ msgstr "Sali-d amfezzu seg ufaylu..."
 #: tfmain.brushremovecurrent.hint
 msgid "Remove current brush"
 msgstr "Kkes amfezzu amiran"
+
+#: tfmain.button_donate.caption
+#, fuzzy
+msgctxt "tfmain.button_donate.caption"
+msgid "Donate..."
+msgstr "Ɛiwen s wedrim..."
 
 #: tfmain.caption
 msgctxt "tfmain.caption"
@@ -808,6 +810,7 @@ msgid "Choose entry within file"
 msgstr "Fren anekcum deg ufaylu"
 
 #: tfmain.fileexport.caption
+msgctxt "tfmain.fileexport.caption"
 msgid "Export..."
 msgstr "Sifeḍ..."
 
@@ -1017,7 +1020,9 @@ msgid "Twirl..."
 msgstr "Abran..."
 
 #: tfmain.filterwavedisplacement.caption
-msgid "Wave diplacement..."
+#, fuzzy
+#| msgid "Wave diplacement..."
+msgid "Wave displacement..."
 msgstr "Asekḥer n tayyugt..."
 
 #: tfmain.forgetdialoganswers.caption
@@ -1057,6 +1062,7 @@ msgid "Fill background with antialiasing"
 msgstr "Aččar agilal s umzay"
 
 #: tfmain.imageflatten.caption
+msgctxt "tfmain.imageflatten.caption"
 msgid "Flatten image"
 msgstr "Lebbeḍ tugna"
 
@@ -1092,6 +1098,10 @@ msgstr "Ales alemmec..."
 msgid "Resample image"
 msgstr "Ales alemmec i tugna"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "Tuzzya 180°"
+
 #: tfmain.imagerotateccw.caption
 msgid "Rotate 90° CCW"
 msgstr "Tuzzya 90° (mgal tanila n temrilt)"
@@ -1099,10 +1109,6 @@ msgstr "Tuzzya 90° (mgal tanila n temrilt)"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "Tuzzya 90° (di tnila n temrilt)"
-
-#: tfmain.imagerotate180.caption
-msgid "Rotate 180°"
-msgstr "Tuzzya 180°"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -1158,6 +1164,7 @@ msgid "Altitude"
 msgstr "Tattayt"
 
 #: tfmain.label_back.caption
+msgctxt "tfmain.label_back.caption"
 msgid "Back"
 msgstr "Tuɣalin"
 
@@ -1274,6 +1281,12 @@ msgstr "Rnu tissi tamaynutt"
 msgctxt "tfmain.layerduplicate.hint"
 msgid "Duplicate selected layer"
 msgstr "Sisleg tissi yettwafernen"
+
+#: tfmain.layerexport.hint
+#, fuzzy
+msgctxt "tfmain.layerexport.hint"
+msgid "Export..."
+msgstr "Sifeḍ..."
 
 #: tfmain.layerfromfile.hint
 msgctxt "tfmain.layerfromfile.hint"
@@ -2566,6 +2579,10 @@ msgstr "Sekles"
 msgid "Dithering"
 msgstr "Tizḍi"
 
+#: tfsaveoption.checkbox_lossless.caption
+msgid "Lossless"
+msgstr ""
+
 #: tfsaveoption.label1.caption
 msgid "Quality:"
 msgstr "Taɣara:"
@@ -2727,6 +2744,10 @@ msgstr "Tigawin itteddun"
 msgid "Add files to the image processing list"
 msgstr "Rnu ifuyla ɣer tebdart n ukala n tugniwin"
 
+#: uresourcestrings.rsaddtopalette
+msgid "Add color to palette"
+msgstr "Rnu ini ɣer tpaliḍt"
+
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
 msgstr "Derrec talɣa"
@@ -2751,6 +2772,12 @@ msgstr "GIF yettemwwiwilen"
 msgid "Autodetect"
 msgstr "Tifin tawurmant"
 
+#: uresourcestrings.rsback
+#, fuzzy
+msgctxt "uresourcestrings.rsback"
+msgid "Back"
+msgstr "Tuɣalin"
+
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
 msgstr "Ssed BACKSPACE iwakken ad tekkseḍ tanqiḍt taneggarut"
@@ -2763,6 +2790,10 @@ msgstr "Taɣara igerrzen maḍi"
 #: uresourcestrings.rsbitmap
 msgid "Bitmap"
 msgstr "Bitmap"
+
+#: uresourcestrings.rsblack
+msgid "Black"
+msgstr ""
 
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
@@ -2806,6 +2837,10 @@ msgstr "Tiddi n teɣzut n usuneɣ"
 msgid "CD"
 msgstr "CD"
 
+#: uresourcestrings.rschannels
+msgid "Channels"
+msgstr ""
+
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
 msgstr "Sfeḍ tapaliḍt"
@@ -2818,6 +2853,10 @@ msgstr "Mdel asuter"
 #: uresourcestrings.rscmd
 msgid "CMD"
 msgstr "CMD"
+
+#: uresourcestrings.rscoloroverlay
+msgid "Color overlay"
+msgstr ""
 
 #: uresourcestrings.rscolors
 msgctxt "uresourcestrings.rscolors"
@@ -2871,9 +2910,17 @@ msgstr "Ɣeẓ"
 msgid "CTRL"
 msgstr "CTRL"
 
+#: uresourcestrings.rscurrentlayernotsplit
+msgid "Current layer is not split"
+msgstr ""
+
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
 msgstr "Ssed S neɣ X iwakken ad tesɣewreḍ askar n uzlig i tenqiḍt taneggarut"
+
+#: uresourcestrings.rscyan
+msgid "Cyan"
+msgstr ""
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
@@ -2895,6 +2942,20 @@ msgstr "Akaram mačči d ilem"
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
 msgstr "Ezḍ tissi s useqec n tpaliḍt"
+
+#: uresourcestrings.rsdonate
+#, fuzzy
+msgctxt "uresourcestrings.rsdonate"
+msgid "Donate..."
+msgstr "Ɛiwen s wedrim..."
+
+#: uresourcestrings.rsdownload
+msgid "Download"
+msgstr ""
+
+#: uresourcestrings.rsdropshadow
+msgid "Drop shadow"
+msgstr ""
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
@@ -3025,6 +3086,12 @@ msgstr "Anaw"
 msgid "Fixed"
 msgstr "Usbiḍ"
 
+#: uresourcestrings.rsflattenimage
+#, fuzzy
+msgctxt "uresourcestrings.rsflattenimage"
+msgid "Flatten image"
+msgstr "Lebbeḍ tugna"
+
 #: uresourcestrings.rsfolder
 msgid "Folder"
 msgstr "Akaram"
@@ -3036,6 +3103,10 @@ msgstr "Akaram neɣ anagbar yella yakan."
 #: uresourcestrings.rsfollowingerrorsoccurred
 msgid "Following errors occurred:"
 msgstr "Ḍrant-d tuccḍiwin-agi:"
+
+#: uresourcestrings.rsfractaltree
+msgid "Fractal tree"
+msgstr ""
 
 #: uresourcestrings.rsframes
 msgid "Frames"
@@ -3116,6 +3187,14 @@ msgstr "War tagara"
 msgid "Information"
 msgstr "Talɣut"
 
+#: uresourcestrings.rsinnerlight
+msgid "Inner light"
+msgstr ""
+
+#: uresourcestrings.rsinnershadow
+msgid "Inner shadow"
+msgstr ""
+
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
 msgid "Intensity"
@@ -3124,6 +3203,10 @@ msgstr "Tadwast"
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
 msgstr "Tuccḍa tagensant"
+
+#: uresourcestrings.rsinvalidangle
+msgid "Invalid angle"
+msgstr ""
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
@@ -3166,19 +3249,31 @@ msgstr "S tehri"
 msgid "The latest version of LazPaint available online is"
 msgstr "Lqem aneggaru n LazPaint i iwejden ɣef Internet d"
 
-#: uresourcestrings.rslayeredimage
-msgid "Layered image"
-msgstr "Tugna s tissiyin"
-
-#: uresourcestrings.rslayers
-msgctxt "uresourcestrings.rslayers"
-msgid "Layers"
-msgstr "Tissiyin"
+#: uresourcestrings.rslava
+msgid "Lava"
+msgstr ""
 
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
 msgid "Layer"
 msgstr "Tissi"
+
+#: uresourcestrings.rslayeralreadysplit
+msgid "Layer already split"
+msgstr ""
+
+#: uresourcestrings.rslayeredimage
+msgid "Layered image"
+msgstr "Tugna s tissiyin"
+
+#: uresourcestrings.rslayereffect
+msgid "Layer effect"
+msgstr ""
+
+#: uresourcestrings.rslayers
+msgctxt "uresourcestrings.rslayers"
+msgid "Layers"
+msgstr "Tissiyin"
 
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
@@ -3228,9 +3323,29 @@ msgstr "Sali-d tapaliḍt..."
 msgid "Loop count"
 msgstr "Allus"
 
+#: uresourcestrings.rsmagenta
+msgid "Magenta"
+msgstr ""
+
+#: uresourcestrings.rsmakemonochromatic
+msgid "Make monochromatic"
+msgstr ""
+
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
 msgstr "Eg tapaliḍt n %1 n yiniten seg tugna"
+
+#: uresourcestrings.rsmask
+msgid "Mask"
+msgstr ""
+
+#: uresourcestrings.rsmaskfromalphachannel
+msgid "Mask from alpha channel"
+msgstr ""
+
+#: uresourcestrings.rsmerge
+msgid "Merge"
+msgstr ""
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -3267,6 +3382,10 @@ msgctxt "uresourcestrings.rsnewimage"
 msgid "New image"
 msgstr "Tugna tamaynutt"
 
+#: uresourcestrings.rsnewmask
+msgid "New mask"
+msgstr ""
+
 #: uresourcestrings.rsno
 msgid "No"
 msgstr "Ala"
@@ -3291,6 +3410,10 @@ msgstr "warisem"
 #: uresourcestrings.rsnormalblendop
 msgid "Normal"
 msgstr "Amagnu"
+
+#: uresourcestrings.rsnotchromaticchannel
+msgid "This is not a chromatic channel"
+msgstr ""
 
 #: uresourcestrings.rsnothingtobedeformed
 msgctxt "uresourcestrings.rsnothingtobedeformed"
@@ -3355,6 +3478,12 @@ msgstr "Tapaliḍt ad tseddu abadu alfa"
 msgid "Palette options"
 msgstr "Tinefrunin n tpaliḍt"
 
+#: uresourcestrings.rspen
+#, fuzzy
+msgctxt "uresourcestrings.rspen"
+msgid "Pen"
+msgstr "Imru"
+
 #: uresourcestrings.rspercent
 msgctxt "uresourcestrings.rspercent"
 msgid "%"
@@ -3377,7 +3506,9 @@ msgid "px"
 msgstr "px"
 
 #: uresourcestrings.rspythonunexpectedversion
-msgid "Expected python version %1 but %2 found."
+#, fuzzy
+#| msgid "Expected python version %1 but %2 found."
+msgid "Expected Python version %1 but %2 found."
 msgstr "Yetturaǧu lqem n python %1 maca nufa %2."
 
 #: uresourcestrings.rsramdisk
@@ -3408,6 +3539,16 @@ msgstr "Tugna tettwabeddel. D tidet tebɣiḍ ad s-talseḍ asali ?"
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
 msgstr "Aziraz"
+
+#: uresourcestrings.rsremovefrompalette
+msgid "Remove color from palette"
+msgstr "Kkes ini si tpaliḍt"
+
+#: uresourcestrings.rsrender
+#, fuzzy
+msgctxt "uresourcestrings.rsrender"
+msgid "Render"
+msgstr "Tiririt"
 
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
@@ -3488,9 +3629,31 @@ msgctxt "uresourcestrings.rsspline"
 msgid "Spline"
 msgstr "Izirig ittleɣwayen"
 
+#: uresourcestrings.rssplitcmyk
+msgid "Split CMYK"
+msgstr ""
+
+#: uresourcestrings.rssplithsl
+msgid "Split HSL"
+msgstr ""
+
+#: uresourcestrings.rssplitrgb
+msgid "Split RGB"
+msgstr ""
+
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
 msgstr "Ibenk"
+
+#: uresourcestrings.rsstroke
+msgid "Stroke"
+msgstr ""
+
+#: uresourcestrings.rstextoutline
+#, fuzzy
+msgctxt "uresourcestrings.rstextoutline"
+msgid "Text outline"
+msgstr "Azdaw n uḍris"
 
 #: uresourcestrings.rstexturemapping
 msgctxt "uresourcestrings.rstexturemapping"
@@ -3569,6 +3732,18 @@ msgstr "Aneṣli d arussin"
 msgid "Vectorial layer"
 msgstr "Tissi tamawayt"
 
+#: uresourcestrings.rsversion
+msgid "Version"
+msgstr ""
+
+#: uresourcestrings.rsverticalsize
+msgid "Vertical size"
+msgstr ""
+
+#: uresourcestrings.rsyellow
+msgid "Yellow"
+msgstr ""
+
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "Ih"
@@ -3582,3 +3757,4 @@ msgstr "Semɣer taɣbirt n tissiyin"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Simecṭuḥ taɣbirt n tissiyin"
+

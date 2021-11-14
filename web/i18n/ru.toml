@@ -1,0 +1,56 @@
+[blog]
+other = "Блог"
+
+[last_changes]
+other = "Последние изменения"
+
+[documentation]
+other = "Документация"
+
+[download]
+other = "Загрузить"
+
+[download_lazpaint]
+other = "Загрузить LazPaint"
+
+[download_version]
+other = "Загрузить LazPaint %s"
+
+[screenshots]
+other = "Скриншоты"
+
+[forum]
+other = "Форум"
+
+[app_description]
+other = "Бесплатный кроссплатформенный редактор изображений с пиксельными и векторными слоями, написанный на Lazarus (Free Pascal)."
+
+[donate]
+other = "Сделайте пожертвование"
+
+[your_os_is]
+other = "Ваша текущая операционная система %s"
+
+[installation]
+other = "Установка"
+
+[archive]
+other = "Архив %s"
+
+[portable]
+other = "портативное"
+
+[deb_package]
+other = "Пакет Deb %s"
+
+[no_install]
+other = "без установки"
+
+[bit_32]
+other = "32-битная"
+
+[bit_64]
+other = "64-битная"
+
+[bit_32_and_64]
+other = "32 и 64 битная"

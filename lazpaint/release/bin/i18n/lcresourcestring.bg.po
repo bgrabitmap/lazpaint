@@ -178,3 +178,4 @@ msgstr "Повтаряне по Y"
 #: lcresourcestring.rsunknownshapeclass
 msgid "Unknown shape class \"%1\""
 msgstr ""
+

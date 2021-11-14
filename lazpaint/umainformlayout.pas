@@ -55,7 +55,7 @@ type
     function GetToolBoxVisible: boolean;
     function GetUpdatingPopup: boolean;
     procedure ImageToolbarUpdate(Sender: TObject);
-    procedure ImageViewMouseBefore(ASender: TObject; AShift: TShiftState);
+    procedure ImageViewMouseBefore({%H-}ASender: TObject; AShift: TShiftState);
     procedure ImageViewMouseMove(Sender: TObject; APosition: TPointF);
     procedure ImageViewOnPaint(Sender: TObject);
     procedure SetFillSelectionHighlight(AValue: boolean);
@@ -818,7 +818,20 @@ begin
   button := FDockedToolboxGroup[AGroupIndex].Button;
   tb := FDockedToolboxGroup[AGroupIndex].Toolbar;
   panel := FDockedToolboxGroup[AGroupIndex].Panel;
-  panel.Left := button.Left + button.Width + tb.Left + FPanelToolBox.Left;
+  if ToolBoxDocking = twRight then
+  begin
+    if not panel.Visible then
+    begin
+      // show outside of window to measure the size of the panel
+      panel.Left := panel.Parent.ClientWidth;
+      panel.Visible := true;
+      panel.Visible := false;
+    end;
+    panel.Left := button.Left + tb.Left + FPanelToolBox.Left - panel.Width
+               - DoScaleX(2, OriginalDPI);
+  end
+  else
+    panel.Left := button.Left + button.Width + tb.Left + FPanelToolBox.Left;
   panel.Top := button.Top + tb.Top + FPanelToolBox.Top - DoScaleX(4, OriginalDPI);
   panel.Visible := true;
   FDockedToolboxGroup[AGroupIndex].Timer.Enabled:= false;

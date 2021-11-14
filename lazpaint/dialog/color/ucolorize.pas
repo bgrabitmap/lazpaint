@@ -97,6 +97,7 @@ end;
 
 procedure TFColorize.Button_OKClick(Sender: TObject);
 begin
+  if FFilterConnector.ActionDone then exit;
   ApplyChosenColor;
   FFilterConnector.ValidateAction;
   FFilterConnector.Parameters.Floats['Hue'] := ChosenHueDegF;

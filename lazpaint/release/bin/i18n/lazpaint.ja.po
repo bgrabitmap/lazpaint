@@ -10,6 +10,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: tablet.getprocfailed
+#, object-pascal-format
 msgid "Procedure %s failed to load properly."
 msgstr ""
 
@@ -239,22 +240,10 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "幅:"
 
-#: uresourcestrings.rsaddtopalette
-msgid "Add color to palette"
-msgstr ""
-
-#: uresourcestrings.rsremovefrompalette
-msgid "Remove color from palette"
-msgstr ""
-
 #: tfchoosecolor.caption
 msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "色"
-
-#: tfchoosecolor.lcolor.hint
-msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr ""
 
 #: tfcolorintensity.button_cancel.caption
 msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
@@ -393,8 +382,18 @@ msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
 msgstr ""
 
+#: tffilterfunction.label_aequals.caption
+msgctxt "tffilterfunction.label_aequals.caption"
+msgid "."
+msgstr ""
+
 #: tffilterfunction.label_alphaequals.caption
 msgctxt "tffilterfunction.label_alphaequals.caption"
+msgid "."
+msgstr ""
+
+#: tffilterfunction.label_bequals.caption
+msgctxt "tffilterfunction.label_bequals.caption"
 msgid "."
 msgstr ""
 
@@ -410,6 +409,11 @@ msgstr ""
 
 #: tffilterfunction.label_hueequals.caption
 msgctxt "tffilterfunction.label_hueequals.caption"
+msgid "."
+msgstr ""
+
+#: tffilterfunction.label_lequals.caption
+msgctxt "tffilterfunction.label_lequals.caption"
 msgid "."
 msgstr ""
 
@@ -434,6 +438,10 @@ msgstr ""
 
 #: tffilterfunction.tabsheet_hsl.caption
 msgid "HSL"
+msgstr ""
+
+#: tffilterfunction.tabsheet_lab.caption
+msgid "Lab"
 msgstr ""
 
 #: tffilterfunction.tabsheet_rgb.caption
@@ -576,24 +584,10 @@ msgid "Uncheck all files for processing"
 msgstr ""
 
 #: tflayerstack.caption
+#, fuzzy
 msgctxt "tflayerstack.caption"
 msgid "Layers"
-msgstr ""
-
-#: tflayerstack.toolblendop.hint
-msgctxt "tflayerstack.toolblendop.hint"
-msgid "Select blend operation"
-msgstr ""
-
-#: tflayerstack.toolzoomlayerstackin.hint
-msgctxt "tflayerstack.toolzoomlayerstackin.hint"
-msgid "Zoom layer stack in"
-msgstr ""
-
-#: tflayerstack.toolzoomlayerstackout.hint
-msgctxt "tflayerstack.toolzoomlayerstackout.hint"
-msgid "Zoom layer stack out"
-msgstr ""
+msgstr "レイヤー"
 
 #: tfloading.caption
 msgctxt "tfloading.caption"
@@ -613,6 +607,12 @@ msgstr ""
 #: tfmain.brushremovecurrent.hint
 msgid "Remove current brush"
 msgstr ""
+
+#: tfmain.button_donate.caption
+#, fuzzy
+msgctxt "tfmain.button_donate.caption"
+msgid "Donate..."
+msgstr "寄付する..."
 
 #: tfmain.caption
 msgctxt "tfmain.caption"
@@ -806,6 +806,7 @@ msgid "Choose entry within file"
 msgstr ""
 
 #: tfmain.fileexport.caption
+msgctxt "tfmain.fileexport.caption"
 msgid "Export..."
 msgstr ""
 
@@ -1055,6 +1056,7 @@ msgid "Fill background with antialiasing"
 msgstr "Fill background with antialiasing"
 
 #: tfmain.imageflatten.caption
+msgctxt "tfmain.imageflatten.caption"
 msgid "Flatten image"
 msgstr ""
 
@@ -1090,6 +1092,10 @@ msgstr "Resample..."
 msgid "Resample image"
 msgstr "Resample image"
 
+#: tfmain.imagerotate180.caption
+msgid "Rotate 180°"
+msgstr "180°回転"
+
 #: tfmain.imagerotateccw.caption
 msgid "Rotate 90° CCW"
 msgstr "反時計回りに90°回転"
@@ -1097,10 +1103,6 @@ msgstr "反時計回りに90°回転"
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
 msgstr "時計回りに90°回転"
-
-#: tfmain.imagerotate180.caption
-msgid "Rotate 180°"
-msgstr "180°回転"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
@@ -1156,6 +1158,7 @@ msgid "Altitude"
 msgstr "高さ"
 
 #: tfmain.label_back.caption
+msgctxt "tfmain.label_back.caption"
 msgid "Back"
 msgstr "背景色"
 
@@ -1273,6 +1276,11 @@ msgstr ""
 #: tfmain.layerduplicate.hint
 msgctxt "tfmain.layerduplicate.hint"
 msgid "Duplicate selected layer"
+msgstr ""
+
+#: tfmain.layerexport.hint
+msgctxt "tfmain.layerexport.hint"
+msgid "Export..."
 msgstr ""
 
 #: tfmain.layerfromfile.hint
@@ -1963,9 +1971,10 @@ msgid "Image list"
 msgstr ""
 
 #: tfmain.viewlayerstack.caption
+#, fuzzy
 msgctxt "tfmain.viewlayerstack.caption"
 msgid "Layers"
-msgstr ""
+msgstr "レイヤー"
 
 #: tfmain.viewlayerstackbutton.caption
 msgctxt "tfmain.viewlayerstackbutton.caption"
@@ -2566,6 +2575,10 @@ msgstr "保存"
 msgid "Dithering"
 msgstr ""
 
+#: tfsaveoption.checkbox_lossless.caption
+msgid "Lossless"
+msgstr ""
+
 #: tfsaveoption.label1.caption
 msgid "Quality:"
 msgstr ""
@@ -2727,6 +2740,10 @@ msgstr ""
 msgid "Add files to the image processing list"
 msgstr ""
 
+#: uresourcestrings.rsaddtopalette
+msgid "Add color to palette"
+msgstr ""
+
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
 msgstr ""
@@ -2751,6 +2768,12 @@ msgstr ""
 msgid "Autodetect"
 msgstr ""
 
+#: uresourcestrings.rsback
+#, fuzzy
+msgctxt "uresourcestrings.rsback"
+msgid "Back"
+msgstr "背景色"
+
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
 msgstr ""
@@ -2761,6 +2784,10 @@ msgstr "Best quality"
 
 #: uresourcestrings.rsbitmap
 msgid "Bitmap"
+msgstr ""
+
+#: uresourcestrings.rsblack
+msgid "Black"
 msgstr ""
 
 #: uresourcestrings.rsblendopnotusedforbackground
@@ -2805,6 +2832,10 @@ msgstr "キャンバスのサイズ"
 msgid "CD"
 msgstr ""
 
+#: uresourcestrings.rschannels
+msgid "Channels"
+msgstr ""
+
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
 msgstr ""
@@ -2815,6 +2846,10 @@ msgstr "Close request"
 
 #: uresourcestrings.rscmd
 msgid "CMD"
+msgstr ""
+
+#: uresourcestrings.rscoloroverlay
+msgid "Color overlay"
 msgstr ""
 
 #: uresourcestrings.rscolors
@@ -2868,8 +2903,16 @@ msgstr "切り抜く"
 msgid "CTRL"
 msgstr ""
 
+#: uresourcestrings.rscurrentlayernotsplit
+msgid "Current layer is not split"
+msgstr ""
+
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
+msgstr ""
+
+#: uresourcestrings.rscyan
+msgid "Cyan"
 msgstr ""
 
 #: uresourcestrings.rsdefaultpalette
@@ -2891,6 +2934,20 @@ msgstr ""
 
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
+msgstr ""
+
+#: uresourcestrings.rsdonate
+#, fuzzy
+msgctxt "uresourcestrings.rsdonate"
+msgid "Donate..."
+msgstr "寄付する..."
+
+#: uresourcestrings.rsdownload
+msgid "Download"
+msgstr "ダウンロード"
+
+#: uresourcestrings.rsdropshadow
+msgid "Drop shadow"
 msgstr ""
 
 #: uresourcestrings.rsduplicateimage
@@ -3017,6 +3074,11 @@ msgstr ""
 msgid "Fixed"
 msgstr ""
 
+#: uresourcestrings.rsflattenimage
+msgctxt "uresourcestrings.rsflattenimage"
+msgid "Flatten image"
+msgstr ""
+
 #: uresourcestrings.rsfolder
 msgid "Folder"
 msgstr ""
@@ -3027,6 +3089,10 @@ msgstr ""
 
 #: uresourcestrings.rsfollowingerrorsoccurred
 msgid "Following errors occurred:"
+msgstr ""
+
+#: uresourcestrings.rsfractaltree
+msgid "Fractal tree"
 msgstr ""
 
 #: uresourcestrings.rsframes
@@ -3107,9 +3173,13 @@ msgstr ""
 msgid "Information"
 msgstr ""
 
-#: uresourcestrings.rsdownload
-msgid "Download"
-msgstr "ダウンロード"
+#: uresourcestrings.rsinnerlight
+msgid "Inner light"
+msgstr ""
+
+#: uresourcestrings.rsinnershadow
+msgid "Inner shadow"
+msgstr ""
 
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
@@ -3119,6 +3189,10 @@ msgstr "輝度"
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
 msgstr "内部エラー"
+
+#: uresourcestrings.rsinvalidangle
+msgid "Invalid angle"
+msgstr ""
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
@@ -3160,19 +3234,31 @@ msgstr ""
 msgid "The latest version of LazPaint available online is"
 msgstr ""
 
+#: uresourcestrings.rslava
+msgid "Lava"
+msgstr ""
+
+#: uresourcestrings.rslayer
+msgctxt "uresourcestrings.rslayer"
+msgid "Layer"
+msgstr "層"
+
+#: uresourcestrings.rslayeralreadysplit
+msgid "Layer already split"
+msgstr ""
+
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
+msgstr ""
+
+#: uresourcestrings.rslayereffect
+msgid "Layer effect"
 msgstr ""
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
 msgid "Layers"
 msgstr "レイヤー"
-
-#: uresourcestrings.rslayer
-msgctxt "uresourcestrings.rslayer"
-msgid "Layer"
-msgstr "層"
 
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
@@ -3220,8 +3306,28 @@ msgstr ""
 msgid "Loop count"
 msgstr ""
 
+#: uresourcestrings.rsmagenta
+msgid "Magenta"
+msgstr ""
+
+#: uresourcestrings.rsmakemonochromatic
+msgid "Make monochromatic"
+msgstr ""
+
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
+msgstr ""
+
+#: uresourcestrings.rsmask
+msgid "Mask"
+msgstr ""
+
+#: uresourcestrings.rsmaskfromalphachannel
+msgid "Mask from alpha channel"
+msgstr ""
+
+#: uresourcestrings.rsmerge
+msgid "Merge"
 msgstr ""
 
 #: uresourcestrings.rsmergeselection
@@ -3257,6 +3363,10 @@ msgctxt "uresourcestrings.rsnewimage"
 msgid "New image"
 msgstr "新規画像"
 
+#: uresourcestrings.rsnewmask
+msgid "New mask"
+msgstr ""
+
 #: uresourcestrings.rsno
 msgid "No"
 msgstr ""
@@ -3279,6 +3389,10 @@ msgstr "名称未定義"
 
 #: uresourcestrings.rsnormalblendop
 msgid "Normal"
+msgstr ""
+
+#: uresourcestrings.rsnotchromaticchannel
+msgid "This is not a chromatic channel"
 msgstr ""
 
 #: uresourcestrings.rsnothingtobedeformed
@@ -3341,6 +3455,12 @@ msgstr ""
 msgid "Palette options"
 msgstr ""
 
+#: uresourcestrings.rspen
+#, fuzzy
+msgctxt "uresourcestrings.rspen"
+msgid "Pen"
+msgstr "ペン"
+
 #: uresourcestrings.rspercent
 msgctxt "uresourcestrings.rspercent"
 msgid "%"
@@ -3394,6 +3514,16 @@ msgstr ""
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
 msgstr ""
+
+#: uresourcestrings.rsremovefrompalette
+msgid "Remove color from palette"
+msgstr ""
+
+#: uresourcestrings.rsrender
+#, fuzzy
+msgctxt "uresourcestrings.rsrender"
+msgid "Render"
+msgstr "レンダリング"
 
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
@@ -3472,9 +3602,31 @@ msgctxt "uresourcestrings.rsspline"
 msgid "Spline"
 msgstr "スプライン"
 
+#: uresourcestrings.rssplitcmyk
+msgid "Split CMYK"
+msgstr ""
+
+#: uresourcestrings.rssplithsl
+msgid "Split HSL"
+msgstr ""
+
+#: uresourcestrings.rssplitrgb
+msgid "Split RGB"
+msgstr ""
+
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
 msgstr ""
+
+#: uresourcestrings.rsstroke
+msgid "Stroke"
+msgstr ""
+
+#: uresourcestrings.rstextoutline
+#, fuzzy
+msgctxt "uresourcestrings.rstextoutline"
+msgid "Text outline"
+msgstr "アウトライン"
 
 #: uresourcestrings.rstexturemapping
 msgctxt "uresourcestrings.rstexturemapping"
@@ -3551,6 +3703,18 @@ msgstr ""
 
 #: uresourcestrings.rsvectoriallayer
 msgid "Vectorial layer"
+msgstr ""
+
+#: uresourcestrings.rsversion
+msgid "Version"
+msgstr ""
+
+#: uresourcestrings.rsverticalsize
+msgid "Vertical size"
+msgstr ""
+
+#: uresourcestrings.rsyellow
+msgid "Yellow"
 msgstr ""
 
 #: uresourcestrings.rsyes

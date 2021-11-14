@@ -1,0 +1,11 @@
+{"version":1,"strings":[
+{"hash":158360341,"name":"tfnewimage.caption","sourcebytes":[78,101,119,32,105,109,97,103,101],"value":"New image"},
+{"hash":234596970,"name":"tfnewimage.label_width.caption","sourcebytes":[87,105,100,116,104,32,58],"value":"Width :"},
+{"hash":201192154,"name":"tfnewimage.label_height.caption","sourcebytes":[72,101,105,103,104,116,32,58],"value":"Height :"},
+{"hash":1339,"name":"tfnewimage.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfnewimage.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":143327594,"name":"tfnewimage.label_height1.caption","sourcebytes":[82,97,116,105,111,32,58],"value":"Ratio :"},
+{"hash":65863386,"name":"tfnewimage.label_memoryrequired.caption","sourcebytes":[77,101,109,111,114,121,32,114,101,113,117,105,114,101,100,32,58],"value":"Memory required :"},
+{"hash":177122394,"name":"tfnewimage.label_bitdepth.caption","sourcebytes":[66,105,116,32,100,101,112,116,104,32,58],"value":"Bit depth :"},
+{"hash":866,"name":"tfnewimage.combobox_bitdepth.text","sourcebytes":[51,50],"value":"32"}
+]}

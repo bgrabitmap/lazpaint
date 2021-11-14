@@ -262,6 +262,7 @@ procedure TSelectionHighlight.DrawAffine(ADestination: TBGRACustomBitmap;
   begin
     m := AffineMatrixTranslation(CoordPrecision div 2, CoordPrecision div 2)*
          AffineMatrixScale(CoordPrecision,CoordPrecision)*AMatrix;
+    pts := nil;
     setlength(pts, length(APoly));
     for i := 0 to high(APoly) do
     begin

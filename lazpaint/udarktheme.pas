@@ -26,7 +26,7 @@ type
     procedure ToolBarPaint(Sender: TObject; ADarkTheme: boolean);
     procedure ToolBarPaintLight(Sender: TObject);
     procedure ToolBarPaintDark(Sender: TObject);
-    procedure ToolBarPaintButton(Sender: TToolButton; State: integer; ADarkTheme: boolean);
+    procedure ToolBarPaintButton(Sender: TToolButton; State: integer; {%H-}ADarkTheme: boolean);
     procedure ToolBarPaintButtonLight(Sender: TToolButton; State: integer);
     procedure ToolBarPaintButtonDark(Sender: TToolButton; State: integer);
     procedure Apply(AForm: TForm; AThemeEnabled: boolean; ARecursive: boolean = true); overload;
@@ -61,7 +61,7 @@ implementation
 uses
   BCTypes, BGRABitmap, BGRABitmapTypes, GraphType, BGRACustomDrawn, LCScaleDPI
   {$IFDEF DARWIN_DARK_THEME}, CocoaAll, CocoaUtils{$ENDIF}
-  {$IFDEF WINDOWS}, Windows, Win32Proc, Registry{$ENDIF};
+  {$IFDEF WINDOWS}, Win32Proc, Registry{$ENDIF};
 
 const
   clDarkBtnHighlight = $e0e0e0;
@@ -133,6 +133,7 @@ end;
 {$ENDIF}
 
 procedure BCAssignSystemState(AState: TBCButtonState; AFontColor, ATopColor, AMiddleTopColor, AMiddleBottomColor, ABottomColor, ABorderColor: TColor);
+var middleColor: TColor;
 begin
   with AState do
   begin
@@ -147,6 +148,8 @@ begin
     FontEx.ShadowOffsetX := 1;
     FontEx.ShadowOffsetY := 1;
     FontEx.ShadowRadius := 2;
+    middleColor := MergeBGRA(AMiddleTopColor.ToExpandedPixel, AMiddleBottomColor.ToExpandedPixel);
+    FontEx.DisabledColor := MergeBGRA(middleColor.ToExpandedPixel, AFontColor.ToExpandedPixel);
     Background.Gradient1EndPercent := 60;
     Background.Style := bbsGradient;
     // Gradient1
@@ -398,6 +401,8 @@ begin
       Apply(TPanel(APanel.Controls[i]), AThemeEnabled) else
     if APanel.Controls[i] is TToolBar then
       Apply(TToolBar(APanel.Controls[i]), AThemeEnabled) else
+    if APanel.Controls[i] is TBCButton then
+      Apply(TBCButton(APanel.Controls[i]), AThemeEnabled) else
     if APanel.Controls[i] is TBCComboBox then
       Apply(TBCComboBox(APanel.Controls[i]), AThemeEnabled) else
     if APanel.Controls[i] is TBCTrackbarUpdown then
@@ -516,6 +521,7 @@ begin
     StateClicked.FontEx.ShadowColorOpacity:= 70;
     StateClicked.FontEx.TextAlignment:= bcaLeftCenter;
     StateClicked.FontEx.PaddingLeft:= DoScaleX(3, OriginalDPI);
+    GlyphMargin := DoScaleX(3, OriginalDPI);
   end;
 end;
 

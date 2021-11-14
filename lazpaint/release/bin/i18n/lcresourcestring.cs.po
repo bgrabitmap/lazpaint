@@ -178,3 +178,4 @@ msgstr "Opakovat Y"
 #: lcresourcestring.rsunknownshapeclass
 msgid "Unknown shape class \"%1\""
 msgstr "Neznámá třída tvaru \"%1\""
+

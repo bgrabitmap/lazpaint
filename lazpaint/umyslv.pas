@@ -544,6 +544,7 @@ var
     clientArea := rect(0,textHeight,w,h);
     FItemsPerPage:= Size(clientArea).cy div FActualRowHeight;
 
+    colPos := nil;
     setlength(colPos,ColumnCount+1);
     colPos[0] := 0;
     for col := 0 to ColumnCount-1 do
@@ -1082,6 +1083,7 @@ var i,j,curSize,totalSize: integer;
   s: string;
 begin
   if (ItemCount = 0) or (ColumnCount = 0) then exit;
+  colSizes := nil;
   setlength(colSizes,ColumnCount);
   sizeA := ABitmap.TextSize('a').cx;
   for j := 0 to ColumnCount-1 do
@@ -1315,6 +1317,7 @@ begin
     lst.Add(@FData[i]);
   SortTarget := self;
   lst.Sort(@LCListViewCompare);
+  sortedData := nil;
   setlength(sortedData,ItemCount);
   for i := 0 to lst.Count-1 do
     sortedData[i] := PLCShellListViewItemData(lst[i])^;

@@ -1,7 +1,5 @@
 # Layer effect > Inner shadow
 # (fr) Effet de calque > Ombre intérieure
-# (es) Efectos de capa > Sombra interior
-# (de) Ebeneneffekte > Inneren Schatten
 from lazpaint import dialog
 
 try:
@@ -13,8 +11,7 @@ except ImportError:
 from lazpaint import colors, image, layer, filters, tools, selection
 import math
 
-english = ["Layer is empty", "Radius", "Angle", "Opacity", "Ok", "Cancel"]
-translation = dict(zip(english, dialog.translate_text(english)))
+translation = dialog.translate_dict(["Layer is empty", "Radius", "Angle", "Opacity", "Ok", "Cancel"])
 
 if layer.is_empty():
     dialog.show_message(translation["Layer is empty"])

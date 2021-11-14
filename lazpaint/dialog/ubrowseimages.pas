@@ -617,7 +617,9 @@ begin
     end;
 
     setlength(FCacheComputeIconIndexes, cacheComputeCount);
+    newFilenames := nil;
     setlength(newFilenames, cacheComputeCount);
+    newLastModifications := nil;
     setlength(newLastModifications, cacheComputeCount);
     for i := 0 to cacheComputeCount-1 do
     begin
@@ -1217,6 +1219,7 @@ begin
       end;
     end;
 
+  filesToDelete := nil;
   setlength(filesToDelete, deleteCount);
   deleteCount := 0;
   for i := 0 to ShellListView1.ItemCount-1 do

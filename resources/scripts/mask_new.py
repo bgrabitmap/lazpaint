@@ -1,15 +1,8 @@
 # Mask > New mask
 # (fr) Masque > Nouveau masque
-# (es) Máscara > Máscara nueva
-# (de) Maske > Neue Maske
 from lazpaint import image, layer, tools, colors, selection, dialog
 
-translation = dialog.select_translation(
-  en = {"Mask" : "Mask"}, 
-  fr = {"Mask": "Masque"}, 
-  es = {"Mask": "Máscara"}, 
-  de = {"Mask": "Maske"}
-  )
+translation = dialog.translate_dict(["Mask"])
 
 image.do_begin()
 

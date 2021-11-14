@@ -1,0 +1,19 @@
+{"version":1,"strings":[
+{"hash":13537566,"name":"tfblendop.caption","sourcebytes":[66,108,101,110,100,32,111,112,101,114,97,116,105,111,110],"value":"Blend operation"},
+{"hash":45892456,"name":"tfblendop.label_patternunder.hint","sourcebytes":[80,114,101,118,105,101,119,32,98,108,101,110,100,32,111,112,101,114,97,116,105,111,110,32,119,105,116,104,32,116,104,101,32,115,112,101,99,105,102,105,101,100,32,105,109,97,103,101,32,117,110,100,101,114,110,101,97,116,104],"value":"Preview blend operation with the specified image underneath"},
+{"hash":116516386,"name":"tfblendop.label_patternunder.caption","sourcebytes":[80,97,116,116,101,114,110,32,117,110,100,101,114],"value":"Pattern under"},
+{"hash":169809216,"name":"tfblendop.label_patternover.hint","sourcebytes":[80,114,101,118,105,101,119,32,98,108,101,110,100,32,111,112,101,114,97,116,105,111,110,32,119,105,116,104,32,116,104,101,32,115,112,101,99,105,102,105,101,100,32,105,109,97,103,101,32,111,110,32,116,111,112],"value":"Preview blend operation with the specified image on top"},
+{"hash":242210306,"name":"tfblendop.label_patternover.caption","sourcebytes":[80,97,116,116,101,114,110,32,111,118,101,114],"value":"Pattern over"},
+{"hash":48745955,"name":"tfblendop.label_svgover.hint","sourcebytes":[66,97,115,105,99,32,98,108,101,110,100,32,111,112,101,114,97,116,105,111,110,115,32,116,104,97,116,32,97,114,101,32,97,118,97,105,108,97,98,108,101,32,105,110,32,118,105,114,116,117,97,108,108,121,32,97,108,108,32,105,109,97,103,101,32,101,100,105,116,111,114,115],"value":"Basic blend operations that are available in virtually all image editors"},
+{"hash":167055399,"name":"tfblendop.label_svgover.caption","sourcebytes":[66,97,115,105,99,32,83,86,71],"value":"Basic SVG"},
+{"hash":185836481,"name":"tfblendop.label_kritaover.hint","sourcebytes":[66,108,101,110,100,32,111,112,101,114,97,116,105,111,110,115,32,116,104,97,116,32,97,114,101,32,97,118,97,105,108,97,98,108,101,32,105,110,32,75,114,105,116,97],"value":"Blend operations that are available in Krita"},
+{"hash":5410977,"name":"tfblendop.label_kritaover.caption","sourcebytes":[75,114,105,116,97],"value":"Krita"},
+{"hash":49963988,"name":"tfblendop.label_otherover.hint","sourcebytes":[66,108,101,110,100,32,111,112,101,114,97,116,105,111,110,115,32,111,102,32,76,97,122,80,97,105,110,116,32,97,110,100,32,80,97,105,110,116,46,78,69,84],"value":"Blend operations of LazPaint and Paint.NET"},
+{"hash":5680834,"name":"tfblendop.label_otherover.caption","sourcebytes":[79,116,104,101,114],"value":"Other"},
+{"hash":77515226,"name":"tfblendop.label_selectedblendop.caption","sourcebytes":[83,101,108,101,99,116,101,100,32,98,108,101,110,100,32,111,112,101,114,97,116,105,111,110,32,58],"value":"Selected blend operation :"},
+{"hash":46,"name":"tfblendop.label_blendopvalue.caption","sourcebytes":[46],"value":"."},
+{"hash":1339,"name":"tfblendop.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
+{"hash":77089212,"name":"tfblendop.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":166669400,"name":"tfblendop.label_previewwith.caption","sourcebytes":[80,114,101,118,105,101,119,32,119,105,116,104],"value":"Preview with"},
+{"hash":187207982,"name":"tfblendop.label_blendopcategory.caption","sourcebytes":[67,97,116,101,103,111,114,121,32,111,102,32,98,108,101,110,100,32,111,112,101,114,97,116,105,111,110],"value":"Category of blend operation"}
+]}

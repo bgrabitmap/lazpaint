@@ -202,7 +202,9 @@ begin
   begin
     pointList := curve.GetVariable('Points');
     pointCount := curve.GetListCount(pointList);
+    symbols := nil;
     setlength(symbols, pointCount);
+    symbolsColor := nil;
     setlength(symbolsColor, pointCount);
     for i := 0 to pointCount-1 do
     begin
@@ -212,6 +214,7 @@ begin
     end;
     if curve.Booleans['Posterize'] then
     begin
+      pts := nil;
       setlength(pts, pointCount*2);
       for i := 0 to pointCount-2 do
       begin
@@ -403,8 +406,12 @@ begin
   Y := round(Y*FScaling);
   if FMovingPoint then
   begin
-    SetPointCoord(FSelectedPoint, BitmapToCoord(X,Y));
-    vsChart.DiscardBitmap;
+    if not (ssLeft in Shift) then FMovingPoint := false
+    else
+    begin
+      SetPointCoord(FSelectedPoint, BitmapToCoord(X,Y));
+      vsChart.DiscardBitmap;
+    end;
   end;
 end;
 
@@ -525,6 +532,7 @@ begin
   FSelectedPoint:= -1;
   if HueTabSelected then
   begin
+    labels := nil;
     setlength(labels, 7);
     labels[0] := '0';
     labels[1] := '60';

@@ -532,6 +532,7 @@ var
   i: Integer;
 begin
   files := AVars.GetVariable('FileNames');
+  fileArray := nil;
   setLength(fileArray, AVars.GetListCount(files));
   for i := 0 to high(fileArray) do
     fileArray[i] := AVars.GetStringAt(files, i);
@@ -1119,6 +1120,7 @@ var
    i: integer;
    TempVar: array of String;
 begin
+  TempVar := nil;
   SetLength(TempVar, aStrings.Count);
   For i := 0 To aStrings.Count-1 Do
     TempVar[i] := aStrings[i];
@@ -1143,6 +1145,7 @@ begin
 
     if FBrowseImages.ShowModal = mrOK then
     begin
+      fileNames := nil;
       setlength(fileNames,FBrowseImages.SelectedFileCount);
       for i := 0 to high(fileNames) do
         fileNames[i] := FBrowseImages.SelectedFile[i];
