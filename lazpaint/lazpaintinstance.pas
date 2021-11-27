@@ -1521,11 +1521,15 @@ begin
 end;
 
 procedure TLazPaintInstance.ChangeIconSize(size: integer);
+var
+  prevSize: Integer;
 begin
   if Config.DefaultIconSize(0)<>size then
   begin
+    prevSize := Config.DefaultIconSize(0);
     Config.SetDefaultIconSize(size);
-    Restart;
+    if not Restart then
+      Config.SetDefaultIconSize(prevSize);
   end;
 end;
 
