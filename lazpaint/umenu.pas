@@ -17,7 +17,10 @@ type
   private
     FActionList: TActionList;
     FDarkTheme: boolean;
-    FMainMenus: array of TMenuItem;
+    FMainMenus: array of record
+                  menu: TMenuItem;
+                  used: boolean;
+                end;
     FToolsShortcuts: array[TPaintToolType] of TUTF8Char;
     FToolbars: array of record
                  tb: TPanel;
@@ -237,10 +240,10 @@ begin
       break;
     end;
   for i := 0 to high(FMainMenus) do
-    if FMainMenus[i].Name = AMenuName then
+    if FMainMenus[i].menu.Name = AMenuName then
     begin
-      AddMenus(FMainMenus[i], FActionList, AActionsCommaText);
-      FMainMenus[i].Visible := true;
+      AddMenus(FMainMenus[i].menu, FActionList, AActionsCommaText);
+      FMainMenus[i].used := true;
     end;
 end;
 
@@ -388,7 +391,10 @@ var i: NativeInt;
 begin
   setlength(FMainMenus, length(AMainMenus));
   for i := 0 to high(AMainMenus) do
-    FMainMenus[i] := AMainMenus[i];
+  begin
+    FMainMenus[i].menu := AMainMenus[i];
+    FMainMenus[i].used := false;
+  end;
 end;
 
 procedure TMainFormMenu.Toolbars(const AToolbars: array of TPanel; AToolbarBackground: TPanel);
@@ -469,7 +475,8 @@ begin
   AddMenus('MenuScript', 'FileRunScript,-,InstalledScripts');
   AddMenus('MenuHelp',   'HelpIndex,-,HelpAbout');
   for i := 0 to high(FMainMenus) do
-    if FMainMenus[i].Count = 0 then FMainMenus[i].visible := false;
+    if not FMainMenus[i].used then
+       FMainMenus[i].menu.Visible := false;
 
   ApplyShortcuts;
 

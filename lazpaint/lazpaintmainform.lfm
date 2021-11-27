@@ -5537,11 +5537,9 @@ object FMain: TFMain
     end
     object MenuEdit: TMenuItem
       Caption = 'Edit'
-      Visible = False
     end
     object MenuSelect: TMenuItem
       Caption = 'Select'
-      Visible = False
     end
     object MenuView: TMenuItem
       Caption = 'View'
@@ -5562,7 +5560,6 @@ object FMain: TFMain
     end
     object MenuImage: TMenuItem
       Caption = 'Image'
-      Visible = False
       object MenuRemoveTransparency: TMenuItem
         Caption = 'Remove transparency'
         Visible = False
@@ -5570,15 +5567,12 @@ object FMain: TFMain
     end
     object MenuColors: TMenuItem
       Caption = 'Colors'
-      Visible = False
     end
     object MenuTool: TMenuItem
       Caption = 'Tools'
-      Visible = False
     end
     object MenuFilter: TMenuItem
       Caption = 'Filter'
-      Visible = False
       object MenuRadialBlur: TMenuItem
         Caption = 'Radial blur'
         Visible = False
@@ -5586,15 +5580,12 @@ object FMain: TFMain
     end
     object MenuRender: TMenuItem
       Caption = 'Render'
-      Visible = False
     end
     object MenuScript: TMenuItem
       Caption = 'Script'
-      Visible = False
     end
     object MenuHelp: TMenuItem
       Caption = 'Help'
-      Visible = False
     end
   end
   object TimerHidePenPreview: TTimer
