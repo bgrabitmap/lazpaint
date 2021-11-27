@@ -831,6 +831,7 @@ type
   public
     { public declarations }
     Zoom: TZoom;
+    Closing: boolean;
 
     procedure PaintPictureNow;
     procedure PaintPictureLater;
@@ -2484,6 +2485,7 @@ begin
   if ToolManager.ToolSleeping then
   begin
     CanClose := false;
+    LazPaintInstance.CancelRestart;
     exit;
   end;
   if CurrentTool in [ptDeformation,ptLayerMapping] then
@@ -2492,6 +2494,7 @@ begin
     if not Image.CheckNoAction then
     begin
       CanClose := false;
+      LazPaintInstance.CancelRestart;
       exit;
     end;
   if not LazPaintInstance.Embedded and image.IsFileModified and not image.Empty then
@@ -2499,12 +2502,19 @@ begin
     topmostInfo:= LazPaintInstance.HideTopmost;
 
     case LazPaintInstance.SaveQuestion(rsExitRequest) of
-    IDYES: FileSave.Execute;
+    IDYES: if scripting.CallScriptFunction('FileSave') <> srOk then
+           begin
+             CanClose := false;
+             LazPaintInstance.CancelRestart;
+             LazPaintInstance.ShowTopmost(topmostInfo);
+             exit;
+           end;
     IDNO: ;
     IDCANCEL: begin
                 CanClose := false;
                 LazPaintInstance.CancelRestart;
                 LazPaintInstance.ShowTopmost(topmostInfo);
+                exit;
               end;
     end;
   end else
@@ -2611,15 +2621,17 @@ begin
 end;
 
 procedure TFMain.LanguageClick(Sender: TObject);
-var language: string;
+var language, prevLanguage: string;
 begin
   if Sender is TMenuItem then
   begin
     language := (Sender as TMenuItem).Caption;
     if Config.DefaultLangage <> language then
     begin
+      prevLanguage := Config.DefaultLangage;
       Config.SetDefaultLangage(language);
-      LazPaintInstance.Restart;
+      if not LazPaintInstance.Restart then
+        Config.SetDefaultLangage(prevLanguage);
     end;
   end;
 end;

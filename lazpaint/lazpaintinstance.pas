@@ -213,7 +213,7 @@ type
     procedure Show; override;
     function Hide: boolean; override;
     procedure Run; override;
-    procedure Restart; override;
+    function Restart: boolean; override;
     procedure CancelRestart; override;
     destructor Destroy; override;
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); override;
@@ -1555,13 +1555,15 @@ begin
   until not MainFormVisible;
 end;
 
-procedure TLazPaintInstance.Restart;
+function TLazPaintInstance.Restart: boolean;
 begin
   if FMain <> nil then
   begin
     FRestartQuery := true;
     FMain.Close;
-  end;
+    result := FRestartQuery;
+  end else
+    result := true;
 end;
 
 procedure TLazPaintInstance.CancelRestart;

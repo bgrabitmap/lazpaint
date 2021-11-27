@@ -244,7 +244,7 @@ type
     procedure Show; virtual; abstract;
     function Hide: boolean; virtual; abstract;
     procedure Run; virtual; abstract;
-    procedure Restart; virtual; abstract;
+    function Restart: boolean; virtual; abstract;
     procedure CancelRestart; virtual; abstract;
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); virtual; abstract;
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); virtual; abstract;
