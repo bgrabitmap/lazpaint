@@ -1263,6 +1263,7 @@ begin
     if bmp <> nil then subLaz.AssignBitmap(bmp);
     subLaz.AboutText := AboutText;
     subLaz.EmbeddedImageBackup := bmp;
+    subLaz.FMain.BorderIcons := subLaz.FMain.BorderIcons - [biMinimize];
     if AOnRun <> nil then
       AOnRun(subLaz);
     subLaz.Run;
@@ -1283,7 +1284,11 @@ begin
       ShowError('EditBitmap',ex.Message);
   end;
   ShowTopmost(topmostInfo);
-  if FMain <> nil then FMain.Enabled := true;
+  if FMain <> nil then
+  begin
+    FMain.Enabled := true;
+    FMain.BringToFront;
+  end;
   subLaz.Free;
 end;
 
