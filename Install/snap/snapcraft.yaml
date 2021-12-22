@@ -1,0 +1,151 @@
+name: lazpaint
+title: LazPaint
+version: '7.1.6'
+summary: Image editor with raster and vector layers.
+description: |
+  Can read layered files (lzp, ora, pdn, oXo, flat psd), multi-images (gif, ico, tiff), flat files (bmp, jpeg, pcx, png, tga, webp, xpm, xwd), raw images (dng, cr2, nef, arw...), vectorial (svg), 3D (obj). Has drawing tools, vector shapes, phong shading, curve adjustments, filters, render some textures, Python scripting. Uses Qt5 widgetset.
+confinement: strict
+base: core20
+grade: stable
+icon: "resources/icon/64x64.png"
+license: NLPL
+
+parts:
+  lazarus:
+    plugin: nil
+    source: .
+    source-type: local
+    build-packages: 
+    - wget
+    - libgtk2.0-dev
+    override-build: |
+      wget -nc https://deac-ams.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.12/lazarus-project_2.0.12-0_amd64.deb
+      wget -nc https://netix.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.12/fpc-laz_3.2.0-1_amd64.deb
+      wget -nc https://netix.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.12/fpc-src_3.2.0-1_amd64.deb
+      apt install ./lazarus-project_2.0.12-0_amd64.deb ./fpc-laz_3.2.0-1_amd64.deb ./fpc-src_3.2.0-1_amd64.deb
+    prime: [-*]
+  lazpaint:
+    plugin: nil
+    source: .
+    source-type: local
+    override-build: |
+      snapcraftctl build
+      cd lazpaint
+      lazbuild --build-mode=Release lazpaint.lpi
+      install -d -m 755 $SNAPCRAFT_PART_INSTALL/usr/bin
+      install -s -m 755 release/bin/lazpaint $SNAPCRAFT_PART_INSTALL/usr/bin/lazpaint
+      install -d -m 755 $SNAPCRAFT_PART_INSTALL/usr/share/lazpaint
+      cp -r release/bin/i18n $SNAPCRAFT_PART_INSTALL/usr/share/lazpaint
+      cp -r release/bin/models $SNAPCRAFT_PART_INSTALL/usr/share/lazpaint
+      install -d -m 755 $SNAPCRAFT_PART_INSTALL/usr/share/applications
+      install -m 755 release/debian/applications/lazpaint.desktop $SNAPCRAFT_PART_INSTALL/usr/share/applications
+      install -d -m 755 $SNAPCRAFT_PART_INSTALL/usr/share/pixmaps
+      install -m 755 ../resources/icon/64x64.png $SNAPCRAFT_PART_INSTALL/usr/share/pixmaps/lazpaint.png
+      cp -r ../resources/scripts $SNAPCRAFT_PART_INSTALL/usr/share/lazpaint
+    after:
+    - lazarus
+    - desktop-gtk2
+    stage:
+    - etc
+    - usr
+    - usr/bin
+    - usr/share/lazpaint
+    - usr/share/applications/lazpaint.desktop
+    - usr/share/pixmaps
+    stage-packages:
+    - libatk1.0-0
+    - libcairo2
+    - libdatrie1
+    - libfontconfig1
+    - libfreetype6
+    - libfribidi0
+    - libgdk-pixbuf2.0-0
+    - libgraphite2-3
+    - libgtk2.0-0
+    - libharfbuzz0b
+    - libpango-1.0-0
+    - libpangocairo-1.0-0
+    - libpangoft2-1.0-0
+    - libpixman-1-0
+    - libpng16-16
+    - libthai0
+    - libx11-6
+    - libxau6
+    - libxcb-render0
+    - libxcb-shm0
+    - libxcb1
+    - libxcomposite1
+    - libxcursor1
+    - libxdamage1
+    - libxdmcp6
+    - libxext6
+    - libxfixes3
+    - libxi6
+    - libxinerama1
+    - libxrandr2
+    - libxrender1
+
+  desktop-gtk2:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: gtk
+    plugin: make
+    make-parameters: ["FLAVOR=gtk2"]
+    build-packages:
+    - build-essential
+    - libgtk2.0-dev
+    stage-packages:
+    - libxkbcommon0  # XKB_CONFIG_ROOT
+    - ttf-ubuntu-font-family
+    - dmz-cursor-theme
+    - light-themes
+    - adwaita-icon-theme
+    - gnome-themes-standard
+    - shared-mime-info
+    - libgtk2.0-0
+    - libgdk-pixbuf2.0-0
+    - libglib2.0-bin
+    - libgtk2.0-bin
+    - unity-gtk2-module
+    - locales-all
+    - libappindicator1
+    - xdg-user-dirs
+    - ibus-gtk
+    - libibus-1.0-5
+      
+# Additional plugs to pick up the GTK theme and icons from the system
+plugs: 
+  icon-themes:
+    interface: content
+    target: $SNAP/data-dir/icons
+    default-provider: gtk-common-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/data-dir/sounds
+    default-provider: gtk-common-themes
+  gtk-2-engines:
+    interface: content
+    target: $SNAP/lib/gtk-2.0
+    default-provider: gtk2-common-themes:gtk-2-engines
+  gtk-2-themes:
+    interface: content
+    target: $SNAP/usr/share/themes
+    default-provider: gtk2-common-themes:gtk-2-themes
+
+environment:
+  XDG_DATA_DIRS: $SNAP/usr/share:$XDG_DATA_DIRS
+  GTK_PATH: $SNAP/lib/gtk-2.0
+  
+apps:
+  lazpaint:
+    command: usr/bin/lazpaint
+    command-chain:
+    - bin/desktop-launch
+    desktop: usr/share/applications/lazpaint.desktop    
+    plugs:
+    - desktop
+    - x11
+    - home
+
+layout:
+  /usr/share/lazpaint:
+    bind: $SNAP/usr/share/lazpaint
