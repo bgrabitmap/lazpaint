@@ -42,6 +42,8 @@ parts:
       install -d -m 755 $SNAPCRAFT_PART_INSTALL/usr/share/pixmaps
       install -m 755 ../resources/icon/64x64.png $SNAPCRAFT_PART_INSTALL/usr/share/pixmaps/lazpaint.png
       cp -r ../resources/scripts $SNAPCRAFT_PART_INSTALL/usr/share/lazpaint
+      install -d -m 755 $SNAPCRAFT_PART_INSTALL/usr/share/mime/packages
+      install -m 755 ../Install/snap/local/lazpaint.xml $SNAPCRAFT_PART_INSTALL/usr/share/mime/packages
     after:
     - lazarus
     - desktop-gtk2
