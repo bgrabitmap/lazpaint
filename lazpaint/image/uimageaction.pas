@@ -1541,10 +1541,12 @@ end;
 
 procedure TImageActions.DeleteSelection;
 var LayerAction: TLayerAction;
-  doErase: Boolean;
+  doErase, wasSelecting: Boolean;
 begin
   if image.SelectionMaskEmpty then exit;
-  if not image.CheckNoAction then exit;
+  wasSelecting := ToolManager.GetCurrentToolType in [ptSelectPen..ptSelectSpline];
+  if wasSelecting then ToolManager.ToolCloseDontReopen
+  else if not image.CheckNoAction then exit;
   LayerAction := nil;
   try
     doErase := Image.SelectionLayerIsEmpty;
@@ -1557,7 +1559,8 @@ begin
       FInstance.ShowError('DeleteSelection',ex.Message);
   end;
   LayerAction.Free;
-  if (CurrentTool = ptRotateSelection) or
+  if wasSelecting then ToolManager.ToolOpen
+  else if (CurrentTool = ptRotateSelection) or
      (CurrentTool = ptMoveSelection) then
     ChooseTool(ptHand);
 end;
