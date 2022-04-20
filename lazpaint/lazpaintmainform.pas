@@ -1393,6 +1393,7 @@ var
 
   function DoSaveAs(filename: string; AExport: boolean): TScriptResult;
   var saved: boolean;
+      skipOptions: boolean;
   begin
     if not Image.AbleToSaveAsUTF8(filename) then
     begin
@@ -1414,8 +1415,9 @@ var
         end
         else
         begin
+          skipOptions := AVars.Booleans['SkipOptions'] or LazPaintInstance.DontAsk;
           if not LazPaintInstance.ShowSaveOptionDlg(nil, filename,
-                   AVars.Booleans['SkipOptions'], AExport) then
+                   skipOptions, AExport) then
             result := srCancelledByUser
           else
             saved := true;
@@ -1566,6 +1568,7 @@ begin
 end;
 
 function TFMain.ScriptFileSave(AVars: TVariableSet): TScriptResult;
+var skipOptions: boolean;
 begin
   if (Image.CurrentFilenameUTF8 = '') or not Image.AbleToSaveAsUTF8(Image.CurrentFilenameUTF8) then
     result := Scripting.CallScriptFunction('FileSaveAs', True) else
@@ -1583,7 +1586,8 @@ begin
         end
         else
         begin
-          if LazPaintInstance.ShowSaveOptionDlg(nil, Image.currentFilenameUTF8, AVars.Booleans['SkipOptions'], False) then
+          skipOptions := AVars.Booleans['SkipOptions'] or LazPaintInstance.DontAsk;
+          if LazPaintInstance.ShowSaveOptionDlg(nil, Image.currentFilenameUTF8, skipOptions, False) then
           begin
             AVars.Strings['Result'] := Image.currentFilenameUTF8;
             result := srOk;
@@ -2480,6 +2484,7 @@ end;
 
 procedure TFMain.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 var topmostInfo: TTopMostInfo;
+    answer: integer;
 begin
   if ToolManager.ToolSleeping then
   begin
@@ -2498,7 +2503,13 @@ begin
   begin
     topmostInfo:= LazPaintInstance.HideTopmost;
 
-    case LazPaintInstance.SaveQuestion(rsExitRequest) of
+    answer := IDYES;
+    if not LazPaintInstance.DontAsk then
+    begin
+      answer := LazPaintInstance.SaveQuestion(rsExitRequest);
+    end;
+
+    case answer of
     IDYES: FileSave.Execute;
     IDNO: ;
     IDCANCEL: begin

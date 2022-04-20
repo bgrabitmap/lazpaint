@@ -156,6 +156,7 @@ type
     procedure SetDarkTheme(AValue: boolean);
   protected
     FRestartQuery: boolean;
+    FDontAsk: boolean;
     function QueryInterface({$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} IID: TGUID; out Obj): HResult; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
     function _AddRef: Integer; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
     function _Release: Integer; {$IF (not defined(WINDOWS)) AND (FPC_FULLVERSION>=20501)}cdecl{$ELSE}stdcall{$IFEND};
@@ -301,6 +302,7 @@ type
     procedure RemoveColorFromPalette(AColor: TBGRAPixel); virtual; abstract;
 
     property BlackAndWhite: boolean read FBlackAndWhite write SetBlackAndWhite;
+    property DontAsk: boolean read FDontAsk;
 
     procedure ScrollLayerStackOnItem(AIndex: integer; ADelayedUpdate: boolean = true); virtual; abstract;
     procedure InvalidateLayerStack; virtual; abstract;

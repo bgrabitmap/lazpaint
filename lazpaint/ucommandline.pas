@@ -11,7 +11,7 @@ uses classes, LazpaintType, uresourcestrings;
   {$DEFINE SHOW_MANUAL_IN_WINDOW}
 {$ENDIF}
 
-const Manual: array[0..64] of string = (
+const Manual: array[0..66] of string = (
 'NAME',
 '       LazPaint - Image editor',
 '',
@@ -76,9 +76,12 @@ const Manual: array[0..64] of string = (
 '              rotates the image counter-clockwise.',
 '',
 '       -rotate180',
-'              rotates the image 180 degrees.');
+'              rotates the image 180 degrees.',
+'       -dontask',
+'              dont ask to confirm saving changes, just save.'
+);
 
-procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved, quitQuery: boolean);
+procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList; out errorEncountered, fileSaved, quitQuery, dontAsk: boolean);
 function ParamStrUTF8(AIndex: integer): string;
 
 implementation
@@ -94,7 +97,7 @@ begin
 end;
 
 procedure InternalProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList;
-  out errorEncountered, fileSaved, quitQuery: boolean; AImageActions: TImageActions);
+  out errorEncountered, fileSaved, quitQuery, dontAsk: boolean; AImageActions: TImageActions);
 var
   commandPrefix: set of char;
   InputFilename:string;
@@ -345,6 +348,11 @@ begin
           if not NextAsFuncParam then exit;
           CustomScriptDirectory:= ChompPathDelim(ExpandFileNameUTF8(commandStr));
         end else
+        if lowerCmd = 'dontask' then
+        begin
+          dontAsk:= true;
+          exit;
+        end else
         if lowerCmd = 'quit' then
         begin
           quitQuery:= true;
@@ -394,9 +402,9 @@ begin
 end;
 
 procedure ProcessCommands(instance: TLazPaintCustomInstance; commandsUTF8: TStringList;
-  out errorEncountered, fileSaved, quitQuery: boolean);
+  out errorEncountered, fileSaved, quitQuery, dontAsk: boolean);
 begin
-  InternalProcessCommands(instance, commandsUTF8, errorEncountered, fileSaved, quitQuery, TImageActions(instance.ImageAction));
+  InternalProcessCommands(instance, commandsUTF8, errorEncountered, fileSaved, quitQuery, dontAsk, TImageActions(instance.ImageAction));
 end;
 
 end.

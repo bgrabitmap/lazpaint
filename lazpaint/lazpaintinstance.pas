@@ -1499,7 +1499,7 @@ begin
   try
     for i := 1 to paramCount do
       commands.Add(ParamStrUtf8(i));
-    ucommandline.ProcessCommands(self, commands, error, saved, quitQuery);
+    ucommandline.ProcessCommands(self, commands, error, saved, quitQuery, FDontAsk);
   finally
     commands.free;
     FInCommandLine := false;
@@ -1517,7 +1517,7 @@ begin
     exit;
   end;
   FormsNeeded;
-  ucommandline.ProcessCommands(self, commands, result, saved, quitQuery);
+  ucommandline.ProcessCommands(self, commands, result, saved, quitQuery, FDontAsk);
 end;
 
 procedure TLazPaintInstance.ChangeIconSize(size: integer);
