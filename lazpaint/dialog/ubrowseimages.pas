@@ -1128,7 +1128,7 @@ begin
           if DefaultExtension <> '' then
             FFilename += DefaultExtension;
       end;
-      if not FileManager.IsValidFileName(FFilename) and IsSaveDialog then
+      if not FileManager.IsValidFileName(ExtractFileName(FFilename)) and IsSaveDialog then
       begin
         ShowMessage(rsInvalidName);
         exit;
