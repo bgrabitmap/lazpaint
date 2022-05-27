@@ -1605,6 +1605,8 @@ var
   r: TRect;
   matrix: TAffineMatrix;
 begin
+  if isEmptyPointF(ABounds.TopLeft) or isEmptyPointF(ABounds.BottomRight) then
+    raise exception.Create('Unexpected empty point');
   toolDest := GetToolDrawingLayer;
   matrix := VectorTransform(false);
   r := (matrix*TAffineBox.AffineBox(ABounds)).RectBounds;
@@ -2131,10 +2133,10 @@ begin
       if s.y > 0 then FQuickDefineEndPoint.y := FQuickDefineStartPoint.y + avg else FQuickDefineEndPoint.y := FQuickDefineStartPoint.y - avg;
     end;
     FShape.BeginUpdate;
-      QuickDefineShape(FQuickDefineStartPoint, FQuickDefineEndPoint);
-      FLastShapeTransform := AffineMatrixInverse(VectorTransform(false));
-      FShape.Transform(FLastShapeTransform);
-      AssignShapeStyle(FLastShapeTransform, true);
+    QuickDefineShape(FQuickDefineStartPoint, FQuickDefineEndPoint);
+    FLastShapeTransform := AffineMatrixInverse(VectorTransform(false));
+    FShape.Transform(FLastShapeTransform);
+    AssignShapeStyle(FLastShapeTransform, true);
     FShape.EndUpdate;
     result := OnlyRenderChange;
   end else

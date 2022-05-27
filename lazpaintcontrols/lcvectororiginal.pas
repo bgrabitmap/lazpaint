@@ -1976,6 +1976,8 @@ begin
   if FUpdateCount = 0 then
   begin
     FBoundsBeforeUpdate := GetRenderBounds(InfiniteRect, AffineMatrixIdentity);
+    if isEmptyPointF(FBoundsBeforeUpdate.TopLeft) or isEmptyPointF(FBoundsBeforeUpdate.BottomRight) then
+      raise exception.Create('Unexpected empty point');
     Inc(FRenderIteration);
   end;
   inc(FUpdateCount);

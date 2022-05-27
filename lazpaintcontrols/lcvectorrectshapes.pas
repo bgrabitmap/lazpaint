@@ -988,7 +988,7 @@ var
   i: Integer;
 begin
   pts := GetAffineBox(AMatrix, true).AsPolygon;
-  If GetBackVisible then
+  If GetBackVisible and (Width <> 0) and (Height <> 0) then
   begin
     if (BackFill.FillType = vftSolid) then backScan := nil
     else backScan := BackFill.CreateScanner(AMatrix, ADraft);
@@ -1101,6 +1101,7 @@ begin
       begin
         pts := ComputeStroke(GetAffineBox(AMatrix, false).AsPolygon, true, AMatrix);
         for i := 0 to high(pts) do
+        if not IsEmptyPointF(pts[i]) then
         begin
           if pts[i].x < result.Left then result.Left := pts[i].x;
           if pts[i].x > result.Right then result.Right := pts[i].x;
