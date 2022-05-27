@@ -1120,7 +1120,7 @@ end;
 procedure TFMain.Image_SwapColorsMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  SwitchColors;
+  if Button = mbLeft then SwitchColors;
 end;
 
 procedure TFMain.SpinEdit_ToleranceChange(Sender: TObject; AByUser: boolean);
