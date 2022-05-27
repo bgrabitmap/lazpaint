@@ -33,13 +33,15 @@ type
     FOnZoomChangedHandler : TOnZoomChangedHandler;
     FBitmapPosition: TPointF;
     FMousePosition: TPoint;
+    FOnCenterQuery: TNotifyEvent;
     function GetEditingZoom: boolean;
     function GetPositionDefined: boolean;
     function GetZoomFactor: single;
     procedure SetEditingZoom(AValue: boolean);
     procedure SetMaxFactor(AValue: single);
     procedure SetMinFactor(AValue: single);
-    procedure SetZoomFactor(AValue: single);
+    procedure SetZoomFactor(AValue: single); overload;
+    procedure SetZoomFactor(AValue: single; ACenter: boolean); overload;
   protected
     procedure EditZoom_KeyPress(Sender: TObject; var Key: char);
     procedure EditZoom_ZoomExit(Sender: TObject);
@@ -66,6 +68,7 @@ type
     property BitmapPosition: TPointF read FBitmapPosition;
     property MousePosition: TPoint read FMousePosition;
     property PositionDefined: boolean read GetPositionDefined;
+    property OnCenterQuery: TNotifyEvent read FOnCenterQuery write FOnCenterQuery;
   end;
 
 implementation
@@ -121,11 +124,16 @@ end;
 
 procedure TZoom.SetZoomFactor(AValue: single);
 begin
+  SetZoomFactor(AValue, false);
+end;
+
+procedure TZoom.SetZoomFactor(AValue: single; ACenter: boolean);
+begin
   if (FMinFactor <> 0) and (AValue < FMinFactor) then AValue := FMinFactor;
   if (FMaxFactor <> 0) and (AValue > FMaxFactor) then AValue := FMaxFactor;
-  if AValue = FZoomFactor then exit;
   EditingZoom:= False;
   FZoomFactor:= AValue;
+  if ACenter and Assigned(OnCenterQuery) then OnCenterQuery(self);
   if Assigned(FOnZoomChangedHandler) then
     FOnZoomChangedHandler(self, AValue);
   UpdateLabel;
@@ -236,7 +244,7 @@ begin
   try
     zx := (pictureArea.right-pictureArea.left-pixelMargin)/AImageWidth;
     zy := (pictureArea.bottom-pictureArea.top-pixelMargin)/AImageheight;
-    Factor:= min(zx,zy);
+    SetZoomFactor(min(zx,zy), true);
   except
     on ex:Exception do
     begin end;
