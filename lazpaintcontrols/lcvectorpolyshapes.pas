@@ -91,7 +91,8 @@ type
     procedure OnMoveCenterPoint({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; APointIndex: integer; {%H-}AShift: TShiftState);
     function GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF; virtual;
-    function GetPath(AMatrix: TAffineMatrix): TBGRAPath; virtual;
+    function GetPath(AMatrix: TAffineMatrix): TBGRAPath; virtual; overload;
+    function GetPath(const APoints: array of TPointF): TBGRAPath; overload;
     procedure SetUsermode(AValue: TVectorShapeUsermode); override;
     function GetClosed: boolean; virtual;
     procedure SetClosed(AValue: boolean); virtual;
@@ -610,9 +611,38 @@ begin
     result[i] := m*Points[i];
 end;
 
-function TCustomPolypointShape.GetPath(AMatrix: TAffineMatrix): TBGRAPath;
+function TCustomPolypointShape.GetPath(const APoints: array of TPointF): TBGRAPath;
+var p: TPointF;
+  subPoly: boolean;
 begin
-  result := TBGRAPath.Create(GetCurve(AMatrix));
+  result := TBGRAPath.Create;
+  subPoly := true;
+  for p in APoints do
+  begin
+    if isEmptyPointF(p) then
+    begin
+      if not result.IsEmpty and Closed then result.closePath;
+      subPoly := true;
+    end else
+    begin
+      if subPoly then
+      begin
+        result.moveTo(p);
+        subPoly := false;
+      end
+      else
+        result.lineTo(p);
+    end;
+  end;
+  if not result.IsEmpty and Closed then result.closePath;
+end;
+
+function TCustomPolypointShape.GetPath(AMatrix: TAffineMatrix): TBGRAPath;
+var
+  pts: array of TPointF;
+begin
+  pts := GetCurve(AMatrix);
+  result := GetPath(pts);
 end;
 
 class function TCustomPolypointShape.Usermodes: TVectorShapeUsermodes;
@@ -1034,6 +1064,7 @@ begin
     skRight: d := dx;
     skUp: d := -dy;
     skDown: d := dy;
+    else d := PointF(0,0);
     end;
     if HoverCenter then
       Center := Center + d
@@ -1454,18 +1485,19 @@ var
   eb: TEasyBezierCurve;
 begin
   pts := inherited GetCurve(AMatrix);
-  result := TBGRAPath.Create;
   if FSplineStyle = ssEasyBezier then
   begin
     setlength(cm, PointCount);
     for i := 0 to PointCount-1 do
       cm[i] := CurveMode[i];
     eb := EasyBezierCurve(pts, Closed, cm, CosineAngle);
+    result := TBGRAPath.Create;
     eb.CopyToPath(result);
   end else
   begin
-    if Closed then result.closedSpline(pts, FSplineStyle)
-    else result.openedSpline(pts, FSplineStyle);
+    if Closed then pts := ComputeClosedSpline(pts, FSplineStyle)
+    else pts := ComputeOpenedSpline(pts, FSplineStyle);
+    result := GetPath(pts);
   end;
 end;
 
