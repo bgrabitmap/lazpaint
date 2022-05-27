@@ -708,7 +708,6 @@ begin
           FKeySelectionRangeStart:= i;
           break;
         end;
-    writeln('found ', FKeySelectionRangeStart);
   end;
 
   for i := 0 to ColumnCount-1 do
