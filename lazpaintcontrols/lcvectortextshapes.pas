@@ -685,6 +685,7 @@ begin
   if FAliased=AValue then Exit;
   BeginUpdate(TTextShapeFontDiff);
   FAliased:=AValue;
+  InvalidateAll;
   EndUpdate;
 end;
 
