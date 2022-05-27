@@ -70,7 +70,8 @@ type
     quadMovingIndex: integer;
     quadMoving,quadMovingBounds: boolean;
     quadMovingDelta: TPointF;
-    function SnapIfNecessary(ptF: TPointF): TPointF;
+    function SnapIfNecessary(const ptF: TPointF): TPointF;
+    function GetClosestPoint(const ptF: TPointF; out pointFound: TPointF): integer;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect;
@@ -169,7 +170,9 @@ end;
 function TToolLayerMapping.GetTextureRepetition: TTextureRepetition;
 begin
   if poRepeat in Manager.PerspectiveOptions then
-    Result:= trRepeatBoth;
+    Result:= trRepeatBoth
+  else
+    result:= trNone;
 end;
 
 procedure TToolLayerMapping.ValidateQuad;
@@ -409,18 +412,42 @@ begin
   end;
 end;
 
-function TToolTextureMapping.SnapIfNecessary(ptF: TPointF): TPointF;
+function TToolTextureMapping.SnapIfNecessary(const ptF: TPointF): TPointF;
 begin
   if not (ssSnap in ShiftState) then result := ptF else
     result := PointF(round(ptF.X),round(ptF.Y));
+end;
+
+function TToolTextureMapping.GetClosestPoint(const ptF: TPointF; out pointFound: TPointF): integer;
+var
+  minDist, curDist: single;
+  pts: array of TPointF;
+  n: Integer;
+begin
+  if boundsMode then
+    pts := boundsPts
+  else
+    pts := quad;
+  result := -1;
+  pointFound := EmptyPointF;
+  minDist := sqr(DoScaleX(10,OriginalDPI));
+  for n := 0 to high(pts) do
+  begin
+    curDist := sqr(ptF.x-pts[n].x)+sqr(ptF.y-pts[n].y);
+    if curDist < minDist then
+    begin
+      minDist := curDist;
+      result := n;
+      pointFound := pts[n];
+    end;
+  end;
 end;
 
 function TToolTextureMapping.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 var
   n: Integer;
-  curDist,minDist: single;
-  pts: array of TPointF;
+  selPt: TPointF;
 begin
   result := EmptyRect;
   if rightBtn then exit;
@@ -445,26 +472,16 @@ begin
   end;
 
   UpdateBoundsMode(result);
-  if boundsMode then
-    pts := boundsPts
-  else
-    pts := quad;
 
-  minDist := sqr(DoScaleX(10,OriginalDPI));
-  for n := 0 to high(pts) do
+  n := GetClosestPoint(ptF, selPt);
+  if n <> -1 then
   begin
-    curDist := sqr(ptF.x-pts[n].x)+sqr(ptF.y-pts[n].y);
-    if curDist < minDist then
-    begin
-      minDist := curDist;
-      quadMovingIndex := n;
-      quadMovingDelta := pts[n]-PtF;
-      quadMoving := True;
-      quadMovingBounds  := boundsMode;
-    end;
-  end;
-
-  if not quadMoving and IsPointInPolygon(pts, ptF, true) then
+    quadMovingIndex := n;
+    quadMovingDelta := selPt-PtF;
+    quadMoving := True;
+    quadMovingBounds  := boundsMode;
+  end else
+  if IsPointInPolygon(quad, ptF, true) then
   begin
     quadMovingIndex := -1;
     quadMovingDelta := (quad[0]+quad[2])*0.5-ptF;
@@ -482,7 +499,7 @@ end;
 function TToolTextureMapping.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 var n: integer;
-  delta,prevSize,newSize: TPointF;
+  delta,prevSize,newSize,selPt: TPointF;
   curBounds: array of TPointF;
   ratioX,ratioY,ratio: single;
   avgSize: single;
@@ -493,12 +510,13 @@ begin
     begin
       if (GetTexture <> nil) and (GetTexture.Height <> 0)
         and (GetTexture.Width <> 0) then
+      begin
         ratio := GetTexture.Width/GetTexture.Height;
-
-      newSize := ptF - quad[0];
-      avgSize := (abs(newSize.x)+abs(newSize.y))/2;
-      ptF.x := quad[0].x+avgSize*NonZero(sign(newSize.x),1)*ratio/((ratio+1)/2);
-      ptF.y := quad[0].y+avgSize*NonZero(sign(newSize.y),1)*1/((ratio+1)/2);
+        newSize := ptF - quad[0];
+        avgSize := (abs(newSize.x)+abs(newSize.y))/2;
+        ptF.x := quad[0].x+avgSize*NonZero(sign(newSize.x),1)*ratio/((ratio+1)/2);
+        ptF.y := quad[0].y+avgSize*NonZero(sign(newSize.y),1)*1/((ratio+1)/2);
+      end;
     end;
     quad[2] := ptF;
     quad[1].x := ptF.x;
@@ -591,6 +609,13 @@ begin
     result := FCurrentBounds;
   end;
   UpdateBoundsMode(result);
+  if not quadMoving then
+  begin
+    if GetClosestPoint(ptF, selPt) <> -1 then
+      Cursor := crSizeAll
+    else
+      Cursor := crDefault;
+  end;
 end;
 
 function TToolTextureMapping.GetIsSelectingTool: boolean;
