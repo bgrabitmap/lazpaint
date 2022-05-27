@@ -88,6 +88,7 @@ type
           AResult: TFileInfoList; AFileSortType: TFileSortType = fstNone);
     function IsDirectory(APathUTF8: string): boolean;
     function IsDirectoryEmpty(APathUTF8: string): boolean;
+    function IsValidFileName(AName: string): boolean;
     procedure CreateDirectory(APathUTF8: string);
     function DeleteDirectory(APathUTF8: string): boolean;
     function FileExists(AFilenameUTF8: string): boolean;
@@ -1135,6 +1136,11 @@ begin
   until FindNextUTF8(searchRec)<>0;
   FindCloseUTF8(searchRec);
   result := true;
+end;
+
+function TFileManager.IsValidFileName(AName: string): boolean;
+begin
+  result := AName = GetValidFilename(AName);
 end;
 
 procedure TFileManager.CreateDirectory(APathUTF8: string);

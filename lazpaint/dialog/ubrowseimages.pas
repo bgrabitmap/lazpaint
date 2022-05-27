@@ -1128,6 +1128,11 @@ begin
           if DefaultExtension <> '' then
             FFilename += DefaultExtension;
       end;
+      if not FileManager.IsValidFileName(FFilename) and IsSaveDialog then
+      begin
+        ShowMessage(rsInvalidName);
+        exit;
+      end;
       if FileManager.FileExists(FFilename) and IsSaveDialog and OverwritePrompt then
       begin
         if QuestionDlg(rsSave, rsOverwriteFile, mtConfirmation, [mrOk, rsOkay, mrCancel, rsCancel],0) <> mrOk then exit;
