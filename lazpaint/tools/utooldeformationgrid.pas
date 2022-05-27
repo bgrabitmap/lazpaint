@@ -1090,6 +1090,32 @@ begin
                   DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb]],backupLayer,dmDrawWithTransparency);
             gridDone[yb,xb] := true;
           end;
+      //drawing zones that are inverted
+      for yb := gridMinY to gridMaxY-1 do
+        for xb := gridMinX to gridMaxX-1 do
+          if not gridDone[yb,xb] and
+             not IsMostlyClockwise([DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
+                DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb]]) then
+          begin
+            layer.FillQuadLinearMapping(DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
+                  DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb],backupLayer,
+                  DeformationGridTexCoord[yb,xb],DeformationGridTexCoord[yb,xb+1],DeformationGridTexCoord[yb+1,xb+1],
+                  DeformationGridTexCoord[yb+1,xb],true, fcKeepCW);
+            gridDone[yb,xb] := true;
+          end;
+      //drawing zones that are intersecting
+      for yb := gridMinY to gridMaxY-1 do
+        for xb := gridMinX to gridMaxX-1 do
+          if not gridDone[yb,xb] and
+             DoesQuadIntersect(DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
+                DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb]) then
+          begin
+            layer.FillQuadLinearMapping(DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
+                  DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb],backupLayer,
+                  DeformationGridTexCoord[yb,xb],DeformationGridTexCoord[yb,xb+1],DeformationGridTexCoord[yb+1,xb+1],
+                  DeformationGridTexCoord[yb+1,xb],true, fcKeepCW);
+            gridDone[yb,xb] := true;
+          end;
       //drawing zones that are concave
       for yb := gridMinY to gridMaxY-1 do
         for xb := gridMinX to gridMaxX-1 do
