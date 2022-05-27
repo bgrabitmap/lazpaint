@@ -1609,7 +1609,9 @@ begin
   begin
     Config.SetDefaultToolboxWindowVisible(ToolboxVisible or (FTopMostInfo.toolboxHidden > 0));
     Config.SetDefaultToolboxWindowPosition(FFormToolbox.BoundsRect);
-  end;
+  end else
+  if Assigned(FMain) then
+    Config.SetDefaultToolboxWindowVisible(FMain.Layout.ToolBoxVisible);
   ToolManager.SaveToConfig;
 
   BGRALayers.UnregisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler);
