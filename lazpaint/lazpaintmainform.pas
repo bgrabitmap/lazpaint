@@ -1876,6 +1876,12 @@ begin
       Key := 0;
       if not ToolManager.ToolSleeping and ([ssLeft,ssRight] * FLayout.MouseButtonState = []) then ToolManager.ToolSleep;
     end else
+    If (Key = VK_ESCAPE) and not Image.SelectionMaskEmpty and Image.SelectionLayerIsEmpty
+     and EditDeselect.Enabled then
+    begin
+      if EditDeselect.Execute then
+        Key := 0;
+    end else
     if LazPaintInstance.ImageListWindowVisible then
       LazPaintInstance.ImageListWindowVisibleKeyDown(Key,Shift);
     If Key = 0 then UpdateToolbar;
