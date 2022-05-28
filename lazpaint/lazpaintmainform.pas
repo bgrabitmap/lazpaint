@@ -1506,13 +1506,17 @@ begin
     {$WARNINGS ON}
     filename := ExtractFileName(filename);
   end else initialDir:= '';
-  if filename = '' then filename := rsNoName;
   if initialDir = '' then
   begin
     if AVars.Booleans['Export'] then
       initialDir := FExportInitialDir
     else
       initialDir:= FSaveInitialDir;
+  end;
+  if filename = '' then
+  begin
+    if initialDir = '' then initialDir := DefaultPicturesDirectory;
+    filename := FileManager.GetDefaultFilename(initialDir);
   end;
   if saveDlg.FilterIndex > 1 then
     filename := ApplySelectedFilterExtension(filename,saveDlg.Filter,saveDlg.FilterIndex);

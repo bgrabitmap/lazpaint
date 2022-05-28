@@ -94,6 +94,7 @@ type
     function FileExists(AFilenameUTF8: string): boolean;
     procedure DeleteFile(AFilenameUTF8: string);
     function GetValidFilename(ASuggested: string): string;
+    function GetDefaultFilename(ADirectory: string): string;
   end;
 
 var
@@ -1213,6 +1214,24 @@ begin
     '<': result[i] := '(';
     '>': result[i] := ')';
     end;
+end;
+
+function TFileManager.GetDefaultFilename(ADirectory: string): string;
+var
+  nonameCounter: Integer;
+  foundFiles: TFileInfoList;
+begin
+  result := rsNoName;
+  nonameCounter := 1;
+  foundFiles := TFileInfoList.Create;
+  repeat
+    foundFiles.Clear;
+    GetDirectoryElements(ADirectory, result+'.*', [otNonFolders], foundFiles);
+    if foundFiles.Count = 0 then exit;
+    inc(nonameCounter);
+    result := rsNoName+IntToStr(nonameCounter);
+  until nonameCounter > 999;
+  result := '?';
 end;
 
 initialization
