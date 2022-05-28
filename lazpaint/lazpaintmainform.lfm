@@ -5565,6 +5565,14 @@ object FMain: TFMain
       ImageIndex = 3
       OnExecute = LayerExportExecute
     end
+    object FileQuickSave: TAction
+      Category = 'File'
+      Caption = 'Quick save'
+      Hint = 'Save current file without dialogs'
+      OnExecute = FileQuickSaveExecute
+      OnUpdate = FileSaveUpdate
+      ShortCut = 16465
+    end
   end
   object ColorDialog1: TColorDialog
     Title = 'Choose color'

@@ -840,6 +840,14 @@ msgstr "Öppna befintlig fil"
 msgid "Print..."
 msgstr "Skriva ut..."
 
+#: tfmain.filequicksave.caption
+msgid "Quick save"
+msgstr ""
+
+#: tfmain.filequicksave.hint
+msgid "Save current file without dialogs"
+msgstr ""
+
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
 msgid "Quit"

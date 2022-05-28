@@ -24,6 +24,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    FileQuickSave: TAction;
     SVGRasterImageList1: TBGRAImageList;
     Panel_TextMore: TPanel;
     SVGImageList1: TBGRASVGImageList;
@@ -481,6 +482,7 @@ type
     procedure FileExportExecute(Sender: TObject);
     procedure FileImport3DUpdate(Sender: TObject);
     procedure FilePrintExecute(Sender: TObject);
+    procedure FileQuickSaveExecute(Sender: TObject);
     procedure FileRememberSaveFormatExecute(Sender: TObject);
     procedure FileRunScriptExecute(Sender: TObject);
     procedure FileSaveAsInSameFolderExecute(Sender: TObject);
@@ -1597,7 +1599,7 @@ end;
 function TFMain.ScriptFileSave(AVars: TVariableSet): TScriptResult;
 begin
   if (Image.CurrentFilenameUTF8 = '') or not Image.AbleToSaveAsUTF8(Image.CurrentFilenameUTF8) then
-    result := Scripting.CallScriptFunction('FileSaveAs', True) else
+    result := Scripting.CallScriptFunction('FileSaveAs', True, AVars) else
     begin
       AskMergeSelection(rsSave);
       try
@@ -1737,6 +1739,7 @@ end;
 procedure TFMain.FileSaveUpdate(Sender: TObject);
 begin
    FileSave.Enabled := image.IsFileModified;
+   FileQuickSave.Enabled := image.IsFileModified;
 end;
 
 procedure TFMain.FilterAnyExecute(Sender: TObject);
@@ -3558,6 +3561,15 @@ end;
 procedure TFMain.FilePrintExecute(Sender: TObject);
 begin
   LazPaintInstance.ShowPrintDlg;
+end;
+
+procedure TFMain.FileQuickSaveExecute(Sender: TObject);
+var params: TVariableSet;
+begin
+  params := TVariableSet.Create('FileSave');
+  params.Booleans['SkipOptions'] := true;
+  Scripting.CallScriptFunction(params);
+  params.Free;
 end;
 
 procedure TFMain.FileRememberSaveFormatExecute(Sender: TObject);

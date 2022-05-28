@@ -833,6 +833,14 @@ msgstr "Открыть существующий файл"
 msgid "Print..."
 msgstr "Печать..."
 
+#: tfmain.filequicksave.caption
+msgid "Quick save"
+msgstr ""
+
+#: tfmain.filequicksave.hint
+msgid "Save current file without dialogs"
+msgstr ""
+
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
 msgid "Quit"
@@ -3742,3 +3750,4 @@ msgstr "Увеличить размер стопки слоёв"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Увеличить размер стопки слоёв"
+

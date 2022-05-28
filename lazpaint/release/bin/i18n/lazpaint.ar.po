@@ -841,6 +841,14 @@ msgstr "فتح ملف موجود"
 msgid "Print..."
 msgstr "طباعة..."
 
+#: tfmain.filequicksave.caption
+msgid "Quick save"
+msgstr ""
+
+#: tfmain.filequicksave.hint
+msgid "Save current file without dialogs"
+msgstr ""
+
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
 msgid "Quit"

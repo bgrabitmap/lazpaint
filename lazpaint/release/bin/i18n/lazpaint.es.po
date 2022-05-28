@@ -842,6 +842,14 @@ msgstr "Abrir archivo existente"
 msgid "Print..."
 msgstr "Imprimir..."
 
+#: tfmain.filequicksave.caption
+msgid "Quick save"
+msgstr ""
+
+#: tfmain.filequicksave.hint
+msgid "Save current file without dialogs"
+msgstr ""
+
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
 msgid "Quit"

@@ -838,6 +838,14 @@ msgstr "Отварянето на съществуващ файл"
 msgid "Print..."
 msgstr "Разпечатване..."
 
+#: tfmain.filequicksave.caption
+msgid "Quick save"
+msgstr ""
+
+#: tfmain.filequicksave.hint
+msgid "Save current file without dialogs"
+msgstr ""
+
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
 msgid "Quit"
