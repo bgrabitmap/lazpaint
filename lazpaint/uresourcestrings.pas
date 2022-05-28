@@ -100,6 +100,7 @@ resourcestring
   rsEmptyLayer='Layer is empty';
   rsKeepEmptySpace='Keep empty space around opaque pixels?';
 
+  rsImage='Image';
   rsRepeatImage='Repeat image';
   rsCanvasSize='Canvas size';
   rsResamplingImage='Resampling image...';

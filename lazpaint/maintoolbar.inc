@@ -128,6 +128,7 @@ begin
   ComboBox_BrushSelect.OnDrawItem := @ComboBox_BrushSelectDrawItem;
   ComboBox_BrushSelect.OnDrawSelectedItem:= @ComboBox_BrushSelectDrawSelectedItem;
   ComboBox_BrushSelect.CanvasScaleMode:= csmFullResolution;
+  Combo_Ratio.Items.Add(rsImage);
   Combo_Ratio.OnChange := @Combo_RatioChange;
 
   Panel_LineCap_FullSize := Panel_LineCap.Width;
@@ -2042,7 +2043,10 @@ var
 begin
   if initialized then
   begin
-    newRatio := ComputeRatio(Combo_Ratio.Text);
+    if CompareText(Combo_Ratio.Text, rsImage)=0 then
+      newRatio := Image.Width/Image.Height
+    else
+      newRatio := ComputeRatio(Combo_Ratio.Text);
     if newRatio <> ToolManager.ShapeRatio then
     begin
       FInShapeRatio := true;

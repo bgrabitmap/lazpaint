@@ -3210,6 +3210,12 @@ msgctxt "uresourcestrings.rsiconsize"
 msgid "Icon size"
 msgstr "Tiddi n tignit"
 
+#: uresourcestrings.rsimage
+#, fuzzy
+msgctxt "uresourcestrings.rsimage"
+msgid "Image"
+msgstr "Tugna"
+
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
 msgstr "Tugna temeqqer aṭas"

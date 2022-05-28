@@ -3210,6 +3210,12 @@ msgctxt "uresourcestrings.rsiconsize"
 msgid "Icon size"
 msgstr "Taille d'icône"
 
+#: uresourcestrings.rsimage
+#, fuzzy
+msgctxt "uresourcestrings.rsimage"
+msgid "Image"
+msgstr "Image"
+
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
 msgstr "Image trop grande"

@@ -3202,6 +3202,12 @@ msgctxt "uresourcestrings.rsiconsize"
 msgid "Icon size"
 msgstr "Ikonstorlek"
 
+#: uresourcestrings.rsimage
+#, fuzzy
+msgctxt "uresourcestrings.rsimage"
+msgid "Image"
+msgstr "Bild"
+
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
 msgstr "Bilden är för stor"

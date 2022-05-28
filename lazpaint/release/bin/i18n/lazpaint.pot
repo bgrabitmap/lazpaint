@@ -1299,6 +1299,7 @@ msgid "Help"
 msgstr ""
 
 #: tfmain.menuimage.caption
+msgctxt "tfmain.menuimage.caption"
 msgid "Image"
 msgstr ""
 
@@ -3021,6 +3022,11 @@ msgstr ""
 
 #: uresourcestrings.rsiconsize
 msgid "Icon size"
+msgstr ""
+
+#: uresourcestrings.rsimage
+msgctxt "uresourcestrings.rsimage"
+msgid "Image"
 msgstr ""
 
 #: uresourcestrings.rsimagetoobig
