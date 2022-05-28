@@ -396,6 +396,7 @@ begin
       saveDialog.InitialDir := '';
     saveDialog.Filter := BGRARegisteredPaletteFormatFilter(rsAllSupportedFiletypes);
     saveDialog.DefaultExt := 'txt';
+    saveDialog.Options := saveDialog.Options + [ofOverwritePrompt];
     if saveDialog.Execute then
     begin
       if Assigned(FLazPaintInstance) then
