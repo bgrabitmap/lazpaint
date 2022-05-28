@@ -2458,6 +2458,7 @@ begin
     begin
       setlength(a, 1);
       a[0] := FloatWithCSSUnit(Left/zoom, cuCustom);
+      if span.textDirection = stdRtl then a[0].value += Width/zoom;
       span.x := a;
       a[0] := FloatWithCSSUnit((Top + fm.Baseline)/zoom, cuCustom);
       span.y := a;
