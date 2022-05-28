@@ -67,6 +67,10 @@ ALIGN_LEFT = 'Left'
 ALIGN_CENTER = 'Center'
 ALIGN_RIGHT = 'Right'
 
+BIDI_AUTO = 'BidiAuto'
+BIDI_LEFT_TO_RIGHT = 'LeftToRight'
+BIDI_RIGHT_TO_LEFT = 'RightToLeft'
+
 SHAPE_OPTION_DRAW_SHAPE = 'DrawShape'
 SHAPE_OPTION_FILL_SHAPE = 'FillShape'
 SHAPE_OPTION_CLOSE_SHAPE = 'CloseShape'
@@ -344,6 +348,12 @@ def set_text_align(align):
 
 def get_text_align():
   return command.send('ToolGetTextAlign?')
+
+def set_text_bidi_mode(bidi_mode):
+  command.send('ToolSetTextBidiMode', BidiMode=bidi_mode)
+
+def get_text_bidi_mode():
+  return command.send('ToolGetTextBidiMode?')
 
 def set_text_outline(width: float):
   command.send('ToolSetTextOutline', Width=width)

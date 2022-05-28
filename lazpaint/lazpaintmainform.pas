@@ -8,7 +8,8 @@ interface
 uses
   Classes, LMessages, SysUtils, LazFileUtils, LResources, Forms, Controls,
   Graphics, Dialogs, Menus, ExtDlgs, ComCtrls, ActnList, StdCtrls, ExtCtrls,
-  Buttons, types, LCLType, BGRAImageList, BCTrackbarUpdown, BCComboBox, BCButton,
+  Buttons, types, LCLType, BGRAImageList, BCTrackbarUpdown, BCComboBox,
+  BCButton, BGRASVGImageList,
 
   BGRABitmap, BGRABitmapTypes, BGRALayers, BGRASVGOriginal, BGRAGradientScanner, BGRAGradientOriginal,
 
@@ -23,6 +24,9 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    SVGRasterImageList1: TBGRAImageList;
+    Panel_TextMore: TPanel;
+    SVGImageList1: TBGRASVGImageList;
     Button_Donate: TBCButton;
     LayerExport: TAction;
     FileExport: TAction;
@@ -30,6 +34,14 @@ type
     MenuScript: TMenuItem;
     Panel_OutlineFill: TPanel;
     Panel_Donate: TPanel;
+    TimerHideTextMore: TTimer;
+    ToolBar25: TToolBar;
+    Tool_TextRTL: TToolButton;
+    Tool_TextBidirectional: TToolButton;
+    Tool_TextLTR: TToolButton;
+    Tool_TextItalic: TToolButton;
+    Tool_TextUnderline: TToolButton;
+    Tool_TextStrikeout: TToolButton;
     ToolOpenedCurve: TAction;
     ToolPolyline: TAction;
     FileRunScript: TAction;
@@ -56,6 +68,7 @@ type
     Tool_EraseSharpen: TToolButton;
     Tool_EraseLighten: TToolButton;
     Tool_EraseDarken: TToolButton;
+    Tool_TextBold: TToolButton;
     VectorialFill_Outline: TLCVectorialFillControl;
     VectorialFill_Pen: TLCVectorialFillControl;
     VectorialFill_Back: TLCVectorialFillControl;
@@ -496,6 +509,10 @@ type
     procedure MenuZoomToolbarClick(Sender: TObject);
     procedure PaintBox_PenPreviewMouseDown(Sender: TObject;
       {%H-}Button: TMouseButton; {%H-}Shift: TShiftState; X, Y: Integer);
+    procedure Panel_TextMoreMouseMove(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X,
+      {%H-}Y: Integer);
+    procedure Panel_TextMouseMove(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X,
+      {%H-}Y: Integer);
     procedure PopupToolbarPopup(Sender: TObject);
     procedure PopupToolboxPopup(Sender: TObject);
     procedure SelectionHorizontalFlipUpdate(Sender: TObject);
@@ -564,6 +581,7 @@ type
     procedure SpinEdit_TextShadowYChange(Sender: TObject; AByUser: boolean);
     procedure TimerUpdateTimer(Sender: TObject);
     procedure TimerHidePenPreviewTimer(Sender: TObject);
+    procedure TimerHideTextMoreTimer(Sender: TObject);
     procedure ToolChangeDockingExecute(Sender: TObject);
     procedure ToolHotSpotUpdate(Sender: TObject);
     procedure ToolRotateSelectionUpdate(Sender: TObject);
@@ -577,6 +595,8 @@ type
     procedure Tool_PhongShapeVerticalCylinderClick(Sender: TObject);
     procedure ToolLayerMappingUpdate(Sender: TObject);
     procedure Tool_TextAlignClick(Sender: TObject);
+    procedure Tool_TextBidiModeClick(Sender: TObject);
+    procedure Tool_TextStyleClick(Sender: TObject);
     procedure Tool_TextPhongClick(Sender: TObject);
     procedure Tool_GridMoveWithoutDeformationClick(Sender: TObject);
     procedure Tool_PhongShapeConeClick(Sender: TObject);
@@ -781,7 +801,9 @@ type
     procedure ToggleLayersVisible;
     function ShowColorDialogFor(ATarget: TColorTarget): boolean;
     procedure ShowPenPreview(ShouldRepaint: boolean= False);
+    procedure ShowTextMore;
     procedure HidePenPreview(ATimeMs: Integer = 300; AClearTime: boolean = false);
+    procedure HideTextMore(ATimeMs: Integer = 300; AClearTime: boolean = false);
     procedure ShowFill(AFillControl: TLCVectorialFillControl; APanel: TPanel);
     procedure HideFill(ATimeMs: Integer = 300; AClearTime: boolean = false);
     procedure OnImageChangedHandler({%H-}AEvent: TLazPaintImageObservationEvent);
@@ -1164,6 +1186,8 @@ begin
     m.Apply;
     FLayout.Menu := m;
 
+    SVGImageList1.Width := iconSize;
+    SVGImageList1.Height := iconSize;
     Button_Donate.Images := m.ImageList;
     w := Button_Donate.Width; h := Button_Donate.Height;
     Button_Donate.GetPreferredSize(w, h);
@@ -4267,6 +4291,7 @@ end;
 procedure TFMain.PictureMouseMove(Sender: TObject; APosition: TPointF);
 begin
   HidePenPreview;
+  HideTextMore;
   HideFill;
 
   FCoordinatesCaption := IntToStr(round(APosition.X))+','+IntToStr(round(APosition.Y));
@@ -4481,6 +4506,7 @@ begin
   begin
     Layout.DarkTheme := AValue;
     DarkThemeInstance.Apply(Panel_PenWidthPreview, AValue);
+    DarkThemeInstance.Apply(Panel_TextMore, AValue);
     Invalidate;
     UpdateToolImage(true);
   end;

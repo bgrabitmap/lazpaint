@@ -1940,10 +1940,26 @@ msgstr "Līdzināt pa kreisi"
 msgid "Align right"
 msgstr "Līdzināt pa labi"
 
+#: tfmain.tool_textbidirectional.hint
+msgid "Bidirectional"
+msgstr ""
+
+#: tfmain.tool_textbold.hint
+msgid "Bold"
+msgstr ""
+
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
 msgid "Choose font..."
 msgstr "Izvēlies fontu ..."
+
+#: tfmain.tool_textitalic.hint
+msgid "Italic"
+msgstr ""
+
+#: tfmain.tool_textltr.hint
+msgid "Left to right"
+msgstr ""
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1955,10 +1971,22 @@ msgctxt "TFMAIN.TOOL_TEXTPHONG.HINT"
 msgid "Text phong shading"
 msgstr "Telpiski burti"
 
+#: tfmain.tool_textrtl.hint
+msgid "Right to left"
+msgstr ""
+
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
 msgid "Text shadow"
 msgstr "Teksta ēna"
+
+#: tfmain.tool_textstrikeout.hint
+msgid "Strikeout"
+msgstr ""
+
+#: tfmain.tool_textunderline.hint
+msgid "Underline"
+msgstr ""
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"

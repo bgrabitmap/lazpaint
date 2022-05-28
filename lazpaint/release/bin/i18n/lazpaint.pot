@@ -1794,8 +1794,24 @@ msgstr ""
 msgid "Align right"
 msgstr ""
 
+#: tfmain.tool_textbidirectional.hint
+msgid "Bidirectional"
+msgstr ""
+
+#: tfmain.tool_textbold.hint
+msgid "Bold"
+msgstr ""
+
 #: tfmain.tool_textfont.hint
 msgid "Choose font..."
+msgstr ""
+
+#: tfmain.tool_textitalic.hint
+msgid "Italic"
+msgstr ""
+
+#: tfmain.tool_textltr.hint
+msgid "Left to right"
 msgstr ""
 
 #: tfmain.tool_textoutline.hint
@@ -1807,8 +1823,20 @@ msgstr ""
 msgid "Text phong shading"
 msgstr ""
 
+#: tfmain.tool_textrtl.hint
+msgid "Right to left"
+msgstr ""
+
 #: tfmain.tool_textshadow.hint
 msgid "Text shadow"
+msgstr ""
+
+#: tfmain.tool_textstrikeout.hint
+msgid "Strikeout"
+msgstr ""
+
+#: tfmain.tool_textunderline.hint
+msgid "Underline"
 msgstr ""
 
 #: tfmain.viewcolors.caption

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="32" xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 32 32" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+  <g opacity="1" xmlns:bgra="https://wiki.freepascal.org/LazPaint_SVG_format" inkscape:label="Layer1" inkscape:groupmode="layer" bgra:originalViewBox="0 0 29 28">
+    <path d="M28.84375 6.59375 0.09375 0.03125" fill="black" stroke="none" fill-opacity="1"/>
+    <path d="M11 28 16.5 13 20.5 13 15 28 z" fill="black" stroke="none" fill-opacity="0.7921569"/>
+    <path d="M18 10 19 6 23 6 21.71875 10.09375 z" fill="black" stroke="none" fill-opacity="0.7921569"/>
+    <path d="M24.40625 14.34375 1.09375 0.03125 z" fill="black" stroke="none" fill-opacity="0.7921569"/>
+  </g>
+</svg>

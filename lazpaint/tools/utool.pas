@@ -221,6 +221,7 @@ type
     FTextFontSize: single;
     FTextFontStyle: TFontStyles;
     FTextAlign: TAlignment;
+    FTextBidiMode: TFontBidiMode;
     FTextOutline: boolean;
     FTextOutlineWidth: single;
     FTextPhong: boolean;
@@ -336,6 +337,7 @@ type
     function ScriptGetShapeRatio(AVars: TVariableSet): TScriptResult;
     function ScriptGetSplineStyle(AVars: TVariableSet): TScriptResult;
     function ScriptGetTextAlign(AVars: TVariableSet): TScriptResult;
+    function ScriptGetTextBidiMode(AVars: TVariableSet): TScriptResult;
     function ScriptGetTextOutline(AVars: TVariableSet): TScriptResult;
     function ScriptGetTextPhong(AVars: TVariableSet): TScriptResult;
     function ScriptGetTolerance(AVars: TVariableSet): TScriptResult;
@@ -397,6 +399,7 @@ type
     function ScriptSetShapeRatio(AVars: TVariableSet): TScriptResult;
     function ScriptSetSplineStyle(AVars: TVariableSet): TScriptResult;
     function ScriptSetTextAlign(AVars: TVariableSet): TScriptResult;
+    function ScriptSetTextBidiMode(AVars: TVariableSet): TScriptResult;
     function ScriptSetTextOutline(AVars: TVariableSet): TScriptResult;
     function ScriptSetTextPhong(AVars: TVariableSet): TScriptResult;
     function ScriptSetTolerance(AVars: TVariableSet): TScriptResult;
@@ -428,6 +431,8 @@ type
     procedure SetShapeRatio(AValue: Single);
     procedure SetSplineStyle(AValue: TSplineStyle);
     procedure SetTextAlign(AValue: TAlignment);
+    procedure SetTextBidiMode(AValue: TFontBidiMode);
+    procedure SetTextFontStyle(AValue: TFontStyles);
     procedure SetTextPhong(AValue: boolean);
     procedure SetTextShadow(AValue: boolean);
     procedure SetTextShadowBlurRadius(AValue: single);
@@ -551,8 +556,9 @@ type
     property BrushSpacing: integer read FBrushSpacing write SetBrushSpacing;
     property TextFontName: string read GetTextFontName;
     property TextFontSize: single read GetTextFontSize;
-    property TextFontStyle: TFontStyles read GetTextFontStyle;
+    property TextFontStyle: TFontStyles read GetTextFontStyle write SetTextFontStyle;
     property TextAlign: TAlignment read FTextAlign write SetTextAlign;
+    property TextBidiMode: TFontBidiMode read FTextBidiMode write SetTextBidiMode;
     property TextOutline: boolean read FTextOutline;
     property TextOutlineWidth: single read FTextOutlineWidth;
     property TextPhong: boolean read FTextPhong write SetTextPhong;
@@ -1507,6 +1513,22 @@ begin
   if Assigned(FOnTextAlignChanged) then FOnTextAlignChanged(self);
 end;
 
+procedure TToolManager.SetTextBidiMode(AValue: TFontBidiMode);
+begin
+  if FTextBidiMode=AValue then Exit;
+  FTextBidiMode:=AValue;
+  ToolUpdate;
+  if Assigned(FOnTextAlignChanged) then FOnTextAlignChanged(self);
+end;
+
+procedure TToolManager.SetTextFontStyle(AValue: TFontStyles);
+begin
+  if FTextFontStyle=AValue then Exit;
+  FTextFontStyle:=AValue;
+  ToolUpdate;
+  if Assigned(FOnTextFontChanged) then FOnTextFontChanged(self);
+end;
+
 procedure TToolManager.SetTextPhong(AValue: boolean);
 begin
   if FTextPhong=AValue then Exit;
@@ -2173,6 +2195,17 @@ begin
   result := srOk;
 end;
 
+function TToolManager.ScriptGetTextBidiMode(AVars: TVariableSet): TScriptResult;
+begin
+  case TextBidiMode of
+  fbmAuto: AVars.Strings['Result'] := 'BidiAuto';
+  fbmLeftToRight: AVars.Strings['Result'] := 'LeftToRight';
+  fbmRightToLeft: AVars.Strings['Result'] := 'RightToLeft';
+  else exit(srException);
+  end;
+  result := srOk;
+end;
+
 function TToolManager.ScriptGetTextOutline(AVars: TVariableSet): TScriptResult;
 begin
   if TextOutline then
@@ -2780,6 +2813,17 @@ begin
   result := srOk;
 end;
 
+function TToolManager.ScriptSetTextBidiMode(AVars: TVariableSet): TScriptResult;
+begin
+  case AVars.Strings['BidiMode'] of
+  'BidiAuto': TextBidiMode:= fbmAuto;
+  'LeftToRight': TextBidiMode:= fbmLeftToRight;
+  'RightToLeft': TextBidiMode:= fbmRightToLeft;
+  else exit(srInvalidParameters);
+  end;
+  result := srOk;
+end;
+
 function TToolManager.ScriptSetTextOutline(AVars: TVariableSet): TScriptResult;
 begin
   if AVars.IsDefined('Width') and (AVars.Floats['Width'] > 0) then
@@ -2881,6 +2925,7 @@ begin
   FTextFontName := TTextShape.DefaultFontName;
   FTextFontStyle:= [];
   FTextAlign := taLeftJustify;
+  FTextBidiMode := fbmAuto;
   FTextPhong := False;
   FTextShadowBlurRadius := 4;
   FTextShadowOffset := Point(5,5);
@@ -3292,6 +3337,8 @@ begin
   FScriptContext.RegisterScriptFunction('ToolGetFontStyle', @ScriptGetFontStyle, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetTextAlign', @ScriptSetTextAlign, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetTextAlign', @ScriptGetTextAlign, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetTextBidiMode', @ScriptSetTextBidiMode, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetTextBidiMode', @ScriptGetTextBidiMode, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetTextOutline', @ScriptSetTextOutline, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetTextOutline', @ScriptGetTextOutline, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetTextPhong', @ScriptSetTextPhong, ARegister);

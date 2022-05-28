@@ -237,14 +237,6 @@ msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Ширина:"
 
-#: uresourcestrings.rsaddtopalette
-msgid "Add color to palette"
-msgstr "Добавить цвет в палитру"
-
-#: uresourcestrings.rsremovefrompalette
-msgid "Remove color from palette"
-msgstr "Удилить цвет из палитры"
-
 #: tfchoosecolor.caption
 msgctxt "TFCHOOSECOLOR.CAPTION"
 msgid "Color"
@@ -1170,7 +1162,6 @@ msgid "Brush"
 msgstr "Кисть"
 
 #: tfmain.label_coordinates.caption
-#| msgid "99999x99999"
 msgid "9999x9999"
 msgstr "9999x9999"
 
@@ -1932,10 +1923,26 @@ msgstr "По левому краю"
 msgid "Align right"
 msgstr "По правому краю"
 
+#: tfmain.tool_textbidirectional.hint
+msgid "Bidirectional"
+msgstr ""
+
+#: tfmain.tool_textbold.hint
+msgid "Bold"
+msgstr ""
+
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
 msgid "Choose font..."
 msgstr "Выбрать шрифт..."
+
+#: tfmain.tool_textitalic.hint
+msgid "Italic"
+msgstr ""
+
+#: tfmain.tool_textltr.hint
+msgid "Left to right"
+msgstr ""
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1947,10 +1954,22 @@ msgctxt "TFMAIN.TOOL_TEXTPHONG.HINT"
 msgid "Text phong shading"
 msgstr "Затенение текста по Фонгу"
 
+#: tfmain.tool_textrtl.hint
+msgid "Right to left"
+msgstr ""
+
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
 msgid "Text shadow"
 msgstr "Тень текста"
+
+#: tfmain.tool_textstrikeout.hint
+msgid "Strikeout"
+msgstr ""
+
+#: tfmain.tool_textunderline.hint
+msgid "Underline"
+msgstr ""
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -2737,6 +2756,10 @@ msgstr "Действие в процессе"
 msgid "Add files to the image processing list"
 msgstr "Добавить файлы в список обработки изображений"
 
+#: uresourcestrings.rsaddtopalette
+msgid "Add color to palette"
+msgstr "Добавить цвет в палитру"
+
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
 msgstr "Выровнять фигуру"
@@ -3505,6 +3528,10 @@ msgstr "Растровое изображение было изменено. В�
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
 msgstr "Съёмный"
+
+#: uresourcestrings.rsremovefrompalette
+msgid "Remove color from palette"
+msgstr "Удилить цвет из палитры"
 
 #: uresourcestrings.rsrender
 msgctxt "uresourcestrings.rsrender"

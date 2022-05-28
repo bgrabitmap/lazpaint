@@ -1937,10 +1937,26 @@ msgstr "Aligner à gauche"
 msgid "Align right"
 msgstr "Aligner à droite"
 
+#: tfmain.tool_textbidirectional.hint
+msgid "Bidirectional"
+msgstr "Bidirectionnel"
+
+#: tfmain.tool_textbold.hint
+msgid "Bold"
+msgstr "Gras"
+
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
 msgid "Choose font..."
 msgstr "Choisir la police..."
+
+#: tfmain.tool_textitalic.hint
+msgid "Italic"
+msgstr "Italique"
+
+#: tfmain.tool_textltr.hint
+msgid "Left to right"
+msgstr "Gauche à droite"
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1952,10 +1968,22 @@ msgctxt "TFMAIN.TOOL_TEXTPHONG.HINT"
 msgid "Text phong shading"
 msgstr "Texte avec ombrage Phong"
 
+#: tfmain.tool_textrtl.hint
+msgid "Right to left"
+msgstr "Droite à gauche"
+
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
 msgid "Text shadow"
 msgstr "Ombre de texte"
+
+#: tfmain.tool_textstrikeout.hint
+msgid "Strikeout"
+msgstr "Barré"
+
+#: tfmain.tool_textunderline.hint
+msgid "Underline"
+msgstr "Souligné"
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
