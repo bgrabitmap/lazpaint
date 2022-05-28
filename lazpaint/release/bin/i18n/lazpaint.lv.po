@@ -2894,6 +2894,10 @@ msgstr "Aizvērt pieprasījumu"
 msgid "CMD"
 msgstr ""
 
+#: uresourcestrings.rscolordescription
+msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
+msgstr "Krāsas apraksts: ieklikškini, lai ierakstītu krāsas vārdu angliski vai CSS pierakstā."
+
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
 msgstr ""

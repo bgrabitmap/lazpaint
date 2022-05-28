@@ -2889,6 +2889,10 @@ msgstr "Stäng förfrågan"
 msgid "CMD"
 msgstr "CMD"
 
+#: uresourcestrings.rscolordescription
+msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
+msgstr "Färgbeskrivning: klicka för att skriva in en färg med tangentbordet genom färgnamn eller CSS-notation."
+
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
 msgstr ""

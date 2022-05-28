@@ -2897,6 +2897,10 @@ msgstr "Anforderung schließen"
 msgid "CMD"
 msgstr "CMD"
 
+#: uresourcestrings.rscolordescription
+msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
+msgstr "Farbbeschreibung: Anklicken, um Farbnamen oder CSS Farbcode mit der Tastatur einzugeben."
+
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
 msgstr "Farbüberlagerung"

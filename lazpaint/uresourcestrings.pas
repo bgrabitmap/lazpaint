@@ -136,6 +136,7 @@ resourcestring
 
   rsIntensity='Intensity';
   rsLightness='Lightness';
+  rsColorDescription='Color description: click to type in a color with the keyboard using color names or CSS notation.';
 
   rsHotSpot='Hot spot';
   rsEntries='Entries';

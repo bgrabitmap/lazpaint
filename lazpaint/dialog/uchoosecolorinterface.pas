@@ -1072,6 +1072,7 @@ begin
   EColor.Text:= '#FFFFFF';
   LColor.Visible := true;
   LColor.Caption := '#FFFFFF';
+  LColor.Hint := rsColorDescription;
   FCurrentColorFormatError:= false;
   vsColorView.Left := ExternalMargin;
   vsColorView.Top := 0;

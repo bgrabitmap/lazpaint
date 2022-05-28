@@ -2890,6 +2890,10 @@ msgstr "Mdel asuter"
 msgid "CMD"
 msgstr "CMD"
 
+#: uresourcestrings.rscolordescription
+msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
+msgstr "Aglam n yini: sit iwakken ad teskecmeḍ ini s unasiw s yismawen-nnsen neɣ s tira n CSS."
+
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
 msgstr ""
