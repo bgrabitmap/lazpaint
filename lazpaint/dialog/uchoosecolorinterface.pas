@@ -579,7 +579,9 @@ end;
 
 procedure TChooseColorInterface.DoClick(X, Y: single);
 begin
-  if FColorCircle.Bounds.Contains(PointF(X,Y)) then
+  if FColorCircle.Bounds.Contains(PointF(X,Y)) and
+     (VectLen(PointF(X,Y) - FColorCircle.center) <=
+      max(FColorCircle.bounds.Width, FColorCircle.bounds.Height)/2 + DoScaleX(14, 96)) then
   begin
     FSelectZone := szColorCircle;
     DoSelect(X,Y);
