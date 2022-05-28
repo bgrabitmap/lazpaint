@@ -2310,10 +2310,13 @@ begin
       begin
         Usermode := vsuEditText;
         InsertText(UTF8Key);
+        AHandled := true;
       end;
     end else
+    begin
       InsertText(UTF8Key);
-    AHandled := true;
+      AHandled := true;
+    end;
   end;
 end;
 

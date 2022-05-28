@@ -227,7 +227,7 @@ begin
   begin
     keyUtf8:= ' ';
     result := ToolKeyPress(keyUtf8);
-    Key := 0;
+    if keyUtf8 <> ' ' then Key := 0;
   end else
   if (Key = VK_ESCAPE) and Assigned(FShape) then
   begin
