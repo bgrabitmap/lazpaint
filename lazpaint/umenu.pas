@@ -432,18 +432,31 @@ end;
 
 procedure TMainFormMenu.CycleTool(var ATool: TPaintToolType;
   var AShortCut: TUTF8Char);
+const cyrillicMap = 'ФИСВУАПРШОЛДЬТЩЗЙКЫЕГМЦЧНЯ';
 var
   curTool: TPaintToolType;
+  latinShortCut: TUTF8Char;
+  idx: integer;
 begin
-  AShortCut := UTF8UpperCase(AShortCut);
+  latinShortCut := UTF8UpperCase(AShortCut);
   curTool := ATool;
+  if (length(latinShortCut) <> 1) or
+    ((length(latinShortCut) = 1) and not (latinShortCut[1] in ['A'..'Z'])) then
+  begin
+    idx := pos(latinShortCut, cyrillicMap);
+    if idx <> 0 then
+    begin
+      idx := UTF8Length(copy(cyrillicMap, 1, idx));
+      latinShortCut := chr(idx+64);
+    end;
+  end;
   repeat
     if curTool = high(TPaintToolType) then
       curTool := low(TPaintToolType)
     else
       curTool := succ(curTool);
 
-    if (FToolsShortcuts[curTool] = AShortCut) and not
+    if (FToolsShortcuts[curTool] = latinShortCut) and not
        ((curTool = ptHotSpot) and not FInstance.Image.IsCursor) then
     begin
       ATool := curTool;
