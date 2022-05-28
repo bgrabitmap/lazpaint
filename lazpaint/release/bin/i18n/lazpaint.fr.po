@@ -1933,6 +1933,10 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "Pot de peinture progressif"
 
+#: tfmain.tool_textalignbottom.hint
+msgid "Align bottom"
+msgstr "Aligner en bas"
+
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
 msgstr "Centrer"
@@ -1941,9 +1945,17 @@ msgstr "Centrer"
 msgid "Align left"
 msgstr "Aligner à gauche"
 
+#: tfmain.tool_textalignmiddle.hint
+msgid "Center vertically"
+msgstr "Centrer verticallement"
+
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
 msgstr "Aligner à droite"
+
+#: tfmain.tool_textaligntop.hint
+msgid "Align top"
+msgstr "Aligner en haut"
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"

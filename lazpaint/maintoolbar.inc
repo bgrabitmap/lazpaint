@@ -113,6 +113,9 @@ begin
   Tool_TextBidirectional.OnClick := @Tool_TextBidiModeClick;
   Tool_TextLTR.OnClick := @Tool_TextBidiModeClick;
   Tool_TextRTL.OnClick := @Tool_TextBidiModeClick;
+  Tool_TextAlignTop.OnClick := @Tool_TextAlignClick;
+  Tool_TextAlignMiddle.OnClick := @Tool_TextAlignClick;
+  Tool_TextAlignBottom.OnClick := @Tool_TextAlignClick;
   Tool_TextBold.OnClick := @Tool_TextStyleClick;
   Tool_TextItalic.OnClick := @Tool_TextStyleClick;
   Tool_TextUnderline.OnClick := @Tool_TextStyleClick;
@@ -442,6 +445,9 @@ begin
   taCenter: Tool_TextAlignCenter.Down := true;
   taRightJustify: Tool_TextAlignRight.Down := true;
   end;
+  Tool_TextAlignTop.Down := ToolManager.TextVerticalAlign = tlTop;
+  Tool_TextAlignMiddle.Down := ToolManager.TextVerticalAlign = tlCenter;
+  Tool_TextAlignBottom.Down := ToolManager.TextVerticalAlign = tlBottom;
 end;
 
 procedure TFMain.UpdateTextOutlineToolbar;
@@ -1877,16 +1883,27 @@ end;
 
 procedure TFMain.Tool_TextAlignClick(Sender: TObject);
 var newAlign: TAlignment;
+    newVAlign: TTextLayout;
 begin
   if initialized then
   begin
     newAlign := taLeftJustify;
+    newVAlign:= ToolManager.TextVerticalAlign;
     if Tool_TextAlignCenter.Down then newAlign:= taCenter;
     if Tool_TextAlignRight.Down then newAlign := taRightJustify;
-    if newAlign <> ToolManager.TextAlign then
+    if Tool_TextAlignTop.Down and (sender = Tool_TextAlignTop) then newVAlign := tlTop;
+    if Tool_TextAlignMiddle.Down and (sender = Tool_TextAlignMiddle) then newVAlign := tlCenter;
+    if Tool_TextAlignBottom.Down and (sender = Tool_TextAlignBottom) then newVAlign := tlBottom;
+    FInTextAlign := true;
+    Tool_TextAlignTop.Down := newVAlign = tlTop;
+    Tool_TextAlignMiddle.Down := newVAlign = tlCenter;
+    Tool_TextAlignBottom.Down := newVAlign = tlBottom;
+    FInTextAlign := false;
+    if (newAlign <> ToolManager.TextAlign) or (newVAlign <> ToolManager.TextVerticalAlign) then
     begin
       FInTextAlign := true;
       ToolManager.TextAlign := newAlign;
+      ToolManager.TextVerticalAlign := newVAlign;
       FInTextAlign := false;
       UpdateEditPicture;
     end;

@@ -1933,6 +1933,10 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "Taqbuct n teklut tafarayt"
 
+#: tfmain.tool_textalignbottom.hint
+msgid "Align bottom"
+msgstr ""
+
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
 msgstr "Talemmast"
@@ -1941,9 +1945,17 @@ msgstr "Talemmast"
 msgid "Align left"
 msgstr "Derrec s azelmaḍ"
 
+#: tfmain.tool_textalignmiddle.hint
+msgid "Center vertically"
+msgstr ""
+
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
 msgstr "Derrec s ayfus"
+
+#: tfmain.tool_textaligntop.hint
+msgid "Align top"
+msgstr ""
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"

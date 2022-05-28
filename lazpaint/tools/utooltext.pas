@@ -150,6 +150,7 @@ begin
     Manager.TextFontStyle := FontStyle;
     Manager.TextBidiMode := FontBidiMode;
     Manager.TextAlign := ParagraphAlignment;
+    Manager.TextVerticalAlign := VerticalAlignment;
   end;
   inherited ShapeEditingChange(ASender);
 end;
@@ -178,6 +179,7 @@ begin
     end
     else
       ParagraphAlignment:= Manager.TextAlign;
+    VerticalAlignment := Manager.TextVerticalAlign;
     PenPhong := Manager.TextPhong;
   end;
   if (Manager.TextShadow <> FPrevShadow) or

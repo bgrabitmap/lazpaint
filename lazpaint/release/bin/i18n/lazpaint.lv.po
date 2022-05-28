@@ -1936,6 +1936,10 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "Vienmērīgs aizpildījums"
 
+#: tfmain.tool_textalignbottom.hint
+msgid "Align bottom"
+msgstr ""
+
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
 msgstr "Iecentrēt"
@@ -1944,9 +1948,17 @@ msgstr "Iecentrēt"
 msgid "Align left"
 msgstr "Līdzināt pa kreisi"
 
+#: tfmain.tool_textalignmiddle.hint
+msgid "Center vertically"
+msgstr ""
+
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
 msgstr "Līdzināt pa labi"
+
+#: tfmain.tool_textaligntop.hint
+msgid "Align top"
+msgstr ""
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"

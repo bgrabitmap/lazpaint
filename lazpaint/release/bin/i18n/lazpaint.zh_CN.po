@@ -1930,6 +1930,10 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "渐进式填充"
 
+#: tfmain.tool_textalignbottom.hint
+msgid "Align bottom"
+msgstr ""
+
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
 msgstr "居中"
@@ -1938,9 +1942,17 @@ msgstr "居中"
 msgid "Align left"
 msgstr "向左对齐"
 
+#: tfmain.tool_textalignmiddle.hint
+msgid "Center vertically"
+msgstr ""
+
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
 msgstr "向右对齐"
+
+#: tfmain.tool_textaligntop.hint
+msgid "Align top"
+msgstr ""
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"

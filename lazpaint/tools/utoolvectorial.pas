@@ -497,6 +497,7 @@ begin
     Manager.LightPosition := m*LightPosition;
     Manager.PhongShapeAltitude := round(AltitudePercent);
     Manager.TextAlign:= ParagraphAlignment;
+    Manager.TextVerticalAlign:= VerticalAlignment;
     Manager.SetTextFont(FontName, FontEmHeight*zoom*72/Manager.Image.DPI, FontStyle);
     Manager.TextShadow:= false;
     if Aliased then
@@ -704,7 +705,13 @@ begin
         PenPhong := Manager.TextPhong;
         LightPosition := m*Manager.LightPosition;
         AltitudePercent := Manager.PhongShapeAltitude;
-        ParagraphAlignment := Manager.TextAlign;
+        if FontBidiMode <> Manager.TextBidiMode then
+        begin
+          FontBidiMode:= Manager.TextBidiMode;
+          Manager.TextAlign:= ParagraphAlignment;
+        end else
+          ParagraphAlignment := Manager.TextAlign;
+        VerticalAlignment:= Manager.TextVerticalAlign;
         FontName:= Manager.TextFontName;
         FontEmHeight:= Manager.TextFontSize*zoom*Manager.Image.DPI/72;
         FontStyle := Manager.TextFontStyle;

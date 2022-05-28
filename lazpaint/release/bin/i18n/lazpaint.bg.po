@@ -1918,6 +1918,10 @@ msgctxt "TFMAIN.TOOL_PROGRESSIVEFLOODFILL.HINT"
 msgid "Progressive floodfill"
 msgstr ""
 
+#: tfmain.tool_textalignbottom.hint
+msgid "Align bottom"
+msgstr ""
+
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
 msgstr ""
@@ -1926,9 +1930,17 @@ msgstr ""
 msgid "Align left"
 msgstr "Подравняване вляво"
 
+#: tfmain.tool_textalignmiddle.hint
+msgid "Center vertically"
+msgstr ""
+
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
 msgstr "Подравняване вдясно"
+
+#: tfmain.tool_textaligntop.hint
+msgid "Align top"
+msgstr ""
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"

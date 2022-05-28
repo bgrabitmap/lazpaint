@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="32" xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 32 32" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+  <g opacity="1" xmlns:bgra="https://wiki.freepascal.org/LazPaint_SVG_format" inkscape:label="Layer1" inkscape:groupmode="layer" bgra:originalViewBox="2 9 28 14">
+    <defs>
+      <linearGradient id="layer1-fillgrad1" x1="15" x2="15" y1="7.5" y2="11.5" spreadMethod="repeat" gradientUnits="userSpaceOnUse" color-interpolation="linearRGB">
+        <stop offset="0" stop-color="black" stop-opacity="0.4980392"/>
+        <stop offset="0.0625" stop-color="black" stop-opacity="0.3098039"/>
+        <stop offset="0.125" stop-color="black" stop-opacity="0.145098"/>
+        <stop offset="0.1875" stop-color="black" stop-opacity="0.03529412"/>
+        <stop offset="0.25" stop-color="black" stop-opacity="0"/>
+        <stop offset="0.3125" stop-color="black" stop-opacity="0.03529412"/>
+        <stop offset="0.375" stop-color="black" stop-opacity="0.145098"/>
+        <stop offset="0.4375" stop-color="black" stop-opacity="0.3098039"/>
+        <stop offset="0.5" stop-color="black" stop-opacity="0.4980392"/>
+        <stop offset="0.5625" stop-color="black" stop-opacity="0.6901961"/>
+        <stop offset="0.625" stop-color="black" stop-opacity="0.854902"/>
+        <stop offset="0.6875" stop-color="black" stop-opacity="0.9647059"/>
+        <stop offset="0.75" stop-color="black" stop-opacity="1"/>
+        <stop offset="0.8125" stop-color="black" stop-opacity="0.9647059"/>
+        <stop offset="0.875" stop-color="black" stop-opacity="0.854902"/>
+        <stop offset="0.9375" stop-color="black" stop-opacity="0.6901961"/>
+        <stop offset="1" stop-color="black" stop-opacity="0.4980392"/>
+      </linearGradient>
+    </defs>
+    <path d="M5.5 9 5.5 11 7 13 7 15 2 17 2 23 30 23 30 17 25 15 25 13 26.5 11 26.5 9 z" fill="url(#layer1-fillgrad1)" stroke="none"/>
+  </g>
+</svg>

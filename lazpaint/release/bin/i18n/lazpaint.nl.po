@@ -1954,6 +1954,10 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "Progressieve vloedvulling"
 
+#: tfmain.tool_textalignbottom.hint
+msgid "Align bottom"
+msgstr ""
+
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
 msgstr "Middelste"
@@ -1962,9 +1966,17 @@ msgstr "Middelste"
 msgid "Align left"
 msgstr "Links uitlijnen"
 
+#: tfmain.tool_textalignmiddle.hint
+msgid "Center vertically"
+msgstr ""
+
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
 msgstr "Rechts uitlijnen"
+
+#: tfmain.tool_textaligntop.hint
+msgid "Align top"
+msgstr ""
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"

@@ -37,6 +37,11 @@ type
     Panel_Donate: TPanel;
     TimerHideTextMore: TTimer;
     ToolBar25: TToolBar;
+    ToolButton1: TToolButton;
+    ToolButton2: TToolButton;
+    Tool_TextAlignBottom: TToolButton;
+    Tool_TextAlignMiddle: TToolButton;
+    Tool_TextAlignTop: TToolButton;
     Tool_TextRTL: TToolButton;
     Tool_TextBidirectional: TToolButton;
     Tool_TextLTR: TToolButton;
