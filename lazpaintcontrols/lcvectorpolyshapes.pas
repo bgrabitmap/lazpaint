@@ -80,7 +80,7 @@ type
     FCenterPoint: TPointF;
     FCenterPointEditorIndex: integer;
     FCurPoint: integer;
-    FAddingPoint: boolean;
+    FAddingPoint, FAltPressed: boolean;
     FMousePos: TPointF;
     FHoverPoint: integer;
     FHoverCenter: boolean;
@@ -118,6 +118,7 @@ type
     procedure MouseMove({%H-}Shift: TShiftState; X, Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure MouseDown(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure KeyDown({%H-}Shift: TShiftState; Key: TSpecialKey; var AHandled: boolean); override;
+    procedure KeyUp(Shift: TShiftState; Key: TSpecialKey; var AHandled: boolean); override;
     procedure QuickDefine(constref APoint1,APoint2: TPointF); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -1072,7 +1073,28 @@ begin
       Points[HoverPoint] := Points[HoverPoint] + d;
     AHandled := true;
   end else
+  if Key = skAlt then
+  begin
+    BeginUpdate;
+    FAltPressed := true;
+    EndUpdate;
+    AHandled := true;
+  end
+  else
     inherited KeyDown(Shift, Key, AHandled);
+end;
+
+procedure TCustomPolypointShape.KeyUp(Shift: TShiftState; Key: TSpecialKey;
+  var AHandled: boolean);
+begin
+  if Key = skAlt then
+  begin
+    BeginUpdate;
+    FAltPressed := false;
+    EndUpdate;
+    AHandled := true;
+  end
+  else inherited KeyUp(Shift, Key, AHandled);
 end;
 
 procedure TCustomPolypointShape.QuickDefine(constref APoint1, APoint2: TPointF);
@@ -1119,8 +1141,8 @@ var
   i: Integer;
 begin
   inherited SaveToStorage(AStorage);
-  setlength(x, PointCount);
-  setlength(y, PointCount);
+  setlength({%H-}x, PointCount);
+  setlength({%H-}y, PointCount);
   for i:= 0 to PointCount-1 do
   begin
     x[i] := Points[i].x;
@@ -1178,7 +1200,8 @@ begin
     FCenterPoint *= 1/nbTotal
     else FCenterPoint := EmptyPointF;
 
-  if (FAddingPoint and (nbTotal > 2)) or (not FAddingPoint and (nbTotal > 1)) then
+  if ((FAddingPoint and (nbTotal > 2)) or (not FAddingPoint and (nbTotal > 1)))
+     and not FAltPressed then
   begin
     FCenterPointEditorIndex := AEditor.AddPoint(FCenterPoint, @OnMoveCenterPoint, true);
     AEditor.PointHighlighted[FCenterPointEditorIndex] := HoverCenter;
@@ -1377,7 +1400,7 @@ var pts: ArrayOfTPointF;
 begin
   if not GetPenVisible and not GetBackVisible or (PointCount = 0) then exit(false);
 
-  setlength(pts, PointCount);
+  setlength({%H-}pts, PointCount);
   for i := 0 to high(pts) do
     pts[i] := AMatrix * Points[i];
 
@@ -1465,7 +1488,7 @@ begin
   pts := inherited GetCurve(AMatrix);
   if FSplineStyle = ssEasyBezier then
   begin
-    setlength(cm, PointCount);
+    setlength({%H-}cm, PointCount);
     for i := 0 to PointCount-1 do
       cm[i] := CurveMode[i];
     eb := EasyBezierCurve(pts, Closed, cm, CosineAngle);
@@ -1487,7 +1510,7 @@ begin
   pts := inherited GetCurve(AMatrix);
   if FSplineStyle = ssEasyBezier then
   begin
-    setlength(cm, PointCount);
+    setlength({%H-}cm, PointCount);
     for i := 0 to PointCount-1 do
       cm[i] := CurveMode[i];
     eb := EasyBezierCurve(pts, Closed, cm, CosineAngle);
@@ -1696,7 +1719,7 @@ begin
   AStorage.RawString['spline-style'] := s;
   if SplineStyle = ssEasyBezier then
   begin
-    setlength(cm, PointCount);
+    setlength({%H-}cm, PointCount);
     for i := 0 to PointCount-1 do
       cm[i] := ord(CurveMode[i]);
     AStorage.FloatArray['curve-mode'] := cm;
