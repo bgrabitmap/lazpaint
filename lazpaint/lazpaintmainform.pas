@@ -2169,8 +2169,15 @@ var
   svgOrig: TBGRALayerSVGOriginal;
 begin
   if Length(FileNames)<1 then exit;
-  if Length(FileNames)= 1
-     then TryOpenFileUTF8(FileNames[0])
+  if Length(FileNames)= 1 then
+  begin
+    if Image.IsFileModified then
+      case LazPaintInstance.SaveQuestion(rsOpen) of
+        IDYES: Scripting.CallScriptFunction('FileSave');
+        IDCANCEL: exit;
+      end;
+    TryOpenFileUTF8(FileNames[0]);
+  end
   else
      begin
        {$IFNDEF LINUX}
