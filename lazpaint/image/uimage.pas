@@ -31,6 +31,7 @@ type
   TOnStackChanged = procedure(ASender: TLazPaintImage; AScrollIntoView: boolean) of object;
   TImageExceptionHandler = procedure(AFunctionName: string; AException: Exception) of object;
   TOnCurrentFilenameChanged = procedure(ASender: TLazPaintImage) of object;
+  TOnRenderChanged = procedure(ASender: TLazPaintImage; AInvalidateAll: boolean) of object;
 
   TOnQueryExitToolHandler = procedure(sender: TLazPaintImage) of object;
 
@@ -52,7 +53,7 @@ type
     FRenderedImage: TBGRABitmap;
     FRenderedImageInvalidated: TRect;
     FOnImageChanged, FOnImageSaving, FOnImageExport: TLazPaintImageObservable;
-    FOnImageRenderChanged: TNotifyEvent;
+    FOnImageRenderChanged: TOnRenderChanged;
     FUndoList: TComposedImageDifference;
     FUndoPos: integer;
     FRenderUpdateRectInPicCoord, FRenderUpdateRectInVSCoord: TRect;
@@ -171,6 +172,7 @@ type
     procedure SelectionMaskMayChange(ARect: TRect);
     procedure SelectionMaskMayChangeCompletely;
     procedure RenderMayChange(ARect: TRect; APicCoords: boolean = false; ANotify: boolean = true);
+    procedure RenderMayChangeCompletely(ANotify: boolean = true);
     procedure ResetRenderUpdateRect;
 
     // selection mask
@@ -269,7 +271,7 @@ type
     property OnSelectedLayerIndexChanged: TOnCurrentLayerIndexChanged read FOnSelectedLayerIndexChanged write FOnSelectedLayerIndexChanged;
     property OnStackChanged: TOnStackChanged read FOnStackChanged write FOnStackChanged;
     property OnImageChanged: TLazPaintImageObservable read FOnImageChanged;
-    property OnImageRenderChanged: TNotifyEvent read FOnImageRenderChanged write FOnImageRenderChanged;
+    property OnImageRenderChanged: TOnRenderChanged read FOnImageRenderChanged write FOnImageRenderChanged;
     property OnImageSaving: TLazPaintImageObservable read FOnImageSaving;
     property OnImageExport: TLazPaintImageObservable read FOnImageExport;
     property OnSizeChanged: TNotifyEvent read FOnSizeChanged write SetOnSizeChanged;
@@ -1269,6 +1271,7 @@ end;
 procedure TLazPaintImage.ImageMayChangeCompletely;
 begin
   ImageMayChange(rect(0,0,Width,Height));
+  RenderMayChangeCompletely;
 end;
 
 procedure TLazPaintImage.LayerMayChange(ALayer: TBGRABitmap; ARect: TRect);
@@ -1341,7 +1344,14 @@ begin
   else
      FRenderUpdateRectInVSCoord := RectUnion(FRenderUpdateRectInVSCoord,ARect);
   if ANotify and Assigned(OnImageRenderChanged) then
-    OnImageRenderChanged(self);
+    OnImageRenderChanged(self, false);
+end;
+
+procedure TLazPaintImage.RenderMayChangeCompletely(ANotify: boolean);
+begin
+  FRenderUpdateRectInPicCoord := rect(-MaxLongint div 2,-MaxLongint div 2,MaxLongint div 2,MaxLongint div 2);
+  if ANotify and Assigned(OnImageRenderChanged) then
+    OnImageRenderChanged(self, true);
 end;
 
 procedure TLazPaintImage.LayerBlendMayChange(AIndex: integer);

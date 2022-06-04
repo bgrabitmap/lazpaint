@@ -814,7 +814,7 @@ type
     procedure ShowFill(AFillControl: TLCVectorialFillControl; APanel: TPanel);
     procedure HideFill(ATimeMs: Integer = 300; AClearTime: boolean = false);
     procedure OnImageChangedHandler({%H-}AEvent: TLazPaintImageObservationEvent);
-    procedure OnImageRenderChanged({%H-}Sender: TObject);
+    procedure OnImageRenderChanged({%H-}Sender: TLazPaintImage; AInvalidateAll: boolean);
     procedure LabelAutosize(ALabel: TLabel; ATargetDPI: integer);
     procedure AskMergeSelection(ACaption: string);
     procedure UpdateSpecialKeys({%H-}Shift: TShiftState);
@@ -4284,9 +4284,9 @@ begin
   end;
 end;
 
-procedure TFMain.OnImageRenderChanged(Sender: TObject);
+procedure TFMain.OnImageRenderChanged(Sender: TLazPaintImage; AInvalidateAll: boolean);
 begin
-  InvalidatePicture(false);
+  InvalidatePicture(AInvalidateAll);
 end;
 
 procedure TFMain.UpdateEditPicture(ADelayed: boolean = false);
