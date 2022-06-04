@@ -267,6 +267,7 @@ begin
   fileSaved := True;
   quitQuery:= false;
   errorEncountered := false;
+  enableScript:= false;
   if commandsUTF8.count = 0 then exit;
 
   commandPrefix := ['-'];
