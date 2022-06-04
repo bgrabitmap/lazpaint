@@ -68,7 +68,7 @@ var versionStr: string;
 begin
   if (PythonVersionCache.Bin <> APythonBin) or (PythonVersionCache.Version = '?') then
   begin
-    RunCommand(APythonBin, ['-V'], versionStr, [poStderrToOutPut]);
+    RunCommand(APythonBin, ['-V'], versionStr, []);
     PythonVersionCache.Bin := APythonBin;
     if versionStr.StartsWith(PythonVersionPrefix) then
       PythonVersionCache.Version := trim(copy(versionStr,length(PythonVersionPrefix)+1,
