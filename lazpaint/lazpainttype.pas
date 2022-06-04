@@ -129,6 +129,7 @@ type
       class function Empty: TImageEntry; static;
       class function NewFrameIndex: integer; static;
       procedure FreeAndNil;
+      procedure Release;
     end;
     ArrayOfImageEntry = array of TImageEntry;
 
@@ -600,6 +601,12 @@ end;
 procedure TImageEntry.FreeAndNil;
 begin
   SysUtils.FreeAndNil(bmp);
+  bpp := 0;
+end;
+
+procedure TImageEntry.Release;
+begin
+  bmp := nil;
   bpp := 0;
 end;
 

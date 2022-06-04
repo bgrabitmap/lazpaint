@@ -938,7 +938,7 @@ begin
     if Assigned(ALoadedImage) and Assigned(ALoadedImage^.bmp) then
     begin
       newSelection := ALoadedImage^.bmp;
-      ALoadedImage^.FreeAndNil;
+      ALoadedImage^.Release;
     end
     else
       newSelection := LoadFlatImageUTF8(AFilenameUTF8).bmp;
@@ -952,7 +952,7 @@ begin
       LayerAction.RemoveSelection;
       LayerAction.QuerySelection;
       LayerAction.CurrentSelection.PutImage(0,0,newSelection,dmSet);
-      LayerAction.NotifyChange(Image.SelectionMask,Image.SelectionMaskBounds);
+      LayerAction.NotifyChange(Image.SelectionMask,rect(0,0,newSelection.Width,newSelection.Height));
       LayerAction.Validate;
       result := true;
     end;
