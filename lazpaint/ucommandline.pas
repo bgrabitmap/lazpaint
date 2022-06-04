@@ -86,7 +86,7 @@ implementation
 uses
   SysUtils, BGRAUTF8, LazFileUtils, BGRABitmap, BGRABitmapTypes, Dialogs, uparse,
   UImage, UImageAction, ULayerAction, UScripting, UPython, Forms, StdCtrls, Controls,
-  UFileSystem;
+  UFileSystem, BGRAIconCursor;
 
 function ParamStrUTF8(AIndex: integer): string;
 begin
@@ -98,7 +98,6 @@ procedure InternalProcessCommands(instance: TLazPaintCustomInstance; commandsUTF
 var
   commandPrefix: set of char;
   InputFilename:string;
-  OutputFilename:string;
 
   i,iStart: integer;
   errPos: integer; //number conversion
@@ -263,6 +262,44 @@ var
     {$ENDIF}
   end;
 
+  procedure DoSaveFile(outputFilename: string);
+  var
+    icoCur: TBGRAIconCursor;
+    stream: TStream;
+    ext: String;
+  begin
+    instance.StartSavingImage(outputFilename);
+    try
+      ext := ExtractFileExt(outputFilename);
+      // normally ICO and CUR cannot be saved directly but make an exception
+      if (CompareText(ext, '.ico')=0) or (CompareText(ext, '.cur')=0) then
+      begin
+        icoCur := TBGRAIconCursor.Create;
+        try
+          if CompareText(ext, '.cur') = 0 then
+            icoCur.FileType := ifCur
+            else icoCur.FileType := ifIco;
+          icoCur.Add(instance.Image.RenderedImage, BGRABitDepthIconCursor(instance.Image.RenderedImage));
+          stream := FileManager.CreateFileStream(outputFilename, fmCreate);
+          try
+            icoCur.SaveToStream(stream);
+          finally
+            stream.Free;
+          end;
+        finally
+          icoCur.Free;
+        end;
+      end else
+        instance.Image.SaveToFileUTF8(outputFilename)
+    except
+      on ex: Exception do
+      begin
+        instance.ShowError(rsSave, rsUnableToSaveFile+outputFilename);
+      end;
+    end;
+    instance.EndSavingImage;
+  end;
+
 begin
   fileSaved := True;
   quitQuery:= false;
@@ -376,17 +413,7 @@ begin
     end else
     begin
       ForcePathDelims(CommandStr);
-      OutputFilename := CommandStr;
-      instance.StartSavingImage(OutputFilename);
-      try
-        instance.Image.SaveToFileUTF8(OutputFilename)
-      except
-        on ex: Exception do
-        begin
-          instance.ShowError(rsSave, rsUnableToSaveFile+OutputFilename);
-        end;
-      end;
-      instance.EndSavingImage;
+      DoSaveFile(commandStr);
       fileSaved:= true;
       exit;
     end;
