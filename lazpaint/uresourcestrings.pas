@@ -301,8 +301,10 @@ end;
 
 procedure AppendShortcut(AAction: TAction; AShortcut: string);
 begin
+  if AAction.Hint <> '' then
+    AAction.Hint := ApplyShortcutStr(AAction.Hint, AShortcut);
   if AAction.Caption = '' then
-    AAction.Caption := ApplyShortcutStr(AAction.Hint, AShortcut)
+    AAction.Caption := AAction.Hint
   else
     AAction.Caption := ApplyShortcutStr(AAction.Caption, AShortcut);
 end;
