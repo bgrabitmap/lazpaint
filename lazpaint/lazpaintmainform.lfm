@@ -932,6 +932,7 @@ object FMain: TFMain
     object ComboBox_ArrowStart: TBCComboBox
       Left = 2
       Height = 21
+      Hint = 'Starting arrow'
       Top = 1
       Width = 43
       ItemIndex = -1
@@ -1036,6 +1037,7 @@ object FMain: TFMain
     object ComboBox_ArrowEnd: TBCComboBox
       Left = 47
       Height = 21
+      Hint = 'Ending arrow'
       Top = 1
       Width = 43
       ItemIndex = -1

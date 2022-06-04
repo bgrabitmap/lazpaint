@@ -26,6 +26,8 @@
 {"hash":142786864,"name":"tfmain.tool_capsquare.hint","sourcebytes":[83,113,117,97,114,101,32,99,97,112],"value":"Square cap"},
 {"hash":224157463,"name":"tfmain.spinedit_arrowsizex.hint","sourcebytes":[72,111,114,105,122,111,110,116,97,108,32,115,105,122,101,32,111,102,32,116,104,101,32,97,114,114,111,119],"value":"Horizontal size of the arrow"},
 {"hash":47574855,"name":"tfmain.spinedit_arrowsizey.hint","sourcebytes":[86,101,114,116,105,99,97,108,32,115,105,122,101,32,111,102,32,116,104,101,32,97,114,114,111,119],"value":"Vertical size of the arrow"},
+{"hash":65090695,"name":"tfmain.combobox_arrowstart.hint","sourcebytes":[83,116,97,114,116,105,110,103,32,97,114,114,111,119],"value":"Starting arrow"},
+{"hash":229386535,"name":"tfmain.combobox_arrowend.hint","sourcebytes":[69,110,100,105,110,103,32,97,114,114,111,119],"value":"Ending arrow"},
 {"hash":199465278,"name":"tfmain.tool_joinbevel.hint","sourcebytes":[66,101,118,101,108,32,106,111,105,110],"value":"Bevel join"},
 {"hash":73704254,"name":"tfmain.tool_joinround.hint","sourcebytes":[82,111,117,110,100,32,106,111,105,110],"value":"Round join"},
 {"hash":205804894,"name":"tfmain.tool_joinmiter.hint","sourcebytes":[77,105,116,101,114,32,106,111,105,110],"value":"Miter join"},

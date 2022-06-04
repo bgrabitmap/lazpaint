@@ -650,6 +650,14 @@ msgctxt "tfmain.colorshiftcolors.caption"
 msgid "Shift colors..."
 msgstr "Décaler les couleurs..."
 
+#: tfmain.combobox_arrowend.hint
+msgid "Ending arrow"
+msgstr "Flèche de fin"
+
+#: tfmain.combobox_arrowstart.hint
+msgid "Starting arrow"
+msgstr "Flèche de départ"
+
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
 msgstr "Style de pinceau"

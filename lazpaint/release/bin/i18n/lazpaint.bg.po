@@ -648,6 +648,14 @@ msgctxt "TFMAIN.COLORSHIFTCOLORS.CAPTION"
 msgid "Shift colors..."
 msgstr "Цветово разместване..."
 
+#: tfmain.combobox_arrowend.hint
+msgid "Ending arrow"
+msgstr ""
+
+#: tfmain.combobox_arrowstart.hint
+msgid "Starting arrow"
+msgstr ""
+
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
 msgstr "Вид на чертата"

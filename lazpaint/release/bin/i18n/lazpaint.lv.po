@@ -658,6 +658,14 @@ msgctxt "tfmain.colorshiftcolors.caption"
 msgid "Shift colors..."
 msgstr "Nobīdīt krāsas ..."
 
+#: tfmain.combobox_arrowend.hint
+msgid "Ending arrow"
+msgstr ""
+
+#: tfmain.combobox_arrowstart.hint
+msgid "Starting arrow"
+msgstr ""
+
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
 msgstr "Līnijas veids"

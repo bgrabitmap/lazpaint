@@ -652,6 +652,14 @@ msgctxt "tfmain.colorshiftcolors.caption"
 msgid "Shift colors..."
 msgstr "转移颜色..."
 
+#: tfmain.combobox_arrowend.hint
+msgid "Ending arrow"
+msgstr ""
+
+#: tfmain.combobox_arrowstart.hint
+msgid "Starting arrow"
+msgstr ""
+
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
 msgstr "线型"
