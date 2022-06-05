@@ -1756,7 +1756,7 @@ var
                TAffineBox.AffineBox(sourceRectF);
     wholeImage := TAffineBox.AffineBox(PointF(-1,-1), PointF(-1,ADest.Height+1),
                                        PointF(ADest.Width+1,-1));
-    ADest.FillMode := fmWinding;
+    ADest.FillMode := fmAlternate;
     ADest.ErasePolyAntialias( ConcatPointsF([wholeImage.AsPolygon, maskBox.AsPolygon], true),
                                   255, false);
   end;
