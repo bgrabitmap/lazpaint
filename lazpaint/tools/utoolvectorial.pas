@@ -2095,6 +2095,7 @@ begin
 
   if FShape=nil then
   begin
+    UpdateUseOriginal;
     if UseOriginal and
       ((Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TVectorOriginal).GetShapesCost >= MediumShapeCost) then
     begin
