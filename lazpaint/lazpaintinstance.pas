@@ -1559,9 +1559,9 @@ procedure TLazPaintInstance.Run;
 begin
   if not MainFormVisible then Show;
   repeat
-    application.ProcessMessages;
-    Sleep(10);
-  until not MainFormVisible;
+    Application.ProcessMessages;
+    if not Application.Terminated then Application.Idle(True);
+  until not MainFormVisible or Application.Terminated;
 end;
 
 function TLazPaintInstance.Restart: boolean;
