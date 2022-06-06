@@ -854,6 +854,7 @@ type
     procedure CallScriptFunction(AName:string); overload;
     procedure CallScriptFunction(AParams:TVariableSet); overload;
     procedure ZoomFitIfTooBig;
+    function RunToolCommand(AToolCommand: TToolCommand): boolean;
     property Scripting: TScriptContext read GetScriptContext;
     property Image: TLazPaintImage read GetImage;
 
@@ -3390,7 +3391,7 @@ end;
 
 procedure TFMain.EditShapeAlignBottomExecute(Sender: TObject);
 begin
-  ToolManager.ToolCommand(tcAlignBottom);
+  RunToolCommand(tcAlignBottom);
 end;
 
 procedure TFMain.EditShapeAlignBottomUpdate(Sender: TObject);
@@ -3400,7 +3401,7 @@ end;
 
 procedure TFMain.EditShapeAlignLeftExecute(Sender: TObject);
 begin
-  ToolManager.ToolCommand(tcAlignLeft);
+  RunToolCommand(tcAlignLeft);
 end;
 
 procedure TFMain.EditShapeAlignLeftUpdate(Sender: TObject);
@@ -3410,7 +3411,7 @@ end;
 
 procedure TFMain.EditShapeAlignRightExecute(Sender: TObject);
 begin
-  ToolManager.ToolCommand(tcAlignRight);
+  RunToolCommand(tcAlignRight);
 end;
 
 procedure TFMain.EditShapeAlignRightUpdate(Sender: TObject);
@@ -3420,7 +3421,7 @@ end;
 
 procedure TFMain.EditShapeAlignTopExecute(Sender: TObject);
 begin
-  ToolManager.ToolCommand(tcAlignTop);
+  RunToolCommand(tcAlignTop);
 end;
 
 procedure TFMain.EditShapeAlignTopUpdate(Sender: TObject);
@@ -3430,7 +3431,7 @@ end;
 
 procedure TFMain.EditShapeCenterHorizontallyExecute(Sender: TObject);
 begin
-  ToolManager.ToolCommand(tcCenterHorizontally);
+  RunToolCommand(tcCenterHorizontally);
 end;
 
 procedure TFMain.EditShapeCenterHorizontallyUpdate(Sender: TObject);
@@ -3440,7 +3441,7 @@ end;
 
 procedure TFMain.EditShapeCenterVerticallyExecute(Sender: TObject);
 begin
-  ToolManager.ToolCommand(tcCenterVertically);
+  RunToolCommand(tcCenterVertically);
 end;
 
 procedure TFMain.EditShapeCenterVerticallyUpdate(Sender: TObject);
@@ -3451,7 +3452,7 @@ end;
 procedure TFMain.EditShapeToCurveExecute(Sender: TObject);
 begin
   if ToolManager.CurrentTool is TVectorialTool then ChooseTool(ptEditShape);
-  ToolManager.ToolCommand(tcShapeToSpline);
+  RunToolCommand(tcShapeToSpline);
 end;
 
 procedure TFMain.EditShapeToCurveUpdate(Sender: TObject);
@@ -3485,7 +3486,7 @@ end;
 
 procedure TFMain.EditCopyExecute(Sender: TObject);
 begin
-  if not ToolManager.ToolCommand(tcCopy) then
+  if not RunToolCommand(tcCopy) then
     Scripting.CallScriptFunction('EditCopy');
 end;
 
@@ -3496,7 +3497,7 @@ end;
 
 procedure TFMain.EditCutExecute(Sender: TObject);
 begin
-  if not ToolManager.ToolCommand(tcCut) then
+  if not RunToolCommand(tcCut) then
     Scripting.CallScriptFunction('EditCut');
 end;
 
@@ -3509,7 +3510,7 @@ end;
 
 procedure TFMain.EditDeleteSelectionExecute(Sender: TObject);
 begin
-  if not ToolManager.ToolCommand(tcDelete) then
+  if not RunToolCommand(tcDelete) then
     Scripting.CallScriptFunction('EditDeleteSelection');
 end;
 
@@ -3521,7 +3522,7 @@ end;
 procedure TFMain.EditMoveDownExecute(Sender: TObject);
 begin
   if ToolManager.CurrentTool is TVectorialTool then ChooseTool(ptEditShape);
-  ToolManager.ToolCommand(tcMoveDown);
+  RunToolCommand(tcMoveDown);
 end;
 
 procedure TFMain.EditMoveDownUpdate(Sender: TObject);
@@ -3532,7 +3533,7 @@ end;
 procedure TFMain.EditMoveToBackExecute(Sender: TObject);
 begin
   if ToolManager.CurrentTool is TVectorialTool then ChooseTool(ptEditShape);
-  ToolManager.ToolCommand(tcMoveToBack);
+  RunToolCommand(tcMoveToBack);
 end;
 
 procedure TFMain.EditMoveToBackUpdate(Sender: TObject);
@@ -3542,7 +3543,7 @@ end;
 
 procedure TFMain.EditMoveToFrontExecute(Sender: TObject);
 begin
-  ToolManager.ToolCommand(tcMoveToFront);
+  RunToolCommand(tcMoveToFront);
 end;
 
 procedure TFMain.EditMoveToFrontUpdate(Sender: TObject);
@@ -3552,7 +3553,7 @@ end;
 
 procedure TFMain.EditMoveUpExecute(Sender: TObject);
 begin
-  ToolManager.ToolCommand(tcMoveUp);
+  RunToolCommand(tcMoveUp);
 end;
 
 procedure TFMain.EditMoveUpUpdate(Sender: TObject);
@@ -3562,7 +3563,7 @@ end;
 
 procedure TFMain.EditPasteExecute(Sender: TObject);
 begin
-  if not ToolManager.ToolCommand(tcPaste) then
+  if not RunToolCommand(tcPaste) then
     Scripting.CallScriptFunction('EditPaste');
 end;
 
@@ -4124,6 +4125,17 @@ begin
       if (image.Width*Zoom.Factor > right-left) or (image.Height*Zoom.Factor > bottom-top) then
         ViewZoomFit.Execute;
   end;
+end;
+
+function TFMain.RunToolCommand(AToolCommand: TToolCommand): boolean;
+begin
+  if ToolManager.ToolCommand(AToolCommand) then
+  begin
+    PaintPictureNow;
+    UpdateToolbar;
+    result := true;
+  end
+  else result := false;
 end;
 
 function TFMain.TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean;
