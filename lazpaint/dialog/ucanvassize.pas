@@ -213,7 +213,7 @@ var
 begin
     case FMUnit of
     0: begin //pixels
-         tx:=SpinEdit_Width.Value;
+         tx:= SpinEdit_Width.Value;
          ty:= SpinEdit_Height.Value;
        end;
     1: begin //percent
@@ -246,18 +246,26 @@ begin
 end;
 
 procedure TFCanvasSize.ComboBox_MUnitChange(Sender: TObject);
+var
+  curWidth, curHeight: Integer;
 begin
   if FMUnit= ComboBox_MUnit.ItemIndex then exit;
   FMUnit:= ComboBox_MUnit.ItemIndex;
   FIgnoreInput:=True;
+  curWidth := SpinEdit_Width.Value;
+  curHeight := SpinEdit_Height.Value;
   case FMUnit of
-    0: begin //pixels
-         SpinEdit_Width.Value:=  round (LazPaintInstance.Image.Width*SpinEdit_Width.Value/100);
-         SpinEdit_Height.Value:= round (LazPaintInstance.Image.Height*SpinEdit_Height.Value/100);
+    0: begin //percent -> pixels
+         SpinEdit_Width.MaxValue := MaxImageWidth;
+         SpinEdit_Height.MaxValue := MaxImageHeight;
+         SpinEdit_Width.Value:=  round (LazPaintInstance.Image.Width*curWidth/100);
+         SpinEdit_Height.Value:= round (LazPaintInstance.Image.Height*curHeight/100);
        end;
-    1: begin //percent
-         SpinEdit_Width.Value:= round (SpinEdit_Width.Value/ LazPaintInstance.Image.Width*100);
-         SpinEdit_Height.Value:= round (SpinEdit_Height.Value/ LazPaintInstance.Image.Height*100);
+    1: begin //pixels -> percent
+         SpinEdit_Width.MaxValue := round(MaxImageWidth / LazPaintInstance.Image.Width * 100);
+         SpinEdit_Height.MaxValue := round(MaxImageHeight / LazPaintInstance.Image.Height * 100);
+         SpinEdit_Width.Value:= round (curWidth/ LazPaintInstance.Image.Width*100);
+         SpinEdit_Height.Value:= round (curHeight/ LazPaintInstance.Image.Height*100);
        end;
   end;
   FIgnoreInput:=False;
