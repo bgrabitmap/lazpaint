@@ -73,6 +73,7 @@ type
     FTablet: TLazTablet;
     FImagePos: TPointF;
     FCanvasScale: integer;
+    FAltKeyUsedForPenSize: boolean;
     function GetImage: TLazPaintImage;
     function GetPictureCanvas: TCanvas;
     function GetWorkArea: TRect;
@@ -293,10 +294,11 @@ procedure TImageView.PaintBoxMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
   if not PictureCoordsDefined then exit;
-  if ssAlt in Shift then
+  if LazPaintInstance.ToolManager.PenWidthVisible and (ssAlt in Shift) then
   begin
     if WheelDelta > 0 then LazPaintInstance.ToolManager.StepPenSize(false)
     else if WheelDelta < 0 then LazPaintInstance.ToolManager.StepPenSize(true);
+    FAltKeyUsedForPenSize := true;
   end else
   begin
     Zoom.SetPosition(FormToBitmap(MousePos.X,MousePos.Y), MousePos);
@@ -610,6 +612,7 @@ begin
   FInstance := AInstance;
   FZoom := AZoom;
   FCanvasScale:= round(APaintBox.GetCanvasScaleFactor);
+  FAltKeyUsedForPenSize:= false;
   AInstance.ToolManager.CanvasScale := FCanvasScale;
   ugraph.CanvasScale:= FCanvasScale;
 
@@ -677,6 +680,7 @@ function TImageView.CatchToolKeyDown(var AKey: Word): boolean;
 begin
   FCatchPaintPicture:= true;
   FPaintPictureCatched := false;
+  if AKey = VK_MENU then FAltKeyUsedForPenSize := false;
   try
     result := LazPaintInstance.ToolManager.ToolKeyDown(AKey) or FPaintPictureCatched;
   finally
@@ -689,7 +693,8 @@ begin
   FCatchPaintPicture:= true;
   FPaintPictureCatched := false;
   try
-     result := LazPaintInstance.ToolManager.ToolKeyUp(AKey) or FPaintPictureCatched;
+    result := LazPaintInstance.ToolManager.ToolKeyUp(AKey) or FPaintPictureCatched;
+    if (AKey = VK_MENU) and FAltKeyUsedForPenSize then AKey := 0;
   finally
     FCatchPaintPicture:= false;
   end;

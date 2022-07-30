@@ -458,6 +458,7 @@ type
     PerspectiveControls,FillControls,OutlineFillControls,
     BrushControls, RatioControls, DonateControls: TList;
     CanvasScale: integer;
+    PenWidthVisible: boolean;
 
     constructor Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider;
       ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction = nil;
@@ -2899,6 +2900,7 @@ constructor TToolManager.Create(AImage: TLazPaintImage; AConfigProvider: IConfig
 begin
   FImage:= AImage;
   CanvasScale := 1;
+  PenWidthVisible := false;
   BitmapToVirtualScreen := ABitmapToVirtualScreen;
   FShouldExitTool:= false;
   FConfigProvider := AConfigProvider;
@@ -3269,7 +3271,8 @@ begin
 
   OrResult(SetControlsVisible(BrushControls, ctBrush in contextualToolbars));
   OrResult(SetControlsVisible(ShapeControls, ctShape in contextualToolbars));
-  OrResult(SetControlsVisible(PenWidthControls, (ctPenWidth in contextualToolbars) and hasPen));
+  PenWidthVisible := (ctPenWidth in contextualToolbars) and hasPen;
+  OrResult(SetControlsVisible(PenWidthControls, PenWidthVisible));
   OrResult(SetControlsVisible(JoinStyleControls, (ctJoinStyle in contextualToolbars) and hasPen));
   OrResult(SetControlsVisible(PenStyleControls, (ctPenStyle in contextualToolbars) and hasPen));
   OrResult(SetControlsVisible(CloseShapeControls, ctCloseShape in contextualToolbars));
