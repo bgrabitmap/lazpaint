@@ -3807,6 +3807,10 @@ msgstr "Versión"
 msgid "Vertical size"
 msgstr "Tamaño vertical"
 
+#: uresourcestrings.rsvisible
+msgid "Visibile"
+msgstr ""
+
 #: uresourcestrings.rsyellow
 msgid "Yellow"
 msgstr "Amarillo"

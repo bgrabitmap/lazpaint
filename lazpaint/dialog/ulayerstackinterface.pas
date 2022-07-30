@@ -305,6 +305,18 @@ begin
       BGRALayerStack.Hint := FLayerInfo[i].KindIconHint;
       BGRALayerStack.ShowHint:= true;
       exit;
+    end else
+    if FLayerInfo[i].VisibleCheckbox.Contains(Point(X,Y)) then
+    begin
+      BGRALayerStack.Hint := rsVisible;
+      BGRALayerStack.ShowHint:= true;
+      exit;
+    end else
+    if FLayerInfo[i].RightPart.OpacityBar.Contains(Point(X,Y)) then
+    begin
+      BGRALayerStack.Hint := rsOpacity;
+      BGRALayerStack.ShowHint:= true;
+      exit;
     end;
   BGRALayerStack.ShowHint:= false;
 end;

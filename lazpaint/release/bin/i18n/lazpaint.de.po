@@ -3445,7 +3445,7 @@ msgstr "Neues Bild"
 
 #: uresourcestrings.rsnewmask
 msgid "New mask"
-msgstr "Neue Maske"
+msgstr "Neue Maske"                         "
 
 #: uresourcestrings.rsno
 msgid "No"
@@ -3793,6 +3793,10 @@ msgstr "Version"
 #: uresourcestrings.rsverticalsize
 msgid "Vertical size"
 msgstr "Vertikal Größe"
+
+#: uresourcestrings.rsvisible
+msgid "Visibile"
+msgstr "Sichtbar"
 
 #: uresourcestrings.rsyellow
 msgid "Yellow"
