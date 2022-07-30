@@ -999,7 +999,7 @@ begin
   virtualScreenPenCursorBefore := FPenCursorVisible;
   FPenCursorVisible := false;
   wantedCursor := LazPaintInstance.ToolManager.Cursor;
-  if LazPaintInstance.ToolManager.GetCurrentToolType in[ptPen,ptEraser,ptBrush,ptClone] then UseVSPenCursor;
+  if LazPaintInstance.ToolManager.GetCurrentToolType in[ptPen,ptEraser,ptBrush,ptClone,ptSelectPen] then UseVSPenCursor;
   if not PtInRect(WorkArea, Point(X,Y)) then wantedCursor:= crDefault;
   if FPaintBox.Cursor <> wantedCursor then FPaintBox.Cursor := wantedCursor;
   if virtualScreenPenCursorBefore or FPenCursorVisible then
