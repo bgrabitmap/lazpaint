@@ -12,7 +12,7 @@ object FBlendOp: TFBlendOp
   OnResize = FormResize
   OnShow = FormShow
   Position = poMainFormCenter
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '2.2.0.1'
   object ListBox_PatternUnder: TListBox
     Left = 8
     Height = 248
@@ -39,7 +39,6 @@ object FBlendOp: TFBlendOp
     OnDrawItem = ListBox_DrawPatternItem
     OnMeasureItem = ListBox_MeasureItem
     OnSelectionChange = ListBox_PatternSelectionChange
-    ScrollWidth = 149
     Style = lbOwnerDrawFixed
     TabOrder = 0
   end
@@ -52,7 +51,6 @@ object FBlendOp: TFBlendOp
     Alignment = taCenter
     AutoSize = False
     Caption = 'Pattern under'
-    ParentColor = False
     ParentShowHint = False
     ShowHint = True
   end
@@ -82,7 +80,6 @@ object FBlendOp: TFBlendOp
     OnDrawItem = ListBox_DrawPatternItem
     OnMeasureItem = ListBox_MeasureItem
     OnSelectionChange = ListBox_PatternSelectionChange
-    ScrollWidth = 149
     Style = lbOwnerDrawFixed
     TabOrder = 1
   end
@@ -95,7 +92,6 @@ object FBlendOp: TFBlendOp
     Alignment = taCenter
     AutoSize = False
     Caption = 'Pattern over'
-    ParentColor = False
     ParentShowHint = False
     ShowHint = True
   end
@@ -124,7 +120,6 @@ object FBlendOp: TFBlendOp
     OnDrawItem = ListBox_DrawBlendItem
     OnMeasureItem = ListBox_MeasureItem
     OnSelectionChange = ListBox_BlendSelectionChange
-    ScrollWidth = 120
     Style = lbOwnerDrawFixed
     TabOrder = 2
   end
@@ -137,7 +132,6 @@ object FBlendOp: TFBlendOp
     Alignment = taCenter
     AutoSize = False
     Caption = 'Basic SVG'
-    ParentColor = False
     ParentShowHint = False
     ShowHint = True
   end
@@ -174,7 +168,6 @@ object FBlendOp: TFBlendOp
     OnDrawItem = ListBox_DrawBlendItem
     OnMeasureItem = ListBox_MeasureItem
     OnSelectionChange = ListBox_BlendSelectionChange
-    ScrollWidth = 156
     Style = lbOwnerDrawFixed
     TabOrder = 3
   end
@@ -187,7 +180,6 @@ object FBlendOp: TFBlendOp
     Alignment = taCenter
     AutoSize = False
     Caption = 'Krita'
-    ParentColor = False
     ParentShowHint = False
     ShowHint = True
   end
@@ -220,7 +212,6 @@ object FBlendOp: TFBlendOp
     OnDrawItem = ListBox_DrawBlendItem
     OnMeasureItem = ListBox_MeasureItem
     OnSelectionChange = ListBox_BlendSelectionChange
-    ScrollWidth = 114
     Style = lbOwnerDrawFixed
     TabOrder = 4
   end
@@ -233,7 +224,6 @@ object FBlendOp: TFBlendOp
     Alignment = taCenter
     AutoSize = False
     Caption = 'Other'
-    ParentColor = False
     ParentShowHint = False
     ShowHint = True
   end
@@ -244,7 +234,6 @@ object FBlendOp: TFBlendOp
     Width = 137
     Anchors = [akLeft, akBottom]
     Caption = 'Selected blend operation :'
-    ParentColor = False
   end
   object Label_BlendOpValue: TLabel
     Left = 152
@@ -253,7 +242,6 @@ object FBlendOp: TFBlendOp
     Width = 3
     Anchors = [akLeft, akBottom]
     Caption = '.'
-    ParentColor = False
   end
   object Button_OK: TButton
     Left = 192
@@ -286,7 +274,6 @@ object FBlendOp: TFBlendOp
     AutoSize = False
     Caption = 'Preview with'
     Font.Style = [fsBold]
-    ParentColor = False
     ParentFont = False
   end
   object Label_BlendOpCategory: TLabel
@@ -299,7 +286,6 @@ object FBlendOp: TFBlendOp
     AutoSize = False
     Caption = 'Category of blend operation'
     Font.Style = [fsBold]
-    ParentColor = False
     ParentFont = False
   end
   object ScrollBar1: TScrollBar
@@ -315,7 +301,7 @@ object FBlendOp: TFBlendOp
     Enabled = False
     Interval = 100
     OnTimer = TimerResizeTimer
-    left = 382
-    top = 288
+    Left = 382
+    Top = 288
   end
 end
