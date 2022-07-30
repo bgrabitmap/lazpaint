@@ -11,15 +11,6 @@ msgstr ""
 "Language: zh_CN\n"
 "X-Generator: Poedit 2.3\n"
 
-#: tablet.getprocfailed
-#, object-pascal-format
-msgid "Procedure %s failed to load properly."
-msgstr "过程 %s 无法正确加载。"
-
-#: tablet.openfailed
-msgid "Tablet context failed to open."
-msgstr "无法打开平板上下文。"
-
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
 msgid "Donate..."

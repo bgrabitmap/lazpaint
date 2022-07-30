@@ -12,15 +12,6 @@ msgstr ""
 "X-Poedit-SourceCharset: utf-8\n"
 "X-Generator: Poedit 2.2.4\n"
 
-#: tablet.getprocfailed
-#, object-pascal-format
-msgid "Procedure %s failed to load properly."
-msgstr "Nepodařilo se správně načíst proceduru %s."
-
-#: tablet.openfailed
-msgid "Tablet context failed to open."
-msgstr "Nelze otevřít kontext tabletu."
-
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
 msgid "Donate..."

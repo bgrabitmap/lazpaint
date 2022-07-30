@@ -1,14 +1,5 @@
-msgid "Last-Translator: Shotokan forum Ubuntu.it\n"
+msgid "Last-Translator: Shotokan forum Ubuntu.it"
 msgstr "Content-Type: text/plain; charset=UTF-8"
-
-#: tablet.getprocfailed
-#, object-pascal-format
-msgid "Procedure %s failed to load properly."
-msgstr ""
-
-#: tablet.openfailed
-msgid "Tablet context failed to open."
-msgstr ""
 
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"

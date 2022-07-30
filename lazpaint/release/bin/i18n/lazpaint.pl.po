@@ -19,15 +19,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: tablet.getprocfailed
-#, object-pascal-format
-msgid "Procedure %s failed to load properly."
-msgstr "Procedura %s nie została prawidłowo zainicjonowana."
-
-#: tablet.openfailed
-msgid "Tablet context failed to open."
-msgstr "Nie udało się otworzyć kontekstu tabletu."
-
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
 msgid "Donate..."

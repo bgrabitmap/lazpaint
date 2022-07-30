@@ -9,15 +9,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: tablet.getprocfailed
-#, object-pascal-format
-msgid "Procedure %s failed to load properly."
-msgstr "Процедуру %s не удалось загрузить правильно."
-
-#: tablet.openfailed
-msgid "Tablet context failed to open."
-msgstr ""
-
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
 msgid "Donate..."
@@ -234,14 +225,6 @@ msgstr "Высота:"
 msgctxt "tfcanvassize.label_width.caption"
 msgid "Width :"
 msgstr "Ширина:"
-
-#: uresourcestrings.rsaddtopalette
-msgid "Add color to palette"
-msgstr "Добавить цвет в палитру"
-
-#: uresourcestrings.rsremovefrompalette
-msgid "Remove color from palette"
-msgstr "Удилить цвет из палитры"
 
 #: tfchoosecolor.caption
 msgctxt "TFCHOOSECOLOR.CAPTION"
@@ -1282,9 +1265,10 @@ msgid "Duplicate selected layer"
 msgstr "Дублировать выделенный слой"
 
 #: tfmain.layerexport.hint
+#, fuzzy
 msgctxt "tfmain.layerexport.hint"
 msgid "Export..."
-msgstr ""
+msgstr "Экспорт..."
 
 #: tfmain.layerfromfile.hint
 msgctxt "tfmain.layerfromfile.hint"
@@ -2739,6 +2723,10 @@ msgstr "Действие в процессе"
 msgid "Add files to the image processing list"
 msgstr "Добавить файлы в список обработки изображений"
 
+#: uresourcestrings.rsaddtopalette
+msgid "Add color to palette"
+msgstr "Добавить цвет в палитру"
+
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
 msgstr "Выровнять фигуру"
@@ -2999,7 +2987,7 @@ msgstr "Ошибка при загрузке оригинала, однако с
 
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
-msgstr "Ошибка открытия файла \"%1"\"
+msgstr "Ошибка открытия файла \"%1\"\""
 
 #: uresourcestrings.rsexception
 msgid "An exception was encountered"
@@ -3512,6 +3500,10 @@ msgstr "Растровое изображение было изменено. В�
 msgid "Removable"
 msgstr "Съемный"
 
+#: uresourcestrings.rsremovefrompalette
+msgid "Remove color from palette"
+msgstr "Удилить цвет из палитры"
+
 #: uresourcestrings.rsrender
 #, fuzzy
 msgctxt "uresourcestrings.rsrender"
@@ -3632,7 +3624,7 @@ msgstr "Нет отмеченных пунктов. Отметьте какие-
 
 #: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
 msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
-msgstr "Для этого файла не указано имя файла. Используйте "Сохранить как..." из главного меню."
+msgstr "Для этого файла не указано имя файла. Используйте \"Сохранить как...\" из главного меню."
 
 #: uresourcestrings.rstodo
 msgid "To do"

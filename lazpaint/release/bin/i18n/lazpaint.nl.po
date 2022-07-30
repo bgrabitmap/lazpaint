@@ -35,15 +35,6 @@ msgstr ""
 "X-Generator: Virtaal 0.7.0\n"
 "X-Poedit-Language: Dutch\n"
 
-#: tablet.getprocfailed
-#, object-pascal-format
-msgid "Procedure %s failed to load properly."
-msgstr "Procedure %s is niet correct geladen."
-
-#: tablet.openfailed
-msgid "Tablet context failed to open."
-msgstr "Tabletcontext kan niet worden geopend."
-
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
 msgid "Donate..."

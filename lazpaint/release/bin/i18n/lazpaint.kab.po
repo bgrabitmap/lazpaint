@@ -12,15 +12,6 @@ msgstr ""
 "X-Generator: Poedit 2.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: tablet.getprocfailed
-#, object-pascal-format
-msgid "Procedure %s failed to load properly."
-msgstr "Tasekkirt %s ur d-tuli ara akken iwata."
-
-#: tablet.openfailed
-msgid "Tablet context failed to open."
-msgstr "Tawennaḍt n tfelwit tegumma ad d-teldi."
-
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
 msgid "Donate..."

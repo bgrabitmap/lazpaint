@@ -1,15 +1,6 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
-#: tablet.getprocfailed
-#, object-pascal-format
-msgid "Procedure %s failed to load properly."
-msgstr "Procedur %s kunde inte laddas korrekt."
-
-#: tablet.openfailed
-msgid "Tablet context failed to open."
-msgstr "Kunde inte öppna kontext för ritplatta."
-
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
 msgid "Donate..."

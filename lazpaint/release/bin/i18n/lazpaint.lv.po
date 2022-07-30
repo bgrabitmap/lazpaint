@@ -17,15 +17,6 @@ msgstr ""
 "X-Poedit-SearchPath-0: debug\n"
 "X-Poedit-SearchPath-1: .\n"
 
-#: tablet.getprocfailed
-#, object-pascal-format
-msgid "Procedure %s failed to load properly."
-msgstr "%s procedūru neizdevās pareizi ielasīt."
-
-#: tablet.openfailed
-msgid "Tablet context failed to open."
-msgstr "Neizdevās atvērt planšeti."
-
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
 msgid "Donate..."

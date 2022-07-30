@@ -45,9 +45,17 @@ begin
 
 end;
 
+type
+  { Copy from lcl/shellctrls.pas }
+  TMaskCaseSensitivity = (mcsPlatformDefault, mcsCaseInsensitive, mcsCaseSensitive);
+  { Copy from lazutils/masks.pas }
+  TMaskOption = (moCaseSensitive, moDisableSets);
+  TMaskOptions = set of TMaskOption;
+
 procedure GetFilesInDir(const ABaseDir: string; AMask: string;
   AObjectTypes: TObjectTypes; AResult: TStrings; AFileSortType: TFileSortType;
   ACaseSensitivity: TMaskCaseSensitivity = mcsPlatformDefault);
+
 var
   DirInfo: TSearchRec;
   FindResult, i: Integer;
@@ -94,7 +102,7 @@ begin
       if (ACaseSensitivity <> mcsCaseInsensitive) then
         MaskOptions := [moDisableSets, moCaseSensitive];
       {$endif}
-      MaskList := TMaskList.Create(AMask, ';', MaskOptions);  //False by default
+      MaskList := TMaskList.Create(AMask, ';', moCaseSensitive in MaskOptions);  //False by default
     end;
 
     try
