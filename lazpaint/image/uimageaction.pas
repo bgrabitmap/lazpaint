@@ -1554,8 +1554,20 @@ end;
 procedure TImageActions.DeleteSelection;
 var LayerAction: TLayerAction;
   doErase, wasSelecting: Boolean;
+  prevTool: TPaintToolType;
 begin
-  if image.SelectionMaskEmpty then exit;
+  if image.SelectionMaskEmpty then
+  begin
+    prevTool := ToolManager.GetCurrentToolType;
+    if (prevTool in [ptMoveLayer, ptZoomLayer, ptRotateLayer])
+       and (image.NbLayers > 1) then
+    begin
+      ChooseTool(ptHand, false);
+      Image.RemoveLayer;
+      ChooseTool(prevTool, false);
+    end;
+    exit;
+  end;
   wasSelecting := ToolManager.GetCurrentToolType in [ptSelectPen..ptSelectSpline];
   if wasSelecting then ToolManager.ToolCloseDontReopen
   else if not image.CheckNoAction then exit;

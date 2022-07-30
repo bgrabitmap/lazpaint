@@ -674,19 +674,7 @@ begin
 end;
 
 function TImageView.CatchToolKeyDown(var AKey: Word): boolean;
-var
-  prevTool: TPaintToolType;
 begin
-  if (AKey = VK_DELETE) and
-     (LazPaintInstance.ToolManager.GetCurrentToolType in[ptMoveLayer, ptRotateLayer, ptZoomLayer]) and
-     (Image.NbLayers > 1) then
-  begin
-    prevTool := LazPaintInstance.ToolManager.GetCurrentToolType;
-    LazPaintInstance.ChooseTool(ptHand, false);
-    Image.RemoveLayer;
-    LazPaintInstance.ChooseTool(prevTool, false);
-    exit;
-  end;
   FCatchPaintPicture:= true;
   FPaintPictureCatched := false;
   try

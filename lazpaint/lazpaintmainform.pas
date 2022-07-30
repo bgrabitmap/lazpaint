@@ -3520,7 +3520,10 @@ end;
 
 procedure TFMain.EditDeleteSelectionUpdate(Sender: TObject);
 begin
-  EditDeleteSelection.Enabled := ToolManager.ToolProvideCommand(tcDelete) or not image.SelectionMaskEmpty;
+  EditDeleteSelection.Enabled := ToolManager.ToolProvideCommand(tcDelete)
+                                 or not image.SelectionMaskEmpty
+                                 or ((ToolManager.GetCurrentToolType in [ptMoveLayer,
+                                     ptZoomLayer, ptRotateLayer]) and (image.NbLayers > 1));
 end;
 
 procedure TFMain.EditMoveDownExecute(Sender: TObject);
