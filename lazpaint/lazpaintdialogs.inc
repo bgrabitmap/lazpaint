@@ -123,7 +123,7 @@ begin
       ScriptContext.RecordingFunctionParameters.AddPixel('BackColor', bitmapRepl.GetPixel(0,0));
     end;
   end;
-  ChooseTool(ptHand);
+  ChooseTool(ptHand, true);
   image.Assign(bitmapRepl, True, False);
   Image.CurrentFilenameUTF8 := '';
   image.SetSavedFlag(0,-1,0);

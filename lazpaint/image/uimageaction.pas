@@ -20,7 +20,7 @@ type
     function GetCurrentTool: TPaintToolType;
     function GetImage: TLazPaintImage;
     function GetToolManager: TToolManager;
-    procedure ChooseTool(ATool: TPaintToolType);
+    procedure ChooseTool(ATool: TPaintToolType; AAsFromGui: boolean = true);
     procedure RegisterScripts(ARegister: Boolean);
     function GenericScriptFunction(AVars: TVariableSet): TScriptResult;
     function ScriptGetAllLayersId(AVars: TVariableSet): TScriptResult;
@@ -131,9 +131,9 @@ begin
   result := FInstance.ToolManager;
 end;
 
-procedure TImageActions.ChooseTool(ATool: TPaintToolType);
+procedure TImageActions.ChooseTool(ATool: TPaintToolType; AAsFromGui: boolean);
 begin
-  FInstance.ChooseTool(ATool);
+  FInstance.ChooseTool(ATool, AAsFromGui);
 end;
 
 procedure TImageActions.RegisterScripts(ARegister: Boolean);
@@ -805,8 +805,11 @@ begin
 end;
 
 procedure TImageActions.Undo;
+var
+  prevTool: TPaintToolType;
 begin
   try
+    prevTool := CurrentTool;
     if CurrentTool in[ptMoveSelection,ptRotateSelection] then ChooseTool(ptHand);
     if ToolManager.ToolProvideCommand(tcFinish) then ToolManager.ToolCommand(tcFinish);
     if image.CanUndo then
@@ -815,6 +818,9 @@ begin
       image.Undo;
       ToolManager.ToolOpen;
     end;
+    if (prevTool in[ptMoveSelection,ptRotateSelection]) and
+      not image.SelectionMaskEmpty then
+      ChooseTool(prevTool, false);
   except
     on ex:Exception do
       FInstance.ShowError('Undo',ex.Message);
@@ -822,8 +828,11 @@ begin
 end;
 
 procedure TImageActions.Redo;
+var
+  prevTool: TPaintToolType;
 begin
   try
+    prevTool := CurrentTool;
     if CurrentTool in[ptLayerMapping,ptMoveSelection,ptRotateSelection] then
       ChooseTool(ptHand);
     if image.CanRedo then
@@ -832,6 +841,9 @@ begin
       image.Redo;
       ToolManager.ToolOpen;
     end;
+    if (prevTool in[ptMoveSelection,ptRotateSelection]) and
+      not image.SelectionMaskEmpty then
+      ChooseTool(prevTool, false);
   except
     on ex:Exception do
       FInstance.ShowError('Redo',ex.Message);

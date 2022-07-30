@@ -876,7 +876,7 @@ type
     procedure AddDockedControl(AControl: TControl);
     procedure RemoveDockedControl(AControl: TControl);
     procedure QueryArrange;
-    function ChooseTool(Tool : TPaintToolType): boolean;
+    function ChooseTool(Tool : TPaintToolType; AAsFromGui: boolean = true): boolean;
     procedure PictureSelectedLayerIndexChanged({%H-}sender: TLazPaintImage);
     procedure PictureSelectedLayerIndexChanging({%H-}sender: TLazPaintImage);
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
@@ -2868,12 +2868,12 @@ begin
   end;
 end;
 
-function TFMain.ChooseTool(Tool: TPaintToolType): boolean;
+function TFMain.ChooseTool(Tool: TPaintToolType; AAsFromGui: boolean): boolean;
 var params: TVariableSet;
 begin
   params := TVariableSet.Create('ChooseTool');
   params.AddString('Name', PaintToolTypeStr[Tool]);
-  params.AddBoolean('FromGUI', true);
+  params.AddBoolean('FromGUI', AAsFromGui);
   result := Scripting.CallScriptFunction(params) = srOk;
   params.Free;
 end;

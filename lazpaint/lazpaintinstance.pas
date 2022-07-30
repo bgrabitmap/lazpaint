@@ -268,7 +268,7 @@ type
     procedure InvalidateLayerStack; override;
     procedure UpdateLayerStackOnTimer; override;
     function MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap; override;
-    procedure ChooseTool(Tool : TPaintToolType); override;
+    procedure ChooseTool(Tool : TPaintToolType; AAsFromGui: boolean); override;
     function OpenImage (FileName: string; AddToRecent: Boolean= True): boolean; override;
     procedure AddToImageList(const FileNames: array of String); override;
     procedure UpdateToolbar; override;
@@ -1996,10 +1996,10 @@ begin
   result := TBGRABitmap.Create(AWidth,AHeight, AColor);
 end;
 
-procedure TLazPaintInstance.ChooseTool(Tool: TPaintToolType);
+procedure TLazPaintInstance.ChooseTool(Tool: TPaintToolType; AAsFromGui: boolean);
 begin
   FormsNeeded;
-  if Assigned(FMain) then FMain.ChooseTool(Tool);
+  if Assigned(FMain) then FMain.ChooseTool(Tool, AAsFromGui);
 end;
 
 function TLazPaintInstance.GetToolboxHeight: integer;

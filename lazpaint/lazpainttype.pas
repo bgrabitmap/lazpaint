@@ -307,7 +307,7 @@ type
     procedure InvalidateLayerStack; virtual; abstract;
     procedure UpdateLayerStackOnTimer; virtual; abstract;
     function MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap; virtual; abstract;
-    procedure ChooseTool(Tool : TPaintToolType); virtual; abstract;
+    procedure ChooseTool(Tool : TPaintToolType; AAsFromGui: boolean); virtual; abstract;
     function GetOnlineUpdater: TLazPaintCustomOnlineUpdater; virtual;
 
     property GridVisible: boolean read GetGridVisible write SetGridVisible;
