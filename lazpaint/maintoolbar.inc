@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
+const SwitchColorShortcut = 'R';
+
 procedure TFMain.CreateToolbarElements;
 
   procedure InitVectorialFill(vf: TLCVectorialFillControl; grad: TBGRALayerGradientOriginal;
@@ -239,7 +241,7 @@ begin
   Label_Coordinates.Caption := '';
   FCoordinatesCaption:= '';
   FCoordinatesCaptionCount := 0;
-  Image_SwapColors.Hint := Image_SwapColors.Hint + ' (X)';
+  Image_SwapColors.Hint := Image_SwapColors.Hint + ' (' + SwitchColorShortcut + ')';
 
   Tool_CurveModeAuto.Hint := Tool_CurveModeAuto.Hint + ' (A)';
   Tool_CurveModeAngle.Hint := Tool_CurveModeAngle.Hint + ' (X)';

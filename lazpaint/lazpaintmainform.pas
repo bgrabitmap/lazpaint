@@ -2331,7 +2331,7 @@ begin
     end else
     if UTF8Key <> '' then
     begin
-      if UTF8UpperCase(UTF8Key) = 'X' then
+      if UTF8UpperCase(UTF8Key) = SwitchColorShortcut then
       begin
         SwitchColors;
         UTF8Key:= '';

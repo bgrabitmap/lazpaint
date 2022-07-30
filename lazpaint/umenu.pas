@@ -632,6 +632,7 @@ begin
   ActionShortcut('ToolHotSpot','H');
   ActionShortcut('ToolPen','P');
   ActionShortcut('ToolBrush','B');
+  ActionShortcut('ToolClone','K');
   ActionShortcut('ToolColorPicker','C');
   ActionShortcut('ToolEraser','E');
   ActionShortcut('ToolEditShape','J');
@@ -643,12 +644,12 @@ begin
   ActionShortcut('ToolSpline','D');
   ActionShortcut('ToolFloodfill','G');
   ActionShortcut('ToolGradient','G');
-  ActionShortcut('ToolPhong','G');
+  ActionShortcut('ToolPhong','Y');
   ActionShortcut('ToolText','T');
   ActionShortcut('ToolSelectRect','M');
   ActionShortcut('ToolSelectEllipse','M');
-  ActionShortcut('ToolSelectPoly','A');
-  ActionShortcut('ToolSelectSpline','A');
+  ActionShortcut('ToolSelectPoly','F');
+  ActionShortcut('ToolSelectSpline','F');
   ActionShortcut('ToolMoveSelection','V');
   ActionShortcut('ToolRotateSelection','V');
   ActionShortcut('ToolSelectPen','O');
