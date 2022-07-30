@@ -3445,7 +3445,7 @@ msgstr "Neues Bild"
 
 #: uresourcestrings.rsnewmask
 msgid "New mask"
-msgstr "Neue Maske"                         "
+msgstr "Neue Maske\"                         "
 
 #: uresourcestrings.rsno
 msgid "No"
@@ -3626,6 +3626,10 @@ msgstr "Drücken Sie EINGABE zum Prüfen"
 msgctxt "uresourcestrings.rsrgb"
 msgid "RGB"
 msgstr "RGB"
+
+#: uresourcestrings.rsrightclickfinishshape
+msgid "Use RIGHT click to finish shape"
+msgstr ""
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"

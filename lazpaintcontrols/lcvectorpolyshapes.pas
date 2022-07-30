@@ -67,6 +67,7 @@ type
     function GetLineCap: TPenEndCap;
     function GetPoint(AIndex: integer): TPointF;
     function GetPointCount: integer;
+    function GetValidatedPointCount: integer;
     procedure SetArrowEndKind(AValue: TArrowKind);
     procedure SetArrowSize(AValue: TPointF);
     procedure SetArrowStartKind(AValue: TArrowKind);
@@ -128,6 +129,7 @@ type
     class function DefaultArrowSize: TPointF;
     property Points[AIndex:integer]: TPointF read GetPoint write SetPoint;
     property PointCount: integer read GetPointCount;
+    property ValidatedPointCount: integer read GetValidatedPointCount;
     property Closed: boolean read GetClosed write SetClosed;
     property HoverPoint: integer read GetHoverPoint write SetHoverPoint;
     property HoverCenter: boolean read FHoverCenter write SetHoverCenter;
@@ -474,6 +476,14 @@ end;
 function TCustomPolypointShape.GetPointCount: integer;
 begin
   result:= length(FPoints);
+end;
+
+function TCustomPolypointShape.GetValidatedPointCount: integer;
+begin
+  if (PointCount > 1) and FAddingPoint then
+    result := PointCount - 1
+  else
+    result := PointCount;
 end;
 
 procedure TCustomPolypointShape.SetArrowEndKind(AValue: TArrowKind);

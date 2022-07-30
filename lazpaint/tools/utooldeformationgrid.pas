@@ -20,6 +20,7 @@ type
     function ToolDeformationGridNeeded: boolean;
     procedure ValidateDeformationGrid;
   protected
+    class var ReturnHintShown: boolean;
     deformationGridNbX,deformationGridNbY,deformationGridX,deformationGridY: integer;
     deformationGridMoving: boolean;
     deformationOrigin: TPointF;
@@ -35,6 +36,7 @@ type
     function GetIsSelectingTool: boolean; override;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
   public
+    class procedure ForgetHintShown;
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -48,7 +50,7 @@ type
 
   TToolTextureMapping = class(TGenericTool)
   private
-    class var FHintShowed: boolean;
+    class var ScaleHintShown, ReturnHintShown: boolean;
     FCurrentBounds: TRect;
     FLastTexture: TBGRABitmap;
     FTextureAfterAlpha: TBGRABitmap;
@@ -89,6 +91,7 @@ type
     function GetStatusText: string; override;
     function GetAllowedBackFillTypes: TVectorialFillTypes; override;
   public
+    class procedure ForgetHintShown;
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -526,12 +529,11 @@ begin
   end;
 
   result := EmptyRect;
-  if not FHintShowed then
+  if not ScaleHintShown then
   begin
     Manager.ToolPopup(tpmHoldKeysScaleMode, VK_SHIFT);
-    FHintShowed:= true;
+    ScaleHintShown:= true;
   end;
-  Manager.HintReturnValidates;
   if quadMoving then
   begin
     if quadMovingIndex = -1 then
@@ -724,6 +726,12 @@ begin
   Result:= [vftTexture];
 end;
 
+class procedure TToolTextureMapping.ForgetHintShown;
+begin
+  ScaleHintShown:= false;
+  ReturnHintShown:= false;
+end;
+
 constructor TToolTextureMapping.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
@@ -783,6 +791,11 @@ begin
     DrawQuad;
     FCanReadaptTexture:= false;
     result := FCurrentBounds;
+    if not ReturnHintShown then
+    begin
+      Manager.ToolPopup(tpmreturnValides);
+      ReturnHintShown:= true;
+    end;
     exit;
   end;
   if quadMoving then
@@ -1034,7 +1047,6 @@ var xb,yb,NbX,NbY: integer;
 
 begin
   result := EmptyRect;
-  Manager.HintReturnValidates;
 
   if not deformationGridMoving then
   begin
@@ -1192,6 +1204,11 @@ begin
     result := EmptyRect;
 end;
 
+class procedure TToolDeformationGrid.ForgetHintShown;
+begin
+  ReturnHintShown := false;
+end;
+
 constructor TToolDeformationGrid.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
@@ -1278,7 +1295,14 @@ end;
 function TToolDeformationGrid.ToolUp: TRect;
 begin
   if deformationGridMoving then
-    result := OnlyRenderChange
+  begin
+    result := OnlyRenderChange;
+    if not ReturnHintShown then
+    begin
+      Manager.ToolPopup(tpmreturnValides);
+      ReturnHintShown := true;
+    end;
+  end
   else
     Result:=EmptyRect;
   deformationGridMoving := false;

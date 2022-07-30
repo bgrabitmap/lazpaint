@@ -15,7 +15,8 @@ uses
 
   LazPaintType, UMainFormLayout, UTool, UImage, UImageAction, UZoom,
   UImageObservation, UConfig, LCScaleDPI, UResourceStrings, UMenu, uscripting,
-  ubrowseimages, UToolPolygon, UToolVectorial, LCVectorRectShapes,
+  ubrowseimages, UToolPolygon, UToolVectorial, UToolDeformationGrid, UToolSelect,
+  UToolBasic, UToolBrush, LCVectorRectShapes,
   LCVectorialFillControl, LCVectorialFill,
 
   udarktheme, UScriptType;
@@ -3668,6 +3669,13 @@ begin
   Config.SetDefaultRetrieveSelectionAnswer(0);
   for m := low(TToolPopupMessage) to high(TToolPopupMessage) do
     Config.SetToolPopupMessageShownCount(ord(m), 0);
+  UToolPolygon.TToolPolygon.ForgetHintShown;
+  UToolVectorial.TVectorialTool.ForgetHintShown;
+  UToolDeformationGrid.TToolTextureMapping.ForgetHintShown;
+  UToolDeformationGrid.TToolDeformationGrid.ForgetHintShown;
+  UToolSelect.TToolRotateSelection.ForgetHintShown;
+  UToolBasic.TToolPen.ForgetHintShown;
+  UToolBrush.TToolBrush.ForgetHintShown;
 end;
 
 procedure TFMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);

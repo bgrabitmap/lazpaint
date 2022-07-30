@@ -28,6 +28,7 @@ type
     function GetIsHandDrawing: boolean;
     function GetIsIdle: boolean;
   protected
+    class var SquareHintShown: boolean;
     FLayerWasEmpty: boolean;
     FShape: TVectorShape;
     FTemporaryStorage: TBGRACustomOriginalStorage;
@@ -90,6 +91,7 @@ type
     function GetGridMatrix: TAffineMatrix; virtual;
     property Editor: TBGRAOriginalEditor read GetEditor;
   public
+    class procedure ForgetHintShown;
     function ValidateShape: TRect;
     function CancelShape: TRect;
     constructor Create(AManager: TToolManager); override;
@@ -1823,6 +1825,11 @@ begin
   end;
 end;
 
+class procedure TVectorialTool.ForgetHintShown;
+begin
+  SquareHintShown:= false;
+end;
+
 function TVectorialTool.ValidateShape: TRect;
 var
   layerId: LongInt;
@@ -2136,8 +2143,11 @@ begin
       FShape.OnEditingChange:=@ShapeEditingChange;
       FShape.OnRemoveQuery:= @ShapeRemoveQuery;
       result := RectUnion(result, UpdateShape(toolDest));
-      if FShape is TCustomRectShape then
+      if not SquareHintShown and (FShape is TCustomRectShape) then
+      begin
+        SquareHintShown := true;
         Manager.ToolPopup(tpmHoldKeyForSquare, VK_SHIFT);
+      end;
     end;
   end;
 end;

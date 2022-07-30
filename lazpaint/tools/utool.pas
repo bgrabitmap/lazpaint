@@ -165,7 +165,7 @@ type
   TToolClass = class of TGenericTool;
 
   TToolPopupMessage= (tpmNone, tpmHoldKeyForSquare, tpmHoldKeySnapToPixel,
-    tpmReturnValides, tpmBackspaceRemoveLastPoint, tpmHoldKeyRestrictRotation,
+    tpmReturnValides, tpmBackspaceRemoveLastPoint, tpmRightClickFinishShape, tpmHoldKeyRestrictRotation,
     tpmHoldKeysScaleMode, tpmCurveModeHint, tpmBlendOpBackground,
     tpmRightClickForSource, tpmNothingToBeDeformed);
 
@@ -199,7 +199,6 @@ type
     FToolCurrentCursorPos: TPointF;
     FSleepingTool: TGenericTool;
     FSleepingToolType: TPaintToolType;
-    FReturnValidatesHintShown: boolean;
     FOnToolChangedHandler: TOnToolChangedHandler;
     FOnToolRenderChanged: TNotifyEvent;
     FOnToolbarChanged: TNotifyEvent;
@@ -499,7 +498,6 @@ type
     function ToolUpdate: boolean;
     function ToolUpdateNeeded: boolean;
     procedure ToolPopup(AMessage: TToolPopupMessage; AKey: Word = 0; AAlways: boolean = false);
-    procedure HintReturnValidates;
 
     function IsSelectingTool: boolean;
     function DisplayFilledSelection: boolean;
@@ -759,6 +757,7 @@ begin
   tpmHoldKeySnapToPixel: result := ReplaceKey(rsHoldKeySnapToPixel, AKey);
   tpmReturnValides: result := rsReturnValides;
   tpmBackspaceRemoveLastPoint: result := rsBackspaceRemoveLastPoint;
+  tpmRightClickFinishShape: result := rsRightClickFinishShape;
   tpmHoldKeyRestrictRotation: result := ReplaceKey(rsHoldKeyRestrictRotation, AKey);
   tpmHoldKeysScaleMode: result := ReplaceKey(ReplaceKey(rsHoldKeysScaleMode, AKey, 2), VK_MENU);
   tpmCurveModeHint: result := rsCurveModeHint;
@@ -788,15 +787,6 @@ begin
     Result:= Manager.Image.CurrentLayerReadOnly
   else
     Result:= Manager.Image.SelectionLayerReadonly;
-end;
-
-procedure TToolManager.HintReturnValidates;
-begin
-  if not FReturnValidatesHintShown then
-  begin
-    ToolPopup(tpmReturnValides);
-    FReturnValidatesHintShown:= true;
-  end;
 end;
 
 { TGenericTool }

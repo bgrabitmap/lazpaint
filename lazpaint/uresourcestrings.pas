@@ -87,6 +87,7 @@ resourcestring
   rsHoldKeySnapToPixel = 'Hold %1 to snap to pixels';
   rsReturnValides = 'Press ENTER to validate';
   rsBackspaceRemoveLastPoint = 'Press BACKSPACE to remove last point';
+  rsRightClickFinishShape = 'Use RIGHT click to finish shape';
   rsHoldKeyRestrictRotation = 'Hold %1 to restrict rotation angle';
   rsHoldKeysScaleMode = 'Hold %1 or %2 to scale';
   rsCurveModeHint = 'Press S or X to set the curve mode of the last point';

@@ -32,6 +32,8 @@ type
 
   TToolPolygon = class(TVectorialTool)
   protected
+    class var RightClickHintShown: boolean;
+    class var RemovePointHintShown: boolean;
     initiallyClosed : boolean;
     function ShapeClass: TVectorShapeAny; override;
     function CreateShape: TVectorShape; override;
@@ -44,6 +46,7 @@ type
     function DoToolKeyDown(var key: Word): TRect; override;
     function RoundCoordinate(constref ptF: TPointF): TPointF; override;
   public
+    class procedure ForgetHintShown;
     function ToolUp: TRect; override;
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
   end;
@@ -285,6 +288,11 @@ function TToolPolygon.CreateShape: TVectorShape;
 begin
   result := inherited CreateShape;
   initiallyClosed := ShouldCloseShape;
+  if not RightClickHintShown then
+  begin
+    Manager.ToolPopup(tpmRightClickFinishShape);
+    RightClickHintShown := true;
+  end;
 end;
 
 function TToolPolygon.ShouldCloseShape: boolean;
@@ -336,7 +344,14 @@ function TToolPolygon.ToolUp: TRect;
 begin
   Result:=inherited ToolUp;
   if Assigned(FShape) then
+  begin
     UpdateManagerCloseShape((FShape as TCustomPolypointShape).Closed);
+    if not RemovePointHintShown and ((FShape as TCustomPolypointShape).ValidatedPointCount >= 3) then
+    begin
+      Manager.ToolPopup(tpmBackspaceRemoveLastPoint);
+      RemovePointHintShown := true;
+    end;
+  end;
 end;
 
 function TToolPolygon.ToolKeyPress(var key: TUTF8Char): TRect;
@@ -374,6 +389,12 @@ begin
     result := Editor.SnapToGrid(ptF, false)
   else
     result := ptF;
+end;
+
+class procedure TToolPolygon.ForgetHintShown;
+begin
+  RemovePointHintShown := false;
+  RemovePointHintShown := false;
 end;
 
 initialization

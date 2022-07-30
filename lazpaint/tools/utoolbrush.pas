@@ -54,6 +54,7 @@ type
 
   TToolClone = class(TToolGenericBrush)
   protected
+    class var RightClickHintShown: boolean;
     definingSource: boolean;
     class var sourceLayerId: integer;
     class var sourcePosition: TPoint;
@@ -67,6 +68,7 @@ type
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; override;
     function DoToolShiftClick({%H-}toolDest: TBGRABitmap; {%H-}ptF: TPointF; {%H-}rightBtn: boolean): TRect; override;
   public
+    class procedure ForgetHintShown;
     function SubPixelAccuracy: boolean; override;
     constructor Create(AManager: TToolManager); override;
     destructor Destroy; override;
@@ -162,7 +164,11 @@ end;
 function TToolClone.DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF
   ): TRect;
 begin
-  Manager.ToolPopup(tpmRightClickForSource);
+  if not RightClickHintShown then
+  begin
+    Manager.ToolPopup(tpmRightClickForSource);
+    RightClickHintShown := true;
+  end;
   Result:=inherited DoToolMove(toolDest, pt, ptF);
 end;
 
@@ -170,6 +176,11 @@ function TToolClone.DoToolShiftClick(toolDest: TBGRABitmap; ptF: TPointF;
   rightBtn: boolean): TRect;
 begin
   Result:= EmptyRect;
+end;
+
+class procedure TToolClone.ForgetHintShown;
+begin
+  RightClickHintShown:= false;
 end;
 
 function TToolClone.SubPixelAccuracy: boolean;
