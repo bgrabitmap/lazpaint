@@ -1215,6 +1215,8 @@ begin
   deformationGridNbX:= 0;
   deformationGridNbY:= 0;
   DoingDeformation:= false;
+  deformationGrid := nil;
+  deformationGridTexCoord := nil;
 end;
 
 function TToolDeformationGrid.Render(VirtualScreen: TBGRABitmap;
@@ -1283,12 +1285,10 @@ begin
   if Key = VK_ESCAPE then
   begin
     if DoingDeformation then
-    begin
       CancelActionPartially;
-      result := OnlyRenderChange;
-      manager.QueryExitTool;
-      Key := 0;
-    end;
+    result := OnlyRenderChange;
+    manager.QueryExitTool;
+    Key := 0;
   end;
 end;
 
