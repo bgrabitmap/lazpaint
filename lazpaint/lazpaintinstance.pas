@@ -1888,9 +1888,17 @@ begin
 end;
 
 procedure TLazPaintInstance.ColorToFChooseColor;
+var
+  c: TBGRAPixel;
 begin
   if not Assigned(FChooseColor) or InColorFromFChooseColor then exit;
-  FChooseColor.SetCurrentColor(GetColor(FChooseColor.ColorTarget));
+  c := GetColor(FChooseColor.ColorTarget);
+  if (c.alpha = 0) and (FChooseColor.ColorTarget in [ctForeColorSolid, ctBackColorSolid, ctOutlineColorSolid]) then
+  begin
+    c := FChooseColor.GetCurrentColor;
+    c.alpha := 0;
+  end;
+  FChooseColor.SetCurrentColor(c);
 end;
 
 procedure TLazPaintInstance.ExitColorEditor;
