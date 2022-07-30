@@ -1128,6 +1128,10 @@ begin
   Panel_Coordinates.Visible := Config.DefaultCoordinatesToolbarVisible;
   FLayout.ToolBoxPopup := PopupToolbox;
 
+  {$IFDEF DARWIN}
+  ImageHorizontalFlip.ShortCut := ShortCut(VK_H, [ssMeta, ssCtrl]);
+  {$ENDIF}
+
   if not LazPaintInstance.Embedded then
   begin
     FOnlineUpdater := LazPaintInstance.GetOnlineUpdater;
