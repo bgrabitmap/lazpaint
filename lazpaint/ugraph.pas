@@ -16,6 +16,7 @@ var
 
 function ComputeRatio(ARatio: string): single;
 function RatioToStr(ARatio: single): string;
+function InverseRatio(ARatio: string): string;
 
 function RectUnion(const rect1,Rect2: TRect): TRect;
 function RectInter(const rect1,Rect2: TRect): TRect;
@@ -104,7 +105,8 @@ var
     inc(num, AValue*denom);
   end;
 
-const MaxDev = 3;
+const MaxDev = 6;
+  MaxDenom = 99;
 var
   dev: array[1..MaxDev] of integer;
   devCount, i: integer;
@@ -116,19 +118,41 @@ begin
   devCount := 0;
   repeat
     inc(devCount);
-    dev[devCount] := trunc(ARatio);
+    dev[devCount] := trunc(curVal);
     remain := frac(curVal);
     if abs(remain) < 1e-3 then break;
+    if devCount = MaxDev then
+    begin
+      if remain > 0.5 then inc(dev[devCount]);
+      break;
+    end;
     curVal := 1/remain;
-  until devCount = MaxDev;
-  num := dev[devCount];
-  denom := 1;
-  for i := devCount-1 downto 1 do
-  begin
-    InvFrac;
-    AddFrac(dev[i]);
-  end;
+  until false;
+  repeat
+    num := dev[devCount];
+    denom := 1;
+    for i := devCount-1 downto 1 do
+    begin
+      InvFrac;
+      AddFrac(dev[i]);
+    end;
+    if ((num >= denom) and (denom <= MaxDenom))
+       or ((num < denom) and (num <= MaxDenom))
+       or (devCount = 1) then break;
+    dec(devCount);
+  until false;
   result := IntToStr(num)+':'+IntToStr(denom);
+end;
+
+function InverseRatio(ARatio: string): string;
+var
+  elements: TStringArray;
+begin
+  elements := ARatio.Split([':']);
+  if length(elements) = 2 then
+    result := elements[1] + ':' + elements[0]
+  else
+    result := ARatio;
 end;
 
 function RectUnion(const rect1, Rect2: TRect): TRect;

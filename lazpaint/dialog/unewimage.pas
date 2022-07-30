@@ -14,6 +14,10 @@ const
   shadowOffsetX = 3;
   shadowOffsetY = 3;
   shadowBlur= 3;
+  defaultAspectRatios: array[0..12] of string =
+    ('1:1', '6:5', '5:4', '4:3', '11:8',
+     '1.414:1', '1.43:1', '3:2', '8:5',
+     '1.618:1', '5:3', '16:9', '2:1');
 
 type
   TLastEnteredValue = (valWidth,valHeight,valRatio);
@@ -73,6 +77,7 @@ type
     procedure ThemeChanged(Sender: TObject);
     procedure UpdatePreview;
     function GetBitDepth: integer;
+    procedure FillAspectRatios;
   public
     ForIcon: boolean;
     newImageResult: TBGRABitmap;
@@ -184,8 +189,6 @@ end;
 
 procedure TFNewImage.ToolButton_RotateClick(Sender: TObject);
 var tx,ty: integer;
-  s: string;
-  idxCol: integer;
 begin
   if FRecomputing then exit;
   FRecomputing:= true;
@@ -196,13 +199,7 @@ begin
   if FRatio <> 0 then
   begin
     FRatio := 1/FRatio;
-    s := ComboBox_Ratio.Text;
-    idxCol := pos(':',s);
-    if idxCol <> 0 then
-    begin
-      s := copy(s,idxCol+1,length(s)-idxCol)+':'+ copy(s,1,idxCol-1);
-      ComboBox_Ratio.Text := s;
-    end;
+    ComboBox_Ratio.Text := InverseRatio(ComboBox_Ratio.Text);
   end;
   FRecomputing:= false;
   if FLastEnteredValue = valWidth then
@@ -210,6 +207,7 @@ begin
   if FLastEnteredValue = valHeight then
     FLastEnteredValue:= valWidth;
   UpdatePreview;
+  FillAspectRatios;
 end;
 
 procedure TFNewImage.ComboBox_RatioChange(Sender: TObject);
@@ -268,11 +266,12 @@ begin
   end;
   FRecomputing:= false;
   UpdatePreview;
+  FillAspectRatios;
 end;
 
 procedure TFNewImage.ToolButton_ClearRatioClick(Sender: TObject);
 begin
-  ComboBox_Ratio.ItemIndex:= 0;
+  ComboBox_Ratio.Text := '';
   ComboBox_RatioChange(ComboBox_Ratio);
 end;
 
@@ -293,6 +292,10 @@ begin
 end;
 
 procedure TFNewImage.FormShow(Sender: TObject);
+var
+  currentRatio: single;
+  currentRatioStr: String;
+  currentRatioIdx, i: Integer;
 begin
   ToolBar_Rotate.Images := LazPaintInstance.Icons[DoScaleY(16,OriginalDPI)];
   ToolBar_Ratio.Images := ToolBar_Rotate.Images;
@@ -322,11 +325,34 @@ begin
     ComboBox_BitDepth.Visible := false;
     ComboBox_BitDepth.Text := '32';
   end;
-  if SpinEdit_Width.Value = SpinEdit_Height.Value then
+  FillAspectRatios;
+  FRatio := 0;
+  if SpinEdit_Height.Value <> 0 then
   begin
-    ComboBox_Ratio.Text := '1:1';
-    FRatio := ComputeRatio(ComboBox_Ratio.Text);
-    FLastEnteredValue := valRatio;
+    currentRatio := SpinEdit_Width.Value/SpinEdit_Height.Value;
+    currentRatioStr := RatioToStr(currentRatio);
+    currentRatioIdx := ComboBox_Ratio.Items.IndexOf(currentRatioStr);
+    if currentRatioIdx <> -1 then
+    begin
+      ComboBox_Ratio.Text := currentRatioStr;
+      FRatio := currentRatio;
+      FLastEnteredValue := valRatio;
+    end else
+    begin
+      for i := 0 to ComboBox_Ratio.Items.Count-1 do
+      begin
+        currentRatioStr := ComboBox_Ratio.Items[i];
+        currentRatio := ComputeRatio(currentRatioStr);
+        if (SpinEdit_Width.Value = round(SpinEdit_Height.Value*currentRatio)) or
+          (SpinEdit_Height.Value = round(SpinEdit_Width.Value/currentRatio)) then
+        begin
+          ComboBox_Ratio.Text := currentRatioStr;
+          FRatio := currentRatio;
+          FLastEnteredValue := valRatio;
+          break;
+        end;
+      end;
+    end;
   end;
   FRecomputing := false;
 
@@ -350,6 +376,7 @@ begin
   end;
   FRecomputing:= false;
   UpdatePreview;
+  FillAspectRatios;
 end;
 
 procedure TFNewImage.UpdatePreview;
@@ -379,6 +406,21 @@ end;
 function TFNewImage.GetBitDepth: integer;
 begin
   result := StrToInt(ComboBox_BitDepth.Text);
+end;
+
+procedure TFNewImage.FillAspectRatios;
+var
+  aspect, rotatedAspect: String;
+begin
+  ComboBox_Ratio.Items.Clear;
+  for aspect in defaultAspectRatios do
+  begin
+    if SpinEdit_Width.Value >= SpinEdit_Height.Value then
+      rotatedAspect := aspect
+    else
+      rotatedAspect := InverseRatio(aspect);
+    ComboBox_Ratio.Items.add(rotatedAspect);
+  end;
 end;
 
 destructor TFNewImage.Destroy;
