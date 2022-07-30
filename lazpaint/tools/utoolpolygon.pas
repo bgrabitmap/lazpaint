@@ -37,6 +37,7 @@ type
     function CreateShape: TVectorShape; override;
     function ShouldCloseShape: boolean; virtual;
     procedure UpdateManagerCloseShape({%H-}AClose: boolean); virtual;
+    procedure AssignShapeStyleClosed(AShape: TVectorShape); virtual;
     procedure AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean); override;
     procedure UpdateUserMode; virtual;
     procedure ShapeValidated; override;
@@ -51,7 +52,9 @@ type
 
   TToolPolyline = class(TToolPolygon)
   protected
+    function CreateShape: TVectorShape; override;
     function ShouldCloseShape: boolean; override;
+    procedure AssignShapeStyleClosed(AShape: TVectorShape); override;
     procedure UpdateManagerCloseShape({%H-}AClose: boolean); override;
     function GetManagerShapeOptions: TShapeOptions; override;
     function HasBrush: boolean; override;
@@ -131,9 +134,20 @@ end;
 
 { TToolPolyline }
 
+function TToolPolyline.CreateShape: TVectorShape;
+begin
+  Result:=inherited CreateShape;
+  inherited AssignShapeStyleClosed(Result);
+end;
+
 function TToolPolyline.ShouldCloseShape: boolean;
 begin
   result := false;
+end;
+
+procedure TToolPolyline.AssignShapeStyleClosed(AShape: TVectorShape);
+begin
+  //nothing
 end;
 
 procedure TToolPolyline.UpdateManagerCloseShape(AClose: boolean);
@@ -290,10 +304,15 @@ begin
   Manager.ShapeOptions:= opt;
 end;
 
+procedure TToolPolygon.AssignShapeStyleClosed(AShape: TVectorShape);
+begin
+  (AShape as TCustomPolypointShape).Closed := ShouldCloseShape;
+end;
+
 procedure TToolPolygon.AssignShapeStyle(AMatrix: TAffineMatrix; AAlwaysFit: boolean);
 begin
   inherited AssignShapeStyle(AMatrix, AAlwaysFit);
-  TCustomPolypointShape(FShape).Closed := ShouldCloseShape;
+  AssignShapeStyleClosed(TCustomPolypointShape(FShape));
   TCustomPolypointShape(FShape).ArrowStartKind := Manager.ArrowStart;
   TCustomPolypointShape(FShape).ArrowEndKind := Manager.ArrowEnd;
   TCustomPolypointShape(FShape).ArrowSize := Manager.ArrowSize;
