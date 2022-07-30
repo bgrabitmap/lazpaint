@@ -75,6 +75,7 @@ type
     FOnEditGradTexPoints: TNotifyEvent;
     FOnChooseColor: TChooseColorEvent;
     FOnFillChange: TNotifyEvent;
+    FOnOpacityChange: TNotifyEvent;
     FOnFillTypeChange: TNotifyEvent;
     FOnTextureClick: TNotifyEvent;
     FOnTextureChange: TNotifyEvent;
@@ -84,6 +85,7 @@ type
     procedure DoOnEditGradTexPoints(Sender: TObject);
     procedure DoOnFillChange(Sender: TObject);
     procedure DoOnFillTypeChange(Sender: TObject);
+    procedure DoOnOpacityChange(Sender: TObject);
     procedure DoOnTextureClick(Sender: TObject);
     procedure DoOnTextureChange(Sender: TObject);
     procedure DoOnResize; override;
@@ -122,6 +124,7 @@ type
     property EditingGradTexPoints: boolean read GetEditingGradTexPoints write SetEditingGradTexPoints;
     property OnChooseColor: TChooseColorEvent read FOnChooseColor write SetOnChooseColor;
     property OnFillChange: TNotifyEvent read FOnFillChange write FOnFillChange;
+    property OnOpacityChange: TNotifyEvent read FOnOpacityChange write FOnOpacityChange;
     property OnTextureChange: TNotifyEvent read FOnTextureChange write FOnTextureChange;
     property OnAdjustToShape: TNotifyEvent read FOnAdjustToShape write FOnAdjustToShape;
     property OnEditGradTexPoints: TNotifyEvent read FOnEditGradTexPoints write FOnEditGradTexPoints;
@@ -421,6 +424,11 @@ begin
   if Assigned(FOnFillTypeChange) then FOnFillTypeChange(self);
 end;
 
+procedure TLCVectorialFillControl.DoOnOpacityChange(Sender: TObject);
+begin
+  if Assigned(FOnOpacityChange) then FOnOpacityChange(self);
+end;
+
 procedure TLCVectorialFillControl.DoOnTextureChange(Sender: TObject);
 begin
   if Assigned(FOnTextureChange) then FOnTextureChange(self);
@@ -443,6 +451,7 @@ begin
   FInterface.OnAdjustToShape:=@DoOnAdjustToShape;
   FInterface.OnEditGradTexPoints:=@DoOnEditGradTexPoints;
   FInterface.OnFillTypeChange:=@DoOnFillTypeChange;
+  FInterface.OnOpacityChange:=@DoOnOpacityChange;
   FInterface.OnMouseMove:=@InterfaceMouseMove;
   FInterface.OnMouseDown:=@InterfaceMouseDown;
   FInterface.OnMouseUp:=@InterfaceMouseUp;

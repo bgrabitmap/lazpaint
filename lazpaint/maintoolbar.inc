@@ -11,6 +11,7 @@ procedure TFMain.CreateToolbarElements;
     vf.OnFillChange:=    @VectorialFill_Change;
     vf.AutoSize := False;
     vf.OnFillTypeChange:=    @VectorialFill_TypeChange;
+    vf.OnOpacityChange:=     @VectorialFill_OpacityChange;
     vf.OnAdjustToShape:=     @VectorialFill_AdjustToShape;
     vf.OnEditGradTexPoints:= @VectorialFill_EditGradTexPoints;
     vf.OnResize:= @VectorialFill_Resize;
@@ -1068,6 +1069,11 @@ begin
   vf := Sender as TLCVectorialFillControl;
   DarkThemeInstance.Apply(vf, DarkTheme);
   vf.Width := vf.PreferredSize.cx;
+end;
+
+procedure TFMain.VectorialFill_OpacityChange(Sender: TObject);
+begin
+  HideFill(3000, true);
 end;
 
 procedure TFMain.VectorialFill_ShowBackFill(Sender: TObject; Shift: TShiftState; X, Y: Integer);

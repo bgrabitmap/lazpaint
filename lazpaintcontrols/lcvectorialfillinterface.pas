@@ -80,7 +80,7 @@ type
     FPreview: TImage;
     FButtonFillNone, FButtonFillSolid,
     FButtonFillGradient, FButtonFillTexture: TToolButton;
-    FOnFillChange, FOnFillTypeChange: TNotifyEvent;
+    FOnFillChange, FOnFillTypeChange, FOnOpacityChange: TNotifyEvent;
     FButtonEditGradTexPoints, FButtonAdjustToShape: TToolButton;
     FOnEditGradTexPoints, FOnAdjustToShape: TNotifyEvent;
 
@@ -204,6 +204,7 @@ type
     property OnAdjustToShape: TNotifyEvent read FOnAdjustToShape write FOnAdjustToShape;
     property OnEditGradTexPoints: TNotifyEvent read FOnEditGradTexPoints write FOnEditGradTexPoints;
     property OnFillTypeChange: TNotifyEvent read FOnFillTypeChange write FOnFillTypeChange;
+    property OnOpacityChange: TNotifyEvent read FOnOpacityChange write FOnOpacityChange;
     property OnChooseColor: TChooseColorEvent read FOnChooseColor write FOnChooseColor;
     property OnMouseDown: TMouseEvent read FOnMouseDown write FOnMouseDown;
     property OnMouseMove: TMouseMoveEvent read FOnMouseMove write FOnMouseMove;
@@ -574,6 +575,7 @@ begin
     c := GradEndColor;
     c.alpha := FUpDownEndAlpha.Value;
     GradEndColor:= c;
+    if assigned(FOnOpacityChange) then FOnOpacityChange(self);
   end;
 end;
 
@@ -581,7 +583,10 @@ procedure TVectorialFillInterface.UpDownSolidAlphaChange(Sender: TObject;
   AByUser: boolean);
 begin
   if AByUser then
+  begin
     SolidColor:= ColorToBGRA(FShapeSolidColor.Brush.Color, FUpDownSolidAlpha.Value);
+    if assigned(FOnOpacityChange) then FOnOpacityChange(self);
+  end;
 end;
 
 procedure TVectorialFillInterface.UpDownStartAlphaChange(Sender: TObject;
@@ -594,6 +599,7 @@ begin
     c := GradStartColor;
     c.alpha := FUpDownStartAlpha.Value;
     GradStartColor:= c;
+    if assigned(FOnOpacityChange) then FOnOpacityChange(self);
   end;
 end;
 

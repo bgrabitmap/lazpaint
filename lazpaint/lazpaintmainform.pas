@@ -703,6 +703,7 @@ type
     procedure VectorialFill_Change(Sender: TObject);
     procedure vectorialFill_ClickLabel(Sender: TObject);
     procedure VectorialFill_TypeChange(Sender: TObject);
+    procedure VectorialFill_OpacityChange(Sender: TObject);
     procedure VectorialFill_Resize(Sender: TObject);
     procedure VectorialFill_EditGradTexPoints(Sender: TObject);
     procedure VectorialFill_AdjustToShape(Sender: TObject);
