@@ -429,7 +429,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="106">
+    <Units Count="107">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -1052,6 +1052,10 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UIconCache"/>
       </Unit105>
+      <Unit106>
+        <Filename Value="getfilesindir.inc"/>
+        <IsPartOfProject Value="True"/>
+      </Unit106>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
