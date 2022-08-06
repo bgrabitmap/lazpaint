@@ -67,6 +67,7 @@ type
     function GetLineCap: TPenEndCap;
     function GetPoint(AIndex: integer): TPointF;
     function GetPointCount: integer;
+    function GetValidatedPointCount: integer;
     procedure SetArrowEndKind(AValue: TArrowKind);
     procedure SetArrowSize(AValue: TPointF);
     procedure SetArrowStartKind(AValue: TArrowKind);
@@ -80,7 +81,7 @@ type
     FCenterPoint: TPointF;
     FCenterPointEditorIndex: integer;
     FCurPoint: integer;
-    FAddingPoint: boolean;
+    FAddingPoint, FAltPressed: boolean;
     FMousePos: TPointF;
     FHoverPoint: integer;
     FHoverCenter: boolean;
@@ -91,7 +92,8 @@ type
     procedure OnMoveCenterPoint({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF; {%H-}AShift: TShiftState);
     procedure OnStartMove({%H-}ASender: TObject; APointIndex: integer; {%H-}AShift: TShiftState);
     function GetCurve(AMatrix: TAffineMatrix): ArrayOfTPointF; virtual;
-    function GetPath(AMatrix: TAffineMatrix): TBGRAPath; virtual;
+    function GetPath(AMatrix: TAffineMatrix): TBGRAPath; virtual; overload;
+    function GetPath(const APoints: array of TPointF): TBGRAPath; overload;
     procedure SetUsermode(AValue: TVectorShapeUsermode); override;
     function GetClosed: boolean; virtual;
     procedure SetClosed(AValue: boolean); virtual;
@@ -117,6 +119,7 @@ type
     procedure MouseMove({%H-}Shift: TShiftState; X, Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure MouseDown(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure KeyDown({%H-}Shift: TShiftState; Key: TSpecialKey; var AHandled: boolean); override;
+    procedure KeyUp(Shift: TShiftState; Key: TSpecialKey; var AHandled: boolean); override;
     procedure QuickDefine(constref APoint1,APoint2: TPointF); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
@@ -126,6 +129,7 @@ type
     class function DefaultArrowSize: TPointF;
     property Points[AIndex:integer]: TPointF read GetPoint write SetPoint;
     property PointCount: integer read GetPointCount;
+    property ValidatedPointCount: integer read GetValidatedPointCount;
     property Closed: boolean read GetClosed write SetClosed;
     property HoverPoint: integer read GetHoverPoint write SetHoverPoint;
     property HoverCenter: boolean read FHoverCenter write SetHoverCenter;
@@ -474,6 +478,14 @@ begin
   result:= length(FPoints);
 end;
 
+function TCustomPolypointShape.GetValidatedPointCount: integer;
+begin
+  if (PointCount > 1) and FAddingPoint then
+    result := PointCount - 1
+  else
+    result := PointCount;
+end;
+
 procedure TCustomPolypointShape.SetArrowEndKind(AValue: TArrowKind);
 begin
   if FArrowEndKind=AValue then Exit;
@@ -610,9 +622,38 @@ begin
     result[i] := m*Points[i];
 end;
 
-function TCustomPolypointShape.GetPath(AMatrix: TAffineMatrix): TBGRAPath;
+function TCustomPolypointShape.GetPath(const APoints: array of TPointF): TBGRAPath;
+var p: TPointF;
+  subPoly: boolean;
 begin
-  result := TBGRAPath.Create(GetCurve(AMatrix));
+  result := TBGRAPath.Create;
+  subPoly := true;
+  for p in APoints do
+  begin
+    if isEmptyPointF(p) then
+    begin
+      if not result.IsEmpty and Closed then result.closePath;
+      subPoly := true;
+    end else
+    begin
+      if subPoly then
+      begin
+        result.moveTo(p);
+        subPoly := false;
+      end
+      else
+        result.lineTo(p);
+    end;
+  end;
+  if not result.IsEmpty and Closed then result.closePath;
+end;
+
+function TCustomPolypointShape.GetPath(AMatrix: TAffineMatrix): TBGRAPath;
+var
+  pts: array of TPointF;
+begin
+  pts := GetCurve(AMatrix);
+  result := GetPath(pts);
 end;
 
 class function TCustomPolypointShape.Usermodes: TVectorShapeUsermodes;
@@ -1034,6 +1075,7 @@ begin
     skRight: d := dx;
     skUp: d := -dy;
     skDown: d := dy;
+    else d := PointF(0,0);
     end;
     if HoverCenter then
       Center := Center + d
@@ -1041,7 +1083,28 @@ begin
       Points[HoverPoint] := Points[HoverPoint] + d;
     AHandled := true;
   end else
+  if Key = skAlt then
+  begin
+    BeginUpdate;
+    FAltPressed := true;
+    EndUpdate;
+    AHandled := true;
+  end
+  else
     inherited KeyDown(Shift, Key, AHandled);
+end;
+
+procedure TCustomPolypointShape.KeyUp(Shift: TShiftState; Key: TSpecialKey;
+  var AHandled: boolean);
+begin
+  if Key = skAlt then
+  begin
+    BeginUpdate;
+    FAltPressed := false;
+    EndUpdate;
+    AHandled := true;
+  end
+  else inherited KeyUp(Shift, Key, AHandled);
 end;
 
 procedure TCustomPolypointShape.QuickDefine(constref APoint1, APoint2: TPointF);
@@ -1088,8 +1151,8 @@ var
   i: Integer;
 begin
   inherited SaveToStorage(AStorage);
-  setlength(x, PointCount);
-  setlength(y, PointCount);
+  setlength({%H-}x, PointCount);
+  setlength({%H-}y, PointCount);
   for i:= 0 to PointCount-1 do
   begin
     x[i] := Points[i].x;
@@ -1147,7 +1210,8 @@ begin
     FCenterPoint *= 1/nbTotal
     else FCenterPoint := EmptyPointF;
 
-  if (FAddingPoint and (nbTotal > 2)) or (not FAddingPoint and (nbTotal > 1)) then
+  if ((FAddingPoint and (nbTotal > 2)) or (not FAddingPoint and (nbTotal > 1)))
+     and not FAltPressed then
   begin
     FCenterPointEditorIndex := AEditor.AddPoint(FCenterPoint, @OnMoveCenterPoint, true);
     AEditor.PointHighlighted[FCenterPointEditorIndex] := HoverCenter;
@@ -1346,7 +1410,7 @@ var pts: ArrayOfTPointF;
 begin
   if not GetPenVisible and not GetBackVisible or (PointCount = 0) then exit(false);
 
-  setlength(pts, PointCount);
+  setlength({%H-}pts, PointCount);
   for i := 0 to high(pts) do
     pts[i] := AMatrix * Points[i];
 
@@ -1434,7 +1498,7 @@ begin
   pts := inherited GetCurve(AMatrix);
   if FSplineStyle = ssEasyBezier then
   begin
-    setlength(cm, PointCount);
+    setlength({%H-}cm, PointCount);
     for i := 0 to PointCount-1 do
       cm[i] := CurveMode[i];
     eb := EasyBezierCurve(pts, Closed, cm, CosineAngle);
@@ -1454,18 +1518,19 @@ var
   eb: TEasyBezierCurve;
 begin
   pts := inherited GetCurve(AMatrix);
-  result := TBGRAPath.Create;
   if FSplineStyle = ssEasyBezier then
   begin
-    setlength(cm, PointCount);
+    setlength({%H-}cm, PointCount);
     for i := 0 to PointCount-1 do
       cm[i] := CurveMode[i];
     eb := EasyBezierCurve(pts, Closed, cm, CosineAngle);
+    result := TBGRAPath.Create;
     eb.CopyToPath(result);
   end else
   begin
-    if Closed then result.closedSpline(pts, FSplineStyle)
-    else result.openedSpline(pts, FSplineStyle);
+    if Closed then pts := ComputeClosedSpline(pts, FSplineStyle)
+    else pts := ComputeOpenedSpline(pts, FSplineStyle);
+    result := GetPath(pts);
   end;
 end;
 
@@ -1664,7 +1729,7 @@ begin
   AStorage.RawString['spline-style'] := s;
   if SplineStyle = ssEasyBezier then
   begin
-    setlength(cm, PointCount);
+    setlength({%H-}cm, PointCount);
     for i := 0 to PointCount-1 do
       cm[i] := ord(CurveMode[i]);
     AStorage.FloatArray['curve-mode'] := cm;

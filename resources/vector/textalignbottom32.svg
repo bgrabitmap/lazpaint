@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="32" xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 32 32" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+  <g opacity="1" xmlns:bgra="https://wiki.freepascal.org/LazPaint_SVG_format" inkscape:label="Layer1" inkscape:groupmode="layer" bgra:originalViewBox="2 16 28 15">
+    <defs>
+      <linearGradient id="layer1-fillgrad1" x1="15" x2="15" y1="14.54167" y2="18.54167" spreadMethod="repeat" gradientUnits="userSpaceOnUse" color-interpolation="linearRGB">
+        <stop offset="0" stop-color="black" stop-opacity="0.4980392"/>
+        <stop offset="0.0625" stop-color="black" stop-opacity="0.3098039"/>
+        <stop offset="0.125" stop-color="black" stop-opacity="0.145098"/>
+        <stop offset="0.1875" stop-color="black" stop-opacity="0.03529412"/>
+        <stop offset="0.25" stop-color="black" stop-opacity="0"/>
+        <stop offset="0.3125" stop-color="black" stop-opacity="0.03529412"/>
+        <stop offset="0.375" stop-color="black" stop-opacity="0.145098"/>
+        <stop offset="0.4375" stop-color="black" stop-opacity="0.3098039"/>
+        <stop offset="0.5" stop-color="black" stop-opacity="0.4980392"/>
+        <stop offset="0.5625" stop-color="black" stop-opacity="0.6901961"/>
+        <stop offset="0.625" stop-color="black" stop-opacity="0.854902"/>
+        <stop offset="0.6875" stop-color="black" stop-opacity="0.9647059"/>
+        <stop offset="0.75" stop-color="black" stop-opacity="1"/>
+        <stop offset="0.8125" stop-color="black" stop-opacity="0.9647059"/>
+        <stop offset="0.875" stop-color="black" stop-opacity="0.854902"/>
+        <stop offset="0.9375" stop-color="black" stop-opacity="0.6901961"/>
+        <stop offset="1" stop-color="black" stop-opacity="0.4980392"/>
+      </linearGradient>
+    </defs>
+    <path d="M5.5 16.04166 5.5 18.04166 7 20.04166 7 22.04166 2 24.04166 2 30.04166 30 30.04166 30 24.04166 25 22.04166 25 20.04166 26.5 18.04166 26.5 16.04166 z" fill="url(#layer1-fillgrad1)" stroke="none"/>
+  </g>
+</svg>

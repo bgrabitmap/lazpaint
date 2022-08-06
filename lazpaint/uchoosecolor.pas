@@ -54,6 +54,7 @@ begin
   FInterface := TChooseColorInterface.Create(ChooseColorControl, TFChooseColor_CustomDPI);
   BorderStyle := ToolWindowSizeable;
   FormStyle := ToolWindowStyle;
+  Position := poDesigned;
 end;
 
 procedure TFChooseColor.FormDeactivate(Sender: TObject);
@@ -70,7 +71,6 @@ end;
 
 procedure TFChooseColor.FormShow(Sender: TObject);
 begin
-  Position := poDesigned;
   self.EnsureVisible(False);
 end;
 

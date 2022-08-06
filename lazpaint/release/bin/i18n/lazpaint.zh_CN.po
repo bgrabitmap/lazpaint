@@ -652,6 +652,14 @@ msgctxt "tfmain.colorshiftcolors.caption"
 msgid "Shift colors..."
 msgstr "转移颜色..."
 
+#: tfmain.combobox_arrowend.hint
+msgid "Ending arrow"
+msgstr ""
+
+#: tfmain.combobox_arrowstart.hint
+msgid "Starting arrow"
+msgstr ""
+
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
 msgstr "线型"
@@ -841,6 +849,14 @@ msgstr "打开文件"
 #: tfmain.fileprint.caption
 msgid "Print..."
 msgstr "打印..."
+
+#: tfmain.filequicksave.caption
+msgid "Quick save"
+msgstr ""
+
+#: tfmain.filequicksave.hint
+msgid "Save current file without dialogs"
+msgstr ""
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -1922,6 +1938,10 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "渐进式填充"
 
+#: tfmain.tool_textalignbottom.hint
+msgid "Align bottom"
+msgstr ""
+
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
 msgstr "居中"
@@ -1930,14 +1950,38 @@ msgstr "居中"
 msgid "Align left"
 msgstr "向左对齐"
 
+#: tfmain.tool_textalignmiddle.hint
+msgid "Center vertically"
+msgstr ""
+
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
 msgstr "向右对齐"
+
+#: tfmain.tool_textaligntop.hint
+msgid "Align top"
+msgstr ""
+
+#: tfmain.tool_textbidirectional.hint
+msgid "Bidirectional"
+msgstr ""
+
+#: tfmain.tool_textbold.hint
+msgid "Bold"
+msgstr ""
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
 msgid "Choose font..."
 msgstr "选择字体..."
+
+#: tfmain.tool_textitalic.hint
+msgid "Italic"
+msgstr ""
+
+#: tfmain.tool_textltr.hint
+msgid "Left to right"
+msgstr ""
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1949,10 +1993,22 @@ msgctxt "TFMAIN.TOOL_TEXTPHONG.HINT"
 msgid "Text phong shading"
 msgstr "文本高光渲染"
 
+#: tfmain.tool_textrtl.hint
+msgid "Right to left"
+msgstr ""
+
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
 msgid "Text shadow"
 msgstr "文本阴影"
+
+#: tfmain.tool_textstrikeout.hint
+msgid "Strikeout"
+msgstr ""
+
+#: tfmain.tool_textunderline.hint
+msgid "Underline"
+msgstr ""
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -2851,6 +2907,10 @@ msgstr "关闭请求"
 msgid "CMD"
 msgstr "CMD"
 
+#: uresourcestrings.rscolordescription
+msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
+msgstr "颜色说明：单击以键入颜色名称或 CSS 表示。"
+
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
 msgstr ""
@@ -3170,6 +3230,12 @@ msgstr "图标/光标"
 msgctxt "uresourcestrings.rsiconsize"
 msgid "Icon size"
 msgstr "图标大小"
+
+#: uresourcestrings.rsimage
+#, fuzzy
+msgctxt "uresourcestrings.rsimage"
+msgid "Image"
+msgstr "图像"
 
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
@@ -3568,6 +3634,10 @@ msgctxt "uresourcestrings.rsrgb"
 msgid "RGB"
 msgstr "RGB"
 
+#: uresourcestrings.rsrightclickfinishshape
+msgid "Use RIGHT click to finish shape"
+msgstr ""
+
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
 msgstr "单击右键来定义源"
@@ -3733,6 +3803,10 @@ msgstr ""
 
 #: uresourcestrings.rsverticalsize
 msgid "Vertical size"
+msgstr ""
+
+#: uresourcestrings.rsvisible
+msgid "Visibile"
 msgstr ""
 
 #: uresourcestrings.rsyellow

@@ -127,6 +127,7 @@ begin
     Timer1.Enabled:= false
   else
     begin
+      Timer1.Enabled := false;
       Timer1.Interval := AMillisecond;
       Timer1.Enabled := true;
     end;

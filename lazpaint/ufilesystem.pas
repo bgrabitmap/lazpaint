@@ -88,11 +88,13 @@ type
           AResult: TFileInfoList; AFileSortType: TFileSortType = fstNone);
     function IsDirectory(APathUTF8: string): boolean;
     function IsDirectoryEmpty(APathUTF8: string): boolean;
+    function IsValidFileName(AName: string): boolean;
     procedure CreateDirectory(APathUTF8: string);
     function DeleteDirectory(APathUTF8: string): boolean;
     function FileExists(AFilenameUTF8: string): boolean;
     procedure DeleteFile(AFilenameUTF8: string);
     function GetValidFilename(ASuggested: string): string;
+    function GetDefaultFilename(ADirectory: string): string;
   end;
 
 var
@@ -1137,6 +1139,11 @@ begin
   result := true;
 end;
 
+function TFileManager.IsValidFileName(AName: string): boolean;
+begin
+  result := AName = GetValidFilename(AName);
+end;
+
 procedure TFileManager.CreateDirectory(APathUTF8: string);
 var
   str: TStream;
@@ -1207,6 +1214,24 @@ begin
     '<': result[i] := '(';
     '>': result[i] := ')';
     end;
+end;
+
+function TFileManager.GetDefaultFilename(ADirectory: string): string;
+var
+  nonameCounter: Integer;
+  foundFiles: TFileInfoList;
+begin
+  result := rsNoName;
+  nonameCounter := 1;
+  foundFiles := TFileInfoList.Create;
+  repeat
+    foundFiles.Clear;
+    GetDirectoryElements(ADirectory, result+'.*', [otNonFolders], foundFiles);
+    if foundFiles.Count = 0 then exit;
+    inc(nonameCounter);
+    result := rsNoName+IntToStr(nonameCounter);
+  until nonameCounter > 999;
+  result := '?';
 end;
 
 initialization

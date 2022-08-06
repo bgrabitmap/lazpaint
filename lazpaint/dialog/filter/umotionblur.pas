@@ -245,6 +245,7 @@ end;
 procedure TFMotionBlur.PaintBox1MouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: Integer);
 begin
+  if not (ssLeft in Shift) then selectingAngle:= false;
   PaintBoxMouseMovePos := Point(X,Y);
   if InPaintBoxMouseMove then Exit;
   InPaintBoxMouseMove := True;

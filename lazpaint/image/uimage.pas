@@ -31,6 +31,7 @@ type
   TOnStackChanged = procedure(ASender: TLazPaintImage; AScrollIntoView: boolean) of object;
   TImageExceptionHandler = procedure(AFunctionName: string; AException: Exception) of object;
   TOnCurrentFilenameChanged = procedure(ASender: TLazPaintImage) of object;
+  TOnRenderChanged = procedure(ASender: TLazPaintImage; AInvalidateAll: boolean) of object;
 
   TOnQueryExitToolHandler = procedure(sender: TLazPaintImage) of object;
 
@@ -39,6 +40,7 @@ type
   TLazPaintImage = class
   private
     FLazPaintInstance: TObject;
+    FZoom: TZoom;
     FActionInProgress: TCustomLayerAction;
     FOnActionProgress: TLayeredActionProgressEvent;
     FOnSelectedLayerIndexChanging: TOnCurrentLayerIndexChanged;
@@ -51,7 +53,7 @@ type
     FRenderedImage: TBGRABitmap;
     FRenderedImageInvalidated: TRect;
     FOnImageChanged, FOnImageSaving, FOnImageExport: TLazPaintImageObservable;
-    FOnImageRenderChanged: TNotifyEvent;
+    FOnImageRenderChanged: TOnRenderChanged;
     FUndoList: TComposedImageDifference;
     FUndoPos: integer;
     FRenderUpdateRectInPicCoord, FRenderUpdateRectInVSCoord: TRect;
@@ -126,6 +128,7 @@ type
     procedure SetOnActionProgress(AValue: TLayeredActionProgressEvent);
     procedure SetOnSizeChanged(AValue: TNotifyEvent);
     procedure SetSelectionTransform(ATransform: TAffineMatrix);
+    procedure SetZoom(AValue: TZoom);
     procedure UpdateIconFileUTF8(AFilename: string; AOutputFilename: string = ''; AExport: boolean = false);
     procedure UpdateTiffFileUTF8(AFilename: string; AOutputFilename: string = ''; AExport: boolean = false);
     procedure UpdateGifFileUTF8(AFilename: string; AOutputFilename: string = ''; AExport: boolean = false);
@@ -133,10 +136,10 @@ type
     procedure LayerActionNotifyChange({%H-}ASender: TObject; ALayer: TBGRABitmap; ARect: TRect);
     procedure LayerActionDestroy(Sender: TObject);
     procedure LayerActionNotifyUndo({%H-}ASender: TObject; AUndo: TCustomImageDifference; var Owned: boolean);
+    procedure ZoomOnCenterQuery(Sender: TObject);
   public
     OnException: TImageExceptionHandler;
     ImageOffset: TPoint;
-    Zoom: TZoom;
     CursorHotSpot: TPoint;
     BPP, FrameIndex, FrameCount: integer;
     VisibleArea: TRectF;
@@ -169,6 +172,7 @@ type
     procedure SelectionMaskMayChange(ARect: TRect);
     procedure SelectionMaskMayChangeCompletely;
     procedure RenderMayChange(ARect: TRect; APicCoords: boolean = false; ANotify: boolean = true);
+    procedure RenderMayChangeCompletely(ANotify: boolean = true);
     procedure ResetRenderUpdateRect;
 
     // selection mask
@@ -267,7 +271,7 @@ type
     property OnSelectedLayerIndexChanged: TOnCurrentLayerIndexChanged read FOnSelectedLayerIndexChanged write FOnSelectedLayerIndexChanged;
     property OnStackChanged: TOnStackChanged read FOnStackChanged write FOnStackChanged;
     property OnImageChanged: TLazPaintImageObservable read FOnImageChanged;
-    property OnImageRenderChanged: TNotifyEvent read FOnImageRenderChanged write FOnImageRenderChanged;
+    property OnImageRenderChanged: TOnRenderChanged read FOnImageRenderChanged write FOnImageRenderChanged;
     property OnImageSaving: TLazPaintImageObservable read FOnImageSaving;
     property OnImageExport: TLazPaintImageObservable read FOnImageExport;
     property OnSizeChanged: TNotifyEvent read FOnSizeChanged write SetOnSizeChanged;
@@ -298,6 +302,7 @@ type
     property RenderUpdateRectInPicCoord: TRect read FRenderUpdateRectInPicCoord;
     property RenderUpdateRectInVSCoord: TRect read FRenderUpdateRectInVSCoord;
     property SelectionTransform: TAffineMatrix read GetSelectionTransform write SetSelectionTransform;
+    property Zoom: TZoom read FZoom write SetZoom;
     property ZoomFactor: single read GetZoomFactor;
     property DraftOriginal: boolean read FDraftOriginal write SetDraftOriginal;
     property IsIconCursor: boolean read GetIsIconCursor;
@@ -350,6 +355,11 @@ begin
   AddUndo(AUndo);
   Owned := true;
   OnImageChanged.NotifyObservers;
+end;
+
+procedure TLazPaintImage.ZoomOnCenterQuery(Sender: TObject);
+begin
+  ImageOffset := Point(0,0);
 end;
 
 function TLazPaintImage.MakeCroppedLayer: TBGRABitmap;
@@ -964,6 +974,14 @@ begin
   end;
 end;
 
+procedure TLazPaintImage.SetZoom(AValue: TZoom);
+begin
+  if FZoom=AValue then Exit;
+  if Assigned(FZoom) then FZoom.OnCenterQuery:= nil;
+  FZoom:=AValue;
+  if Assigned(FZoom) then FZoom.OnCenterQuery:=@ZoomOnCenterQuery;
+end;
+
 procedure TLazPaintImage.SetLayerName(AIndex: integer; AValue: string);
 begin
   AddUndo(FCurrentState.SetLayerName(AIndex,Avalue));
@@ -1253,6 +1271,7 @@ end;
 procedure TLazPaintImage.ImageMayChangeCompletely;
 begin
   ImageMayChange(rect(0,0,Width,Height));
+  RenderMayChangeCompletely;
 end;
 
 procedure TLazPaintImage.LayerMayChange(ALayer: TBGRABitmap; ARect: TRect);
@@ -1325,7 +1344,14 @@ begin
   else
      FRenderUpdateRectInVSCoord := RectUnion(FRenderUpdateRectInVSCoord,ARect);
   if ANotify and Assigned(OnImageRenderChanged) then
-    OnImageRenderChanged(self);
+    OnImageRenderChanged(self, false);
+end;
+
+procedure TLazPaintImage.RenderMayChangeCompletely(ANotify: boolean);
+begin
+  FRenderUpdateRectInPicCoord := rect(-MaxLongint div 2,-MaxLongint div 2,MaxLongint div 2,MaxLongint div 2);
+  if ANotify and Assigned(OnImageRenderChanged) then
+    OnImageRenderChanged(self, true);
 end;
 
 procedure TLazPaintImage.LayerBlendMayChange(AIndex: integer);

@@ -5,7 +5,7 @@ disableKinds = ["taxonomyTerm"]
 
 [params]
   repo = "https://github.com/bgrabitmap/lazpaint/releases/download/"
-  version = "7.1.6"
+  version = "7.2"
 
 [languages]
   [languages.de]

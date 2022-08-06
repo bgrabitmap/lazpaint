@@ -213,7 +213,7 @@ type
     procedure Show; override;
     function Hide: boolean; override;
     procedure Run; override;
-    procedure Restart; override;
+    function Restart: boolean; override;
     procedure CancelRestart; override;
     destructor Destroy; override;
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); override;
@@ -268,7 +268,7 @@ type
     procedure InvalidateLayerStack; override;
     procedure UpdateLayerStackOnTimer; override;
     function MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap; override;
-    procedure ChooseTool(Tool : TPaintToolType); override;
+    procedure ChooseTool(Tool : TPaintToolType; AAsFromGui: boolean); override;
     function OpenImage (FileName: string; AddToRecent: Boolean= True): boolean; override;
     procedure AddToImageList(const FileNames: array of String); override;
     procedure UpdateToolbar; override;
@@ -1263,6 +1263,7 @@ begin
     if bmp <> nil then subLaz.AssignBitmap(bmp);
     subLaz.AboutText := AboutText;
     subLaz.EmbeddedImageBackup := bmp;
+    subLaz.FMain.BorderIcons := subLaz.FMain.BorderIcons - [biMinimize];
     if AOnRun <> nil then
       AOnRun(subLaz);
     subLaz.Run;
@@ -1283,7 +1284,11 @@ begin
       ShowError('EditBitmap',ex.Message);
   end;
   ShowTopmost(topmostInfo);
-  if FMain <> nil then FMain.Enabled := true;
+  if FMain <> nil then
+  begin
+    FMain.Enabled := true;
+    FMain.BringToFront;
+  end;
   subLaz.Free;
 end;
 
@@ -1521,11 +1526,15 @@ begin
 end;
 
 procedure TLazPaintInstance.ChangeIconSize(size: integer);
+var
+  prevSize: Integer;
 begin
   if Config.DefaultIconSize(0)<>size then
   begin
+    prevSize := Config.DefaultIconSize(0);
     Config.SetDefaultIconSize(size);
-    Restart;
+    if not Restart then
+      Config.SetDefaultIconSize(prevSize);
   end;
 end;
 
@@ -1550,18 +1559,20 @@ procedure TLazPaintInstance.Run;
 begin
   if not MainFormVisible then Show;
   repeat
-    application.ProcessMessages;
-    Sleep(10);
-  until not MainFormVisible;
+    Application.ProcessMessages;
+    if not Application.Terminated then Application.Idle(True);
+  until not MainFormVisible or Application.Terminated;
 end;
 
-procedure TLazPaintInstance.Restart;
+function TLazPaintInstance.Restart: boolean;
 begin
   if FMain <> nil then
   begin
     FRestartQuery := true;
     FMain.Close;
-  end;
+    result := FRestartQuery;
+  end else
+    result := true;
 end;
 
 procedure TLazPaintInstance.CancelRestart;
@@ -1598,7 +1609,9 @@ begin
   begin
     Config.SetDefaultToolboxWindowVisible(ToolboxVisible or (FTopMostInfo.toolboxHidden > 0));
     Config.SetDefaultToolboxWindowPosition(FFormToolbox.BoundsRect);
-  end;
+  end else
+  if Assigned(FMain) then
+    Config.SetDefaultToolboxWindowVisible(FMain.Layout.ToolBoxVisible);
   ToolManager.SaveToConfig;
 
   BGRALayers.UnregisterLoadingHandler(@OnLayeredBitmapLoadStartHandler,@OnLayeredBitmapLoadProgressHandler,@OnLayeredBitmapLoadedHandler);
@@ -1875,9 +1888,17 @@ begin
 end;
 
 procedure TLazPaintInstance.ColorToFChooseColor;
+var
+  c: TBGRAPixel;
 begin
   if not Assigned(FChooseColor) or InColorFromFChooseColor then exit;
-  FChooseColor.SetCurrentColor(GetColor(FChooseColor.ColorTarget));
+  c := GetColor(FChooseColor.ColorTarget);
+  if (c.alpha = 0) and (FChooseColor.ColorTarget in [ctForeColorSolid, ctBackColorSolid, ctOutlineColorSolid]) then
+  begin
+    c := FChooseColor.GetCurrentColor;
+    c.alpha := 0;
+  end;
+  FChooseColor.SetCurrentColor(c);
 end;
 
 procedure TLazPaintInstance.ExitColorEditor;
@@ -1983,10 +2004,10 @@ begin
   result := TBGRABitmap.Create(AWidth,AHeight, AColor);
 end;
 
-procedure TLazPaintInstance.ChooseTool(Tool: TPaintToolType);
+procedure TLazPaintInstance.ChooseTool(Tool: TPaintToolType; AAsFromGui: boolean);
 begin
   FormsNeeded;
-  if Assigned(FMain) then FMain.ChooseTool(Tool);
+  if Assigned(FMain) then FMain.ChooseTool(Tool, AAsFromGui);
 end;
 
 function TLazPaintInstance.GetToolboxHeight: integer;

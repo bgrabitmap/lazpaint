@@ -101,15 +101,15 @@ type
     function GetHasSelection: boolean;
     function GetParagraphAlignment: TAlignment;
     procedure InvalidateParagraphLayout(AFrom, ATo: integer);
-    procedure LayoutBrokenLinesChanged(ASender: TObject;
+    procedure LayoutBrokenLinesChanged({%H-}ASender: TObject;
       AParagraphIndex: integer; ASubBrokenStart, ASubBrokenChangedCountBefore,
       ASubBrokenChangedCountAfter: integer; ASubBrokenTotalCountBefore,
       ASubBrokenTotalCountAfter: integer);
-    procedure LayoutParagraphDeleted(ASender: TObject; AParagraphIndex: integer);
-    procedure LayoutParagraphMergedWithNext(ASender: TObject;
+    procedure LayoutParagraphDeleted({%H-}ASender: TObject; AParagraphIndex: integer);
+    procedure LayoutParagraphMergedWithNext({%H-}ASender: TObject;
       AParagraphIndex: integer);
-    procedure LayoutParagraphSplit(ASender: TObject; AParagraphIndex: integer;
-      ASubBrokenIndex, ACharIndex: integer);
+    procedure LayoutParagraphSplit({%H-}ASender: TObject; AParagraphIndex: integer;
+      {%H-}ASubBrokenIndex, {%H-}ACharIndex: integer);
     procedure OnMoveLightPos({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF;
       {%H-}AShift: TShiftState);
     procedure SetAliased(AValue: boolean);
@@ -153,6 +153,7 @@ type
     procedure InsertUnicodeValue;
     procedure FillChange(ASender: TObject; var ADiff: TCustomVectorialFillDiff); override;
     procedure InvalidateAll;
+    function GetVerticalAlignMatrix(tl: TBidiTextLayout): TAffineMatrix;
   public
     constructor Create(AContainer: TVectorOriginal); override;
     procedure QuickDefine(constref APoint1,APoint2: TPointF); override;
@@ -685,6 +686,7 @@ begin
   if FAliased=AValue then Exit;
   BeginUpdate(TTextShapeFontDiff);
   FAliased:=AValue;
+  InvalidateAll;
   EndUpdate;
 end;
 
@@ -818,6 +820,7 @@ begin
   if FVertAlign=AValue then Exit;
   BeginUpdate(TTextShapeTextDiff);
   FVertAlign:=AValue;
+  InvalidateAll; // could be more subtle
   EndUpdate;
 end;
 
@@ -1073,6 +1076,19 @@ begin
   FParagraphLayout := nil;
 end;
 
+function TTextShape.GetVerticalAlignMatrix(tl: TBidiTextLayout): TAffineMatrix;
+var
+  th: Single;
+begin
+  th := max(tl.TotalTextHeight - tl.ParagraphSpacingBelow * tl.LineHeight, 0);
+  if th < tl.AvailableHeight then
+  case VerticalAlignment of
+  tlBottom: exit(AffineMatrixTranslation(0, tl.AvailableHeight-th));
+  tlCenter: exit(AffineMatrixTranslation(0, (tl.AvailableHeight-th)/2));
+  end;
+  exit(AffineMatrixIdentity);
+end;
+
 constructor TTextShape.Create(AContainer: TVectorOriginal);
 begin
   inherited Create(AContainer);
@@ -1175,6 +1191,11 @@ begin
     tl.ParagraphAlignment[i] := AlignmentToBidiTextAlignment(alignment, tl.ParagraphRightToLeft[i]);
   end;
   paraAlignList.Free;
+  case AStorage.RawString['vertical-align'] of
+  'middle': VerticalAlignment:= tlCenter;
+  'bottom': VerticalAlignment:= tlBottom;
+  else VerticalAlignment:= tlTop;
+  end;
   EndUpdate;
 end;
 
@@ -1219,6 +1240,11 @@ begin
     end;
   AStorage.RawString['paragraph-align'] := paraAlignList.DelimitedText;
   paraAlignList.Free;
+  case VerticalAlignment of
+  tlTop: AStorage.RemoveAttribute('vertical-align');
+  tlCenter: AStorage.RawString['vertical-align'] := 'middle';
+  tlBottom: AStorage.RawString['vertical-align'] := 'bottom';
+  end;
 end;
 
 destructor TTextShape.Destroy;
@@ -1276,7 +1302,7 @@ begin
     tl := GetTextLayout;
     caret:= tl.GetCaret(FSelEnd);
     zoom := GetTextRenderZoom;
-    m := AffineMatrixTranslation(-0.5,-0.5)*GetUntransformedMatrix*AffineMatrixScale(1/zoom,1/zoom);
+    m := AffineMatrixTranslation(-0.5,-0.5)*GetUntransformedMatrix*AffineMatrixScale(1/zoom,1/zoom)*GetVerticalAlignMatrix(tl);
     if FSelStart<>FSelEnd then
     begin
       pts := tl.GetTextEnveloppe(FSelStart, FSelEnd, false, true, true);
@@ -1730,7 +1756,7 @@ var
                TAffineBox.AffineBox(sourceRectF);
     wholeImage := TAffineBox.AffineBox(PointF(-1,-1), PointF(-1,ADest.Height+1),
                                        PointF(ADest.Width+1,-1));
-    ADest.FillMode := fmWinding;
+    ADest.FillMode := fmAlternate;
     ADest.ErasePolyAntialias( ConcatPointsF([wholeImage.AsPolygon, maskBox.AsPolygon], true),
                                   255, false);
   end;
@@ -1760,6 +1786,7 @@ begin
 
   tl := GetTextLayout;
   sourceRectF := RectF(-pad,0,tl.AvailableWidth+pad,min(tl.TotalTextHeight,tl.AvailableHeight));
+  m *= GetVerticalAlignMatrix(tl);
 
   if CanHaveRenderStorage then
   begin
@@ -1831,12 +1858,6 @@ begin
   sourceRectF.Top := floor(sourceRectF.Top);
   sourceRectF.Right := floor(sourceRectF.Right);
   sourceRectF.Bottom := sourceRectF.Bottom;
-
-  if tl.TotalTextHeight < tl.AvailableHeight then
-  case VerticalAlignment of
-  tlBottom: m *= AffineMatrixTranslation(0, tl.AvailableHeight-tl.TotalTextHeight);
-  tlCenter: m *= AffineMatrixTranslation(0, (tl.AvailableHeight-tl.TotalTextHeight)/2);
-  end;
 
   with transfRectF do
     transfRect := Rect(floor(Left),floor(Top),ceil(Right),ceil(Bottom));
@@ -2147,7 +2168,7 @@ begin
     else DeleteTextAfter(1);
     AHandled:= true;
   end else
-  if Key in [skLeft,skRight] then
+  if (Key in [skLeft,skRight]) and not (ssAlt in Shift) then
   begin
     tl := GetTextLayout;
     if (Key = skLeft) xor tl.ParagraphRightToLeft[tl.GetParagraphAt(FSelEnd)] then
@@ -2167,7 +2188,7 @@ begin
     end;
     AHandled := true;
   end else
-  if Key in [skUp,skDown] then
+  if (Key in [skUp,skDown]) and not (ssAlt in Shift)  then
   begin
     tl := GetTextLayout;
     if Key = skUp then
@@ -2289,10 +2310,13 @@ begin
       begin
         Usermode := vsuEditText;
         InsertText(UTF8Key);
+        AHandled := true;
       end;
     end else
+    begin
       InsertText(UTF8Key);
-    AHandled := true;
+      AHandled := true;
+    end;
   end;
 end;
 
@@ -2455,8 +2479,9 @@ begin
       else span.textDirection:= stdLtr;
     with rF do
     begin
-      setlength(a, 1);
+      setlength({%H-}a, 1);
       a[0] := FloatWithCSSUnit(Left/zoom, cuCustom);
+      if span.textDirection = stdRtl then a[0].value += Width/zoom;
       span.x := a;
       a[0] := FloatWithCSSUnit((Top + fm.Baseline)/zoom, cuCustom);
       span.y := a;

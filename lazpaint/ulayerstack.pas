@@ -93,6 +93,7 @@ end;
 
 procedure TFLayerStack.FormShow(Sender: TObject);
 begin
+  EnsureVisible(False);
   CreateStackInterface;
 end;
 

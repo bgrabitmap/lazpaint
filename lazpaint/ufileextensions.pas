@@ -311,6 +311,7 @@ initialization
 
   RegisterPicExt(rsLayeredImage,'lzp;ora;pdn;oXo', [eoReadable]);
   RegisterPicExt(rsLayeredImage,'lzp;ora;oXo', [eoWritable]);
+  RegisterPicExt('AVIF','avif', [eoReadable,eoWritable]);
   RegisterPicExt(rsBitmap,'bmp', [eoReadable,eoWritable]);
   RegisterPicExt(rsAnimatedGIF,'gif', [eoReadable,eoWritable]);
   RegisterPicExt(rsIconOrCursor,'ico;cur', [eoReadable,eoWritable]);

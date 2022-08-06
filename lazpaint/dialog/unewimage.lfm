@@ -116,22 +116,6 @@ object FNewImage: TFNewImage
     Top = 103
     Width = 63
     ItemHeight = 15
-    Items.Strings = (
-      ''
-      '1:1'
-      '6:5'
-      '5:4'
-      '4:3'
-      '11:8'
-      '1.414:1'
-      '1.43:1'
-      '3:2'
-      '8:5'
-      '1.618:1'
-      '5:3'
-      '16:9'
-      '2:1'
-    )
     MaxLength = 12
     OnChange = ComboBox_RatioChange
     OnEnter = ComboBox_RatioEnter

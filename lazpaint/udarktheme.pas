@@ -264,11 +264,13 @@ begin
       begin
         { Button Down }
         Bitmap := TBGRABitmap.Create(Sender.Width, Sender.Height);
-        Bitmap.Rectangle(0, 0, Sender.Width, Sender.Height - 1, BGRA(58, 58, 58),
-          BGRA(71, 71, 71), dmSet);
-        Bitmap.Rectangle(1, 1, Sender.Width - 1, Sender.Height - 2, BGRA(65, 65, 65),
-          BGRA(71, 71, 71), dmSet);
-        Bitmap.SetHorizLine(0, Sender.Height - 1, Sender.Width - 1, BGRA(93, 93, 93));
+        Bitmap.Rectangle(0, 0, Sender.Width, Sender.Height - 1,
+          GetColorPanelShadow(ADarkTheme), dmSet);
+        Bitmap.Rectangle(1, 1, Sender.Width - 1, Sender.Height - 2,
+          MergeBGRA(ColorToBGRA(GetColorPanelShadow(ADarkTheme)), 2, ColorToBGRA(GetColorButtonFace(ADarkTheme)), 1),
+          MergeBGRA(ColorToBGRA(GetColorPanelShadow(ADarkTheme)), 1, ColorToBGRA(GetColorButtonFace(ADarkTheme)), 2), dmSet);
+        Bitmap.SetHorizLine(0, Sender.Height - 1, Sender.Width - 1,
+          GetColorButtonFace(ADarkTheme));
       end
       else
       begin
@@ -276,13 +278,16 @@ begin
         begin
           { Button Hovered }
           Bitmap := TBGRABitmap.Create(Sender.Width, Sender.Height);
-          Bitmap.GradientFill(0, 0, Sender.Width, Sender.Height, BGRA(132, 132, 132),
-            BGRA(109, 109, 109), gtLinear, PointF(0, 0),
+          Bitmap.GradientFill(0, 0, Sender.Width, Sender.Height, GetColorPanelHighlight(ADarkTheme),
+            GetColorButtonFace(ADarkTheme), gtLinear, PointF(0, 0),
             PointF(0, Sender.Height), dmSet);
           Bitmap.Rectangle(0, 0, Sender.Width, Sender.Height - 1,
-            BGRA(48, 48, 48), dmSet);
-          Bitmap.SetHorizLine(1, 1, Sender.Width - 2, BGRA(160, 160, 160));
-          Bitmap.SetHorizLine(0, Sender.Height - 1, Sender.Width - 1, BGRA(83, 83, 83));
+            GetColorPanelShadow(ADarkTheme),
+            dmSet);
+          Bitmap.SetHorizLine(1, 1, Sender.Width - 2,
+            MergeBGRA(ColorToBGRA(GetColorPanelHighlight(ADarkTheme)), ColorToBGRA(GetColorButtonHighlight(ADarkTheme))));
+          Bitmap.SetHorizLine(0, Sender.Height - 1, Sender.Width - 1,
+            MergeBGRA(ColorToBGRA(GetColorPanelShadow(ADarkTheme)), ColorToBGRA(GetColorButtonFace(ADarkTheme))));
         end
         else
           { Button Normal }
@@ -350,7 +355,7 @@ end;
 
 procedure TDarkTheme.ToolBarPaintButtonDark(Sender: TToolButton; State: integer);
 begin
-  ToolBarPaintButton(Sender, State, false);
+  ToolBarPaintButton(Sender, State, true);
 end;
 
 procedure TDarkTheme.Apply(AForm: TForm; AThemeEnabled: boolean; ARecursive: boolean);

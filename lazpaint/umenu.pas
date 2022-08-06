@@ -17,7 +17,10 @@ type
   private
     FActionList: TActionList;
     FDarkTheme: boolean;
-    FMainMenus: array of TMenuItem;
+    FMainMenus: array of record
+                  menu: TMenuItem;
+                  used: boolean;
+                end;
     FToolsShortcuts: array[TPaintToolType] of TUTF8Char;
     FToolbars: array of record
                  tb: TPanel;
@@ -237,10 +240,10 @@ begin
       break;
     end;
   for i := 0 to high(FMainMenus) do
-    if FMainMenus[i].Name = AMenuName then
+    if FMainMenus[i].menu.Name = AMenuName then
     begin
-      AddMenus(FMainMenus[i], FActionList, AActionsCommaText);
-      FMainMenus[i].Visible := true;
+      AddMenus(FMainMenus[i].menu, FActionList, AActionsCommaText);
+      FMainMenus[i].used := true;
     end;
 end;
 
@@ -388,7 +391,10 @@ var i: NativeInt;
 begin
   setlength(FMainMenus, length(AMainMenus));
   for i := 0 to high(AMainMenus) do
-    FMainMenus[i] := AMainMenus[i];
+  begin
+    FMainMenus[i].menu := AMainMenus[i];
+    FMainMenus[i].used := false;
+  end;
 end;
 
 procedure TMainFormMenu.Toolbars(const AToolbars: array of TPanel; AToolbarBackground: TPanel);
@@ -426,18 +432,31 @@ end;
 
 procedure TMainFormMenu.CycleTool(var ATool: TPaintToolType;
   var AShortCut: TUTF8Char);
+const cyrillicMap = 'ФИСВУАПРШОЛДЬТЩЗЙКЫЕГМЦЧНЯ';
 var
   curTool: TPaintToolType;
+  latinShortCut: TUTF8Char;
+  idx: integer;
 begin
-  AShortCut := UTF8UpperCase(AShortCut);
+  latinShortCut := UTF8UpperCase(AShortCut);
   curTool := ATool;
+  if (length(latinShortCut) <> 1) or
+    ((length(latinShortCut) = 1) and not (latinShortCut[1] in ['A'..'Z'])) then
+  begin
+    idx := pos(latinShortCut, cyrillicMap);
+    if idx <> 0 then
+    begin
+      idx := UTF8Length(copy(cyrillicMap, 1, idx));
+      latinShortCut := chr(idx+64);
+    end;
+  end;
   repeat
     if curTool = high(TPaintToolType) then
       curTool := low(TPaintToolType)
     else
       curTool := succ(curTool);
 
-    if (FToolsShortcuts[curTool] = AShortCut) and not
+    if (FToolsShortcuts[curTool] = latinShortCut) and not
        ((curTool = ptHotSpot) and not FInstance.Image.IsCursor) then
     begin
       ATool := curTool;
@@ -469,7 +488,8 @@ begin
   AddMenus('MenuScript', 'FileRunScript,-,InstalledScripts');
   AddMenus('MenuHelp',   'HelpIndex,-,HelpAbout');
   for i := 0 to high(FMainMenus) do
-    if FMainMenus[i].Count = 0 then FMainMenus[i].visible := false;
+    if not FMainMenus[i].used then
+       FMainMenus[i].menu.Visible := false;
 
   ApplyShortcuts;
 
@@ -612,6 +632,7 @@ begin
   ActionShortcut('ToolHotSpot','H');
   ActionShortcut('ToolPen','P');
   ActionShortcut('ToolBrush','B');
+  ActionShortcut('ToolClone','K');
   ActionShortcut('ToolColorPicker','C');
   ActionShortcut('ToolEraser','E');
   ActionShortcut('ToolEditShape','J');
@@ -623,12 +644,12 @@ begin
   ActionShortcut('ToolSpline','D');
   ActionShortcut('ToolFloodfill','G');
   ActionShortcut('ToolGradient','G');
-  ActionShortcut('ToolPhong','G');
+  ActionShortcut('ToolPhong','Y');
   ActionShortcut('ToolText','T');
   ActionShortcut('ToolSelectRect','M');
   ActionShortcut('ToolSelectEllipse','M');
-  ActionShortcut('ToolSelectPoly','A');
-  ActionShortcut('ToolSelectSpline','A');
+  ActionShortcut('ToolSelectPoly','F');
+  ActionShortcut('ToolSelectSpline','F');
   ActionShortcut('ToolMoveSelection','V');
   ActionShortcut('ToolRotateSelection','V');
   ActionShortcut('ToolSelectPen','O');

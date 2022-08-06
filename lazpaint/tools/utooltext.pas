@@ -20,6 +20,7 @@ type
     FPrevShadowOffset: TPoint;
     FPrevShadowRadius: single;
     function ShapeClass: TVectorShapeAny; override;
+    function CreateShape: TVectorShape; override;
     function AlwaysRasterizeShape: boolean; override;
     procedure IncludeShadowBounds(var ARect: TRect);
     function GetCustomShapeBounds(ADestBounds: TRect; AMatrix: TAffineMatrix; ADraft: boolean): TRect; override;
@@ -47,6 +48,13 @@ uses LCVectorTextShapes, BGRALayerOriginal, BGRATransform, BGRAGrayscaleMask,
 function TToolText.ShapeClass: TVectorShapeAny;
 begin
   result := TTextShape;
+end;
+
+function TToolText.CreateShape: TVectorShape;
+begin
+  Result:=inherited CreateShape;
+  if result is TTextShape then
+    (result as TTextShape).FontBidiMode:= Manager.TextBidiMode
 end;
 
 function TToolText.AlwaysRasterizeShape: boolean;
@@ -138,7 +146,12 @@ end;
 procedure TToolText.ShapeEditingChange(ASender: TObject);
 begin
   with (FShape as TTextShape) do
+  begin
+    Manager.TextFontStyle := FontStyle;
+    Manager.TextBidiMode := FontBidiMode;
     Manager.TextAlign := ParagraphAlignment;
+    Manager.TextVerticalAlign := VerticalAlignment;
+  end;
   inherited ShapeEditingChange(ASender);
 end;
 
@@ -159,7 +172,14 @@ begin
     Aliased := Manager.ShapeOptionAliasing;
     LightPosition := AMatrix*Manager.LightPosition;
     AltitudePercent:= Manager.PhongShapeAltitude;
-    ParagraphAlignment:= Manager.TextAlign;
+    if FontBidiMode <> Manager.TextBidiMode then
+    begin
+      FontBidiMode:= Manager.TextBidiMode;
+      Manager.TextAlign := ParagraphAlignment; // alignment depend on bidi mode
+    end
+    else
+      ParagraphAlignment:= Manager.TextAlign;
+    VerticalAlignment := Manager.TextVerticalAlign;
     PenPhong := Manager.TextPhong;
   end;
   if (Manager.TextShadow <> FPrevShadow) or
@@ -199,12 +219,15 @@ function TToolText.DoToolKeyDown(var key: Word): TRect;
 var
   keyUtf8: TUTF8Char;
   handled: Boolean;
+  alignBefore: TAlignment;
 begin
+  if FShape is TTextShape then
+    alignBefore := (FShape as TTextShape).ParagraphAlignment;
   if Key = VK_SPACE then
   begin
     keyUtf8:= ' ';
     result := ToolKeyPress(keyUtf8);
-    Key := 0;
+    if keyUtf8 <> ' ' then Key := 0;
   end else
   if (Key = VK_ESCAPE) and Assigned(FShape) then
   begin
@@ -222,6 +245,8 @@ begin
     Key := 0;
   end else
     Result:=inherited DoToolKeyDown(key);
+  if (FShape is TTextShape) and (alignBefore <> (FShape as TTextShape).ParagraphAlignment) then
+    Manager.TextAlign := (FShape as TTextShape).ParagraphAlignment;
 end;
 
 function TToolText.ToolCommand(ACommand: TToolCommand): boolean;
