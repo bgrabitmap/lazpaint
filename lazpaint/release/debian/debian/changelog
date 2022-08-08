@@ -1,3 +1,67 @@
+lazpaint (7.2) stable; urgency=low
+
+  * MacOS: handle right-click on layerstack
+  * MacOS: fixed light theme interface
+  * MacOS: avoid key binding conflict with CMD-H
+  * interface: handle cancel language or icon size change
+  * interface: restore main form after embedded editor
+  * interface: rester selection tool after delete
+  * interface: fix shift-arrows in file list
+  * interface: handle right click on switch color button
+  * interface: remember docked toolbox visibility
+  * interface: center on zoom fit
+  * interface: less margin to select outside of color circle
+  * interface: tooltip on arrow start/end
+  * interface: show hotkey in toolbar
+  * interface: update workspace when resizing/rotating
+  * interface: handle keys in embedded editors
+  * interface: prevent ALT key from opening menu
+  * interface: handle ALT-wheel only when applicable
+  * interface: keep fill options visible when changing opacity
+  * layer stack: tooltip for visible and opacity controls
+  * blend mode: removed horizontal scrollbar in blend mode lists
+  * language: tool shortcuts for Cyrillic keyboard
+  * language: translation of color description
+  * language: completed Russian translation
+  * file: prevent saving incorrect filename
+  * file: handle path in file textbook
+  * file: generate new filename with number
+  * file: added quick save action (Ctlr-Q shortcut)
+  * file: overwrite prompt when saving palette
+  * file: experimental support for AVIF format
+  * file: show save prompt when drag'n'drop image to the program
+  * file: save CUR and ICO with command line
+  * SVG: close path when export as SVG
+  * SVG: fixed RTL text export
+  * new file: better handling of ratios
+  * motion blur: fixed sticky mouse click
+  * canvas size: restrict percent to max accepted size
+  * tools: update shape when pressing/releasing SHIFT key
+  * tools: ignore 0 alpha with solid colors
+  * tools: improved hints timing
+  * tools: disambiguation of shortcut keys (Y, K, F and R)
+  * deformation grid tool: handle extreme deformation
+  * déformation grid tool: ESCAPE to exit tool
+  * layer perspective tool: change cursor when hovering points
+  * layer tools: delete current layer with DELETE key
+  * rectangle tool: fixed bug when changing join type
+  * text tool: update when change antialiasing
+  * text tool: provide text style, bidi mode, vertical alignment in toolbar
+  * text tool: allow travel mode with space
+  * text tool: display flipped text
+  * vector tools: avoid error after rasterizing
+  * polygon/closed curve tools: hide center point when ALT key pressed
+  * polyline/opened curve tool: don't reopen shape
+  * poly tools: added RIGHT-click hint
+  * selection tools: deselect when ESCAPE pressed and selection layer empty
+  * selection tools: keep selection mode after undo/redo
+  * rectangle selection tool: include ratio of current image
+  * selection pen: show circular cursor
+  * filter: added negative angle for twirl
+  * script: ignore some Python errors
+
+ -- circular <circular@operamail.com>  Sat, 6 Aug 2022 10:38:00 +0100
+
 lazpaint (7.1.6) stable; urgency=low
 
   * Debian: various icon sizes for Linux application menu

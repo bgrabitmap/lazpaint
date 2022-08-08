@@ -13,7 +13,7 @@ object FPrint: TFPrint
   OnShow = FormShow
   Position = poMainFormCenter
   ShowInTaskBar = stAlways
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '2.2.0.1'
   object Label_PrinterAndPaper: TLabel
     Left = 9
     Height = 25
@@ -22,7 +22,6 @@ object FPrint: TFPrint
     AutoSize = False
     Caption = 'Printer and paper:'
     Layout = tlCenter
-    ParentColor = False
   end
   object Label_SelectedPrinterAndPaper: TLabel
     Cursor = crHandPoint
@@ -35,7 +34,6 @@ object FPrint: TFPrint
     Color = clWindow
     Font.Color = clWindowText
     Layout = tlCenter
-    ParentColor = False
     ParentFont = False
     Transparent = False
     OnClick = Label_SelectedPrinterAndPaperClick
@@ -51,39 +49,37 @@ object FPrint: TFPrint
     TabOrder = 0
   end
   object Label_Orientation: TLabel
-    Left = 12
-    Height = 16
+    Left = 9
+    Height = 15
     Top = 37
-    Width = 64
+    Width = 63
     Caption = 'Orientation:'
-    ParentColor = False
   end
   object ComboBox_Orientation: TComboBox
-    Left = 12
+    Left = 9
     Height = 23
     Top = 53
-    Width = 172
+    Width = 175
     ItemHeight = 15
     OnChange = ComboBox_OrientationChange
     Style = csDropDownList
     TabOrder = 1
   end
   object GroupBox_Margins: TGroupBox
-    Left = 12
+    Left = 8
     Height = 119
     Top = 79
-    Width = 174
+    Width = 178
     Caption = 'Margins'
-    ClientHeight = 101
-    ClientWidth = 170
+    ClientHeight = 99
+    ClientWidth = 174
     TabOrder = 2
     object Label_Left: TLabel
-      Left = 10
-      Height = 16
+      Left = 7
+      Height = 15
       Top = 27
-      Width = 24
+      Width = 23
       Caption = 'Left:'
-      ParentColor = False
     end
     object Label_Top: TLabel
       Left = 2
@@ -93,15 +89,13 @@ object FPrint: TFPrint
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Top:'
-      ParentColor = False
     end
     object Label_Right: TLabel
-      Left = 106
-      Height = 16
+      Left = 110
+      Height = 15
       Top = 27
-      Width = 32
+      Width = 31
       Caption = 'Right:'
-      ParentColor = False
     end
     object Label_Bottom: TLabel
       Left = 2
@@ -111,7 +105,6 @@ object FPrint: TFPrint
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Bottom:'
-      ParentColor = False
     end
     object SpinEdit_Top: TSpinEdit
       Left = 66
@@ -132,7 +125,7 @@ object FPrint: TFPrint
       Value = 10
     end
     object SpinEdit_Left: TSpinEdit
-      Left = 10
+      Left = 7
       Height = 23
       Top = 43
       Width = 56
@@ -141,7 +134,7 @@ object FPrint: TFPrint
       Value = 10
     end
     object SpinEdit_Right: TSpinEdit
-      Left = 106
+      Left = 110
       Height = 23
       Top = 43
       Width = 56
@@ -167,16 +160,16 @@ object FPrint: TFPrint
     OnResize = BGRAVirtualScreen1Resize
   end
   object GroupBox_ImageSize: TGroupBox
-    Left = 12
+    Left = 8
     Height = 157
     Top = 202
-    Width = 175
+    Width = 179
     Caption = 'Image size'
-    ClientHeight = 139
-    ClientWidth = 171
+    ClientHeight = 137
+    ClientWidth = 175
     TabOrder = 4
     object SpinEdit_DpiX: TSpinEdit
-      Left = 10
+      Left = 7
       Height = 23
       Top = 38
       Width = 56
@@ -188,23 +181,21 @@ object FPrint: TFPrint
       Value = 96
     end
     object Label_DpiX: TLabel
-      Left = 10
-      Height = 16
+      Left = 7
+      Height = 15
       Top = 22
-      Width = 4
+      Width = 3
       Caption = '.'
-      ParentColor = False
     end
     object Label_Width: TLabel
-      Left = 10
-      Height = 16
+      Left = 7
+      Height = 15
       Top = 63
-      Width = 36
+      Width = 35
       Caption = 'Width:'
-      ParentColor = False
     end
     object SpinEdit_Width: TSpinEdit
-      Left = 10
+      Left = 7
       Height = 23
       Top = 79
       Width = 72
@@ -215,15 +206,14 @@ object FPrint: TFPrint
       Value = 10
     end
     object Label_Height: TLabel
-      Left = 90
-      Height = 16
+      Left = 94
+      Height = 15
       Top = 63
-      Width = 40
+      Width = 39
       Caption = 'Height:'
-      ParentColor = False
     end
     object SpinEdit_Height: TSpinEdit
-      Left = 90
+      Left = 94
       Height = 23
       Top = 79
       Width = 72
@@ -234,16 +224,15 @@ object FPrint: TFPrint
       Value = 10
     end
     object Label_DpiY: TLabel
-      Left = 90
-      Height = 16
+      Left = 94
+      Height = 15
       Top = 22
-      Width = 4
+      Width = 3
       Caption = '.'
-      ParentColor = False
       Visible = False
     end
     object SpinEdit_DpiY: TSpinEdit
-      Left = 90
+      Left = 94
       Height = 23
       Top = 38
       Width = 56
@@ -256,7 +245,7 @@ object FPrint: TFPrint
       Visible = False
     end
     object CheckBox_Ratio: TCheckBox
-      Left = 10
+      Left = 7
       Height = 19
       Top = 3
       Width = 110
@@ -270,7 +259,7 @@ object FPrint: TFPrint
       Left = 7
       Height = 25
       Top = 110
-      Width = 155
+      Width = 161
       Caption = 'Zoom fit'
       OnClick = Button_ZoomFitClick
       TabOrder = 5
@@ -286,7 +275,7 @@ object FPrint: TFPrint
     TabOrder = 5
   end
   object PrinterSetupDialog1: TPrinterSetupDialog
-    left = 288
-    top = 120
+    Left = 288
+    Top = 120
   end
 end

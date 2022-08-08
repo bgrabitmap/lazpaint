@@ -83,7 +83,7 @@ object FTwirl: TFTwirl
       Font.Height = -15
       Increment = 30
       MaxValue = 10000
-      MinValue = 1
+      MinValue = -10000
       OnChange = SpinEdit_AngleChange
       ParentFont = False
       TabOrder = 1

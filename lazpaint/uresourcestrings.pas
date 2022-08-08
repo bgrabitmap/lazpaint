@@ -36,6 +36,7 @@ resourcestring
   rsErrorDecodingRaw='Error decoding raw image.';
   rsErrorLoadingOriginal='Error while loading original however layer can be rasterized.';
   rsRasterLayer = 'Raster layer';
+  rsVisible = 'Visibile';
   rsTransformedRasterLayer = 'Transformed raster layer';
   rsVectorialLayer = 'Vectorial layer';
   rsUnknownOriginal = 'Unknown original';
@@ -86,6 +87,7 @@ resourcestring
   rsHoldKeySnapToPixel = 'Hold %1 to snap to pixels';
   rsReturnValides = 'Press ENTER to validate';
   rsBackspaceRemoveLastPoint = 'Press BACKSPACE to remove last point';
+  rsRightClickFinishShape = 'Use RIGHT click to finish shape';
   rsHoldKeyRestrictRotation = 'Hold %1 to restrict rotation angle';
   rsHoldKeysScaleMode = 'Hold %1 or %2 to scale';
   rsCurveModeHint = 'Press S or X to set the curve mode of the last point';
@@ -100,6 +102,7 @@ resourcestring
   rsEmptyLayer='Layer is empty';
   rsKeepEmptySpace='Keep empty space around opaque pixels?';
 
+  rsImage='Image';
   rsRepeatImage='Repeat image';
   rsCanvasSize='Canvas size';
   rsResamplingImage='Resampling image...';
@@ -135,6 +138,7 @@ resourcestring
 
   rsIntensity='Intensity';
   rsLightness='Lightness';
+  rsColorDescription='Color description: click to type in a color with the keyboard using color names or CSS notation.';
 
   rsHotSpot='Hot spot';
   rsEntries='Entries';
@@ -299,8 +303,10 @@ end;
 
 procedure AppendShortcut(AAction: TAction; AShortcut: string);
 begin
+  if AAction.Hint <> '' then
+    AAction.Hint := ApplyShortcutStr(AAction.Hint, AShortcut);
   if AAction.Caption = '' then
-    AAction.Caption := ApplyShortcutStr(AAction.Hint, AShortcut)
+    AAction.Caption := AAction.Hint
   else
     AAction.Caption := ApplyShortcutStr(AAction.Caption, AShortcut);
 end;

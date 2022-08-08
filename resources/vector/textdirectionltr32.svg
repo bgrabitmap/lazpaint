@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="32" xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 32 32" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+  <g opacity="1" xmlns:bgra="https://wiki.freepascal.org/LazPaint_SVG_format" inkscape:label="Layer1" inkscape:groupmode="layer" bgra:originalViewBox="-10 -1 56 30">
+    <path d="M4 20 22 20 22 15.5 28.5 22 22 28.5 22 24 4 24 z" fill="black" stroke="none" fill-opacity="0.7921569"/>
+    <text x="4" y="-1" fill="black" stroke="none" font-size="14" font-style="normal" font-family="FreeSans" font-weight="normal" fill-opacity="0.9686275" text-decoration="">
+      <tspan x="4" y="12" direction="ltr" textLength="23.15413">αβγ</tspan>
+    </text>
+  </g>
+</svg>

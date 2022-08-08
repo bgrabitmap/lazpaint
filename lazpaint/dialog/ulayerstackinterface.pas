@@ -200,13 +200,16 @@ procedure TLayerStackInterface.BGRALayerStack_MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var i: integer;
   str: string;
+  isRightClick: boolean;
 begin
   if Assigned(LazPaintInstance) then LazPaintInstance.ExitColorEditor;
   X := round(X*FScaling);
   Y := round(Y*FScaling);
   if PtInRect(Point(X,Y),FScrollButtonRect) then exit;
-  If (Button = mbLeft) then
+  isRightClick := (Button = mbRight) {$IFDEF DARWIN}or ((Button = mbLeft) and (ssCtrl in Shift)){$ENDIF};
+  If (Button = mbLeft) and not isRightClick then
   begin
+    FRightClickOrigin := EmptyPoint;
     if ((VolatileHorzScrollBar <> nil) and VolatileHorzScrollBar.MouseDown(X,Y)) or
       ((VolatileVertScrollBar <> nil) and VolatileVertScrollBar.MouseDown(X,Y)) then
     begin
@@ -266,7 +269,7 @@ begin
         exit;
       end;
   end else
-  if Button = mbRight then
+  if isRightClick then
     FRightClickOrigin := Point(X,Y);
 end;
 
@@ -302,6 +305,18 @@ begin
       BGRALayerStack.Hint := FLayerInfo[i].KindIconHint;
       BGRALayerStack.ShowHint:= true;
       exit;
+    end else
+    if FLayerInfo[i].VisibleCheckbox.Contains(Point(X,Y)) then
+    begin
+      BGRALayerStack.Hint := rsVisible;
+      BGRALayerStack.ShowHint:= true;
+      exit;
+    end else
+    if FLayerInfo[i].RightPart.OpacityBar.Contains(Point(X,Y)) then
+    begin
+      BGRALayerStack.Hint := rsOpacity;
+      BGRALayerStack.ShowHint:= true;
+      exit;
     end;
   BGRALayerStack.ShowHint:= false;
 end;
@@ -312,10 +327,12 @@ var destinationIndex, prevIndex, i: integer;
   indexF: single;
   res: TModalResult;
   topmostInfo: TTopMostInfo;
+  isRightClick: Boolean;
 begin
   X := round(X*FScaling);
   Y := round(Y*FScaling);
-  if Button = mbLeft then
+  isRightClick := (Button = mbRight) {$IFDEF DARWIN}or ((Button = mbLeft) and not IsEmptyPoint(FRightClickOrigin)){$ENDIF};
+  if (Button = mbLeft) and not isRightClick then
   begin
     FMovingItemStart := false;
     if FMovingItemBitmap <> nil then
@@ -362,7 +379,7 @@ begin
       FAskTransferSelectionLayerIndex := -1;
     end;
   end else
-  if (Button = mbRight) and (Abs(X - FRightClickOrigin.X) <= 2) and
+  if isRightClick and (Abs(X - FRightClickOrigin.X) <= 2) and
     (Abs(Y - FRightClickOrigin.Y) <= 2) then
   begin
     for i := 0 to high(FLayerInfo) do

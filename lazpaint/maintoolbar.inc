@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
+const SwitchColorShortcut = 'R';
+
 procedure TFMain.CreateToolbarElements;
 
   procedure InitVectorialFill(vf: TLCVectorialFillControl; grad: TBGRALayerGradientOriginal;
@@ -11,6 +13,7 @@ procedure TFMain.CreateToolbarElements;
     vf.OnFillChange:=    @VectorialFill_Change;
     vf.AutoSize := False;
     vf.OnFillTypeChange:=    @VectorialFill_TypeChange;
+    vf.OnOpacityChange:=     @VectorialFill_OpacityChange;
     vf.OnAdjustToShape:=     @VectorialFill_AdjustToShape;
     vf.OnEditGradTexPoints:= @VectorialFill_EditGradTexPoints;
     vf.OnResize:= @VectorialFill_Resize;
@@ -110,15 +113,28 @@ begin
   Tool_TextAlignLeft.OnClick := @Tool_TextAlignClick;
   Tool_TextAlignCenter.OnClick := @Tool_TextAlignClick;
   Tool_TextAlignRight.OnClick := @Tool_TextAlignClick;
+  Tool_TextBidirectional.OnClick := @Tool_TextBidiModeClick;
+  Tool_TextLTR.OnClick := @Tool_TextBidiModeClick;
+  Tool_TextRTL.OnClick := @Tool_TextBidiModeClick;
+  Tool_TextAlignTop.OnClick := @Tool_TextAlignClick;
+  Tool_TextAlignMiddle.OnClick := @Tool_TextAlignClick;
+  Tool_TextAlignBottom.OnClick := @Tool_TextAlignClick;
+  Tool_TextBold.OnClick := @Tool_TextStyleClick;
+  Tool_TextItalic.OnClick := @Tool_TextStyleClick;
+  Tool_TextUnderline.OnClick := @Tool_TextStyleClick;
+  Tool_TextStrikeout.OnClick := @Tool_TextStyleClick;
   Tool_TextPhong.OnClick := @Tool_TextPhongClick;
   Tool_TextShadow.OnClick := @Tool_TextShadowClick;
   Tool_TextOutline.OnClick := @Tool_TextOutlineClick;
+  Panel_TextMore.AutoSize := true;
   Panel_ToolbarBackground.OnMouseMove := @Panel_ToolbarBackgroundMouseMove;
   TimerHidePenPreview.OnTimer := @TimerHidePenPreviewTimer;
+  TimerHideTextMore.OnTimer := @TimerHideTextMoreTimer;
   ComboBox_BrushSelect.OnChange := @ComboBox_BrushSelectChange;
   ComboBox_BrushSelect.OnDrawItem := @ComboBox_BrushSelectDrawItem;
   ComboBox_BrushSelect.OnDrawSelectedItem:= @ComboBox_BrushSelectDrawSelectedItem;
   ComboBox_BrushSelect.CanvasScaleMode:= csmFullResolution;
+  Combo_Ratio.Items.Add(rsImage);
   Combo_Ratio.OnChange := @Combo_RatioChange;
 
   Panel_LineCap_FullSize := Panel_LineCap.Width;
@@ -225,7 +241,7 @@ begin
   Label_Coordinates.Caption := '';
   FCoordinatesCaption:= '';
   FCoordinatesCaptionCount := 0;
-  Image_SwapColors.Hint := Image_SwapColors.Hint + ' (X)';
+  Image_SwapColors.Hint := Image_SwapColors.Hint + ' (' + SwitchColorShortcut + ')';
 
   Tool_CurveModeAuto.Hint := Tool_CurveModeAuto.Hint + ' (A)';
   Tool_CurveModeAngle.Hint := Tool_CurveModeAngle.Hint + ' (X)';
@@ -418,6 +434,10 @@ begin
   if FInTextFont and not AForce then exit;
   SpinEdit_TextSize.Value := round(ToolManager.TextFontSize);
   UpdateTextSizeIncrement;
+  Tool_TextBold.Down := fsBold in ToolManager.TextFontStyle;
+  Tool_TextItalic.Down := fsItalic in ToolManager.TextFontStyle;
+  Tool_TextUnderline.Down := fsUnderline in ToolManager.TextFontStyle;
+  Tool_TextStrikeout.Down := fsStrikeOut in ToolManager.TextFontStyle;
 end;
 
 procedure TFMain.UpdateTextAlign;
@@ -428,6 +448,9 @@ begin
   taCenter: Tool_TextAlignCenter.Down := true;
   taRightJustify: Tool_TextAlignRight.Down := true;
   end;
+  Tool_TextAlignTop.Down := ToolManager.TextVerticalAlign = tlTop;
+  Tool_TextAlignMiddle.Down := ToolManager.TextVerticalAlign = tlCenter;
+  Tool_TextAlignBottom.Down := ToolManager.TextVerticalAlign = tlBottom;
 end;
 
 procedure TFMain.UpdateTextOutlineToolbar;
@@ -1050,6 +1073,11 @@ begin
   vf.Width := vf.PreferredSize.cx;
 end;
 
+procedure TFMain.VectorialFill_OpacityChange(Sender: TObject);
+begin
+  HideFill(3000, true);
+end;
+
 procedure TFMain.VectorialFill_ShowBackFill(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 begin
   ShowFill(VectorialFill_Back, Panel_BackFill);
@@ -1120,7 +1148,7 @@ end;
 procedure TFMain.Image_SwapColorsMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  SwitchColors;
+  if Button = mbLeft then SwitchColors;
 end;
 
 procedure TFMain.SpinEdit_ToleranceChange(Sender: TObject; AByUser: boolean);
@@ -1547,6 +1575,17 @@ begin
   HidePenPreview(3000, true);
 end;
 
+procedure TFMain.ShowTextMore;
+begin
+  if not Panel_TextMore.Visible then
+  begin
+    Panel_TextMore.Left := min(Panel_Text.Left, ClientWidth-Panel_TextMore.Width);
+    Panel_TextMore.Top := Panel_Text.Top+Panel_Text.Height;
+    Panel_TextMore.Visible := True;
+  end;
+  HideTextMore(3000, true);
+end;
+
 procedure TFMain.HidePenPreview(ATimeMs: Integer; AClearTime: boolean);
 begin
   if AClearTime then TimerHidePenPreview.Enabled := false;
@@ -1554,6 +1593,16 @@ begin
   begin
     TimerHidePenPreview.Interval := ATimeMs;
     TimerHidePenPreview.Enabled := true;
+  end;
+end;
+
+procedure TFMain.HideTextMore(ATimeMs: Integer; AClearTime: boolean);
+begin
+  if AClearTime then TimerHideTextMore.Enabled := false;
+  if Panel_TextMore.Visible then
+  begin
+    TimerHideTextMore.Interval := ATimeMs;
+    TimerHideTextMore.Enabled := true;
   end;
 end;
 
@@ -1581,6 +1630,7 @@ procedure TFMain.Panel_ToolbarBackgroundMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
   HidePenPreview;
+  HideTextMore;
   HideFill;
 end;
 
@@ -1627,6 +1677,18 @@ begin
   if (X < t) and (Y < t) then ToolManager.StepPenSize(True) else
   if (X >= PaintBox_PenPreview.Width-t) and (Y < t) then ToolManager.StepPenSize(False);
   ShowPenPreview(False);
+end;
+
+procedure TFMain.Panel_TextMoreMouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  ShowTextMore;
+end;
+
+procedure TFMain.Panel_TextMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  ShowTextMore;
 end;
 
 procedure TFMain.PopupToolbarPopup(Sender: TObject);
@@ -1714,6 +1776,12 @@ procedure TFMain.TimerHidePenPreviewTimer(Sender: TObject);
 begin
   Panel_PenWidthPreview.Visible := False;
   TimerHidePenPreview.Enabled := false;
+end;
+
+procedure TFMain.TimerHideTextMoreTimer(Sender: TObject);
+begin
+  Panel_TextMore.Visible := False;
+  TimerHideTextMore.Enabled := false;
 end;
 
 procedure TFMain.ToolChangeDockingExecute(Sender: TObject);
@@ -1823,17 +1891,66 @@ end;
 
 procedure TFMain.Tool_TextAlignClick(Sender: TObject);
 var newAlign: TAlignment;
+    newVAlign: TTextLayout;
 begin
   if initialized then
   begin
     newAlign := taLeftJustify;
+    newVAlign:= ToolManager.TextVerticalAlign;
     if Tool_TextAlignCenter.Down then newAlign:= taCenter;
     if Tool_TextAlignRight.Down then newAlign := taRightJustify;
-    if newAlign <> ToolManager.TextAlign then
+    if Tool_TextAlignTop.Down and (sender = Tool_TextAlignTop) then newVAlign := tlTop;
+    if Tool_TextAlignMiddle.Down and (sender = Tool_TextAlignMiddle) then newVAlign := tlCenter;
+    if Tool_TextAlignBottom.Down and (sender = Tool_TextAlignBottom) then newVAlign := tlBottom;
+    FInTextAlign := true;
+    Tool_TextAlignTop.Down := newVAlign = tlTop;
+    Tool_TextAlignMiddle.Down := newVAlign = tlCenter;
+    Tool_TextAlignBottom.Down := newVAlign = tlBottom;
+    FInTextAlign := false;
+    if (newAlign <> ToolManager.TextAlign) or (newVAlign <> ToolManager.TextVerticalAlign) then
     begin
       FInTextAlign := true;
       ToolManager.TextAlign := newAlign;
+      ToolManager.TextVerticalAlign := newVAlign;
       FInTextAlign := false;
+      UpdateEditPicture;
+    end;
+  end;
+end;
+
+procedure TFMain.Tool_TextBidiModeClick(Sender: TObject);
+var newMode: TFontBidiMode;
+begin
+  if initialized then
+  begin
+    newMode := fbmAuto;
+    if Tool_TextLTR.Down then newMode:= fbmLeftToRight;
+    if Tool_TextRTL.Down then newMode:= fbmRightToLeft;
+    if newMode <> ToolManager.TextBidiMode then
+    begin
+      FInTextAlign := true;
+      ToolManager.TextBidiMode := newMode;
+      FInTextAlign := false;
+      UpdateTextAlign;
+    end;
+  end;
+end;
+
+procedure TFMain.Tool_TextStyleClick(Sender: TObject);
+var newStyle: TFontStyles;
+begin
+  if initialized then
+  begin
+    newStyle := [];
+    if Tool_TextBold.Down then include(newStyle, fsBold);
+    if Tool_TextItalic.Down then include(newStyle, fsItalic);
+    if Tool_TextUnderline.Down then include(newStyle, fsUnderline);
+    if Tool_TextStrikeout.Down then include(newStyle, fsStrikeOut);
+    if newStyle <> ToolManager.TextFontStyle then
+    begin
+      FInTextFont := true;
+      ToolManager.TextFontStyle := newStyle;
+      FInTextFont := false;
       UpdateEditPicture;
     end;
   end;
@@ -1951,7 +2068,10 @@ var
 begin
   if initialized then
   begin
-    newRatio := ComputeRatio(Combo_Ratio.Text);
+    if CompareText(Combo_Ratio.Text, rsImage)=0 then
+      newRatio := Image.Width/Image.Height
+    else
+      newRatio := ComputeRatio(Combo_Ratio.Text);
     if newRatio <> ToolManager.ShapeRatio then
     begin
       FInShapeRatio := true;

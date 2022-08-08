@@ -20,6 +20,7 @@ type
     function ToolDeformationGridNeeded: boolean;
     procedure ValidateDeformationGrid;
   protected
+    class var ReturnHintShown: boolean;
     deformationGridNbX,deformationGridNbY,deformationGridX,deformationGridY: integer;
     deformationGridMoving: boolean;
     deformationOrigin: TPointF;
@@ -35,6 +36,7 @@ type
     function GetIsSelectingTool: boolean; override;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
   public
+    class procedure ForgetHintShown;
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -48,7 +50,7 @@ type
 
   TToolTextureMapping = class(TGenericTool)
   private
-    class var FHintShowed: boolean;
+    class var ScaleHintShown, ReturnHintShown: boolean;
     FCurrentBounds: TRect;
     FLastTexture: TBGRABitmap;
     FTextureAfterAlpha: TBGRABitmap;
@@ -70,7 +72,8 @@ type
     quadMovingIndex: integer;
     quadMoving,quadMovingBounds: boolean;
     quadMovingDelta: TPointF;
-    function SnapIfNecessary(ptF: TPointF): TPointF;
+    function SnapIfNecessary(const ptF: TPointF): TPointF;
+    function GetClosestPoint(const ptF: TPointF; out pointFound: TPointF): integer;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect;
@@ -88,6 +91,7 @@ type
     function GetStatusText: string; override;
     function GetAllowedBackFillTypes: TVectorialFillTypes; override;
   public
+    class procedure ForgetHintShown;
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -169,7 +173,9 @@ end;
 function TToolLayerMapping.GetTextureRepetition: TTextureRepetition;
 begin
   if poRepeat in Manager.PerspectiveOptions then
-    Result:= trRepeatBoth;
+    Result:= trRepeatBoth
+  else
+    result:= trNone;
 end;
 
 procedure TToolLayerMapping.ValidateQuad;
@@ -409,18 +415,42 @@ begin
   end;
 end;
 
-function TToolTextureMapping.SnapIfNecessary(ptF: TPointF): TPointF;
+function TToolTextureMapping.SnapIfNecessary(const ptF: TPointF): TPointF;
 begin
   if not (ssSnap in ShiftState) then result := ptF else
     result := PointF(round(ptF.X),round(ptF.Y));
+end;
+
+function TToolTextureMapping.GetClosestPoint(const ptF: TPointF; out pointFound: TPointF): integer;
+var
+  minDist, curDist: single;
+  pts: array of TPointF;
+  n: Integer;
+begin
+  if boundsMode then
+    pts := boundsPts
+  else
+    pts := quad;
+  result := -1;
+  pointFound := EmptyPointF;
+  minDist := sqr(DoScaleX(10,OriginalDPI));
+  for n := 0 to high(pts) do
+  begin
+    curDist := sqr(ptF.x-pts[n].x)+sqr(ptF.y-pts[n].y);
+    if curDist < minDist then
+    begin
+      minDist := curDist;
+      result := n;
+      pointFound := pts[n];
+    end;
+  end;
 end;
 
 function TToolTextureMapping.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 var
   n: Integer;
-  curDist,minDist: single;
-  pts: array of TPointF;
+  selPt: TPointF;
 begin
   result := EmptyRect;
   if rightBtn then exit;
@@ -445,26 +475,16 @@ begin
   end;
 
   UpdateBoundsMode(result);
-  if boundsMode then
-    pts := boundsPts
-  else
-    pts := quad;
 
-  minDist := sqr(DoScaleX(10,OriginalDPI));
-  for n := 0 to high(pts) do
+  n := GetClosestPoint(ptF, selPt);
+  if n <> -1 then
   begin
-    curDist := sqr(ptF.x-pts[n].x)+sqr(ptF.y-pts[n].y);
-    if curDist < minDist then
-    begin
-      minDist := curDist;
-      quadMovingIndex := n;
-      quadMovingDelta := pts[n]-PtF;
-      quadMoving := True;
-      quadMovingBounds  := boundsMode;
-    end;
-  end;
-
-  if not quadMoving and IsPointInPolygon(pts, ptF, true) then
+    quadMovingIndex := n;
+    quadMovingDelta := selPt-PtF;
+    quadMoving := True;
+    quadMovingBounds  := boundsMode;
+  end else
+  if IsPointInPolygon(quad, ptF, true) then
   begin
     quadMovingIndex := -1;
     quadMovingDelta := (quad[0]+quad[2])*0.5-ptF;
@@ -482,7 +502,7 @@ end;
 function TToolTextureMapping.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 var n: integer;
-  delta,prevSize,newSize: TPointF;
+  delta,prevSize,newSize,selPt: TPointF;
   curBounds: array of TPointF;
   ratioX,ratioY,ratio: single;
   avgSize: single;
@@ -493,12 +513,13 @@ begin
     begin
       if (GetTexture <> nil) and (GetTexture.Height <> 0)
         and (GetTexture.Width <> 0) then
+      begin
         ratio := GetTexture.Width/GetTexture.Height;
-
-      newSize := ptF - quad[0];
-      avgSize := (abs(newSize.x)+abs(newSize.y))/2;
-      ptF.x := quad[0].x+avgSize*NonZero(sign(newSize.x),1)*ratio/((ratio+1)/2);
-      ptF.y := quad[0].y+avgSize*NonZero(sign(newSize.y),1)*1/((ratio+1)/2);
+        newSize := ptF - quad[0];
+        avgSize := (abs(newSize.x)+abs(newSize.y))/2;
+        ptF.x := quad[0].x+avgSize*NonZero(sign(newSize.x),1)*ratio/((ratio+1)/2);
+        ptF.y := quad[0].y+avgSize*NonZero(sign(newSize.y),1)*1/((ratio+1)/2);
+      end;
     end;
     quad[2] := ptF;
     quad[1].x := ptF.x;
@@ -508,12 +529,11 @@ begin
   end;
 
   result := EmptyRect;
-  if not FHintShowed then
+  if not ScaleHintShown then
   begin
     Manager.ToolPopup(tpmHoldKeysScaleMode, VK_SHIFT);
-    FHintShowed:= true;
+    ScaleHintShown:= true;
   end;
-  Manager.HintReturnValidates;
   if quadMoving then
   begin
     if quadMovingIndex = -1 then
@@ -591,6 +611,13 @@ begin
     result := FCurrentBounds;
   end;
   UpdateBoundsMode(result);
+  if not quadMoving then
+  begin
+    if GetClosestPoint(ptF, selPt) <> -1 then
+      Cursor := crSizeAll
+    else
+      Cursor := crDefault;
+  end;
 end;
 
 function TToolTextureMapping.GetIsSelectingTool: boolean;
@@ -699,6 +726,12 @@ begin
   Result:= [vftTexture];
 end;
 
+class procedure TToolTextureMapping.ForgetHintShown;
+begin
+  ScaleHintShown:= false;
+  ReturnHintShown:= false;
+end;
+
 constructor TToolTextureMapping.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
@@ -758,6 +791,11 @@ begin
     DrawQuad;
     FCanReadaptTexture:= false;
     result := FCurrentBounds;
+    if not ReturnHintShown then
+    begin
+      Manager.ToolPopup(tpmreturnValides);
+      ReturnHintShown:= true;
+    end;
     exit;
   end;
   if quadMoving then
@@ -1009,7 +1047,6 @@ var xb,yb,NbX,NbY: integer;
 
 begin
   result := EmptyRect;
-  Manager.HintReturnValidates;
 
   if not deformationGridMoving then
   begin
@@ -1090,6 +1127,32 @@ begin
                   DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb]],backupLayer,dmDrawWithTransparency);
             gridDone[yb,xb] := true;
           end;
+      //drawing zones that are inverted
+      for yb := gridMinY to gridMaxY-1 do
+        for xb := gridMinX to gridMaxX-1 do
+          if not gridDone[yb,xb] and
+             not IsMostlyClockwise([DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
+                DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb]]) then
+          begin
+            layer.FillQuadLinearMapping(DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
+                  DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb],backupLayer,
+                  DeformationGridTexCoord[yb,xb],DeformationGridTexCoord[yb,xb+1],DeformationGridTexCoord[yb+1,xb+1],
+                  DeformationGridTexCoord[yb+1,xb],true, fcKeepCW);
+            gridDone[yb,xb] := true;
+          end;
+      //drawing zones that are intersecting
+      for yb := gridMinY to gridMaxY-1 do
+        for xb := gridMinX to gridMaxX-1 do
+          if not gridDone[yb,xb] and
+             DoesQuadIntersect(DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
+                DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb]) then
+          begin
+            layer.FillQuadLinearMapping(DeformationGrid[yb,xb],DeformationGrid[yb,xb+1],
+                  DeformationGrid[yb+1,xb+1],DeformationGrid[yb+1,xb],backupLayer,
+                  DeformationGridTexCoord[yb,xb],DeformationGridTexCoord[yb,xb+1],DeformationGridTexCoord[yb+1,xb+1],
+                  DeformationGridTexCoord[yb+1,xb],true, fcKeepCW);
+            gridDone[yb,xb] := true;
+          end;
       //drawing zones that are concave
       for yb := gridMinY to gridMaxY-1 do
         for xb := gridMinX to gridMaxX-1 do
@@ -1141,12 +1204,19 @@ begin
     result := EmptyRect;
 end;
 
+class procedure TToolDeformationGrid.ForgetHintShown;
+begin
+  ReturnHintShown := false;
+end;
+
 constructor TToolDeformationGrid.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
   deformationGridNbX:= 0;
   deformationGridNbY:= 0;
   DoingDeformation:= false;
+  deformationGrid := nil;
+  deformationGridTexCoord := nil;
 end;
 
 function TToolDeformationGrid.Render(VirtualScreen: TBGRABitmap;
@@ -1215,19 +1285,24 @@ begin
   if Key = VK_ESCAPE then
   begin
     if DoingDeformation then
-    begin
       CancelActionPartially;
-      result := OnlyRenderChange;
-      manager.QueryExitTool;
-      Key := 0;
-    end;
+    result := OnlyRenderChange;
+    manager.QueryExitTool;
+    Key := 0;
   end;
 end;
 
 function TToolDeformationGrid.ToolUp: TRect;
 begin
   if deformationGridMoving then
-    result := OnlyRenderChange
+  begin
+    result := OnlyRenderChange;
+    if not ReturnHintShown then
+    begin
+      Manager.ToolPopup(tpmreturnValides);
+      ReturnHintShown := true;
+    end;
+  end
   else
     Result:=EmptyRect;
   deformationGridMoving := false;

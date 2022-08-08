@@ -46,7 +46,7 @@ type
 
   TToolPen = class(TGenericTool)
   protected
-    class var HintShowed: boolean;
+    class var HintShown: boolean;
     penDrawing, penDrawingRight: boolean;
     shiftClicking, shiftClickingRight: boolean;
     penOrigin: TPointF;
@@ -59,6 +59,7 @@ type
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; override;
     function DoToolShiftClick(toolDest: TBGRABitmap; ptF: TPointF; rightBtn: boolean): TRect; virtual;
   public
+    class procedure ForgetHintShown;
     function ToolUp: TRect; override;
     function GetContextualToolbars: TContextualToolbars; override;
     destructor Destroy; override;
@@ -369,10 +370,10 @@ end;
 
 function TToolPen.DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect;
 begin
-  if (manager.PenWidth <= 3) and not HintShowed then
+  if (manager.PenWidth <= 3) and not HintShown then
   begin
     Manager.ToolPopup(tpmHoldKeySnapToPixel, VK_CONTROL);
-    HintShowed:= true;
+    HintShown:= true;
   end;
   if ssSnap in ShiftState then ptF := PointF(pt.X,pt.Y);
   result := EmptyRect;
@@ -395,6 +396,11 @@ begin
   if rightBtn then Manager.BackColor := c
     else Manager.ForeColor := c;
   result := EmptyRect;
+end;
+
+class procedure TToolPen.ForgetHintShown;
+begin
+  HintShown:= false;
 end;
 
 function TToolPen.ToolUp: TRect;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
-  <Package Version="4">
+  <Package Version="5">
     <Name Value="lazpaintcontrols"/>
     <Type Value="RunAndDesignTime"/>
     <CompilerOptions>
@@ -20,7 +20,7 @@
         </Debugging>
       </Linking>
     </CompilerOptions>
-    <Version Minor="1"/>
+    <Version Minor="2"/>
     <Files Count="13">
       <Item1>
         <Filename Value="lctoolbars.pas"/>
@@ -76,6 +76,7 @@
         <UnitName Value="LCVectorMultishape"/>
       </Item13>
     </Files>
+    <CompatibilityMode Value="True"/>
     <i18n>
       <EnableI18N Value="True"/>
       <OutDir Value="../lazpaint/release/bin/i18n"/>

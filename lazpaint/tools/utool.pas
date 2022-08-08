@@ -165,7 +165,7 @@ type
   TToolClass = class of TGenericTool;
 
   TToolPopupMessage= (tpmNone, tpmHoldKeyForSquare, tpmHoldKeySnapToPixel,
-    tpmReturnValides, tpmBackspaceRemoveLastPoint, tpmHoldKeyRestrictRotation,
+    tpmReturnValides, tpmBackspaceRemoveLastPoint, tpmRightClickFinishShape, tpmHoldKeyRestrictRotation,
     tpmHoldKeysScaleMode, tpmCurveModeHint, tpmBlendOpBackground,
     tpmRightClickForSource, tpmNothingToBeDeformed);
 
@@ -199,7 +199,6 @@ type
     FToolCurrentCursorPos: TPointF;
     FSleepingTool: TGenericTool;
     FSleepingToolType: TPaintToolType;
-    FReturnValidatesHintShown: boolean;
     FOnToolChangedHandler: TOnToolChangedHandler;
     FOnToolRenderChanged: TNotifyEvent;
     FOnToolbarChanged: TNotifyEvent;
@@ -221,6 +220,8 @@ type
     FTextFontSize: single;
     FTextFontStyle: TFontStyles;
     FTextAlign: TAlignment;
+    FTextVerticalAlign: TTextLayout;
+    FTextBidiMode: TFontBidiMode;
     FTextOutline: boolean;
     FTextOutlineWidth: single;
     FTextPhong: boolean;
@@ -336,6 +337,8 @@ type
     function ScriptGetShapeRatio(AVars: TVariableSet): TScriptResult;
     function ScriptGetSplineStyle(AVars: TVariableSet): TScriptResult;
     function ScriptGetTextAlign(AVars: TVariableSet): TScriptResult;
+    function ScriptGetTextVerticalAlign(AVars: TVariableSet): TScriptResult;
+    function ScriptGetTextBidiMode(AVars: TVariableSet): TScriptResult;
     function ScriptGetTextOutline(AVars: TVariableSet): TScriptResult;
     function ScriptGetTextPhong(AVars: TVariableSet): TScriptResult;
     function ScriptGetTolerance(AVars: TVariableSet): TScriptResult;
@@ -397,6 +400,8 @@ type
     function ScriptSetShapeRatio(AVars: TVariableSet): TScriptResult;
     function ScriptSetSplineStyle(AVars: TVariableSet): TScriptResult;
     function ScriptSetTextAlign(AVars: TVariableSet): TScriptResult;
+    function ScriptSetTextVerticalAlign(AVars: TVariableSet): TScriptResult;
+    function ScriptSetTextBidiMode(AVars: TVariableSet): TScriptResult;
     function ScriptSetTextOutline(AVars: TVariableSet): TScriptResult;
     function ScriptSetTextPhong(AVars: TVariableSet): TScriptResult;
     function ScriptSetTolerance(AVars: TVariableSet): TScriptResult;
@@ -428,6 +433,9 @@ type
     procedure SetShapeRatio(AValue: Single);
     procedure SetSplineStyle(AValue: TSplineStyle);
     procedure SetTextAlign(AValue: TAlignment);
+    procedure SetTextVerticalAlign(AValue: TTextLayout);
+    procedure SetTextBidiMode(AValue: TFontBidiMode);
+    procedure SetTextFontStyle(AValue: TFontStyles);
     procedure SetTextPhong(AValue: boolean);
     procedure SetTextShadow(AValue: boolean);
     procedure SetTextShadowBlurRadius(AValue: single);
@@ -450,6 +458,7 @@ type
     PerspectiveControls,FillControls,OutlineFillControls,
     BrushControls, RatioControls, DonateControls: TList;
     CanvasScale: integer;
+    PenWidthVisible: boolean;
 
     constructor Create(AImage: TLazPaintImage; AConfigProvider: IConfigProvider;
       ABitmapToVirtualScreen: TBitmapToVirtualScreenFunction = nil;
@@ -490,7 +499,6 @@ type
     function ToolUpdate: boolean;
     function ToolUpdateNeeded: boolean;
     procedure ToolPopup(AMessage: TToolPopupMessage; AKey: Word = 0; AAlways: boolean = false);
-    procedure HintReturnValidates;
 
     function IsSelectingTool: boolean;
     function DisplayFilledSelection: boolean;
@@ -551,8 +559,10 @@ type
     property BrushSpacing: integer read FBrushSpacing write SetBrushSpacing;
     property TextFontName: string read GetTextFontName;
     property TextFontSize: single read GetTextFontSize;
-    property TextFontStyle: TFontStyles read GetTextFontStyle;
+    property TextFontStyle: TFontStyles read GetTextFontStyle write SetTextFontStyle;
     property TextAlign: TAlignment read FTextAlign write SetTextAlign;
+    property TextVerticalAlign: TTextLayout read FTextVerticalAlign write SetTextVerticalAlign;
+    property TextBidiMode: TFontBidiMode read FTextBidiMode write SetTextBidiMode;
     property TextOutline: boolean read FTextOutline;
     property TextOutlineWidth: single read FTextOutlineWidth;
     property TextPhong: boolean read FTextPhong write SetTextPhong;
@@ -748,6 +758,7 @@ begin
   tpmHoldKeySnapToPixel: result := ReplaceKey(rsHoldKeySnapToPixel, AKey);
   tpmReturnValides: result := rsReturnValides;
   tpmBackspaceRemoveLastPoint: result := rsBackspaceRemoveLastPoint;
+  tpmRightClickFinishShape: result := rsRightClickFinishShape;
   tpmHoldKeyRestrictRotation: result := ReplaceKey(rsHoldKeyRestrictRotation, AKey);
   tpmHoldKeysScaleMode: result := ReplaceKey(ReplaceKey(rsHoldKeysScaleMode, AKey, 2), VK_MENU);
   tpmCurveModeHint: result := rsCurveModeHint;
@@ -777,15 +788,6 @@ begin
     Result:= Manager.Image.CurrentLayerReadOnly
   else
     Result:= Manager.Image.SelectionLayerReadonly;
-end;
-
-procedure TToolManager.HintReturnValidates;
-begin
-  if not FReturnValidatesHintShown then
-  begin
-    ToolPopup(tpmReturnValides);
-    FReturnValidatesHintShown:= true;
-  end;
 end;
 
 { TGenericTool }
@@ -1507,6 +1509,30 @@ begin
   if Assigned(FOnTextAlignChanged) then FOnTextAlignChanged(self);
 end;
 
+procedure TToolManager.SetTextVerticalAlign(AValue: TTextLayout);
+begin
+  if FTextVerticalAlign=AValue then Exit;
+  FTextVerticalAlign:=AValue;
+  ToolUpdate;
+  if Assigned(FOnTextAlignChanged) then FOnTextAlignChanged(self);
+end;
+
+procedure TToolManager.SetTextBidiMode(AValue: TFontBidiMode);
+begin
+  if FTextBidiMode=AValue then Exit;
+  FTextBidiMode:=AValue;
+  ToolUpdate;
+  if Assigned(FOnTextAlignChanged) then FOnTextAlignChanged(self);
+end;
+
+procedure TToolManager.SetTextFontStyle(AValue: TFontStyles);
+begin
+  if FTextFontStyle=AValue then Exit;
+  FTextFontStyle:=AValue;
+  ToolUpdate;
+  if Assigned(FOnTextFontChanged) then FOnTextFontChanged(self);
+end;
+
 procedure TToolManager.SetTextPhong(AValue: boolean);
 begin
   if FTextPhong=AValue then Exit;
@@ -2173,6 +2199,28 @@ begin
   result := srOk;
 end;
 
+function TToolManager.ScriptGetTextVerticalAlign(AVars: TVariableSet): TScriptResult;
+begin
+  case TextVerticalAlign of
+  tlTop: AVars.Strings['Result'] := 'Top';
+  tlCenter: AVars.Strings['Result'] := 'Middle';
+  tlBottom: AVars.Strings['Result'] := 'Bottom';
+  else exit(srException);
+  end;
+  result := srOk;
+end;
+
+function TToolManager.ScriptGetTextBidiMode(AVars: TVariableSet): TScriptResult;
+begin
+  case TextBidiMode of
+  fbmAuto: AVars.Strings['Result'] := 'BidiAuto';
+  fbmLeftToRight: AVars.Strings['Result'] := 'LeftToRight';
+  fbmRightToLeft: AVars.Strings['Result'] := 'RightToLeft';
+  else exit(srException);
+  end;
+  result := srOk;
+end;
+
 function TToolManager.ScriptGetTextOutline(AVars: TVariableSet): TScriptResult;
 begin
   if TextOutline then
@@ -2780,6 +2828,28 @@ begin
   result := srOk;
 end;
 
+function TToolManager.ScriptSetTextVerticalAlign(AVars: TVariableSet): TScriptResult;
+begin
+  case AVars.Strings['Align'] of
+  'Top': TextVerticalAlign:= tlTop;
+  'Middle': TextVerticalAlign:= tlCenter;
+  'Bottom': TextVerticalAlign:= tlBottom;
+  else exit(srInvalidParameters);
+  end;
+  result := srOk;
+end;
+
+function TToolManager.ScriptSetTextBidiMode(AVars: TVariableSet): TScriptResult;
+begin
+  case AVars.Strings['BidiMode'] of
+  'BidiAuto': TextBidiMode:= fbmAuto;
+  'LeftToRight': TextBidiMode:= fbmLeftToRight;
+  'RightToLeft': TextBidiMode:= fbmRightToLeft;
+  else exit(srInvalidParameters);
+  end;
+  result := srOk;
+end;
+
 function TToolManager.ScriptSetTextOutline(AVars: TVariableSet): TScriptResult;
 begin
   if AVars.IsDefined('Width') and (AVars.Floats['Width'] > 0) then
@@ -2830,6 +2900,7 @@ constructor TToolManager.Create(AImage: TLazPaintImage; AConfigProvider: IConfig
 begin
   FImage:= AImage;
   CanvasScale := 1;
+  PenWidthVisible := false;
   BitmapToVirtualScreen := ABitmapToVirtualScreen;
   FShouldExitTool:= false;
   FConfigProvider := AConfigProvider;
@@ -2881,6 +2952,8 @@ begin
   FTextFontName := TTextShape.DefaultFontName;
   FTextFontStyle:= [];
   FTextAlign := taLeftJustify;
+  FTextVerticalAlign := tlTop;
+  FTextBidiMode := fbmAuto;
   FTextPhong := False;
   FTextShadowBlurRadius := 4;
   FTextShadowOffset := Point(5,5);
@@ -3198,7 +3271,8 @@ begin
 
   OrResult(SetControlsVisible(BrushControls, ctBrush in contextualToolbars));
   OrResult(SetControlsVisible(ShapeControls, ctShape in contextualToolbars));
-  OrResult(SetControlsVisible(PenWidthControls, (ctPenWidth in contextualToolbars) and hasPen));
+  PenWidthVisible := (ctPenWidth in contextualToolbars) and hasPen;
+  OrResult(SetControlsVisible(PenWidthControls, PenWidthVisible));
   OrResult(SetControlsVisible(JoinStyleControls, (ctJoinStyle in contextualToolbars) and hasPen));
   OrResult(SetControlsVisible(PenStyleControls, (ctPenStyle in contextualToolbars) and hasPen));
   OrResult(SetControlsVisible(CloseShapeControls, ctCloseShape in contextualToolbars));
@@ -3292,6 +3366,10 @@ begin
   FScriptContext.RegisterScriptFunction('ToolGetFontStyle', @ScriptGetFontStyle, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetTextAlign', @ScriptSetTextAlign, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetTextAlign', @ScriptGetTextAlign, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetTextVerticalAlign', @ScriptSetTextVerticalAlign, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetTextVerticalAlign', @ScriptGetTextVerticalAlign, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolSetTextBidiMode', @ScriptSetTextBidiMode, ARegister);
+  FScriptContext.RegisterScriptFunction('ToolGetTextBidiMode', @ScriptGetTextBidiMode, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetTextOutline', @ScriptSetTextOutline, ARegister);
   FScriptContext.RegisterScriptFunction('ToolGetTextOutline', @ScriptGetTextOutline, ARegister);
   FScriptContext.RegisterScriptFunction('ToolSetTextPhong', @ScriptSetTextPhong, ARegister);

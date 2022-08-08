@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="32" xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 32 32" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+  <g opacity="1" xmlns:bgra="https://wiki.freepascal.org/LazPaint_SVG_format" inkscape:label="Layer1" inkscape:groupmode="layer" bgra:originalViewBox="-15 0 59 29">
+    <path d="M3.5 22 10 15.5 10 20 28 20 28 24 10 24 10 28.5 z" fill="black" stroke="none" fill-opacity="0.7921569"/>
+    <text x="0" y="0" fill="black" stroke="none" font-size="15" font-style="normal" font-family="FreeSans" font-weight="normal" fill-opacity="0.9686275" text-decoration="">
+      <tspan x="29" y="14" direction="rtl" textLength="22.568">אבג</tspan>
+    </text>
+  </g>
+</svg>

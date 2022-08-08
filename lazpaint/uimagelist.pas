@@ -423,6 +423,7 @@ end;
 
 procedure TFImageList.FormShow(Sender: TObject);
 begin
+  EnsureVisible(False);
   tbAutoUncheck.Down:= LazPaintInstance.Config.ImageListAutoUncheck;
   tbAutoZoomFit.Down:= LazPaintInstance.Config.ImageListAutoZoom;
   pmAutouncheckOnSave.Checked:=LazPaintInstance.Config.ImageListAutoUncheckMode=0;

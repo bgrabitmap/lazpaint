@@ -55,6 +55,7 @@ type
     end;
     FActualRowHeight,FIconsPerLine: integer;
     FSelectedIndex,FKeySelectionRangeStart: integer;
+    FKeySelectionRangeDescending: boolean;
     FVScrollBar: TVolatileScrollBar;
     FVerticalScrollPos: integer;
     FWantedItemVisible: integer;
@@ -689,8 +690,26 @@ var i: integer;
 begin
   TVolatileScrollBar.InitDPI((Sender as TControl).GetCanvasScaleFactor);
 
-  if SelectedIndex = -1 then FKeySelectionRangeStart := -1
-  else if FKeySelectionRangeStart = -1 then FKeySelectionRangeStart:= SelectedIndex;
+  if not ItemSelected[FKeySelectionRangeStart] then FKeySelectionRangeStart := -1;
+  if FKeySelectionRangeStart = -1 then
+  begin
+    if FKeySelectionRangeDescending then
+    begin
+       for i := ItemCount-1 downto 0 do
+         if ItemSelected[i] then
+         begin
+           FKeySelectionRangeStart:= i;
+           break;
+         end;
+    end else
+      for i := 0 to ItemCount-1 do
+        if ItemSelected[i] then
+        begin
+          FKeySelectionRangeStart:= i;
+          break;
+        end;
+  end;
+
   for i := 0 to ColumnCount-1 do
     FColumns[i].displayRect := EmptyRect;
   w := ABitmap.Width;
@@ -750,12 +769,14 @@ procedure TLCShellListView.KeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 
   procedure KeySelectRange(curItem: integer);
-  var i: integer;
+  var i, prevKeyRangeStart: integer;
   begin
+    prevKeyRangeStart := FKeySelectionRangeStart;
     DeselectAll;
-    if (ssShift in Shift) and (FKeySelectionRangeStart >= 0) and (FKeySelectionRangeStart < ItemCount) and
+    if (ssShift in Shift) and (prevKeyRangeStart >= 0) and (prevKeyRangeStart < ItemCount) and
       FAllowMultiSelect then
       begin
+        FKeySelectionRangeStart:= prevKeyRangeStart;
         i := curItem;
         FSelectedIndex:= curItem;
         ItemSelected[i] := true;
@@ -764,6 +785,7 @@ procedure TLCShellListView.KeyDown(Sender: TObject; var Key: Word;
           if i< FKeySelectionRangeStart then inc(i) else dec(i);
           ItemSelected[i]:= true;
         end;
+        FKeySelectionRangeDescending := curItem < FKeySelectionRangeStart;
       end else
       begin
         FSelectedIndex:= curItem;
@@ -774,6 +796,7 @@ procedure TLCShellListView.KeyDown(Sender: TObject; var Key: Word;
     MakeItemVisible(curItem);
   end;
 
+var j: integer;
 begin
   if ItemCount = 0 then exit;
 
@@ -781,14 +804,35 @@ begin
     begin
       if SelectedIndex = -1 then
       begin
-        Key := 0;
-        DeselectAll;
-        FSelectedIndex:= 0;
-        ItemSelected[0] := true;
-        InvalidateView;
-        MakeItemVisible(0);
-        if Assigned(FOnSelectItem) then FOnSelectItem(self,0,true);
-        exit;
+        if FKeySelectionRangeStart <> -1 then
+        begin
+          if FKeySelectionRangeDescending then
+          begin
+            for j := 0 to ItemCount-1 do
+              if ItemSelected[j] then
+              begin
+                FSelectedIndex := j;
+                break;
+              end;
+          end else
+            for j := ItemCount-1 downto 0 do
+              if ItemSelected[j] then
+              begin
+                FSelectedIndex := j;
+                break;
+              end;
+        end
+        else
+        begin
+          Key := 0;
+          DeselectAll;
+          FSelectedIndex:= 0;
+          ItemSelected[0] := true;
+          InvalidateView;
+          MakeItemVisible(0);
+          if Assigned(FOnSelectItem) then FOnSelectItem(self,0,true);
+          exit;
+        end;
       end
     end;
   if Key = VK_HOME then
@@ -876,6 +920,7 @@ begin
   begin
     if idx <> FSelectedIndex then
     begin
+      FKeySelectionRangeDescending:= idx < FSelectedIndex;
       while idx <> FSelectedIndex do
       begin
         if FSelectedIndex > idx then dec(FSelectedIndex) else inc(FSelectedIndex);

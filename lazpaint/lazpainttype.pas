@@ -11,7 +11,7 @@ uses
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
-  LazPaintVersion = 7010600;
+  LazPaintVersion = 7020000;
 
   function LazPaintVersionStr: string;
 
@@ -129,6 +129,7 @@ type
       class function Empty: TImageEntry; static;
       class function NewFrameIndex: integer; static;
       procedure FreeAndNil;
+      procedure Release;
     end;
     ArrayOfImageEntry = array of TImageEntry;
 
@@ -244,7 +245,7 @@ type
     procedure Show; virtual; abstract;
     function Hide: boolean; virtual; abstract;
     procedure Run; virtual; abstract;
-    procedure Restart; virtual; abstract;
+    function Restart: boolean; virtual; abstract;
     procedure CancelRestart; virtual; abstract;
     procedure NotifyImageChange(RepaintNow: boolean; ARect: TRect); virtual; abstract;
     procedure NotifyImageChangeCompletely(RepaintNow: boolean); virtual; abstract;
@@ -306,7 +307,7 @@ type
     procedure InvalidateLayerStack; virtual; abstract;
     procedure UpdateLayerStackOnTimer; virtual; abstract;
     function MakeNewBitmapReplacement(AWidth, AHeight: integer; AColor: TBGRAPixel): TBGRABitmap; virtual; abstract;
-    procedure ChooseTool(Tool : TPaintToolType); virtual; abstract;
+    procedure ChooseTool(Tool : TPaintToolType; AAsFromGui: boolean); virtual; abstract;
     function GetOnlineUpdater: TLazPaintCustomOnlineUpdater; virtual;
 
     property GridVisible: boolean read GetGridVisible write SetGridVisible;
@@ -600,6 +601,12 @@ end;
 procedure TImageEntry.FreeAndNil;
 begin
   SysUtils.FreeAndNil(bmp);
+  bpp := 0;
+end;
+
+procedure TImageEntry.Release;
+begin
+  bmp := nil;
   bpp := 0;
 end;
 

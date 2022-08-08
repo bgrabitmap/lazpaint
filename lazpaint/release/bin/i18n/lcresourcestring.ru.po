@@ -167,5 +167,5 @@ msgstr "Повторить по оси Y"
 
 #: lcresourcestring.rsunknownshapeclass
 msgid "Unknown shape class \"%1\""
-msgstr "Неизвестный класс формы "%1""
+msgstr "Неизвестный класс формы \"%1\""
 

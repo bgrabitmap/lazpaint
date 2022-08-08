@@ -25,8 +25,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="7"/>
-      <MinorVersionNr Value="1"/>
-      <RevisionNr Value="6"/>
+      <MinorVersionNr Value="2"/>
       <CharSet Value="04B0"/>
       <StringTable CompanyName="http://sourceforge.net/projects/lazpaint/" FileDescription="LazPaint" InternalName="lazpaint" OriginalFilename="lazpaint.exe" ProductName="LazPaint"/>
     </VersionInfo>
@@ -413,14 +412,15 @@
     <RequiredPackages Count="5">
       <Item1>
         <PackageName Value="BGRABitmapPack"/>
-        <MinVersion Major="11" Minor="3" Release="1" Valid="True"/>
+        <MinVersion Major="11" Minor="5" Valid="True"/>
       </Item1>
       <Item2>
         <PackageName Value="bgracontrols"/>
-        <MinVersion Major="7" Minor="1" Valid="True"/>
+        <MinVersion Major="7" Minor="5" Valid="True"/>
       </Item2>
       <Item3>
         <PackageName Value="lazpaintcontrols"/>
+        <MinVersion Minor="2" Valid="True"/>
       </Item3>
       <Item4>
         <PackageName Value="Printer4Lazarus"/>
@@ -429,7 +429,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="106">
+    <Units Count="107">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -1052,6 +1052,10 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UIconCache"/>
       </Unit105>
+      <Unit106>
+        <Filename Value="getfilesindir.inc"/>
+        <IsPartOfProject Value="True"/>
+      </Unit106>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

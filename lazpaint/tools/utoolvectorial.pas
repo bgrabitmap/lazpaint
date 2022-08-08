@@ -28,13 +28,14 @@ type
     function GetIsHandDrawing: boolean;
     function GetIsIdle: boolean;
   protected
+    class var SquareHintShown: boolean;
     FLayerWasEmpty: boolean;
     FShape: TVectorShape;
     FTemporaryStorage: TBGRACustomOriginalStorage;
     FLastDraftUpdate: Boolean;
     FSwapColor: boolean;
     FQuickDefine: Boolean;
-    FQuickDefineStartPoint, FQuickDefineEndPoint: TPointF;
+    FQuickDefineStartPoint, FQuickDefineUserEndPoint, FQuickDefineEndPoint: TPointF;
     FPreviousUpdateBounds, FPreviousEditorBounds: TRect;
     FEditor: TBGRAOriginalEditor;
     FRightDown, FLeftDown: boolean;
@@ -59,6 +60,7 @@ type
     function VectorTransform(APixelCentered: boolean): TAffineMatrix;
     procedure UpdateCursor(ACursor: TOriginalEditorCursor);
     function FixLayerOffset: boolean; override;
+    function UpdateQuickDefine: TRect;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF; rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; {%H-}ptF: TPointF): TRect; override;
     function DoToolUpdate({%H-}toolDest: TBGRABitmap): TRect; override;
@@ -89,6 +91,7 @@ type
     function GetGridMatrix: TAffineMatrix; virtual;
     property Editor: TBGRAOriginalEditor read GetEditor;
   public
+    class procedure ForgetHintShown;
     function ValidateShape: TRect;
     function CancelShape: TRect;
     constructor Create(AManager: TToolManager); override;
@@ -497,6 +500,7 @@ begin
     Manager.LightPosition := m*LightPosition;
     Manager.PhongShapeAltitude := round(AltitudePercent);
     Manager.TextAlign:= ParagraphAlignment;
+    Manager.TextVerticalAlign:= VerticalAlignment;
     Manager.SetTextFont(FontName, FontEmHeight*zoom*72/Manager.Image.DPI, FontStyle);
     Manager.TextShadow:= false;
     if Aliased then
@@ -704,7 +708,13 @@ begin
         PenPhong := Manager.TextPhong;
         LightPosition := m*Manager.LightPosition;
         AltitudePercent := Manager.PhongShapeAltitude;
-        ParagraphAlignment := Manager.TextAlign;
+        if FontBidiMode <> Manager.TextBidiMode then
+        begin
+          FontBidiMode:= Manager.TextBidiMode;
+          Manager.TextAlign:= ParagraphAlignment;
+        end else
+          ParagraphAlignment := Manager.TextAlign;
+        VerticalAlignment:= Manager.TextVerticalAlign;
         FontName:= Manager.TextFontName;
         FontEmHeight:= Manager.TextFontSize*zoom*Manager.Image.DPI/72;
         FontStyle := Manager.TextFontStyle;
@@ -1605,6 +1615,8 @@ var
   r: TRect;
   matrix: TAffineMatrix;
 begin
+  if isEmptyPointF(ABounds.TopLeft) or isEmptyPointF(ABounds.BottomRight) then
+    raise exception.Create('Unexpected empty point');
   toolDest := GetToolDrawingLayer;
   matrix := VectorTransform(false);
   r := (matrix*TAffineBox.AffineBox(ABounds)).RectBounds;
@@ -1811,6 +1823,11 @@ begin
     else
       result := AffineMatrixIdentity;
   end;
+end;
+
+class procedure TVectorialTool.ForgetHintShown;
+begin
+  SquareHintShown:= false;
 end;
 
 function TVectorialTool.ValidateShape: TRect;
@@ -2034,6 +2051,28 @@ begin
   Result:= false;
 end;
 
+function TVectorialTool.UpdateQuickDefine: TRect;
+var
+  s: TPointF;
+  avg: single;
+begin
+  if ssShift in ShiftState then
+  begin
+    s := FQuickDefineUserEndPoint-FQuickDefineStartPoint;
+    avg := sqrt(abs(s.x*s.y));
+    if s.x > 0 then FQuickDefineEndPoint.x := FQuickDefineStartPoint.x + avg else FQuickDefineEndPoint.x := FQuickDefineStartPoint.x - avg;
+    if s.y > 0 then FQuickDefineEndPoint.y := FQuickDefineStartPoint.y + avg else FQuickDefineEndPoint.y := FQuickDefineStartPoint.y - avg;
+  end else
+    FQuickDefineEndPoint := FQuickDefineUserEndPoint;
+  FShape.BeginUpdate;
+  QuickDefineShape(FQuickDefineStartPoint, FQuickDefineEndPoint);
+  FLastShapeTransform := AffineMatrixInverse(VectorTransform(false));
+  FShape.Transform(FLastShapeTransform);
+  AssignShapeStyle(FLastShapeTransform, true);
+  FShape.EndUpdate;
+  result := OnlyRenderChange;
+end;
+
 function TVectorialTool.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
 var
@@ -2063,6 +2102,7 @@ begin
 
   if FShape=nil then
   begin
+    UpdateUseOriginal;
     if UseOriginal and
       ((Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TVectorOriginal).GetShapesCost >= MediumShapeCost) then
     begin
@@ -2088,6 +2128,7 @@ begin
       FShape.TemporaryStorage := FTemporaryStorage;
       FQuickDefine := true;
       FQuickDefineStartPoint := RoundCoordinate(FLastPos);
+      FQuickDefineUserEndPoint := FQuickDefineStartPoint;
       FQuickDefineEndPoint := FQuickDefineStartPoint;
       FShape.BeginUpdate;
         QuickDefineShape(FQuickDefineStartPoint,FQuickDefineEndPoint);
@@ -2102,8 +2143,11 @@ begin
       FShape.OnEditingChange:=@ShapeEditingChange;
       FShape.OnRemoveQuery:= @ShapeRemoveQuery;
       result := RectUnion(result, UpdateShape(toolDest));
-      if FShape is TCustomRectShape then
+      if not SquareHintShown and (FShape is TCustomRectShape) then
+      begin
+        SquareHintShown := true;
         Manager.ToolPopup(tpmHoldKeyForSquare, VK_SHIFT);
+      end;
     end;
   end;
 end;
@@ -2111,8 +2155,6 @@ end;
 function TVectorialTool.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 var
-  s: TPointF;
-  avg: single;
   viewPt, shapePt: TPointF;
   handled: boolean;
   cur: TOriginalEditorCursor;
@@ -2122,21 +2164,8 @@ begin
     FLastPos := AffineMatrixTranslation(X,Y)*ptF;
   if FQuickDefine then
   begin
-    FQuickDefineEndPoint := RoundCoordinate(ptF);
-    if ssShift in ShiftState then
-    begin
-      s := FQuickDefineEndPoint-FQuickDefineStartPoint;
-      avg := sqrt(abs(s.x*s.y));
-      if s.x > 0 then FQuickDefineEndPoint.x := FQuickDefineStartPoint.x + avg else FQuickDefineEndPoint.x := FQuickDefineStartPoint.x - avg;
-      if s.y > 0 then FQuickDefineEndPoint.y := FQuickDefineStartPoint.y + avg else FQuickDefineEndPoint.y := FQuickDefineStartPoint.y - avg;
-    end;
-    FShape.BeginUpdate;
-      QuickDefineShape(FQuickDefineStartPoint, FQuickDefineEndPoint);
-      FLastShapeTransform := AffineMatrixInverse(VectorTransform(false));
-      FShape.Transform(FLastShapeTransform);
-      AssignShapeStyle(FLastShapeTransform, true);
-    FShape.EndUpdate;
-    result := OnlyRenderChange;
+    FQuickDefineUserEndPoint := RoundCoordinate(ptF);
+    result := UpdateQuickDefine;
   end else
   begin
     viewPt := Editor.Matrix*AffineMatrixInverse(VectorTransform(true))*FLastPos;
@@ -2224,6 +2253,11 @@ begin
     result := CancelShape;
     Key := 0;
   end else
+  if (Key = VK_SHIFT) and FQuickDefine and Assigned(FShape) then
+  begin
+    result := UpdateQuickDefine;
+    Key := 0;
+  end else
   begin
     Editor.KeyDown(ShiftState, LCLKeyToSpecialKey(Key, ShiftState), handled);
     if not handled and Assigned(FShape) then FShape.KeyDown(ShiftState, LCLKeyToSpecialKey(Key, ShiftState), handled);
@@ -2246,9 +2280,16 @@ var
   handled: boolean;
 begin
   result := EmptyRect;
-  Editor.KeyUp(ShiftState, LCLKeyToSpecialKey(Key, ShiftState), handled);
-  if not handled and Assigned(FShape) then FShape.KeyUp(ShiftState, LCLKeyToSpecialKey(Key, ShiftState), handled);
-  if handled then Key := 0;
+  if (Key = VK_SHIFT) and FQuickDefine and Assigned(FShape) then
+  begin
+    result := UpdateQuickDefine;
+    Key := 0;
+  end else
+  begin
+    Editor.KeyUp(ShiftState, LCLKeyToSpecialKey(Key, ShiftState), handled);
+    if not handled and Assigned(FShape) then FShape.KeyUp(ShiftState, LCLKeyToSpecialKey(Key, ShiftState), handled);
+    if handled then Key := 0;
+  end;
 end;
 
 function TVectorialTool.ToolCommand(ACommand: TToolCommand): boolean;

@@ -45,7 +45,6 @@ uses math, UDarkTheme;
 
 procedure TFToolbox.FormShow(Sender: TObject);
 begin
-  Position := poDesigned;
   self.EnsureVisible(False);
 end;
 
@@ -124,6 +123,7 @@ procedure TFToolbox.FormCreate(Sender: TObject);
 begin
   BorderStyle := ToolWindowFixedSize;
   FormStyle := ToolWindowStyle;
+  Position := poDesigned;
 end;
 
 {$R *.lfm}

@@ -650,6 +650,14 @@ msgctxt "tfmain.colorshiftcolors.caption"
 msgid "Shift colors..."
 msgstr "سحب اللون..."
 
+#: tfmain.combobox_arrowend.hint
+msgid "Ending arrow"
+msgstr ""
+
+#: tfmain.combobox_arrowstart.hint
+msgid "Starting arrow"
+msgstr ""
+
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
 msgstr ""
@@ -840,6 +848,14 @@ msgstr "فتح ملف موجود"
 #: tfmain.fileprint.caption
 msgid "Print..."
 msgstr "طباعة..."
+
+#: tfmain.filequicksave.caption
+msgid "Quick save"
+msgstr ""
+
+#: tfmain.filequicksave.hint
+msgid "Save current file without dialogs"
+msgstr ""
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -1923,6 +1939,10 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "ملء  متدرج"
 
+#: tfmain.tool_textalignbottom.hint
+msgid "Align bottom"
+msgstr ""
+
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
 msgstr ""
@@ -1931,14 +1951,38 @@ msgstr ""
 msgid "Align left"
 msgstr ""
 
+#: tfmain.tool_textalignmiddle.hint
+msgid "Center vertically"
+msgstr ""
+
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
+msgstr ""
+
+#: tfmain.tool_textaligntop.hint
+msgid "Align top"
+msgstr ""
+
+#: tfmain.tool_textbidirectional.hint
+msgid "Bidirectional"
+msgstr ""
+
+#: tfmain.tool_textbold.hint
+msgid "Bold"
 msgstr ""
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
 msgid "Choose font..."
 msgstr "اختيار الخط..."
+
+#: tfmain.tool_textitalic.hint
+msgid "Italic"
+msgstr ""
+
+#: tfmain.tool_textltr.hint
+msgid "Left to right"
+msgstr ""
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1950,10 +1994,22 @@ msgctxt "TFMAIN.TOOL_TEXTPHONG.HINT"
 msgid "Text phong shading"
 msgstr "نص بتظليل فونغ"
 
+#: tfmain.tool_textrtl.hint
+msgid "Right to left"
+msgstr ""
+
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
 msgid "Text shadow"
 msgstr "ظل النص"
+
+#: tfmain.tool_textstrikeout.hint
+msgid "Strikeout"
+msgstr ""
+
+#: tfmain.tool_textunderline.hint
+msgid "Underline"
+msgstr ""
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -2850,6 +2906,10 @@ msgstr "طلب الغلق"
 msgid "CMD"
 msgstr ""
 
+#: uresourcestrings.rscolordescription
+msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
+msgstr "وصف اللون : انقر في اللون مع لوحة المفاتيح باستخدام أسماء الألوان أو بتدوين CSS."
+
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
 msgstr ""
@@ -3162,6 +3222,12 @@ msgstr ""
 msgctxt "uresourcestrings.rsiconsize"
 msgid "Icon size"
 msgstr ""
+
+#: uresourcestrings.rsimage
+#, fuzzy
+msgctxt "uresourcestrings.rsimage"
+msgid "Image"
+msgstr "صورة"
 
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
@@ -3550,6 +3616,10 @@ msgctxt "uresourcestrings.rsrgb"
 msgid "RGB"
 msgstr "RGB"
 
+#: uresourcestrings.rsrightclickfinishshape
+msgid "Use RIGHT click to finish shape"
+msgstr ""
+
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
 msgstr ""
@@ -3715,6 +3785,10 @@ msgstr ""
 
 #: uresourcestrings.rsverticalsize
 msgid "Vertical size"
+msgstr ""
+
+#: uresourcestrings.rsvisible
+msgid "Visibile"
 msgstr ""
 
 #: uresourcestrings.rsyellow
