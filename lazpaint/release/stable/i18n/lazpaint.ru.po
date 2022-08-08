@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
-"Last-Translator: Ser82-png <asvmail.as@gmail.com>\n"
+"Last-Translator: Ser82-png\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -42,7 +42,7 @@ msgstr "Авторы:"
 #: tfabout.label_authorsvalue.caption
 msgctxt "tfabout.label_authorsvalue.caption"
 msgid "Circular helped by FabienWang, Lainz and others"
-msgstr "Circular-у помогали FabienWang, Lainz и другие"
+msgstr ""
 
 #: tfabout.label_homepage.caption
 msgctxt "tfabout.label_homepage.caption"
@@ -645,11 +645,11 @@ msgstr "Сдвиг цвета..."
 
 #: tfmain.combobox_arrowend.hint
 msgid "Ending arrow"
-msgstr "Конечная стрелка"
+msgstr ""
 
 #: tfmain.combobox_arrowstart.hint
 msgid "Starting arrow"
-msgstr "Начальная стрелка"
+msgstr ""
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
@@ -843,11 +843,11 @@ msgstr "Печать..."
 
 #: tfmain.filequicksave.caption
 msgid "Quick save"
-msgstr "Быстрое сохранение"
+msgstr ""
 
 #: tfmain.filequicksave.hint
 msgid "Save current file without dialogs"
-msgstr "Сохранить текущий файл без появления диалогового окна"
+msgstr ""
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -1043,7 +1043,7 @@ msgstr "О программе..."
 
 #: tfmain.helpindex.caption
 msgid "Index..."
-msgstr "Содержание..."
+msgstr "Индекс..."
 
 #: tfmain.imagechangecanvassize.caption
 msgid "Canvas size..."
@@ -1348,7 +1348,7 @@ msgstr "Показывать координаты"
 
 #: tfmain.menucopypastetoolbar.caption
 msgid "Show copy/paste toolbar"
-msgstr "Показывать инструменты «Копировать/Вставить»"
+msgstr "Показывать инструменты Копировать/Вставить"
 
 #: tfmain.menudocktoolboxleft.caption
 msgid "Dock left"
@@ -1437,7 +1437,7 @@ msgstr "Открепить"
 
 #: tfmain.menuundoredotoolbar.caption
 msgid "Show undo/redo toolbar"
-msgstr "Показывать инструменты «Отменить/Вернуть»"
+msgstr "Показывать инструменты Отменить/Вернуть"
 
 #: tfmain.menuview.caption
 msgctxt "tfmain.menuview.caption"
@@ -1715,7 +1715,7 @@ msgstr "Простое перо"
 #: tfmain.toolphong.hint
 msgctxt "TFMAIN.TOOLPHONG.HINT"
 msgid "Shaded shape"
-msgstr "Затенённая форма"
+msgstr "Затененная форма"
 
 #: tfmain.toolpolygon.caption
 msgid "Polygon"
@@ -1929,7 +1929,7 @@ msgstr "Прогрессивная заливка"
 
 #: tfmain.tool_textalignbottom.hint
 msgid "Align bottom"
-msgstr "По нижнему краю"
+msgstr ""
 
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
@@ -1941,7 +1941,7 @@ msgstr "По левому краю"
 
 #: tfmain.tool_textalignmiddle.hint
 msgid "Center vertically"
-msgstr "Центрировать по вертикали"
+msgstr ""
 
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
@@ -1949,15 +1949,15 @@ msgstr "По правому краю"
 
 #: tfmain.tool_textaligntop.hint
 msgid "Align top"
-msgstr "По верхнему краю"
+msgstr ""
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"
-msgstr "Двунаправленный"
+msgstr ""
 
 #: tfmain.tool_textbold.hint
 msgid "Bold"
-msgstr "Жирный"
+msgstr ""
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -1966,11 +1966,11 @@ msgstr "Выбрать шрифт..."
 
 #: tfmain.tool_textitalic.hint
 msgid "Italic"
-msgstr "Курсив"
+msgstr ""
 
 #: tfmain.tool_textltr.hint
 msgid "Left to right"
-msgstr "Слева направо"
+msgstr ""
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1984,7 +1984,7 @@ msgstr "Затенение текста по Фонгу"
 
 #: tfmain.tool_textrtl.hint
 msgid "Right to left"
-msgstr "Слева направо"
+msgstr ""
 
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
@@ -1993,11 +1993,11 @@ msgstr "Тень текста"
 
 #: tfmain.tool_textstrikeout.hint
 msgid "Strikeout"
-msgstr "Зачёркнутый"
+msgstr ""
 
 #: tfmain.tool_textunderline.hint
 msgid "Underline"
-msgstr "Подчёркнутый"
+msgstr ""
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -2006,7 +2006,7 @@ msgstr "Цвета"
 
 #: tfmain.viewdarktheme.caption
 msgid "Dark theme"
-msgstr "Тёмная тема"
+msgstr "Темная тема"
 
 #: tfmain.viewgrid.caption
 msgctxt "TFMAIN.VIEWGRID.CAPTION"
@@ -2893,7 +2893,7 @@ msgstr "CMD"
 
 #: uresourcestrings.rscolordescription
 msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr "Описание цвета: щёлкните, чтобы ввести цвет с клавиатуры, используя названия цветов или обозначения CSS."
+msgstr ""
 
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
@@ -3208,6 +3208,7 @@ msgid "Icon size"
 msgstr "Размер значков"
 
 #: uresourcestrings.rsimage
+#, fuzzy
 msgctxt "uresourcestrings.rsimage"
 msgid "Image"
 msgstr "Изображение"
@@ -3597,13 +3598,9 @@ msgctxt "uresourcestrings.rsrgb"
 msgid "RGB"
 msgstr "RGB"
 
-#: uresourcestrings.rsrightclickfinishshape
-msgid "Use RIGHT click to finish shape"
-msgstr "Щелчок правой кнопкой мыши, чтобы закончить фигуру"
-
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
-msgstr "Щелчок правой кнопкой мыши, чтобы установить источник"
+msgstr "Правый клик для установки источника"
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
@@ -3766,10 +3763,6 @@ msgstr "Версия"
 msgid "Vertical size"
 msgstr "Вертикальный размер"
 
-#: uresourcestrings.rsvisible
-msgid "Visibile"
-msgstr "Видимый"
-
 #: uresourcestrings.rsyellow
 msgid "Yellow"
 msgstr "Жёлтый"
@@ -3787,3 +3780,4 @@ msgstr "Увеличить размер стопки слоёв"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Увеличить размер стопки слоёв"
+

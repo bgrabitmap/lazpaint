@@ -1,2 +1,2 @@
 7.1.6
-lang_update=
+lang_update=ru
