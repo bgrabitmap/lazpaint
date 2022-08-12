@@ -662,11 +662,11 @@ msgstr "Farben tauschen..."
 
 #: tfmain.combobox_arrowend.hint
 msgid "Ending arrow"
-msgstr ""
+msgstr "Endpfeil"
 
 #: tfmain.combobox_arrowstart.hint
 msgid "Starting arrow"
-msgstr ""
+msgstr "Startpfeil"
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
@@ -861,11 +861,11 @@ msgstr "Drucken..."
 
 #: tfmain.filequicksave.caption
 msgid "Quick save"
-msgstr ""
+msgstr "Schnellspeichern"
 
 #: tfmain.filequicksave.hint
 msgid "Save current file without dialogs"
-msgstr ""
+msgstr "Aktuelle Datei ohne Dialog speichern"
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -1952,7 +1952,7 @@ msgstr "Progressive Füllung"
 
 #: tfmain.tool_textalignbottom.hint
 msgid "Align bottom"
-msgstr ""
+msgstr "Unten ausrichten"
 
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
@@ -1964,7 +1964,7 @@ msgstr "Links angleichen"
 
 #: tfmain.tool_textalignmiddle.hint
 msgid "Center vertically"
-msgstr ""
+msgstr "Vertikal zentrieren"
 
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
@@ -1972,15 +1972,15 @@ msgstr "Rechts angleichen"
 
 #: tfmain.tool_textaligntop.hint
 msgid "Align top"
-msgstr ""
+msgstr "Oben ausrichten"
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"
-msgstr ""
+msgstr "Bidirektional"
 
 #: tfmain.tool_textbold.hint
 msgid "Bold"
-msgstr ""
+msgstr "Fett gedruckt"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -1989,11 +1989,11 @@ msgstr "Schriftart auswählen..."
 
 #: tfmain.tool_textitalic.hint
 msgid "Italic"
-msgstr ""
+msgstr "Kursive"
 
 #: tfmain.tool_textltr.hint
 msgid "Left to right"
-msgstr ""
+msgstr "Links nach rechts"
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -2007,7 +2007,7 @@ msgstr "Text Phong-Schattierung"
 
 #: tfmain.tool_textrtl.hint
 msgid "Right to left"
-msgstr ""
+msgstr "Rechts nach links"
 
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
@@ -2016,11 +2016,11 @@ msgstr "Textschatten"
 
 #: tfmain.tool_textstrikeout.hint
 msgid "Strikeout"
-msgstr ""
+msgstr "Durchgestrichen"
 
 #: tfmain.tool_textunderline.hint
 msgid "Underline"
-msgstr ""
+msgstr "Unterstreichen"
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -3629,7 +3629,7 @@ msgstr "RGB"
 
 #: uresourcestrings.rsrightclickfinishshape
 msgid "Use RIGHT click to finish shape"
-msgstr ""
+msgstr "Verwenden Sie die RECHTE Maustaste, um die Form zu beenden"
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
