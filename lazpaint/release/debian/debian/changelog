@@ -5,7 +5,7 @@ lazpaint (7.2) stable; urgency=low
   * MacOS: avoid key binding conflict with CMD-H
   * interface: handle cancel language or icon size change
   * interface: restore main form after embedded editor
-  * interface: rester selection tool after delete
+  * interface: restore selection tool after delete
   * interface: fix shift-arrows in file list
   * interface: handle right click on switch color button
   * interface: remember docked toolbox visibility
@@ -24,9 +24,9 @@ lazpaint (7.2) stable; urgency=low
   * language: translation of color description
   * language: completed Russian translation
   * file: prevent saving incorrect filename
-  * file: handle path in file textbook
+  * file: handle path in file textbox
   * file: generate new filename with number
-  * file: added quick save action (Ctlr-Q shortcut)
+  * file: added quick save action (Ctrl-Q shortcut)
   * file: overwrite prompt when saving palette
   * file: experimental support for AVIF format
   * file: show save prompt when drag'n'drop image to the program
@@ -41,7 +41,7 @@ lazpaint (7.2) stable; urgency=low
   * tools: improved hints timing
   * tools: disambiguation of shortcut keys (Y, K, F and R)
   * deformation grid tool: handle extreme deformation
-  * déformation grid tool: ESCAPE to exit tool
+  * deformation grid tool: ESCAPE to exit tool
   * layer perspective tool: change cursor when hovering points
   * layer tools: delete current layer with DELETE key
   * rectangle tool: fixed bug when changing join type
