@@ -36,3 +36,5 @@ lazpaint/release/debian/lazpaint*_no_install.tar.gz
 /web/public/*
 
 lazpaint/tablet/backup/
+
+lazpaint/release/windows/lazpaint*_no_install.zip
