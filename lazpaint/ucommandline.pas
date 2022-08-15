@@ -5,7 +5,7 @@ unit UCommandline;
 
 interface
 
-uses classes, LazpaintType, uresourcestrings;
+uses classes, LazpaintType, uresourcestrings, LCLStrConsts;
 
 {$IFDEF WINDOWS}
   {$DEFINE SHOW_MANUAL_IN_WINDOW}
@@ -234,6 +234,13 @@ var
       if errPos <> 0 then
       begin
         instance.ShowError('Screenshot', '"Screenshot" ' + rsExpect1Parameter+CommandStr);
+        errorEncountered := true;
+        exit(false);
+      end;
+      if (screenIndex < 0) or (screenIndex >= Screen.MonitorCount) then
+      begin
+        instance.ShowError('Screenshot', '"Screenshot" ' +
+                                         lclstrconsts.rsListIndexExceedsBounds.Replace('%d', inttostr(screenIndex)));
         errorEncountered := true;
         exit(false);
       end;
