@@ -11,7 +11,7 @@ uses classes, LazpaintType, uresourcestrings;
   {$DEFINE SHOW_MANUAL_IN_WINDOW}
 {$ENDIF}
 
-const Manual: array[0..64] of string = (
+const Manual: array[0..68] of string = (
 'NAME',
 '       LazPaint - Image editor',
 '',
@@ -44,6 +44,10 @@ const Manual: array[0..64] of string = (
 '',
 '       -new WIDTH,HEIGHT',
 '              creates an empty image of size WIDTH x HEIGHT.',
+'',
+'       -screenshot SCREEN|X1,Y1,X2,Y2',
+'              takes a screenshot of the screen of index SCREEN  (0 for primary',
+'              monitor) or of specified coordinates.',
 '',
 '       -resample WIDTH,HEIGHT',
 '              resamples the image to the size WIDTH x HEIGHT.',
@@ -85,8 +89,9 @@ implementation
 
 uses
   SysUtils, BGRAUTF8, LazFileUtils, BGRABitmap, BGRABitmapTypes, Dialogs, uparse,
-  UImage, UImageAction, ULayerAction, UScripting, UPython, Forms, StdCtrls, Controls,
-  UFileSystem, BGRAIconCursor;
+  UImage, UImageAction, ULayerAction, UScripting, UPython, Forms, Controls,
+  UFileSystem, BGRAIconCursor, UGraph
+  {$IFDEF SHOW_MANUAL_IN_WINDOW},StdCtrls{$ENDIF};
 
 function ParamStrUTF8(AIndex: integer): string;
 begin
@@ -214,6 +219,59 @@ var
       exit(false);
     end;
     instance.Image.Assign(instance.MakeNewBitmapReplacement(w,h,BGRAPixelTransparent),True,False);
+    result := true;
+  end;
+
+  function DoScreenshot: boolean;
+  var r: TRect;
+    screenIndex,errPos: integer;
+    invalid: boolean;
+  begin
+    funcParams := SimpleParseFuncParam(CommandStr);
+    if length(funcParams)=1 then
+    begin
+      val(funcParams[0],screenIndex,errPos);
+      if errPos <> 0 then
+      begin
+        instance.ShowError('Screenshot', '"Screenshot" ' + rsExpect1Parameter+CommandStr);
+        errorEncountered := true;
+        exit(false);
+      end;
+      r := Screen.Monitors[screenIndex].BoundsRect;
+      r := rect(r.Left*CanvasScale, r.Top*CanvasScale,
+                r.Right*CanvasScale, r.Bottom*CanvasScale);
+    end else
+    if length(funcParams)=4 then
+    begin
+      r := rect(0,0,0,0);
+      invalid := false;
+      val(funcParams[0],r.Left,errPos);
+      if errPos <> 0 then invalid := true;
+      val(funcParams[1],r.Top,errPos);
+      if errPos <> 0 then invalid := true;
+      val(funcParams[2],r.Right,errPos);
+      if errPos <> 0 then invalid := true;
+      val(funcParams[3],r.Bottom,errPos);
+      if errPos <> 0 then invalid := true;
+      if invalid then
+      begin
+        instance.ShowError('Screenshot', '"Screenshot" ' + StringReplace(rsExpectNParameters,'N','4',[])+CommandStr);
+        errorEncountered := true;
+        exit(false);
+      end;
+      if (errPos <> 0) or (r.Width <= 0) or (r.Height <= 0) then
+      begin
+        instance.ShowError('New',rsInvalidSizeForNew+IntToStr(r.Width)+'x'+IntToStr(r.Height));
+        errorEncountered := true;
+        exit(false);
+      end;
+    end else
+    begin
+      instance.ShowError('Screenshot', '"Screenshot" ' + StringReplace(rsExpectNParameters,'N','4',[])+CommandStr);
+      errorEncountered := true;
+      exit(false);
+    end;
+    AImageActions.TakeScreenshot(r);
     result := true;
   end;
 
@@ -374,6 +432,7 @@ begin
         if lowerCmd = 'resample' then begin if not NextAsFuncParam or not DoResample then exit end else
         if copy(lowerCmd,1,4)='new(' then begin if not DoNew then exit end else
         if lowerCmd = 'new' then begin if not NextAsFuncParam or not DoNew then exit end else
+        if lowerCmd = 'screenshot' then begin if not NextAsFuncParam or not DoScreenShot then exit end else
         if lowerCmd = 'script' then
         begin
           enableScript := true;

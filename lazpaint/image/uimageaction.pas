@@ -62,6 +62,7 @@ type
     procedure CropToSelectionAndLayer;
     procedure CropToSelection;
     procedure Flatten;
+    procedure TakeScreenshot(ARect: TRect);
     procedure HorizontalFlip(AOption: TFlipOption);
     procedure VerticalFlip(AOption: TFlipOption);
     procedure RotateCW;
@@ -1111,6 +1112,19 @@ procedure TImageActions.Flatten;
 begin
   ChooseTool(ptHand);
   image.Flatten;
+end;
+
+procedure TImageActions.TakeScreenshot(ARect: TRect);
+var
+  bmp: TBGRABitmap;
+begin
+  bmp := TBGRABitmap.Create;
+  try
+    bmp.TakeScreenshot(ARect);
+    SetCurrentBitmap(bmp, false, 'Screenshot');
+  except on ex:Exception do
+    FInstance.ShowError('TakeScreenshot',ex.Message);
+  end;
 end;
 
 procedure TImageActions.SetCurrentBitmap(bmp: TBGRABitmap; AUndoable : boolean;
