@@ -1,13 +1,15 @@
 msgid ""
 msgstr ""
-"Last-Translator: Maxim Ganetsky <maxkill@mail.ru>\n"
 "Project-Id-Version: lazaruside\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2022-08-15 08:20+1000\n"
+"Last-Translator: Ser82-png <asvmail.as@gmail.com>\n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: 2010-09-22 19:16+0300\n"
-"Language-Team: \n"
-"MIME-Version: 1.0\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #: lclstrconsts.hhshelpbrowsernotexecutable
 msgid "Browser %s%s%s not executable."
@@ -52,11 +54,11 @@ msgstr "Accept"
 
 #: lclstrconsts.ifsvk_apps
 msgid "application key"
-msgstr "Клавиша Application"
+msgstr "клавиша «Application»"
 
 #: lclstrconsts.ifsvk_back
 msgid "Backspace"
-msgstr "Забой"
+msgstr "Backspace"
 
 #: lclstrconsts.ifsvk_cancel
 msgctxt "lclstrconsts.ifsvk_cancel"
@@ -134,7 +136,7 @@ msgstr "Кана"
 
 #: lclstrconsts.ifsvk_lbutton
 msgid "Mouse Button Left"
-msgstr "Левая клавиша мыши"
+msgstr "Левая кнопка мыши"
 
 #: lclstrconsts.ifsvk_left
 msgctxt "lclstrconsts.ifsvk_left"
@@ -143,16 +145,16 @@ msgstr "Стрелка влево"
 
 #: lclstrconsts.ifsvk_lwin
 msgid "left windows key"
-msgstr "Левая клавиша Windows"
+msgstr "левая клавиша «Windows»"
 
 #: lclstrconsts.ifsvk_mbutton
 msgid "Mouse Button Middle"
-msgstr "Средняя клавиша мыши"
+msgstr "Средняя кнопка мыши"
 
 #: lclstrconsts.ifsvk_menu
 msgctxt "lclstrconsts.ifsvk_menu"
 msgid "Menu"
-msgstr "Menu"
+msgstr "Меню"
 
 #: lclstrconsts.ifsvk_modechange
 msgid "Mode Change"
@@ -161,7 +163,7 @@ msgstr "Изменение режима"
 #: lclstrconsts.ifsvk_next
 msgctxt "lclstrconsts.ifsvk_next"
 msgid "Next"
-msgstr "Next"
+msgstr "Следующее"
 
 #: lclstrconsts.ifsvk_nonconvert
 msgid "Nonconvert"
@@ -177,7 +179,7 @@ msgstr "%d цифровой клавиатуры"
 
 #: lclstrconsts.ifsvk_pause
 msgid "Pause key"
-msgstr "Клавиша Pause"
+msgstr "Клавиша «Pause»"
 
 #: lclstrconsts.ifsvk_print
 msgid "Print"
@@ -186,11 +188,11 @@ msgstr "Print"
 #: lclstrconsts.ifsvk_prior
 msgctxt "lclstrconsts.ifsvk_prior"
 msgid "Prior"
-msgstr "Page Up"
+msgstr "Предыдущее"
 
 #: lclstrconsts.ifsvk_rbutton
 msgid "Mouse Button Right"
-msgstr "Правая клавиша мыши"
+msgstr "Правая кнопка мыши"
 
 #: lclstrconsts.ifsvk_return
 msgid "Return"
@@ -203,7 +205,7 @@ msgstr "Стрелка вправо"
 
 #: lclstrconsts.ifsvk_rwin
 msgid "right windows key"
-msgstr "Правая клавиша Windows"
+msgstr "правая клавиша «Windows»"
 
 #: lclstrconsts.ifsvk_scroll
 msgid "Scroll"
@@ -211,7 +213,7 @@ msgstr "ScrollLock"
 
 #: lclstrconsts.ifsvk_select
 msgid "Select"
-msgstr "Select"
+msgstr "Выделить"
 
 #: lclstrconsts.ifsvk_shift
 msgid "Shift"
@@ -219,7 +221,7 @@ msgstr "Shift"
 
 #: lclstrconsts.ifsvk_snapshot
 msgid "Snapshot"
-msgstr "Snapshot"
+msgstr "Снимок"
 
 #: lclstrconsts.ifsvk_space
 msgid "Space key"
@@ -232,7 +234,7 @@ msgstr "Tab"
 
 #: lclstrconsts.ifsvk_unknown
 msgid "Unknown"
-msgstr "Неизвестная"
+msgstr "Неизвестно"
 
 #: lclstrconsts.ifsvk_up
 msgctxt "lclstrconsts.ifsvk_up"
@@ -241,7 +243,7 @@ msgstr "Стрелка вверх"
 
 #: lclstrconsts.liscannotexecute
 msgid "can not execute %s"
-msgstr "Запустить %s невозможно"
+msgstr "невозможно запустить %s"
 
 #: lclstrconsts.lislclresourcesnotfound
 msgctxt "lclstrconsts.lislclresourcesnotfound"
@@ -250,7 +252,7 @@ msgstr "Ресурс %s не найден"
 
 #: lclstrconsts.lisprogramfilenotfound
 msgid "program file not found %s"
-msgstr "Файл программы %s не найден"
+msgstr "файл программы %s не найден"
 
 #: lclstrconsts.rs3ddkshadowcolorcaption
 msgid "3D Dark Shadow"
@@ -295,7 +297,7 @@ msgstr "Назад"
 
 #: lclstrconsts.rsbitmaps
 msgid "Bitmaps"
-msgstr "Точечные рисунки"
+msgstr "Растровые изображения"
 
 #: lclstrconsts.rsblackcolorcaption
 msgid "Black"
@@ -336,11 +338,11 @@ msgstr "Отмена"
 
 #: lclstrconsts.rscannotfocus
 msgid "Can not focus"
-msgstr "Не могу принять фокус"
+msgstr "Не удалось вывести фокус"
 
 #: lclstrconsts.rscanvasdoesnotallowdrawing
 msgid "Canvas does not allow drawing"
-msgstr "Канва не поддерживает рисования"
+msgstr "Холст не поддерживает рисования"
 
 #: lclstrconsts.rscaptiontextcolorcaption
 msgid "Caption Text"
@@ -401,7 +403,7 @@ msgstr "&Каталог"
 
 #: lclstrconsts.rsdocking
 msgid "Docking"
-msgstr "Стыковка"
+msgstr "Прикрепление"
 
 #: lclstrconsts.rsduplicateiconformat
 msgid "Duplicate icon format."
@@ -426,7 +428,7 @@ msgstr "Ошибка создания контекста устройства д
 
 #: lclstrconsts.rserrorinlcl
 msgid "ERROR in LCL: "
-msgstr "ОШИБКА в LCL:"
+msgstr "ОШИБКА в LCL: "
 
 #: lclstrconsts.rserroroccurredinataddressframe
 msgid "Error occurred in %s at %sAddress %s%s Frame %s"
@@ -438,7 +440,7 @@ msgstr "Ошибка чтения %s%s%s: %s"
 
 #: lclstrconsts.rserrorwhilesavingbitmap
 msgid "Error while saving bitmap."
-msgstr "Ошибка при сохранении точечного рисунка (bitmap)."
+msgstr "Ошибка при сохранении растрового изображения (bitmap)."
 
 #: lclstrconsts.rsexception
 msgid "Exception"
@@ -450,11 +452,11 @@ msgstr "Каталог должен существовать"
 
 #: lclstrconsts.rsfddirectorynotexist
 msgid "The directory \"%s\" does not exist."
-msgstr "Каталог \"%s\" не существует."
+msgstr "Каталог «%s» не существует."
 
 #: lclstrconsts.rsfdfilealreadyexists
 msgid "The file \"%s\" already exists. Overwrite ?"
-msgstr "Файл \"%s\" уже существует. Перезаписать?"
+msgstr "Файл «%s» уже существует. Перезаписать?"
 
 #: lclstrconsts.rsfdfilemustexist
 msgid "File must exist"
@@ -462,11 +464,11 @@ msgstr "Файл должен существовать"
 
 #: lclstrconsts.rsfdfilenotexist
 msgid "The file \"%s\" does not exist."
-msgstr "Файл \"%s\" не существует"
+msgstr "Файл «%s» не существует."
 
 #: lclstrconsts.rsfdfilereadonly
 msgid "The file \"%s\" is not writable."
-msgstr "Файл \"%s\" не доступен для записи."
+msgstr "Файл «%s» не доступен для записи."
 
 #: lclstrconsts.rsfdfilereadonlytitle
 msgid "File is not writable"
@@ -490,7 +492,7 @@ msgstr "Путь должен существовать"
 
 #: lclstrconsts.rsfdpathnoexist
 msgid "The path \"%s\" does not exist."
-msgstr "Путь \"%s\" не существует."
+msgstr "Путь «%s» не существует."
 
 #: lclstrconsts.rsfdselectdirectory
 msgid "Select Directory"
@@ -498,7 +500,7 @@ msgstr "Выберите каталог"
 
 #: lclstrconsts.rsfileinfofilenotfound
 msgid "(file not found: \"%s\")"
-msgstr "(файл не найден: \"%s\")"
+msgstr "(файл не найден: «%s»)"
 
 #: lclstrconsts.rsfileinformation
 msgid "File information"
@@ -530,7 +532,7 @@ msgstr "Форма"
 
 #: lclstrconsts.rsformstreamingerror
 msgid "Form streaming \"%s\" error: %s"
-msgstr "Ошибка потоков \"%s\" форм: %s"
+msgstr "Ошибка потоков «%s» форм: %s"
 
 #: lclstrconsts.rsforward
 msgid "Forward"
@@ -610,7 +612,7 @@ msgstr "--gtk-debug flags     Включить указанные отладоч
 
 #: lclstrconsts.rsgtkoptiondisplay
 msgid "--display h:s:d       Connect to the specified X server, where \"h\" is the hostname, \"s\" is the server number (usually 0), and \"d\" is the display number (typically omitted). If --display is not specified, the DISPLAY environment variable is used."
-msgstr "--display h:s:d       Связаться с указанным сервером X, где \"h\" - имя хост-машины, \"s\" - номер сервера (обычно 0), и \"d\" - номер дисплея (обычно опускается). Если не задан --display, используется переменная окружения DISPLAY."
+msgstr "--display h:s:d       Связаться с указанным сервером X, где «h» - имя хост-машины, «s» - номер сервера (обычно 0), и «d» - номер дисплея (обычно опускается). Если не задан --display, используется переменная окружения DISPLAY."
 
 #: lclstrconsts.rsgtkoptionmodule
 msgid "--gtk-module module   Load the specified module at startup."
@@ -618,7 +620,7 @@ msgstr "--gtk-module модуль   Загрузить указанный мод
 
 #: lclstrconsts.rsgtkoptionname
 msgid "--name programe       Set program name to \"progname\". If not specified, program name will be set to ParamStrUTF8(0)."
-msgstr "--name имяпрог       Установить имя программы в \"имяпрог\". Если не задано, имя программы будет установлено в ParamStrUTF8(0)."
+msgstr "--name имяпрог       Установить имя программы в «имяпрог». Если не задано, имя программы будет установлено в ParamStrUTF8(0)."
 
 #: lclstrconsts.rsgtkoptionnodebug
 msgid "--gtk-no-debug flags  Turn off specific Gtk+ trace/debug messages."
@@ -819,7 +821,7 @@ msgstr "%s уже сопоставлено с %s"
 
 #: lclstrconsts.rsjpeg
 msgid "Joint Picture Expert Group"
-msgstr "Joint Picture Expert Group"
+msgstr "Объединённая группа экспертов по фотографии"
 
 #: lclstrconsts.rslastrecordhint
 msgid "Last"
@@ -975,7 +977,7 @@ msgstr "Неверный файл сетки"
 
 #: lclstrconsts.rsnowidgetset
 msgid "No widgetset object. Please check if the unit \"interfaces\" was added to the programs uses clause."
-msgstr "Отсутствует объект библиотеки виджетов. Проверьте, что модуль \"interfaces\" был добавлен в выражение uses программы."
+msgstr "Отсутствует объект библиотеки виджетов. Проверьте, что модуль «interfaces» был добавлен в выражение uses программы."
 
 #: lclstrconsts.rsolivecolorcaption
 msgid "Olive"
@@ -1012,7 +1014,7 @@ msgstr "Отправить"
 #: lclstrconsts.rspressoktoignoreandriskdatacorruptionpresscanceltok
 #| msgid "%s%sPress Ok to ignore and risk data corruption.%sPress Cancel to kill the program."
 msgid "%s%sPress OK to ignore and risk data corruption.%sPress Cancel to kill the program."
-msgstr "%s%sНажмите 'OK' чтобы игнорировать и подвергнуться риску повреждения данных.%sНажмите 'Отмена' для закрытия программы."
+msgstr "%s%sНажмите «OK» чтобы игнорировать и подвергнуться риску повреждения данных.%sНажмите «Отмена» для закрытия программы."
 
 #: lclstrconsts.rspriorrecordhint
 msgctxt "lclstrconsts.rspriorrecordhint"
@@ -1067,7 +1069,7 @@ msgstr "-sync (только в X11), устанавливает синхронн
 
 #: lclstrconsts.rsqtoptionwidgetcount
 msgid "-widgetcount, prints debug message at the end about number of widgets left undestroyed and maximum number of widgets existed at the same time."
-msgstr "-widgetcount, выводит отладочное сообщение в конце о количестве неуничтоженных, а также максимальном количестве существовавших в один момент времени виджетов."
+msgstr "-widgetcount, выводит отладочное сообщение в конце о количестве не уничтоженных, а также максимальном количестве существовавших в один момент времени виджетов."
 
 #: lclstrconsts.rsqtoptionx11bgcolor
 msgid "-bg or -background color, sets the default background color and an application palette (light and dark shades are calculated)."
@@ -1198,7 +1200,7 @@ msgstr "Формат Tagged Image File"
 
 #: lclstrconsts.rsunabletoloaddefaultfont
 msgid "Unable to load default font"
-msgstr "Не могу загрузить шрифт по умолчанию"
+msgstr "Не удалось загрузить шрифт по умолчанию"
 
 #: lclstrconsts.rsunknownerrorpleasereportthisbug
 msgid "Unknown Error, please report this bug"
@@ -1298,7 +1300,7 @@ msgstr "Неверная разрегистрация действия"
 
 #: lclstrconsts.sinvalidcharset
 msgid "The char set in mask \"%s\" is not valid!"
-msgstr "Набор символов в маске \"%s\" неверен!"
+msgstr "Набор символов в маске «%s» неверен!"
 
 #: lclstrconsts.sinvalidimagesize
 msgid "Invalid image size"
@@ -1314,11 +1316,11 @@ msgstr "Индекс меню вне диапазона"
 
 #: lclstrconsts.smenuitemisnil
 msgid "MenuItem is nil"
-msgstr "MenuItem указывает на нуль"
+msgstr "MenuItem равен нулю"
 
 #: lclstrconsts.smenunotfound
 msgid "Sub-menu is not in menu"
-msgstr "Подменю не в меню"
+msgstr "Подменю отсутствует в меню"
 
 #: lclstrconsts.smkcalt
 msgid "Alt+"
@@ -1326,7 +1328,7 @@ msgstr "Alt+"
 
 #: lclstrconsts.smkcbksp
 msgid "BkSp"
-msgstr "Забой"
+msgstr "BkSp"
 
 #: lclstrconsts.smkcctrl
 msgid "Ctrl+"
@@ -1339,7 +1341,7 @@ msgstr "Del"
 #: lclstrconsts.smkcdown
 msgctxt "lclstrconsts.smkcdown"
 msgid "Down"
-msgstr "Вниз"
+msgstr "Стрелка вниз"
 
 #: lclstrconsts.smkcend
 msgctxt "lclstrconsts.smkcend"
@@ -1348,7 +1350,7 @@ msgstr "End"
 
 #: lclstrconsts.smkcenter
 msgid "Enter"
-msgstr "Ввод"
+msgstr "Enter"
 
 #: lclstrconsts.smkcesc
 msgid "Esc"
@@ -1366,7 +1368,7 @@ msgstr "Ins"
 #: lclstrconsts.smkcleft
 msgctxt "lclstrconsts.smkcleft"
 msgid "Left"
-msgstr "Влево"
+msgstr "Стрелка влево"
 
 #: lclstrconsts.smkcmeta
 msgid "Meta+"
@@ -1383,7 +1385,7 @@ msgstr "PgUp"
 #: lclstrconsts.smkcright
 msgctxt "lclstrconsts.smkcright"
 msgid "Right"
-msgstr "Вправо"
+msgstr "Стрелка вправо"
 
 #: lclstrconsts.smkcshift
 msgid "Shift+"
@@ -1396,12 +1398,12 @@ msgstr "Пробел"
 #: lclstrconsts.smkctab
 msgctxt "lclstrconsts.smkctab"
 msgid "Tab"
-msgstr "Таб"
+msgstr "Tab"
 
 #: lclstrconsts.smkcup
 msgctxt "lclstrconsts.smkcup"
 msgid "Up"
-msgstr "Вверх"
+msgstr "Стрелка вверх"
 
 #: lclstrconsts.snomdiform
 msgid "No MDI form present."
@@ -1442,4 +1444,3 @@ msgstr "Неверный символ лексемы: ожидался %s, но 
 #: lclstrconsts.sparwrongtokentype
 msgid "Wrong token type: %s expected but %s found"
 msgstr "Неверный тип лексемы: ожидался %s, но найден %s"
-
