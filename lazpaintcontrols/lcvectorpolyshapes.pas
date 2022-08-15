@@ -117,7 +117,7 @@ type
     procedure InsertPoint(AIndex: integer; APoint: TPointF);
     function GetPointBounds(AMatrix: TAffineMatrix): TRectF;
     procedure MouseMove({%H-}Shift: TShiftState; X, Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
-    procedure MouseDown(RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
+    procedure MouseDown(RightButton: boolean; {%H-}ClickCount: integer; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure KeyDown({%H-}Shift: TShiftState; Key: TSpecialKey; var AHandled: boolean); override;
     procedure KeyUp(Shift: TShiftState; Key: TSpecialKey; var AHandled: boolean); override;
     procedure QuickDefine(constref APoint1,APoint2: TPointF); override;
@@ -979,7 +979,7 @@ begin
 end;
 
 procedure TCustomPolypointShape.MouseDown(RightButton: boolean;
-  Shift: TShiftState; X, Y: single; var ACursor: TOriginalEditorCursor; var
+  ClickCount: integer; Shift: TShiftState; X, Y: single; var ACursor: TOriginalEditorCursor; var
   AHandled: boolean);
 begin
   FMousePos := PointF(X,Y);
