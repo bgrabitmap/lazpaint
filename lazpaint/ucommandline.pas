@@ -439,6 +439,7 @@ begin
         if lowerCmd = 'resample' then begin if not NextAsFuncParam or not DoResample then exit end else
         if copy(lowerCmd,1,4)='new(' then begin if not DoNew then exit end else
         if lowerCmd = 'new' then begin if not NextAsFuncParam or not DoNew then exit end else
+        if lowerCmd.StartsWith('screenshot(') then begin if not DoScreenShot then exit end else
         if lowerCmd = 'screenshot' then begin if not NextAsFuncParam or not DoScreenShot then exit end else
         if lowerCmd = 'script' then
         begin
