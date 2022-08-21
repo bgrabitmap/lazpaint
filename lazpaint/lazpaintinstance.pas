@@ -204,7 +204,20 @@ type
     procedure RestoreMainWindowPosition; override;
     procedure UseConfig(ini: TInifile); override;
     procedure AssignBitmap(bmp: TBGRABitmap); override;
-    procedure EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStream = nil; ATitle: String = ''; AOnRun: TLazPaintInstanceEvent = nil; AOnExit: TLazPaintInstanceEvent = nil; ABlackAndWhite: boolean = false); override;
+    procedure AssignBitmap(bmp: TBGRALayeredBitmap); override;
+    function InternalEditBitmap(var bmp: TObject; ConfigStream: TStream = nil;
+      ATitle: String = ''; AOnRun: TLazPaintInstanceEvent = nil;
+      AOnExit: TLazPaintInstanceEvent = nil;
+      ABlackAndWhite: boolean = false): boolean;
+    function EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStream = nil;
+      ATitle: String = ''; AOnRun: TLazPaintInstanceEvent = nil;
+      AOnExit: TLazPaintInstanceEvent = nil;
+      ABlackAndWhite: boolean = false): boolean; override;
+    function EditBitmap(var bmp: TBGRALayeredBitmap;
+      ConfigStream: TStream = nil; ATitle: String = '';
+      AOnRun: TLazPaintInstanceEvent = nil;
+      AOnExit: TLazPaintInstanceEvent = nil;
+      ABlackAndWhite : boolean = false): boolean; override;
     procedure EditSelection; override;
     function EditTexture(ASource: TBGRABitmap): TBGRABitmap; override;
     function ProcessCommandLine: boolean; override;
@@ -518,6 +531,7 @@ end;
 procedure TLazPaintInstance.UseConfig(ini: TInifile);
 begin
   FreeAndNil(FConfig);
+  BlackAndWhite := ini.ReadBool('General','BlackAndWhite',BlackAndWhite);
   FConfig := TLazPaintConfig.Create(ini,LazPaintVersionStr);
   ToolManager.LoadFromConfig;
   FGridVisible := Config.DefaultGridVisible;
@@ -1228,16 +1242,25 @@ end;
 procedure TLazPaintInstance.AssignBitmap(bmp: TBGRABitmap);
 begin
   if Assigned(FImageAction) then
-    FImageAction.SetCurrentBitmap(bmp.Duplicate as TBGRABitmap, False);
+    FImageAction.SetCurrentBitmap(bmp.Duplicate, False);
 end;
 
-procedure TLazPaintInstance.EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStream; ATitle: String; AOnRun: TLazPaintInstanceEvent; AOnExit: TLazPaintInstanceEvent; ABlackAndWhite: boolean);
+procedure TLazPaintInstance.AssignBitmap(bmp: TBGRALayeredBitmap);
+begin
+  if Assigned(FImageAction) then
+    FImageAction.SetCurrentBitmap(bmp.Duplicate, False);
+end;
+
+function TLazPaintInstance.InternalEditBitmap(var bmp: TObject;
+  ConfigStream: TStream; ATitle: String; AOnRun: TLazPaintInstanceEvent;
+  AOnExit: TLazPaintInstanceEvent; ABlackAndWhite: boolean): boolean;
 var
   subLaz: TLazPaintInstance;
   ini : TIniFile;
   topmostInfo: TTopMostInfo;
-
+  embeddedImageToBeFreed: boolean;
 begin
+  result := false;
   try
     subLaz := TLazPaintInstance.Create(True);
   except
@@ -1251,6 +1274,7 @@ begin
   if ATitle <> '' then subLaz.Title := ATitle;
   if FMain <> nil then FMain.Enabled := false;
   topmostInfo:= HideTopmost;
+  embeddedImageToBeFreed := false;
   try
     if ConfigStream <> nil then
     begin
@@ -1260,9 +1284,21 @@ begin
       subLaz.UseConfig(ini);
     end;
     subLaz.FormsNeeded;
-    if bmp <> nil then subLaz.AssignBitmap(bmp);
+    if bmp <> nil then
+    begin
+      if bmp is TBGRABitmap then
+      begin
+        subLaz.AssignBitmap(TBGRABitmap(bmp));
+        subLaz.EmbeddedImageBackup := TBGRABitmap(bmp);
+      end else
+      if bmp is TBGRALayeredBitmap then
+      begin
+        subLaz.AssignBitmap(TBGRALayeredBitmap(bmp));
+        subLaz.EmbeddedImageBackup := TBGRALayeredBitmap(bmp).ComputeFlatImage;
+        embeddedImageToBeFreed := true;
+      end;
+    end;
     subLaz.AboutText := AboutText;
-    subLaz.EmbeddedImageBackup := bmp;
     subLaz.FMain.BorderIcons := subLaz.FMain.BorderIcons - [biMinimize];
     if AOnRun <> nil then
       AOnRun(subLaz);
@@ -1271,8 +1307,17 @@ begin
       AOnExit(subLaz);
     if subLaz.EmbeddedResult = mrOk then
     begin
-      FreeAndNil(bmp);
-      bmp := subLaz.Image.RenderedImage.Duplicate as TBGRABitmap;
+      if bmp is TBGRALayeredBitmap then
+      begin
+        FreeAndNil(bmp);
+        bmp := subLaz.Image.CurrentState.GetLayeredBitmapCopy;
+      end
+      else if bmp is TBGRABitmap then
+      begin
+        FreeAndNil(bmp);
+        bmp := subLaz.Image.RenderedImage.Duplicate;
+      end;
+      result := true;
     end;
     if ConfigStream <> nil then
     begin
@@ -1289,7 +1334,30 @@ begin
     FMain.Enabled := true;
     FMain.BringToFront;
   end;
+  if embeddedImageToBeFreed then
+    subLaz.EmbeddedImageBackup.Free
+    else subLaz.EmbeddedImageBackup := nil;
   subLaz.Free;
+end;
+
+function TLazPaintInstance.EditBitmap(var bmp: TBGRABitmap;
+  ConfigStream: TStream; ATitle: String; AOnRun: TLazPaintInstanceEvent;
+  AOnExit: TLazPaintInstanceEvent; ABlackAndWhite: boolean): boolean;
+var bmpObj: TObject;
+begin
+  bmpObj := bmp;
+  result := InternalEditBitmap(bmpObj, ConfigStream, ATitle, AOnRun, AOnExit, ABlackAndWhite);
+  bmp := bmpObj as TBGRABitmap;
+end;
+
+function TLazPaintInstance.EditBitmap(var bmp: TBGRALayeredBitmap;
+  ConfigStream: TStream; ATitle: String; AOnRun: TLazPaintInstanceEvent;
+  AOnExit: TLazPaintInstanceEvent; ABlackAndWhite: boolean): boolean;
+var bmpObj: TObject;
+begin
+  bmpObj := bmp;
+  result := InternalEditBitmap(bmpObj, ConfigStream, ATitle, AOnRun, AOnExit, ABlackAndWhite);
+  bmp := bmpObj as TBGRALayeredBitmap;
 end;
 
 procedure TLazPaintInstance.EditSelection;

@@ -11,7 +11,7 @@ uses classes, LazpaintType, uresourcestrings, LCLStrConsts;
   {$DEFINE SHOW_MANUAL_IN_WINDOW}
 {$ENDIF}
 
-const Manual: array[0..68] of string = (
+const Manual: array[0..79] of string = (
 'NAME',
 '       LazPaint - Image editor',
 '',
@@ -38,6 +38,17 @@ const Manual: array[0..68] of string = (
 '       -script FILENAME',
 '              runs the specified Python script. It must have  a  ".py"  exten‐',
 '              sion.',
+'',
+'       -editor default|CONFIGFILE|OPTION1,OPTION2...',
+'              shows the image editor with validate and cancel buttons.  If the',
+'              validate button is used,  the rest of the commands are executed.',
+'              Otherwise the program stops.',
+'',
+'              Examples:',
+'              -editor default',
+'              -editor /Users/me/lazpaintCustom.cfg',
+'              -editor [Window]ColorWindowVisible=0,LayerWindowVisible=0',
+'',
 '       -quit',
 '              quits the program even if no output file was  provided.  Can  be',
 '              useful when only running scripts.',
@@ -88,7 +99,7 @@ function ParamStrUTF8(AIndex: integer): string;
 implementation
 
 uses
-  SysUtils, BGRAUTF8, LazFileUtils, BGRABitmap, BGRABitmapTypes, Dialogs, uparse,
+  SysUtils, BGRAUTF8, LazFileUtils, BGRABitmap, BGRABitmapTypes, BGRALayers, Dialogs, uparse,
   UImage, UImageAction, ULayerAction, UScripting, UPython, Forms, Controls,
   UFileSystem, BGRAIconCursor, UGraph
   {$IFDEF SHOW_MANUAL_IN_WINDOW},StdCtrls{$ENDIF};
@@ -282,6 +293,80 @@ var
     result := true;
   end;
 
+  function MakeConfigFromFuncParam: string;
+  var
+    cfg: TStringList;
+    curSection, newSection, p, param: string;
+  begin
+    cfg := TStringList.Create;
+    curSection := '[General]';
+    cfg.Add(curSection);
+    try
+      for p in funcParams do
+      begin
+        param := p;
+        if param.StartsWith('[') then
+        begin
+          if param.IndexOf(']') <> -1 then
+          begin
+            newSection := param.Substring(0, param.IndexOf(']')+1);
+            param := param.Substring(length(newSection));
+          end else
+          begin
+            newSection := param;
+            param := '';
+          end;
+          if newSection <> curSection then
+          begin
+            curSection := newSection;
+            cfg.Add(curSection);
+          end;
+        end;
+        if param<>'' then
+        begin
+          if param.IndexOf('=') = -1 then
+            raise Exception.Create(SParExpected.Replace('%s', '"="'));
+          cfg.Add(param);
+        end;
+      end;
+    finally
+      result := cfg.Text;
+      cfg.Free;
+    end;
+  end;
+
+  function DoEditor: boolean;
+  var
+    iniStream: TStream;
+    bmp: TBGRALayeredBitmap;
+  begin
+    result := false;
+    funcParams := SimpleParseFuncParam(CommandStr);
+    if (length(funcParams) = 1) and
+       ((ExtractFileExt(funcParams[0])='.ini') or (ExtractFileExt(funcParams[0])='.cfg')) then
+      iniStream := FileManager.CreateFileStream(funcParams[0], fmOpenRead)
+    else if (length(funcParams) = 1) and (funcParams[0] = 'default') then
+      iniStream := TMemoryStream.Create
+    else
+      iniStream := TStringStream.Create(MakeConfigFromFuncParam);
+
+    bmp := instance.Image.CurrentState.GetLayeredBitmapCopy;
+    try
+      if instance.EditBitmap(bmp, iniStream) then
+      begin
+        instance.Image.CurrentState.Assign(bmp, true);
+        result := true;
+      end
+      else
+      begin
+        bmp.Free;
+        quitQuery := true;
+      end;
+    finally
+      FileManager.CancelStreamAndFree(iniStream);
+    end;
+  end;
+
   function NextAsFuncParam: boolean;
   begin
     inc(i);
@@ -441,6 +526,8 @@ begin
         if lowerCmd = 'new' then begin if not NextAsFuncParam or not DoNew then exit end else
         if lowerCmd.StartsWith('screenshot(') then begin if not DoScreenShot then exit end else
         if lowerCmd = 'screenshot' then begin if not NextAsFuncParam or not DoScreenShot then exit end else
+        if lowerCmd.StartsWith('editor(') then begin if not DoEditor then exit end else
+        if lowerCmd = 'editor' then begin if not NextAsFuncParam or not DoEditor then exit end else
         if lowerCmd = 'script' then
         begin
           enableScript := true;

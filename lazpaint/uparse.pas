@@ -18,7 +18,7 @@ function SimpleParseFuncParam(str: string): arrayOfString;
 implementation
 
 function SimpleParseFuncParam(str: string): arrayOfString;
-var idxOpen,start,cur: integer;
+var idxOpen,start,cur,bracketDepth: integer;
 begin
     result := nil;
     idxOpen := pos('(',str);
@@ -27,8 +27,11 @@ begin
     else
       start := idxOpen+1;
     cur := start;
+    bracketDepth := 0;
     while cur <= length(str) do
     begin
+       if str[cur] = '(' then inc(bracketDepth) else
+       if (str[cur] = ')') and (bracketDepth > 0) then dec(bracketDepth) else
        if str[cur] in[',',')'] then
        begin
          setlength(result,length(result)+1);

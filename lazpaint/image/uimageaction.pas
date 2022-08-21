@@ -8,7 +8,7 @@ interface
 uses
   Classes, SysUtils, FPimage, LazPaintType, BGRABitmap, UImage, UTool,
   UScripting, ULayerAction, UImageType, BGRABitmapTypes, BGRALayerOriginal,
-  BGRASVGOriginal;
+  BGRASVGOriginal, BGRALayers;
 
 type
 
@@ -59,6 +59,7 @@ type
     function DoEnd: boolean;
     procedure SetCurrentBitmap(bmp: TBGRABitmap; AUndoable: boolean;
       ACaption: string = ''; AOpacity: byte = 255);
+    procedure SetCurrentBitmap(bmp: TBGRACustomLayeredBitmap; AUndoable: boolean);
     procedure CropToSelectionAndLayer;
     procedure CropToSelection;
     procedure Flatten;
@@ -110,7 +111,7 @@ implementation
 uses Controls, Dialogs, UResourceStrings, UObject3D,
      ULoadImage, UGraph, UClipboard, Types, BGRAGradientOriginal,
      BGRATransform, ULoading, math, LCVectorClipboard, LCVectorOriginal, LCVectorRectShapes,
-     BGRALayers, BGRAUTF8, UFileSystem, Forms, UTranslation;
+     BGRAUTF8, UFileSystem, Forms, UTranslation;
 
 { TImageActions }
 
@@ -1133,6 +1134,17 @@ begin
   ToolManager.ToolCloseDontReopen;
   try
     image.Assign(bmp,True,AUndoable, ACaption,AOpacity);
+  finally
+    ToolManager.ToolOpen;
+  end;
+end;
+
+procedure TImageActions.SetCurrentBitmap(bmp: TBGRACustomLayeredBitmap;
+  AUndoable: boolean);
+begin
+  ToolManager.ToolCloseDontReopen;
+  try
+    image.Assign(bmp,True,AUndoable);
   finally
     ToolManager.ToolOpen;
   end;
