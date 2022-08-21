@@ -20,7 +20,7 @@
         </Debugging>
       </Linking>
     </CompilerOptions>
-    <Version Minor="2"/>
+    <Version Minor="2" Release="1"/>
     <Files Count="13">
       <Item1>
         <Filename Value="lctoolbars.pas"/>

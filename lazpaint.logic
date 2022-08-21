@@ -9,4 +9,4 @@ bundle release/macOS/LazPaint.app
 copy ../resources/icon/lazpaint.icns release/macOS/LazPaint.app/Contents/Resources/lazpaint.icns
 text ../web/config.toml "  version = ""$(Version)"""
 echo ">> DON'T FORGET TO UPDATE WEBSITE"
-echo ">> DON'T FORGET TO ADD VERSION IN release/debian/changelog <<"
+echo ">> DON'T FORGET TO ADD VERSION IN lazpaint/release/debian/debian/changelog <<"
