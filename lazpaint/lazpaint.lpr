@@ -213,12 +213,6 @@ begin
   LazpaintApplication.UseConfig(ActualConfig);
   FillLanguageList(LazpaintApplication.Config);
 
-  {$IFDEF WINDOWS}
-    LazpaintApplication.AboutText := ReadFileToString(SysToUTF8(ExtractFilePath(Application.ExeName))+'readme.txt');
-  {$ELSE}
-    LazpaintApplication.AboutText := ReadFileToString('readme.txt');
-  {$ENDIF}
-
   if not LazpaintApplication.ProcessCommandLine then
   begin
     LazpaintApplication.Show;

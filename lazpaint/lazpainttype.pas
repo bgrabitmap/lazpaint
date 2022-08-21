@@ -218,7 +218,7 @@ type
 
     function GetMainFormBounds: TRect; virtual; abstract;
   public
-    Title,AboutText: string;
+    Title: string;
     EmbeddedResult: TModalResult;
     EmbeddedImageBackup: TBGRABitmap;
 

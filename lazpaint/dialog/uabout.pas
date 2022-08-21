@@ -49,13 +49,13 @@ type
     { public declarations }
   end;
 
-procedure ShowAboutDlg(AInstance: TLazPaintCustomInstance; {%H-}AText: string);
+procedure ShowAboutDlg(AInstance: TLazPaintCustomInstance);
 
 implementation
 
 uses LCLIntf, BGRABitmap, BGRABitmapTypes;
 
-procedure ShowAboutDlg(AInstance: TLazPaintCustomInstance; {%H-}AText: string);
+procedure ShowAboutDlg(AInstance: TLazPaintCustomInstance);
 var
   About: TFAbout;
 begin

@@ -1298,7 +1298,6 @@ begin
         embeddedImageToBeFreed := true;
       end;
     end;
-    subLaz.AboutText := AboutText;
     subLaz.FMain.BorderIcons := subLaz.FMain.BorderIcons - [biMinimize];
     if AOnRun <> nil then
       AOnRun(subLaz);
@@ -2037,7 +2036,7 @@ procedure TLazPaintInstance.ShowAboutDlg;
 var tmi: TTopMostInfo;
 begin
   tmi := HideTopmost;
-  uabout.ShowAboutDlg(self,AboutText);
+  uabout.ShowAboutDlg(self);
   ShowTopmost(tmi);
 end;
 
