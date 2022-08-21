@@ -3,10 +3,11 @@ lazpaint (7.2.1) stable; urgency=low
   * MacOS: adapt quick save shortcut on MacOS
   * translations: competed German, Portuguese, Chinese, Dutch, Spanish
   * command line: added "screenshot" command
+  * command line: added "editor" command
   * text tool: multi click to select word / paragraph
   * script: fix in Python scripting (dialog.py)
 
- -- circular <circular@operamail.com>  Sat, 21 Aug 2022 12:44:00 +0100
+ -- circular <circular@operamail.com>  Sat, 21 Aug 2022 18:50:00 +0100
 
 lazpaint (7.2) stable; urgency=low
 
