@@ -447,7 +447,7 @@ msgstr "HSL"
 
 #: tffilterfunction.tabsheet_lab.caption
 msgid "Lab"
-msgstr ""
+msgstr "Lab"
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
@@ -654,11 +654,11 @@ msgstr "转移颜色..."
 
 #: tfmain.combobox_arrowend.hint
 msgid "Ending arrow"
-msgstr ""
+msgstr "结束箭头"
 
 #: tfmain.combobox_arrowstart.hint
 msgid "Starting arrow"
-msgstr ""
+msgstr "开始箭头"
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
@@ -852,7 +852,7 @@ msgstr "打印..."
 
 #: tfmain.filequicksave.caption
 msgid "Quick save"
-msgstr ""
+msgstr "快速保存"
 
 #: tfmain.filequicksave.hint
 msgid "Save current file without dialogs"
@@ -1940,7 +1940,7 @@ msgstr "渐进式填充"
 
 #: tfmain.tool_textalignbottom.hint
 msgid "Align bottom"
-msgstr ""
+msgstr "对齐底部"
 
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
@@ -1952,7 +1952,7 @@ msgstr "向左对齐"
 
 #: tfmain.tool_textalignmiddle.hint
 msgid "Center vertically"
-msgstr ""
+msgstr "垂直居中"
 
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
@@ -1960,15 +1960,15 @@ msgstr "向右对齐"
 
 #: tfmain.tool_textaligntop.hint
 msgid "Align top"
-msgstr ""
+msgstr "对齐顶部"
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"
-msgstr ""
+msgstr "双向"
 
 #: tfmain.tool_textbold.hint
 msgid "Bold"
-msgstr ""
+msgstr "粗体"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -1977,11 +1977,11 @@ msgstr "选择字体..."
 
 #: tfmain.tool_textitalic.hint
 msgid "Italic"
-msgstr ""
+msgstr "斜体"
 
 #: tfmain.tool_textltr.hint
 msgid "Left to right"
-msgstr ""
+msgstr "左到右"
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1995,7 +1995,7 @@ msgstr "文本高光渲染"
 
 #: tfmain.tool_textrtl.hint
 msgid "Right to left"
-msgstr ""
+msgstr "右到左"
 
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
@@ -2004,11 +2004,11 @@ msgstr "文本阴影"
 
 #: tfmain.tool_textstrikeout.hint
 msgid "Strikeout"
-msgstr ""
+msgstr "删除线"
 
 #: tfmain.tool_textunderline.hint
 msgid "Underline"
-msgstr ""
+msgstr "下划线"
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -2634,7 +2634,7 @@ msgstr "抖动"
 
 #: tfsaveoption.checkbox_lossless.caption
 msgid "Lossless"
-msgstr ""
+msgstr "无损"
 
 #: tfsaveoption.label1.caption
 msgid "Quality:"
@@ -2846,7 +2846,7 @@ msgstr "位图"
 
 #: uresourcestrings.rsblack
 msgid "Black"
-msgstr ""
+msgstr "黑色的"
 
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
@@ -2892,7 +2892,7 @@ msgstr "光盘"
 
 #: uresourcestrings.rschannels
 msgid "Channels"
-msgstr ""
+msgstr "渠道"
 
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
@@ -2913,7 +2913,7 @@ msgstr "颜色说明：单击以键入颜色名称或 CSS 表示。"
 
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
-msgstr ""
+msgstr "颜色叠加"
 
 #: uresourcestrings.rscolors
 msgctxt "uresourcestrings.rscolors"
@@ -2969,7 +2969,7 @@ msgstr "CTRL"
 
 #: uresourcestrings.rscurrentlayernotsplit
 msgid "Current layer is not split"
-msgstr ""
+msgstr "当前层未拆分"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -2977,7 +2977,7 @@ msgstr "按 ENTER 设置曲线最后一个点"
 
 #: uresourcestrings.rscyan
 msgid "Cyan"
-msgstr ""
+msgstr "青色"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
@@ -3012,7 +3012,7 @@ msgstr "下载"
 
 #: uresourcestrings.rsdropshadow
 msgid "Drop shadow"
-msgstr ""
+msgstr "阴影"
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
@@ -3163,7 +3163,7 @@ msgstr "发生以下错误："
 
 #: uresourcestrings.rsfractaltree
 msgid "Fractal tree"
-msgstr ""
+msgstr "分形树"
 
 #: uresourcestrings.rsframes
 msgid "Frames"
@@ -3314,7 +3314,7 @@ msgstr "最新 LazPaint 版本是"
 
 #: uresourcestrings.rslava
 msgid "Lava"
-msgstr ""
+msgstr "岩浆"
 
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
@@ -3331,7 +3331,7 @@ msgstr "分层图像"
 
 #: uresourcestrings.rslayereffect
 msgid "Layer effect"
-msgstr ""
+msgstr "图层效果"
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
@@ -3388,11 +3388,11 @@ msgstr "循环数量"
 
 #: uresourcestrings.rsmagenta
 msgid "Magenta"
-msgstr ""
+msgstr "品红"
 
 #: uresourcestrings.rsmakemonochromatic
 msgid "Make monochromatic"
-msgstr ""
+msgstr "制作单色"
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
@@ -3400,7 +3400,7 @@ msgstr "从图像生成 %1 颜色调色板"
 
 #: uresourcestrings.rsmask
 msgid "Mask"
-msgstr ""
+msgstr "图层蒙版"
 
 #: uresourcestrings.rsmaskfromalphachannel
 msgid "Mask from alpha channel"
@@ -3408,7 +3408,7 @@ msgstr ""
 
 #: uresourcestrings.rsmerge
 msgid "Merge"
-msgstr ""
+msgstr "合并"
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -3447,7 +3447,7 @@ msgstr "新图像"
 
 #: uresourcestrings.rsnewmask
 msgid "New mask"
-msgstr ""
+msgstr "新图层蒙版"
 
 #: uresourcestrings.rsno
 msgid "No"
@@ -3712,7 +3712,7 @@ msgstr "设备"
 
 #: uresourcestrings.rsstroke
 msgid "Stroke"
-msgstr ""
+msgstr "描边效果"
 
 #: uresourcestrings.rstextoutline
 #, fuzzy
@@ -3799,7 +3799,7 @@ msgstr "矢量图层"
 
 #: uresourcestrings.rsversion
 msgid "Version"
-msgstr ""
+msgstr "版本"
 
 #: uresourcestrings.rsverticalsize
 msgid "Vertical size"
@@ -3807,11 +3807,11 @@ msgstr ""
 
 #: uresourcestrings.rsvisible
 msgid "Visibile"
-msgstr ""
+msgstr "可见的"
 
 #: uresourcestrings.rsyellow
 msgid "Yellow"
-msgstr ""
+msgstr "黄色"
 
 #: uresourcestrings.rsyes
 msgid "Yes"

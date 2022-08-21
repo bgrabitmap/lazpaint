@@ -11,7 +11,7 @@ uses
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
-  LazPaintVersion = 7020000;
+  LazPaintVersion = 7020100;
 
   function LazPaintVersionStr: string;
 
@@ -218,7 +218,7 @@ type
 
     function GetMainFormBounds: TRect; virtual; abstract;
   public
-    Title,AboutText: string;
+    Title: string;
     EmbeddedResult: TModalResult;
     EmbeddedImageBackup: TBGRABitmap;
 
@@ -235,8 +235,17 @@ type
     procedure RestoreMainWindowPosition; virtual; abstract;
     procedure Donate; virtual; abstract;
     procedure UseConfig(ini: TInifile); virtual; abstract;
-    procedure AssignBitmap(bmp: TBGRABitmap); virtual; abstract;
-    procedure EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStream = nil; ATitle: String = ''; AOnRun: TLazPaintInstanceEvent = nil; AOnExit: TLazPaintInstanceEvent = nil; ABlackAndWhite : boolean = false); virtual; abstract;
+    procedure AssignBitmap(bmp: TBGRABitmap); virtual; abstract; overload;
+    procedure AssignBitmap(bmp: TBGRALayeredBitmap); virtual; abstract; overload;
+    function EditBitmap(var bmp: TBGRABitmap; ConfigStream: TStream = nil;
+      ATitle: String = ''; AOnRun: TLazPaintInstanceEvent = nil;
+      AOnExit: TLazPaintInstanceEvent = nil;
+      ABlackAndWhite : boolean = false): boolean; virtual; abstract;
+    function EditBitmap(var bmp: TBGRALayeredBitmap;
+      ConfigStream: TStream = nil; ATitle: String = '';
+      AOnRun: TLazPaintInstanceEvent = nil;
+      AOnExit: TLazPaintInstanceEvent = nil;
+      ABlackAndWhite : boolean = false): boolean; virtual; abstract;
     function EditTexture(ASource: TBGRABitmap): TBGRABitmap; virtual; abstract;
     procedure EditSelection; virtual; abstract;
     function ProcessCommandLine: boolean; virtual; abstract;

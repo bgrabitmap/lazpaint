@@ -281,7 +281,7 @@ type
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); virtual;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); virtual;
     procedure MouseMove({%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); virtual;
-    procedure MouseDown({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); virtual;
+    procedure MouseDown({%H-}RightButton: boolean; {%H-}ClickCount: integer; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); virtual;
     procedure MouseUp({%H-}RightButton: boolean; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: single; var {%H-}ACursor: TOriginalEditorCursor; var {%H-}AHandled: boolean); virtual;
     procedure KeyDown({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); virtual;
     procedure KeyUp({%H-}Shift: TShiftState; {%H-}Key: TSpecialKey; var {%H-}AHandled: boolean); virtual;
@@ -1409,7 +1409,8 @@ begin
   begin
     ptF := ViewCoordToOriginal(PointF(ViewX,ViewY));
     if GridActive then ptF := SnapToGrid(ptF, False);
-    with ptF do FOriginal.SelectedShape.MouseDown(RightButton, Shift, X,Y, ACursor, AHandled);
+    with ptF do FOriginal.SelectedShape.MouseDown(RightButton,
+      ConsecutiveClickCount, Shift, X,Y, ACursor, AHandled);
   end;
 end;
 
@@ -2469,7 +2470,7 @@ begin
   //nothing
 end;
 
-procedure TVectorShape.MouseDown(RightButton: boolean; Shift: TShiftState; X,
+procedure TVectorShape.MouseDown(RightButton: boolean; ClickCount: integer; Shift: TShiftState; X,
   Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean);
 begin
   //nothing

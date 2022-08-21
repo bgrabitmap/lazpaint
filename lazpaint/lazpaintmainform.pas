@@ -1132,6 +1132,7 @@ begin
 
   {$IFDEF DARWIN}
   ImageHorizontalFlip.ShortCut := ShortCut(VK_H, [ssMeta, ssCtrl]);
+  FileQuickSave.ShortCut:= ShortCut(VK_Q, [ssMeta, ssAlt]);
   {$ENDIF}
 
   if not LazPaintInstance.Embedded then

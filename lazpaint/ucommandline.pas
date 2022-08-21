@@ -5,13 +5,13 @@ unit UCommandline;
 
 interface
 
-uses classes, LazpaintType, uresourcestrings;
+uses classes, LazpaintType, uresourcestrings, LCLStrConsts;
 
 {$IFDEF WINDOWS}
   {$DEFINE SHOW_MANUAL_IN_WINDOW}
 {$ENDIF}
 
-const Manual: array[0..64] of string = (
+const Manual: array[0..79] of string = (
 'NAME',
 '       LazPaint - Image editor',
 '',
@@ -38,12 +38,27 @@ const Manual: array[0..64] of string = (
 '       -script FILENAME',
 '              runs the specified Python script. It must have  a  ".py"  exten‐',
 '              sion.',
+'',
+'       -editor default|CONFIGFILE|OPTION1,OPTION2...',
+'              shows the image editor with validate and cancel buttons.  If the',
+'              validate button is used,  the rest of the commands are executed.',
+'              Otherwise the program stops.',
+'',
+'              Examples:',
+'              -editor default',
+'              -editor /Users/me/lazpaintCustom.cfg',
+'              -editor [Window]ColorWindowVisible=0,LayerWindowVisible=0',
+'',
 '       -quit',
 '              quits the program even if no output file was  provided.  Can  be',
 '              useful when only running scripts.',
 '',
 '       -new WIDTH,HEIGHT',
 '              creates an empty image of size WIDTH x HEIGHT.',
+'',
+'       -screenshot SCREEN|X1,Y1,X2,Y2',
+'              takes a screenshot of the screen of index SCREEN  (0 for primary',
+'              monitor) or of specified coordinates.',
 '',
 '       -resample WIDTH,HEIGHT',
 '              resamples the image to the size WIDTH x HEIGHT.',
@@ -84,9 +99,10 @@ function ParamStrUTF8(AIndex: integer): string;
 implementation
 
 uses
-  SysUtils, BGRAUTF8, LazFileUtils, BGRABitmap, BGRABitmapTypes, Dialogs, uparse,
-  UImage, UImageAction, ULayerAction, UScripting, UPython, Forms, StdCtrls, Controls,
-  UFileSystem, BGRAIconCursor;
+  SysUtils, BGRAUTF8, LazFileUtils, BGRABitmap, BGRABitmapTypes, BGRALayers, Dialogs, uparse,
+  UImage, UImageAction, ULayerAction, UScripting, UPython, Forms, Controls,
+  UFileSystem, BGRAIconCursor, UGraph
+  {$IFDEF SHOW_MANUAL_IN_WINDOW},StdCtrls{$ENDIF};
 
 function ParamStrUTF8(AIndex: integer): string;
 begin
@@ -215,6 +231,140 @@ var
     end;
     instance.Image.Assign(instance.MakeNewBitmapReplacement(w,h,BGRAPixelTransparent),True,False);
     result := true;
+  end;
+
+  function DoScreenshot: boolean;
+  var r: TRect;
+    screenIndex,errPos: integer;
+    invalid: boolean;
+  begin
+    funcParams := SimpleParseFuncParam(CommandStr);
+    if length(funcParams)=1 then
+    begin
+      val(funcParams[0],screenIndex,errPos);
+      if errPos <> 0 then
+      begin
+        instance.ShowError('Screenshot', '"Screenshot" ' + rsExpect1Parameter+CommandStr);
+        errorEncountered := true;
+        exit(false);
+      end;
+      if (screenIndex < 0) or (screenIndex >= Screen.MonitorCount) then
+      begin
+        instance.ShowError('Screenshot', '"Screenshot" ' +
+                                         lclstrconsts.rsListIndexExceedsBounds.Replace('%d', inttostr(screenIndex)));
+        errorEncountered := true;
+        exit(false);
+      end;
+      r := Screen.Monitors[screenIndex].BoundsRect;
+      r := rect(r.Left*CanvasScale, r.Top*CanvasScale,
+                r.Right*CanvasScale, r.Bottom*CanvasScale);
+    end else
+    if length(funcParams)=4 then
+    begin
+      r := rect(0,0,0,0);
+      invalid := false;
+      val(funcParams[0],r.Left,errPos);
+      if errPos <> 0 then invalid := true;
+      val(funcParams[1],r.Top,errPos);
+      if errPos <> 0 then invalid := true;
+      val(funcParams[2],r.Right,errPos);
+      if errPos <> 0 then invalid := true;
+      val(funcParams[3],r.Bottom,errPos);
+      if errPos <> 0 then invalid := true;
+      if invalid then
+      begin
+        instance.ShowError('Screenshot', '"Screenshot" ' + StringReplace(rsExpectNParameters,'N','4',[])+CommandStr);
+        errorEncountered := true;
+        exit(false);
+      end;
+      if (errPos <> 0) or (r.Width <= 0) or (r.Height <= 0) then
+      begin
+        instance.ShowError('New',rsInvalidSizeForNew+IntToStr(r.Width)+'x'+IntToStr(r.Height));
+        errorEncountered := true;
+        exit(false);
+      end;
+    end else
+    begin
+      instance.ShowError('Screenshot', '"Screenshot" ' + StringReplace(rsExpectNParameters,'N','4',[])+CommandStr);
+      errorEncountered := true;
+      exit(false);
+    end;
+    AImageActions.TakeScreenshot(r);
+    result := true;
+  end;
+
+  function MakeConfigFromFuncParam: string;
+  var
+    cfg: TStringList;
+    curSection, newSection, p, param: string;
+  begin
+    cfg := TStringList.Create;
+    curSection := '[General]';
+    cfg.Add(curSection);
+    try
+      for p in funcParams do
+      begin
+        param := p;
+        if param.StartsWith('[') then
+        begin
+          if param.IndexOf(']') <> -1 then
+          begin
+            newSection := param.Substring(0, param.IndexOf(']')+1);
+            param := param.Substring(length(newSection));
+          end else
+          begin
+            newSection := param;
+            param := '';
+          end;
+          if newSection <> curSection then
+          begin
+            curSection := newSection;
+            cfg.Add(curSection);
+          end;
+        end;
+        if param<>'' then
+        begin
+          if param.IndexOf('=') = -1 then
+            raise Exception.Create(SParExpected.Replace('%s', '"="'));
+          cfg.Add(param);
+        end;
+      end;
+    finally
+      result := cfg.Text;
+      cfg.Free;
+    end;
+  end;
+
+  function DoEditor: boolean;
+  var
+    iniStream: TStream;
+    bmp: TBGRALayeredBitmap;
+  begin
+    result := false;
+    funcParams := SimpleParseFuncParam(CommandStr);
+    if (length(funcParams) = 1) and
+       ((ExtractFileExt(funcParams[0])='.ini') or (ExtractFileExt(funcParams[0])='.cfg')) then
+      iniStream := FileManager.CreateFileStream(funcParams[0], fmOpenRead)
+    else if (length(funcParams) = 1) and (funcParams[0] = 'default') then
+      iniStream := TMemoryStream.Create
+    else
+      iniStream := TStringStream.Create(MakeConfigFromFuncParam);
+
+    bmp := instance.Image.CurrentState.GetLayeredBitmapCopy;
+    try
+      if instance.EditBitmap(bmp, iniStream) then
+      begin
+        instance.Image.CurrentState.Assign(bmp, true);
+        result := true;
+      end
+      else
+      begin
+        bmp.Free;
+        quitQuery := true;
+      end;
+    finally
+      FileManager.CancelStreamAndFree(iniStream);
+    end;
   end;
 
   function NextAsFuncParam: boolean;
@@ -374,6 +524,10 @@ begin
         if lowerCmd = 'resample' then begin if not NextAsFuncParam or not DoResample then exit end else
         if copy(lowerCmd,1,4)='new(' then begin if not DoNew then exit end else
         if lowerCmd = 'new' then begin if not NextAsFuncParam or not DoNew then exit end else
+        if lowerCmd.StartsWith('screenshot(') then begin if not DoScreenShot then exit end else
+        if lowerCmd = 'screenshot' then begin if not NextAsFuncParam or not DoScreenShot then exit end else
+        if lowerCmd.StartsWith('editor(') then begin if not DoEditor then exit end else
+        if lowerCmd = 'editor' then begin if not NextAsFuncParam or not DoEditor then exit end else
         if lowerCmd = 'script' then
         begin
           enableScript := true;

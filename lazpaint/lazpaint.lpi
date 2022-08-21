@@ -28,6 +28,7 @@
       <MinorVersionNr Value="2"/>
       <CharSet Value="04B0"/>
       <StringTable CompanyName="http://sourceforge.net/projects/lazpaint/" FileDescription="LazPaint" InternalName="lazpaint" OriginalFilename="lazpaint.exe" ProductName="LazPaint"/>
+      <RevisionNr Value="1"/>
     </VersionInfo>
     <BuildModes Count="10">
       <Item1 Name="Debug" Default="True"/>
@@ -412,7 +413,7 @@
     <RequiredPackages Count="5">
       <Item1>
         <PackageName Value="BGRABitmapPack"/>
-        <MinVersion Major="11" Minor="5" Valid="True"/>
+        <MinVersion Major="11" Minor="5" Release="2" Valid="True"/>
       </Item1>
       <Item2>
         <PackageName Value="bgracontrols"/>
@@ -420,7 +421,7 @@
       </Item2>
       <Item3>
         <PackageName Value="lazpaintcontrols"/>
-        <MinVersion Minor="2" Valid="True"/>
+        <MinVersion Minor="2" Release="1" Valid="True"/>
       </Item3>
       <Item4>
         <PackageName Value="Printer4Lazarus"/>

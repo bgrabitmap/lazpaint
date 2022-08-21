@@ -184,7 +184,7 @@ type
     function AppendToSVG(AContent: TSVGContent; ADefs: TSVGDefine): TSVGElement; override;
     function GetAlignBounds(const ALayoutRect: TRect; const AMatrix: TAffineMatrix): TRectF; override;
     procedure ConfigureCustomEditor(AEditor: TBGRAOriginalEditor); override;
-    procedure MouseDown(RightButton: boolean; Shift: TShiftState; X, Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
+    procedure MouseDown(RightButton: boolean; {%H-}ClickCount: integer; Shift: TShiftState; X, Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean); override;
     procedure LoadFromStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure SaveToStorage(AStorage: TBGRACustomOriginalStorage); override;
     procedure Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix; ADraft: boolean); overload; override;
@@ -1676,10 +1676,10 @@ begin
     TVectorOriginalEditor(AEditor).AddLabel(idxLight, rsLightPosition, taCenter, tlTop);
 end;
 
-procedure TPhongShape.MouseDown(RightButton: boolean; Shift: TShiftState; X,
+procedure TPhongShape.MouseDown(RightButton: boolean; ClickCount: integer; Shift: TShiftState; X,
   Y: single; var ACursor: TOriginalEditorCursor; var AHandled: boolean);
 begin
-  inherited MouseDown(RightButton, Shift, X, Y, ACursor, AHandled);
+  inherited MouseDown(RightButton, ClickCount, Shift, X, Y, ACursor, AHandled);
   if not AHandled then
   begin
     if RightButton then

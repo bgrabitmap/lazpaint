@@ -2093,7 +2093,7 @@ begin
     begin
       shapePt := AffineMatrixInverse(VectorTransform(true))*FLastPos;
       If Editor.GridActive then shapePt := Editor.SnapToGrid(shapePt, false);
-      FShape.MouseDown(rightBtn, ShiftState, shapePt.X,shapePt.Y, cur, handled);
+      FShape.MouseDown(rightBtn, Editor.ConsecutiveClickCount, ShiftState, shapePt.X,shapePt.Y, cur, handled);
     end;
     UpdateCursor(cur);
     if handled then exit
