@@ -113,6 +113,8 @@ Source: "{#ReleaseDir}readme.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#ScriptsDir}*"; DestDir: "{app}\scripts"; Flags: ignoreversion; Excludes: "\__pycache__\*";  
 Source: "{#ScriptsDir}\lazpaint\*"; DestDir: "{app}\scripts\lazpaint"; Flags: ignoreversion; Excludes: "\__pycache__\*";  
 Source: "{#ScriptsDir}\test\*"; DestDir: "{app}\scripts\test"; Flags: ignoreversion; Excludes: "\__pycache__\*";  
+Source: "libavif\win32\*"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "libavif\win64\*"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Comment: "LazPaint"

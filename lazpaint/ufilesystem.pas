@@ -6,7 +6,8 @@ unit UFileSystem;
 interface
 
 uses
-  Classes, SysUtils, UResourceStrings, LazUTF8, Forms, BGRAMultiFileType, ShellCtrls, fgl, Masks;
+  Classes, SysUtils, UResourceStrings, LazUTF8, Forms, BGRAMultiFileType,
+  ShellCtrls, fgl, Masks, LCLVersion;
 
 type
   TDeleteConfirmationFunction = function(AForm: TForm; const AFiles: array of string; AContained: boolean): boolean of object;
@@ -1006,7 +1007,13 @@ begin
   end;
 end;
 
-{$i getfilesindir.inc}
+{$IF (LCL_FULLVERSION>=2020000)}
+  {$DEFINE CUSTOM_GETFILESINDIR}
+{$ENDIF}
+
+{$IFDEF CUSTOM_GETFILESINDIR}
+  {$i getfilesindir.inc}
+{$ENDIF}
 
 procedure TFileManager.GetDirectoryElements(const ABaseDir: string; AMask: string;
   AObjectTypes: TObjectTypes; AResult: TFileInfoList; AFileSortType: TFileSortType);
@@ -1057,7 +1064,7 @@ begin
   begin
     temp := TStringList.Create;
     temp.OwnsObjects := true;
-    GetFilesInDir(ABaseDir,AMask,AObjectTypes,temp,fstNone);
+    {$IFNDEF CUSTOM_GETFILESINDIR}TCustomShellTreeView.{$ENDIF}GetFilesInDir(ABaseDir,AMask,AObjectTypes,temp,fstNone);
     for i := 0 to temp.Count-1 do
     begin
       fullname := IncludeTrailingPathDelimiter(ABaseDir)+temp[i];
@@ -1089,7 +1096,7 @@ begin
     if otFolders in AObjectTypes then
     begin
       temp.Clear;
-      GetFilesInDir(ABaseDir,'*.res;*.Res;*.RES;*.lrs;*.Lrs;*.LRS',[otNonFolders],temp,fstNone);
+      {$IFNDEF CUSTOM_GETFILESINDIR}TCustomShellTreeView.{$ENDIF}GetFilesInDir(ABaseDir,'*.res;*.Res;*.RES;*.lrs;*.Lrs;*.LRS',[otNonFolders],temp,fstNone);
       for i := 0 to temp.Count-1 do
       begin
         fullname := IncludeTrailingPathDelimiter(ABaseDir)+temp[i];
