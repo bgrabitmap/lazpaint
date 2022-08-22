@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 2.2.4\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #: tablet.getprocfailed
 #, object-pascal-format
@@ -296,7 +296,7 @@ msgstr "Opravený odstín a světlost"
 #: tfcolorize.label_colorness.caption
 msgctxt "tfcolorize.label_colorness.caption"
 msgid "Colorness"
-msgstr "Barevný"
+msgstr "Barevnost"
 
 #: tfcolorize.label_hue.caption
 msgctxt "tfcolorize.label_hue.caption"
@@ -386,7 +386,6 @@ msgid "Corrected hue and lightness"
 msgstr "Opravný odstín a světlost"
 
 #: tffilterfunction.label_aequals.caption
-#, fuzzy
 msgctxt "tffilterfunction.label_aequals.caption"
 msgid "."
 msgstr "."
@@ -397,7 +396,6 @@ msgid "."
 msgstr "."
 
 #: tffilterfunction.label_bequals.caption
-#, fuzzy
 msgctxt "tffilterfunction.label_bequals.caption"
 msgid "."
 msgstr "."
@@ -418,7 +416,6 @@ msgid "."
 msgstr "."
 
 #: tffilterfunction.label_lequals.caption
-#, fuzzy
 msgctxt "tffilterfunction.label_lequals.caption"
 msgid "."
 msgstr "."
@@ -448,7 +445,7 @@ msgstr "HSL"
 
 #: tffilterfunction.tabsheet_lab.caption
 msgid "Lab"
-msgstr ""
+msgstr "Laboratoř"
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
@@ -614,7 +611,6 @@ msgid "Remove current brush"
 msgstr "Odebrat aktuální štětec"
 
 #: tfmain.button_donate.caption
-#, fuzzy
 msgctxt "tfmain.button_donate.caption"
 msgid "Donate..."
 msgstr "Přispět..."
@@ -655,11 +651,11 @@ msgstr "Posunutí barev..."
 
 #: tfmain.combobox_arrowend.hint
 msgid "Ending arrow"
-msgstr ""
+msgstr "Ukončovací šipka"
 
 #: tfmain.combobox_arrowstart.hint
 msgid "Starting arrow"
-msgstr ""
+msgstr "Začáteční šipka"
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
@@ -853,11 +849,11 @@ msgstr "Tisk..."
 
 #: tfmain.filequicksave.caption
 msgid "Quick save"
-msgstr ""
+msgstr "Rychlé uložení"
 
 #: tfmain.filequicksave.hint
 msgid "Save current file without dialogs"
-msgstr ""
+msgstr "Uložit aktuální soubor bez dialogů"
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -1297,7 +1293,6 @@ msgid "Duplicate selected layer"
 msgstr "Zdvojit vybranou vrsvu"
 
 #: tfmain.layerexport.hint
-#, fuzzy
 msgctxt "tfmain.layerexport.hint"
 msgid "Export..."
 msgstr "Exportovat..."
@@ -1941,7 +1936,7 @@ msgstr "Vzrůstající výplň"
 
 #: tfmain.tool_textalignbottom.hint
 msgid "Align bottom"
-msgstr ""
+msgstr "Zarovnat dolů"
 
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
@@ -1953,7 +1948,7 @@ msgstr "Zarovnat vlevo"
 
 #: tfmain.tool_textalignmiddle.hint
 msgid "Center vertically"
-msgstr ""
+msgstr "Vystředit svisle"
 
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
@@ -1961,15 +1956,15 @@ msgstr "Zarovnat vpravo"
 
 #: tfmain.tool_textaligntop.hint
 msgid "Align top"
-msgstr ""
+msgstr "Zarovnat nahoru"
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"
-msgstr ""
+msgstr "Obousměrný"
 
 #: tfmain.tool_textbold.hint
 msgid "Bold"
-msgstr ""
+msgstr "Tlusté"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -1978,11 +1973,11 @@ msgstr "Vyberte písmo..."
 
 #: tfmain.tool_textitalic.hint
 msgid "Italic"
-msgstr ""
+msgstr "Kurzíva"
 
 #: tfmain.tool_textltr.hint
 msgid "Left to right"
-msgstr ""
+msgstr "Zleva doprava"
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1996,7 +1991,7 @@ msgstr "Phongové stínování textu"
 
 #: tfmain.tool_textrtl.hint
 msgid "Right to left"
-msgstr ""
+msgstr "Zprava doleva"
 
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
@@ -2005,11 +2000,11 @@ msgstr "Stín textu"
 
 #: tfmain.tool_textstrikeout.hint
 msgid "Strikeout"
-msgstr ""
+msgstr "Přeškrtnuté"
 
 #: tfmain.tool_textunderline.hint
 msgid "Underline"
-msgstr ""
+msgstr "Podtržené"
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -2635,7 +2630,7 @@ msgstr "Dithering"
 
 #: tfsaveoption.checkbox_lossless.caption
 msgid "Lossless"
-msgstr ""
+msgstr "Bezztrátový"
 
 #: tfsaveoption.label1.caption
 msgid "Quality:"
@@ -2827,7 +2822,6 @@ msgid "Autodetect"
 msgstr "Automaticky"
 
 #: uresourcestrings.rsback
-#, fuzzy
 msgctxt "uresourcestrings.rsback"
 msgid "Back"
 msgstr "Zpět"
@@ -2847,7 +2841,7 @@ msgstr "Bitová mapa"
 
 #: uresourcestrings.rsblack
 msgid "Black"
-msgstr ""
+msgstr "Černá"
 
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
@@ -2893,7 +2887,7 @@ msgstr "CD"
 
 #: uresourcestrings.rschannels
 msgid "Channels"
-msgstr ""
+msgstr "Kanály"
 
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
@@ -2914,7 +2908,7 @@ msgstr "Popis barvy: klikněte pro zadání barvy klávesnicí pomocí jména ba
 
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
-msgstr ""
+msgstr "Překrytí barvy"
 
 #: uresourcestrings.rscolors
 msgctxt "uresourcestrings.rscolors"
@@ -2970,7 +2964,7 @@ msgstr "CTRL"
 
 #: uresourcestrings.rscurrentlayernotsplit
 msgid "Current layer is not split"
-msgstr ""
+msgstr "Aktuální vrstva není rozdělená"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -2978,7 +2972,7 @@ msgstr "Stiskni S nebo X k nastavení režimu křivky posledního bodu"
 
 #: uresourcestrings.rscyan
 msgid "Cyan"
-msgstr ""
+msgstr "Azurová"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
@@ -3002,7 +2996,6 @@ msgid "Dither layer using palette"
 msgstr "Dither vrstvy pomocí palety"
 
 #: uresourcestrings.rsdonate
-#, fuzzy
 msgctxt "uresourcestrings.rsdonate"
 msgid "Donate..."
 msgstr "Přispět..."
@@ -3013,7 +3006,7 @@ msgstr "Stažení"
 
 #: uresourcestrings.rsdropshadow
 msgid "Drop shadow"
-msgstr ""
+msgstr "Zahodit stín"
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
@@ -3145,7 +3138,6 @@ msgid "Fixed"
 msgstr "Pevně"
 
 #: uresourcestrings.rsflattenimage
-#, fuzzy
 msgctxt "uresourcestrings.rsflattenimage"
 msgid "Flatten image"
 msgstr "Zploštit obrázek"
@@ -3164,7 +3156,7 @@ msgstr "Nastaly následující chyby:"
 
 #: uresourcestrings.rsfractaltree
 msgid "Fractal tree"
-msgstr ""
+msgstr "Fraktálový strom"
 
 #: uresourcestrings.rsframes
 msgid "Frames"
@@ -3233,7 +3225,6 @@ msgid "Icon size"
 msgstr "Velikost ikony"
 
 #: uresourcestrings.rsimage
-#, fuzzy
 msgctxt "uresourcestrings.rsimage"
 msgid "Image"
 msgstr "Obrázek"
@@ -3253,11 +3244,11 @@ msgstr "Informace"
 
 #: uresourcestrings.rsinnerlight
 msgid "Inner light"
-msgstr ""
+msgstr "Vnitřní světlo"
 
 #: uresourcestrings.rsinnershadow
 msgid "Inner shadow"
-msgstr ""
+msgstr "Vnitřní stín"
 
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
@@ -3270,7 +3261,7 @@ msgstr "Vnitřní chyba"
 
 #: uresourcestrings.rsinvalidangle
 msgid "Invalid angle"
-msgstr ""
+msgstr "Neplatný úhel"
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
@@ -3315,7 +3306,7 @@ msgstr "Je dostupná poslední online verze LazPaint"
 
 #: uresourcestrings.rslava
 msgid "Lava"
-msgstr ""
+msgstr "Lávová"
 
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
@@ -3324,7 +3315,7 @@ msgstr "Vrstva"
 
 #: uresourcestrings.rslayeralreadysplit
 msgid "Layer already split"
-msgstr ""
+msgstr "Vrstva již rozdělena"
 
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
@@ -3332,7 +3323,7 @@ msgstr "Vrstvený obrázek"
 
 #: uresourcestrings.rslayereffect
 msgid "Layer effect"
-msgstr ""
+msgstr "Efekt vrstvy"
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
@@ -3389,11 +3380,11 @@ msgstr "Počet opakování"
 
 #: uresourcestrings.rsmagenta
 msgid "Magenta"
-msgstr ""
+msgstr "Purpurová"
 
 #: uresourcestrings.rsmakemonochromatic
 msgid "Make monochromatic"
-msgstr ""
+msgstr "Udělat černobílé"
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
@@ -3401,15 +3392,15 @@ msgstr "Udělat %1-barevnou paletu z obrázku"
 
 #: uresourcestrings.rsmask
 msgid "Mask"
-msgstr ""
+msgstr "Maska"
 
 #: uresourcestrings.rsmaskfromalphachannel
 msgid "Mask from alpha channel"
-msgstr ""
+msgstr "Maska z alfa kanálu"
 
 #: uresourcestrings.rsmerge
 msgid "Merge"
-msgstr ""
+msgstr "Sloučit"
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -3448,7 +3439,7 @@ msgstr "Nový obrázek"
 
 #: uresourcestrings.rsnewmask
 msgid "New mask"
-msgstr ""
+msgstr "Nová maska"
 
 #: uresourcestrings.rsno
 msgid "No"
@@ -3477,7 +3468,7 @@ msgstr "Běžné"
 
 #: uresourcestrings.rsnotchromaticchannel
 msgid "This is not a chromatic channel"
-msgstr ""
+msgstr "Toto není barevný kanál"
 
 #: uresourcestrings.rsnothingtobedeformed
 msgctxt "uresourcestrings.rsnothingtobedeformed"
@@ -3543,7 +3534,6 @@ msgid "Palette options"
 msgstr "Volby palety"
 
 #: uresourcestrings.rspen
-#, fuzzy
 msgctxt "uresourcestrings.rspen"
 msgid "Pen"
 msgstr "Pero"
@@ -3607,7 +3597,6 @@ msgid "Remove color from palette"
 msgstr "Odebrat barvu z palety"
 
 #: uresourcestrings.rsrender
-#, fuzzy
 msgctxt "uresourcestrings.rsrender"
 msgid "Render"
 msgstr "Vykreslit"
@@ -3637,7 +3626,7 @@ msgstr "RGB"
 
 #: uresourcestrings.rsrightclickfinishshape
 msgid "Use RIGHT click to finish shape"
-msgstr ""
+msgstr "Použijte PRAVÝ klik k ukončení tvaru"
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
@@ -3697,15 +3686,15 @@ msgstr "Spline"
 
 #: uresourcestrings.rssplitcmyk
 msgid "Split CMYK"
-msgstr ""
+msgstr "Rozdělit CMYK"
 
 #: uresourcestrings.rssplithsl
 msgid "Split HSL"
-msgstr ""
+msgstr "Rozdělit HSL"
 
 #: uresourcestrings.rssplitrgb
 msgid "Split RGB"
-msgstr ""
+msgstr "Rozdělit RGB"
 
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
@@ -3713,10 +3702,9 @@ msgstr "Zařízení"
 
 #: uresourcestrings.rsstroke
 msgid "Stroke"
-msgstr ""
+msgstr "Čára"
 
 #: uresourcestrings.rstextoutline
-#, fuzzy
 msgctxt "uresourcestrings.rstextoutline"
 msgid "Text outline"
 msgstr "Obrys textu"
@@ -3800,19 +3788,19 @@ msgstr "Vektorová vrstva"
 
 #: uresourcestrings.rsversion
 msgid "Version"
-msgstr ""
+msgstr "Verze"
 
 #: uresourcestrings.rsverticalsize
 msgid "Vertical size"
-msgstr ""
+msgstr "Svislá velikost"
 
 #: uresourcestrings.rsvisible
 msgid "Visibile"
-msgstr ""
+msgstr "Viditelné"
 
 #: uresourcestrings.rsyellow
 msgid "Yellow"
-msgstr ""
+msgstr "Žlutá"
 
 #: uresourcestrings.rsyes
 msgid "Yes"
@@ -3827,4 +3815,3 @@ msgstr "Přiblížit sadu vrstev"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Oddálit sadu vrstev"
-
