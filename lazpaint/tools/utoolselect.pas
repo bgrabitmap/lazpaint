@@ -660,7 +660,9 @@ var penColor: TBGRAPixel;
   yb, xb: Integer;
   pmask: PByte;
   compareColor: TExpandedPixel;
+  toleranceW: word;
   diff, diffDiv: integer;
+  maskBrush: TUniversalBrush;
 begin
   if not Manager.Image.CurrentLayerVisible then
   begin
@@ -677,11 +679,13 @@ begin
     if ffProgressive in Manager.FloodFillOptions then
     begin
       mask := TGrayscaleMask.Create(targetRect.Width, targetRect.Height, 0);
-      Manager.Image.CurrentLayerReadOnly.ParallelFloodFill(pt.X-ofs.X, pt.Y-ofs.Y,
-        mask, ByteMaskWhite, fmDrawWithTransparency, Manager.Tolerance,
-        ofs.X - targetRect.Left, ofs.Y - targetRect.Top);
       compareColor := GammaExpansion(source.GetPixel(pt.X-ofs.X, pt.Y-ofs.Y));
-      diffDiv := Manager.Tolerance + (Manager.Tolerance shl 8) + 1;
+      toleranceW := Manager.Tolerance + (Manager.Tolerance shl 8);
+      mask.SolidBrush(maskBrush, ByteMaskWhite);
+      Manager.Image.CurrentLayerReadOnly.ParallelFloodFill(pt.X-ofs.X, pt.Y-ofs.Y,
+        mask, maskBrush, false, toleranceW,
+        ofs.X - targetRect.Left, ofs.Y - targetRect.Top);
+      diffDiv := toleranceW + 1;
       for yb := 0 to mask.Height-1 do
       begin
         psource := PBGRAPixel(source.GetPixelAddress(targetRect.Left - ofs.x, yb + targetRect.Top - ofs.y));
@@ -690,8 +694,11 @@ begin
         begin
           if pmask^ <> 0 then
           begin
-            diff := ExpandedDiff(psource^.ToExpanded, compareColor);
-            pmask^ := (pmask^ * (diffDiv - diff) + (diffDiv shr 1)) div diffDiv;
+            diff := diffDiv - ExpandedDiff(psource^.ToExpanded, compareColor);
+            if diff >= 0 then
+              pmask^ := (pmask^ * diff + (diffDiv shr 1)) div diffDiv
+            else
+              pmask^ := 0;
           end;
           inc(pmask);
           inc(psource);
