@@ -12,15 +12,6 @@ msgstr ""
 "X-Poedit-SourceCharset: utf-8\n"
 "X-Generator: Poedit 3.0.1\n"
 
-#: tablet.getprocfailed
-#, object-pascal-format
-msgid "Procedure %s failed to load properly."
-msgstr "Nepodařilo se správně načíst proceduru %s."
-
-#: tablet.openfailed
-msgid "Tablet context failed to open."
-msgstr "Nelze otevřít kontext tabletu."
-
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
 msgid "Donate..."
@@ -328,7 +319,7 @@ msgstr "OK"
 #: tfcustomblur.caption
 msgctxt "tfcustomblur.caption"
 msgid "Custom blur"
-msgstr "Vlastní rozostření"
+msgstr "Vlastní rozmazání"
 
 #: tfcustomblur.openpicturedialog1.title
 msgid "Open grayscale file"
@@ -383,7 +374,7 @@ msgstr "Gamma korekce"
 #: tffilterfunction.checkbox_gsba.caption
 msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
-msgstr "Opravný odstín a světlost"
+msgstr "Opravený odstín a světlost"
 
 #: tffilterfunction.label_aequals.caption
 msgctxt "tffilterfunction.label_aequals.caption"
@@ -445,7 +436,7 @@ msgstr "HSL"
 
 #: tffilterfunction.tabsheet_lab.caption
 msgid "Lab"
-msgstr "Laboratoř"
+msgstr "Lab"
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
@@ -642,7 +633,7 @@ msgstr "Světlost / Kontrast..."
 
 #: tfmain.colorposterize.caption
 msgid "Posterize..."
-msgstr "Posteritzace..."
+msgstr "Posterizace..."
 
 #: tfmain.colorshiftcolors.caption
 msgctxt "tfmain.colorshiftcolors.caption"
@@ -906,7 +897,7 @@ msgstr "Použít prohledávač obrázků"
 
 #: tfmain.filterblurbox.caption
 msgid "Box blur..."
-msgstr "Krabicové rozostření..."
+msgstr "Krabicové rozmazání..."
 
 #: tfmain.filterblurcorona.caption
 msgctxt "tfmain.filterblurcorona.caption"
@@ -916,7 +907,7 @@ msgstr "Korónové rozmazání..."
 #: tfmain.filterblurcustom.caption
 msgctxt "tfmain.filterblurcustom.caption"
 msgid "Custom blur..."
-msgstr "Vylasní rozostření..."
+msgstr "Vlastní rozmazání..."
 
 #: tfmain.filterblurdisk.caption
 msgctxt "tfmain.filterblurdisk.caption"
@@ -926,17 +917,17 @@ msgstr "Diskové rozmazání..."
 #: tfmain.filterblurfast.caption
 msgctxt "tfmain.filterblurfast.caption"
 msgid "Fast blur..."
-msgstr "Rychlé rozostření..."
+msgstr "Rychlé rozmazání..."
 
 #: tfmain.filterblurmotion.caption
 msgctxt "tfmain.filterblurmotion.caption"
 msgid "Motion blur..."
-msgstr "Pohybové rozostření..."
+msgstr "Pohybové rozmazání..."
 
 #: tfmain.filterblurprecise.caption
 msgctxt "tfmain.filterblurprecise.caption"
 msgid "Precise blur..."
-msgstr "Přestné rozostření..."
+msgstr "Přesné rozmazání..."
 
 #: tfmain.filterblurradial.caption
 msgctxt "tfmain.filterblurradial.caption"
@@ -1053,7 +1044,7 @@ msgstr "Index..."
 
 #: tfmain.imagechangecanvassize.caption
 msgid "Canvas size..."
-msgstr "Velikost plána..."
+msgstr "Velikost plátna..."
 
 #: tfmain.imageclearalpha.caption
 msgid "Clear alpha channel and set background"
@@ -1485,7 +1476,7 @@ msgstr "Vyplnit tvar"
 
 #: tfmain.rendercamouflage.caption
 msgid "Camouflage"
-msgstr "Zastírání"
+msgstr "Kamufláž"
 
 #: tfmain.renderclouds.caption
 msgid "Clouds"
@@ -1498,7 +1489,7 @@ msgstr "Voda s vlastními barvami"
 #: tfmain.rendercyclicperlinnoise.caption
 msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
-msgstr "Kruhová Perlinův šum"
+msgstr "Kruhový Perlinův šum"
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -1818,7 +1809,7 @@ msgstr "Uzavřít tvar"
 #: tfmain.tool_closeshape.hint
 msgctxt "tfmain.tool_closeshape.hint"
 msgid "Close shape"
-msgstr "Uzavřit tvar"
+msgstr "Uzavřít tvar"
 
 #: tfmain.tool_curvemodeangle.hint
 msgid "Draw an angle"
@@ -1882,7 +1873,7 @@ msgstr "Spojení zkosení"
 #: tfmain.tool_joinmiter.hint
 msgctxt "TFMAIN.TOOL_JOINMITER.HINT"
 msgid "Miter join"
-msgstr "Uzavřit tvar"
+msgstr "Uzavřít tvar"
 
 #: tfmain.tool_joinround.hint
 msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
@@ -2050,7 +2041,7 @@ msgstr "Stavový pruh"
 
 #: tfmain.viewtoolbox.caption
 msgid "Toolbox"
-msgstr "Nástojový panel"
+msgstr "Nástrojový panel"
 
 #: tfmain.viewworkspacecolor.caption
 msgid "Set workspace color..."
@@ -2098,7 +2089,7 @@ msgstr "OK"
 #: tfmotionblur.caption
 msgctxt "tfmotionblur.caption"
 msgid "Motion blur"
-msgstr "Pohybové rozostření"
+msgstr "Pohybové rozmazání"
 
 #: tfmotionblur.checkbox_oriented.caption
 msgid "Oriented"
@@ -2787,7 +2778,7 @@ msgstr "Vlnová délka :"
 
 #: uresourcestrings.rsactioninprogress
 msgid "Action in progress"
-msgstr "Akce v běhu"
+msgstr "Akce probíhá"
 
 #: uresourcestrings.rsaddtoimagelist
 msgid "Add files to the image processing list"
@@ -3306,7 +3297,7 @@ msgstr "Je dostupná poslední online verze LazPaint"
 
 #: uresourcestrings.rslava
 msgid "Lava"
-msgstr "Lávová"
+msgstr "Láva"
 
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
