@@ -166,7 +166,7 @@ force:
 
 lazpaint: force $(FOREIGN_PACKAGES) lazpaintcontrols/lazpaintcontrols.lpk lazpaint/lazpaint.lpi
 ifeq "$(lazdir)" ""
-	lazbuild --build-mode=$(BUILDMODE) $(FOREIGN_PACKAGES) lazpaintcontrols/lazpaintcontrols.lpk lazpaint/lazpaint.lpi
+	lazbuild -B -r --build-mode=$(BUILDMODE) $(FOREIGN_PACKAGES) lazpaintcontrols/lazpaintcontrols.lpk lazpaint/lazpaint.lpi
 else
 	$(COPY) "resources/lazpaint.res" "lazpaint/lazpaint.res"
 	$(CREATEDIR) "lazpaint/release/lib"
