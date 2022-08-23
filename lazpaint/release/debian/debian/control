@@ -5,7 +5,7 @@ Maintainer: circular <circular@operamail.com>
 Homepage: https://wiki.freepascal.org/LazPaint
 Package: lazpaint
 Architecture: any
-Version: 7.2.1
+Version: 7.2.2
 Depends: ${shlibs:Depends}
 Conflicts: lazpaint-gtk2, lazpaint-gtk3, lazpaint-qt4, lazpaint-qt5
 Description: Image editor with raster and vector layers

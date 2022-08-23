@@ -1,3 +1,12 @@
+lazpaint (7.2.2) stable; urgency=low
+
+  * Linux: fix compilation for Qt5 and older LCL
+  * Linux: fix shortcut for shell
+  * magic wand tool: fix error when debugging
+  * translation: completed Czech
+
+ -- circular <circular@fastmail.com>  Tue, 23 Aug 2022 13:20:00 +0100
+
 lazpaint (7.2.1) stable; urgency=low
 
   * MacOS: adapt quick save shortcut on MacOS
@@ -7,7 +16,7 @@ lazpaint (7.2.1) stable; urgency=low
   * text tool: multi click to select word / paragraph
   * script: fix in Python scripting (dialog.py)
 
- -- circular <circular@operamail.com>  Sat, 21 Aug 2022 18:50:00 +0100
+ -- circular <circular@fastmail.com>  Sat, 21 Aug 2022 18:50:00 +0100
 
 lazpaint (7.2) stable; urgency=low
 

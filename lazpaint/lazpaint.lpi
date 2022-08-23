@@ -28,7 +28,7 @@
       <MinorVersionNr Value="2"/>
       <CharSet Value="04B0"/>
       <StringTable CompanyName="http://sourceforge.net/projects/lazpaint/" FileDescription="LazPaint" InternalName="lazpaint" OriginalFilename="lazpaint.exe" ProductName="LazPaint"/>
-      <RevisionNr Value="1"/>
+      <RevisionNr Value="2"/>
     </VersionInfo>
     <BuildModes Count="10">
       <Item1 Name="Debug" Default="True"/>
