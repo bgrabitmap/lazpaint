@@ -1,2 +1,2 @@
-7.1.6
-lang_update=ru
+7.2.2
+lang_update=
