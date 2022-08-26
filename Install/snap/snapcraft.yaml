@@ -1,6 +1,6 @@
 name: lazpaint
 title: LazPaint
-version: '7.1.6'
+version: '7.2.2'
 summary: Image editor with raster and vector layers.
 description: |
   Can read layered files (lzp, ora, pdn, oXo, flat psd), multi-images (gif, ico, tiff), flat files (bmp, jpeg, pcx, png, tga, webp, xpm, xwd), raw images (dng, cr2, nef, arw...), vectorial (svg), 3D (obj). Has drawing tools, vector shapes, phong shading, curve adjustments, filters, render some textures, Python scripting. Uses Qt5 widgetset.
@@ -19,10 +19,10 @@ parts:
     - wget
     - libgtk2.0-dev
     override-build: |
-      wget -nc https://deac-ams.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.12/lazarus-project_2.0.12-0_amd64.deb
-      wget -nc https://netix.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.12/fpc-laz_3.2.0-1_amd64.deb
-      wget -nc https://netix.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.12/fpc-src_3.2.0-1_amd64.deb
-      apt install ./lazarus-project_2.0.12-0_amd64.deb ./fpc-laz_3.2.0-1_amd64.deb ./fpc-src_3.2.0-1_amd64.deb
+      wget -nc https://downloads.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.2/lazarus-project_2.2.2-0_amd64.deb
+      wget -nc https://downloads.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.2/fpc-laz_3.2.2-210709_amd64.deb
+      wget -nc https://downloads.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.2/fpc-src_3.2.2-210709_amd64.deb
+      apt install ./lazarus-project_2.2.2-0_amd64.deb ./fpc-laz_3.2.2-210709_amd64.deb ./fpc-src_3.2.2-210709_amd64.deb
     prime: [-*]
   lazpaint:
     plugin: nil
