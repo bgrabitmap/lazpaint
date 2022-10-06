@@ -2695,6 +2695,7 @@ end;
 
 procedure TFMain.TimerUpdateTimer(Sender: TObject);
 begin
+  if FLazPaintInstance = nil then exit;
   TimerUpdate.Enabled := false;
   if ToolManager.ToolSleeping and not spacePressed and
      ([ssLeft,ssRight,ssMiddle] * FLayout.MouseButtonState = []) then
