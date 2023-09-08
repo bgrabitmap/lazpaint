@@ -1,13 +1,15 @@
 msgid ""
 msgstr ""
-"Content-Type: text/plain; charset=UTF-8\n"
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
 "Last-Translator: circular\n"
 "Language-Team: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.3.2\n"
 
 #: tablet.getprocfailed
 #, object-pascal-format
@@ -2446,6 +2448,7 @@ msgid "Levels :"
 msgstr "Niveaux :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Aperçu"
 
@@ -3567,6 +3570,11 @@ msgstr "Postériser le calque en utilisant la palette"
 msgid "Preset name"
 msgstr "Nom"
 
+#: uresourcestrings.rspreview
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Aperçu"
+
 #: uresourcestrings.rspx
 msgid "px"
 msgstr "px"
@@ -3832,4 +3840,3 @@ msgstr "Zoomer la pile des calques"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Dézoomer la pile des calques"
-

@@ -2446,6 +2446,7 @@ msgid "Levels :"
 msgstr "Iswiren :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Tamuɣli"
 
@@ -3566,6 +3567,12 @@ msgstr "Talɣa n ubeqqiḍ i tissi s useqdec n tpaliḍt"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Sbadu isem"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Tamuɣli"
 
 #: uresourcestrings.rspx
 msgid "px"

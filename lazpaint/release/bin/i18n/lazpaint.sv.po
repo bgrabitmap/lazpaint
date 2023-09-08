@@ -2443,6 +2443,7 @@ msgid "Levels :"
 msgstr "Nivåer :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Förhandsvisning"
 
@@ -3549,6 +3550,12 @@ msgstr "Posterisera lager utifrån palett"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Namn på förval"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Förhandsvisning"
 
 #: uresourcestrings.rspx
 msgid "px"

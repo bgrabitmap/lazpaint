@@ -2442,6 +2442,7 @@ msgid "Levels :"
 msgstr ""
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr ""
 
@@ -3542,6 +3543,11 @@ msgstr ""
 
 #: uresourcestrings.rspresetname
 msgid "Preset name"
+msgstr ""
+
+#: uresourcestrings.rspreview
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
 msgstr ""
 
 #: uresourcestrings.rspx

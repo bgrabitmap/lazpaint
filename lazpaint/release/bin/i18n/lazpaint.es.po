@@ -2437,6 +2437,7 @@ msgid "Levels :"
 msgstr "Niveles:"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Vista previa"
 
@@ -3553,6 +3554,12 @@ msgstr "Posterizar capa usando paleta"
 msgid "Preset name"
 msgstr "Nombre de preajuste"
 
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Vista previa"
+
 #: uresourcestrings.rspx
 msgid "px"
 msgstr "px"
@@ -3813,3 +3820,4 @@ msgstr "Hacer zoom en capas"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Deshacer zoom en capas"
+

@@ -2430,6 +2430,7 @@ msgid "Levels :"
 msgstr "Уровни :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Предварительный осмотр"
 
@@ -3529,6 +3530,12 @@ msgstr "Постеризовать слой используя палитру"
 msgid "Preset name"
 msgstr "Предустановленное имя"
 
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Предварительный осмотр"
+
 #: uresourcestrings.rspx
 msgid "px"
 msgstr "px"
@@ -3787,3 +3794,4 @@ msgstr "Увеличить размер стопки слоёв"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Увеличить размер стопки слоёв"
+

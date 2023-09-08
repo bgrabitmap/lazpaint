@@ -2293,6 +2293,7 @@ msgid "Levels :"
 msgstr "Úrovně:"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Náhled"
 
@@ -3379,6 +3380,12 @@ msgstr "Obarvit vrstvu použitím palety"
 msgid "Preset name"
 msgstr "Jméno předvolby"
 
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Náhled"
+
 #: uresourcestrings.rspx
 msgid "px"
 msgstr "px"
@@ -3632,3 +3639,4 @@ msgstr "Přiblížit sadu vrstev"
 #: uresourcestrings.rszoomlayerstackout
 msgid "Zoom layer stack out"
 msgstr "Oddálit sadu vrstev"
+

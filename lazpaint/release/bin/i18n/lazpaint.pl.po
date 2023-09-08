@@ -2455,6 +2455,7 @@ msgid "Levels :"
 msgstr "Poziomy:"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Podgląd"
 
@@ -3561,6 +3562,12 @@ msgstr "Posteryzuj warstwę za pomocą palety"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Wstępna nazwa"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Podgląd"
 
 #: uresourcestrings.rspx
 msgid "px"

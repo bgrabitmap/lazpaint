@@ -2431,6 +2431,7 @@ msgid "Levels :"
 msgstr "Равнища:"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Преглед"
 
@@ -3528,6 +3529,12 @@ msgstr ""
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Предварително зададено име"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Преглед"
 
 #: uresourcestrings.rspx
 msgid "px"

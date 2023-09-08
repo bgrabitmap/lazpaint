@@ -2443,6 +2443,7 @@ msgid "Levels :"
 msgstr "级别 :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "预览"
 
@@ -3563,6 +3564,12 @@ msgstr "使用调色板对图层进行海报化"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "预设名称"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "预览"
 
 #: uresourcestrings.rspx
 msgid "px"

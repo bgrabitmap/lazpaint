@@ -2450,6 +2450,7 @@ msgid "Levels :"
 msgstr "Līmeņi:"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Priekšskatījums"
 
@@ -3570,6 +3571,12 @@ msgstr "Samazināt krāsu skaitu izmantojot paleti"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Iestatījumu vārds"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Priekšskatījums"
 
 #: uresourcestrings.rspx
 msgid "px"

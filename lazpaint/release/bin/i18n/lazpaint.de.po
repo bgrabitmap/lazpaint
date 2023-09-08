@@ -2455,6 +2455,7 @@ msgid "Levels :"
 msgstr "Stufen:"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Vorschau"
 
@@ -3557,6 +3558,12 @@ msgstr "Posterisierung der Ebene mit der Palette anwenden"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Voreingestellter Name"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Vorschau"
 
 #: uresourcestrings.rspx
 msgid "px"
