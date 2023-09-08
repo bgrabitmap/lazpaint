@@ -1,6 +1,6 @@
 object FPixelate: TFPixelate
   Left = 607
-  Height = 125
+  Height = 144
   Top = 313
   Width = 179
   AutoSize = True
@@ -13,12 +13,12 @@ object FPixelate: TFPixelate
   ChildSizing.VerticalSpacing = 8
   ChildSizing.Layout = cclLeftToRightThenTopToBottom
   ChildSizing.ControlsPerLine = 1
-  ClientHeight = 125
+  ClientHeight = 144
   ClientWidth = 179
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '2.2.4.0'
   object Panel1: TPanel
     Left = 8
     Height = 23
@@ -35,13 +35,13 @@ object FPixelate: TFPixelate
       Left = 0
       Height = 23
       Top = 0
-      Width = 52
+      Width = 53
       Caption = 'Pixel size :'
       Layout = tlCenter
       ParentColor = False
     end
     object SpinEdit_PixelSize: TSpinEdit
-      Left = 60
+      Left = 61
       Height = 23
       Top = 0
       Width = 65
@@ -85,10 +85,20 @@ object FPixelate: TFPixelate
       TabOrder = 0
     end
   end
+  object CheckBox_Preview: TCheckBox
+    Left = 8
+    Height = 19
+    Top = 70
+    Width = 152
+    Checked = True
+    OnChange = CheckBox_PreviewChange
+    State = cbChecked
+    TabOrder = 3
+  end
   object Panel3: TPanel
     Left = 8
     Height = 25
-    Top = 70
+    Top = 97
     Width = 152
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 8
