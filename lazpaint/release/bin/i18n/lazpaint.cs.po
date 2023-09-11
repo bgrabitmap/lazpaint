@@ -2246,16 +2246,6 @@ msgstr "Barva pera"
 msgid "Current texture"
 msgstr "Aktuální textura"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "tfpixelate.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfpixelate.button_ok.caption
-msgctxt "tfpixelate.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfpixelate.caption
 msgid "Pixelate"
 msgstr "Pixelizace"
@@ -3313,6 +3303,12 @@ msgstr "Není rozumně ukládat tak velký obrázek v tomto formátu."
 #: uresourcestrings.rsnumber
 msgid "№"
 msgstr "Č."
+
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "OK"
 
 #: uresourcestrings.rsokay
 msgid "Okay"

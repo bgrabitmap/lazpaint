@@ -2394,16 +2394,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "Vald textur"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Avbryt"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -3483,6 +3473,12 @@ msgstr "Det är inte rimligt att spara en så stor bild i det här filformatet."
 #: uresourcestrings.rsnumber
 msgid "№"
 msgstr ""
+
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "OK"
 
 #: uresourcestrings.rsokay
 msgid "Okay"

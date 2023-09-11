@@ -173,6 +173,8 @@ begin
 
   CheckBox_Preview.Checked := True;
   CheckBox_Preview.Caption := rsPreview;
+  Button_OK.Caption := rsOK;
+  Button_Cancel.Caption := rsCancel;
   FInitializing := false;
 end;
 

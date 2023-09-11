@@ -2399,16 +2399,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "Texture en cours"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuler"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -3502,6 +3492,12 @@ msgstr "Il n'est pas raisonnable d'enregistrer une image aussi grande avec ce fo
 msgid "№"
 msgstr "№"
 
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "OK"
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "Ok"
@@ -3840,3 +3836,4 @@ msgstr "Zoomer la pile des calques"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Dézoomer la pile des calques"
+

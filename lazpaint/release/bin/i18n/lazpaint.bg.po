@@ -2382,16 +2382,6 @@ msgctxt "TFPHONGFILTER.RADIO_USETEXTURE.CAPTION"
 msgid "Current texture"
 msgstr ""
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отказ"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Добре"
-
 #: tfpixelate.caption
 msgctxt "TFPIXELATE.CAPTION"
 msgid "Pixelate"
@@ -3462,6 +3452,12 @@ msgstr ""
 #: uresourcestrings.rsnumber
 msgid "№"
 msgstr "№"
+
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "Добре"
 
 #: uresourcestrings.rsokay
 msgid "Okay"

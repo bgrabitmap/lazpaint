@@ -2397,16 +2397,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "Tizḍi tamirant"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Sefsex"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Ih"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -3499,6 +3489,12 @@ msgstr "Ur iwulem ara ad teskelseḍ tugna s umasal-agi n ufaylu."
 #: uresourcestrings.rsnumber
 msgid "№"
 msgstr "№"
+
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "Ih"
 
 #: uresourcestrings.rsokay
 msgid "Okay"

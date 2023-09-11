@@ -2401,16 +2401,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "Virsmas raksts"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Atcelt"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Labi"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -3503,6 +3493,12 @@ msgstr "Nav prātīgi saglabāt tik lielu attēlu šajā datnes formātā."
 #: uresourcestrings.rsnumber
 msgid "№"
 msgstr "Nr. "
+
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "Labi"
 
 #: uresourcestrings.rsokay
 msgid "Okay"

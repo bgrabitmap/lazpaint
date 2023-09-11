@@ -2235,16 +2235,6 @@ msgstr ""
 msgid "Current texture"
 msgstr ""
 
-#: tfpixelate.button_cancel.caption
-msgctxt "tfpixelate.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfpixelate.button_ok.caption
-msgctxt "tfpixelate.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tfpixelate.caption
 msgid "Pixelate"
 msgstr ""
@@ -3301,6 +3291,11 @@ msgstr ""
 
 #: uresourcestrings.rsnumber
 msgid "№"
+msgstr ""
+
+#: uresourcestrings.rsok
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
 msgstr ""
 
 #: uresourcestrings.rsokay

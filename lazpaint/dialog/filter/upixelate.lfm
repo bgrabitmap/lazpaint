@@ -90,6 +90,7 @@ object FPixelate: TFPixelate
     Height = 19
     Top = 70
     Width = 152
+    Caption = 'rsPreview'
     Checked = True
     OnChange = CheckBox_PreviewChange
     State = cbChecked
@@ -111,21 +112,21 @@ object FPixelate: TFPixelate
       Left = 0
       Height = 25
       Top = 0
-      Width = 42
+      Width = 51
       AutoSize = True
-      Caption = 'OK'
+      Caption = 'rsOK'
       Default = True
       OnClick = Button_OKClick
       TabOrder = 0
     end
     object Button_Cancel: TButton
-      Left = 50
+      Left = 59
       Height = 25
       Top = 0
-      Width = 62
+      Width = 71
       AutoSize = True
       Cancel = True
-      Caption = 'Cancel'
+      Caption = 'rsCancel'
       ModalResult = 2
       TabOrder = 1
     end
