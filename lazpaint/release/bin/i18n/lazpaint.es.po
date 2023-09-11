@@ -2388,16 +2388,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "Textura actual"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Aceptar"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -2437,6 +2427,7 @@ msgid "Levels :"
 msgstr "Niveles:"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Vista previa"
 
@@ -3486,6 +3477,12 @@ msgstr "No es razonable guardar una imagen tan grande con este formato."
 msgid "№"
 msgstr "Nº"
 
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "Aceptar"
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "OK"
@@ -3552,6 +3549,12 @@ msgstr "Posterizar capa usando paleta"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Nombre de preajuste"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Vista previa"
 
 #: uresourcestrings.rspx
 msgid "px"
@@ -3813,3 +3816,4 @@ msgstr "Hacer zoom en capas"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Deshacer zoom en capas"
+

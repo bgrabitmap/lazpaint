@@ -279,6 +279,9 @@ resourcestring
   rsShowPalette = 'Show palette';
   rsPaletteOptions = 'Palette options';
 
+  rsPreview = 'Preview';
+  rsOK = 'OK';
+
 function RemoveTrail(ACaption: string): string;
 
 implementation

@@ -2394,16 +2394,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "当前纹理"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "确定"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -2443,6 +2433,7 @@ msgid "Levels :"
 msgstr "级别 :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "预览"
 
@@ -3496,6 +3487,12 @@ msgstr "此文件格式不适合保存如此大的图像。"
 msgid "№"
 msgstr "№"
 
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "确定"
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "好"
@@ -3563,6 +3560,12 @@ msgstr "使用调色板对图层进行海报化"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "预设名称"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "预览"
 
 #: uresourcestrings.rspx
 msgid "px"

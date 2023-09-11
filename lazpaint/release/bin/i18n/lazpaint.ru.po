@@ -2381,16 +2381,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "Текущ. текстура"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "ОК"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -2430,6 +2420,7 @@ msgid "Levels :"
 msgstr "Уровни :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Предварительный осмотр"
 
@@ -3463,6 +3454,12 @@ msgstr "Не стоит сохранять такое большое изобр�
 msgid "№"
 msgstr "№"
 
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "ОК"
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "ОК"
@@ -3528,6 +3525,12 @@ msgstr "Постеризовать слой используя палитру"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Предустановленное имя"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Предварительный осмотр"
 
 #: uresourcestrings.rspx
 msgid "px"
@@ -3787,3 +3790,4 @@ msgstr "Увеличить размер стопки слоёв"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Увеличить размер стопки слоёв"
+

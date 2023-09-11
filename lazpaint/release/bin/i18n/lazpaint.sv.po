@@ -2394,16 +2394,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "Vald textur"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Avbryt"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -2443,6 +2433,7 @@ msgid "Levels :"
 msgstr "Nivåer :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Förhandsvisning"
 
@@ -3483,6 +3474,12 @@ msgstr "Det är inte rimligt att spara en så stor bild i det här filformatet."
 msgid "№"
 msgstr ""
 
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "OK"
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "Okej"
@@ -3549,6 +3546,12 @@ msgstr "Posterisera lager utifrån palett"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Namn på förval"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Förhandsvisning"
 
 #: uresourcestrings.rspx
 msgid "px"

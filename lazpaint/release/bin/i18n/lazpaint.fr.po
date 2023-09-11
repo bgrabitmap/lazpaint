@@ -1,13 +1,15 @@
 msgid ""
 msgstr ""
-"Content-Type: text/plain; charset=UTF-8\n"
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
 "Last-Translator: circular\n"
 "Language-Team: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.3.2\n"
 
 #: tablet.getprocfailed
 #, object-pascal-format
@@ -2397,16 +2399,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "Texture en cours"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuler"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -2446,6 +2438,7 @@ msgid "Levels :"
 msgstr "Niveaux :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Aperçu"
 
@@ -3499,6 +3492,12 @@ msgstr "Il n'est pas raisonnable d'enregistrer une image aussi grande avec ce fo
 msgid "№"
 msgstr "№"
 
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "OK"
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "Ok"
@@ -3566,6 +3565,11 @@ msgstr "Postériser le calque en utilisant la palette"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Nom"
+
+#: uresourcestrings.rspreview
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Aperçu"
 
 #: uresourcestrings.rspx
 msgid "px"

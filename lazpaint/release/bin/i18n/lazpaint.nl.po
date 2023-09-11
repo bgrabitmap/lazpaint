@@ -171,9 +171,7 @@ msgstr "Basale SVG"
 
 #: tfblendop.label_svgover.hint
 msgid "Basic blend operations that are available in virtually all image editors"
-msgstr ""
-"Basale mengoperaties die beschikbaar zijn in bijna alle "
-"beeldbewerkingssoftware"
+msgstr "Basale mengoperaties die beschikbaar zijn in bijna alle beeldbewerkingssoftware"
 
 #: tfbrowseimages.caption
 msgid "Browse images"
@@ -2396,16 +2394,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "Huidige textuur"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -2445,6 +2433,7 @@ msgid "Levels :"
 msgstr "Niveaus :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Voorbeeld"
 
@@ -2908,9 +2897,7 @@ msgstr "CMD"
 
 #: uresourcestrings.rscolordescription
 msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr ""
-"Kleurbeschrijving: klik om een kleur in te typen met het toetsenbord middels "
-"kleurnamen of CSS notatie."
+msgstr "Kleurbeschrijving: klik om een kleur in te typen met het toetsenbord middels kleurnamen of CSS notatie."
 
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
@@ -2931,8 +2918,7 @@ msgstr "Weet u zeker dat u deze %1-bestanden uit de container wilt verwijderen?"
 
 #: uresourcestrings.rsconfirmmovemultipletotrash
 msgid "Are you sure you want to move these %1 files to the trash?"
-msgstr ""
-"Weet je zeker dat je deze %1-bestanden naar de prullenbak wilt verplaatsen?"
+msgstr "Weet je zeker dat je deze %1-bestanden naar de prullenbak wilt verplaatsen?"
 
 #: uresourcestrings.rsconfirmmovetotrash
 msgid "Are you sure you want to move this file to the trash?"
@@ -3044,8 +3030,7 @@ msgstr "Einde zonder begin"
 
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
-msgstr ""
-"Voer naam in voor een nieuwe map of container (met extensie RES of LRS):"
+msgstr "Voer naam in voor een nieuwe map of container (met extensie RES of LRS):"
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
@@ -3410,9 +3395,7 @@ msgstr "Mitchell"
 
 #: uresourcestrings.rsmorethanonefile
 msgid "You are trying to open more than one file. How would you like these files to be opened?"
-msgstr ""
-"U probeert meer dan een bestand te openen. Hoe wilt u dat deze bestanden "
-"worden geopend?"
+msgstr "U probeert meer dan een bestand te openen. Hoe wilt u dat deze bestanden worden geopend?"
 
 #: uresourcestrings.rsmovingorrotatingselection
 msgid "Moving or rotating selection"
@@ -3477,13 +3460,17 @@ msgstr "Er is niets om op te halen"
 
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
-msgstr ""
-"Het is onredelijk om zo'n grote afbeelding in dit bestandsformaat op te "
-"slaan."
+msgstr "Het is onredelijk om zo'n grote afbeelding in dit bestandsformaat op te slaan."
 
 #: uresourcestrings.rsnumber
 msgid "№"
 msgstr "№"
+
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "OK"
 
 #: uresourcestrings.rsokay
 msgid "Okay"
@@ -3550,6 +3537,12 @@ msgstr "Posterisatie laag met behulp palet"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Voorinstellingsnaam"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Voorbeeld"
 
 #: uresourcestrings.rspx
 msgid "px"
@@ -3710,14 +3703,11 @@ msgstr "Texture mapping"
 
 #: uresourcestrings.rstherearenocheckeditems
 msgid "There are no checked items. Check some items or add some new ones."
-msgstr ""
-"Er zijn geen aangevinkte items. Controleer enkele items of voeg nieuwe toe."
+msgstr "Er zijn geen aangevinkte items. Controleer enkele items of voeg nieuwe toe."
 
 #: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
 msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
-msgstr ""
-"Er is geen bestandsnaam gegeven voor dit bestand. Gebruik \"Opslaan als…\" in "
-"het hoofdmenu."
+msgstr "Er is geen bestandsnaam gegeven voor dit bestand. Gebruik \"Opslaan als…\" in het hoofdmenu."
 
 #: uresourcestrings.rstodo
 msgid "To do"
@@ -3812,3 +3802,4 @@ msgstr "Inzoomen in lagenoverzicht"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Uitzoomen uit lagenoverzicht"
+

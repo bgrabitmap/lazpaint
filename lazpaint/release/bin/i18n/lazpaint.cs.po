@@ -2246,16 +2246,6 @@ msgstr "Barva pera"
 msgid "Current texture"
 msgstr "Aktuální textura"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "tfpixelate.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfpixelate.button_ok.caption
-msgctxt "tfpixelate.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfpixelate.caption
 msgid "Pixelate"
 msgstr "Pixelizace"
@@ -2293,6 +2283,7 @@ msgid "Levels :"
 msgstr "Úrovně:"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Náhled"
 
@@ -3313,6 +3304,12 @@ msgstr "Není rozumně ukládat tak velký obrázek v tomto formátu."
 msgid "№"
 msgstr "Č."
 
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "OK"
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "Ok"
@@ -3378,6 +3375,12 @@ msgstr "Obarvit vrstvu použitím palety"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Jméno předvolby"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Náhled"
 
 #: uresourcestrings.rspx
 msgid "px"
@@ -3632,3 +3635,4 @@ msgstr "Přiblížit sadu vrstev"
 #: uresourcestrings.rszoomlayerstackout
 msgid "Zoom layer stack out"
 msgstr "Oddálit sadu vrstev"
+

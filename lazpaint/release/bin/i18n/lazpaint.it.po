@@ -2384,16 +2384,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "Testo corrente"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Cancella"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -2433,6 +2423,7 @@ msgid "Levels :"
 msgstr "Livelli"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Anteprima"
 
@@ -3487,6 +3478,11 @@ msgstr ""
 msgid "№"
 msgstr ""
 
+#: uresourcestrings.rsok
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr ""
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr ""
@@ -3554,6 +3550,12 @@ msgstr ""
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr ""
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Anteprima"
 
 #: uresourcestrings.rspx
 msgid "px"

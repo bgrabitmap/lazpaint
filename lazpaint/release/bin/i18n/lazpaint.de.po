@@ -2406,16 +2406,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "Aktuelle Textur"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Abbruch"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -2455,6 +2445,7 @@ msgid "Levels :"
 msgstr "Stufen:"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Vorschau"
 
@@ -3491,6 +3482,12 @@ msgstr "Es wird nicht empfohlen, ein so großes Bild in diesem Dateiformat zu sp
 msgid "№"
 msgstr "Nr."
 
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "OK"
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "OK"
@@ -3557,6 +3554,12 @@ msgstr "Posterisierung der Ebene mit der Palette anwenden"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Voreingestellter Name"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Vorschau"
 
 #: uresourcestrings.rspx
 msgid "px"

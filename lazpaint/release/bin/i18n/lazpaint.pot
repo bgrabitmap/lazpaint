@@ -2235,16 +2235,6 @@ msgstr ""
 msgid "Current texture"
 msgstr ""
 
-#: tfpixelate.button_cancel.caption
-msgctxt "tfpixelate.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfpixelate.button_ok.caption
-msgctxt "tfpixelate.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tfpixelate.caption
 msgid "Pixelate"
 msgstr ""
@@ -2282,6 +2272,7 @@ msgid "Levels :"
 msgstr ""
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr ""
 
@@ -3302,6 +3293,11 @@ msgstr ""
 msgid "№"
 msgstr ""
 
+#: uresourcestrings.rsok
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr ""
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr ""
@@ -3366,6 +3362,11 @@ msgstr ""
 
 #: uresourcestrings.rspresetname
 msgid "Preset name"
+msgstr ""
+
+#: uresourcestrings.rspreview
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
 msgstr ""
 
 #: uresourcestrings.rspx

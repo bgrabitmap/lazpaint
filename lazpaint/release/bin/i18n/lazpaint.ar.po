@@ -2395,16 +2395,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "النسيج الحالي"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "موافق"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -2444,6 +2434,7 @@ msgid "Levels :"
 msgstr "المستوى :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr ""
 
@@ -3480,6 +3471,12 @@ msgstr "من غير المعقول حفظ الصورة الكبيرة في تن�
 msgid "№"
 msgstr "№"
 
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "موافق"
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "حسنا"
@@ -3546,6 +3543,11 @@ msgstr ""
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "الإسم مسبقا"
+
+#: uresourcestrings.rspreview
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr ""
 
 #: uresourcestrings.rspx
 msgid "px"

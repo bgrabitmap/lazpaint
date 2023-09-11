@@ -2398,17 +2398,6 @@ msgctxt "TFPHONGFILTER.RADIO_USETEXTURE.CAPTION"
 msgid "Current texture"
 msgstr "Textura atual"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: tfpixelate.button_ok.caption
-#, fuzzy
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
 #: tfpixelate.caption
 msgctxt "TFPIXELATE.CAPTION"
 msgid "Pixelate"
@@ -2449,6 +2438,7 @@ msgid "Levels :"
 msgstr "Níveis :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Prévia"
 
@@ -3491,6 +3481,12 @@ msgstr "Não é razoável salvar uma imagem grande neste formato de arquivo."
 msgid "№"
 msgstr "№"
 
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "OK"
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "OK"
@@ -3558,6 +3554,12 @@ msgstr "Posterizar camada usando paleta"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Nome predefinido"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Prévia"
 
 #: uresourcestrings.rspx
 msgid "px"
