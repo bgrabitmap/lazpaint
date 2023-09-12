@@ -286,11 +286,6 @@ msgstr "Odstín"
 msgid "Preset"
 msgstr "Předvolba"
 
-#: tfcustomblur.button_cancel.caption
-msgctxt "tfcustomblur.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
 #: tfcustomblur.button_editmask.caption
 msgid "Edit mask..."
 msgstr "Upravit masku..."
@@ -299,11 +294,6 @@ msgstr "Upravit masku..."
 msgid "Load mask..."
 msgstr "Načíst masku..."
 
-#: tfcustomblur.button_ok.caption
-msgctxt "tfcustomblur.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfcustomblur.caption
 msgid "Custom blur"
 msgstr "Vlastní rozmazání"
@@ -311,16 +301,6 @@ msgstr "Vlastní rozmazání"
 #: tfcustomblur.openpicturedialog1.title
 msgid "Open grayscale file"
 msgstr "Otevřít černobílý obrázek"
-
-#: tfemboss.button_cancel.caption
-msgctxt "tfemboss.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfemboss.button_ok.caption
-msgctxt "tfemboss.button_ok.caption"
-msgid "OK"
-msgstr "OK"
 
 #: tfemboss.caption
 msgid "Emboss"
@@ -337,16 +317,6 @@ msgstr "Průhledné"
 #: tfemboss.label_direction.caption
 msgid "Direction :"
 msgstr "Směr :"
-
-#: tffilterfunction.button_cancel.caption
-msgctxt "tffilterfunction.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tffilterfunction.button_ok.caption
-msgctxt "tffilterfunction.button_ok.caption"
-msgid "OK"
-msgstr "OK"
 
 #: tffilterfunction.caption
 msgid "Apply function"
@@ -1951,16 +1921,6 @@ msgstr "Zvětšit na původní bodovou velikost"
 msgid "Zoom out"
 msgstr "Oddálit"
 
-#: tfmotionblur.button_cancel.caption
-msgctxt "tfmotionblur.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfmotionblur.button_ok.caption
-msgctxt "tfmotionblur.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfmotionblur.caption
 msgid "Motion blur"
 msgstr "Pohybové rozmazání"
@@ -2027,16 +1987,6 @@ msgstr "Vyžadováno paměti :"
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "Šířka :"
-
-#: tfnoisefilter.button_cancel.caption
-msgctxt "tfnoisefilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfnoisefilter.button_ok.caption
-msgctxt "tfnoisefilter.button_ok.caption"
-msgid "OK"
-msgstr "OK"
 
 #: tfnoisefilter.caption
 msgid "Noise filter"
@@ -2169,16 +2119,6 @@ msgstr "Přidat bodové světlo"
 msgid "Remove selected light"
 msgstr "Odebrat vybrané světlo"
 
-#: tfphongfilter.button_cancel.caption
-msgctxt "tfphongfilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfphongfilter.button_ok.caption
-msgctxt "tfphongfilter.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfphongfilter.caption
 msgid "Shaded map"
 msgstr "Stínová mapa"
@@ -2258,16 +2198,6 @@ msgstr "Velikost bodu :"
 msgctxt "tfpixelate.label_quality.caption"
 msgid "Quality :"
 msgstr "Kvalita :"
-
-#: tfposterize.button_cancel.caption
-msgctxt "tfposterize.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfposterize.button_ok.caption
-msgctxt "tfposterize.button_ok.caption"
-msgid "OK"
-msgstr "OK"
 
 #: tfposterize.caption
 msgctxt "tfposterize.caption"
@@ -2376,16 +2306,6 @@ msgstr "Pamatovat si tuto volbu"
 msgctxt "tfquestion.label_message.caption"
 msgid "."
 msgstr "."
-
-#: tfradialblur.button_cancel.caption
-msgctxt "tfradialblur.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfradialblur.button_ok.caption
-msgctxt "tfradialblur.button_ok.caption"
-msgid "OK"
-msgstr "OK"
 
 #: tfradialblur.caption
 msgctxt "tfradialblur.caption"
@@ -2524,16 +2444,6 @@ msgstr "32 bitů"
 msgid "MioMap"
 msgstr "MioMap"
 
-#: tfsharpen.button_cancel.caption
-msgctxt "tfsharpen.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfsharpen.button_ok.caption
-msgctxt "tfsharpen.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
 msgstr "Ostření/Vyhlazení"
@@ -2576,16 +2486,6 @@ msgctxt "tftoolbox.caption"
 msgid "Tools"
 msgstr "Nástroje"
 
-#: tftwirl.button_cancel.caption
-msgctxt "tftwirl.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tftwirl.button_ok.caption
-msgctxt "tftwirl.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tftwirl.caption
 msgid "Twirl"
 msgstr "Víření"
@@ -2598,16 +2498,6 @@ msgstr "Úhel :"
 msgctxt "tftwirl.label_radius.caption"
 msgid "Radius :"
 msgstr "Poloměr :"
-
-#: tfwavedisplacement.button_cancel.caption
-msgctxt "tfwavedisplacement.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfwavedisplacement.button_ok.caption
-msgctxt "tfwavedisplacement.button_ok.caption"
-msgid "OK"
-msgstr "OK"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"

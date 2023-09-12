@@ -17,11 +17,13 @@ type
   TFSharpen = class(TForm)
     Button_Cancel: TButton;
     Button_OK: TButton;
+    CheckBox_Preview: TCheckBox;
     Label_Amount: TLabel;
     Panel1: TPanel;
     Panel2: TPanel;
     SpinEdit_Amount: TSpinEdit;
     procedure Button_OKClick(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SpinEdit_AmountChange(Sender: TObject);
@@ -40,7 +42,8 @@ function ShowSharpenDlg(AFilterConnector: TObject; AMode : TSharpenMode): TScrip
 
 implementation
 
-uses LCScaleDPI, UMac, LazPaintType, BGRABitmap, BGRABitmapTypes;
+uses LCScaleDPI, UMac, LazPaintType, UResourceStrings, BGRABitmap,
+  BGRABitmapTypes;
 
 function ShowSharpenDlg(AFilterConnector: TObject; AMode : TSharpenMode): TScriptResult;
 var FSharpen: TFSharpen;
@@ -104,14 +107,26 @@ end;
 
 procedure TFSharpen.SpinEdit_AmountChange(Sender: TObject);
 begin
-  if not FInitializing then PreviewNeeded;
+  if not FInitializing and
+    CheckBox_Preview.Checked then PreviewNeeded;
 end;
 
 procedure TFSharpen.Button_OKClick(Sender: TObject);
 begin
+  if not CheckBox_Preview.Checked then PreviewNeeded;
+
   FFilterConnector.ValidateAction;
   FFilterConnector.LazPaintInstance.Config.SetDefaultSharpenAmount(SpinEdit_Amount.Value/100);
   ModalResult := mrOK;
+end;
+
+procedure TFSharpen.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if FInitializing then exit;
+  if CheckBox_Preview.Checked then
+    PreviewNeeded
+  else
+   FFilterConnector.RestoreBackup;
 end;
 
 procedure TFSharpen.OnTryStopAction(sender: TFilterConnector);
@@ -126,6 +141,11 @@ begin
     SpinEdit_Amount.Value := round(FFilterConnector.Parameters.Floats['Amount']*100)
   else
      SpinEdit_Amount.Value := round(FFilterConnector.LazPaintInstance.Config.DefaultSharpenAmount*100);
+
+  CheckBox_Preview.Checked := True;
+  CheckBox_Preview.Caption := rsPreview;
+  Button_OK.Caption := rsOk;
+  Button_Cancel.Caption := rsCancel;
   FInitializing := false;
 end;
 

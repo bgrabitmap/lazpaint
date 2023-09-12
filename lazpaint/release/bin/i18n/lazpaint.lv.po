@@ -312,11 +312,6 @@ msgstr "Nokrāsa"
 msgid "Preset"
 msgstr "Iestatījumi"
 
-#: tfcustomblur.button_cancel.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Atcelt"
-
 #: tfcustomblur.button_editmask.caption
 msgid "Edit mask..."
 msgstr "Labot masku ..."
@@ -324,11 +319,6 @@ msgstr "Labot masku ..."
 #: tfcustomblur.button_loadmask.caption
 msgid "Load mask..."
 msgstr "Ielasīt masku ..."
-
-#: tfcustomblur.button_ok.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Labi"
 
 #: tfcustomblur.caption
 msgctxt "tfcustomblur.caption"
@@ -338,16 +328,6 @@ msgstr "Pielāgota izpludināšana"
 #: tfcustomblur.openpicturedialog1.title
 msgid "Open grayscale file"
 msgstr "Atvērt pelēktoņu attēlu"
-
-#: tfemboss.button_cancel.caption
-msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Atcelt"
-
-#: tfemboss.button_ok.caption
-msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Labi"
 
 #: tfemboss.caption
 msgctxt "tfemboss.caption"
@@ -366,16 +346,6 @@ msgstr "Caurspīdīgs"
 msgctxt "tfemboss.label_direction.caption"
 msgid "Direction :"
 msgstr "Virziens:"
-
-#: tffilterfunction.button_cancel.caption
-msgctxt "tffilterfunction.button_cancel.caption"
-msgid "Cancel"
-msgstr "Atcelt"
-
-#: tffilterfunction.button_ok.caption
-msgctxt "tffilterfunction.button_ok.caption"
-msgid "OK"
-msgstr "Labi"
 
 #: tffilterfunction.caption
 msgid "Apply function"
@@ -2095,16 +2065,6 @@ msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "Tālināt"
 
-#: tfmotionblur.button_cancel.caption
-msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Atcelt"
-
-#: tfmotionblur.button_ok.caption
-msgctxt "TFMOTIONBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Labi"
-
 #: tfmotionblur.caption
 msgctxt "tfmotionblur.caption"
 msgid "Motion blur"
@@ -2173,16 +2133,6 @@ msgstr "Nepieciešamā atmiņa:"
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "Platums:"
-
-#: tfnoisefilter.button_cancel.caption
-msgctxt "tfnoisefilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "Atcelt"
-
-#: tfnoisefilter.button_ok.caption
-msgctxt "tfnoisefilter.button_ok.caption"
-msgid "OK"
-msgstr "Labi"
 
 #: tfnoisefilter.caption
 msgid "Noise filter"
@@ -2322,16 +2272,6 @@ msgstr "Pievienot punktveida gaismas avotu"
 msgid "Remove selected light"
 msgstr "Izmest doto gaismu"
 
-#: tfphongfilter.button_cancel.caption
-msgctxt "tfphongfilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "Atcelt"
-
-#: tfphongfilter.button_ok.caption
-msgctxt "tfphongfilter.button_ok.caption"
-msgid "OK"
-msgstr "Labi"
-
 #: tfphongfilter.caption
 msgctxt "tfphongfilter.caption"
 msgid "Shaded map"
@@ -2415,16 +2355,6 @@ msgstr "Pikseļa izmērs:"
 msgctxt "tfpixelate.label_quality.caption"
 msgid "Quality :"
 msgstr "Kvalitāte:"
-
-#: tfposterize.button_cancel.caption
-msgctxt "tfposterize.button_cancel.caption"
-msgid "Cancel"
-msgstr "Atcelt"
-
-#: tfposterize.button_ok.caption
-msgctxt "tfposterize.button_ok.caption"
-msgid "OK"
-msgstr "Labi"
 
 #: tfposterize.caption
 msgctxt "tfposterize.caption"
@@ -2533,16 +2463,6 @@ msgstr "Atcerēties izvēlēto"
 msgctxt "tfquestion.label_message.caption"
 msgid "."
 msgstr "."
-
-#: tfradialblur.button_cancel.caption
-msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Atcelt"
-
-#: tfradialblur.button_ok.caption
-msgctxt "TFRADIALBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Labi"
 
 #: tfradialblur.caption
 msgctxt "tfradialblur.caption"
@@ -2682,16 +2602,6 @@ msgstr "32 biti"
 msgid "MioMap"
 msgstr ""
 
-#: tfsharpen.button_cancel.caption
-msgctxt "tfsharpen.button_cancel.caption"
-msgid "Cancel"
-msgstr "Atcelt"
-
-#: tfsharpen.button_ok.caption
-msgctxt "tfsharpen.button_ok.caption"
-msgid "OK"
-msgstr "Labi"
-
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
 msgstr "Asināt/Nogludināt"
@@ -2736,16 +2646,6 @@ msgctxt "tftoolbox.caption"
 msgid "Tools"
 msgstr "Rīki"
 
-#: tftwirl.button_cancel.caption
-msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Atcelt"
-
-#: tftwirl.button_ok.caption
-msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Labi"
-
 #: tftwirl.caption
 msgctxt "tftwirl.caption"
 msgid "Twirl"
@@ -2760,16 +2660,6 @@ msgstr "Leņķis:"
 msgctxt "tftwirl.label_radius.caption"
 msgid "Radius :"
 msgstr "Rādiuss:"
-
-#: tfwavedisplacement.button_cancel.caption
-msgctxt "tfwavedisplacement.button_cancel.caption"
-msgid "Cancel"
-msgstr "Atcelt"
-
-#: tfwavedisplacement.button_ok.caption
-msgctxt "tfwavedisplacement.button_ok.caption"
-msgid "OK"
-msgstr "Labi"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"
