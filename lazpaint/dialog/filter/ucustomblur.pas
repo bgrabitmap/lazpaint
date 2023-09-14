@@ -21,12 +21,14 @@ type
     Button_OK: TButton;
     Button_Cancel: TButton;
     btnLoadMask: TButton;
+    CheckBox_Preview: TCheckBox;
     Image1: TImage;
     OpenPictureDialog1: TOpenPictureDialog;
     Timer1: TTimer;
     procedure Button_EditMaskClick(Sender: TObject);
     procedure Button_LoadMaskClick(Sender: TObject);
     procedure Button_OKClick(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -40,6 +42,8 @@ type
     FLazPaintInstance: TLazPaintCustomInstance;
     FFilterConnector: TFilterConnector;
     FThreadManager: TFilterThreadManager;
+    FInitializing: boolean;
+    FComputedImage: TBGRABitmap;
     procedure GenerateDefaultMask;
     procedure SetLazPaintInstance(const AValue: TLazPaintCustomInstance);
     procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
@@ -69,10 +73,17 @@ procedure TFCustomBlur.FormDestroy(Sender: TObject);
 begin
   subConfig.Free;
   FreeAndNil(FBrowseImages);
+  if FComputedImage <> nil then FreeAndNil(FComputedImage);
 end;
 
 procedure TFCustomBlur.FormShow(Sender: TObject);
 begin
+  FInitializing := true;
+  CheckBox_Preview.Checked := true;
+  CheckBox_Preview.Caption := rsPreview;
+  Button_OK.Caption := rsOk;
+  Button_Cancel.Caption := rsCancel;
+  FInitializing := false;
   PreviewNeeded;
 end;
 
@@ -162,7 +173,16 @@ begin
       if FThreadManager.ReadyToClose then
         Close
       else
-        if AEvent = tmeCompletedTask then Button_OK.Enabled := true;
+        if AEvent = tmeCompletedTask then begin
+          Button_OK.Enabled := true;
+          CheckBox_Preview.Enabled := true;
+        end;
+
+      if FComputedImage <> nil then FComputedImage.Free;
+      case AEvent of
+        tmeAbortedTask: FComputedImage := FFilterConnector.BackupLayer.Duplicate;
+        tmeCompletedTask: FComputedImage := FFilterConnector.ActiveLayer.Duplicate;
+      end;
     end;
   tmeStartingNewTask:
     begin
@@ -170,6 +190,11 @@ begin
       Timer1.Interval := 100;
       Timer1.Enabled := true;
       Button_OK.Enabled := false;
+
+      FInitializing := True;
+      CheckBox_Preview.Enabled := false;
+      CheckBox_Preview.Checked := True;
+      FInitializing := False;
     end;
   end;
 end;
@@ -258,8 +283,20 @@ end;
 
 procedure TFCustomBlur.Button_OKClick(Sender: TObject);
 begin
+  if not CheckBox_Preview.Checked and
+    (FComputedImage <> nil) then FFilterConnector.PutImage(FComputedImage,false,false);
+
   if not FFilterConnector.ActionDone then FFilterConnector.ValidateAction;
   ModalResult := mrOK;
+end;
+
+procedure TFCustomBlur.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if FInitializing then exit;
+  if CheckBox_Preview.Checked then
+    FFilterConnector.PutImage(FComputedImage, false, false)
+  else
+   FFilterConnector.RestoreBackup;
 end;
 
 procedure TFCustomBlur.FormCloseQuery(Sender: TObject; var CanClose: boolean);

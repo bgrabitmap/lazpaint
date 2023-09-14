@@ -16,6 +16,7 @@ type
   TFPosterize = class(TForm)
     Button_Cancel: TButton;
     Button_OK: TButton;
+    CheckBox_Preview: TCheckBox;
     CheckBox_ByLightness: TCheckBox;
     Label_Levels: TLabel;
     Panel1: TPanel;
@@ -23,6 +24,7 @@ type
     SpinEdit_Levels: TSpinEdit;
     procedure Button_OKClick(Sender: TObject);
     procedure CheckBox_ByLightnessChange(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SpinEdit_LevelsChange(Sender: TObject);
@@ -41,7 +43,7 @@ function ShowPosterizeDlg(AInstance: TLazPaintCustomInstance; AParameters: TVari
 
 implementation
 
-uses BGRABitmapTypes, LCScaleDPI, UMac, UColorFilters, math;
+uses BGRABitmapTypes, LCScaleDPI, UMac, UColorFilters, UResourceStrings, math;
 
 function ShowPosterizeDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult;
 var FPosterize: TFPosterize;
@@ -95,6 +97,8 @@ end;
 
 procedure TFPosterize.Button_OKClick(Sender: TObject);
 begin
+  if not CheckBox_Preview.Checked then PreviewNeeded;
+
   FFilterConnector.ValidateAction;
   FFilterConnector.LazPaintInstance.Config.SetDefaultPosterizeLevels(SpinEdit_Levels.Value);
   FFilterConnector.LazPaintInstance.Config.SetDefaultPosterizeByLightness(CheckBox_ByLightness.Checked);
@@ -103,7 +107,17 @@ end;
 
 procedure TFPosterize.CheckBox_ByLightnessChange(Sender: TObject);
 begin
-  if not FInitializing then PreviewNeeded;
+  if not FInitializing and
+    CheckBox_Preview.Checked then PreviewNeeded;
+end;
+
+procedure TFPosterize.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if FInitializing then exit;
+  if CheckBox_Preview.Checked then
+    PreviewNeeded
+  else
+   FFilterConnector.RestoreBackup;
 end;
 
 procedure TFPosterize.FormShow(Sender: TObject);
@@ -115,7 +129,8 @@ end;
 
 procedure TFPosterize.SpinEdit_LevelsChange(Sender: TObject);
 begin
-  if not FInitializing then PreviewNeeded;
+  if not FInitializing and
+    CheckBox_Preview.Checked then PreviewNeeded;
 end;
 
 procedure TFPosterize.OnTryStopAction(sender: TFilterConnector);
@@ -136,6 +151,11 @@ begin
     CheckBox_ByLightness.Checked := FFilterConnector.Parameters.Booleans['ByLightness']
   else
     CheckBox_ByLightness.Checked := FFilterConnector.LazPaintInstance.Config.DefaultPosterizeByLightness;
+
+  CheckBox_Preview.Checked := True;
+  CheckBox_Preview.Caption := rsPreview;
+  Button_OK.Caption := rsOk;
+  Button_Cancel.Caption := rsCancel;
   FInitializing := false;
 end;
 

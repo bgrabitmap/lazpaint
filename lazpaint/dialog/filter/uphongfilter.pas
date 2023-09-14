@@ -17,6 +17,7 @@ type
   TFPhongFilter = class(TForm)
     Button_Cancel: TButton;
     Button_OK: TButton;
+    CheckBox_Preview: TCheckBox;
     GroupBox_Color: TGroupBox;
     GroupBox_Color1: TGroupBox;
     Label_LightPosition: TLabel;
@@ -36,6 +37,7 @@ type
     SpinEdit_Altitude: TSpinEdit;
     Timer1: TTimer;
     procedure Button_OKClick(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -52,7 +54,8 @@ type
     { private declarations }
     FInitializing: boolean;
     FCenter: TPointF;
-    FHeightMap: TBGRABitmap;
+    FHeightMap,
+    FComputedImage: TBGRABitmap;
     FWorkspaceColor: TColor;
     FTexture: TBGRACustomBitmap;
     function GetCurrentLightPos: TPointF;
@@ -68,7 +71,7 @@ function ShowPhongFilterDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
-uses LCScaleDPI, UMac, BGRAGradients, LazPaintType;
+uses LCScaleDPI, UMac, BGRAGradients, LazPaintType, UResourceStrings;
 
 function ShowPhongFilterDlg(AFilterConnector: TObject): TScriptResult;
 var
@@ -105,10 +108,22 @@ end;
 
 procedure TFPhongFilter.Button_OKClick(Sender: TObject);
 begin
+  if not CheckBox_Preview.Checked then
+    FilterConnector.PutImage(FComputedImage, True, false);
+
   FilterConnector.ValidateAction;
   FilterConnector.LazPaintInstance.Config.SetDefaultPhongFilterAltitude(SpinEdit_Altitude.Value);
   FilterConnector.LazPaintInstance.ToolManager.LightPosition := CurrentLightPos;
   ModalResult := mrOK;
+end;
+
+procedure TFPhongFilter.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if FInitializing then exit;
+  if CheckBox_Preview.Checked then
+    FilterConnector.PutImage(FComputedImage, true, false)
+  else
+   FilterConnector.RestoreBackup;
 end;
 
 procedure TFPhongFilter.FormCreate(Sender: TObject);
@@ -123,6 +138,7 @@ procedure TFPhongFilter.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FHeightMap);
   if Assigned(FTexture) then FTexture.Free;
+  if Assigned(FComputedImage) then FComputedImage.Free;
 end;
 
 
@@ -198,8 +214,11 @@ end;
 procedure TFPhongFilter.Timer1Timer(Sender: TObject);
 begin
   Timer1.Enabled := false;
-  FilterConnector.PutImage(ComputeFilteredLayer,True,true);
+  if FComputedImage <> nil then FComputedImage.Free;
+  FComputedImage := ComputeFilteredLayer;
+  if CheckBox_Preview.Checked then FilterConnector.PutImage(FComputedImage,True,false);
   Button_OK.Enabled := true;
+  CheckBox_Preview.Enabled := true;
 end;
 
 procedure TFPhongFilter.PreviewNeeded;
@@ -207,6 +226,7 @@ begin
   Timer1.Enabled := false;
   Timer1.Enabled := True;
   Button_OK.Enabled := false;
+  CheckBox_Preview.Enabled := false;
 end;
 
 function TFPhongFilter.GetCurrentLightPos: TPointF;
@@ -271,6 +291,11 @@ begin
     end;
   end;
   SpinEdit_AltitudeChange(nil);
+
+  CheckBox_Preview.Checked := True;
+  CheckBox_Preview.Caption := rsPreview;
+  Button_OK.Caption := rsOk;
+  Button_Cancel.Caption := rsCancel;
   FInitializing := false;
 end;
 

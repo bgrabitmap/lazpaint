@@ -17,6 +17,7 @@ type
   TFWaveDisplacement = class(TForm)
     Button_Cancel: TButton;
     Button_OK: TButton;
+    CheckBox_Preview: TCheckBox;
     Label_Displacement: TLabel;
     Label_Phase: TLabel;
     Label_Wavelength: TLabel;
@@ -28,7 +29,9 @@ type
     SpinEdit_Wavelength: TSpinEdit;
     Timer1: TTimer;
     procedure Button_OKClick(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1MouseDown(Sender: TObject; {%H-}Button: TMouseButton;
       {%H-}Shift: TShiftState; X, Y: Integer);
@@ -43,6 +46,7 @@ type
     { private declarations }
     FInitializing: boolean;
     FCenter: TPointF;
+    FComputedImage: TBGRABitmap;
     procedure InitParams;
     procedure PreviewNeeded;
     function ComputeFilteredLayer: TBGRABitmap;
@@ -57,7 +61,7 @@ function ShowWaveDisplacementDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
-uses umac, ugraph, LCScaleDPI;
+uses umac, ugraph, UResourceStrings, LCScaleDPI;
 
 function ShowWaveDisplacementDlg(AFilterConnector: TObject): TScriptResult;
 var
@@ -98,6 +102,11 @@ begin
   CheckSpinEdit(SpinEdit_Displacement);
   CheckSpinEdit(SpinEdit_Phase);
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
+end;
+
+procedure TFWaveDisplacement.FormDestroy(Sender: TObject);
+begin
+  if FComputedImage <> nil then FreeAndNil(FComputedImage);
 end;
 
 procedure TFWaveDisplacement.FormShow(Sender: TObject);
@@ -159,8 +168,12 @@ end;
 procedure TFWaveDisplacement.Timer1Timer(Sender: TObject);
 begin
   Timer1.Enabled := false;
-  FilterConnector.PutImage(ComputeFilteredLayer,False,true);
+  if FComputedImage <> nil then FComputedImage.Free;
+  FComputedImage := ComputeFilteredLayer;
+  if CheckBox_Preview.Checked then
+    FilterConnector.PutImage(FComputedImage,False,False);
   Button_OK.Enabled := true;
+  CheckBox_Preview.Enabled := true;
 end;
 
 procedure TFWaveDisplacement.InitParams;
@@ -180,6 +193,11 @@ begin
     if IsDefined('CenterXPercent') then FCenter.X := Floats['CenterXPercent']/100;
     if IsDefined('CenterYPercent') then FCenter.Y := Floats['CenterYPercent']/100;
   end;
+
+  CheckBox_Preview.Checked := True;
+  CheckBox_Preview.Caption := rsPreview;
+  Button_OK.Caption := rsOk;
+  Button_Cancel.Caption := rsCancel;
   FInitializing := false;
 end;
 
@@ -188,6 +206,7 @@ begin
   Timer1.Enabled := false;
   Timer1.Enabled := True;
   Button_OK.Enabled := false;
+  CheckBox_Preview.Enabled := false;
 end;
 
 function TFWaveDisplacement.ComputeFilteredLayer: TBGRABitmap;
@@ -199,11 +218,22 @@ end;
 
 procedure TFWaveDisplacement.Button_OKClick(Sender: TObject);
 begin
+  if not CheckBox_Preview.Checked then FilterConnector.PutImage(FComputedImage,false,false);
+
   FilterConnector.ValidateAction;
   FilterConnector.LazPaintInstance.Config.SetDefaultWaveDisplacementWavelength(SpinEdit_Wavelength.Value);
   FilterConnector.LazPaintInstance.Config.SetDefaultWaveDisplacementAmount(SpinEdit_Displacement.Value);
   FilterConnector.LazPaintInstance.Config.SetDefaultWaveDisplacementPhase(SpinEdit_Phase.Value);
   ModalResult := mrOK;
+end;
+
+procedure TFWaveDisplacement.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if FInitializing then exit;
+  if CheckBox_Preview.Checked then
+    FilterConnector.PutImage(FComputedImage,False,False)
+  else
+   FilterConnector.RestoreBackup;
 end;
 
 {$R *.lfm}

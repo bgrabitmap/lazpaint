@@ -17,6 +17,7 @@ type
   TFTwirl = class(TForm)
     Button_Cancel: TButton;
     Button_OK: TButton;
+    CheckBox_Preview: TCheckBox;
     Label_Radius: TLabel;
     Label_Angle: TLabel;
     PaintBox1: TPaintBox;
@@ -26,6 +27,7 @@ type
     SpinEdit_Radius: TSpinEdit;
     Timer1: TTimer;
     procedure Button_OKClick(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -41,6 +43,7 @@ type
     { private declarations }
     FInitializing: boolean;
     FCenter: TPointF;
+    FComputedImage: TBGRABitmap;
     procedure InitParams;
     procedure PreviewNeeded;
     function ComputeFilteredLayer: TBGRABitmap;
@@ -52,7 +55,7 @@ function ShowTwirlDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
-uses umac;
+uses umac, UResourceStrings;
 
 function ShowTwirlDlg(AFilterConnector: TObject): TScriptResult;
 var
@@ -96,6 +99,7 @@ end;
 
 procedure TFTwirl.FormDestroy(Sender: TObject);
 begin
+  if FComputedImage <> nil then FreeAndNil(FComputedImage);
 end;
 
 procedure TFTwirl.FormShow(Sender: TObject);
@@ -152,8 +156,12 @@ end;
 procedure TFTwirl.Timer1Timer(Sender: TObject);
 begin
   Timer1.Enabled := false;
-  FilterConnector.PutImage(ComputeFilteredLayer,False,true);
+  if FComputedImage <> nil then FComputedImage.Free;
+  FComputedImage := ComputeFilteredLayer;
+  if CheckBox_Preview.Checked then
+    FilterConnector.PutImage(FComputedImage,False,False);
   Button_OK.Enabled := true;
+  CheckBox_Preview.Enabled := true;
 end;
 
 procedure TFTwirl.InitParams;
@@ -171,6 +179,11 @@ begin
     if IsDefined('CenterXPercent') then FCenter.X := Floats['CenterXPercent']/100;
     if IsDefined('CenterYPercent') then FCenter.Y := Floats['CenterYPercent']/100;
   end;
+
+  CheckBox_Preview.Checked := True;
+  CheckBox_Preview.Caption := rsPreview;
+  Button_OK.Caption := rsOk;
+  Button_Cancel.Caption := rsCancel;
   FInitializing := false;
 end;
 
@@ -179,6 +192,7 @@ begin
   Timer1.Enabled := false;
   Timer1.Enabled := True;
   Button_OK.Enabled := false;
+  CheckBox_Preview.Enabled := false;
 end;
 
 function TFTwirl.ComputeFilteredLayer: TBGRABitmap;
@@ -189,10 +203,21 @@ end;
 
 procedure TFTwirl.Button_OKClick(Sender: TObject);
 begin
+  if not CheckBox_Preview.Checked then FilterConnector.PutImage(FComputedImage,false,false);
+
   FilterConnector.ValidateAction;
   FilterConnector.LazPaintInstance.Config.SetDefaultTwirlRadius(SpinEdit_Radius.Value);
   FilterConnector.LazPaintInstance.Config.SetDefaultTwirlTurn(SpinEdit_Angle.Value/360);
   ModalResult := mrOK;
+end;
+
+procedure TFTwirl.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if FInitializing then exit;
+  if CheckBox_Preview.Checked then
+    FilterConnector.PutImage(FComputedImage,False,False)
+  else
+   FilterConnector.RestoreBackup;
 end;
 
 {$R *.lfm}

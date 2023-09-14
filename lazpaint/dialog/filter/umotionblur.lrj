@@ -2,6 +2,6 @@
 {"hash":106100930,"name":"tfmotionblur.caption","sourcebytes":[77,111,116,105,111,110,32,98,108,117,114],"value":"Motion blur"},
 {"hash":176170906,"name":"tfmotionblur.label_distance.caption","sourcebytes":[68,105,115,116,97,110,99,101,32,58],"value":"Distance :"},
 {"hash":150757332,"name":"tfmotionblur.checkbox_oriented.caption","sourcebytes":[79,114,105,101,110,116,101,100],"value":"Oriented"},
-{"hash":1339,"name":"tfmotionblur.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
-{"hash":77089212,"name":"tfmotionblur.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"}
+{"hash":497723,"name":"tfmotionblur.button_ok.caption","sourcebytes":[114,115,79,75],"value":"rsOK"},
+{"hash":127421996,"name":"tfmotionblur.button_cancel.caption","sourcebytes":[114,115,67,97,110,99,101,108],"value":"rsCancel"}
 ]}

@@ -306,11 +306,6 @@ msgstr "Matiz"
 msgid "Preset"
 msgstr "Preajuste"
 
-#: tfcustomblur.button_cancel.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Cancelar"
-
 #: tfcustomblur.button_editmask.caption
 msgid "Edit mask..."
 msgstr "Editar máscara.."
@@ -318,11 +313,6 @@ msgstr "Editar máscara.."
 #: tfcustomblur.button_loadmask.caption
 msgid "Load mask..."
 msgstr "Abrir máscara.."
-
-#: tfcustomblur.button_ok.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Aceptar"
 
 #: tfcustomblur.caption
 msgctxt "tfcustomblur.caption"
@@ -332,16 +322,6 @@ msgstr "Desenfoque personalizado"
 #: tfcustomblur.openpicturedialog1.title
 msgid "Open grayscale file"
 msgstr "Abrir archivo de escala de grises"
-
-#: tfemboss.button_cancel.caption
-msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: tfemboss.button_ok.caption
-msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Aceptar"
 
 #: tfemboss.caption
 msgctxt "tfemboss.caption"
@@ -360,16 +340,6 @@ msgstr "Transparente"
 msgctxt "tfemboss.label_direction.caption"
 msgid "Direction :"
 msgstr "Dirección:"
-
-#: tffilterfunction.button_cancel.caption
-msgctxt "tffilterfunction.button_cancel.caption"
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: tffilterfunction.button_ok.caption
-msgctxt "tffilterfunction.button_ok.caption"
-msgid "OK"
-msgstr "Aceptar"
 
 #: tffilterfunction.caption
 msgid "Apply function"
@@ -2083,16 +2053,6 @@ msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "Zoom fuera"
 
-#: tfmotionblur.button_cancel.caption
-msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: tfmotionblur.button_ok.caption
-msgctxt "TFMOTIONBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Aceptar"
-
 #: tfmotionblur.caption
 msgctxt "tfmotionblur.caption"
 msgid "Motion blur"
@@ -2161,16 +2121,6 @@ msgstr "Memoria requerida:"
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "Ancho:"
-
-#: tfnoisefilter.button_cancel.caption
-msgctxt "tfnoisefilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: tfnoisefilter.button_ok.caption
-msgctxt "tfnoisefilter.button_ok.caption"
-msgid "OK"
-msgstr "Aceptar"
 
 #: tfnoisefilter.caption
 msgid "Noise filter"
@@ -2309,16 +2259,6 @@ msgstr "Agregar una luz puntual"
 msgid "Remove selected light"
 msgstr "Quitar luz seleccionada"
 
-#: tfphongfilter.button_cancel.caption
-msgctxt "tfphongfilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: tfphongfilter.button_ok.caption
-msgctxt "tfphongfilter.button_ok.caption"
-msgid "OK"
-msgstr "Aceptar"
-
 #: tfphongfilter.caption
 msgctxt "tfphongfilter.caption"
 msgid "Shaded map"
@@ -2402,16 +2342,6 @@ msgstr "Tamaño de píxel:"
 msgctxt "tfpixelate.label_quality.caption"
 msgid "Quality :"
 msgstr "Calidad:"
-
-#: tfposterize.button_cancel.caption
-msgctxt "tfposterize.button_cancel.caption"
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: tfposterize.button_ok.caption
-msgctxt "tfposterize.button_ok.caption"
-msgid "OK"
-msgstr "Aceptar"
 
 #: tfposterize.caption
 msgctxt "tfposterize.caption"
@@ -2520,16 +2450,6 @@ msgstr "Recordar esta opción"
 msgctxt "tfquestion.label_message.caption"
 msgid "."
 msgstr "."
-
-#: tfradialblur.button_cancel.caption
-msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: tfradialblur.button_ok.caption
-msgctxt "TFRADIALBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Aceptar"
 
 #: tfradialblur.caption
 msgctxt "tfradialblur.caption"
@@ -2669,16 +2589,6 @@ msgstr "32 bits"
 msgid "MioMap"
 msgstr "MioMap"
 
-#: tfsharpen.button_cancel.caption
-msgctxt "tfsharpen.button_cancel.caption"
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: tfsharpen.button_ok.caption
-msgctxt "tfsharpen.button_ok.caption"
-msgid "OK"
-msgstr "Aceptar"
-
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
 msgstr "Nítido/Suave"
@@ -2723,16 +2633,6 @@ msgctxt "tftoolbox.caption"
 msgid "Tools"
 msgstr "Herramientas"
 
-#: tftwirl.button_cancel.caption
-msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: tftwirl.button_ok.caption
-msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Aceptar"
-
 #: tftwirl.caption
 msgctxt "tftwirl.caption"
 msgid "Twirl"
@@ -2747,16 +2647,6 @@ msgstr "Ángulo:"
 msgctxt "tftwirl.label_radius.caption"
 msgid "Radius :"
 msgstr "Rádio:"
-
-#: tfwavedisplacement.button_cancel.caption
-msgctxt "TFWAVEDISPLACEMENT.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: tfwavedisplacement.button_ok.caption
-msgctxt "TFWAVEDISPLACEMENT.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Aceptar"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"

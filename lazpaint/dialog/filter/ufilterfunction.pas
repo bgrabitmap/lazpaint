@@ -22,6 +22,7 @@ type
   TFFilterFunction = class(TForm)
     Button_Cancel: TButton;
     Button_OK: TButton;
+    CheckBox_Preview: TCheckBox;
     CheckBox_Gamma: TCheckBox;
     CheckBox_GSBA: TCheckBox;
     Edit_Alpha: TEdit;
@@ -61,6 +62,7 @@ type
     procedure Button_OKClick(Sender: TObject);
     procedure CheckBox_GammaChange(Sender: TObject);
     procedure CheckBox_GSBAChange(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure Edit_aChange(Sender: TObject);
     procedure Edit_AlphaChange(Sender: TObject);
     procedure Edit_bChange(Sender: TObject);
@@ -85,7 +87,8 @@ type
     FRedError, FGreenError, FBlueError, FAlphaError,
     FHueError, FSaturationError, FLightnessError,
     FLError, FaError, FbError: boolean;
-    FComputing: boolean;
+    FComputing,
+    FComputationRestarted: boolean;
     FSourceAsLab: TLabABitmap;
     FComputedImage: TBGRABitmap;
     FComputedLines: integer;
@@ -115,7 +118,7 @@ function ShowFilterFunctionDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
-uses UMac, LazPaintType, math;
+uses UMac, LazPaintType, UResourceStrings, math;
 
 function ShowFilterFunctionDlg(AFilterConnector: TObject): TScriptResult;
 var
@@ -502,9 +505,11 @@ begin
   Timer1.Enabled:= false;
   if FComputing then
   begin
-    if FComputedImage = nil then
-    begin
+    if (FComputedImage = nil)  then
       FComputedImage := TBGRABitmap.Create(FFilterConnector.BackupLayer.Width,FFilterConnector.BackupLayer.Height);
+    if FComputationRestarted then
+    begin
+      FComputationRestarted := false;
       FComputedLines := FFilterConnector.WorkArea.Top;
       FFilterConnector.RestoreBackup;
     end;
@@ -699,12 +704,13 @@ begin
 
       end;
     end;
-    FFilterConnector.PutImage(FComputedImage, rect(0,prevComputedLines,FComputedImage.Width,FComputedLines), True,False);
+    if CheckBox_Preview.Checked then
+      FFilterConnector.PutImage(FComputedImage, rect(0,prevComputedLines,FComputedImage.Width,FComputedLines), True,False);
     if FComputedLines = FFilterConnector.WorkArea.Bottom then
     begin
-      FreeAndNil(FComputedImage);
       FComputing := false;
       Button_OK.Enabled := true;
+      CheckBox_Preview.Enabled := true;
     end;
     Timer1.Interval := 15;
     Timer1.Enabled := True;
@@ -754,15 +760,17 @@ end;
 procedure TFFilterFunction.PreviewNeeded;
 begin
   Timer1.Enabled := False;
-  FreeAndNil(FComputedImage);
   FComputing := false;
   Button_OK.Enabled := false;
+  CheckBox_Preview.Enabled := false;
+  FComputationRestarted := false;
 
   if not FAlphaError and not FGreenError and not FBlueError and not FRedError
     and not FHueError and not FSaturationError and not FLightnessError then
   begin
     FComputing := True;
     FComputedLines := 0;
+    FComputationRestarted := true;
     Timer1.Interval := 200;
     Timer1.Enabled := True;
   end;
@@ -814,6 +822,11 @@ begin
   Edit_LChange(nil);
   Edit_aChange(nil);
   Edit_bChange(nil);
+
+  CheckBox_Preview.Checked := True;
+  CheckBox_Preview.Caption := rsPreview;
+  Button_OK.Caption := rsOk;
+  Button_Cancel.Caption := rsCancel;
   FInitializing:= false;
 end;
 
@@ -1043,6 +1056,9 @@ end;
 
 procedure TFFilterFunction.Button_OKClick(Sender: TObject);
 begin
+  if not CheckBox_Preview.Checked then
+    FFilterConnector.PutImage(FComputedImage,True,False);
+
   FFilterConnector.ValidateAction;
   ModalResult := mrOK;
 end;
@@ -1064,6 +1080,15 @@ begin
     StatsNotComputed(5,7);
     PreviewNeeded;
   end;
+end;
+
+procedure TFFilterFunction.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if FInitializing then exit;
+  if CheckBox_Preview.Checked then
+    FFilterConnector.PutImage(FComputedImage,True,False)
+  else
+    FFilterConnector.RestoreBackup;
 end;
 
 procedure TFFilterFunction.Edit_aChange(Sender: TObject);
