@@ -99,6 +99,7 @@ type
         count: integer;
         computed: boolean;
       end;
+    procedure DisplayComputedImage;
     procedure UpdateExpr(AExpr: TFPExpressionParser; AEdit: TEdit;
       var AError: boolean);
     procedure InitParams;
@@ -236,6 +237,7 @@ begin
   Label_bEquals.Caption := 'b (-1..1) = ';
   Label_Variables.Caption := Label_Variables.Caption+' x,y,width,height,random,min,max,avg';
 
+  FComputedImage := nil;
   StatsNotComputed(low(FStats), high(FStats));
 end;
 
@@ -505,7 +507,7 @@ begin
   Timer1.Enabled:= false;
   if FComputing then
   begin
-    if (FComputedImage = nil)  then
+    if FComputedImage = nil then
       FComputedImage := TBGRABitmap.Create(FFilterConnector.BackupLayer.Width,FFilterConnector.BackupLayer.Height);
     if FComputationRestarted then
     begin
@@ -1057,7 +1059,7 @@ end;
 procedure TFFilterFunction.Button_OKClick(Sender: TObject);
 begin
   if not CheckBox_Preview.Checked then
-    FFilterConnector.PutImage(FComputedImage,True,False);
+    DisplayComputedImage;
 
   FFilterConnector.ValidateAction;
   ModalResult := mrOK;
@@ -1082,11 +1084,17 @@ begin
   end;
 end;
 
+procedure TFFilterFunction.DisplayComputedImage;
+begin
+  if FComputedImage <> nil then
+    FFilterConnector.PutImage(FComputedImage,True,False);
+end;
+
 procedure TFFilterFunction.CheckBox_PreviewChange(Sender: TObject);
 begin
   if FInitializing then exit;
   if CheckBox_Preview.Checked then
-    FFilterConnector.PutImage(FComputedImage,True,False)
+    DisplayComputedImage
   else
     FFilterConnector.RestoreBackup;
 end;
