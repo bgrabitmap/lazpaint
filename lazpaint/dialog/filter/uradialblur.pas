@@ -34,13 +34,15 @@ type
     procedure SpinEdit_RadiusChange(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
   private
-    FInitializing: boolean;
+    FInitializing, FComputed: boolean;
     FFilterConnector: TFilterConnector;
     FThreadManager: TFilterThreadManager;
     FLastRadius: single;
     FVars: TVariableSet;
     FComputedImage: TBGRABitmap;
+    procedure DisplayComputedImage;
     procedure PreviewNeeded;
+    procedure StoreComputedImage;
     procedure UpdateStep;
     procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
   public
@@ -77,10 +79,15 @@ end;
 
 { TFRadialBlur }
 
+procedure TFRadialBlur.DisplayComputedImage;
+begin
+  if FComputedImage <> nil then
+    FFilterConnector.PutImage(FComputedImage, false, false);
+end;
+
 procedure TFRadialBlur.Button_OKClick(Sender: TObject);
 begin
-  if not CheckBox_Preview.Checked and
-    (FComputedImage <> nil) then FFilterConnector.PutImage(FComputedImage,false,false);
+  if not CheckBox_Preview.Checked then DisplayComputedImage;
 
   if not FFilterConnector.ActionDone then
   begin
@@ -94,9 +101,18 @@ procedure TFRadialBlur.CheckBox_PreviewChange(Sender: TObject);
 begin
   if FInitializing then exit;
   if CheckBox_Preview.Checked then
-    FFilterConnector.PutImage(FComputedImage, false, false)
+    DisplayComputedImage
   else
-   FFilterConnector.RestoreBackup;
+  begin
+    StoreComputedImage;
+    FFilterConnector.RestoreBackup;
+  end;
+end;
+
+procedure TFRadialBlur.StoreComputedImage;
+begin
+  if FComputed and (FComputedImage = nil) then
+    FComputedImage := FFilterConnector.ActiveLayer.Duplicate;
 end;
 
 procedure TFRadialBlur.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -113,11 +129,14 @@ begin
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckFloatSpinEdit(SpinEdit_Radius);
   SpinEdit_Radius.Constraints.MinWidth := DoScaleX(70, OriginalDPI);
+
+  FComputed := false;
+  FComputedImage := nil;
 end;
 
 procedure TFRadialBlur.FormDestroy(Sender: TObject);
 begin
-  if FComputedImage <> nil then FreeAndNil(FComputedImage);
+  FreeAndNil(FComputedImage);
 end;
 
 procedure TFRadialBlur.FormShow(Sender: TObject);
@@ -186,13 +205,8 @@ begin
         if AEvent = tmeCompletedTask then begin
           Button_OK.Enabled := true;
           CheckBox_Preview.Enabled := true;
+          FComputed := true;
         end;
-
-      if FComputedImage <> nil then FComputedImage.Free;
-      case AEvent of
-        tmeAbortedTask: FComputedImage := FFilterConnector.BackupLayer.Duplicate;
-        tmeCompletedTask: FComputedImage := FFilterConnector.ActiveLayer.Duplicate;
-      end;
     end;
   tmeStartingNewTask:
     begin
@@ -204,6 +218,7 @@ begin
       FInitializing := True;
       CheckBox_Preview.Enabled := false;
       CheckBox_Preview.Checked := True;
+      FreeAndNil(FComputedImage);
       FInitializing := False;
     end;
   end;
