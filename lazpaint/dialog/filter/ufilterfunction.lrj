@@ -17,5 +17,6 @@
 {"hash":46,"name":"tffilterfunction.label_lequals.caption","sourcebytes":[46],"value":"."},
 {"hash":46,"name":"tffilterfunction.label_aequals.caption","sourcebytes":[46],"value":"."},
 {"hash":46,"name":"tffilterfunction.label_bequals.caption","sourcebytes":[46],"value":"."},
-{"hash":133057994,"name":"tffilterfunction.label_variables.caption","sourcebytes":[86,97,114,105,97,98,108,101,115,32,58],"value":"Variables :"}
+{"hash":133057994,"name":"tffilterfunction.label_variables.caption","sourcebytes":[86,97,114,105,97,98,108,101,115,32,58],"value":"Variables :"},
+{"hash":126662215,"name":"tffilterfunction.checkbox_preview.caption","sourcebytes":[114,115,80,114,101,118,105,101,119],"value":"rsPreview"}
 ]}

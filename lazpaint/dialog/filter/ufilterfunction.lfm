@@ -1,22 +1,22 @@
 object FFilterFunction: TFFilterFunction
   Left = 437
-  Height = 262
+  Height = 271
   Top = 135
-  Width = 430
+  Width = 640
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Apply function'
-  ClientHeight = 262
-  ClientWidth = 430
+  ClientHeight = 271
+  ClientWidth = 640
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.2.4.0'
+  LCLVersion = '2.2.6.0'
   object Button_OK: TButton
-    Left = 145
+    Left = 251
     Height = 22
-    Top = 231
+    Top = 240
     Width = 59
     Anchors = [akLeft, akBottom]
     Caption = 'rsOK'
@@ -27,9 +27,9 @@ object FFilterFunction: TFFilterFunction
     TabOrder = 0
   end
   object Button_Cancel: TButton
-    Left = 209
+    Left = 315
     Height = 22
-    Top = 231
+    Top = 240
     Width = 73
     Anchors = [akLeft, akBottom]
     Cancel = True
@@ -43,9 +43,10 @@ object FFilterFunction: TFFilterFunction
     AnchorSideTop.Control = Edit_Alpha
     AnchorSideTop.Side = asrCenter
     Left = 16
-    Height = 15
-    Top = 180
-    Width = 3
+    Height = 16
+    Top = 189
+    Width = 4
+    Anchors = [akLeft, akBottom]
     Caption = '.'
     ParentColor = False
     ParentFont = False
@@ -53,10 +54,10 @@ object FFilterFunction: TFFilterFunction
   object Edit_Alpha: TEdit
     AnchorSideLeft.Control = Label_AlphaEquals
     AnchorSideLeft.Side = asrBottom
-    Left = 19
-    Height = 23
-    Top = 176
-    Width = 445
+    Left = 20
+    Height = 22
+    Top = 186
+    Width = 606
     Anchors = [akLeft, akRight, akBottom]
     OnChange = Edit_AlphaChange
     ParentFont = False
@@ -64,12 +65,13 @@ object FFilterFunction: TFFilterFunction
   end
   object PageControl_Color: TPageControl
     Left = 8
-    Height = 136
+    Height = 145
     Top = 31
-    Width = 416
-    ActivePage = TabSheet_RGB
+    Width = 626
+    ActivePage = TabSheet_HSL
+    Anchors = [akTop, akLeft, akRight]
     ParentFont = False
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 3
     OnChange = PageControl_ColorChange
     object TabSheet_RGB: TTabSheet
@@ -79,14 +81,14 @@ object FFilterFunction: TFFilterFunction
       ChildSizing.VerticalSpacing = 6
       ChildSizing.EnlargeHorizontal = crsScaleChilds
       ChildSizing.ControlsPerLine = 1
-      ClientHeight = 108
-      ClientWidth = 408
+      ClientHeight = 115
+      ClientWidth = 620
       ParentFont = False
       object PanelRGB: TPanel
-        Left = 9
-        Height = 71
+        Left = 10
+        Height = 79
         Top = 6
-        Width = 393
+        Width = 604
         Align = alClient
         BevelOuter = bvNone
         ChildSizing.HorizontalSpacing = 6
@@ -94,14 +96,14 @@ object FFilterFunction: TFFilterFunction
         ChildSizing.EnlargeHorizontal = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 71
-        ClientWidth = 393
+        ClientHeight = 79
+        ClientWidth = 604
         TabOrder = 0
         object Edit_Red: TEdit
           Left = 0
-          Height = 23
+          Height = 22
           Top = 0
-          Width = 393
+          Width = 604
           AutoSize = False
           OnChange = Edit_RedChange
           ParentFont = False
@@ -109,9 +111,9 @@ object FFilterFunction: TFFilterFunction
         end
         object Edit_Green: TEdit
           Left = 0
-          Height = 23
-          Top = 29
-          Width = 393
+          Height = 22
+          Top = 28
+          Width = 604
           AutoSize = False
           OnChange = Edit_GreenChange
           ParentFont = False
@@ -119,9 +121,9 @@ object FFilterFunction: TFFilterFunction
         end
         object Edit_Blue: TEdit
           Left = 0
-          Height = 23
-          Top = 58
-          Width = 393
+          Height = 22
+          Top = 56
+          Width = 604
           AutoSize = False
           OnChange = Edit_BlueChange
           ParentFont = False
@@ -130,9 +132,9 @@ object FFilterFunction: TFFilterFunction
       end
       object CheckBox_Gamma: TCheckBox
         Left = 6
-        Height = 19
-        Top = 83
-        Width = 396
+        Height = 18
+        Top = 91
+        Width = 608
         Align = alBottom
         Caption = 'Gamma correction'
         OnChange = CheckBox_GammaChange
@@ -141,41 +143,41 @@ object FFilterFunction: TFFilterFunction
       end
       object PanelLabelRGB: TPanel
         Left = 6
-        Height = 71
+        Height = 79
         Top = 6
-        Width = 3
+        Width = 4
         Align = alLeft
         AutoSize = True
         BevelOuter = bvNone
         ChildSizing.VerticalSpacing = 6
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 71
-        ClientWidth = 3
+        ClientHeight = 79
+        ClientWidth = 4
         TabOrder = 2
         object Label_RedEquals: TLabel
           Left = 0
-          Height = 15
+          Height = 16
           Top = 0
-          Width = 3
+          Width = 4
           Caption = '.'
           ParentColor = False
           ParentFont = False
         end
         object Label_GreenEquals: TLabel
           Left = 0
-          Height = 15
-          Top = 21
-          Width = 3
+          Height = 16
+          Top = 22
+          Width = 4
           Caption = '.'
           ParentColor = False
           ParentFont = False
         end
         object Label_BlueEquals: TLabel
           Left = 0
-          Height = 15
-          Top = 42
-          Width = 3
+          Height = 16
+          Top = 44
+          Width = 4
           Caption = '.'
           ParentColor = False
           ParentFont = False
@@ -187,14 +189,14 @@ object FFilterFunction: TFFilterFunction
       ChildSizing.LeftRightSpacing = 6
       ChildSizing.TopBottomSpacing = 6
       ChildSizing.VerticalSpacing = 6
-      ClientHeight = 108
-      ClientWidth = 408
+      ClientHeight = 115
+      ClientWidth = 620
       ParentFont = False
       object PanelHSL: TPanel
-        Left = 9
-        Height = 71
+        Left = 10
+        Height = 79
         Top = 6
-        Width = 393
+        Width = 604
         Align = alClient
         BevelOuter = bvNone
         ChildSizing.HorizontalSpacing = 6
@@ -202,14 +204,14 @@ object FFilterFunction: TFFilterFunction
         ChildSizing.EnlargeHorizontal = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 71
-        ClientWidth = 393
+        ClientHeight = 79
+        ClientWidth = 604
         TabOrder = 0
         object Edit_Hue: TEdit
           Left = 0
-          Height = 23
+          Height = 22
           Top = 0
-          Width = 393
+          Width = 604
           AutoSize = False
           OnChange = Edit_HueChange
           ParentFont = False
@@ -217,9 +219,9 @@ object FFilterFunction: TFFilterFunction
         end
         object Edit_Saturation: TEdit
           Left = 0
-          Height = 23
-          Top = 29
-          Width = 393
+          Height = 22
+          Top = 28
+          Width = 604
           AutoSize = False
           OnChange = Edit_SaturationChange
           ParentFont = False
@@ -227,9 +229,9 @@ object FFilterFunction: TFFilterFunction
         end
         object Edit_Lightness: TEdit
           Left = 0
-          Height = 23
-          Top = 58
-          Width = 393
+          Height = 22
+          Top = 56
+          Width = 604
           AutoSize = False
           OnChange = Edit_LightnessChange
           ParentFont = False
@@ -238,9 +240,9 @@ object FFilterFunction: TFFilterFunction
       end
       object CheckBox_GSBA: TCheckBox
         Left = 6
-        Height = 19
-        Top = 83
-        Width = 396
+        Height = 18
+        Top = 91
+        Width = 608
         Align = alBottom
         Caption = 'Corrected hue and lightness'
         OnChange = CheckBox_GSBAChange
@@ -249,41 +251,41 @@ object FFilterFunction: TFFilterFunction
       end
       object PanelLabelHSL: TPanel
         Left = 6
-        Height = 71
+        Height = 79
         Top = 6
-        Width = 3
+        Width = 4
         Align = alLeft
         AutoSize = True
         BevelOuter = bvNone
         ChildSizing.VerticalSpacing = 6
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 71
-        ClientWidth = 3
+        ClientHeight = 79
+        ClientWidth = 4
         TabOrder = 2
         object Label_HueEquals: TLabel
           Left = 0
-          Height = 15
+          Height = 16
           Top = 0
-          Width = 3
+          Width = 4
           Caption = '.'
           ParentColor = False
           ParentFont = False
         end
         object Label_SaturationEquals: TLabel
           Left = 0
-          Height = 15
-          Top = 21
-          Width = 3
+          Height = 16
+          Top = 22
+          Width = 4
           Caption = '.'
           ParentColor = False
           ParentFont = False
         end
         object Label_LightnessEquals: TLabel
           Left = 0
-          Height = 15
-          Top = 42
-          Width = 3
+          Height = 16
+          Top = 44
+          Width = 4
           Caption = '.'
           ParentColor = False
           ParentFont = False
@@ -295,13 +297,13 @@ object FFilterFunction: TFFilterFunction
       ChildSizing.LeftRightSpacing = 6
       ChildSizing.TopBottomSpacing = 6
       ChildSizing.VerticalSpacing = 6
-      ClientHeight = 108
-      ClientWidth = 408
+      ClientHeight = 115
+      ClientWidth = 620
       object PanelLab: TPanel
-        Left = 9
-        Height = 96
+        Left = 10
+        Height = 103
         Top = 6
-        Width = 393
+        Width = 604
         Align = alClient
         BevelOuter = bvNone
         ChildSizing.HorizontalSpacing = 6
@@ -309,14 +311,14 @@ object FFilterFunction: TFFilterFunction
         ChildSizing.EnlargeHorizontal = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 96
-        ClientWidth = 393
+        ClientHeight = 103
+        ClientWidth = 604
         TabOrder = 0
         object Edit_L: TEdit
           Left = 0
-          Height = 23
+          Height = 22
           Top = 0
-          Width = 393
+          Width = 604
           AutoSize = False
           OnChange = Edit_LChange
           ParentFont = False
@@ -324,9 +326,9 @@ object FFilterFunction: TFFilterFunction
         end
         object Edit_a: TEdit
           Left = 0
-          Height = 23
-          Top = 29
-          Width = 393
+          Height = 22
+          Top = 28
+          Width = 604
           AutoSize = False
           OnChange = Edit_aChange
           ParentFont = False
@@ -334,9 +336,9 @@ object FFilterFunction: TFFilterFunction
         end
         object Edit_b: TEdit
           Left = 0
-          Height = 23
-          Top = 58
-          Width = 393
+          Height = 22
+          Top = 56
+          Width = 604
           AutoSize = False
           OnChange = Edit_bChange
           ParentFont = False
@@ -345,41 +347,41 @@ object FFilterFunction: TFFilterFunction
       end
       object PanelLabelLab: TPanel
         Left = 6
-        Height = 96
+        Height = 103
         Top = 6
-        Width = 3
+        Width = 4
         Align = alLeft
         AutoSize = True
         BevelOuter = bvNone
         ChildSizing.VerticalSpacing = 6
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 96
-        ClientWidth = 3
+        ClientHeight = 103
+        ClientWidth = 4
         TabOrder = 1
         object Label_LEquals: TLabel
           Left = 0
-          Height = 15
+          Height = 16
           Top = 0
-          Width = 3
+          Width = 4
           Caption = '.'
           ParentColor = False
           ParentFont = False
         end
         object Label_aEquals: TLabel
           Left = 0
-          Height = 15
-          Top = 21
-          Width = 3
+          Height = 16
+          Top = 22
+          Width = 4
           Caption = '.'
           ParentColor = False
           ParentFont = False
         end
         object Label_bEquals: TLabel
           Left = 0
-          Height = 15
-          Top = 42
-          Width = 3
+          Height = 16
+          Top = 44
+          Width = 4
           Caption = '.'
           ParentColor = False
           ParentFont = False
@@ -389,18 +391,20 @@ object FFilterFunction: TFFilterFunction
   end
   object Label_Variables: TLabel
     Left = 9
-    Height = 15
+    Height = 16
     Top = 8
-    Width = 52
+    Width = 63
     Caption = 'Variables :'
     ParentColor = False
     ParentFont = False
   end
   object CheckBox_Preview: TCheckBox
     Left = 21
-    Height = 19
-    Top = 208
-    Width = 20
+    Height = 18
+    Top = 217
+    Width = 82
+    Anchors = [akLeft, akBottom]
+    Caption = 'rsPreview'
     Checked = True
     OnChange = CheckBox_PreviewChange
     State = cbChecked
@@ -410,13 +414,13 @@ object FFilterFunction: TFFilterFunction
     Enabled = False
     Interval = 30
     OnTimer = Timer1Timer
-    Left = 200
-    Top = 40
+    Left = 144
+    Top = 8
   end
   object Timer_AdjustVerticalSize: TTimer
     Interval = 20
     OnTimer = Timer_AdjustVerticalSizeTimer
-    Left = 301
-    Top = 17
+    Left = 488
+    Top = 8
   end
 end
