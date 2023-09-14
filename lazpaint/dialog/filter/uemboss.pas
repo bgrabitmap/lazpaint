@@ -47,7 +47,7 @@ type
     FInitializing: boolean;
     procedure ComputeAngle(X,Y: integer);
     function ComputeFilteredLayer: TBGRABitmap;
-    procedure PreviewNeeded;
+    procedure DisplayPreview;
     procedure InitParams;
   public
     FilterConnector: TFilterConnector;
@@ -76,7 +76,7 @@ begin
         FEmboss.FilterConnector.Parameters.Booleans['Validate'] then
       begin
         FEmboss.InitParams;
-        FEmboss.PreviewNeeded;
+        FEmboss.DisplayPreview;
         FEmboss.FilterConnector.ValidateAction;
         result := srOk;
       end else
@@ -103,13 +103,13 @@ end;
 procedure TFEmboss.FormShow(Sender: TObject);
 begin
   InitParams;
-  PreviewNeeded;
+  DisplayPreview;
   Left := FilterConnector.LazPaintInstance.MainFormBounds.Left
 end;
 
 procedure TFEmboss.Button_OKClick(Sender: TObject);
 begin
-  if not CheckBox_Preview.Checked then PreviewNeeded;
+  if not CheckBox_Preview.Checked then DisplayPreview;
 
   FilterConnector.ValidateAction;
   FilterConnector.LazPaintInstance.Config.SetDefaultEmbossAngle(angle);
@@ -118,16 +118,16 @@ end;
 
 procedure TFEmboss.CheckBox_Change(Sender: TObject);
 begin
-  if CheckBox_Preview.Checked then PreviewNeeded;
+  if CheckBox_Preview.Checked then DisplayPreview;
 end;
 
 procedure TFEmboss.CheckBox_PreviewChange(Sender: TObject);
 begin
   if FInitializing then exit;
   if CheckBox_Preview.Checked then
-    PreviewNeeded
+    DisplayPreview
   else
-   FilterConnector.RestoreBackup;
+    FilterConnector.RestoreBackup;
 end;
 
 procedure TFEmboss.PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -184,7 +184,7 @@ end;
 
 procedure TFEmboss.TrackBar_StrengthChange(Sender: TObject);
 begin
-  if CheckBox_Preview.Checked then PreviewNeeded;
+  if CheckBox_Preview.Checked then DisplayPreview;
   PaintBox1.Repaint;
 end;
 
@@ -193,7 +193,7 @@ begin
   if selectingAngle then
   begin
     angle := ugraph.ComputeAngle(X-PaintBox1.Width/2,Y-PaintBox1.Height/2);
-    if CheckBox_Preview.Checked then PreviewNeeded;
+    if CheckBox_Preview.Checked then DisplayPreview;
     PaintBox1.Repaint;
   end;
 end;
@@ -207,7 +207,7 @@ begin
   result := FilterConnector.BackupLayer.FilterEmboss(angle,FilterConnector.WorkArea,TrackBar_Strength.Position,options) as TBGRABitmap;
 end;
 
-procedure TFEmboss.PreviewNeeded;
+procedure TFEmboss.DisplayPreview;
 begin
   FilterConnector.PutImage(ComputeFilteredLayer,False,True);
 end;
