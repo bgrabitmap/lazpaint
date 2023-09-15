@@ -46,6 +46,7 @@ type
     FComputedImage: TBGRABitmap;
     procedure InitParams;
     procedure PreviewNeeded;
+    procedure DisplayComputedImage;
     function ComputeFilteredLayer: TBGRABitmap;
   public
     FilterConnector: TFilterConnector;
@@ -158,8 +159,7 @@ begin
   Timer1.Enabled := false;
   if FComputedImage <> nil then FComputedImage.Free;
   FComputedImage := ComputeFilteredLayer;
-  if CheckBox_Preview.Checked then
-    FilterConnector.PutImage(FComputedImage,False,False);
+  if CheckBox_Preview.Checked then DisplayComputedImage;
   Button_OK.Enabled := true;
   CheckBox_Preview.Enabled := true;
 end;
@@ -195,6 +195,11 @@ begin
   CheckBox_Preview.Enabled := false;
 end;
 
+procedure TFTwirl.DisplayComputedImage;
+begin
+  FilterConnector.PutImage(FComputedImage,False,False);
+end;
+
 function TFTwirl.ComputeFilteredLayer: TBGRABitmap;
 begin
   result := FilterConnector.BackupLayer.FilterTwirl(FilterConnector.WorkArea, Point(round(FCenter.X*FilterConnector.ActiveLayer.Width),round(FCenter.Y*FilterConnector.ActiveLayer.Height)),
@@ -203,7 +208,7 @@ end;
 
 procedure TFTwirl.Button_OKClick(Sender: TObject);
 begin
-  if not CheckBox_Preview.Checked then FilterConnector.PutImage(FComputedImage,false,false);
+  if not CheckBox_Preview.Checked then DisplayComputedImage;
 
   FilterConnector.ValidateAction;
   FilterConnector.LazPaintInstance.Config.SetDefaultTwirlRadius(SpinEdit_Radius.Value);
@@ -215,9 +220,9 @@ procedure TFTwirl.CheckBox_PreviewChange(Sender: TObject);
 begin
   if FInitializing then exit;
   if CheckBox_Preview.Checked then
-    FilterConnector.PutImage(FComputedImage,False,False)
+    DisplayComputedImage
   else
-   FilterConnector.RestoreBackup;
+    FilterConnector.RestoreBackup;
 end;
 
 {$R *.lfm}
