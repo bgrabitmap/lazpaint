@@ -105,6 +105,7 @@ object FTwirl: TFTwirl
     Height = 19
     Top = 183
     Width = 130
+    Caption = 'rsPreview'
     Checked = True
     OnChange = CheckBox_PreviewChange
     State = cbChecked
