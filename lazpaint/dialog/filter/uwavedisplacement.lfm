@@ -128,6 +128,7 @@ object FWaveDisplacement: TFWaveDisplacement
     Height = 19
     Top = 214
     Width = 151
+    Caption = 'rsPreview'
     Checked = True
     OnChange = CheckBox_PreviewChange
     State = cbChecked
