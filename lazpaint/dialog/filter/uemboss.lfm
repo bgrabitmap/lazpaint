@@ -85,6 +85,7 @@ object FEmboss: TFEmboss
     Height = 19
     Top = 231
     Width = 130
+    Caption = 'rsPreview'
     Checked = True
     OnChange = CheckBox_PreviewChange
     State = cbChecked

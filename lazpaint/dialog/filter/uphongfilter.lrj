@@ -16,5 +16,6 @@
 {"hash":234561107,"name":"tfphongfilter.radio_maplightness.caption","sourcebytes":[76,105,103,104,116,110,101,115,115],"value":"Lightness"},
 {"hash":71,"name":"tfphongfilter.radio_mapgreen.caption","sourcebytes":[71],"value":"G"},
 {"hash":66,"name":"tfphongfilter.radio_mapblue.caption","sourcebytes":[66],"value":"B"},
-{"hash":108801555,"name":"tfphongfilter.radio_maplinearlightness.caption","sourcebytes":[76,105,110,101,97,114,32,108,105,103,104,116,110,101,115,115],"value":"Linear lightness"}
+{"hash":108801555,"name":"tfphongfilter.radio_maplinearlightness.caption","sourcebytes":[76,105,110,101,97,114,32,108,105,103,104,116,110,101,115,115],"value":"Linear lightness"},
+{"hash":126662215,"name":"tfphongfilter.checkbox_preview.caption","sourcebytes":[114,115,80,114,101,118,105,101,119],"value":"rsPreview"}
 ]}

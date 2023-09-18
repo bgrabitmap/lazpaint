@@ -66,7 +66,8 @@ object FCustomBlur: TFCustomBlur
     Left = 8
     Height = 19
     Top = 264
-    Width = 20
+    Width = 70
+    Caption = 'rsPreview'
     Checked = True
     OnChange = CheckBox_PreviewChange
     State = cbChecked

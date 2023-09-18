@@ -3,6 +3,7 @@
 {"hash":243178037,"name":"tfnoisefilter.radio_grayscalenoise.caption","sourcebytes":[71,114,97,121,115,99,97,108,101,32,110,111,105,115,101],"value":"Grayscale noise"},
 {"hash":74782245,"name":"tfnoisefilter.radio_rgbnoise.caption","sourcebytes":[82,71,66,32,110,111,105,115,101],"value":"RGB noise"},
 {"hash":108662442,"name":"tfnoisefilter.label_opacity.caption","sourcebytes":[79,112,97,99,105,116,121,58],"value":"Opacity:"},
+{"hash":126662215,"name":"tfnoisefilter.checkbox_preview.caption","sourcebytes":[114,115,80,114,101,118,105,101,119],"value":"rsPreview"},
 {"hash":497723,"name":"tfnoisefilter.button_ok.caption","sourcebytes":[114,115,79,75],"value":"rsOK"},
 {"hash":127421996,"name":"tfnoisefilter.button_cancel.caption","sourcebytes":[114,115,67,97,110,99,101,108],"value":"rsCancel"}
 ]}
