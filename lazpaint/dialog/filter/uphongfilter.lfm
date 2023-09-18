@@ -197,7 +197,8 @@ object FPhongFilter: TFPhongFilter
     Left = 14
     Height = 19
     Top = 160
-    Width = 20
+    Width = 70
+    Caption = 'rsPreview'
     Checked = True
     OnChange = CheckBox_PreviewChange
     State = cbChecked
