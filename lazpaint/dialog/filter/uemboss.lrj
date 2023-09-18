@@ -3,6 +3,7 @@
 {"hash":182806666,"name":"tfemboss.label_direction.caption","sourcebytes":[68,105,114,101,99,116,105,111,110,32,58],"value":"Direction :"},
 {"hash":171115524,"name":"tfemboss.checkbox_transparent.caption","sourcebytes":[84,114,97,110,115,112,97,114,101,110,116],"value":"Transparent"},
 {"hash":169540963,"name":"tfemboss.checkbox_preservecolors.caption","sourcebytes":[80,114,101,115,101,114,118,101,32,99,111,108,111,114,115],"value":"Preserve colors"},
+{"hash":126662215,"name":"tfemboss.checkbox_preview.caption","sourcebytes":[114,115,80,114,101,118,105,101,119],"value":"rsPreview"},
 {"hash":497723,"name":"tfemboss.button_ok.caption","sourcebytes":[114,115,79,75],"value":"rsOK"},
 {"hash":127421996,"name":"tfemboss.button_cancel.caption","sourcebytes":[114,115,67,97,110,99,101,108],"value":"rsCancel"}
 ]}
