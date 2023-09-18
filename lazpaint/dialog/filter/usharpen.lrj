@@ -1,6 +1,7 @@
 {"version":1,"strings":[
 {"hash":170608904,"name":"tfsharpen.caption","sourcebytes":[83,104,97,114,112,101,110,47,83,109,111,111,116,104],"value":"Sharpen/Smooth"},
 {"hash":74207930,"name":"tfsharpen.label_amount.caption","sourcebytes":[65,109,111,117,110,116,32,58],"value":"Amount :"},
+{"hash":126662215,"name":"tfsharpen.checkbox_preview.caption","sourcebytes":[114,115,80,114,101,118,105,101,119],"value":"rsPreview"},
 {"hash":497723,"name":"tfsharpen.button_ok.caption","sourcebytes":[114,115,79,75],"value":"rsOK"},
 {"hash":127421996,"name":"tfsharpen.button_cancel.caption","sourcebytes":[114,115,67,97,110,99,101,108],"value":"rsCancel"}
 ]}
