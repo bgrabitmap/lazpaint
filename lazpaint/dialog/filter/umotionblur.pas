@@ -51,12 +51,14 @@ type
     InPaintBoxMouseMove: boolean;
     PaintBoxMouseMovePos: TPoint;
     FQuitQuery,
-    FInitializing: boolean;
+    FInitializing, FComputed: boolean;
     FComputedImage: TBGRABitmap;
     procedure UpdateStep;
     procedure ComputeAngle(X,Y: integer);
     procedure InitParams;
+    procedure DisplayComputedImage;
     procedure PreviewNeeded;
+    procedure StoreComputedImage;
     procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
   end;
 
@@ -200,11 +202,23 @@ begin
   FInitializing := false;
 end;
 
+procedure TFMotionBlur.DisplayComputedImage;
+begin
+  if FComputedImage <> nil then
+    FFilterConnector.PutImage(FComputedImage, false, false);
+end;
+
 procedure TFMotionBlur.PreviewNeeded;
 begin
   FThreadManager.WantPreview(CreateMotionBlurTask(FFilterConnector.BackupLayer,
     FFilterConnector.WorkArea, SpinEdit_Distance.Value, angle,
     Checkbox_Oriented.Checked));
+end;
+
+procedure TFMotionBlur.StoreComputedImage;
+begin
+  if FComputed and (FComputedImage = nil) then
+    FComputedImage := FFilterConnector.ActiveLayer.Duplicate;
 end;
 
 procedure TFMotionBlur.OnTaskEvent(ASender: TObject; AEvent: TThreadManagerEvent
@@ -220,13 +234,8 @@ begin
         if AEvent = tmeCompletedTask then begin
           Button_OK.Enabled := true;
           CheckBox_Preview.Enabled := true;
+          FComputed := true;
         end;
-
-      if FComputedImage <> nil then FComputedImage.Free;
-      case AEvent of
-        tmeAbortedTask: FComputedImage := FFilterConnector.BackupLayer.Duplicate;
-        tmeCompletedTask: FComputedImage := FFilterConnector.ActiveLayer.Duplicate;
-      end;
     end;
   tmeStartingNewTask:
     begin
@@ -238,6 +247,7 @@ begin
       FInitializing := True;
       CheckBox_Preview.Enabled := false;
       CheckBox_Preview.Checked := True;
+      FreeAndNil(FComputedImage);
       FInitializing := False;
     end;
   end;
@@ -251,11 +261,14 @@ begin
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckFloatSpinEdit(SpinEdit_Distance);
   SpinEdit_Distance.Constraints.MinWidth := DoScaleX(70, OriginalDPI);
+
+  FComputed := false;
+  FComputedImage := nil;
 end;
 
 procedure TFMotionBlur.FormDestroy(Sender: TObject);
 begin
-  if FComputedImage <> nil then FreeAndNil(FComputedImage);
+  FreeAndNil(FComputedImage);
 end;
 
 procedure TFMotionBlur.FormShow(Sender: TObject);
@@ -293,8 +306,7 @@ end;
 
 procedure TFMotionBlur.Button_OKClick(Sender: TObject);
 begin
-  if not CheckBox_Preview.Checked and
-    (FComputedImage <> nil) then FFilterConnector.PutImage(FComputedImage,false,false);
+  if not CheckBox_Preview.Checked then DisplayComputedImage;
 
   if not FFilterConnector.ActionDone then
   begin
@@ -316,9 +328,12 @@ procedure TFMotionBlur.CheckBox_PreviewChange(Sender: TObject);
 begin
   if FInitializing then exit;
   if CheckBox_Preview.Checked then
-    FFilterConnector.PutImage(FComputedImage, false, false)
+    DisplayComputedImage
   else
-   FFilterConnector.RestoreBackup;
+   begin
+     StoreComputedImage;
+     FFilterConnector.RestoreBackup;
+   end;
 end;
 
 procedure TFMotionBlur.FormCloseQuery(Sender: TObject; var CanClose: boolean);

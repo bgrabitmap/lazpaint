@@ -33,7 +33,7 @@ type
     FFilterConnector: TFilterConnector;
     procedure OnTryStopAction({%H-}sender: TFilterConnector);
     procedure InitParams;
-    procedure PreviewNeeded;
+    procedure DisplayPreview;
     { private declarations }
   public
     { public declarations }
@@ -67,7 +67,7 @@ begin
        FPosterize.FFilterConnector.Parameters.Booleans['Validate'] then
     begin
       FPosterize.InitParams;
-      FPosterize.PreviewNeeded;
+      FPosterize.DisplayPreview;
       FPosterize.FFilterConnector.ValidateAction;
       result := srOk;
     end else
@@ -97,7 +97,7 @@ end;
 
 procedure TFPosterize.Button_OKClick(Sender: TObject);
 begin
-  if not CheckBox_Preview.Checked then PreviewNeeded;
+  if not CheckBox_Preview.Checked then DisplayPreview;
 
   FFilterConnector.ValidateAction;
   FFilterConnector.LazPaintInstance.Config.SetDefaultPosterizeLevels(SpinEdit_Levels.Value);
@@ -108,14 +108,14 @@ end;
 procedure TFPosterize.CheckBox_ByLightnessChange(Sender: TObject);
 begin
   if not FInitializing and
-    CheckBox_Preview.Checked then PreviewNeeded;
+    CheckBox_Preview.Checked then DisplayPreview;
 end;
 
 procedure TFPosterize.CheckBox_PreviewChange(Sender: TObject);
 begin
   if FInitializing then exit;
   if CheckBox_Preview.Checked then
-    PreviewNeeded
+    DisplayPreview
   else
    FFilterConnector.RestoreBackup;
 end;
@@ -123,14 +123,14 @@ end;
 procedure TFPosterize.FormShow(Sender: TObject);
 begin
   InitParams;
-  PreviewNeeded;
+  DisplayPreview;
   Top := FFilterConnector.LazPaintInstance.MainFormBounds.Top;
 end;
 
 procedure TFPosterize.SpinEdit_LevelsChange(Sender: TObject);
 begin
   if not FInitializing and
-    CheckBox_Preview.Checked then PreviewNeeded;
+    CheckBox_Preview.Checked then DisplayPreview;
 end;
 
 procedure TFPosterize.OnTryStopAction(sender: TFilterConnector);
@@ -159,7 +159,7 @@ begin
   FInitializing := false;
 end;
 
-procedure TFPosterize.PreviewNeeded;
+procedure TFPosterize.DisplayPreview;
 var params:TVariableSet;
   levels: integer;
 

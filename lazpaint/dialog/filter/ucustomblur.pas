@@ -42,8 +42,10 @@ type
     FLazPaintInstance: TLazPaintCustomInstance;
     FFilterConnector: TFilterConnector;
     FThreadManager: TFilterThreadManager;
-    FInitializing: boolean;
+    FInitializing, FComputed: boolean;
     FComputedImage: TBGRABitmap;
+    procedure DisplayComputedImage;
+    procedure StoreComputedImage;
     procedure GenerateDefaultMask;
     procedure SetLazPaintInstance(const AValue: TLazPaintCustomInstance);
     procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
@@ -67,13 +69,16 @@ begin
     'ForeColor=FFFFFFFF'+LineEnding+
     'BackColor=000000FF'+LineEnding+
     'PenWidth=1');
+
+  FComputed := false;
+  FComputedImage := nil;
 end;
 
 procedure TFCustomBlur.FormDestroy(Sender: TObject);
 begin
   subConfig.Free;
   FreeAndNil(FBrowseImages);
-  if FComputedImage <> nil then FreeAndNil(FComputedImage);
+  FreeAndNil(FComputedImage);
 end;
 
 procedure TFCustomBlur.FormShow(Sender: TObject);
@@ -128,6 +133,18 @@ begin
   FThreadManager.RegularCheck;
   Timer1.Interval := 200;
   Timer1.Enabled:= true;
+end;
+
+procedure TFCustomBlur.DisplayComputedImage;
+begin
+  if FComputedImage <> nil then
+    FFilterConnector.PutImage(FComputedImage, false, false);
+end;
+
+procedure TFCustomBlur.StoreComputedImage;
+begin
+  if FComputed and (FComputedImage = nil) then
+    FComputedImage := FFilterConnector.ActiveLayer.Duplicate;
 end;
 
 procedure TFCustomBlur.GenerateDefaultMask;
@@ -283,8 +300,7 @@ end;
 
 procedure TFCustomBlur.Button_OKClick(Sender: TObject);
 begin
-  if not CheckBox_Preview.Checked and
-    (FComputedImage <> nil) then FFilterConnector.PutImage(FComputedImage,false,false);
+  if not CheckBox_Preview.Checked then DisplayComputedImage;
 
   if not FFilterConnector.ActionDone then FFilterConnector.ValidateAction;
   ModalResult := mrOK;
@@ -294,9 +310,12 @@ procedure TFCustomBlur.CheckBox_PreviewChange(Sender: TObject);
 begin
   if FInitializing then exit;
   if CheckBox_Preview.Checked then
-    FFilterConnector.PutImage(FComputedImage, false, false)
+    DisplayComputedImage
   else
+  begin
+   StoreComputedImage;
    FFilterConnector.RestoreBackup;
+  end;
 end;
 
 procedure TFCustomBlur.FormCloseQuery(Sender: TObject; var CanClose: boolean);

@@ -38,12 +38,12 @@ type
     FComputedLayer: TBGRABitmap;
     FClosing: boolean;
     procedure InitParams;
-    procedure PutComputedLayerToFilterConnector;
+    procedure DisplayComputedImage;
   public
     FInitializing: boolean;
     FFilterConnector: TFilterConnector;
     procedure ComputeFilteredLayer;
-    procedure PreviewNeeded(ARecomputeRandom: boolean);
+    procedure DisplayPreview(ARecomputeRandom: boolean);
   end;
 
 function ShowNoiseFilterDlg(AFilterConnector: TObject): TScriptResult;
@@ -65,7 +65,7 @@ begin
         FNoiseFilter.FFilterConnector.Parameters.Booleans['Validate'] then
       begin
         FNoiseFilter.InitParams;
-        FNoiseFilter.PreviewNeeded(true);
+        FNoiseFilter.DisplayPreview(true);
         FNoiseFilter.FFilterConnector.ValidateAction;
         result := srOk;
       end else
@@ -88,7 +88,7 @@ end;
 procedure TFNoiseFilter.Button_OKClick(Sender: TObject);
 begin
   if not CheckBox_Preview.Checked then
-    PutComputedLayerToFilterConnector;
+    DisplayComputedImage;
 
   FFilterConnector.ValidateAction;
   ModalResult := mrOK;
@@ -98,7 +98,7 @@ procedure TFNoiseFilter.CheckBox_PreviewChange(Sender: TObject);
 begin
   if FInitializing then exit;
   if CheckBox_Preview.Checked then
-    PutComputedLayerToFilterConnector
+    DisplayComputedImage
   else
     FFilterConnector.RestoreBackup;
 end;
@@ -121,7 +121,7 @@ end;
 procedure TFNoiseFilter.Radio_NoiseChange(Sender: TObject);
 begin
   if FInitializing then exit;
-  PreviewNeeded(true);
+  DisplayPreview(true);
 end;
 
 procedure TFNoiseFilter.FormCreate(Sender: TObject);
@@ -139,7 +139,7 @@ begin
   Top := FFilterConnector.LazPaintInstance.MainFormBounds.Top;
   FInitializing := false;
   InitParams;
-  PreviewNeeded(True);
+  DisplayPreview(True);
 end;
 
 procedure TFNoiseFilter.SpinEdit_AlphaChange(Sender: TObject);
@@ -147,7 +147,7 @@ begin
   if FInitializing or FClosing then exit;
   if FComputedLayer = nil then ComputeFilteredLayer;
   FComputedLayer.AlphaFill(SpinEdit_Alpha.Value);
-  PreviewNeeded(False);
+  DisplayPreview(False);
 end;
 
 procedure TFNoiseFilter.InitParams;
@@ -176,7 +176,7 @@ begin
   FInitializing:= false;
 end;
 
-procedure TFNoiseFilter.PutComputedLayerToFilterConnector;
+procedure TFNoiseFilter.DisplayComputedImage;
 begin
   if SpinEdit_Alpha.Value <> 255 then
   begin
@@ -196,11 +196,10 @@ begin
   scan.Free;
 end;
 
-procedure TFNoiseFilter.PreviewNeeded(ARecomputeRandom: boolean);
+procedure TFNoiseFilter.DisplayPreview(ARecomputeRandom: boolean);
 begin
   if ARecomputeRandom or (FComputedLayer = nil) then ComputeFilteredLayer;
-  if not CheckBox_Preview.Checked then exit;
-  PutComputedLayerToFilterConnector;
+  if CheckBox_Preview.Checked then DisplayComputedImage;
 end;
 
 end.
