@@ -306,6 +306,7 @@ type
     blendOp: TBlendOperation;
     opacity: byte;
     matrix: TAffineMatrix;
+    originalGuid: TGuid;
     function UsedMemory: int64; override;
     function TryCompress: boolean; override;
     procedure ApplyTo(AState: TState); override;
@@ -1657,7 +1658,7 @@ begin
   with AState as TImageState do
   begin
     originalData.Position:= 0;
-    origIdx:= LayeredBitmap.AddOriginalFromStream(originalData);
+    origIdx:= LayeredBitmap.AddOriginalFromStream(originalData, originalGuid);
     idx := LayeredBitmap.AddLayerFromOriginal(LayeredBitmap.Original[origIdx].Guid, self.blendOp, self.opacity);
     LayeredBitmap.LayerUniqueId[idx] := self.layerId;
     LayeredBitmap.LayerName[idx] := name;
@@ -1676,6 +1677,8 @@ begin
     idx := LayeredBitmap.GetLayerIndexFromId(self.layerId);
     LayeredBitmap.RemoveLayer(idx);
     SelectedImageLayerIndex := LayeredBitmap.GetLayerIndexFromId(self.previousActiveLayerId);
+    idx := LayeredBitmap.IndexOfOriginal(originalGuid);
+    LayeredBitmap.DeleteOriginal(idx);
   end;
 end;
 
@@ -1695,9 +1698,11 @@ begin
 
   self.name := AName;
   self.blendOp:= AblendOp;
+  self.opacity:= AOpacity;
   self.matrix := AMatrix;
   self.previousActiveLayerId := imgDest.LayeredBitmap.LayerUniqueId[imgDest.SelectedImageLayerIndex];
   idx := imgDest.LayeredBitmap.AddLayerFromOwnedOriginal(AOriginal, ABlendOp, AOpacity);
+  originalGuid := AOriginal.Guid;
   imgDest.LayeredBitmap.LayerName[idx] := name;
   imgDest.LayeredBitmap.LayerOriginalMatrix[idx] := matrix;
   self.layerId := imgDest.LayeredBitmap.LayerUniqueId[idx];
