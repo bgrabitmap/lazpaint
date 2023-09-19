@@ -2441,16 +2441,6 @@ msgstr ""
 msgid "Amount :"
 msgstr ""
 
-#: tfshiftcolors.button_cancel.caption
-msgctxt "tfshiftcolors.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfshiftcolors.button_ok.caption
-msgctxt "tfshiftcolors.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tfshiftcolors.caption
 msgid "Shift colors"
 msgstr ""
