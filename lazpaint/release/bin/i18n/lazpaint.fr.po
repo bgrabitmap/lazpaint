@@ -446,6 +446,15 @@ msgstr "Gradient d'opacité"
 msgid "Number of sides:"
 msgstr "Nombre de côtés :"
 
+#: tfhypocycloid.caption
+msgctxt "tfhypocycloid.caption"
+msgid "Hypocycloid"
+msgstr "Hypocycloïde"
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr "Arches:"
+
 #: tfimagelist.caption
 msgid "Image List"
 msgstr "Liste d'images"
@@ -1477,6 +1486,11 @@ msgstr "Eau avec couleurs personnalisées"
 msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "Bruit de Perlin cyclique"
+
+#: tfmain.renderhypocycloid.caption
+msgctxt "tfmain.renderhypocycloid.caption"
+msgid "Hypocycloid..."
+msgstr "Hypocycloïde..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

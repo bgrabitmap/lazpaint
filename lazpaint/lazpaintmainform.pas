@@ -25,6 +25,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    RenderHypocycloid: TAction;
     FileQuickSave: TAction;
     SVGRasterImageList1: TBGRAImageList;
     Panel_TextMore: TPanel;

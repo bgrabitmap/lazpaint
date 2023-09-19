@@ -435,7 +435,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="107">
+    <Units Count="108">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -1062,6 +1062,13 @@
         <Filename Value="getfilesindir.inc"/>
         <IsPartOfProject Value="True"/>
       </Unit106>
+      <Unit107>
+        <Filename Value="dialog\filter\uhypocycloid.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FHypocycloid"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit107>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -301,6 +301,9 @@ type
     function DefaultRainQuantity: double;
     procedure SetDefaultRainQuantity(value: double);
 
+    function DefaultCuspCount: integer;
+    procedure SetDefaultCuspCount(value: integer);
+
     //twirl config
     function DefaultTwirlRadius: double;
     procedure SetDefaultTwirlRadius(value: double);
@@ -1269,6 +1272,16 @@ end;
 procedure TLazPaintConfig.SetDefaultRainQuantity(value: double);
 begin
   iniOptions.WriteFloat('Filter','RainQuantity',value);
+end;
+
+function TLazPaintConfig.DefaultCuspCount: integer;
+begin
+  result := iniOptions.ReadInteger('Filter','CuspCount',6);
+end;
+
+procedure TLazPaintConfig.SetDefaultCuspCount(value: integer);
+begin
+  iniOptions.WriteInteger('Filter','CuspCount',value);
 end;
 
 function TLazPaintConfig.DefaultTwirlRadius: double;

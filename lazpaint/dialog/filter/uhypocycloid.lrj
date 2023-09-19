@@ -1,0 +1,6 @@
+{"version":1,"strings":[
+{"hash":178926244,"name":"tfhypocycloid.caption","sourcebytes":[72,121,112,111,99,121,99,108,111,105,100],"value":"Hypocycloid"},
+{"hash":78423914,"name":"tfhypocycloid.label_amount.caption","sourcebytes":[67,117,115,112,115,58],"value":"Cusps:"},
+{"hash":497723,"name":"tfhypocycloid.button_ok.caption","sourcebytes":[114,115,79,75],"value":"rsOK"},
+{"hash":127421996,"name":"tfhypocycloid.button_cancel.caption","sourcebytes":[114,115,67,97,110,99,101,108],"value":"rsCancel"}
+]}
