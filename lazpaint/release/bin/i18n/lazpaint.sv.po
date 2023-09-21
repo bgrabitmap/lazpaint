@@ -2608,16 +2608,6 @@ msgctxt "tfsharpen.label_amount.caption"
 msgid "Amount :"
 msgstr "Mängd :"
 
-#: tfshiftcolors.button_cancel.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Avbryt"
-
-#: tfshiftcolors.button_ok.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
 #: tfshiftcolors.caption
 msgctxt "tfshiftcolors.caption"
 msgid "Shift colors"

@@ -2593,16 +2593,6 @@ msgctxt "TFSHARPEN.LABEL_AMOUNT.CAPTION"
 msgid "Amount :"
 msgstr "Количество: "
 
-#: tfshiftcolors.button_cancel.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отказ"
-
-#: tfshiftcolors.button_ok.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Добре"
-
 #: tfshiftcolors.caption
 msgctxt "TFSHIFTCOLORS.CAPTION"
 msgid "Shift colors"
