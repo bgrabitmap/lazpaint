@@ -272,16 +272,6 @@ msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "Décaler"
 
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Annuler"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
 msgid "Colorize"

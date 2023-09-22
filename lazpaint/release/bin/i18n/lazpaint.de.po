@@ -280,16 +280,6 @@ msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "Verschieben"
 
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Abbruch"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
 msgid "Colorize"
@@ -453,6 +443,14 @@ msgstr "Deckkraft Verlauf"
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
 msgstr "Anzahl der Seiten:"
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr ""
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1484,6 +1482,10 @@ msgstr "Wasser mit benutzerdefinierten Farben"
 msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "Perlin-Rauschen (zyklisch)"
+
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

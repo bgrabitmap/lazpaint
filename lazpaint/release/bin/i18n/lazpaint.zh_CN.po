@@ -272,16 +272,6 @@ msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "位移"
 
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "确定"
-
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
 msgid "Colorize"
@@ -445,6 +435,14 @@ msgstr "透明度渐变"
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
 msgstr "边数 :"
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr ""
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1473,6 +1471,10 @@ msgstr "当前颜色水波"
 msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "环状佩林噪声"
+
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

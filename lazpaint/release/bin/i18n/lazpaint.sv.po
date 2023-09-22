@@ -262,16 +262,6 @@ msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "Ändra"
 
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Avbryt"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
 msgid "Colorize"
@@ -442,6 +432,14 @@ msgstr "Genomskinlig gradient"
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
 msgstr "Antal sidor:"
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr ""
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1472,6 +1470,10 @@ msgstr "Vatten med valda färger"
 msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "Cyklisk Perlinbrus"
+
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

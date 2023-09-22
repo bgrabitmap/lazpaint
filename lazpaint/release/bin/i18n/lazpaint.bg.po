@@ -270,16 +270,6 @@ msgctxt "TFCOLORINTENSITY.LABEL_SHIFT.CAPTION"
 msgid "Shift"
 msgstr "Отместване"
 
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отказ"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Добре"
-
 #: tfcolorize.caption
 msgctxt "TFCOLORIZE.CAPTION"
 msgid "Colorize"
@@ -443,6 +433,14 @@ msgstr "Преливане на непрозрачността"
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
 msgstr "Брой страни:"
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr ""
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1469,6 +1467,10 @@ msgstr "Вода с нагласени цветове"
 msgctxt "TFMAIN.RENDERCYCLICPERLINNOISE.CAPTION"
 msgid "Cyclic Perlin noise"
 msgstr "Повтарящ пърлинов шум"
+
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

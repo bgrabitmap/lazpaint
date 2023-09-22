@@ -243,16 +243,6 @@ msgstr ""
 msgid "Shift"
 msgstr ""
 
-#: tfcolorize.button_cancel.caption
-msgctxt "tfcolorize.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfcolorize.button_ok.caption
-msgctxt "tfcolorize.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tfcolorize.caption
 msgid "Colorize"
 msgstr ""
@@ -407,6 +397,14 @@ msgstr ""
 
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
+msgstr ""
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
 msgstr ""
 
 #: tfimagelist.caption
@@ -1378,6 +1376,10 @@ msgstr ""
 
 #: tfmain.rendercyclicperlinnoise.caption
 msgid "Cyclic Perlin noise"
+msgstr ""
+
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
 msgstr ""
 
 #: tfmain.rendermarble.caption

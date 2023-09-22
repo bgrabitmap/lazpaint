@@ -262,16 +262,6 @@ msgctxt "TFCOLORINTENSITY.LABEL_SHIFT.CAPTION"
 msgid "Shift"
 msgstr ""
 
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
-
 #: tfcolorize.caption
 msgctxt "TFCOLORIZE.CAPTION"
 msgid "Colorize"
@@ -432,6 +422,14 @@ msgstr "Liukuva peittävyys"
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
 msgstr "Sivujen määrä:"
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr ""
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1463,6 +1461,10 @@ msgstr "Vettä valituilla väreillä"
 msgctxt "TFMAIN.RENDERCYCLICPERLINNOISE.CAPTION"
 msgid "Cyclic Perlin noise"
 msgstr "Jaksottainen Perlin kohina"
+
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
