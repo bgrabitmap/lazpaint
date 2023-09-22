@@ -62,16 +62,6 @@ msgctxt "tfabout.label_opensource.caption"
 msgid "Open source (GPLv3)"
 msgstr "مفتوح المصدر (جي بي ال 3) "
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "موافق"
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr "ضبط المنحنيات"
