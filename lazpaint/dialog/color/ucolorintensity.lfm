@@ -1,31 +1,31 @@
 object FColorIntensity: TFColorIntensity
   Left = 405
-  Height = 109
+  Height = 128
   Top = 187
   Width = 472
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Intensity'
-  ClientHeight = 109
+  ClientHeight = 128
   ClientWidth = 472
   Font.Height = -12
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.0.10.0'
+  LCLVersion = '2.2.4.0'
   object Label_Multiply: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 46
-    Width = 45
+    Width = 44
     Caption = 'Multiply'
     ParentColor = False
   end
   object Label_Shift: TLabel
     Left = 8
-    Height = 16
+    Height = 15
     Top = 13
-    Width = 25
+    Width = 24
     Caption = 'Shift'
     ParentColor = False
   end
@@ -50,9 +50,9 @@ object FColorIntensity: TFColorIntensity
   object Button_OK: TButton
     Left = 165
     Height = 22
-    Top = 80
+    Top = 96
     Width = 59
-    Caption = 'OK'
+    Caption = 'rsOK'
     Default = True
     ModalResult = 1
     OnClick = Button_OKClick
@@ -61,10 +61,10 @@ object FColorIntensity: TFColorIntensity
   object Button_Cancel: TButton
     Left = 229
     Height = 22
-    Top = 80
+    Top = 96
     Width = 72
     Cancel = True
-    Caption = 'Cancel'
+    Caption = 'rsCancel'
     ModalResult = 2
     TabOrder = 3
   end
@@ -74,12 +74,10 @@ object FColorIntensity: TFColorIntensity
     Top = 8
     Width = 72
     DecimalPlaces = 3
-    Increment = 1
     MaxValue = 1
     MinValue = -1
     OnChange = FloatSpinEdit_ShiftChange
     TabOrder = 4
-    Value = 0
   end
   object FloatSpinEdit_Factor: TFloatSpinEdit
     Left = 392
@@ -87,11 +85,20 @@ object FColorIntensity: TFColorIntensity
     Top = 43
     Width = 72
     DecimalPlaces = 3
-    Increment = 1
     MaxValue = 2
     MinValue = -2
     OnChange = FloatSpinEdit_FactorChange
     TabOrder = 5
-    Value = 0
+  end
+  object CheckBox_Preview: TCheckBox
+    Left = 8
+    Height = 19
+    Top = 80
+    Width = 70
+    Caption = 'rsPreview'
+    Checked = True
+    OnChange = CheckBox_PreviewChange
+    State = cbChecked
+    TabOrder = 6
   end
 end
