@@ -3,6 +3,7 @@
 {"hash":26714085,"name":"tfadjustcurves.toolbutton_newcurve.hint","sourcebytes":[68,105,115,99,97,114,100,32,99,117,114,114,101,110,116,32,99,117,114,118,101,32,97,110,100,32,115,116,97,114,116,32,97,32,110,101,119,32,111,110,101],"value":"Discard current curve and start a new one"},
 {"hash":1994857,"name":"tfadjustcurves.toolbutton_removepoint.hint","sourcebytes":[82,101,109,111,118,101,32,115,101,108,101,99,116,101,100,32,112,111,105,110,116,32,40,68,101,108,41],"value":"Remove selected point (Del)"},
 {"hash":179103845,"name":"tfadjustcurves.toolbutton_posterize.hint","sourcebytes":[80,111,115,116,101,114,105,122,101],"value":"Posterize"},
-{"hash":77089212,"name":"tfadjustcurves.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
-{"hash":1339,"name":"tfadjustcurves.button_ok.caption","sourcebytes":[79,75],"value":"OK"}
+{"hash":127421996,"name":"tfadjustcurves.button_cancel.caption","sourcebytes":[114,115,67,97,110,99,101,108],"value":"rsCancel"},
+{"hash":497723,"name":"tfadjustcurves.button_ok.caption","sourcebytes":[114,115,79,75],"value":"rsOK"},
+{"hash":126662215,"name":"tfadjustcurves.checkbox_preview.caption","sourcebytes":[114,115,80,114,101,118,105,101,119],"value":"rsPreview"}
 ]}
