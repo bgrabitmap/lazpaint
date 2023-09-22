@@ -2,8 +2,9 @@
 {"hash":104240549,"name":"tfcolorize.caption","sourcebytes":[67,111,108,111,114,105,122,101],"value":"Colorize"},
 {"hash":20405,"name":"tfcolorize.label_hue.caption","sourcebytes":[72,117,101],"value":"Hue"},
 {"hash":57214659,"name":"tfcolorize.label_colorness.caption","sourcebytes":[67,111,108,111,114,110,101,115,115],"value":"Colorness"},
-{"hash":1339,"name":"tfcolorize.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
-{"hash":77089212,"name":"tfcolorize.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":497723,"name":"tfcolorize.button_ok.caption","sourcebytes":[114,115,79,75],"value":"rsOK"},
+{"hash":127421996,"name":"tfcolorize.button_cancel.caption","sourcebytes":[114,115,67,97,110,99,101,108],"value":"rsCancel"},
 {"hash":72944099,"name":"tfcolorize.checkbox_gsba.caption","sourcebytes":[67,111,114,114,101,99,116,101,100,32,104,117,101,32,97,110,100,32,108,105,103,104,116,110,101,115,115],"value":"Corrected hue and lightness"},
-{"hash":91802052,"name":"tfcolorize.label_preset.caption","sourcebytes":[80,114,101,115,101,116],"value":"Preset"}
+{"hash":91802052,"name":"tfcolorize.label_preset.caption","sourcebytes":[80,114,101,115,101,116],"value":"Preset"},
+{"hash":126662215,"name":"tfcolorize.checkbox_preview.caption","sourcebytes":[114,115,80,114,101,118,105,101,119],"value":"rsPreview"}
 ]}

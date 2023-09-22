@@ -18,6 +18,7 @@ type
     Button_Cancel: TButton;
     Button_OK: TButton;
     CheckBox_GSBA: TCheckBox;
+    CheckBox_Preview: TCheckBox;
     Combo_Preset: TComboBox;
     FloatSpinEdit_Hue: TFloatSpinEdit;
     FloatSpinEdit_Saturation: TFloatSpinEdit;
@@ -32,6 +33,7 @@ type
     TrackBar_Saturation: TTrackBar;
     procedure Button_OKClick(Sender: TObject);
     procedure CheckBox_GSBAChange(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure Combo_PresetChange(Sender: TObject);
     procedure FloatSpinEdit_HueChange(Sender: TObject);
     procedure FloatSpinEdit_SaturationChange(Sender: TObject);
@@ -112,6 +114,15 @@ begin
     Combo_Preset.ItemIndex := -1;
     ApplyChosenColor;
   end;
+end;
+
+procedure TFColorize.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if not FInitialized then exit;
+  if CheckBox_Preview.Checked then
+    ApplyChosenColor
+  else
+   FFilterConnector.RestoreBackup;
 end;
 
 procedure TFColorize.Combo_PresetChange(Sender: TObject);
@@ -266,6 +277,12 @@ begin
   if AParams.IsDefined('Correction') then
     CheckBox_GSBA.Checked := AParams.Booleans['Correction'];
   UpdateSpinEdit;
+
+  Button_OK.Caption := rsOK;
+  Button_Cancel.Caption := rsCancel;
+  CheckBox_Preview.Caption := rsPreview;
+  CheckBox_Preview.Checked := True;
+  CheckBox_Preview.Enabled := True;
   FInitialized := OldInitialized;
 end;
 
@@ -359,6 +376,10 @@ end;
 procedure TFColorize.ApplyChosenColor;
 begin
   Colorize(FFilterConnector, ChosenHueDegF, ChosenSatF, CheckBox_GSBA.Checked);
+
+  FInitialized := False;
+  CheckBox_Preview.Checked := True;
+  FInitialized := True;
 end;
 
 {$R *.lfm}
