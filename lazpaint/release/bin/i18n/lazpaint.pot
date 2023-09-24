@@ -47,16 +47,6 @@ msgstr ""
 msgid "Open source (GPLv3)"
 msgstr ""
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr ""
@@ -220,16 +210,6 @@ msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr ""
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "tfcolorintensity.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "tfcolorintensity.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tfcolorintensity.caption
 msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
@@ -241,16 +221,6 @@ msgstr ""
 
 #: tfcolorintensity.label_shift.caption
 msgid "Shift"
-msgstr ""
-
-#: tfcolorize.button_cancel.caption
-msgctxt "tfcolorize.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfcolorize.button_ok.caption
-msgctxt "tfcolorize.button_ok.caption"
-msgid "OK"
 msgstr ""
 
 #: tfcolorize.caption
@@ -407,6 +377,14 @@ msgstr ""
 
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
+msgstr ""
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
 msgstr ""
 
 #: tfimagelist.caption
@@ -1378,6 +1356,10 @@ msgstr ""
 
 #: tfmain.rendercyclicperlinnoise.caption
 msgid "Cyclic Perlin noise"
+msgstr ""
+
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
 msgstr ""
 
 #: tfmain.rendermarble.caption

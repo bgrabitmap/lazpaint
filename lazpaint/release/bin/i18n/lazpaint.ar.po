@@ -62,16 +62,6 @@ msgctxt "tfabout.label_opensource.caption"
 msgid "Open source (GPLv3)"
 msgstr "مفتوح المصدر (جي بي ال 3) "
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "موافق"
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr "ضبط المنحنيات"
@@ -245,16 +235,6 @@ msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "لون"
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "موافق"
-
 #: tfcolorintensity.caption
 msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
@@ -269,16 +249,6 @@ msgstr "تضاعف"
 msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "إزاحة"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "موافق"
 
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
@@ -442,6 +412,14 @@ msgstr ""
 
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
+msgstr ""
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
 msgstr ""
 
 #: tfimagelist.caption
@@ -1473,6 +1451,10 @@ msgstr "ماء مع ألوان مخصصة"
 msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "ضجيج بيرلين دائري"
+
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

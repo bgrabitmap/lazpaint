@@ -54,16 +54,6 @@ msgctxt "TFABOUT.LABEL_OPENSOURCE.CAPTION"
 msgid "Open source (GPLv3)"
 msgstr "Avoin lähdekoodi (GPLv3)"
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "TFADJUSTCURVES.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "TFADJUSTCURVES.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr "Muokkaa käyriä"
@@ -237,16 +227,6 @@ msgctxt "TFCHOOSECOLOR.CAPTION"
 msgid "Color"
 msgstr "Väri"
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
-
 #: tfcolorintensity.caption
 msgctxt "TFCOLORINTENSITY.CAPTION"
 msgid "Intensity"
@@ -260,16 +240,6 @@ msgstr ""
 #: tfcolorintensity.label_shift.caption
 msgctxt "TFCOLORINTENSITY.LABEL_SHIFT.CAPTION"
 msgid "Shift"
-msgstr ""
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
 msgstr ""
 
 #: tfcolorize.caption
@@ -432,6 +402,14 @@ msgstr "Liukuva peittävyys"
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
 msgstr "Sivujen määrä:"
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr ""
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1463,6 +1441,10 @@ msgstr "Vettä valituilla väreillä"
 msgctxt "TFMAIN.RENDERCYCLICPERLINNOISE.CAPTION"
 msgid "Cyclic Perlin noise"
 msgstr "Jaksottainen Perlin kohina"
+
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

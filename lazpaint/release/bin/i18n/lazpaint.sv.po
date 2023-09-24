@@ -54,16 +54,6 @@ msgctxt "tfabout.label_opensource.caption"
 msgid "Open source (GPLv3)"
 msgstr "Öppen källkod (GPLv3)"
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "Avbryt"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr "Justera kurvor"
@@ -237,16 +227,6 @@ msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "Färg"
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Avbryt"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
 #: tfcolorintensity.caption
 msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
@@ -261,16 +241,6 @@ msgstr "Multiplicera"
 msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "Ändra"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Avbryt"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
 
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
@@ -442,6 +412,14 @@ msgstr "Genomskinlig gradient"
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
 msgstr "Antal sidor:"
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr ""
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1472,6 +1450,10 @@ msgstr "Vatten med valda färger"
 msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "Cyklisk Perlinbrus"
+
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

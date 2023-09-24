@@ -64,16 +64,6 @@ msgctxt "tfabout.label_opensource.caption"
 msgid "Open source (GPLv3)"
 msgstr "С открытым исходным кодом (GPLv3)"
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "ОК"
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr "Регулировка кривых"
@@ -242,16 +232,6 @@ msgctxt "TFCHOOSECOLOR.CAPTION"
 msgid "Color"
 msgstr "Цвет"
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "ОК"
-
 #: tfcolorintensity.caption
 msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
@@ -266,16 +246,6 @@ msgstr "Умножение"
 msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "Сдвиг"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "ОК"
 
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
@@ -437,6 +407,14 @@ msgstr "Градиент непрозрачности"
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
 msgstr "Кол-во сторон:"
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr ""
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1462,6 +1440,10 @@ msgstr "Вода с выбранными цветами"
 msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "Циклический шум Перлина"
+
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

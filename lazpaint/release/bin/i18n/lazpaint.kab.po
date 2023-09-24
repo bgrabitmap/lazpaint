@@ -65,16 +65,6 @@ msgctxt "tfabout.label_opensource.caption"
 msgid "Open source (GPLv3)"
 msgstr "Open source (GPLv3)"
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "Sefsex"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "Ih"
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr "Sgaddi izligen"
@@ -248,16 +238,6 @@ msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "Ini"
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Sefsex"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Ih"
-
 #: tfcolorintensity.caption
 msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
@@ -272,16 +252,6 @@ msgstr "Sugget"
 msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "Sekḥer"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Sefsex"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Ih"
 
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
@@ -446,6 +416,14 @@ msgstr "Tiḍullest n ufesniw"
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
 msgstr "Amḍan n idisan:"
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr ""
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1476,6 +1454,10 @@ msgstr "Aman s yiniten yugnen"
 msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "Asxerxec n Perlin s wallus"
+
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

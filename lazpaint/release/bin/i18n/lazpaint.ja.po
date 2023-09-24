@@ -62,16 +62,6 @@ msgctxt "tfabout.label_opensource.caption"
 msgid "Open source (GPLv3)"
 msgstr "Open source (GPLv3)"
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "キャンセル"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr ""
@@ -245,16 +235,6 @@ msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "色"
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "キャンセル"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
-
 #: tfcolorintensity.caption
 msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
@@ -269,16 +249,6 @@ msgstr "乗算"
 msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "シフト"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "キャンセル"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "OK"
 
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
@@ -439,6 +409,14 @@ msgstr ""
 
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
+msgstr ""
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
 msgstr ""
 
 #: tfimagelist.caption
@@ -1470,6 +1448,10 @@ msgstr "任意の色合いの水"
 msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "Cyclic Perlinノイズ"
+
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

@@ -70,16 +70,6 @@ msgctxt "tfabout.label_opensource.caption"
 msgid "Open source (GPLv3)"
 msgstr "Atklātā pirmkoda (GPLv3)"
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "Atcelt"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "Labi"
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr "Mainīt līknes"
@@ -253,16 +243,6 @@ msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "Krāsa"
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Atcelt"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Labi"
-
 #: tfcolorintensity.caption
 msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
@@ -277,16 +257,6 @@ msgstr "Reizinātājs"
 msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "Nobīde"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Atcelt"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Labi"
 
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
@@ -451,6 +421,14 @@ msgstr "Izgaišana uz malām"
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
 msgstr "Malu skaits:"
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr ""
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1479,6 +1457,10 @@ msgstr "Ūdens ar izvēlētām krāsām"
 msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "Perlina troksnis flīzēm"
+
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
