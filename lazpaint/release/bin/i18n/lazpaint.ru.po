@@ -2436,16 +2436,6 @@ msgctxt "tfradialblur.label_radius.caption"
 msgid "Radius :"
 msgstr "Радиус:"
 
-#: tfrain.button_cancel.caption
-msgctxt "tfrain.button_cancel.caption"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfrain.button_ok.caption
-msgctxt "tfrain.button_ok.caption"
-msgid "OK"
-msgstr "ОК"
-
 #: tfrain.caption
 msgid "Rain"
 msgstr "Дождь"

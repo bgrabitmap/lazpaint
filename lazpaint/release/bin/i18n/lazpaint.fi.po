@@ -2443,16 +2443,6 @@ msgctxt "TFRADIALBLUR.LABEL_RADIUS.CAPTION"
 msgid "Radius :"
 msgstr "Säde :"
 
-#: tfrain.button_cancel.caption
-msgctxt "TFRAIN.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfrain.button_ok.caption
-msgctxt "TFRAIN.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
-
 #: tfrain.caption
 msgid "Rain"
 msgstr "Sade"
