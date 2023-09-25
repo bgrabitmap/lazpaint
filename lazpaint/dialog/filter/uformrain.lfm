@@ -20,20 +20,20 @@ object FRain: TFRain
   OnHide = FormHide
   OnShow = FormShow
   Position = poMainFormCenter
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '2.2.4.0'
   object Label_Wind: TLabel
     Left = 8
-    Height = 20
+    Height = 15
     Top = 8
-    Width = 124
+    Width = 130
     Caption = 'Wind :'
     ParentColor = False
   end
   object PaintBox_Wind: TPaintBox
     Left = 8
     Height = 105
-    Top = 36
-    Width = 124
+    Top = 31
+    Width = 130
     OnMouseDown = PaintBox_WindMouseDown
     OnMouseMove = PaintBox_WindMouseMove
     OnMouseUp = PaintBox_WindMouseUp
@@ -41,29 +41,30 @@ object FRain: TFRain
   end
   object Label_Quantity: TLabel
     Left = 8
-    Height = 20
-    Top = 149
-    Width = 124
+    Height = 15
+    Top = 144
+    Width = 130
     Caption = 'Quantity:'
     ParentColor = False
   end
   object Panel2: TPanel
     Left = 8
     Height = 25
-    Top = 177
-    Width = 124
+    Top = 167
+    Width = 130
     BevelOuter = bvNone
     ClientHeight = 25
-    ClientWidth = 124
+    ClientWidth = 130
     TabOrder = 1
     object TrackBar_Quantity: TTrackBar
       Left = 0
       Height = 25
       Top = 0
-      Width = 124
+      Width = 130
       Frequency = 100
       Max = 100
-      PageSize = 200
+      OnChange = TrackBar_QuantityChange
+      PageSize = 10
       Position = 0
       ScalePos = trRight
       Align = alClient
@@ -72,35 +73,35 @@ object FRain: TFRain
   end
   object Panel1: TPanel
     Left = 8
-    Height = 30
-    Top = 210
-    Width = 124
+    Height = 25
+    Top = 200
+    Width = 130
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 8
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
-    ClientHeight = 30
-    ClientWidth = 124
+    ClientHeight = 25
+    ClientWidth = 130
     TabOrder = 0
     object Button_OK: TButton
       Left = 0
-      Height = 30
+      Height = 25
       Top = 0
-      Width = 46
+      Width = 51
       AutoSize = True
-      Caption = 'OK'
+      Caption = 'rsOK'
       Default = True
       OnClick = Button_OKClick
       TabOrder = 0
     end
     object Button_Cancel: TButton
-      Left = 54
-      Height = 30
+      Left = 59
+      Height = 25
       Top = 0
-      Width = 70
+      Width = 71
       AutoSize = True
       Cancel = True
-      Caption = 'Cancel'
+      Caption = 'rsCancel'
       ModalResult = 2
       TabOrder = 1
     end
@@ -109,7 +110,7 @@ object FRain: TFRain
     Enabled = False
     Interval = 100
     OnTimer = Timer1Timer
-    left = 96
-    top = 40
+    Left = 96
+    Top = 40
   end
 end

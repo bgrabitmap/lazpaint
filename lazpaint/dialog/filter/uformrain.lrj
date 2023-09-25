@@ -2,6 +2,6 @@
 {"hash":362494,"name":"tfrain.caption","sourcebytes":[82,97,105,110],"value":"Rain"},
 {"hash":98584122,"name":"tfrain.label_wind.caption","sourcebytes":[87,105,110,100,32,58],"value":"Wind :"},
 {"hash":140202874,"name":"tfrain.label_quantity.caption","sourcebytes":[81,117,97,110,116,105,116,121,58],"value":"Quantity:"},
-{"hash":1339,"name":"tfrain.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
-{"hash":77089212,"name":"tfrain.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"}
+{"hash":497723,"name":"tfrain.button_ok.caption","sourcebytes":[114,115,79,75],"value":"rsOK"},
+{"hash":127421996,"name":"tfrain.button_cancel.caption","sourcebytes":[114,115,67,97,110,99,101,108],"value":"rsCancel"}
 ]}
