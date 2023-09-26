@@ -106,7 +106,7 @@ implementation
 uses LCScaleDPI, Graphics, Forms, UGraph,
   UResourceStrings, BGRAColorQuantization,
   ULayerAction, UCursors, UFileSystem,
-  udarktheme, UTool, LCVectorialFill;
+  udarktheme, UTool, LCVectorialFill, math;
 
 { TPaletteToolbar }
 
@@ -742,7 +742,7 @@ end;
 procedure TPaletteToolbar.RepaintPalette(Sender: TObject; Bitmap: TBGRABitmap);
 var i,x,y,w,aw,a,h: integer;
   c: TBGRAPixel;
-  nbVisible, maxScroll, availHeight: integer;
+  nbVisible, maxScroll, availHeight, minItemHeight, maxItemHeight: integer;
   clInterm, cSign: TBGRAPixel;
 begin
   FCanvasScale := (Sender as TControl).GetCanvasScaleFactor;
@@ -763,6 +763,10 @@ begin
   h := DoScaleY(round(FPaletteItemHeight*FCanvasScale), OriginalDPI);
   if h < 3 then h := 3;
   availHeight := Bitmap.Height - 2 - y - 1;
+  minItemHeight:= h-1;
+  maxItemHeight := availHeight div max(FColors.Count, 1);
+  FPaletteColorItemHeight := max(min(maxItemHeight, minItemHeight*2), minItemHeight);
+
   nbVisible := availHeight div (h-1);
   if nbVisible < 1 then nbVisible:= 1;
   maxScroll := FColors.Count-nbVisible;
@@ -779,7 +783,7 @@ begin
   if not Assigned(FScrollbar) then
     w := Bitmap.Width-2-x;
   FPaletteColorRect := rect(x,y,x+w,y);
-  FPaletteColorItemHeight := h-1;
+  h := FPaletteColorItemHeight+1;
   nbVisible := (availHeight+h-2) div (h-1);
   for i := FScrollPos to FScrollPos+nbVisible-1 do
   if (i >= 0) and (i < FColors.Count) then
