@@ -300,7 +300,7 @@ uses LCLType, Types, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslatio
      unewimage, uresample, UPixelate, unoisefilter, ufilters,
      USharpen, uposterize, uhypocycloid, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
-     {$IFDEF DARWIN}BGRAGraphics,{$ENDIF}
+     {$IFDEF DARWIN}Graphics, BGRAGraphics,{$ENDIF}
 
      ugraph, LCScaleDPI, ucommandline, uabout, UPython;
 
@@ -1462,7 +1462,7 @@ begin
     begin
       unscaled.GetBitmap(i, bmpUnscaled);
       retina.GetBitmap(i, bmpRetina);
-      result.AddMultipleResolutions([bmpUnscaled, bmpRetina]);
+      result.AddMultipleResolutions([TCustomBitmap(bmpUnscaled), TCustomBitmap(bmpRetina)]);
     end;
 
     bmpUnscaled.Free;

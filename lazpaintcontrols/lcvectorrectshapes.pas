@@ -489,7 +489,7 @@ begin
     FOrigin := FOriginBackup;
   end else
   begin
-    newSize := AFactor*FXUnitBackup*(ANewCoord-FOriginBackup);
+    newSize := AFactor*FXUnitBackup**(ANewCoord-FOriginBackup);
     if ssShift in AShift then
     begin
       FXAxis := FOriginBackup+FXUnitBackup*newSize;
@@ -528,7 +528,7 @@ begin
     FOrigin := FOriginBackup;
   end else
   begin
-    newSizeY := AFactor*FYUnitBackup*(ANewCoord-FOriginBackup);
+    newSizeY := AFactor*FYUnitBackup**(ANewCoord-FOriginBackup);
     if ssShift in AShift then
     begin
       FYAxis := FOriginBackup+FYUnitBackup*newSizeY;
