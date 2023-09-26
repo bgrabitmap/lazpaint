@@ -3911,12 +3911,12 @@ procedure TFMain.UpdateSpecialKeys(Shift: TShiftState);
   begin
     if (AShift in Shift) and not APressed then
     begin
-      if ToolManager.ToolKeyDown(ACode) then PaintPictureNow;
+      if CatchToolKeyDown(ACode) then PaintPictureNow;
       APressed:= true;
     end else
     if not (AShift in Shift) and APressed then
     begin
-      if ToolManager.ToolKeyUp(ACode) then PaintPictureNow;
+      if CatchToolKeyUp(ACode) then PaintPictureNow;
       APressed:= false;
     end;
   end;
