@@ -271,6 +271,7 @@ type
     procedure ColorToFChooseColor; virtual; abstract;
     procedure ExitColorEditor; virtual; abstract;
     function ColorEditorActive: boolean; virtual; abstract;
+    procedure FChooseColorSimpleRedraw; virtual; abstract;
     function GetColor(ATarget: TColorTarget): TBGRAPixel;
     procedure SetColor(ATarget: TColorTarget; AColor: TBGRAPixel);
     function ShowSaveOptionDlg(AParameters: TVariableSet; AOutputFilenameUTF8: string;
@@ -313,6 +314,7 @@ type
     procedure Wait(ACheckActive: TCheckFunction; ADelayMs: integer); virtual; abstract;
     procedure AddColorToPalette(AColor: TBGRAPixel); virtual; abstract;
     procedure RemoveColorFromPalette(AColor: TBGRAPixel); virtual; abstract;
+    function GetDigitFromColorsBindToKey(const AColor: TBGRAPixel): string; virtual; abstract;
 
     property BlackAndWhite: boolean read FBlackAndWhite write SetBlackAndWhite;
 
@@ -343,6 +345,8 @@ type
 
     procedure ImageListWindowVisibleKeyDown(var Key: Word; Shift: TShiftState); virtual; abstract;
     procedure MoveImageListWindowTo(X,Y: integer); virtual; abstract;
+    procedure SendKeyDownEventToMainForm(var Key: Word; Shift: TShiftState); virtual; abstract;
+    procedure SendKeyUpEventToMainForm(var Key: Word; Shift: TShiftState); virtual; abstract;
     property ImageListWindowWidth: integer read GetImageListWindowWidth write SetImageListWindowWidth;
     property ImageListWindowHeight: integer read GetImageListWindowHeight write SetImageListWindowHeight;
     property ImageListWindowVisible: boolean read GetImageListWindowVisible write SetImageListWindowVisible;

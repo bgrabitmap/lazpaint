@@ -240,6 +240,7 @@ type
     procedure ColorToFChooseColor; override;
     procedure ExitColorEditor; override;
     function ColorEditorActive: boolean; override;
+    procedure FChooseColorSimpleRedraw; override;
     function ShowSaveOptionDlg({%H-}AParameters: TVariableSet; AOutputFilenameUTF8: string;
       ASkipOptions: boolean; AExport: boolean): boolean; override;
     function ShowColorIntensityDlg(AParameters: TVariableSet): TScriptResult; override;
@@ -289,7 +290,10 @@ type
     procedure UpdateEditPicture(ADelayed: boolean); override;
     procedure AddColorToPalette(AColor: TBGRAPixel); override;
     procedure RemoveColorFromPalette(AColor: TBGRAPixel); override;
+    function GetDigitFromColorsBindToKey(const AColor: TBGRAPixel): string; override;
     property Initialized: boolean read GetInitialized;
+    procedure SendKeyDownEventToMainForm(var Key: Word; Shift: TShiftState); override;
+    procedure SendKeyUpEventToMainForm(var Key: Word; Shift: TShiftState); override;
   end;
 
 implementation
@@ -1981,6 +1985,11 @@ begin
     else result := false;
 end;
 
+procedure TLazPaintInstance.FChooseColorSimpleRedraw;
+begin
+  if Assigned(FChooseColor) then FChooseColor.SimpleRedraw;
+end;
+
 function TLazPaintInstance.ShowSaveOptionDlg(AParameters: TVariableSet;
   AOutputFilenameUTF8: string; ASkipOptions: boolean; AExport: boolean): boolean;
 begin
@@ -2193,6 +2202,24 @@ end;
 procedure TLazPaintInstance.RemoveColorFromPalette(AColor: TBGRAPixel);
 begin
   if Assigned(FMain) then FMain.Layout.RemoveColorFromPalette(AColor);
+end;
+
+function TLazPaintInstance.GetDigitFromColorsBindToKey(const AColor: TBGRAPixel): string;
+begin
+  if Assigned(FMain) and
+     Assigned(FMain.Layout) and
+     Assigned(FMain.Layout.PaletteToolbar) then Result := FMain.Layout.PaletteToolbar.GetDigitFromColorsBindToKey(AColor)
+  else Result := '';
+end;
+
+procedure TLazPaintInstance.SendKeyDownEventToMainForm(var Key: Word; Shift: TShiftState);
+begin
+  if Assigned(FMain) then FMain.FormKeyDown(FMain, key, Shift);
+end;
+
+procedure TLazPaintInstance.SendKeyUpEventToMainForm(var Key: Word; Shift: TShiftState);
+begin
+  if Assigned(FMain) then FMain.FormKeyUp(FMain, key, Shift);
 end;
 
 end.

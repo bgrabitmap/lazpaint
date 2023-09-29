@@ -122,6 +122,7 @@ type
     procedure HideEditor;
     function GetPreferredSize: TSize;
     procedure AdjustControlHeight;
+    procedure SimpleRedraw;
 
     property DarkTheme: boolean read FDarkTheme write SetDarkTheme;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
@@ -211,7 +212,7 @@ var
   bmpRect: TRect;
   previewSize: single;
   previewRect: TRectF;
-  c: TBGRAPixel;
+  c, cDigit: TBGRAPixel;
   bmpColorXYSize: integer;
   bmpCursorWidth, i: integer;
   bmpCursorOpacity: byte;
@@ -297,8 +298,21 @@ begin
       c := GetCurrentColor;
       c.alpha := 255;
       with InterfaceToPixel(previewRect) do
+      begin
         Bitmap.RoundRectAntialias(Left, Top, Right - 1, Bottom - 1,
             previewSize/6, previewSize/6, BGRA(0,0,0,192), bmpCursorWidth, c, []);
+        c := GetCurrentColor;
+        s := FLazPaintInstance.GetDigitFromColorsBindToKey(c);
+        if Length(s) > 0 then
+        begin
+          if GetLightness(c)/65535 > 0.5 then
+            cDigit := BGRABlack else cDigit := BGRAWhite;
+          Bitmap.FontHeight := Round(Height*2/3);
+          Bitmap.TextOut(CenterPoint.x,
+                         CenterPoint.y-Bitmap.TextSize(s).cy div 2,
+                         s, cDigit, taCenter);
+        end;
+      end;
     end;
   end;
 end;
@@ -1170,6 +1184,11 @@ begin
   end;
   NeedTextAreaHeight;
   Container.Height := round(h + FTextAreaHeight + ExternalMargin);
+end;
+
+procedure TChooseColorInterface.SimpleRedraw;
+begin
+  UpdateColorview(False, False, True);
 end;
 
 end.
