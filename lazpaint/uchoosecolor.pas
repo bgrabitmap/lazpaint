@@ -8,7 +8,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, ExtCtrls,
   BGRABitmap, BGRABitmapTypes,
-  LazPaintType, UChooseColorInterface;
+  LazPaintType, UChooseColorInterface, LCLType;
 
 type
 
@@ -22,6 +22,7 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormShow(Sender: TObject);
+    procedure FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
   private
     function GetColorTarget: TColorTarget;
     function GetDarkTheme: boolean;
@@ -87,6 +88,12 @@ end;
 procedure TFChooseColor.FormShow(Sender: TObject);
 begin
   self.EnsureVisible(False);
+end;
+
+procedure TFChooseColor.FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
+begin
+  if not EditorVisible and Assigned(LazPaintInstance) then
+    LazPaintInstance.SendUTF8KeyPressEventToMainForm(UTF8Key);
 end;
 
 procedure TFChooseColor.SetCurrentColor(value: TBGRAPixel);

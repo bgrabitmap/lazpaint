@@ -16,6 +16,7 @@ object FChooseColor: TFChooseColor
   OnKeyDown = FormKeyDown
   OnKeyUp = FormKeyUp
   OnShow = FormShow
+  OnUTF8KeyPress = FormUTF8KeyPress
   ShowInTaskBar = stNever
   LCLVersion = '2.2.6.0'
   object ChooseColorControl: TPanel
