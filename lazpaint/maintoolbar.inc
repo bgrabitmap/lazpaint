@@ -7,6 +7,7 @@ procedure TFMain.CreateToolbarElements;
       lbl: TLabel; pnl: TPanel; mouseMove: TMouseMoveEvent; mouseClick: TNotifyEvent; AIsTarget: boolean);
   begin
     vf.PopupMenu := nil;
+    vf.AllowKeyInput:= false;
     vf.VerticalPadding:= DoScaleY(6, OriginalDPI);
     vf.OnChooseColor :=  @VectorialFill_ChooseColor;
     vf.OnTextureClick := @VectorialFill_TextureClick;
@@ -821,12 +822,15 @@ begin
   VectorialFill_Pen.Height := min(VectorialFill_Pen.ToolIconSize + VectorialFill_Pen.VerticalPadding,
                                Panel_SwapColor.ClientHeight - VectorialFill_Pen.Top - 1);
   VectorialFill_Pen.Tag := 0;
+  VectorialFill_Pen.AllowKeyInput:= false;
   VectorialFill_Back.Height := min(VectorialFill_Back.ToolIconSize + VectorialFill_Back.VerticalPadding,
                                Panel_SwapColor.ClientHeight - VectorialFill_Back.Top - 1);
   VectorialFill_Back.Tag := 0;
+  VectorialFill_Back.AllowKeyInput:= false;
   VectorialFill_Outline.Height := min(VectorialFill_Outline.ToolIconSize + VectorialFill_Outline.VerticalPadding,
                                   Panel_SwapColor.ClientHeight - VectorialFill_Outline.Top - 1);
   VectorialFill_Outline.Tag := 0;
+  VectorialFill_Outline.AllowKeyInput:= false;
   Panel_PenFill.Height := Panel_SwapColor.Height;
   Panel_BackFill.Height := Panel_SwapColor.Height;
   Panel_OutlineFill.Height := Panel_SwapColor.Height;
@@ -1612,6 +1616,7 @@ begin
   AFillControl.Height := AFillControl.PreferredSize.cy;
   APanel.Height := AFillControl.Top + AFillControl.Height + DoScaleY(3, OriginalDPI);
   AFillControl.Tag := 1;
+  AFillControl.AllowKeyInput:= true;
   HideFill(3000, true);
 end;
 
