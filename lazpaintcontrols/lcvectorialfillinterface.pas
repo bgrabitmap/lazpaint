@@ -25,6 +25,7 @@ type
 
   TVectorialFillInterface = class(TComponent)
   private
+    FAllowKeyInput: boolean;
     FCanEditGradTexPoints: boolean;
     FIsTarget: boolean;
     FOnMouseDown: TMouseEvent;
@@ -36,6 +37,7 @@ type
     function GetEditingGradTexPoints: boolean;
     procedure Preview_MouseUp(Sender: TObject; Button: TMouseButton;
       {%H-}Shift: TShiftState; X, {%H-}Y: Integer);
+    procedure SetAllowKeyInput(AValue: boolean);
     procedure SetCanEditGradTexPoints(AValue: boolean);
     procedure SetEditingGradTexPoints(AValue: boolean);
     procedure SetIsTarget(AValue: boolean);
@@ -216,6 +218,7 @@ type
     property VerticalPadding: integer read FVerticalPadding write SetVerticalPadding;
     property PreferredSize: TSize read GetPreferredSize;
     property AllowedFillTypes: TVectorialFillTypes read FAllowedFillTypes write SetAllowedFillTypes;
+    property AllowKeyInput: boolean read FAllowKeyInput write SetAllowKeyInput;
   end;
 
 implementation
@@ -675,6 +678,7 @@ begin
   FUpDownSolidAlpha.Increment:= 15;
   FUpDownSolidAlpha.OnChange:=@UpDownSolidAlphaChange;
   FUpDownSolidAlpha.Hint := rsOpacity;
+  FUpDownSolidAlpha.Enabled:= FAllowKeyInput;
   AddToolbarControl(FToolbar, FUpDownSolidAlpha);
   AttachMouseEvent(FUpDownSolidAlpha);
 end;
@@ -707,6 +711,7 @@ begin
   FUpDownStartAlpha.Increment:= 15;
   FUpDownStartAlpha.OnChange:=@UpDownStartAlphaChange;
   FUpDownStartAlpha.Hint := rsStartOpacity;
+  FUpDownStartAlpha.Enabled:= FAllowKeyInput;
   AddToolbarControl(FToolbar, FUpDownStartAlpha);
   AttachMouseEvent(FUpDownStartAlpha);
   FButtonSwapColor := AddToolbarButton(FToolbar, rsSwapColors, 23, @ButtonSwapColorClick);
@@ -725,6 +730,7 @@ begin
   FUpDownEndAlpha.Increment:= 15;
   FUpDownEndAlpha.OnChange:=@UpDownEndAlphaChange;
   FUpDownEndAlpha.Hint := rsEndOpacity;
+  FUpDownEndAlpha.Enabled:= FAllowKeyInput;
   AddToolbarControl(FToolbar, FUpDownEndAlpha);
   AttachMouseEvent(FUpDownEndAlpha);
 
@@ -767,6 +773,7 @@ begin
   FUpDownTexAlpha.Increment:= 15;
   FUpDownTexAlpha.OnChange:=@UpDownTexAlphaChange;
   FUpDownTexAlpha.Hint := rsOpacity;
+  FUpDownTexAlpha.Enabled:= FAllowKeyInput;
   AddToolbarControl(FToolbar, FUpDownTexAlpha);
   AttachMouseEvent(FUpDownTexAlpha);
   FButtonLoadTexture := AddToolbarButton(FToolbar, rsLoadTexture+'...', 22, @ButtonLoadTextureClick);
@@ -819,6 +826,7 @@ var
 begin
   FContainer := nil;
 
+  FAllowKeyInput:= true;
   FAllowedFillTypes := [vftNone, vftSolid, vftGradient, vftTexture];
   FFillType:= vftSolid;
   FSolidColor:= BGRAWhite;
@@ -1144,6 +1152,20 @@ begin
   vftTexture: if Assigned(Texture) and Assigned(FOnTextureClick) then
                 FOnTextureClick(self);
   end;
+end;
+
+procedure TVectorialFillInterface.SetAllowKeyInput(AValue: boolean);
+begin
+  if FAllowKeyInput=AValue then Exit;
+  FAllowKeyInput:=AValue;
+  if Assigned(FUpDownStartAlpha) then
+    FUpDownStartAlpha.Enabled:= AValue;
+  if Assigned(FUpDownEndAlpha) then
+    FUpDownEndAlpha.Enabled:= AValue;
+  if Assigned(FUpDownSolidAlpha) then
+    FUpDownSolidAlpha.Enabled:= AValue;
+  if Assigned(FUpDownTexAlpha) then
+    FUpDownTexAlpha.Enabled:= AValue;
 end;
 
 procedure TVectorialFillInterface.EditGradTextPointsClick(Sender: TObject);
