@@ -86,9 +86,11 @@ type
     procedure ApplyTheme;
     procedure ComputeMenuButtonGlyph;
     property PanelPalette: TBGRAVirtualScreen read GetPanelPalette;
-  protected
+  private
     FColorsBindToKey: array[0..9] of TBGRAPixel;
     FSnapPressed, FAltPressed: boolean;
+    procedure SetColorBindToKey(aIndex: integer; aColor: TBGRAPixel);
+    function ColorMatch(c1, c2: TBGRAPixel): boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -98,7 +100,7 @@ type
     procedure SetBounds(ALeft,ATop,AWidth,AHeight: integer);
     function CatchToolKeyDown(var AKey: Word): boolean;
     function CatchToolKeyUp(var AKey: Word): boolean;
-    function GetDigitFromColorsBindToKey(const AColor: TBGRAPixel): string;
+    function GetKeyAssociatedToColor(const AColor: TBGRAPixel; aForceCheckAlpha: boolean=False): string;
     property Container: TWinControl read FContainer write SetContainer;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     property Visible: boolean read FVisible write SetVisible;
@@ -319,6 +321,25 @@ begin
   glyphBmp.Free;
 end;
 
+procedure TPaletteToolbar.SetColorBindToKey(aIndex: integer; aColor: TBGRAPixel);
+var i: integer;
+begin
+  for i := 0 to High(FColorsBindToKey) do
+    if ColorMatch(FColorsBindToKey[i], aColor) then FColorsBindToKey[i] := BGRAPixelTransparent;
+  if not FTransparentPalette then aColor.alpha := 255;
+  FColorsBindToKey[aIndex] := aColor;
+end;
+
+function TPaletteToolbar.ColorMatch(c1, c2: TBGRAPixel): boolean;
+begin
+  if not FTransparentPalette then
+  begin
+    c1.alpha := 255;
+    c2.alpha := 255;
+  end;
+  Result := c1 = c2;
+end;
+
 function TPaletteToolbar.CatchToolKeyDown(var AKey: Word): boolean;
 var colorIndex: integer;
   c: TBGRAPixel;
@@ -328,16 +349,16 @@ begin
 
   colorIndex := -1;
   if AKey in [VK_0..VK_9] then colorIndex := AKey - VK_0
-  {else if AKey in [VK_NUMPAD0..VK_NUMPAD9] then colorIndex := AKey - VK_NUMPAD0};
+  else if AKey in [VK_NUMPAD0..VK_NUMPAD9] then colorIndex := AKey - VK_NUMPAD0;
 
   if colorIndex <> -1 then
   begin
     if FSnapPressed then
     begin
       c := FLazPaintInstance.GetColor(FLazPaintInstance.ChooseColorTarget);
-      FColorsBindToKey[colorIndex] := c;
+      SetColorBindToKey(colorIndex, c);
       PaletteChanged;
-      FLazPaintInstance.FChooseColorSimpleRedraw;
+      FLazPaintInstance.NotifyColorBinding;
     end else
     begin
       c := FColorsBindToKey[colorIndex];
@@ -358,15 +379,20 @@ begin
   Result := False;
 end;
 
-function TPaletteToolbar.GetDigitFromColorsBindToKey(const AColor: TBGRAPixel): string;
+function TPaletteToolbar.GetKeyAssociatedToColor(const AColor: TBGRAPixel; aForceCheckAlpha: boolean): string;
 var i: Integer;
+  flag: boolean;
 begin
   for i := 0 to High(FColorsBindToKey) do
-    if FColorsBindToKey[i] = AColor then
+  begin
+    if aForceCheckAlpha then flag := FColorsBindToKey[i] = AColor
+    else flag := ColorMatch(FColorsBindToKey[i], AColor);
+    if flag then
     begin
       Result := i.ToString;
       exit;
     end;
+  end;
   Result := '';
 end;
 
@@ -810,7 +836,7 @@ var i,x,y,w,aw,a,h: integer;
   c: TBGRAPixel;
   nbVisible, maxScroll, availHeight, minItemHeight, maxItemHeight: integer;
   clInterm, cSign: TBGRAPixel;
-  digit: string;
+  strKey: string;
 begin
   FCanvasScale := (Sender as TControl).GetCanvasScaleFactor;
   TVolatileScrollBar.InitDPI(FCanvasScale);
@@ -882,15 +908,15 @@ begin
             PointF(x+(w-aw)*3 div 5, y+h div 4), PointF(x+(w-aw)*4 div 5, y+h div 5)], ssEasyBezier),
             cSign, DoScaleX(15, OriginalDPI)/10);
     end;
-    digit := GetDigitFromColorsBindToKey(FColors.Color[i]);
-    if digit <> '' then
+    strKey := GetKeyAssociatedToColor(FColors.Color[i], True);
+    if strKey <> '' then
     begin
       if FTransparentPalette then
-        Bitmap.TextOut(x+w-aw-Bitmap.TextSize(digit).cx-DoScaleX(2, OriginalDPI),
-                       y+h-Bitmap.TextSize(digit).cy, digit, cSign, taLeftJustify)
+        Bitmap.TextOut(x+w-aw-Bitmap.TextSize(strKey).cx-DoScaleX(2, OriginalDPI),
+                       y+h-Bitmap.TextSize(strKey).cy, strKey, cSign, taLeftJustify)
       else
-        Bitmap.TextOut(x+w-Bitmap.TextSize(digit).cx-DoScaleX(2, OriginalDPI),
-                       y+h-Bitmap.TextSize(digit).cy, digit, cSign, taLeftJustify);
+        Bitmap.TextOut(x+w-Bitmap.TextSize(strKey).cx-DoScaleX(2, OriginalDPI),
+                       y+h-Bitmap.TextSize(strKey).cy, strKey, cSign, taLeftJustify);
     end;
     y += h-1;
   end;
