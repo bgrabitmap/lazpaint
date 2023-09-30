@@ -302,7 +302,7 @@ begin
         Bitmap.RoundRectAntialias(Left, Top, Right - 1, Bottom - 1,
             previewSize/6, previewSize/6, BGRA(0,0,0,192), bmpCursorWidth, c, []);
         c := GetCurrentColor;
-        s := FLazPaintInstance.GetDigitFromColorsBindToKey(c);
+        s := FLazPaintInstance.GetKeyAssociatedToColor(c);
         if Length(s) > 0 then
         begin
           if GetLightness(c)/65535 > 0.5 then
