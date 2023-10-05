@@ -35,6 +35,7 @@ object FMain: TFMain
     ParentColor = False
     ParentFont = False
     TabOrder = 8
+    OnClick = Panel_ToolbarBackgroundClick
   end
   object Panel_File: TPanel
     Left = 48
