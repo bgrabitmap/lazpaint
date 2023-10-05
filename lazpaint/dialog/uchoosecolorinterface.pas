@@ -307,10 +307,8 @@ begin
         begin
           if GetLightness(c)/65535 > 0.5 then
             cDigit := BGRABlack else cDigit := BGRAWhite;
-          Bitmap.FontHeight := Round(Height*2/3);
-          Bitmap.TextOut(CenterPoint.x,
-                         CenterPoint.y-Bitmap.TextSize(s).cy div 2,
-                         s, cDigit, taCenter);
+          Bitmap.FontFullHeight := Height;
+          Bitmap.TextOut(CenterPoint.x, CenterPoint.y-Height div 2, s, cDigit, taCenter);
         end;
       end;
     end;
