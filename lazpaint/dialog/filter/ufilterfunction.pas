@@ -239,6 +239,8 @@ begin
 
   FComputedImage := nil;
   StatsNotComputed(low(FStats), high(FStats));
+
+  PageControl_Color.ActivePage := TabSheet_RGB;
 end;
 
 procedure TFFilterFunction.FormDestroy(Sender: TObject);
@@ -808,6 +810,8 @@ begin
       if IsDefined('b') then Edit_Lightness.Text := Strings['b'];
       if IsDefined('GammaCorrection') then CheckBox_Gamma.Checked:= Booleans['GammaCorrection'];
       if IsDefined('CorrectedHue') then CheckBox_GSBA.Checked:= Booleans['CorrectedHue'];
+      if IsDefined('Red') or IsDefined('Green') or IsDefined('Blue') then
+        PageControl_Color.ActivePage := TabSheet_RGB else
       if IsDefined('Hue') or IsDefined('Saturation') or IsDefined('Lightness') then
         PageControl_Color.ActivePage := TabSheet_HSL else
       if IsDefined('L') or IsDefined('a') or IsDefined('b') then
