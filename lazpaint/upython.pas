@@ -48,6 +48,7 @@ type
 
 function GetPythonVersion(APythonBin: string = DefaultPythonBin): string;
 function GetScriptTitle(AFilename: string): string;
+function CheckPythonScriptSafe(AFilename: string): boolean;
 
 var
   CustomScriptDirectory: string;
@@ -161,6 +162,90 @@ begin
   finally
     closefile(t);
   end;
+end;
+
+function CheckPythonScriptSafe(AFilename: string): boolean;
+  function binarySearch(x: string; a: array of string): integer;
+  var  L, R, M: integer;  // left, right, middle
+  begin
+    if Length(a)=0 then Exit(-1);
+    L := Low (a);
+    R := High(a);
+    while (L <= R) do begin
+      M := (L + R) div 2;
+      if (x = a[M]) then Exit(M);  // found x in a
+      if (x > a[M])
+      then L := Succ(M)
+      else R := Pred(M);
+    end;
+    Exit(-1) // did not found x in a
+  end;
+
+  function idOk(AId: string): boolean;
+  const forbidden: array[0..30] of string =
+  ('__import__',
+   'ast',
+   'builtins',
+   'code',
+   'codecs',
+   'compile',
+   'ctypes',
+   'eval',
+   'exec',
+   'ftplib',
+   'gc',
+   'getattr',
+   'globals',
+   'io',
+   'locals',
+   'multiprocessing',
+   'os',
+   'pathlib',
+   'poplib',
+   'pty',
+   'runpy',
+   'shutil',
+   'smtplib',
+   'socket',
+   'subprocess',
+   'sys',
+   'telnetlib',
+   'tempfile',
+   'threading',
+   'wsgiref',
+   'xmlrpc');
+  begin
+    exit(binarySearch(AId, forbidden) = -1);
+  end;
+
+var
+  t: textfile;
+  s: string;
+  startId, i: integer;
+begin
+  assignFile(t, AFilename);
+  reset(t);
+  while not eof(t) do
+  begin
+    startId := -1;
+    readln(t, s);
+    for i := 1 to length(s) do
+    begin
+      if (startId = -1) and (s[i] in['A'..'Z','a'..'z','_']) then
+      begin
+        startId := i;
+      end else
+      if (startId <> -1) and not (s[i] in['A'..'Z','a'..'z','_','0'..'9']) then
+      begin
+        if not idOk(copy(s, startId, i-startId)) then exit(false);
+        startId := -1;
+      end;
+    end;
+    if (startId <> -1) and not idOk(copy(s, startId, length(s)-startId+1)) then
+      exit(false);
+  end;
+  closefile(t);
+  exit(true);
 end;
 
 { TPythonScript }
@@ -286,6 +371,8 @@ end;
 procedure TPythonScript.Run(AScriptFilename: UTF8String;
   APythonVersion: integer);
 begin
+  if not CheckPythonScriptSafe(AScriptFilename) then
+    raise exception.Create('The script file does not seem to be safe');
   FLinePrefix := '';
   if PythonVersionMajor <> APythonVersion then
     raise exception.Create(
