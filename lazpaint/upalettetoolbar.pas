@@ -91,7 +91,7 @@ type
     FColorsBindToKey: TBGRAPixelBinding;
     FSnapPressed, FAltPressed: boolean;
     procedure ToggleBindColorToKey(aColor: TBGRAPixel; aDigit: integer);
-    function TryToGetColorBindedToKey(aDigit: integer; out aColor: TBGRAPixel): boolean;
+    function TryToGetColorBoundToKey(aDigit: integer; out aColor: TBGRAPixel): boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -346,7 +346,7 @@ begin
   end;
 end;
 
-function TPaletteToolbar.TryToGetColorBindedToKey(aDigit: integer; out aColor: TBGRAPixel): boolean;
+function TPaletteToolbar.TryToGetColorBoundToKey(aDigit: integer; out aColor: TBGRAPixel): boolean;
 begin
   Result := FColorsBindToKey.TryGetData(aDigit, aColor);
 end;
@@ -372,13 +372,14 @@ begin
       FLazPaintInstance.NotifyColorBinding;
     end else
     begin
-      if TryToGetColorBindedToKey(digit, c) then
+      if TryToGetColorBoundToKey(digit, c) then
       begin
         if FAltPressed then DoPickColor([ssRight], c)
         else DoPickColor([ssLeft], c);
       end;
     end;
     Result := True;
+    AKey := 0; // prevent further key event
   end else Result := False;
 end;
 
