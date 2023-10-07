@@ -73,6 +73,7 @@ type
     procedure PythonScriptCommand({%H-}ASender: TObject; ACommand, AParam: UTF8String; out
       AResult: UTF8String);
     procedure PythonBusy({%H-}Sender: TObject);
+    procedure PythonWarning({%H-}Sender: TObject; AMessage: UTF8String; out AProceed: boolean);
     function ScriptShowMessage(AVars: TVariableSet): TScriptResult;
     function ScriptInputBox(AVars: TVariableSet): TScriptResult;
     procedure ToolQueryColorTarget({%H-}sender: TToolManager; ATarget: TVectorialFill);
@@ -1028,6 +1029,12 @@ begin
   Application.ProcessMessages;
 end;
 
+procedure TLazPaintInstance.PythonWarning(Sender: TObject;
+  AMessage: UTF8String; out AProceed: boolean);
+begin
+  AProceed := QuestionDlg(rsScript, AMessage, mtWarning, [mrOk,rsOkay, mrCancel,rsCancel],'') = mrOK;
+end;
+
 function TLazPaintInstance.GetShowSelectionNormal: boolean;
 begin
   if FMain <> nil then result := fmain.ShowSelectionNormal
@@ -1893,6 +1900,7 @@ begin
       else FScriptName := AFilename;
     p.OnCommand:=@PythonScriptCommand;
     p.OnBusy := @PythonBusy;
+    p.OnWarning:= @PythonWarning;
     p.Run(AFilename);
     if p.ErrorText<>'' then
     begin

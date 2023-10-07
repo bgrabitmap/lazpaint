@@ -14,17 +14,19 @@ const
 type
   TReceiveLineEvent = procedure(ASender: TObject; ALine: UTF8String) of object;
   TCommandEvent = procedure(ASender: TObject; ACommand, AParam: UTF8String; out AResult: UTF8String) of object;
+  TWarningEvent = procedure(ASender: TObject; AMessage: UTF8String; out AProceed: boolean) of object;
 
   { TPythonScript }
 
   TPythonScript = class
   private
-    FOnBusy: TNotifyEvent;
     FPythonBin: string;
     FPythonVersion: string;
     FLinePrefix: RawByteString;
     FOnCommand: TCommandEvent;
     FOnError: TReceiveLineEvent;
+    FOnBusy: TNotifyEvent;
+    FOnWarning: TWarningEvent;
     FOnOutputLine: TReceiveLineEvent;
     FPythonSend: TSendLineMethod;
     FErrorText: UTF8String;
@@ -41,6 +43,7 @@ type
     property OnError: TReceiveLineEvent read FOnError write FOnError;
     property OnCommand: TCommandEvent read FOnCommand write FOnCommand;
     property OnBusy: TNotifyEvent read FOnBusy write FOnBusy;
+    property OnWarning: TWarningEvent read FOnWarning write FOnWarning;
     property PythonVersion: string read FPythonVersion;
     property PythonVersionMajor: integer read GetPythonVersionMajor;
     property ErrorText: UTF8String read FErrorText;
@@ -48,7 +51,7 @@ type
 
 function GetPythonVersion(APythonBin: string = DefaultPythonBin): string;
 function GetScriptTitle(AFilename: string): string;
-function CheckPythonScriptSafe(AFilename: string): boolean;
+function CheckPythonScriptSafe(AFilename: string; out AUnsafeModules: TStringList): boolean;
 
 var
   CustomScriptDirectory: string;
@@ -164,7 +167,7 @@ begin
   end;
 end;
 
-function CheckPythonScriptSafe(AFilename: string): boolean;
+function CheckPythonScriptSafe(AFilename: string; out AUnsafeModules: TStringList): boolean;
   function binarySearch(x: string; a: array of string): integer;
   var  L, R, M: integer;  // left, right, middle
   begin
@@ -181,23 +184,34 @@ function CheckPythonScriptSafe(AFilename: string): boolean;
     Exit(-1) // did not found x in a
   end;
 
-  function idOk(AId: string): boolean;
-  const forbidden: array[0..30] of string =
+  function idOk(AId: string; var isImport: integer): boolean;
+  const forbidden: array[0..6] of string =
   ('__import__',
-   'ast',
+   'compile',
+   'eval',
+   'exec',
+   'getattr',
+   'globals',
+   'locals');
+  begin
+    if AId = 'import' then inc(isImport);
+    exit(binarySearch(AId, forbidden) = -1);
+  end;
+
+  const StartIdentifier = ['A'..'Z','a'..'z','_'];
+  const ContinueIdentifier = ['A'..'Z','a'..'z','_','0'..'9'];
+  const WhiteSpace = [' ', #9];
+
+  function importOk(const s: string; isImport: integer; previousBackslash: boolean): boolean;
+  const forbiddenModules: array[0..23] of string =
+  ('ast',
    'builtins',
    'code',
    'codecs',
-   'compile',
    'ctypes',
-   'eval',
-   'exec',
    'ftplib',
    'gc',
-   'getattr',
-   'globals',
    'io',
-   'locals',
    'multiprocessing',
    'os',
    'pathlib',
@@ -214,35 +228,146 @@ function CheckPythonScriptSafe(AFilename: string): boolean;
    'threading',
    'wsgiref',
    'xmlrpc');
+
+  const safeModules: array[0..10] of string =
+  ('PIL',
+   'calendar',
+   'datetime',
+   'decimal',
+   'fractions',
+   'lazpaint',
+   'math',
+   'platform',
+   'statistics',
+   'time',
+   'tkinter');
+
+  procedure SkipSpaces(var idx: integer);
   begin
-    exit(binarySearch(AId, forbidden) = -1);
+    while (idx <= length(s)) and (s[idx] in WhiteSpace) do inc(idx);
+  end;
+
+  function GetId(var idx: integer): string;
+  var idxEnd: integer;
+  begin
+    if (idx > length(s)) or not (s[idx] in StartIdentifier) then exit('');
+    idxEnd := idx+1;
+    while (idxEnd <= length(s)) and (s[idxEnd] in ContinueIdentifier) do inc(idxEnd);
+    result := copy(s, idx, idxEnd-idx);
+    idx := idxEnd;
+  end;
+
+  var idx: integer;
+    importAfter: boolean;
+    moduleName, subId: string;
+  begin
+    if isImport <> 1 then exit(false); // syntax error
+
+    if s.StartsWith('from ') then
+    begin
+      idx := length('from ') + 1;
+      importAfter := true;
+    end else
+    if s.StartsWith('import ') then
+    begin
+      if previousBackslash then exit(false); // could be an exploit
+      idx := length('import ') + 1;
+      importAfter := false;
+    end
+    else
+      exit(false); // syntax error
+
+    SkipSpaces(idx);
+    moduleName := GetId(idx);
+    if moduleName = '' then exit(false); // syntax error
+    // check if module is allowed
+    if binarySearch(moduleName, forbiddenModules) <> -1 then exit(false);
+    if binarySearch(moduleName, safeModules) = -1 then
+    begin
+      if AUnsafeModules = nil then
+         AUnsafeModules := TStringList.Create;
+      if AUnsafeModules.IndexOf(moduleName) = -1 then
+        AUnsafeModules.Add(moduleName);
+    end;
+
+    SkipSpaces(idx);
+    // submodule
+    while (idx <= length(s)) and (s[idx] = '.') do
+    begin
+      inc(idx);
+      SkipSpaces(idx);
+      subId := GetId(idx);
+      if subId = '' then exit(false); // syntax error
+      SkipSpaces(idx);
+    end;
+
+    if importAfter then
+    begin
+      subId := GetId(idx);
+      if subId <> 'import' then exit(false); // syntax error
+    end else
+    begin
+      if (idx > length(s)) or (s[idx] = '#') then exit(true);
+
+      subId := GetId(idx);
+      if subId = 'as' then
+      begin
+        SkipSpaces(idx);
+        subId := GetId(idx);
+        if subId = '' then exit(false); // syntax error
+
+        if (idx <= length(s)) and (s[idx] <> '#') then // expect end of line
+          exit(false); // syntax error
+      end;
+    end;
+
+    exit(true);
+  end;
+
+  function lineOk(const s: string; previousBackslash: boolean): boolean;
+  var
+    startId, i: integer;
+    isImport: integer;
+  begin
+    startId := -1;
+    isImport := 0;
+
+    for i := 1 to length(s) do
+    begin
+      // check identifier boundaries
+      if (startId = -1) and (s[i] in StartIdentifier) then
+      begin
+        startId := i;
+      end else
+      if (startId <> -1) and not (s[i] in ContinueIdentifier) then
+      begin
+        if not idOk(copy(s, startId, i-startId), isImport) then exit(false);
+        startId := -1;
+      end;
+    end;
+    if (startId <> -1) and not idOk(copy(s, startId, length(s)-startId+1), isImport) then
+      exit(false);
+
+    if (isImport > 0) and not importOk(s, isImport, previousBackslash) then exit(false);
+
+    exit(true);
   end;
 
 var
   t: textfile;
   s: string;
-  startId, i: integer;
+  previousBackslash: boolean;
 begin
+  AUnsafeModules := nil;
   assignFile(t, AFilename);
   reset(t);
+  previousBackslash := false;
   while not eof(t) do
   begin
-    startId := -1;
     readln(t, s);
-    for i := 1 to length(s) do
-    begin
-      if (startId = -1) and (s[i] in['A'..'Z','a'..'z','_']) then
-      begin
-        startId := i;
-      end else
-      if (startId <> -1) and not (s[i] in['A'..'Z','a'..'z','_','0'..'9']) then
-      begin
-        if not idOk(copy(s, startId, i-startId)) then exit(false);
-        startId := -1;
-      end;
-    end;
-    if (startId <> -1) and not idOk(copy(s, startId, length(s)-startId+1)) then
-      exit(false);
+    s := trim(s);
+    if not lineOk(s, previousBackslash) then exit(false);
+    previousBackslash := s.EndsWith('\');
   end;
   closefile(t);
   exit(true);
@@ -370,9 +495,27 @@ end;
 
 procedure TPythonScript.Run(AScriptFilename: UTF8String;
   APythonVersion: integer);
+var
+  unsafeModules: TStringList;
+  proceed: boolean;
 begin
-  if not CheckPythonScriptSafe(AScriptFilename) then
+  if not CheckPythonScriptSafe(AScriptFilename, unsafeModules) then
+  begin
+    unsafeModules.Free;
     raise exception.Create('The script file does not seem to be safe');
+  end;
+  if Assigned(unsafeModules) then
+  begin
+    proceed := true;
+    if Assigned(OnWarning) then
+    begin
+      OnWarning(self, 'Are you sure you would like to run this script? ' +
+        'The following modules used by this script may be unsafe: '+
+        unsafeModules.CommaText, proceed);
+    end;
+    unsafeModules.Free;
+    if not proceed then exit;
+  end;
   FLinePrefix := '';
   if PythonVersionMajor <> APythonVersion then
     raise exception.Create(
