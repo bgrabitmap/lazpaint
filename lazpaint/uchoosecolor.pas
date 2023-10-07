@@ -8,7 +8,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, ExtCtrls,
   BGRABitmap, BGRABitmapTypes,
-  LazPaintType, UChooseColorInterface;
+  LazPaintType, UChooseColorInterface, LCLType;
 
 type
 
@@ -19,7 +19,10 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDeactivate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormShow(Sender: TObject);
+    procedure FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
   private
     function GetColorTarget: TColorTarget;
     function GetDarkTheme: boolean;
@@ -37,6 +40,7 @@ type
     function GetCurrentColor: TBGRAPixel;
     procedure AdjustControlHeight;
     procedure HideEditor;
+    procedure SimpleRedraw;
     property DarkTheme: boolean read GetDarkTheme write SetDarkTheme;
     property LazPaintInstance: TLazPaintCustomInstance read GetLazPaintInstance write SetLazPaintInstance;
     property EditorVisible: boolean read GetEditorVisible;
@@ -69,9 +73,27 @@ begin
   FreeAndNil(FInterface);
 end;
 
+procedure TFChooseColor.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if not EditorVisible and Assigned(LazPaintInstance) then
+    LazPaintInstance.SendKeyDownEventToMainForm(Key, Shift);
+end;
+
+procedure TFChooseColor.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if not EditorVisible and Assigned(LazPaintInstance) then
+    LazPaintInstance.SendKeyUpEventToMainForm(Key, Shift);
+end;
+
 procedure TFChooseColor.FormShow(Sender: TObject);
 begin
   self.EnsureVisible(False);
+end;
+
+procedure TFChooseColor.FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
+begin
+  if not EditorVisible and Assigned(LazPaintInstance) then
+    LazPaintInstance.SendUTF8KeyPressEventToMainForm(UTF8Key);
 end;
 
 procedure TFChooseColor.SetCurrentColor(value: TBGRAPixel);
@@ -98,6 +120,11 @@ procedure TFChooseColor.HideEditor;
 begin
   if Assigned(FInterface) then
     FInterface.HideEditor;
+end;
+
+procedure TFChooseColor.SimpleRedraw;
+begin
+  if Assigned(FInterface) then FInterface.SimpleRedraw;
 end;
 
 procedure TFChooseColor.SetDarkTheme(AValue: boolean);

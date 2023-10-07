@@ -658,11 +658,13 @@ begin
   end;
 end;
 
-function TFMain.TextSpinEditFocused: boolean;
+function TFMain.SpinEditFocused: boolean;
+var ctrl: TWinControl;
 begin
-  result := SpinEdit_TextSize.Focused or SpinEdit_TextBlur.Focused or SpinEdit_TextShadowX.Focused or
-           SpinEdit_TextShadowY.Focused or SpinEdit_ShapeAltitude.Focused or
-           SpinEdit_TextOutlineWidth.Focused;
+  ctrl := Screen.ActiveControl;
+  if Assigned(ctrl) and (ctrl is TBCTrackBarUpDown) then
+    Result := (ctrl as TBCTrackBarUpDown).Focused
+    else Result := False;
 end;
 
 procedure TFMain.UpdateBrush;
@@ -696,14 +698,14 @@ end;
 
 function TFMain.CatchToolKeyDown(var AKey: Word): boolean;
 begin
-  if Assigned(FLayout) then
+  if Assigned(FLayout) and not SpinEditFocused and (CurrentTool <> ptText) then
     result := FLayout.CatchToolKeyDown(AKey)
     else result := false;
 end;
 
 function TFMain.CatchToolKeyUp(var AKey: Word): boolean;
 begin
-  if Assigned(FLayout) then
+  if Assigned(FLayout) and not SpinEditFocused and (CurrentTool <> ptText) then
     result := FLayout.CatchToolKeyUp(AKey)
     else result := false;
 end;
@@ -1694,6 +1696,11 @@ procedure TFMain.Panel_TextMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
   ShowTextMore;
+end;
+
+procedure TFMain.Panel_ToolbarBackgroundClick(Sender: TObject);
+begin
+  Layout.FocusImage;
 end;
 
 procedure TFMain.PopupToolbarPopup(Sender: TObject);

@@ -7,7 +7,7 @@ interface
 
 uses
   Classes, SysUtils, Inifiles, BGRABitmap, BGRABitmapTypes, UConfig, UImage, UTool, Forms, BGRALayers, Graphics, Menus,
-  UScripting, Dialogs, Controls
+  UScripting, Dialogs, Controls, LCLType
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
@@ -271,6 +271,7 @@ type
     procedure ColorToFChooseColor; virtual; abstract;
     procedure ExitColorEditor; virtual; abstract;
     function ColorEditorActive: boolean; virtual; abstract;
+    procedure NotifyColorBinding; virtual; abstract;
     function GetColor(ATarget: TColorTarget): TBGRAPixel;
     procedure SetColor(ATarget: TColorTarget; AColor: TBGRAPixel);
     function ShowSaveOptionDlg(AParameters: TVariableSet; AOutputFilenameUTF8: string;
@@ -313,6 +314,7 @@ type
     procedure Wait(ACheckActive: TCheckFunction; ADelayMs: integer); virtual; abstract;
     procedure AddColorToPalette(AColor: TBGRAPixel); virtual; abstract;
     procedure RemoveColorFromPalette(AColor: TBGRAPixel); virtual; abstract;
+    function GetKeyAssociatedToColor(const AColor: TBGRAPixel): string; virtual; abstract;
 
     property BlackAndWhite: boolean read FBlackAndWhite write SetBlackAndWhite;
 
@@ -343,6 +345,9 @@ type
 
     procedure ImageListWindowVisibleKeyDown(var Key: Word; Shift: TShiftState); virtual; abstract;
     procedure MoveImageListWindowTo(X,Y: integer); virtual; abstract;
+    procedure SendKeyDownEventToMainForm(var Key: Word; Shift: TShiftState); virtual; abstract;
+    procedure SendKeyUpEventToMainForm(var Key: Word; Shift: TShiftState); virtual; abstract;
+    procedure SendUTF8KeyPressEventToMainForm(var UTF8Key: TUTF8Char); virtual; abstract;
     property ImageListWindowWidth: integer read GetImageListWindowWidth write SetImageListWindowWidth;
     property ImageListWindowHeight: integer read GetImageListWindowHeight write SetImageListWindowHeight;
     property ImageListWindowVisible: boolean read GetImageListWindowVisible write SetImageListWindowVisible;
@@ -389,7 +394,7 @@ function CSSToPascalCase(AIdentifier: string): string;
 
 implementation
 
-uses LCLType, BGRAUTF8, LCLIntf, FileUtil, UResourceStrings, LCVectorialFill;
+uses BGRAUTF8, LCLIntf, FileUtil, UResourceStrings, LCVectorialFill;
 
 function LazPaintVersionStr: string;
 var numbers: TStringList;

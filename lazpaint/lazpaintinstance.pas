@@ -7,7 +7,7 @@ interface
 
 uses
   Classes, SysUtils, LazPaintType, BGRABitmap, BGRABitmapTypes, BGRALayers, LCVectorialFill,
-  Menus, Forms, Controls, fgl,
+  Menus, Forms, Controls, fgl, LCLType,
 
   LazPaintMainForm, UMainFormLayout,
 
@@ -240,6 +240,7 @@ type
     procedure ColorToFChooseColor; override;
     procedure ExitColorEditor; override;
     function ColorEditorActive: boolean; override;
+    procedure NotifyColorBinding; override;
     function ShowSaveOptionDlg({%H-}AParameters: TVariableSet; AOutputFilenameUTF8: string;
       ASkipOptions: boolean; AExport: boolean): boolean; override;
     function ShowColorIntensityDlg(AParameters: TVariableSet): TScriptResult; override;
@@ -289,12 +290,16 @@ type
     procedure UpdateEditPicture(ADelayed: boolean); override;
     procedure AddColorToPalette(AColor: TBGRAPixel); override;
     procedure RemoveColorFromPalette(AColor: TBGRAPixel); override;
+    function GetKeyAssociatedToColor(const AColor: TBGRAPixel): string; override;
     property Initialized: boolean read GetInitialized;
+    procedure SendKeyDownEventToMainForm(var Key: Word; Shift: TShiftState); override;
+    procedure SendKeyUpEventToMainForm(var Key: Word; Shift: TShiftState); override;
+    procedure SendUTF8KeyPressEventToMainForm(var UTF8Key: TUTF8Char); override;
   end;
 
 implementation
 
-uses LCLType, Types, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslation,
+uses Types, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslation,
 
      URadialBlur, UMotionBlur, UEmboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, UPixelate, unoisefilter, ufilters,
@@ -1981,6 +1986,11 @@ begin
     else result := false;
 end;
 
+procedure TLazPaintInstance.NotifyColorBinding;
+begin
+  if Assigned(FChooseColor) then FChooseColor.SimpleRedraw;
+end;
+
 function TLazPaintInstance.ShowSaveOptionDlg(AParameters: TVariableSet;
   AOutputFilenameUTF8: string; ASkipOptions: boolean; AExport: boolean): boolean;
 begin
@@ -2193,6 +2203,29 @@ end;
 procedure TLazPaintInstance.RemoveColorFromPalette(AColor: TBGRAPixel);
 begin
   if Assigned(FMain) then FMain.Layout.RemoveColorFromPalette(AColor);
+end;
+
+function TLazPaintInstance.GetKeyAssociatedToColor(const AColor: TBGRAPixel): string;
+begin
+  if Assigned(FMain) and
+     Assigned(FMain.Layout) and
+     Assigned(FMain.Layout.PaletteToolbar) then Result := FMain.Layout.PaletteToolbar.GetKeyAssociatedToColor(AColor)
+  else Result := '';
+end;
+
+procedure TLazPaintInstance.SendKeyDownEventToMainForm(var Key: Word; Shift: TShiftState);
+begin
+  if Assigned(FMain) then FMain.FormKeyDown(FMain, key, Shift);
+end;
+
+procedure TLazPaintInstance.SendKeyUpEventToMainForm(var Key: Word; Shift: TShiftState);
+begin
+  if Assigned(FMain) then FMain.FormKeyUp(FMain, key, Shift);
+end;
+
+procedure TLazPaintInstance.SendUTF8KeyPressEventToMainForm(var UTF8Key: TUTF8Char);
+begin
+  if Assigned(FMain) then FMain.FormUTF8KeyPress(FMain, UTF8Key);
 end;
 
 end.

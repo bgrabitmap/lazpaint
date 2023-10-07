@@ -522,6 +522,7 @@ type
       {%H-}Y: Integer);
     procedure Panel_TextMouseMove(Sender: TObject; {%H-}Shift: TShiftState; {%H-}X,
       {%H-}Y: Integer);
+    procedure Panel_ToolbarBackgroundClick(Sender: TObject);
     procedure PopupToolbarPopup(Sender: TObject);
     procedure PopupToolboxPopup(Sender: TObject);
     procedure SelectionHorizontalFlipUpdate(Sender: TObject);
@@ -783,7 +784,7 @@ type
     procedure UpdateFloodfillToolbar;
     procedure UpdatePerspectiveToolbar;
     function ShowOpenBrushDialog: boolean;
-    function TextSpinEditFocused: boolean;
+    function SpinEditFocused: boolean;
     procedure UpdateBrush;
     procedure UpdateBrushList;
     function CatchToolKeyDown(var AKey: Word): boolean;
@@ -1870,7 +1871,7 @@ begin
     else if (Key = VK_SNAP) or (Key = VK_SNAP2) then snapPressed:= true
     else if Key = VK_SHIFT then shiftPressed:= true;
     if Zoom.EditingZoom or EditingColors then exit;
-    if not ((CurrentTool = ptText) and TextSpinEditFocused and (Key = VK_BACK)) and CatchToolKeyDown(Key) then
+    if not ((CurrentTool = ptText) and SpinEditFocused and (Key = VK_BACK)) and CatchToolKeyDown(Key) then
     begin
       PaintPictureLater;
     end else
@@ -2323,7 +2324,7 @@ begin
     toolProcessKey:= true;
     if (CurrentTool in[ptText,ptEditShape]) and ((UTF8Key = #8) or ((length(UTF8Key)=1) and (UTF8Key[1] in['-','0'..'9']))) then
     begin
-      if TextSpinEditFocused then
+      if SpinEditFocused then
          toolProcessKey:= false;
     end;
     if toolProcessKey and CatchToolKeyPress(UTF8Key) then
@@ -4378,7 +4379,7 @@ begin
     else
       exit;
   end;
-  if (CurrentTool in[ptText,ptEditShape]) and TextSpinEditFocused then Layout.FocusImage;
+  if SpinEditFocused then Layout.FocusImage;
 end;
 
 procedure TFMain.PictureOnPaint(Sender: TObject);
