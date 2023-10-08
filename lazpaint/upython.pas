@@ -35,6 +35,7 @@ type
     procedure PythonError(ALine: RawByteString);
     procedure PythonOutput(ALine: RawByteString);
     procedure PythonBusy(var {%H-}ASleep: boolean);
+    function CheckScriptAndDependencySafe(AFilename: UTF8String; APythonVersion: integer): boolean;
   public
     constructor Create(APythonBin: string = DefaultPythonBin);
     procedure Run(AScriptFilename: UTF8String; APythonVersion: integer = 3);
@@ -51,7 +52,7 @@ type
 
 function GetPythonVersion(APythonBin: string = DefaultPythonBin): string;
 function GetScriptTitle(AFilename: string): string;
-function CheckPythonScriptSafe(AFilename: string; out AUnsafeModules: TStringList): boolean;
+function CheckPythonScriptSafe(AFilename: string; out ASafeModules, AUnsafeModules: TStringList): boolean;
 
 var
   CustomScriptDirectory: string;
@@ -167,7 +168,7 @@ begin
   end;
 end;
 
-function CheckPythonScriptSafe(AFilename: string; out AUnsafeModules: TStringList): boolean;
+function CheckPythonScriptSafe(AFilename: string; out ASafeModules, AUnsafeModules: TStringList): boolean;
   function binarySearch(x: string; a: array of string): integer;
   var  L, R, M: integer;  // left, right, middle
   begin
@@ -184,7 +185,7 @@ function CheckPythonScriptSafe(AFilename: string; out AUnsafeModules: TStringLis
     Exit(-1) // did not found x in a
   end;
 
-  function idOk(AId: string; var isImport: integer): boolean;
+  function idOk(AId: string; var importCount: integer): boolean;
   const forbidden: array[0..6] of string =
   ('__import__',
    'compile',
@@ -194,7 +195,7 @@ function CheckPythonScriptSafe(AFilename: string; out AUnsafeModules: TStringLis
    'globals',
    'locals');
   begin
-    if AId = 'import' then inc(isImport);
+    if AId = 'import' then inc(importCount);
     exit(binarySearch(AId, forbidden) = -1);
   end;
 
@@ -202,45 +203,61 @@ function CheckPythonScriptSafe(AFilename: string; out AUnsafeModules: TStringLis
   const ContinueIdentifier = ['A'..'Z','a'..'z','_','0'..'9'];
   const WhiteSpace = [' ', #9];
 
-  function importOk(const s: string; isImport: integer; previousBackslash: boolean): boolean;
-  const forbiddenModules: array[0..23] of string =
-  ('ast',
-   'builtins',
-   'code',
-   'codecs',
-   'ctypes',
-   'ftplib',
-   'gc',
-   'io',
-   'multiprocessing',
-   'os',
-   'pathlib',
-   'poplib',
-   'pty',
-   'runpy',
-   'shutil',
-   'smtplib',
-   'socket',
-   'subprocess',
-   'sys',
-   'telnetlib',
-   'tempfile',
-   'threading',
-   'wsgiref',
-   'xmlrpc');
+  function importOk(const s: string; importCount: integer; previousBackslash: boolean): boolean;
+  const ForbiddenModules: array[0..22] of string =
+  ('builtins',          // Provides direct access to all built-in identifiers of Python.
+   'code',              // Facilities to implement interactive Python interpreters.
+   'codecs',            // Core support for encoding and decoding text and binary data.
+   'ctypes',            // Create and manipulate C-compatible data types in Python, and call functions in dynamic link libraries/shared libraries.
+   'ftplib',            // Interface to the FTP protocol.
+   'gc',                // Interface to the garbage collection facility for reference cycles.
+   'io',                // Core tools for working with streams (core I/O operations).
+   'multiprocessing',   // Process-based parallelism.
+   'os',                // Interface to the operating system, including file and process operations.
+   'pathlib',           // Object-oriented filesystem paths.
+   'poplib',            // Client-side support for the POP3 protocol.
+   'pty',               // Operations for handling the pseudo-terminal concept.
+   'runpy',             // Locating and running Python programs using various modes of the `__main__` module.
+   'shutil',            // High-level file operations, including copying and deletion.
+   'smtplib',           // Client-side objects for the SMTP and ESMTP protocols.
+   'socket',            // Low-level networking operations.
+   'subprocess',        // Spawn additional processes, connect to their input/output/error pipes, and obtain their return codes.
+   'sys',               // Access and set variables used or maintained by the Python interpreter.
+   'telnetlib',         // Client-side support for the Telnet protocol.
+   'tempfile',          // Generate temporary files and directories.
+   'threading',         // Higher-level threading interfaces on top of the lower-level `_thread` module.
+   'wsgiref',           // WSGI utility functions and reference implementation.
+   'xmlrpc'             // XML-RPC server and client modules.
+  );
 
-  const safeModules: array[0..10] of string =
-  ('PIL',
-   'calendar',
-   'datetime',
-   'decimal',
-   'fractions',
+  const SafeModules: array[0..26] of string =
+  ('PIL',           // Python Imaging Library, for image processing.
+   'array',         // Basic mutable array operations.
+   'ast',           // Abstract Syntax Trees
+   'bisect',        // Algorithms for manipulating sorted lists.
+   'calendar',      // Functions for working with calendars and dates.
+   'collections',   // Container datatypes like namedtuples and defaultdict.
+   'colorsys',      // Color system conversions.
+   'copy',          // Shallow and deep copy operations.
+   'csv',           // Reading and writing CSV files.
+   'datetime',      // Basic date and time types.
+   'decimal',       // Fixed and floating point arithmetic using decimal notation.
+   'enum',          // Enumerations in Python.
+   'fractions',     // Rational numbers.
+   'functools',     // Higher-order functions and operations on callable objects.
+   'hashlib',       // Secure hash and message digest algorithms.
+   'itertools',     // Functions for creating iterators for efficient looping.
+   'json',          // Encoding and decoding JSON format.
    'lazpaint',
-   'math',
-   'platform',
-   'statistics',
-   'time',
-   'tkinter');
+   'math',          // Mathematical functions.
+   'platform',      // Access to platform-specific attributes and functions.
+   'queue',         // A multi-producer, multi-consumer queue.
+   'random',        // Generate pseudo-random numbers.
+   'statistics',    // Mathematical statistics functions.
+   'string',        // Common string operations.
+   'time',          // Time-related functions.
+   'tkinter',       // Standard GUI library for Python.
+   'uuid');         // UUID objects
 
   procedure SkipSpaces(var idx: integer);
   begin
@@ -257,39 +274,33 @@ function CheckPythonScriptSafe(AFilename: string; out AUnsafeModules: TStringLis
     idx := idxEnd;
   end;
 
-  var idx: integer;
-    importAfter: boolean;
-    moduleName, subId: string;
+  function SkipAs(var idx: integer): boolean;
+  var
+    subId: String;
   begin
-    if isImport <> 1 then exit(false); // syntax error
-
-    if s.StartsWith('from ') then
-    begin
-      idx := length('from ') + 1;
-      importAfter := true;
-    end else
-    if s.StartsWith('import ') then
-    begin
-      if previousBackslash then exit(false); // could be an exploit
-      idx := length('import ') + 1;
-      importAfter := false;
-    end
-    else
-      exit(false); // syntax error
-
     SkipSpaces(idx);
-    moduleName := GetId(idx);
-    if moduleName = '' then exit(false); // syntax error
-    // check if module is allowed
-    if binarySearch(moduleName, forbiddenModules) <> -1 then exit(false);
-    if binarySearch(moduleName, safeModules) = -1 then
+    if (idx > length(s)) or (s[idx] = '#') then exit(true);
+    subId := GetId(idx);
+    if subId = 'as' then
     begin
-      if AUnsafeModules = nil then
-         AUnsafeModules := TStringList.Create;
-      if AUnsafeModules.IndexOf(moduleName) = -1 then
-        AUnsafeModules.Add(moduleName);
+      SkipSpaces(idx);
+      subId := GetId(idx);
+      if subId = '' then exit(false); // syntax error
     end;
+    exit(true);
+  end;
 
+  function ParseModuleName(var idx: integer; out AModuleName: string; out AIsSafe: boolean): boolean;
+  var
+    subId: String;
+  begin
+    SkipSpaces(idx);
+    AIsSafe := false;
+    AModuleName := GetId(idx);
+    if AModuleName = '' then exit(false); // syntax error
+    // check if module is allowed
+    if binarySearch(AModuleName, ForbiddenModules) <> -1 then exit(false);
+    AIsSafe := binarySearch(AModuleName, SafeModules) <> -1;
     SkipSpaces(idx);
     // submodule
     while (idx <= length(s)) and (s[idx] = '.') do
@@ -298,28 +309,82 @@ function CheckPythonScriptSafe(AFilename: string; out AUnsafeModules: TStringLis
       SkipSpaces(idx);
       subId := GetId(idx);
       if subId = '' then exit(false); // syntax error
+      AModuleName += '.' + subId;
       SkipSpaces(idx);
     end;
+    exit(true);
+  end;
 
-    if importAfter then
+  procedure AddModule(AModuleName: string; AIsSafe: boolean);
+  begin
+    if not AIsSafe then
+    begin
+      if AUnsafeModules = nil then
+         AUnsafeModules := TStringList.Create;
+      if AUnsafeModules.IndexOf(AModuleName) = -1 then
+        AUnsafeModules.Add(AModuleName);
+    end else
+    begin
+      if ASafeModules = nil then
+         ASafeModules := TStringList.Create;
+      if ASafeModules.IndexOf(AModuleName) = -1 then
+        ASafeModules.Add(AModuleName);
+    end;
+  end;
+
+  var idx: integer;
+    fromClause: boolean;
+    moduleName, subId: string;
+    isSafe: boolean;
+  begin
+    if importCount <> 1 then exit(false); // syntax error
+
+    if s.StartsWith('from ') then
+    begin
+      idx := length('from ') + 1;
+      fromClause := true;
+    end else
+    if s.StartsWith('import ') then
+    begin
+      if previousBackslash then exit(false); // could be an exploit
+      idx := length('import ') + 1;
+      fromClause := false;
+    end
+    else
+      exit(false); // syntax error
+
+    if not ParseModuleName(idx, moduleName, isSafe) then exit(false);
+
+    if fromClause then
     begin
       subId := GetId(idx);
       if subId <> 'import' then exit(false); // syntax error
-    end else
-    begin
-      if (idx > length(s)) or (s[idx] = '#') then exit(true);
-
-      subId := GetId(idx);
-      if subId = 'as' then
-      begin
+      repeat
         SkipSpaces(idx);
         subId := GetId(idx);
         if subId = '' then exit(false); // syntax error
-
-        if (idx <= length(s)) and (s[idx] <> '#') then // expect end of line
-          exit(false); // syntax error
-      end;
+        AddModule(moduleName+'.'+subId, isSafe);
+        if not SkipAs(idx) then exit(false);
+        SkipSpaces(idx);
+        if (idx <= length(s)) and (s[idx] = ',') then inc(idx)
+        else break;
+      until false;
+    end else
+    begin
+      repeat
+        AddModule(moduleName, isSafe);
+        if not SkipAs(idx) then exit(false);
+        SkipSpaces(idx);
+        if (idx <= length(s)) and (s[idx] = ',') then
+        begin
+          inc(idx);
+          if not ParseModuleName(idx, moduleName, isSafe) then exit(false);
+        end
+        else break;
+      until false;
     end;
+    if (idx <= length(s)) and (s[idx] <> '#') then // expect end of line
+      exit(false); // syntax error
 
     exit(true);
   end;
@@ -327,10 +392,10 @@ function CheckPythonScriptSafe(AFilename: string; out AUnsafeModules: TStringLis
   function lineOk(const s: string; previousBackslash: boolean): boolean;
   var
     startId, i: integer;
-    isImport: integer;
+    importCount: integer;
   begin
     startId := -1;
-    isImport := 0;
+    importCount := 0;
 
     for i := 1 to length(s) do
     begin
@@ -341,14 +406,14 @@ function CheckPythonScriptSafe(AFilename: string; out AUnsafeModules: TStringLis
       end else
       if (startId <> -1) and not (s[i] in ContinueIdentifier) then
       begin
-        if not idOk(copy(s, startId, i-startId), isImport) then exit(false);
+        if not idOk(copy(s, startId, i-startId), importCount) then exit(false);
         startId := -1;
       end;
     end;
-    if (startId <> -1) and not idOk(copy(s, startId, length(s)-startId+1), isImport) then
+    if (startId <> -1) and not idOk(copy(s, startId, length(s)-startId+1), importCount) then
       exit(false);
 
-    if (isImport > 0) and not importOk(s, isImport, previousBackslash) then exit(false);
+    if (importCount > 0) and not importOk(s, importCount, previousBackslash) then exit(false);
 
     exit(true);
   end;
@@ -358,6 +423,7 @@ var
   s: string;
   previousBackslash: boolean;
 begin
+  ASafeModules := nil;
   AUnsafeModules := nil;
   assignFile(t, AFilename);
   reset(t);
@@ -467,6 +533,88 @@ begin
   if Assigned(FOnBusy) then FOnBusy(self);
 end;
 
+function TPythonScript.CheckScriptAndDependencySafe(AFilename: UTF8String; APythonVersion: integer): boolean;
+var
+  filesToCheck: TStringList;
+
+  procedure AddModuleToCheck(AModuleName: UTF8String; ABasePath: UTF8String);
+  var fullPath, moduleFilename: string;
+  begin
+    fullPath := ConcatPaths([ABasePath, StringReplace(AModuleName, '.', PathDelim, [rfReplaceAll])]);
+    moduleFilename := fullPath+'.py';
+    if (filesToCheck.IndexOf(moduleFilename) = -1) and FileExists(moduleFilename) then
+      filesToCheck.Add(moduleFilename) else
+    begin
+      moduleFilename := fullPath+'\__init__.py';
+      if (filesToCheck.IndexOf(moduleFilename) = -1) and FileExists(moduleFilename) then
+        filesToCheck.Add(moduleFilename);
+      end;
+  end;
+
+var
+  safeModules, unsafeModules, allUnsafeModules: TStringList;
+  proceed: boolean;
+  curFile, i: integer;
+  curPath: string;
+
+begin
+  allUnsafeModules := TStringList.Create;
+  allUnsafeModules.Sorted := true;
+  allUnsafeModules.Duplicates:= dupIgnore;
+  filesToCheck := TStringList.Create;
+  filesToCheck.Add(AFilename);
+  curFile := 0;
+  curPath := ExtractFilePath(AFilename);
+  while curFile < filesToCheck.Count do
+  begin
+    if not CheckPythonScriptSafe(filesToCheck[curFile], safeModules, unsafeModules) then
+    begin
+      safeModules.Free;
+      unsafeModules.Free;
+      raise exception.Create('The script file does not seem to be safe: ' +
+                             filesToCheck[curFile]);
+    end;
+    if Assigned(unsafeModules) then
+    begin
+      for i := 0 to unsafeModules.Count-1 do
+      begin
+        AddModuleToCheck(unsafeModules[i], curPath);
+        allUnsafeModules.Add(unsafeModules[i]);
+      end;
+    end;
+    if Assigned(safeModules) then
+    begin
+      for i := 0 to safeModules.Count-1 do
+        AddModuleToCheck(safeModules[i], curPath);
+    end;
+    safeModules.Free;
+    unsafeModules.Free;
+    inc(curFile);
+  end;
+  filesToCheck.Free;
+
+  if allUnsafeModules.Count > 0 then
+  begin
+    proceed := true;
+    if Assigned(OnWarning) then
+    begin
+      OnWarning(self, 'Are you sure you would like to run this script? ' +
+        'The following modules used by this script may be unsafe: '+
+        allUnsafeModules.CommaText, proceed);
+    end;
+    allUnsafeModules.Free;
+    if not proceed then exit(false);
+  end else
+    allUnsafeModules.Free;
+
+  if PythonVersionMajor <> APythonVersion then
+    raise exception.Create(
+      StringReplace( StringReplace(rsPythonUnexpectedVersion,
+        '%1',inttostr(APythonVersion),[]),
+        '%2',inttostr(PythonVersionMajor),[]) + #9 + rsDownload + #9 + 'https://www.python.org');
+  exit(true);
+end;
+
 constructor TPythonScript.Create(APythonBin: string);
 begin
   FPythonBin := APythonBin;
@@ -495,35 +643,12 @@ end;
 
 procedure TPythonScript.Run(AScriptFilename: UTF8String;
   APythonVersion: integer);
-var
-  unsafeModules: TStringList;
-  proceed: boolean;
 begin
-  if not CheckPythonScriptSafe(AScriptFilename, unsafeModules) then
-  begin
-    unsafeModules.Free;
-    raise exception.Create('The script file does not seem to be safe');
-  end;
-  if Assigned(unsafeModules) then
-  begin
-    proceed := true;
-    if Assigned(OnWarning) then
-    begin
-      OnWarning(self, 'Are you sure you would like to run this script? ' +
-        'The following modules used by this script may be unsafe: '+
-        unsafeModules.CommaText, proceed);
-    end;
-    unsafeModules.Free;
-    if not proceed then exit;
-  end;
+  if not CheckScriptAndDependencySafe(AScriptFilename, APythonVersion) then exit;
   FLinePrefix := '';
-  if PythonVersionMajor <> APythonVersion then
-    raise exception.Create(
-      StringReplace( StringReplace(rsPythonUnexpectedVersion,
-        '%1',inttostr(APythonVersion),[]),
-        '%2',inttostr(PythonVersionMajor),[]) + #9 + rsDownload + #9 + 'https://www.python.org');
   FFirstOutput:= true;
   AutomationEnvironment.Values['PYTHONPATH'] := DefaultScriptDirectory;
+  AutomationEnvironment.Values['PYTHONIOENCODING'] := 'utf-8';
   try
     RunProcessAutomation(FPythonBin, ['-u', AScriptFilename], FPythonSend, @PythonOutput, @PythonError, @PythonBusy);
   finally
