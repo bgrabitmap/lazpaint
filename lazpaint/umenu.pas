@@ -305,7 +305,7 @@ begin
     items.Sorted := true;
     try
       repeat
-        fullname := path+PathDelim+searchRec.Name;
+        fullname := ConcatPaths([path, searchRec.Name]);
         if FileExistsUTF8(fullname) then
         begin
           title := GetScriptTitle(fullname);
