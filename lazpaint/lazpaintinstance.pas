@@ -1901,8 +1901,7 @@ begin
     p.OnCommand:=@PythonScriptCommand;
     p.OnBusy := @PythonBusy;
     p.OnWarning:= @PythonWarning;
-    p.Run(AFilename);
-    if p.ErrorText<>'' then
+    if not p.Run(AFilename) and (p.ErrorText<>'') then
     begin
       fError := TForm.Create(nil);
       try

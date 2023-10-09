@@ -24,11 +24,11 @@ type
 var
   AutomationEnvironment: TStringList;
 
-procedure RunProcessAutomation(AExecutable: string; AParameters: array of string;
+function RunProcessAutomation(AExecutable: string; AParameters: array of string;
   out ASendLine: TSendLineMethod;
   AOnReceiveOutput: TReceiveLineEvent;
   AOnReceiveError: TReceiveLineEvent;
-  AOnBusy: TBusyEvent);
+  AOnBusy: TBusyEvent): integer;
 
 implementation
 
@@ -45,11 +45,11 @@ type
     procedure SendLine(const ALine: RawByteString);
   end;
 
-procedure RunProcessAutomation(AExecutable: string; AParameters: array of string;
+function RunProcessAutomation(AExecutable: string; AParameters: array of string;
   out ASendLine: TSendLineMethod;
   AOnReceiveOutput: TReceiveLineEvent;
   AOnReceiveError: TReceiveLineEvent;
-  AOnBusy: TBusyEvent);
+  AOnBusy: TBusyEvent): integer;
 
 type
   TReceiveBuffer = record
@@ -120,6 +120,7 @@ var
   i: integer;
   shouldSleep: Boolean;
 begin
+  result := 0;
   p := TAutomatedProcess.Create(nil);
   ASendLine := @p.SendLine;
   try
@@ -145,6 +146,7 @@ begin
     end;
     Receive(p.Output, Output);
     Receive(p.Stderr, Error);
+    result := p.ExitCode;
   finally
     p.Free;
   end;

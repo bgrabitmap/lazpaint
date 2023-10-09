@@ -10,6 +10,9 @@ uses
 
 const
   DefaultPythonBin = {$IFDEF WINDOWS}'pyw'{$ELSE}'python3'{$ENDIF};
+  {$IFDEF DARWIN}
+  UserPythonBin = '/usr/local/bin/python3';
+  {$ENDIF}
 
 type
   TReceiveLineEvent = procedure(ASender: TObject; ALine: UTF8String) of object;
@@ -38,7 +41,7 @@ type
     function CheckScriptAndDependencySafe(AFilename: UTF8String; APythonVersion: integer): boolean;
   public
     constructor Create(APythonBin: string = DefaultPythonBin);
-    procedure Run(AScriptFilename: UTF8String; APythonVersion: integer = 3);
+    function Run(AScriptFilename: UTF8String; APythonVersion: integer = 3): boolean;
     class function DefaultScriptDirectory: string;
     property OnOutputLine: TReceiveLineEvent read FOnOutputLine write FOnOutputLine;
     property OnError: TReceiveLineEvent read FOnError write FOnError;
@@ -618,6 +621,10 @@ end;
 constructor TPythonScript.Create(APythonBin: string);
 begin
   FPythonBin := APythonBin;
+  {$IFDEF DARWIN}
+  if (FPythonBin = 'python3') and FileExists(UserPythonBin) then
+    FPythonBin:= UserPythonBin;
+  {$ENDIF}
   FPythonVersion:= GetPythonVersion(FPythonBin);
 end;
 
@@ -641,20 +648,23 @@ begin
     val(copy(PythonVersion,1,posDot-1), result, errPos);
 end;
 
-procedure TPythonScript.Run(AScriptFilename: UTF8String;
-  APythonVersion: integer);
+function TPythonScript.Run(AScriptFilename: UTF8String;
+  APythonVersion: integer): boolean;
+var exitCode: integer;
 begin
+  result := false;
   if not CheckScriptAndDependencySafe(AScriptFilename, APythonVersion) then exit;
   FLinePrefix := '';
   FFirstOutput:= true;
   AutomationEnvironment.Values['PYTHONPATH'] := DefaultScriptDirectory;
   AutomationEnvironment.Values['PYTHONIOENCODING'] := 'utf-8';
   try
-    RunProcessAutomation(FPythonBin, ['-u', AScriptFilename], FPythonSend, @PythonOutput, @PythonError, @PythonBusy);
+    exitCode := RunProcessAutomation(FPythonBin, ['-u', AScriptFilename], FPythonSend, @PythonOutput, @PythonError, @PythonBusy);
   finally
     AutomationEnvironment.Clear;
   end;
   FPythonSend := nil;
+  result := exitCode = 0;
 end;
 
 class function TPythonScript.DefaultScriptDirectory: string;
