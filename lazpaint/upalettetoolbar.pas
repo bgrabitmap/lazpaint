@@ -136,7 +136,7 @@ begin
   Result := '';
   vars := TVariableSet.Create('');
   for i:=0 to Count-1 do
-    vars.Strings[FKeyPrefix+Keys[i].ToString] := BGRAToStr(Data[i]);
+    vars.Pixels[FKeyPrefix+Keys[i].ToString] := Data[i];
   result := vars.VariablesAsString;
   vars.Free;
 end;
@@ -144,10 +144,8 @@ end;
 procedure TBGRAPixelBinding.LoadContentFromString(const aContent: string; FTransparentPalette: boolean);
 var vars: TVariableSet;
   varName, strDigit: string;
-  colorValue: TBGRAPixel;
   i, digit: Integer;
   v: TScriptVariableReference;
-  missingValues, err: boolean;
 begin
   if aContent = '' then exit;
   vars := TVariableSet.Create('');
@@ -159,18 +157,11 @@ begin
       begin
         varName := vars.VariableName[i];
         v := vars.GetVariable(varName);
-        if (Pos(FKeyPrefix,varName) = 1) and (Length(varName) > Length(FKeyPrefix)) and (v.variableType = svtString) then
+        if varName.StartsWith(FKeyPrefix) and (Length(varName) > Length(FKeyPrefix)) and (v.variableType = svtPixel) then
         begin
           strDigit := Copy(varName, Length(FKeyPrefix)+1, Length(varName)-Length(FKeyPrefix));
           if TryStrToInt(strDigit, digit) and (digit in [0..9]) then
-          begin
-            TryStrToBGRA(vars.Strings[varName], colorValue, missingValues, err);
-            if not missingValues and not err then
-            begin
-              if not FTransparentPalette then colorValue.alpha := 255;
-              AddOrSetData(digit, colorValue);
-            end;
-          end;
+            AddOrSetData(digit, vars.Pixels[varName]);
         end;
       end;
     end;
