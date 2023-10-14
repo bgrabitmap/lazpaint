@@ -14,7 +14,15 @@ uses
 
 type
   TPaletteVisibilityChangedByUserHandler = procedure(Sender:TObject) of object;
-  TBGRAPixelBinding = specialize TFPGMap<integer, TBGRAPixel>;
+
+  { TBGRAPixelBinding }
+
+  TBGRAPixelBinding = class(specialize TFPGMap<integer, TBGRAPixel>)
+  private const FKeyPrefix = 'VK_';
+  public
+    function SaveContentToString: string;
+    procedure LoadContentFromString(const aContent: string; FTransparentPalette: boolean);
+  end;
 
   { TPaletteToolbar }
 
@@ -116,8 +124,51 @@ implementation
 uses LCScaleDPI, Graphics, Forms, UGraph,
   UResourceStrings, BGRAColorQuantization,
   ULayerAction, UCursors, UFileSystem,
-  udarktheme, UTool, LCVectorialFill, math,
+  udarktheme, UScripting, UScriptType, UTool, LCVectorialFill, math,
   LCLType;
+
+{ TBGRAPixelBinding }
+
+function TBGRAPixelBinding.SaveContentToString: string;
+var vars: TVariableSet;
+  i: integer;
+begin
+  Result := '';
+  vars := TVariableSet.Create('');
+  for i:=0 to Count-1 do
+    vars.Pixels[FKeyPrefix+Keys[i].ToString] := Data[i];
+  result := vars.VariablesAsString;
+  vars.Free;
+end;
+
+procedure TBGRAPixelBinding.LoadContentFromString(const aContent: string; FTransparentPalette: boolean);
+var vars: TVariableSet;
+  varName, strDigit: string;
+  i, digit: Integer;
+  v: TScriptVariableReference;
+begin
+  if aContent = '' then exit;
+  vars := TVariableSet.Create('');
+  try
+    if vars.LoadFromVariablesAsString(aContent) = [] then
+    begin
+      Clear;
+      for i:=0 to vars.Count-1 do
+      begin
+        varName := vars.VariableName[i];
+        v := vars.GetVariable(varName);
+        if varName.StartsWith(FKeyPrefix) and (Length(varName) > Length(FKeyPrefix)) and (v.variableType = svtPixel) then
+        begin
+          strDigit := Copy(varName, Length(FKeyPrefix)+1, Length(varName)-Length(FKeyPrefix));
+          if TryStrToInt(strDigit, digit) and (digit in [0..9]) then
+            AddOrSetData(digit, vars.Pixels[varName]);
+        end;
+      end;
+    end;
+  finally
+    vars.Free;
+  end;
+end;
 
 { TPaletteToolbar }
 
@@ -344,6 +395,8 @@ begin
     RemoveBinding;
     FColorsBindToKey.Add(aDigit, aColor);
   end;
+
+  LazPaintInstance.Config.SetDefaultColorsBoundToKeys(FColorsBindToKey.SaveContentToString);
 end;
 
 function TPaletteToolbar.TryToGetColorBoundToKey(aDigit: integer; out aColor: TBGRAPixel): boolean;
@@ -665,6 +718,7 @@ begin
     FVisible := FLazPaintInstance.Config.DefaultPaletteToolbarVisible;
     PanelPalette.Visible := FVisible;
     FillPaletteWithDefault;
+    FColorsBindToKey.LoadContentFromString(FLazPaintInstance.Config.DefaultColorsBoundToKeys, FTransparentPalette);
   end else
   begin
     FColors.Clear;

@@ -269,6 +269,10 @@ type
     function DefaultTransformSelectionAnswer: TModalResult;
     procedure SetDefaultTransformSelectionAnswer(value: TModalResult);
 
+    //palette
+    function DefaultColorsBoundToKeys: string;
+    procedure SetDefaultColorsBoundToKeys(value: string);
+
     //radial blur config
     function DefaultBlurRadius: single;
     procedure SetDefaultBlurRadius(value: single);
@@ -1162,6 +1166,16 @@ end;
 procedure TLazPaintConfig.SetDefaultTransformSelectionAnswer(value: TModalResult);
 begin
   iniOptions.WriteInteger('Tool','TransformSelectionAnswer', value);
+end;
+
+function TLazPaintConfig.DefaultColorsBoundToKeys: string;
+begin
+  result := iniOptions.ReadString('Palette','ColorsBoundToKeys','');
+end;
+
+procedure TLazPaintConfig.SetDefaultColorsBoundToKeys(value: string);
+begin
+   iniOptions.WriteString('Palette','ColorsBoundToKeys',value);
 end;
 
 function TLazPaintConfig.DefaultBlurRadius: single;
