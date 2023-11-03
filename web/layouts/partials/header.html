@@ -21,7 +21,7 @@
     <meta name="msapplication-TileColor" content="#2d89ef">
     <meta name="theme-color" content="PaleTurquoise">
 
-    {{ $css := "css/bootstrap.min.css" | relURL -}}
+    {{ $css := "css/picnic.min.css" | relURL -}}
     <link rel="stylesheet" href="{{ $css }}">
     {{ $css := "css/style.css" | relURL -}}
     <link rel="stylesheet" href="{{ $css }}">
@@ -29,22 +29,22 @@
     <title>{{ i18n .Title }}</title>
   </head>
   <body>
-    <div class="float-right d-inline-block m-1">
-    {{- $this := . -}}
-    {{- range $.Site.Home.AllTranslations -}}
+    <div class="top">    
+      <div class="languages">
+      {{- $this := . -}}
+      {{- range $.Site.Home.AllTranslations -}}
         {{- if eq $this.Site.Language .Language }}
-        <span class="btn btn-success">{{ .Language }}</span>
+        <span class="button" disabled>{{ .Language }}</span>
         {{- else }}
-        <a href="{{ .Permalink }}" class="btn btn-light">{{ .Language }}</a>
+        <a href="{{ .Permalink }}" class="button">{{ .Language }}</a>
         {{- end -}}
-    {{- end }}
-    </div>
-    <div class="jumbotron jumbotron-fluid">
-        <div class="container">
-            {{ $img := "img/lazpaint_icon.png" | relURL -}}
-            <img class="logo" src="{{ $img }}" width="128" height="128" style="float: left" alt="LazPaint logo">
-            <h1 class="display-4">LazPaint</h1>
-            <p class="lead" style="color: #e0e0e0;">{{ i18n "app_description" }}</p>
+      {{- end }}
+      </div>
+      <div class="header">
+        {{ $img := "img/lazpaint_icon.png" | relURL -}}
+        <img class="logo" src="{{ $img }}" width="128" height="128" style="float: left" alt="LazPaint logo">
+        <h1>LazPaint</h1>
+        <p class="lead">{{ i18n "app_description" }}</p>
+      </div>
 {{ partial "nav.html" . }}
-        </div>
     </div>
