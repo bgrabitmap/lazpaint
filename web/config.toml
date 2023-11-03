@@ -1,5 +1,5 @@
 baseURL = "https://lazpaint.github.io/"
-relativeURL = true
+relativeURLs = true
 defaultContentLanguage = "en"
 title = "download_lazpaint"
 disableKinds = ["taxonomy"]
