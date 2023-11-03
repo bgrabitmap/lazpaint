@@ -69,9 +69,9 @@
 
     	if (OSName != "unknown")
     	{
-    	    osHint = $('#os-hint');
-        	osHint.text(osHint.text().replace("%s", OSName));
-        	osHint.css("visibility", "visible");
+    	    osHint = document.getElementById("os-hint");
+        	osHint.innerHTML = osHint.innerHTML.replace("%s", OSName);
+        	osHint.style.visibility = "visible";
     	}
 	</script>
 {{- end }}
