@@ -50,11 +50,17 @@ Right mouse button can be used to:
 Many common actions can be done with the toolbar. Zoom can be changed with the magnifying glass (+ or -), or by clicking on the 1:1 button to show the image at its original size in pixels, or with the zoom fit button to set the zoom so that the whole image be within the window.
 It is possible to undo/redo the 200 last operations. If you have a doubt on what you are drawing, undo back to the beginning, save a copy, and redo the modifications before going further.
 
+Dark theme is supported.
+
 # Image manipulation
-An image can be resampled, flipped horizontally and vertically.
-Smart zoom x3 : resize the image x3 and detects borders; this provides a useful zoom with ancient games sprites.
+An image can be resampled, flipped horizontally and vertically, canvas size can be changed
+* Remove transparency : fill the transparent pixels of the image
+* Flatten : reduce a layered image to one single layer
+* Smart zoom x3 : resize the image x3 and detects borders; this provides a useful zoom with ancient games sprites.
 
 # Color manipulation
+* Curves : adjustment of curves for RGB and HSL channels
+* Posterize : reduce the number of colors by lightness or independently on each color channel
 * Colorize : set the color of an image while preserving intensities
 * Shift colors : cycle colors and change colorness (saturation)
 * Intensity : make colors lighter or darker without making them white
@@ -66,14 +72,32 @@ Smart zoom x3 : resize the image x3 and detects borders; this provides a useful 
 
 # Filters
 Filters can be applied to the whole image or to the active selection.
-* Radial blur : non directional blur
+* Radial blur : non directional blur (box, gaussian, corona...)
 * Motion blur : directional blur
 * Custom blur : blur according to a mask
 * Sharpen : makes contours more accute, complementary to Smooth
 * Smooth : softens whole image, complementary to Sharpen
+* Noise : add random pixel noise
 * Median : computes the median of colors around each pixel, which softens corners
+* ClearType : mimics the effect of TrueType font rendering
+* Apply function : applies any given function to any channel (RGB, HSL, Lab)
 * Contour : draws contours on a white background (like a pencil drawing)
 * Emboss : draws contours with shadow
+* Shaded map : draw Phong highlights and shadows using a channel of the image as altitude
 * Sphere : spherical projection
+* Twirl : Distorts the image as a vortex
+* Wave displacement : Distorts as if reflected on waves
 * Cylinder : cylinder projection
+
+# Render
+* Perlin noise : random image that can be used to make Nature-like randomness
+* Cyclic Perlin noise : same but with cyclic behavior
+* Water, snow print, wood, metal, stone, marble... : generate random texture
 * Clouds : add clouds of the current pen color
+* Rain : add rain falling with custom wind
+
+# Layer effect (via scripts)
+* Color overlay : replace the color
+* Drop shadow : add a shadow layer
+* Inner light, inner shadow : add lighting layer depending on the border (according to transparency)
+* Stroke : add a layer to draw a stroke around the shape (according to transparency)
