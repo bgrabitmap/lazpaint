@@ -5769,6 +5769,7 @@ object FMain: TFMain
     Top = 514
   end
   object TimerUpdate: TTimer
+    Enabled = False
     Interval = 50
     OnTimer = TimerUpdateTimer
     Left = 653

@@ -1251,6 +1251,7 @@ begin
   UpdateToolBar;
   FShouldArrange := true;
   QueryArrange;
+  TimerUpdate.Enabled := true;
 end;
 
 procedure TFMain.OnLatestVersionUpdate(ANewVersion: string);
@@ -2593,6 +2594,7 @@ end;
 
 procedure TFMain.FormHide(Sender: TObject);
 begin
+  TimerUpdate.Enabled := false;
   FShouldArrange := false;
   FTopMostInfo := LazPaintInstance.HideTopmost;
   LazPaintInstance.SaveMainWindowPosition;
