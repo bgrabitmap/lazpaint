@@ -6,10 +6,11 @@
 {{ $text := replace $text "\n-" "\n•" -}}
 {{ $text := trim $text "\n\r\t " -}}
 <main id="main">
-	<div class="text-center download">
-		<div class="card2">
-			<h1>{{ $last.name }}<br/><a class="btn btn-primary" href="https://github.com/bgrabitmap/lazpaint">GitHub</a></h1>
-			<div class="text-left" style="white-space: pre-line; display: inline-block; padding-bottom: 2em">{{ $text }}</div>
+	<div class="download">
+		<div class="content center">
+			<h1>{{ $last.name }}</h1>
+			<div><a class="button github" href="https://github.com/bgrabitmap/lazpaint">GitHub</a></div>
+			<div class="changes">{{ $text }}</div>
 		</div>
 	</div>
 </main>

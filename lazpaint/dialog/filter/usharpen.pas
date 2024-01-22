@@ -17,11 +17,13 @@ type
   TFSharpen = class(TForm)
     Button_Cancel: TButton;
     Button_OK: TButton;
+    CheckBox_Preview: TCheckBox;
     Label_Amount: TLabel;
     Panel1: TPanel;
     Panel2: TPanel;
     SpinEdit_Amount: TSpinEdit;
     procedure Button_OKClick(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SpinEdit_AmountChange(Sender: TObject);
@@ -33,14 +35,15 @@ type
     FInitializing: boolean;
     FFilterConnector: TFilterConnector;
     procedure InitParams;
-    procedure PreviewNeeded;
+    procedure DisplayPreview;
   end;
 
 function ShowSharpenDlg(AFilterConnector: TObject; AMode : TSharpenMode): TScriptResult;
 
 implementation
 
-uses LCScaleDPI, UMac, LazPaintType, BGRABitmap, BGRABitmapTypes;
+uses LCScaleDPI, UMac, LazPaintType, UResourceStrings, BGRABitmap,
+  BGRABitmapTypes;
 
 function ShowSharpenDlg(AFilterConnector: TObject; AMode : TSharpenMode): TScriptResult;
 var FSharpen: TFSharpen;
@@ -63,7 +66,7 @@ begin
       FSharpen.FFilterConnector.Parameters.Booleans['Validate'] then
     begin
       FSharpen.InitParams;
-      FSharpen.PreviewNeeded;
+      FSharpen.DisplayPreview;
       FSharpen.FFilterConnector.ValidateAction;
       result := srOk;
     end else
@@ -92,7 +95,7 @@ procedure TFSharpen.FormShow(Sender: TObject);
 var idxSlash: integer;
 begin
   InitParams;
-  PreviewNeeded;
+  DisplayPreview;
   idxSlash:= Pos('/',Caption);
   if idxSlash <> 0 then
   begin
@@ -104,14 +107,26 @@ end;
 
 procedure TFSharpen.SpinEdit_AmountChange(Sender: TObject);
 begin
-  if not FInitializing then PreviewNeeded;
+  if not FInitializing and
+    CheckBox_Preview.Checked then DisplayPreview;
 end;
 
 procedure TFSharpen.Button_OKClick(Sender: TObject);
 begin
+  if not CheckBox_Preview.Checked then DisplayPreview;
+
   FFilterConnector.ValidateAction;
   FFilterConnector.LazPaintInstance.Config.SetDefaultSharpenAmount(SpinEdit_Amount.Value/100);
   ModalResult := mrOK;
+end;
+
+procedure TFSharpen.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if FInitializing then exit;
+  if CheckBox_Preview.Checked then
+    DisplayPreview
+  else
+   FFilterConnector.RestoreBackup;
 end;
 
 procedure TFSharpen.OnTryStopAction(sender: TFilterConnector);
@@ -126,10 +141,15 @@ begin
     SpinEdit_Amount.Value := round(FFilterConnector.Parameters.Floats['Amount']*100)
   else
      SpinEdit_Amount.Value := round(FFilterConnector.LazPaintInstance.Config.DefaultSharpenAmount*100);
+
+  CheckBox_Preview.Checked := True;
+  CheckBox_Preview.Caption := rsPreview;
+  Button_OK.Caption := rsOk;
+  Button_Cancel.Caption := rsCancel;
   FInitializing := false;
 end;
 
-procedure TFSharpen.PreviewNeeded;
+procedure TFSharpen.DisplayPreview;
 var filtered: TBGRABitmap;
 begin
   if FMode = smSharpen then

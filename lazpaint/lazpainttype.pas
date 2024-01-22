@@ -7,7 +7,7 @@ interface
 
 uses
   Classes, SysUtils, Inifiles, BGRABitmap, BGRABitmapTypes, UConfig, UImage, UTool, Forms, BGRALayers, Graphics, Menus,
-  UScripting, Dialogs, Controls
+  UScripting, Dialogs, Controls, LCLType
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
@@ -73,7 +73,8 @@ type
                     pfEmboss, pfPhong, pfContour, pfGrayscale, pfNegative, pfLinearNegative, pfComplementaryColor, pfNormalize,
                     pfSphere, pfTwirl, pfWaveDisplacement, pfCylinder, pfPlane,
                     pfPerlinNoise,pfCyclicPerlinNoise,pfClouds,pfCustomWater,pfWater,pfRain,pfWood,pfWoodVertical,pfPlastik,pfMetalFloor,pfCamouflage,
-                    pfSnowPrint,pfStone,pfRoundStone,pfMarble);
+                    pfSnowPrint,pfStone,pfRoundStone,pfMarble,
+                    pfHypocycloid);
 
 const
   PictureFilterStr : array[TPictureFilter] of string =
@@ -83,7 +84,8 @@ const
                     'Emboss', 'Phong', 'Contour', 'Grayscale', 'Negative', 'LinearNegative', 'ComplementaryColor', 'Normalize',
                     'Sphere', 'Twirl', 'WaveDisplacement', 'Cylinder', 'Plane',
                     'PerlinNoise','CyclicPerlinNoise','Clouds','CustomWater','Water','Rain','Wood','WoodVertical','Plastik','MetalFloor','Camouflage',
-                    'SnowPrint','Stone','RoundStone','Marble');
+                    'SnowPrint','Stone','RoundStone','Marble',
+                    'Hypocycloid');
 
   IsColoredFilter: array[TPictureFilter] of boolean =
                    (false,
@@ -92,7 +94,8 @@ const
                     false, true, false, false, false, false, false, false,
                     false, false, false, false, false,
                     false,false,true,true,true,true,true,true,true,true,true,
-                    true,true,true,true);
+                    true,true,true,true,
+                    true);
 
 const
   MinZoomForGrid = 4;
@@ -268,6 +271,7 @@ type
     procedure ColorToFChooseColor; virtual; abstract;
     procedure ExitColorEditor; virtual; abstract;
     function ColorEditorActive: boolean; virtual; abstract;
+    procedure NotifyColorBinding; virtual; abstract;
     function GetColor(ATarget: TColorTarget): TBGRAPixel;
     procedure SetColor(ATarget: TColorTarget; AColor: TBGRAPixel);
     function ShowSaveOptionDlg(AParameters: TVariableSet; AOutputFilenameUTF8: string;
@@ -290,6 +294,7 @@ type
     function ShowFunctionFilterDlg(AFilterConnector: TObject): TScriptResult; virtual; abstract;
     function ShowSharpenDlg(AFilterConnector: TObject): TScriptResult; virtual; abstract;
     function ShowPosterizeDlg(AParameters: TVariableSet): TScriptResult; virtual; abstract;
+    function ShowHypocycloidDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult; virtual; abstract;
     procedure ShowPrintDlg; virtual; abstract;
     function OpenImage (FileName: string; AddToRecent: Boolean= True): boolean; virtual; abstract;
     procedure AddToImageList(const FileNames: array of String); virtual; abstract;
@@ -309,6 +314,7 @@ type
     procedure Wait(ACheckActive: TCheckFunction; ADelayMs: integer); virtual; abstract;
     procedure AddColorToPalette(AColor: TBGRAPixel); virtual; abstract;
     procedure RemoveColorFromPalette(AColor: TBGRAPixel); virtual; abstract;
+    function GetKeyAssociatedToColor(const AColor: TBGRAPixel): string; virtual; abstract;
 
     property BlackAndWhite: boolean read FBlackAndWhite write SetBlackAndWhite;
 
@@ -339,6 +345,9 @@ type
 
     procedure ImageListWindowVisibleKeyDown(var Key: Word; Shift: TShiftState); virtual; abstract;
     procedure MoveImageListWindowTo(X,Y: integer); virtual; abstract;
+    procedure SendKeyDownEventToMainForm(var Key: Word; Shift: TShiftState); virtual; abstract;
+    procedure SendKeyUpEventToMainForm(var Key: Word; Shift: TShiftState); virtual; abstract;
+    procedure SendUTF8KeyPressEventToMainForm(var UTF8Key: TUTF8Char); virtual; abstract;
     property ImageListWindowWidth: integer read GetImageListWindowWidth write SetImageListWindowWidth;
     property ImageListWindowHeight: integer read GetImageListWindowHeight write SetImageListWindowHeight;
     property ImageListWindowVisible: boolean read GetImageListWindowVisible write SetImageListWindowVisible;
@@ -385,7 +394,7 @@ function CSSToPascalCase(AIdentifier: string): string;
 
 implementation
 
-uses LCLType, BGRAUTF8, LCLIntf, FileUtil, UResourceStrings, LCVectorialFill;
+uses BGRAUTF8, LCLIntf, FileUtil, UResourceStrings, LCVectorialFill;
 
 function LazPaintVersionStr: string;
 var numbers: TStringList;

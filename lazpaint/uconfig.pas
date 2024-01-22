@@ -269,6 +269,10 @@ type
     function DefaultTransformSelectionAnswer: TModalResult;
     procedure SetDefaultTransformSelectionAnswer(value: TModalResult);
 
+    //palette
+    function DefaultColorsBoundToKeys: string;
+    procedure SetDefaultColorsBoundToKeys(value: string);
+
     //radial blur config
     function DefaultBlurRadius: single;
     procedure SetDefaultBlurRadius(value: single);
@@ -300,6 +304,9 @@ type
     procedure SetDefaultRainWind(value: double);
     function DefaultRainQuantity: double;
     procedure SetDefaultRainQuantity(value: double);
+
+    function DefaultCuspCount: integer;
+    procedure SetDefaultCuspCount(value: integer);
 
     //twirl config
     function DefaultTwirlRadius: double;
@@ -1161,6 +1168,16 @@ begin
   iniOptions.WriteInteger('Tool','TransformSelectionAnswer', value);
 end;
 
+function TLazPaintConfig.DefaultColorsBoundToKeys: string;
+begin
+  result := iniOptions.ReadString('Palette','ColorsBoundToKeys','');
+end;
+
+procedure TLazPaintConfig.SetDefaultColorsBoundToKeys(value: string);
+begin
+   iniOptions.WriteString('Palette','ColorsBoundToKeys',value);
+end;
+
 function TLazPaintConfig.DefaultBlurRadius: single;
 begin
   result := iniOptions.ReadFloat('Filter','BlurRadius',5);
@@ -1269,6 +1286,16 @@ end;
 procedure TLazPaintConfig.SetDefaultRainQuantity(value: double);
 begin
   iniOptions.WriteFloat('Filter','RainQuantity',value);
+end;
+
+function TLazPaintConfig.DefaultCuspCount: integer;
+begin
+  result := iniOptions.ReadInteger('Filter','CuspCount',6);
+end;
+
+procedure TLazPaintConfig.SetDefaultCuspCount(value: integer);
+begin
+  iniOptions.WriteInteger('Filter','CuspCount',value);
 end;
 
 function TLazPaintConfig.DefaultTwirlRadius: double;

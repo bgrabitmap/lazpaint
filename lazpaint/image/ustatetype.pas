@@ -68,9 +68,12 @@ type
     function GetCount: integer;
     function GetItem(AIndex: integer): TCustomImageDifference;
     function GetTotalCount: integer;
+    procedure SetLockAgglutinate(AValue: boolean);
   protected
     FDiffs: TImageDifferenceList;
     FAgglutinate: boolean;
+    FLockAgglutinate: boolean; // prevent stopping the agglutination to have a frame
+                               // for subactions having their own stack of composed difference
     function GetIsIdentity: boolean; override;
     function GetImageDifferenceKind: TImageDifferenceKind; override;
     function GetChangingBounds: TRect; override;
@@ -89,11 +92,13 @@ type
     procedure Clear;
     procedure Delete(AIndex: integer);
     procedure DeleteFrom(AIndex: integer);
+    function IndexOf(ADiff: TCustomImageDifference): integer;
     function GetLast: TCustomImageDifference;
     function ToString: ansistring; override;
     property Count: integer read GetCount;
     property TotalCount: integer read GetTotalCount;
     property Agglutinate: boolean read FAgglutinate;
+    property LockAgglutinate: boolean read FLockAgglutinate write SetLockAgglutinate;
     property Item[AIndex: integer]: TCustomImageDifference read GetItem; default;
   end;
 
@@ -223,6 +228,14 @@ begin
       inc(result, FDiffs[i].GetCost);
 end;
 
+procedure TComposedImageDifference.SetLockAgglutinate(AValue: boolean);
+begin
+  if FLockAgglutinate=AValue then Exit;
+  if AValue and not Agglutinate then
+    raise Exception.Create('Currently not agglutinating actions');
+  FLockAgglutinate:=AValue;
+end;
+
 function TComposedImageDifference.GetIsIdentity: boolean;
 var
   i: Integer;
@@ -290,8 +303,17 @@ begin
 end;
 
 procedure TComposedImageDifference.StopAgglutinate;
+var
+  last: TComposedImageDifference;
 begin
   FAgglutinate:= false;
+  if (FDiffs.Count > 0) and (FDiffs[FDiffs.Count-1] is TComposedImageDifference) then
+  begin
+    last := TComposedImageDifference(FDiffs[FDiffs.Count-1]);
+    last.StopAgglutinate;
+    if last.Count = 0 then
+       FDiffs.Delete(FDiffs.Count-1);
+  end;
 end;
 
 destructor TComposedImageDifference.Destroy;
@@ -363,6 +385,11 @@ var
 begin
   for i := Count-1 downto AIndex do
     Delete(i);
+end;
+
+function TComposedImageDifference.IndexOf(ADiff: TCustomImageDifference): integer;
+begin
+  result := FDiffs.IndexOf(ADiff);
 end;
 
 function TComposedImageDifference.GetLast: TCustomImageDifference;

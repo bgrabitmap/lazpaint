@@ -1,6 +1,7 @@
 {"version":1,"strings":[
 {"hash":129960242,"name":"tfradialblur.caption","sourcebytes":[82,97,100,105,97,108,32,98,108,117,114],"value":"Radial blur"},
 {"hash":129024186,"name":"tfradialblur.label_radius.caption","sourcebytes":[82,97,100,105,117,115,32,58],"value":"Radius :"},
-{"hash":1339,"name":"tfradialblur.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
-{"hash":77089212,"name":"tfradialblur.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"}
+{"hash":126662215,"name":"tfradialblur.checkbox_preview.caption","sourcebytes":[114,115,80,114,101,118,105,101,119],"value":"rsPreview"},
+{"hash":497723,"name":"tfradialblur.button_ok.caption","sourcebytes":[114,115,79,75],"value":"rsOK"},
+{"hash":127421996,"name":"tfradialblur.button_cancel.caption","sourcebytes":[114,115,67,97,110,99,101,108],"value":"rsCancel"}
 ]}

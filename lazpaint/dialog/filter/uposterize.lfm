@@ -1,6 +1,6 @@
 object FPosterize: TFPosterize
   Left = 345
-  Height = 114
+  Height = 133
   Top = 163
   Width = 148
   AutoSize = True
@@ -13,23 +13,23 @@ object FPosterize: TFPosterize
   ChildSizing.VerticalSpacing = 8
   ChildSizing.Layout = cclLeftToRightThenTopToBottom
   ChildSizing.ControlsPerLine = 1
-  ClientHeight = 114
+  ClientHeight = 133
   ClientWidth = 148
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '2.2.4.0'
   object Panel1: TPanel
     Left = 8
     Height = 23
     Top = 8
-    Width = 112
+    Width = 130
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 8
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
     ClientHeight = 23
-    ClientWidth = 112
+    ClientWidth = 130
     TabOrder = 1
     object Label_Levels: TLabel
       Left = 0
@@ -57,40 +57,51 @@ object FPosterize: TFPosterize
     Left = 8
     Height = 19
     Top = 39
-    Width = 112
+    Width = 130
     Caption = 'By lightness'
     OnChange = CheckBox_ByLightnessChange
     TabOrder = 0
   end
+  object CheckBox_Preview: TCheckBox
+    Left = 8
+    Height = 19
+    Top = 66
+    Width = 130
+    Caption = 'rsPreview'
+    Checked = True
+    OnChange = CheckBox_PreviewChange
+    State = cbChecked
+    TabOrder = 3
+  end
   object Panel2: TPanel
     Left = 8
     Height = 25
-    Top = 66
-    Width = 112
+    Top = 93
+    Width = 130
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 8
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
     ClientHeight = 25
-    ClientWidth = 112
+    ClientWidth = 130
     TabOrder = 2
     object Button_OK: TButton
       Left = 0
       Height = 25
       Top = 0
-      Width = 42
-      Caption = 'OK'
+      Width = 51
+      Caption = 'rsOK'
       Default = True
       OnClick = Button_OKClick
       TabOrder = 0
     end
     object Button_Cancel: TButton
-      Left = 50
+      Left = 59
       Height = 25
       Top = 0
-      Width = 62
+      Width = 71
       Cancel = True
-      Caption = 'Cancel'
+      Caption = 'rsCancel'
       ModalResult = 2
       TabOrder = 1
     end

@@ -583,4 +583,16 @@ begin
   self.ShowTopmost(top);
 end;
 
+function TLazPaintInstance.ShowHypocycloidDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult;
+var oldSelectionNormal: boolean;
+    top: TTopMostInfo;
+begin
+  top := self.HideTopmost;
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  result := uhypocycloid.ShowHypocycloidDlg(AInstance, AParameters);
+  ShowSelectionNormal := oldSelectionNormal;
+  self.ShowTopmost(top);
+end;
+
 

@@ -24,7 +24,7 @@ object FMain: TFMain
   OnUTF8KeyPress = FormUTF8KeyPress
   Position = poDefault
   ShowHint = True
-  LCLVersion = '2.2.0.1'
+  LCLVersion = '2.2.6.0'
   object Panel_ToolbarBackground: TPanel
     Left = 8
     Height = 36
@@ -35,6 +35,7 @@ object FMain: TFMain
     ParentColor = False
     ParentFont = False
     TabOrder = 8
+    OnClick = Panel_ToolbarBackgroundClick
   end
   object Panel_File: TPanel
     Left = 48
@@ -134,6 +135,7 @@ object FMain: TFMain
       Font.Color = clWindowText
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
       Transparent = False
     end
@@ -212,6 +214,7 @@ object FMain: TFMain
       Caption = '100%'
       Font.Height = -10
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
   end
@@ -235,6 +238,7 @@ object FMain: TFMain
       Caption = 'Width'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object SpinEdit_PenWidth: TBCTrackbarUpdown
@@ -334,6 +338,7 @@ object FMain: TFMain
       Caption = 'Erase'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object ToolBar19: TToolBar
@@ -487,6 +492,7 @@ object FMain: TFMain
       Caption = 'Tolerance'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object ToolBar6: TToolBar
@@ -725,6 +731,7 @@ object FMain: TFMain
       Caption = '9999x9999'
       Font.Height = -10
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
   end
@@ -1327,6 +1334,7 @@ object FMain: TFMain
       Caption = 'Grid'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object Label_GridX: TLabel
@@ -1339,6 +1347,7 @@ object FMain: TFMain
       Caption = 'x'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object ToolBar13: TToolBar
@@ -1554,6 +1563,7 @@ object FMain: TFMain
       Caption = 'Curve'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object ToolBar20: TToolBar
@@ -1764,6 +1774,7 @@ object FMain: TFMain
       Caption = 'Text'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
       OnMouseMove = Panel_TextMouseMove
     end
@@ -1923,6 +1934,7 @@ object FMain: TFMain
       Caption = 'Shape'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object Label_PhongBorder: TLabel
@@ -1934,6 +1946,7 @@ object FMain: TFMain
       Caption = 'Border'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object ToolBar16: TToolBar
@@ -2103,6 +2116,7 @@ object FMain: TFMain
       Caption = 'Altitude'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object SpinEdit_ShapeAltitude: TBCTrackbarUpdown
@@ -2202,6 +2216,7 @@ object FMain: TFMain
       Caption = 'Width'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object ToolBar17: TToolBar
@@ -2360,6 +2375,7 @@ object FMain: TFMain
       Caption = 'Brush'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object Label_Spacing: TLabel
@@ -2371,6 +2387,7 @@ object FMain: TFMain
       Caption = 'Spacing'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object ToolBar21: TToolBar
@@ -2623,6 +2640,7 @@ object FMain: TFMain
       Caption = 'Ratio'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
   end
@@ -2730,6 +2748,7 @@ object FMain: TFMain
       Caption = 'Blur'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object SpinEdit_TextBlur: TBCTrackbarUpdown
@@ -2817,6 +2836,7 @@ object FMain: TFMain
       Caption = 'Offset'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object SpinEdit_TextShadowX: TBCTrackbarUpdown
@@ -2993,6 +3013,7 @@ object FMain: TFMain
       Caption = 'Pen'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object VectorialFill_Pen: TLCVectorialFillControl
@@ -3177,6 +3198,7 @@ object FMain: TFMain
       Caption = 'Back'
       Font.Height = -12
       Layout = tlCenter
+      ParentColor = False
       ParentFont = False
     end
     object VectorialFill_Back: TLCVectorialFillControl
@@ -5613,6 +5635,11 @@ object FMain: TFMain
       OnExecute = FileQuickSaveExecute
       OnUpdate = FileSaveUpdate
       ShortCut = 16465
+    end
+    object RenderHypocycloid: TAction
+      Category = 'Render'
+      Caption = 'Hypocycloid...'
+      OnExecute = RenderAnyExecute
     end
   end
   object ColorDialog1: TColorDialog

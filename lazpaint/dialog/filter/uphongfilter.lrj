@@ -1,7 +1,7 @@
 {"version":1,"strings":[
 {"hash":179572208,"name":"tfphongfilter.caption","sourcebytes":[83,104,97,100,101,100,32,109,97,112],"value":"Shaded map"},
-{"hash":1339,"name":"tfphongfilter.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
-{"hash":77089212,"name":"tfphongfilter.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"},
+{"hash":497723,"name":"tfphongfilter.button_ok.caption","sourcebytes":[114,115,79,75],"value":"rsOK"},
+{"hash":127421996,"name":"tfphongfilter.button_cancel.caption","sourcebytes":[114,115,67,97,110,99,101,108],"value":"rsCancel"},
 {"hash":118747402,"name":"tfphongfilter.label_altitude.caption","sourcebytes":[71,108,111,98,97,108,32,97,108,116,105,116,117,100,101,32,58],"value":"Global altitude :"},
 {"hash":4875106,"name":"tfphongfilter.groupbox_color.caption","sourcebytes":[67,111,108,111,114],"value":"Color"},
 {"hash":6952354,"name":"tfphongfilter.radio_usepencolor.caption","sourcebytes":[80,101,110,32,99,111,108,111,114],"value":"Pen color"},
@@ -16,5 +16,6 @@
 {"hash":234561107,"name":"tfphongfilter.radio_maplightness.caption","sourcebytes":[76,105,103,104,116,110,101,115,115],"value":"Lightness"},
 {"hash":71,"name":"tfphongfilter.radio_mapgreen.caption","sourcebytes":[71],"value":"G"},
 {"hash":66,"name":"tfphongfilter.radio_mapblue.caption","sourcebytes":[66],"value":"B"},
-{"hash":108801555,"name":"tfphongfilter.radio_maplinearlightness.caption","sourcebytes":[76,105,110,101,97,114,32,108,105,103,104,116,110,101,115,115],"value":"Linear lightness"}
+{"hash":108801555,"name":"tfphongfilter.radio_maplinearlightness.caption","sourcebytes":[76,105,110,101,97,114,32,108,105,103,104,116,110,101,115,115],"value":"Linear lightness"},
+{"hash":126662215,"name":"tfphongfilter.checkbox_preview.caption","sourcebytes":[114,115,80,114,101,118,105,101,119],"value":"rsPreview"}
 ]}

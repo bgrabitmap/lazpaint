@@ -458,37 +458,37 @@ begin
   for i := 0 to FNbScalars-1 do
     if FScalars[i].name <> '' then
     begin
-      if AIndex = 0 then exit(FScalars[AIndex].name)
+      if AIndex = 0 then exit(FScalars[i].name)
       else dec(AIndex);
     end;
   for i := 0 to FNbStrings-1 do
     if FStrings[i].name <> '' then
     begin
-      if AIndex = 0 then exit(FStrings[AIndex].name)
+      if AIndex = 0 then exit(FStrings[i].name)
       else dec(AIndex);
     end;
   for i := 0 to FNbBoolLists-1 do
     if FBoolLists[i].name <> '' then
     begin
-      if AIndex = 0 then exit(FBoolLists[AIndex].name)
+      if AIndex = 0 then exit(FBoolLists[i].name)
       else dec(AIndex);
     end;
   for i := 0 to FNbScalarLists-1 do
     if FScalarLists[i].name <> '' then
     begin
-      if AIndex = 0 then exit(FScalarLists[AIndex].name)
+      if AIndex = 0 then exit(FScalarLists[i].name)
       else dec(AIndex);
     end;
   for i := 0 to FNbStrLists-1 do
     if FStrLists[i].name <> '' then
     begin
-      if AIndex = 0 then exit(FStrLists[AIndex].name)
+      if AIndex = 0 then exit(FStrLists[i].name)
       else dec(AIndex);
     end;
   for i := 0 to FNbSubsets-1 do
     if FSubsets[i].name <> '' then
     begin
-      if AIndex = 0 then exit(FSubsets[AIndex].name)
+      if AIndex = 0 then exit(FSubsets[i].name)
       else dec(AIndex);
     end;
 

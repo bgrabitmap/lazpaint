@@ -1,12 +1,12 @@
 object FCustomBlur: TFCustomBlur
-  Left = 672
-  Height = 300
-  Top = 158
+  Left = 646
+  Height = 319
+  Top = 261
   Width = 400
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Custom blur'
-  ClientHeight = 300
+  ClientHeight = 319
   ClientWidth = 400
   Font.Height = -12
   OnCloseQuery = FormCloseQuery
@@ -14,7 +14,7 @@ object FCustomBlur: TFCustomBlur
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '2.2.4.0'
   object Image1: TImage
     Left = 8
     Height = 216
@@ -27,9 +27,9 @@ object FCustomBlur: TFCustomBlur
   object Button_OK: TButton
     Left = 128
     Height = 22
-    Top = 272
+    Top = 288
     Width = 59
-    Caption = 'OK'
+    Caption = 'rsOK'
     Default = True
     OnClick = Button_OKClick
     TabOrder = 0
@@ -37,10 +37,10 @@ object FCustomBlur: TFCustomBlur
   object Button_Cancel: TButton
     Left = 194
     Height = 22
-    Top = 272
+    Top = 288
     Width = 81
     Cancel = True
-    Caption = 'Cancel'
+    Caption = 'rsCancel'
     ModalResult = 2
     TabOrder = 1
   end
@@ -62,18 +62,29 @@ object FCustomBlur: TFCustomBlur
     OnClick = Button_EditMaskClick
     TabOrder = 3
   end
+  object CheckBox_Preview: TCheckBox
+    Left = 8
+    Height = 19
+    Top = 264
+    Width = 70
+    Caption = 'rsPreview'
+    Checked = True
+    OnChange = CheckBox_PreviewChange
+    State = cbChecked
+    TabOrder = 4
+  end
   object OpenPictureDialog1: TOpenPictureDialog
     Title = 'Open grayscale file'
     Filter = 'Mask images (*.bmp, *.jpeg, *.lzp, *.pcx, *.png, *.tga)|*.bmp;*.jpg;*.jpeg;*.lzp;*.pcx;*.png;*.tga;*.BMP;*.JPG;*.JPEG;*.LZP;*.PCX;*.PNG;*.TGA;*.Bmp;*.Jpg;*.Jpeg;*.Lzp;*.Pcx;*.Png;*.Tga|Bitmaps (*.bmp)|*.bmp;*.BMP;*.Bmp|JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg;*.JPG;*.JPEG;*.Jpg;*.Jpeg|LazPaint (*.lzp)|*.lzp;*.LZP;*.Lzp|PCX (*.pcx)|*.pcx;*.PCX;*.Pcx|Portable Network Graphic (*.png)|*.png;*.PNG;*.Png|Targa (*.tga)|*.tga;*.TGA;*.Tga'
     Options = [ofNoDereferenceLinks, ofEnableSizing, ofViewDetail]
-    left = 48
-    top = 248
+    Left = 232
+    Top = 232
   end
   object Timer1: TTimer
     Enabled = False
     Interval = 200
     OnTimer = Timer1Timer
-    left = 308
-    top = 230
+    Left = 328
+    Top = 232
   end
 end

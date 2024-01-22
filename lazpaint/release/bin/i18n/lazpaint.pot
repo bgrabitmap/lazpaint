@@ -47,16 +47,6 @@ msgstr ""
 msgid "Open source (GPLv3)"
 msgstr ""
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr ""
@@ -220,16 +210,6 @@ msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr ""
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "tfcolorintensity.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "tfcolorintensity.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tfcolorintensity.caption
 msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
@@ -241,16 +221,6 @@ msgstr ""
 
 #: tfcolorintensity.label_shift.caption
 msgid "Shift"
-msgstr ""
-
-#: tfcolorize.button_cancel.caption
-msgctxt "tfcolorize.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfcolorize.button_ok.caption
-msgctxt "tfcolorize.button_ok.caption"
-msgid "OK"
 msgstr ""
 
 #: tfcolorize.caption
@@ -275,11 +245,6 @@ msgstr ""
 msgid "Preset"
 msgstr ""
 
-#: tfcustomblur.button_cancel.caption
-msgctxt "tfcustomblur.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
 #: tfcustomblur.button_editmask.caption
 msgid "Edit mask..."
 msgstr ""
@@ -288,27 +253,12 @@ msgstr ""
 msgid "Load mask..."
 msgstr ""
 
-#: tfcustomblur.button_ok.caption
-msgctxt "tfcustomblur.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tfcustomblur.caption
 msgid "Custom blur"
 msgstr ""
 
 #: tfcustomblur.openpicturedialog1.title
 msgid "Open grayscale file"
-msgstr ""
-
-#: tfemboss.button_cancel.caption
-msgctxt "tfemboss.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfemboss.button_ok.caption
-msgctxt "tfemboss.button_ok.caption"
-msgid "OK"
 msgstr ""
 
 #: tfemboss.caption
@@ -325,16 +275,6 @@ msgstr ""
 
 #: tfemboss.label_direction.caption
 msgid "Direction :"
-msgstr ""
-
-#: tffilterfunction.button_cancel.caption
-msgctxt "tffilterfunction.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tffilterfunction.button_ok.caption
-msgctxt "tffilterfunction.button_ok.caption"
-msgid "OK"
 msgstr ""
 
 #: tffilterfunction.caption
@@ -437,6 +377,14 @@ msgstr ""
 
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
+msgstr ""
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
 msgstr ""
 
 #: tfimagelist.caption
@@ -1410,6 +1358,10 @@ msgstr ""
 msgid "Cyclic Perlin noise"
 msgstr ""
 
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
+
 #: tfmain.rendermarble.caption
 msgid "Marble"
 msgstr ""
@@ -1940,16 +1892,6 @@ msgstr ""
 msgid "Zoom out"
 msgstr ""
 
-#: tfmotionblur.button_cancel.caption
-msgctxt "tfmotionblur.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfmotionblur.button_ok.caption
-msgctxt "tfmotionblur.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tfmotionblur.caption
 msgid "Motion blur"
 msgstr ""
@@ -2015,16 +1957,6 @@ msgstr ""
 #: tfnewimage.label_width.caption
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
-msgstr ""
-
-#: tfnoisefilter.button_cancel.caption
-msgctxt "tfnoisefilter.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfnoisefilter.button_ok.caption
-msgctxt "tfnoisefilter.button_ok.caption"
-msgid "OK"
 msgstr ""
 
 #: tfnoisefilter.caption
@@ -2158,16 +2090,6 @@ msgstr ""
 msgid "Remove selected light"
 msgstr ""
 
-#: tfphongfilter.button_cancel.caption
-msgctxt "tfphongfilter.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfphongfilter.button_ok.caption
-msgctxt "tfphongfilter.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tfphongfilter.caption
 msgid "Shaded map"
 msgstr ""
@@ -2235,16 +2157,6 @@ msgstr ""
 msgid "Current texture"
 msgstr ""
 
-#: tfpixelate.button_cancel.caption
-msgctxt "tfpixelate.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfpixelate.button_ok.caption
-msgctxt "tfpixelate.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tfpixelate.caption
 msgid "Pixelate"
 msgstr ""
@@ -2256,16 +2168,6 @@ msgstr ""
 #: tfpixelate.label_quality.caption
 msgctxt "tfpixelate.label_quality.caption"
 msgid "Quality :"
-msgstr ""
-
-#: tfposterize.button_cancel.caption
-msgctxt "tfposterize.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfposterize.button_ok.caption
-msgctxt "tfposterize.button_ok.caption"
-msgid "OK"
 msgstr ""
 
 #: tfposterize.caption
@@ -2282,6 +2184,7 @@ msgid "Levels :"
 msgstr ""
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr ""
 
@@ -2375,16 +2278,6 @@ msgctxt "tfquestion.label_message.caption"
 msgid "."
 msgstr ""
 
-#: tfradialblur.button_cancel.caption
-msgctxt "tfradialblur.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfradialblur.button_ok.caption
-msgctxt "tfradialblur.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tfradialblur.caption
 msgctxt "tfradialblur.caption"
 msgid "Radial blur"
@@ -2393,16 +2286,6 @@ msgstr ""
 #: tfradialblur.label_radius.caption
 msgctxt "tfradialblur.label_radius.caption"
 msgid "Radius :"
-msgstr ""
-
-#: tfrain.button_cancel.caption
-msgctxt "tfrain.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfrain.button_ok.caption
-msgctxt "tfrain.button_ok.caption"
-msgid "OK"
 msgstr ""
 
 #: tfrain.caption
@@ -2522,32 +2405,12 @@ msgstr ""
 msgid "MioMap"
 msgstr ""
 
-#: tfsharpen.button_cancel.caption
-msgctxt "tfsharpen.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfsharpen.button_ok.caption
-msgctxt "tfsharpen.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
 msgstr ""
 
 #: tfsharpen.label_amount.caption
 msgid "Amount :"
-msgstr ""
-
-#: tfshiftcolors.button_cancel.caption
-msgctxt "tfshiftcolors.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfshiftcolors.button_ok.caption
-msgctxt "tfshiftcolors.button_ok.caption"
-msgid "OK"
 msgstr ""
 
 #: tfshiftcolors.caption
@@ -2574,16 +2437,6 @@ msgctxt "tftoolbox.caption"
 msgid "Tools"
 msgstr ""
 
-#: tftwirl.button_cancel.caption
-msgctxt "tftwirl.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tftwirl.button_ok.caption
-msgctxt "tftwirl.button_ok.caption"
-msgid "OK"
-msgstr ""
-
 #: tftwirl.caption
 msgid "Twirl"
 msgstr ""
@@ -2595,16 +2448,6 @@ msgstr ""
 #: tftwirl.label_radius.caption
 msgctxt "tftwirl.label_radius.caption"
 msgid "Radius :"
-msgstr ""
-
-#: tfwavedisplacement.button_cancel.caption
-msgctxt "tfwavedisplacement.button_cancel.caption"
-msgid "Cancel"
-msgstr ""
-
-#: tfwavedisplacement.button_ok.caption
-msgctxt "tfwavedisplacement.button_ok.caption"
-msgid "OK"
 msgstr ""
 
 #: tfwavedisplacement.caption
@@ -3302,6 +3145,11 @@ msgstr ""
 msgid "№"
 msgstr ""
 
+#: uresourcestrings.rsok
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr ""
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr ""
@@ -3366,6 +3214,11 @@ msgstr ""
 
 #: uresourcestrings.rspresetname
 msgid "Preset name"
+msgstr ""
+
+#: uresourcestrings.rspreview
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
 msgstr ""
 
 #: uresourcestrings.rspx

@@ -3,65 +3,154 @@
 }
 
 body {
-    background-color: black;
     color: #f0f0f0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    background: black;
+}
+
+p {
+    margin: 0px;
+}
+
+h1 {
+    font-size: 3.5rem;
+    font-weight: 300;
+}
+
+h2 {
+    padding-bottom: 0px;
+}
+
+.button {
+    border-radius: 0.32rem;
+}
+
+.success.button {
+    background: rgb(87, 165, 81);
+}
+
+.top {
+    background-image: url("../img/blog-back.jpg");
+    background-size: cover;
+    padding-bottom: 30px;
+    margin-bottom: 5px;
+    background-repeat: no-repeat;
+}
+
+.languages {
+    float: right;
+    margin-right: 20px;
+    margin-left: 20px;
+}
+
+.languages .button:not([disabled]) {
+    color: black;
+    background: #ddd;
+}
+
+.languages .button:not([disabled]):hover {
+    background: #aaa;
+}
+
+.languages .button[disabled] {
+    background: rgb(87, 165, 81);
+}
+
+.header {
+    margin: 15px;
 }
 
 .logo {
     filter: grayscale(30%)
 }
 
-.jumbotron {
-    background-image: url('../img/blog-back.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    margin: 0px;
-    box-shadow: inset 0 0 100px black;
+.header h1 {
+    padding: 0px;
+}
+
+.header .lead {
+    margin-top: 0px;
+}
+
+.menu {
+    clear: both;
+    text-align: center;
+}
+
+.menu .button:not(.facebook) {
+    text-transform: uppercase;
+}
+
+.menu .button:not(.success):not(.facebook) {
+    color: #777;
+    background: transparent;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #777;
+}
+
+.menu .button:not(.success):not(.facebook):hover {
+    background: #777;
     color: white;
-    border-bottom: 5px solid black;
 }
 
-.btn-outline-light {
-    border-bottom: 0.30rem solid white;
-    padding-bottom: 0.15rem;
+.menu .button.success {
+    background: transparent;
+    border-width: 1px 1px 4px;
+    border-style: solid;
+    border-color: white;
+    border-bottom: 4px solid white;
+    padding-bottom: 0.15em;
 }
 
-/* cool but slow
-.btn {
-    filter: opacity(85%);
-    backdrop-filter: blur(2px);
-}*/
-
-.btn {
-    border-radius: 0.32rem;
+.menu .button.success:hover {
+    background: white;
+    color: black;
 }
 
 .download {
     min-height: 100vh;
-    background-image: url('../img/lzpwall.jpg');
+    background-image: url("../img/lzpwall.jpg");
     background-size: cover;
-    background-position: center;
     color: white;
+    background-position: center center;
+}
+
+.center {
+    text-align: center;
+}
+
+.download .content {
+    background-color: rgba(0, 0, 0, 0.4);
+    min-height: 100vh;
+    box-shadow: rgb(6, 44, 87) 0px 0px 100px inset;
 }
 
 .download h1 {
-    padding: 30px;
-}
-
-.download .card {
-    background-color: rgba(0, 0, 0, 0.4);
-    min-height: 100vh;
-    box-shadow: inset 0 0 100px rgb(6, 44, 87);
-}
-
-.download .card2 {
-    background-color: rgba(0, 0, 0, 0.6);
-    min-height: 100vh;
-    box-shadow: inset 0 0 100px rgb(6, 44, 87);
+    padding-top: 30px;
+    padding-bottom: 0;
 }
 
 #os-hint {
     font-size: 125%;
+}
+
+#other-os .button:not(.success) {
+    background: rgb(68, 68, 68);
+}
+
+.download .button {
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(0, 0, 0, 0.25);
+}
+
+.changes {
+  white-space: pre-line; 
+  display: inline-block; 
+  padding-top: 0.5em;
+  padding-bottom: 2em; 
+  text-align: left;
 }
 
 .footer {

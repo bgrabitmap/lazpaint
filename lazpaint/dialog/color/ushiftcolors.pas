@@ -18,6 +18,7 @@ type
     Button_Cancel: TButton;
     Button_OK: TButton;
     CheckBox_GSBA: TCheckBox;
+    CheckBox_Preview: TCheckBox;
     FloatSpinEdit_Hue: TFloatSpinEdit;
     FloatSpinEdit_Saturation: TFloatSpinEdit;
     Label1: TLabel;
@@ -27,9 +28,11 @@ type
     TrackBar_Saturation: TTrackBar;
     procedure Button_OKClick(Sender: TObject);
     procedure CheckBox_GSBAChange(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure FloatSpinEdit_HueChange(Sender: TObject);
     procedure FloatSpinEdit_SaturationChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerDrawPendingRowsTimer(Sender: TObject);
     procedure TrackBar_Change(Sender: TObject);
@@ -41,6 +44,7 @@ type
     FUpdatingSpinEdit: boolean;
     FOddRows: boolean;
     FPendingRows: boolean;
+    FComputedImage: TBGRABitmap;
     function GetChosenHueShiftF: single;
     function GetChosenSatShiftF: single;
     procedure SetChosenHueShiftF(AValue: single);
@@ -51,7 +55,9 @@ type
     procedure SetChosenHueShift(AValue: integer);
     procedure LoadParameters;
     procedure HalfApplyChosenShift;
-    procedure ParametersChanged;
+    procedure PreviewNeeded;
+    procedure DisplayComputedImage;
+    procedure StoreComputedImage;
   public
     { public declarations }
     function ShowModal: integer; override;
@@ -85,6 +91,11 @@ begin
   UpdateSpinEdit;
 end;
 
+procedure TFShiftColors.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(FComputedImage);
+end;
+
 procedure TFShiftColors.FormShow(Sender: TObject);
 begin
   LoadParameters;
@@ -103,6 +114,7 @@ begin
     FPendingRows:= false;
   end;
   Button_OK.Enabled := true;
+  CheckBox_Preview.Enabled := true;
 end;
 
 procedure TFShiftColors.TrackBar_Change(Sender: TObject);
@@ -110,7 +122,7 @@ begin
   if FInitialized then
   begin
     UpdateSpinEdit;
-    ParametersChanged;
+    PreviewNeeded;
   end;
 end;
 
@@ -174,6 +186,14 @@ begin
     if FFilterConnector.Parameters.IsDefined('Correction') then
       CheckBox_GSBA.Checked := FFilterConnector.Parameters.Booleans['Correction'];
     UpdateSpinEdit;
+
+    FreeAndNil(FComputedImage);
+    Button_OK.Caption := rsOK;
+    Button_OK.Enabled := True;
+    Button_Cancel.Caption := rsCancel;
+    CheckBox_Preview.Caption := rsPreview;
+    CheckBox_Preview.Checked := True;
+    CheckBox_Preview.Enabled := True;
     FInitialized := OldInitialized;
   end;
 end;
@@ -256,7 +276,11 @@ end;
 procedure TFShiftColors.Button_OKClick(Sender: TObject);
 begin
   Button_OK.Enabled := false;
-  if FPendingRows then
+  CheckBox_Preview.Enabled := false;
+
+  if not CheckBox_Preview.Checked then
+    DisplayComputedImage
+  else if FPendingRows then
   begin
     HalfApplyChosenShift;
     FPendingRows := false;
@@ -269,7 +293,18 @@ end;
 
 procedure TFShiftColors.CheckBox_GSBAChange(Sender: TObject);
 begin
-  if FInitialized and Visible then ParametersChanged;
+  if FInitialized and Visible then PreviewNeeded;
+end;
+
+procedure TFShiftColors.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if not FInitialized then exit;
+  if CheckBox_Preview.Checked then
+    DisplayComputedImage
+  else begin
+    StoreComputedImage;
+    FFilterConnector.RestoreBackup;
+  end;
 end;
 
 procedure TFShiftColors.FloatSpinEdit_HueChange(Sender: TObject);
@@ -294,12 +329,31 @@ begin
   FOddRows:= not FOddRows;
 end;
 
-procedure TFShiftColors.ParametersChanged;
+procedure TFShiftColors.PreviewNeeded;
 begin
   Button_OK.Enabled := false;
+
+  FInitialized := false;
+  CheckBox_Preview.Enabled := false;
+  CheckBox_Preview.Checked := true;
+  FInitialized := true;
+  FreeAndNil(FComputedImage);
+
   HalfApplyChosenShift;
-  FPendingRows:= true;
+  FPendingRows := true;
   TimerDrawPendingRows.Enabled := true;
+end;
+
+procedure TFShiftColors.DisplayComputedImage;
+begin
+  if FComputedImage <> nil then
+    FFilterConnector.PutImage(FComputedImage, false, false);
+end;
+
+procedure TFShiftColors.StoreComputedImage;
+begin
+  if not FPendingRows and (FComputedImage = nil) then
+    FComputedImage := FFilterConnector.ActiveLayer.Duplicate;
 end;
 
 {$R *.lfm}

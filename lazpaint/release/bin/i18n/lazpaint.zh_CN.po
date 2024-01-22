@@ -64,16 +64,6 @@ msgctxt "tfabout.label_opensource.caption"
 msgid "Open source (GPLv3)"
 msgstr "开源（GPLv3）"
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "确定"
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr "调整曲线"
@@ -247,16 +237,6 @@ msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "颜色"
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "确定"
-
 #: tfcolorintensity.caption
 msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
@@ -271,16 +251,6 @@ msgstr "倍增"
 msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "位移"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "确定"
 
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
@@ -306,11 +276,6 @@ msgstr "色调"
 msgid "Preset"
 msgstr "预设"
 
-#: tfcustomblur.button_cancel.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "取消"
-
 #: tfcustomblur.button_editmask.caption
 msgid "Edit mask..."
 msgstr "编辑蒙版..."
@@ -318,11 +283,6 @@ msgstr "编辑蒙版..."
 #: tfcustomblur.button_loadmask.caption
 msgid "Load mask..."
 msgstr "加载蒙版..."
-
-#: tfcustomblur.button_ok.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "确定"
 
 #: tfcustomblur.caption
 msgctxt "tfcustomblur.caption"
@@ -332,16 +292,6 @@ msgstr "自定义模糊"
 #: tfcustomblur.openpicturedialog1.title
 msgid "Open grayscale file"
 msgstr "打开灰度文件"
-
-#: tfemboss.button_cancel.caption
-msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfemboss.button_ok.caption
-msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "确定"
 
 #: tfemboss.caption
 msgctxt "tfemboss.caption"
@@ -360,16 +310,6 @@ msgstr "透明"
 msgctxt "tfemboss.label_direction.caption"
 msgid "Direction :"
 msgstr "方向 :"
-
-#: tffilterfunction.button_cancel.caption
-msgctxt "tffilterfunction.button_cancel.caption"
-msgid "Cancel"
-msgstr "取消"
-
-#: tffilterfunction.button_ok.caption
-msgctxt "tffilterfunction.button_ok.caption"
-msgid "OK"
-msgstr "确定"
 
 #: tffilterfunction.caption
 msgid "Apply function"
@@ -475,6 +415,14 @@ msgstr "透明度渐变"
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
 msgstr "边数 :"
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr ""
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1504,6 +1452,10 @@ msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "环状佩林噪声"
 
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
+
 #: tfmain.rendermarble.caption
 msgid "Marble"
 msgstr "大理石"
@@ -2089,16 +2041,6 @@ msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "缩小"
 
-#: tfmotionblur.button_cancel.caption
-msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfmotionblur.button_ok.caption
-msgctxt "TFMOTIONBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "确定"
-
 #: tfmotionblur.caption
 msgctxt "tfmotionblur.caption"
 msgid "Motion blur"
@@ -2167,16 +2109,6 @@ msgstr "需要内存 :"
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "宽度 :"
-
-#: tfnoisefilter.button_cancel.caption
-msgctxt "tfnoisefilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfnoisefilter.button_ok.caption
-msgctxt "tfnoisefilter.button_ok.caption"
-msgid "OK"
-msgstr "确定"
 
 #: tfnoisefilter.caption
 msgid "Noise filter"
@@ -2315,16 +2247,6 @@ msgstr "添加点光源"
 msgid "Remove selected light"
 msgstr "删除所选光源"
 
-#: tfphongfilter.button_cancel.caption
-msgctxt "tfphongfilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfphongfilter.button_ok.caption
-msgctxt "tfphongfilter.button_ok.caption"
-msgid "OK"
-msgstr "确定"
-
 #: tfphongfilter.caption
 msgctxt "tfphongfilter.caption"
 msgid "Shaded map"
@@ -2394,16 +2316,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "当前纹理"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "确定"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -2419,16 +2331,6 @@ msgctxt "tfpixelate.label_quality.caption"
 msgid "Quality :"
 msgstr "品质 :"
 
-#: tfposterize.button_cancel.caption
-msgctxt "tfposterize.button_cancel.caption"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfposterize.button_ok.caption
-msgctxt "tfposterize.button_ok.caption"
-msgid "OK"
-msgstr "确定"
-
 #: tfposterize.caption
 msgctxt "tfposterize.caption"
 msgid "Posterize"
@@ -2443,6 +2345,7 @@ msgid "Levels :"
 msgstr "级别 :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "预览"
 
@@ -2536,16 +2439,6 @@ msgctxt "tfquestion.label_message.caption"
 msgid "."
 msgstr "."
 
-#: tfradialblur.button_cancel.caption
-msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfradialblur.button_ok.caption
-msgctxt "TFRADIALBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "确定"
-
 #: tfradialblur.caption
 msgctxt "tfradialblur.caption"
 msgid "Radial blur"
@@ -2555,16 +2448,6 @@ msgstr "径向模糊"
 msgctxt "tfradialblur.label_radius.caption"
 msgid "Radius :"
 msgstr "半径 :"
-
-#: tfrain.button_cancel.caption
-msgctxt "tfrain.button_cancel.caption"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfrain.button_ok.caption
-msgctxt "tfrain.button_ok.caption"
-msgid "OK"
-msgstr "确定"
 
 #: tfrain.caption
 msgid "Rain"
@@ -2684,16 +2567,6 @@ msgstr "32 位色"
 msgid "MioMap"
 msgstr "MioMap"
 
-#: tfsharpen.button_cancel.caption
-msgctxt "tfsharpen.button_cancel.caption"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfsharpen.button_ok.caption
-msgctxt "tfsharpen.button_ok.caption"
-msgid "OK"
-msgstr "确定"
-
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
 msgstr "锐化/平滑"
@@ -2702,16 +2575,6 @@ msgstr "锐化/平滑"
 msgctxt "tfsharpen.label_amount.caption"
 msgid "Amount :"
 msgstr "数量 :"
-
-#: tfshiftcolors.button_cancel.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfshiftcolors.button_ok.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "确定"
 
 #: tfshiftcolors.caption
 msgctxt "tfshiftcolors.caption"
@@ -2738,16 +2601,6 @@ msgctxt "tftoolbox.caption"
 msgid "Tools"
 msgstr "工具"
 
-#: tftwirl.button_cancel.caption
-msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "取消"
-
-#: tftwirl.button_ok.caption
-msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "确定"
-
 #: tftwirl.caption
 msgctxt "tftwirl.caption"
 msgid "Twirl"
@@ -2762,16 +2615,6 @@ msgstr "角度 :"
 msgctxt "tftwirl.label_radius.caption"
 msgid "Radius :"
 msgstr "半径 :"
-
-#: tfwavedisplacement.button_cancel.caption
-msgctxt "tfwavedisplacement.button_cancel.caption"
-msgid "Cancel"
-msgstr "取消"
-
-#: tfwavedisplacement.button_ok.caption
-msgctxt "tfwavedisplacement.button_ok.caption"
-msgid "OK"
-msgstr "确定"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"
@@ -3496,6 +3339,12 @@ msgstr "此文件格式不适合保存如此大的图像。"
 msgid "№"
 msgstr "№"
 
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "确定"
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "好"
@@ -3563,6 +3412,12 @@ msgstr "使用调色板对图层进行海报化"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "预设名称"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "预览"
 
 #: uresourcestrings.rspx
 msgid "px"

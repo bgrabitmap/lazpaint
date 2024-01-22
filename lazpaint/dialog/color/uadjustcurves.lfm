@@ -1,11 +1,11 @@
 object FAdjustCurves: TFAdjustCurves
   Left = 439
-  Height = 326
+  Height = 345
   Top = 193
   Width = 432
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Adjust curves'
-  ClientHeight = 326
+  ClientHeight = 345
   ClientWidth = 432
   KeyPreview = True
   OnCloseQuery = FormCloseQuery
@@ -15,7 +15,7 @@ object FAdjustCurves: TFAdjustCurves
   OnKeyDown = FormKeyDown
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.8.2.0'
+  LCLVersion = '2.2.4.0'
   object TabControl1: TTabControl
     Left = 0
     Height = 289
@@ -33,12 +33,11 @@ object FAdjustCurves: TFAdjustCurves
       'Alpha'
     )
     Align = alClient
-    Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
     object vsChart: TBGRAVirtualScreen
       Left = 2
-      Height = 230
-      Top = 57
+      Height = 239
+      Top = 48
       Width = 428
       OnRedraw = vsChartRedraw
       Align = alClient
@@ -53,7 +52,7 @@ object FAdjustCurves: TFAdjustCurves
     object Panel2: TPanel
       Left = 2
       Height = 25
-      Top = 32
+      Top = 23
       Width = 428
       Align = alTop
       ClientHeight = 25
@@ -65,7 +64,6 @@ object FAdjustCurves: TFAdjustCurves
         Top = 0
         Width = 90
         Align = alNone
-        Anchors = [akTop, akLeft]
         EdgeBorders = []
         Images = FMain.ImageList16
         ParentShowHint = False
@@ -98,50 +96,61 @@ object FAdjustCurves: TFAdjustCurves
   end
   object Panel1: TPanel
     Left = 0
-    Height = 37
+    Height = 56
     Top = 289
     Width = 432
     Align = alBottom
     BevelOuter = bvNone
-    ClientHeight = 37
+    ClientHeight = 56
     ClientWidth = 432
     TabOrder = 1
     object Button_Cancel: TButton
       Left = 213
       Height = 22
-      Top = 7
+      Top = 26
       Width = 72
       Anchors = [akLeft, akBottom]
       Cancel = True
-      Caption = 'Cancel'
+      Caption = 'rsCancel'
       ModalResult = 2
       TabOrder = 0
     end
     object Button_OK: TButton
       Left = 149
       Height = 22
-      Top = 7
+      Top = 26
       Width = 59
       Anchors = [akLeft, akBottom]
-      Caption = 'OK'
+      Caption = 'rsOK'
       Default = True
       ModalResult = 1
       OnClick = Button_OKClick
       TabOrder = 1
+    end
+    object CheckBox_Preview: TCheckBox
+      Left = 8
+      Height = 19
+      Top = 0
+      Width = 70
+      Caption = 'rsPreview'
+      Checked = True
+      OnChange = CheckBox_PreviewChange
+      State = cbChecked
+      TabOrder = 2
     end
   end
   object Timer_Thread: TTimer
     Enabled = False
     Interval = 200
     OnTimer = Timer_ThreadTimer
-    left = 62
-    top = 466
+    Left = 62
+    Top = 466
   end
   object Timer_Chart: TTimer
     Enabled = False
     Interval = 20
     OnTimer = Timer_ChartTimer
-    left = 123
-    top = 467
+    Left = 123
+    Top = 467
   end
 end

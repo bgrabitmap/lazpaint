@@ -1,5 +1,4 @@
-            <div id="nav-border" class="container">
-                <nav id="nav" class="nav">
+            <div class="menu">
                 {{- $page := . -}}
                 {{- range .Site.Menus.main -}}
                     {{- $item := newScratch -}}
@@ -13,12 +12,11 @@
                         {{- $item.Set "URL" (printf "%s/%s" ($item.Get "URL") $page.Language.Lang) -}}
                     {{- end -}}
                     {{- if eq (relURL $page.Permalink) (relLangURL .URL) -}}
-                        {{- $item.Set "Class" "btn-outline-light" -}} 
+                        {{- $item.Set "Class" "button success" -}} 
                     {{- else -}}
-                        {{- $item.Set "Class" "btn btn-outline-secondary " -}}
+                        {{- $item.Set "Class" "button" -}}
                     {{- end }}
-                    <a href="{{ $item.Get "URL" }}" class="btn text-uppercase {{ $item.Get "Class" }}">{{ i18n ($item.Get "Text") }}</a>&nbsp;
+                    <a href="{{ $item.Get "URL" }}" class="{{ $item.Get "Class" }}">{{ i18n ($item.Get "Text") }}</a>&nbsp;
                 {{- end }}
-                    <a href="https://www.facebook.com/LazPaint" class="btn btn-primary">f</a>
-                </nav>
+                    <a href="https://www.facebook.com/LazPaint" class="button facebook">f</a>
             </div>

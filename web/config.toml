@@ -1,7 +1,8 @@
 baseURL = "https://lazpaint.github.io/"
+relativeURLs = true
 defaultContentLanguage = "en"
 title = "download_lazpaint"
-disableKinds = ["taxonomyTerm"]
+disableKinds = ["taxonomy"]
 
 [params]
   repo = "https://github.com/bgrabitmap/lazpaint/releases/download/"

@@ -156,8 +156,9 @@ type
     function CanRedo: boolean;
     procedure Undo;
     procedure Redo;
-    procedure DoBegin;
+    function DoBegin: TComposedImageDifference;
     procedure DoEnd(out ADoFound: boolean; out ASomethingDone: boolean);
+    procedure DoEnd(var ACompose: TComposedImageDifference);
     procedure ClearUndo;
     procedure CompressUndo;
     function UsedMemory: int64;
@@ -1170,9 +1171,10 @@ begin
   end;
 end;
 
-procedure TLazPaintImage.DoBegin;
+function TLazPaintImage.DoBegin: TComposedImageDifference;
 begin
-  AddUndo(TComposedImageDifference.Create(True));
+  result := TComposedImageDifference.Create(True);
+  AddUndo(result);
 end;
 
 procedure TLazPaintImage.DoEnd(out ADoFound: boolean; out ASomethingDone: boolean);
@@ -1189,14 +1191,16 @@ begin
     curIndex := FUndoPos;
     curDiff := curGroup[curIndex];
     if not ((curDiff is TComposedImageDifference) and
-      TComposedImageDifference(curDiff).Agglutinate) then
+      TComposedImageDifference(curDiff).Agglutinate and
+      not TComposedImageDifference(curDiff).LockAgglutinate) then
         exit;
     ADoFound:= true;
     ASomethingDone := true;
     repeat
       insideDiff := TComposedImageDifference(curDiff).GetLast;
       if (insideDiff <> nil) and (insideDiff is TComposedImageDifference) and
-         TComposedImageDifference(insideDiff).Agglutinate then
+         TComposedImageDifference(insideDiff).Agglutinate and
+         not TComposedImageDifference(insideDiff).LockAgglutinate then
       begin
         curGroup := TComposedImageDifference(curDiff);
         curIndex := curGroup.Count-1;
@@ -1209,8 +1213,25 @@ begin
     if TComposedImageDifference(curDiff).Count = 0 then
     begin
       curGroup.Delete(curIndex);
-      if curGroup = FUndoList then dec(FUndoPos);
+      if (curGroup = FUndoList) and (FUndoPos >= curIndex) then dec(FUndoPos);
       ASomethingDone := false;
+    end;
+  end;
+end;
+
+procedure TLazPaintImage.DoEnd(var ACompose: TComposedImageDifference);
+var
+  index: Integer;
+begin
+  ACompose.StopAgglutinate;
+  if ACompose.Count = 0 then
+  begin
+    index := FUndoList.IndexOf(ACompose);
+    if index <> -1 then
+    begin
+      FUndoList.Delete(index);
+      if FUndoPos >= index then dec(FUndoPos);
+      ACompose := nil;
     end;
   end;
 end;

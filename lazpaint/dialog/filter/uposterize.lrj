@@ -2,6 +2,7 @@
 {"hash":179103845,"name":"tfposterize.caption","sourcebytes":[80,111,115,116,101,114,105,122,101],"value":"Posterize"},
 {"hash":214708250,"name":"tfposterize.label_levels.caption","sourcebytes":[76,101,118,101,108,115,32,58],"value":"Levels :"},
 {"hash":157433427,"name":"tfposterize.checkbox_bylightness.caption","sourcebytes":[66,121,32,108,105,103,104,116,110,101,115,115],"value":"By lightness"},
-{"hash":1339,"name":"tfposterize.button_ok.caption","sourcebytes":[79,75],"value":"OK"},
-{"hash":77089212,"name":"tfposterize.button_cancel.caption","sourcebytes":[67,97,110,99,101,108],"value":"Cancel"}
+{"hash":126662215,"name":"tfposterize.checkbox_preview.caption","sourcebytes":[114,115,80,114,101,118,105,101,119],"value":"rsPreview"},
+{"hash":497723,"name":"tfposterize.button_ok.caption","sourcebytes":[114,115,79,75],"value":"rsOK"},
+{"hash":127421996,"name":"tfposterize.button_cancel.caption","sourcebytes":[114,115,67,97,110,99,101,108],"value":"rsCancel"}
 ]}

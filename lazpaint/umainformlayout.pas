@@ -126,6 +126,7 @@ type
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     property ToolboxPopup: TPopupMenu read GetPopupToolbox write SetPopupToolbox;
     property PaletteVisible: boolean read GetPaletteVisible write SetPaletteVisible;
+    property PaletteToolbar: TPaletteToolbar read FPaletteToolbar;
     property StatusBarVisible: boolean read GetStatusBarVisible write SetStatusBarVisible;
     property StatusText: string read GetStatusText write SetStatusText;
     property DefaultToolboxDocking: TToolWindowDocking read GetDefaultToolboxDocking;
@@ -260,15 +261,21 @@ end;
 function TMainFormLayout.CatchToolKeyDown(var AKey: Word): boolean;
 begin
   if Assigned(FImageView) then
-    result := FImageView.CatchToolKeyDown(AKey)
-    else result := false;
+  begin
+    result := FImageView.CatchToolKeyDown(AKey);
+    if not result and Assigned(FPaletteToolbar) then
+      result := FPaletteToolbar.CatchToolKeyDown(AKey);
+  end  else result := false;
 end;
 
 function TMainFormLayout.CatchToolKeyUp(var AKey: Word): boolean;
 begin
   if Assigned(FImageView) then
-    result := FImageView.CatchToolKeyUp(AKey)
-    else result := false;
+  begin
+    result := FImageView.CatchToolKeyUp(AKey);
+    if not result and Assigned(FPaletteToolbar) then
+      result := FPaletteToolbar.CatchToolKeyUp(AKey);
+  end  else result := false;
 end;
 
 function TMainFormLayout.CatchToolKeyPress(var AKey: TUTF8Char): boolean;

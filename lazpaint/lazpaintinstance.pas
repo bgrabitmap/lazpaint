@@ -7,7 +7,7 @@ interface
 
 uses
   Classes, SysUtils, LazPaintType, BGRABitmap, BGRABitmapTypes, BGRALayers, LCVectorialFill,
-  Menus, Forms, Controls, fgl,
+  Menus, Forms, Controls, fgl, LCLType,
 
   LazPaintMainForm, UMainFormLayout,
 
@@ -73,6 +73,7 @@ type
     procedure PythonScriptCommand({%H-}ASender: TObject; ACommand, AParam: UTF8String; out
       AResult: UTF8String);
     procedure PythonBusy({%H-}Sender: TObject);
+    procedure PythonWarning({%H-}Sender: TObject; AMessage: UTF8String; out AProceed: boolean);
     function ScriptShowMessage(AVars: TVariableSet): TScriptResult;
     function ScriptInputBox(AVars: TVariableSet): TScriptResult;
     procedure ToolQueryColorTarget({%H-}sender: TToolManager; ATarget: TVectorialFill);
@@ -240,6 +241,7 @@ type
     procedure ColorToFChooseColor; override;
     procedure ExitColorEditor; override;
     function ColorEditorActive: boolean; override;
+    procedure NotifyColorBinding; override;
     function ShowSaveOptionDlg({%H-}AParameters: TVariableSet; AOutputFilenameUTF8: string;
       ASkipOptions: boolean; AExport: boolean): boolean; override;
     function ShowColorIntensityDlg(AParameters: TVariableSet): TScriptResult; override;
@@ -260,6 +262,7 @@ type
     function ShowFunctionFilterDlg(AFilterConnector: TObject): TScriptResult; override;
     function ShowSharpenDlg(AFilterConnector: TObject): TScriptResult; override;
     function ShowPosterizeDlg(AParameters: TVariableSet): TScriptResult; override;
+    function ShowHypocycloidDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult; override;
     procedure ShowPrintDlg; override;
     function HideTopmost: TTopMostInfo; override;
     procedure ShowTopmost(AInfo: TTopMostInfo); override;
@@ -288,16 +291,20 @@ type
     procedure UpdateEditPicture(ADelayed: boolean); override;
     procedure AddColorToPalette(AColor: TBGRAPixel); override;
     procedure RemoveColorFromPalette(AColor: TBGRAPixel); override;
+    function GetKeyAssociatedToColor(const AColor: TBGRAPixel): string; override;
     property Initialized: boolean read GetInitialized;
+    procedure SendKeyDownEventToMainForm(var Key: Word; Shift: TShiftState); override;
+    procedure SendKeyUpEventToMainForm(var Key: Word; Shift: TShiftState); override;
+    procedure SendUTF8KeyPressEventToMainForm(var UTF8Key: TUTF8Char); override;
   end;
 
 implementation
 
-uses LCLType, Types, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslation,
+uses Types, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslation,
 
      URadialBlur, UMotionBlur, UEmboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, UPixelate, unoisefilter, ufilters,
-     USharpen, uposterize, UPhongFilter, UFilterFunction,
+     USharpen, uposterize, uhypocycloid, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
      {$IFDEF DARWIN}Graphics, BGRAGraphics,{$ENDIF}
 
@@ -1021,6 +1028,12 @@ end;
 procedure TLazPaintInstance.PythonBusy(Sender: TObject);
 begin
   Application.ProcessMessages;
+end;
+
+procedure TLazPaintInstance.PythonWarning(Sender: TObject;
+  AMessage: UTF8String; out AProceed: boolean);
+begin
+  AProceed := QuestionDlg(rsScript, AMessage, mtWarning, [mrOk,rsOkay, mrCancel,rsCancel],'') = mrOK;
 end;
 
 function TLazPaintInstance.GetShowSelectionNormal: boolean;
@@ -1888,8 +1901,8 @@ begin
       else FScriptName := AFilename;
     p.OnCommand:=@PythonScriptCommand;
     p.OnBusy := @PythonBusy;
-    p.Run(AFilename);
-    if p.ErrorText<>'' then
+    p.OnWarning:= @PythonWarning;
+    if not p.Run(AFilename) and (p.ErrorText<>'') then
     begin
       fError := TForm.Create(nil);
       try
@@ -1979,6 +1992,11 @@ begin
   if Assigned(FChooseColor) then
     result := FChooseColor.EditorVisible
     else result := false;
+end;
+
+procedure TLazPaintInstance.NotifyColorBinding;
+begin
+  if Assigned(FChooseColor) then FChooseColor.SimpleRedraw;
 end;
 
 function TLazPaintInstance.ShowSaveOptionDlg(AParameters: TVariableSet;
@@ -2193,6 +2211,29 @@ end;
 procedure TLazPaintInstance.RemoveColorFromPalette(AColor: TBGRAPixel);
 begin
   if Assigned(FMain) then FMain.Layout.RemoveColorFromPalette(AColor);
+end;
+
+function TLazPaintInstance.GetKeyAssociatedToColor(const AColor: TBGRAPixel): string;
+begin
+  if Assigned(FMain) and
+     Assigned(FMain.Layout) and
+     Assigned(FMain.Layout.PaletteToolbar) then Result := FMain.Layout.PaletteToolbar.GetKeyAssociatedToColor(AColor)
+  else Result := '';
+end;
+
+procedure TLazPaintInstance.SendKeyDownEventToMainForm(var Key: Word; Shift: TShiftState);
+begin
+  if Assigned(FMain) then FMain.FormKeyDown(FMain, key, Shift);
+end;
+
+procedure TLazPaintInstance.SendKeyUpEventToMainForm(var Key: Word; Shift: TShiftState);
+begin
+  if Assigned(FMain) then FMain.FormKeyUp(FMain, key, Shift);
+end;
+
+procedure TLazPaintInstance.SendUTF8KeyPressEventToMainForm(var UTF8Key: TUTF8Char);
+begin
+  if Assigned(FMain) then FMain.FormUTF8KeyPress(FMain, UTF8Key);
 end;
 
 end.

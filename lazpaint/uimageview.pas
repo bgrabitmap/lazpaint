@@ -9,7 +9,7 @@ unit UImageView;
 interface
 
 uses
-  Classes, SysUtils, USelectionHighlight, BGRABitmap, Types, BGRABitmapTypes,
+  Classes, SysUtils, USelectionHighlight, Types, BGRABitmap, BGRABitmapTypes,
   LazPaintType, UImage, UZoom, Graphics, Controls, LCLType, UImageObservation,
   laztablet, LMessages;
 

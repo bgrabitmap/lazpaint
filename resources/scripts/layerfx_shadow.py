@@ -5,7 +5,7 @@
 from lazpaint import dialog
 
 try:
-    from tkinter import *
+    from tkinter import Tk, Frame, Label, Scale, HORIZONTAL, Button, RIGHT, W, E 
 except ImportError:
     dialog.show_message("Please install tkinter. On Debian distributions, use the command: apt install python3-tk")
     exit()

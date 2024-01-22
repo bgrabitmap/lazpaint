@@ -58,16 +58,6 @@ msgstr "Licence:"
 msgid "Open source (GPLv3)"
 msgstr "Otevřený kód (GPLv3)"
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr "Nastavit křivky"
@@ -231,16 +221,6 @@ msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "Barva"
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "tfcolorintensity.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "tfcolorintensity.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfcolorintensity.caption
 msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
@@ -253,16 +233,6 @@ msgstr "Násobek"
 #: tfcolorintensity.label_shift.caption
 msgid "Shift"
 msgstr "Posun"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "tfcolorize.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfcolorize.button_ok.caption
-msgctxt "tfcolorize.button_ok.caption"
-msgid "OK"
-msgstr "OK"
 
 #: tfcolorize.caption
 msgid "Colorize"
@@ -286,11 +256,6 @@ msgstr "Odstín"
 msgid "Preset"
 msgstr "Předvolba"
 
-#: tfcustomblur.button_cancel.caption
-msgctxt "tfcustomblur.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
 #: tfcustomblur.button_editmask.caption
 msgid "Edit mask..."
 msgstr "Upravit masku..."
@@ -299,11 +264,6 @@ msgstr "Upravit masku..."
 msgid "Load mask..."
 msgstr "Načíst masku..."
 
-#: tfcustomblur.button_ok.caption
-msgctxt "tfcustomblur.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfcustomblur.caption
 msgid "Custom blur"
 msgstr "Vlastní rozmazání"
@@ -311,16 +271,6 @@ msgstr "Vlastní rozmazání"
 #: tfcustomblur.openpicturedialog1.title
 msgid "Open grayscale file"
 msgstr "Otevřít černobílý obrázek"
-
-#: tfemboss.button_cancel.caption
-msgctxt "tfemboss.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfemboss.button_ok.caption
-msgctxt "tfemboss.button_ok.caption"
-msgid "OK"
-msgstr "OK"
 
 #: tfemboss.caption
 msgid "Emboss"
@@ -337,16 +287,6 @@ msgstr "Průhledné"
 #: tfemboss.label_direction.caption
 msgid "Direction :"
 msgstr "Směr :"
-
-#: tffilterfunction.button_cancel.caption
-msgctxt "tffilterfunction.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tffilterfunction.button_ok.caption
-msgctxt "tffilterfunction.button_ok.caption"
-msgid "OK"
-msgstr "OK"
 
 #: tffilterfunction.caption
 msgid "Apply function"
@@ -449,6 +389,14 @@ msgstr "Gradient průhlednosti"
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
 msgstr "Počet stran:"
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr ""
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1421,6 +1369,10 @@ msgstr "Voda s vlastními barvami"
 msgid "Cyclic Perlin noise"
 msgstr "Kruhový Perlinův šum"
 
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
+
 #: tfmain.rendermarble.caption
 msgid "Marble"
 msgstr "Mramor"
@@ -1951,16 +1903,6 @@ msgstr "Zvětšit na původní bodovou velikost"
 msgid "Zoom out"
 msgstr "Oddálit"
 
-#: tfmotionblur.button_cancel.caption
-msgctxt "tfmotionblur.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfmotionblur.button_ok.caption
-msgctxt "tfmotionblur.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfmotionblur.caption
 msgid "Motion blur"
 msgstr "Pohybové rozmazání"
@@ -2027,16 +1969,6 @@ msgstr "Vyžadováno paměti :"
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "Šířka :"
-
-#: tfnoisefilter.button_cancel.caption
-msgctxt "tfnoisefilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfnoisefilter.button_ok.caption
-msgctxt "tfnoisefilter.button_ok.caption"
-msgid "OK"
-msgstr "OK"
 
 #: tfnoisefilter.caption
 msgid "Noise filter"
@@ -2169,16 +2101,6 @@ msgstr "Přidat bodové světlo"
 msgid "Remove selected light"
 msgstr "Odebrat vybrané světlo"
 
-#: tfphongfilter.button_cancel.caption
-msgctxt "tfphongfilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfphongfilter.button_ok.caption
-msgctxt "tfphongfilter.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfphongfilter.caption
 msgid "Shaded map"
 msgstr "Stínová mapa"
@@ -2246,16 +2168,6 @@ msgstr "Barva pera"
 msgid "Current texture"
 msgstr "Aktuální textura"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "tfpixelate.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfpixelate.button_ok.caption
-msgctxt "tfpixelate.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfpixelate.caption
 msgid "Pixelate"
 msgstr "Pixelizace"
@@ -2268,16 +2180,6 @@ msgstr "Velikost bodu :"
 msgctxt "tfpixelate.label_quality.caption"
 msgid "Quality :"
 msgstr "Kvalita :"
-
-#: tfposterize.button_cancel.caption
-msgctxt "tfposterize.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfposterize.button_ok.caption
-msgctxt "tfposterize.button_ok.caption"
-msgid "OK"
-msgstr "OK"
 
 #: tfposterize.caption
 msgctxt "tfposterize.caption"
@@ -2293,6 +2195,7 @@ msgid "Levels :"
 msgstr "Úrovně:"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Náhled"
 
@@ -2386,16 +2289,6 @@ msgctxt "tfquestion.label_message.caption"
 msgid "."
 msgstr "."
 
-#: tfradialblur.button_cancel.caption
-msgctxt "tfradialblur.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfradialblur.button_ok.caption
-msgctxt "tfradialblur.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfradialblur.caption
 msgctxt "tfradialblur.caption"
 msgid "Radial blur"
@@ -2405,16 +2298,6 @@ msgstr "Radiální rozmazání"
 msgctxt "tfradialblur.label_radius.caption"
 msgid "Radius :"
 msgstr "Poloměr :"
-
-#: tfrain.button_cancel.caption
-msgctxt "tfrain.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfrain.button_ok.caption
-msgctxt "tfrain.button_ok.caption"
-msgid "OK"
-msgstr "OK"
 
 #: tfrain.caption
 msgid "Rain"
@@ -2533,16 +2416,6 @@ msgstr "32 bitů"
 msgid "MioMap"
 msgstr "MioMap"
 
-#: tfsharpen.button_cancel.caption
-msgctxt "tfsharpen.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfsharpen.button_ok.caption
-msgctxt "tfsharpen.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
 msgstr "Ostření/Vyhlazení"
@@ -2550,16 +2423,6 @@ msgstr "Ostření/Vyhlazení"
 #: tfsharpen.label_amount.caption
 msgid "Amount :"
 msgstr "Množství :"
-
-#: tfshiftcolors.button_cancel.caption
-msgctxt "tfshiftcolors.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfshiftcolors.button_ok.caption
-msgctxt "tfshiftcolors.button_ok.caption"
-msgid "OK"
-msgstr "OK"
 
 #: tfshiftcolors.caption
 msgid "Shift colors"
@@ -2585,16 +2448,6 @@ msgctxt "tftoolbox.caption"
 msgid "Tools"
 msgstr "Nástroje"
 
-#: tftwirl.button_cancel.caption
-msgctxt "tftwirl.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tftwirl.button_ok.caption
-msgctxt "tftwirl.button_ok.caption"
-msgid "OK"
-msgstr "OK"
-
 #: tftwirl.caption
 msgid "Twirl"
 msgstr "Víření"
@@ -2607,16 +2460,6 @@ msgstr "Úhel :"
 msgctxt "tftwirl.label_radius.caption"
 msgid "Radius :"
 msgstr "Poloměr :"
-
-#: tfwavedisplacement.button_cancel.caption
-msgctxt "tfwavedisplacement.button_cancel.caption"
-msgid "Cancel"
-msgstr "Zrušit"
-
-#: tfwavedisplacement.button_ok.caption
-msgctxt "tfwavedisplacement.button_ok.caption"
-msgid "OK"
-msgstr "OK"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"
@@ -3313,6 +3156,12 @@ msgstr "Není rozumně ukládat tak velký obrázek v tomto formátu."
 msgid "№"
 msgstr "Č."
 
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "OK"
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "Ok"
@@ -3378,6 +3227,12 @@ msgstr "Obarvit vrstvu použitím palety"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Jméno předvolby"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Náhled"
 
 #: uresourcestrings.rspx
 msgid "px"
@@ -3632,3 +3487,4 @@ msgstr "Přiblížit sadu vrstev"
 #: uresourcestrings.rszoomlayerstackout
 msgid "Zoom layer stack out"
 msgstr "Oddálit sadu vrstev"
+

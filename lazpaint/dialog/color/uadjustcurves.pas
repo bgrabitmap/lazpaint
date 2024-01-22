@@ -25,6 +25,7 @@ type
   { TFAdjustCurves }
 
   TFAdjustCurves = class(TForm)
+    CheckBox_Preview: TCheckBox;
     Panel2: TPanel;
     Timer_Chart: TTimer;
     Timer_Thread: TTimer;
@@ -38,6 +39,7 @@ type
     Panel1: TPanel;
     TabControl1: TTabControl;
     procedure Button_OKClick(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDestroy(Sender: TObject);
     procedure FormHide(Sender: TObject);
@@ -104,6 +106,11 @@ type
     procedure DiscardHistogram;
     procedure QueryHistogramRedraw;
     procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
+  private
+    FInitializingGui: boolean;
+    FComputedImage: TBGRABitmap;
+    procedure DisplayComputedImage;
+    procedure StoreComputedImage;
   public
     { public declarations }
     function ShowModal: integer; override;
@@ -336,6 +343,13 @@ procedure TFAdjustCurves.FormShow(Sender: TObject);
 begin
   vsChart.DiscardBitmap;
   DiscardHistogram;
+
+  FInitializingGui := True;
+  Button_OK.Caption := rsOK;
+  Button_Cancel.Caption := rsCancel;
+  CheckBox_Preview.Caption := rsPreview;
+  CheckBox_Preview.Checked := True;
+  FInitializingGui := False;
 end;
 
 procedure TFAdjustCurves.TabControl1Change(Sender: TObject);
@@ -428,12 +442,27 @@ procedure TFAdjustCurves.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FGraphBackgroundLeft);
   FreeAndNil(FGraphBackgroundBottom);
+  FreeAndNil(FComputedImage);
 end;
 
 procedure TFAdjustCurves.Button_OKClick(Sender: TObject);
 begin
+  if not CheckBox_Preview.Checked then DisplayComputedImage;
+
   if not FFilterConnector.ActionDone then FFilterConnector.ValidateAction;
   ModalResult := mrOK;
+end;
+
+procedure TFAdjustCurves.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if FInitializingGui then exit;
+  if CheckBox_Preview.Checked then
+    DisplayComputedImage
+  else
+  begin
+    StoreComputedImage;
+    FFilterConnector.RestoreBackup;
+  end;
 end;
 
 procedure TFAdjustCurves.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -947,7 +976,10 @@ begin
       if FThreadManager.ReadyToClose then
         Close
       else
-        if AEvent = tmeCompletedTask then Button_OK.Enabled := true;
+        if AEvent = tmeCompletedTask then begin
+          Button_OK.Enabled := true;
+          CheckBox_Preview.Enabled := true;
+        end;
     end;
   tmeStartingNewTask:
     begin
@@ -955,8 +987,25 @@ begin
       Timer_Thread.Interval := 100;
       Timer_Thread.Enabled := true;
       Button_OK.Enabled := false;
+      FInitializingGui := True;
+      CheckBox_Preview.Enabled := false;
+      CheckBox_Preview.Checked := True;
+      FreeAndNil(FComputedImage);
+      FInitializingGui := False;
     end;
   end;
+end;
+
+procedure TFAdjustCurves.DisplayComputedImage;
+begin
+  if FComputedImage <> nil then
+    FFilterConnector.PutImage(FComputedImage, false, false);
+end;
+
+procedure TFAdjustCurves.StoreComputedImage;
+begin
+  if FComputedImage = nil then
+    FComputedImage := FFilterConnector.ActiveLayer.Duplicate;
 end;
 
 function TFAdjustCurves.ShowModal: integer;

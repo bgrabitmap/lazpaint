@@ -1,103 +1,102 @@
-object FSharpen: TFSharpen
-  Left = 734
-  Height = 113
-  Top = 206
-  Width = 173
+object FHypocycloid: TFHypocycloid
+  Left = 989
+  Height = 90
+  Top = 156
+  Width = 203
   AutoSize = True
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
-  Caption = 'Sharpen/Smooth'
+  Caption = 'Hypocycloid'
   ChildSizing.LeftRightSpacing = 8
   ChildSizing.TopBottomSpacing = 8
   ChildSizing.HorizontalSpacing = 8
   ChildSizing.VerticalSpacing = 8
   ChildSizing.Layout = cclLeftToRightThenTopToBottom
   ChildSizing.ControlsPerLine = 1
-  ClientHeight = 113
-  ClientWidth = 173
+  ClientHeight = 90
+  ClientWidth = 203
   OnCreate = FormCreate
+  OnHide = FormHide
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.2.4.0'
+  LCLVersion = '2.2.6.0'
   object Panel1: TPanel
     Left = 8
-    Height = 23
+    Height = 21
     Top = 8
     Width = 130
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 8
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
-    ClientHeight = 23
+    ClientHeight = 21
     ClientWidth = 130
     TabOrder = 0
     object Label_Amount: TLabel
       Left = 0
-      Height = 23
+      Height = 21
       Top = 0
-      Width = 50
-      Caption = 'Amount :'
+      Width = 42
+      Caption = 'Cusps:'
       Layout = tlCenter
       ParentColor = False
     end
-    object SpinEdit_Amount: TSpinEdit
-      Left = 58
-      Height = 23
+    object SpinEdit_CuspCount: TSpinEdit
+      Left = 50
+      Height = 21
       Top = 0
       Width = 65
       Constraints.MinWidth = 65
-      Increment = 10
-      MaxValue = 1000
+      MaxValue = 20
       MinValue = 1
-      OnChange = SpinEdit_AmountChange
+      OnChange = SpinEdit_CuspCountChange
       TabOrder = 0
-      Value = 100
+      Value = 6
     end
-  end
-  object CheckBox_Preview: TCheckBox
-    Left = 8
-    Height = 19
-    Top = 39
-    Width = 130
-    Caption = 'rsPreview'
-    Checked = True
-    OnChange = CheckBox_PreviewChange
-    State = cbChecked
-    TabOrder = 2
   end
   object Panel2: TPanel
     Left = 8
-    Height = 25
-    Top = 66
+    Height = 20
+    Top = 37
     Width = 130
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 8
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
-    ClientHeight = 25
+    ClientHeight = 20
     ClientWidth = 130
     TabOrder = 1
     object Button_OK: TButton
       Left = 0
-      Height = 25
+      Height = 20
       Top = 0
-      Width = 51
+      Width = 50
       AutoSize = True
       Caption = 'rsOK'
       Default = True
+      Enabled = False
+      ModalResult = 1
       OnClick = Button_OKClick
       TabOrder = 0
     end
     object Button_Cancel: TButton
-      Left = 59
-      Height = 25
+      Left = 58
+      Height = 20
       Top = 0
-      Width = 71
+      Width = 72
       AutoSize = True
       Cancel = True
       Caption = 'rsCancel'
       ModalResult = 2
+      OnClick = Button_CancelClick
       TabOrder = 1
     end
+  end
+  object TimerDisplay: TTimer
+    Enabled = False
+    Interval = 200
+    OnTimer = TimerDisplayTimer
+    Left = 152
+    Top = 24
   end
 end

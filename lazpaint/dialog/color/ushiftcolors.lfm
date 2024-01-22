@@ -1,23 +1,24 @@
 object FShiftColors: TFShiftColors
   Left = 509
-  Height = 141
+  Height = 160
   Top = 150
   Width = 490
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Shift colors'
-  ClientHeight = 141
+  ClientHeight = 160
   ClientWidth = 490
   Font.Height = -12
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '1.2.4.0'
+  LCLVersion = '2.2.4.0'
   object Label1: TLabel
     Left = 8
     Height = 15
     Top = 10
-    Width = 24
+    Width = 22
     Caption = 'Hue'
     ParentColor = False
   end
@@ -25,7 +26,7 @@ object FShiftColors: TFShiftColors
     Left = 8
     Height = 15
     Top = 48
-    Width = 63
+    Width = 54
     Caption = 'Saturation'
     ParentColor = False
   end
@@ -48,66 +49,73 @@ object FShiftColors: TFShiftColors
     TabOrder = 1
   end
   object Button_OK: TButton
-    Left = 163
+    Left = 168
     Height = 22
-    Top = 110
+    Top = 128
     Width = 59
-    Caption = 'OK'
+    Caption = 'rsOK'
     Default = True
     ModalResult = 1
     OnClick = Button_OKClick
     TabOrder = 2
   end
   object Button_Cancel: TButton
-    Left = 227
+    Left = 232
     Height = 22
-    Top = 110
+    Top = 128
     Width = 72
     Cancel = True
-    Caption = 'Cancel'
+    Caption = 'rsCancel'
     ModalResult = 2
     TabOrder = 3
   end
   object CheckBox_GSBA: TCheckBox
     Left = 8
-    Height = 22
+    Height = 19
     Top = 81
-    Width = 195
+    Width = 168
     Caption = 'Corrected hue and lightness'
     OnChange = CheckBox_GSBAChange
     TabOrder = 4
   end
   object FloatSpinEdit_Saturation: TFloatSpinEdit
     Left = 408
-    Height = 25
+    Height = 23
     Top = 43
     Width = 72
     DecimalPlaces = 3
-    Increment = 1
     MaxValue = 2
     MinValue = -2
     OnChange = FloatSpinEdit_SaturationChange
     TabOrder = 5
-    Value = 0
   end
   object FloatSpinEdit_Hue: TFloatSpinEdit
     Left = 408
-    Height = 25
+    Height = 23
     Top = 7
     Width = 72
     DecimalPlaces = 1
-    Increment = 1
     MaxValue = 180
     MinValue = -180
     OnChange = FloatSpinEdit_HueChange
     TabOrder = 6
-    Value = 0
+  end
+  object CheckBox_Preview: TCheckBox
+    Left = 8
+    Height = 19
+    Top = 109
+    Width = 70
+    Caption = 'rsPreview'
+    Checked = True
+    OnChange = CheckBox_PreviewChange
+    State = cbChecked
+    TabOrder = 7
   end
   object TimerDrawPendingRows: TTimer
     Enabled = False
     Interval = 10
     OnTimer = TimerDrawPendingRowsTimer
-    left = 362
-    top = 80
+    Left = 362
+    Top = 80
   end
-end
+end

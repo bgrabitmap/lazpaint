@@ -1,25 +1,25 @@
 object FPhongFilter: TFPhongFilter
   Left = 402
-  Height = 191
+  Height = 210
   Top = 127
   Width = 509
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Shaded map'
-  ClientHeight = 191
+  ClientHeight = 210
   ClientWidth = 509
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.1'
+  LCLVersion = '2.2.4.0'
   object Button_OK: TButton
     Left = 175
     Height = 22
-    Top = 162
+    Top = 181
     Width = 59
     Anchors = [akLeft, akBottom]
-    Caption = 'OK'
+    Caption = 'rsOK'
     Default = True
     OnClick = Button_OKClick
     TabOrder = 0
@@ -27,11 +27,11 @@ object FPhongFilter: TFPhongFilter
   object Button_Cancel: TButton
     Left = 241
     Height = 22
-    Top = 162
+    Top = 181
     Width = 73
     Anchors = [akLeft, akBottom]
     Cancel = True
-    Caption = 'Cancel'
+    Caption = 'rsCancel'
     ModalResult = 2
     TabOrder = 1
   end
@@ -71,7 +71,7 @@ object FPhongFilter: TFPhongFilter
     Top = 4
     Width = 128
     Caption = 'Color'
-    ClientHeight = 88
+    ClientHeight = 86
     ClientWidth = 124
     TabOrder = 3
     object Radio_UsePenColor: TRadioButton
@@ -96,7 +96,7 @@ object FPhongFilter: TFPhongFilter
       Left = 6
       Height = 19
       Top = 63
-      Width = 99
+      Width = 100
       Caption = 'Current texture'
       OnChange = Radio_UseChange
       TabOrder = 2
@@ -124,7 +124,7 @@ object FPhongFilter: TFPhongFilter
     Top = 4
     Width = 152
     Caption = 'Altitude map'
-    ClientHeight = 100
+    ClientHeight = 98
     ClientWidth = 148
     TabOrder = 4
     object Radio_MapAlpha: TRadioButton
@@ -193,11 +193,22 @@ object FPhongFilter: TFPhongFilter
       TabOrder = 4
     end
   end
+  object CheckBox_Preview: TCheckBox
+    Left = 14
+    Height = 19
+    Top = 160
+    Width = 70
+    Caption = 'rsPreview'
+    Checked = True
+    OnChange = CheckBox_PreviewChange
+    State = cbChecked
+    TabOrder = 5
+  end
   object Timer1: TTimer
     Enabled = False
     Interval = 200
     OnTimer = Timer1Timer
-    left = 312
-    top = 176
+    Left = 312
+    Top = 176
   end
 end

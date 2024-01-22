@@ -17,6 +17,7 @@ type
   TFPixelate = class(TForm)
     Button_Cancel: TButton;
     Button_OK: TButton;
+    CheckBox_Preview: TCheckBox;
     ComboBox_Quality: TComboBox;
     Label_Quality: TLabel;
     Label_PixelSize: TLabel;
@@ -25,6 +26,7 @@ type
     Panel3: TPanel;
     SpinEdit_PixelSize: TSpinEdit;
     procedure Button_OKClick(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure ComboBox_QualityChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -97,6 +99,8 @@ procedure TFPixelate.Button_OKClick(Sender: TObject);
 var
   qualityStr: TCaption;
 begin
+  if not CheckBox_Preview.Checked then PreviewNeeded;
+
   FFilterConnector.ValidateAction;
   FFilterConnector.LazPaintInstance.Config.SetDefaultPixelateSize(SpinEdit_PixelSize.Value);
   qualityStr := ComboBox_Quality.Text;
@@ -109,9 +113,19 @@ begin
   ModalResult := mrOK;
 end;
 
+procedure TFPixelate.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if FInitializing then exit;
+  if CheckBox_Preview.Checked then
+    PreviewNeeded
+  else
+   FFilterConnector.RestoreBackup;
+end;
+
 procedure TFPixelate.ComboBox_QualityChange(Sender: TObject);
 begin
-  if not FInitializing then PreviewNeeded;
+  if not FInitializing and
+    CheckBox_Preview.Checked then PreviewNeeded;
 end;
 
 procedure TFPixelate.FormShow(Sender: TObject);
@@ -123,7 +137,8 @@ end;
 
 procedure TFPixelate.SpinEdit_PixelSizeChange(Sender: TObject);
 begin
-  if not FInitializing then PreviewNeeded;
+  if not FInitializing and
+    CheckBox_Preview.Checked then PreviewNeeded;
 end;
 
 function TFPixelate.ComputeFilteredLayer: TBGRABitmap;
@@ -155,6 +170,11 @@ begin
     qualityStr := '';
 
   ComboBox_Quality.ItemIndex := ComboBox_Quality.Items.IndexOf(qualityStr);
+
+  CheckBox_Preview.Checked := True;
+  CheckBox_Preview.Caption := rsPreview;
+  Button_OK.Caption := rsOK;
+  Button_Cancel.Caption := rsCancel;
   FInitializing := false;
 end;
 

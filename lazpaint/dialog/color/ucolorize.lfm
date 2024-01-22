@@ -1,23 +1,23 @@
 object FColorize: TFColorize
   Left = 476
-  Height = 174
+  Height = 193
   Top = 173
   Width = 489
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Colorize'
-  ClientHeight = 174
+  ClientHeight = 193
   ClientWidth = 489
   Font.Height = -12
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poOwnerFormCenter
-  LCLVersion = '2.0.2.0'
+  LCLVersion = '2.2.4.0'
   object Label_Hue: TLabel
     Left = 8
     Height = 15
     Top = 10
-    Width = 24
+    Width = 22
     Caption = 'Hue'
     ParentColor = False
   end
@@ -25,7 +25,7 @@ object FColorize: TFColorize
     Left = 8
     Height = 15
     Top = 48
-    Width = 57
+    Width = 52
     Caption = 'Colorness'
     ParentColor = False
   end
@@ -50,10 +50,10 @@ object FColorize: TFColorize
   object Button_OK: TButton
     Left = 173
     Height = 22
-    Top = 143
+    Top = 162
     Width = 59
     Anchors = [akLeft, akBottom]
-    Caption = 'OK'
+    Caption = 'rsOK'
     Default = True
     ModalResult = 1
     OnClick = Button_OKClick
@@ -62,43 +62,39 @@ object FColorize: TFColorize
   object Button_Cancel: TButton
     Left = 237
     Height = 22
-    Top = 143
+    Top = 162
     Width = 72
     Anchors = [akLeft, akBottom]
     Cancel = True
-    Caption = 'Cancel'
+    Caption = 'rsCancel'
     ModalResult = 2
     TabOrder = 3
   end
   object FloatSpinEdit_Hue: TFloatSpinEdit
     Left = 408
-    Height = 27
+    Height = 23
     Top = 7
     Width = 72
     DecimalPlaces = 1
     MaxValue = 360
-    MinValue = 0
     OnChange = FloatSpinEdit_HueChange
     TabOrder = 4
-    Value = 0
   end
   object FloatSpinEdit_Saturation: TFloatSpinEdit
     Left = 408
-    Height = 27
+    Height = 23
     Top = 43
     Width = 72
     DecimalPlaces = 3
     MaxValue = 1
-    MinValue = 0
     OnChange = FloatSpinEdit_SaturationChange
     TabOrder = 5
-    Value = 0
   end
   object CheckBox_GSBA: TCheckBox
     Left = 8
-    Height = 23
+    Height = 19
     Top = 80
-    Width = 197
+    Width = 168
     Caption = 'Corrected hue and lightness'
     OnChange = CheckBox_GSBAChange
     TabOrder = 6
@@ -117,8 +113,8 @@ object FColorize: TFColorize
     object Label_Preset: TLabel
       Left = 0
       Height = 15
-      Top = 7
-      Width = 37
+      Top = 4
+      Width = 32
       AutoSize = False
       BorderSpacing.Right = 6
       BorderSpacing.CellAlignVertical = ccaCenter
@@ -126,21 +122,21 @@ object FColorize: TFColorize
       ParentColor = False
     end
     object Combo_Preset: TComboBox
-      Left = 43
-      Height = 29
+      Left = 38
+      Height = 23
       Top = 0
       Width = 100
       BorderSpacing.Right = 6
       BorderSpacing.CellAlignVertical = ccaCenter
-      ItemHeight = 0
+      ItemHeight = 15
       OnChange = Combo_PresetChange
       Style = csDropDownList
       TabOrder = 0
     end
     object ToolBar_AddRemove: TToolBar
-      Left = 149
+      Left = 144
       Height = 22
-      Top = 3
+      Top = 0
       Width = 47
       Align = alNone
       BorderSpacing.CellAlignVertical = ccaCenter
@@ -159,5 +155,16 @@ object FColorize: TFColorize
         OnClick = ToolButton_RemoveClick
       end
     end
+  end
+  object CheckBox_Preview: TCheckBox
+    Left = 8
+    Height = 19
+    Top = 136
+    Width = 70
+    Caption = 'rsPreview'
+    Checked = True
+    OnChange = CheckBox_PreviewChange
+    State = cbChecked
+    TabOrder = 8
   end
 end
