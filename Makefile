@@ -170,7 +170,7 @@ ifeq "$(lazdir)" ""
 else
 	$(COPY) "resources/lazpaint.res" "lazpaint/lazpaint.res"
 	$(CREATEDIR) "lazpaint/release/lib"
-	cd lazpaint $(THEN) $(fpcbin) -orelease/lazpaint -Fu./buttons -Fi./buttons -Fu./image -Fi./image -Fu./cursors -Fi./cursors -Fu./buttons -Fi./buttons -Fu./* -Fi./* -Fu../$(BGRACONTROLS_DIR) -Fi../$(BGRACONTROLS_DIR) -Fu../$(BGRABITMAP_DIR) -Fi../$(BGRABITMAP_DIR) $(LAZARUSDIRECTORIES) -MObjFPC -Scgi -Cg -OoREGVAR -Xs -XX -l -vewnhibq -O3 -CX -vi -FUrelease/lib/ -dLCL -d$(INTERFACE) lazpaint.lpr
+	cd lazpaint $(THEN) $(fpcbin) -B -orelease/lazpaint -Fu./buttons -Fi./buttons -Fu./image -Fi./image -Fu./cursors -Fi./cursors -Fu./buttons -Fi./buttons -Fu./* -Fi./* -Fu../$(BGRACONTROLS_DIR) -Fi../$(BGRACONTROLS_DIR) -Fu../$(BGRABITMAP_DIR) -Fi../$(BGRABITMAP_DIR) $(LAZARUSDIRECTORIES) -MObjFPC -Scgi -Cg -OoREGVAR -Xs -XX -l -vewnhibq -O1 -CX -vi -FUrelease/lib/ -dLCL -d$(INTERFACE) lazpaint.lpr
 endif
 ifeq ($(MULTIBIN),1)
 	mv "$(SOURCE_BIN_DIR)/lazpaint" "$(SOURCE_BIN_DIR)/$(package)"

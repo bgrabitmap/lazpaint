@@ -1253,6 +1253,7 @@ begin
   UpdateToolBar;
   FShouldArrange := true;
   QueryArrange;
+  TimerUpdate.Enabled := true;
 end;
 
 procedure TFMain.OnLatestVersionUpdate(ANewVersion: string);
@@ -2595,6 +2596,7 @@ end;
 
 procedure TFMain.FormHide(Sender: TObject);
 begin
+  TimerUpdate.Enabled := false;
   FShouldArrange := false;
   FTopMostInfo := LazPaintInstance.HideTopmost;
   LazPaintInstance.SaveMainWindowPosition;
@@ -2697,6 +2699,7 @@ end;
 
 procedure TFMain.TimerUpdateTimer(Sender: TObject);
 begin
+  if FLazPaintInstance = nil then exit;
   TimerUpdate.Enabled := false;
   if ToolManager.ToolSleeping and not spacePressed and
      ([ssLeft,ssRight,ssMiddle] * FLayout.MouseButtonState = []) then

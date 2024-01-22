@@ -381,6 +381,7 @@ procedure TLazPaintInstance.ReportActionProgress(AProgressPercent: integer);
 var
   delay: Integer;
 begin
+  {$IFDEF LCLqt5}exit;{$ENDIF}
   if AProgressPercent < 100 then delay := 10000 else delay := 1000;
   if Assigned(FMain) then FMain.UpdatingPopup:= true;
   try

@@ -7,6 +7,10 @@
    {{ $link_linux64_no_install := printf "%s_linux64_no_install.tar.gz" $prefix -}}
    {{ $link_linux32_deb := printf "%s_linux32.deb" $prefix -}}
    {{ $link_linux64_deb := printf "%s_linux64.deb" $prefix -}}
+   {{ $link_linux32_qt5_no_install := printf "%s_linux32_qt5_no_install.tar.gz" $prefix -}}
+   {{ $link_linux64_qt5_no_install := printf "%s_linux64_qt5_no_install.tar.gz" $prefix -}}
+   {{ $link_linux32_qt5_deb := printf "%s_linux32_qt5.deb" $prefix -}}
+   {{ $link_linux64_qt5_deb := printf "%s_linux64_qt5.deb" $prefix -}}
    {{ $link_rpi32_no_install := printf "%s_raspbian-hf_no_install.tar.gz" $prefix -}}
    {{ $link_rpi64_no_install := printf "%s_raspbian64_no_install.tar.gz" $prefix -}}
    {{ $link_rpi32_deb := printf "%s_raspbian-hf.deb" $prefix -}}
@@ -42,6 +46,11 @@
                 <a class="button" href="{{$link_linux32_no_install}}">{{ printf (i18n "archive") (i18n "bit_32") }}
                     ({{ i18n "no_install" }})</a>
                 <a class="button" href="{{$link_linux64_no_install}}">{{ printf (i18n "archive") (i18n "bit_64") }}
+                    ({{ i18n "no_install" }})</a></p>
+            <h2>Linux (Qt5)</h2>
+            <p><a class="btn btn-dark" href="{{$link_linux64_qt5_deb}}">Qt5 {{ printf (i18n "deb_package") (i18n "bit_64") }}
+                    </a>
+                <a class="btn btn-dark" href="{{$link_linux64_qt5_no_install}}">Qt5 {{ printf (i18n "archive") (i18n "bit_64") }}
                     ({{ i18n "no_install" }})</a></p>
             <h2>Rpi</h2>
             <p><a class="button" href="{{$link_rpi32_deb}}">{{ printf (i18n "deb_package") (i18n "bit_32") }}
