@@ -815,11 +815,11 @@ begin
     if segmentLen > 0 then
     begin
       u *= 1/segmentLen;
-      segmentPos := (FMousePos-Points[i])*u;
+      segmentPos := (FMousePos-Points[i])**u;
       if (segmentPos > 0) and (segmentPos< segmentLen) then
       begin
         n := PointF(u.y,-u.x);
-        segmentDist := abs((FMousePos-Points[i])*n);
+        segmentDist := abs((FMousePos-Points[i])**n);
         if segmentDist <= bestSegmentDist then
         begin
           bestSegmentDist := segmentDist;

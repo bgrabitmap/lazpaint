@@ -327,7 +327,7 @@ begin
     if not SubPixelAccuracy then
       len := max(abs(v.x),abs(v.y))
     else
-      len := sqrt(v*v);
+      len := sqrt(v**v);
     minLen := round(power(BrushInfo.Size/10,0.8));
     if minLen < 1 then minLen := 1;
     if minLen > 5 then minLen := 5;

@@ -9,7 +9,7 @@ unit UImageView;
 interface
 
 uses
-  Classes, SysUtils, USelectionHighlight, BGRABitmap, BGRABitmapTypes,
+  Classes, SysUtils, USelectionHighlight, BGRABitmap, Types, BGRABitmapTypes,
   LazPaintType, UImage, UZoom, Graphics, Controls, LCLType, UImageObservation,
   laztablet, LMessages;
 
@@ -145,7 +145,7 @@ type
 
 implementation
 
-uses BGRATransform, LCLIntf, Types, ugraph, math, UTool, BGRAThumbnail, LCScaleDPI, Forms,
+uses BGRATransform, LCLIntf, ugraph, math, UTool, BGRAThumbnail, LCScaleDPI, Forms,
   UToolVectorial, ExtCtrls;
 
 procedure InvalidateControlRect(AControl: TControl; AArea: TRect);
