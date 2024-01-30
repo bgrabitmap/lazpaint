@@ -962,6 +962,9 @@ begin
   ComboBox_ArrowEnd.Font.Height := ComboBox_BrushSelect.Font.Height;
   {$ENDIF}
 
+  ClientWidth := DoScaleX(ClientWidth, 96);
+  ClientHeight := DoScaleY(ClientHeight, 96);
+
   FInitialized := true;
   FirstPaint := true;
 end;

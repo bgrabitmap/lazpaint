@@ -881,7 +881,8 @@ end;
 
 function TLazPaintConfig.DefaultToolPenWidth: single;
 begin
-  result := iniOptions.ReadFloat('Tool','PenWidth',5);
+  result := iniOptions.ReadFloat('Tool','PenWidth',
+    round(5 * ScreenInfo.PixelsPerInchX / 96));
 end;
 
 procedure TLazPaintConfig.SetDefaultToolPenWidth(value: single);
@@ -891,7 +892,8 @@ end;
 
 function TLazPaintConfig.DefaultToolEraserWidth: single;
 begin
-  result := iniOptions.ReadFloat('Tool','EraserWidth',10);
+  result := iniOptions.ReadFloat('Tool','EraserWidth',
+    round(10 * ScreenInfo.PixelsPerInchX / 96));
 end;
 
 procedure TLazPaintConfig.SetDefaultToolEraserWidth(value: single);

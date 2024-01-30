@@ -1759,7 +1759,7 @@ begin
       end;
   end else
     bmp.FillEllipseAntialias(x,y,visualSize/2,visualSize/2,c);
-  t := round(ImageList16.Width*scaling);
+  t := round(DoScaleX(ImageList16.Width, 96)*scaling);
   margin := DoScaleX(round(4*scaling),OriginalDPI);
   FPenPlusMinus := round((t+margin)/scaling);
   m := t/10;
