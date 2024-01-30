@@ -1190,25 +1190,36 @@ begin
 end;
 
 function NicePointBounds(x,y: single): TRect;
+var
+  penWidth, penWidthStroke: Single;
 begin
-  result := rect(floor(x)-NicePointMaxRadius*CanvasScale-1,floor(y)-NicePointMaxRadius*CanvasScale-1,
-  ceil(x)+NicePointMaxRadius*CanvasScale+2,ceil(y)+NicePointMaxRadius*CanvasScale+2);
+  penWidth := NicePointMaxRadius*CanvasScale / 6;
+  if penWidth < 1 then penWidth := 1;
+  penWidthStroke := penWidth * 3.5;
+  result := rect(floor(x-NicePointMaxRadius*CanvasScale-penWidthStroke/2)-1,
+    floor(y-NicePointMaxRadius*CanvasScale-penWidthStroke/2)-1,
+    ceil(x+NicePointMaxRadius*CanvasScale+penWidthStroke/2)+2,
+    ceil(y+NicePointMaxRadius*CanvasScale+penWidthStroke/2)+2);
 end;
 
 function NicePoint(bmp: TBGRABitmap; x, y: single; alpha: byte = 192): TRect;
 var
   multi: TBGRAMultishapeFiller;
   oldClip: TRect;
+  penWidth, penWidthStroke: Single;
 begin
   result := NicePointBounds(x,y);
   if not Assigned(bmp) then exit;
   oldClip := bmp.ClipRect;
   bmp.IntersectClip(result);
+  penWidth := NicePointMaxRadius*CanvasScale / 6;
+  if penWidth < 1 then penWidth := 1;
+  penWidthStroke := penWidth * 3.5;
   multi := TBGRAMultishapeFiller.Create;
-  multi.AddEllipseBorder(x,y,NicePointMaxRadius*CanvasScale-1*CanvasScale,
-    NicePointMaxRadius*CanvasScale-1*CanvasScale, CanvasScale*3, BGRA(0,0,0,alpha));
-  multi.AddEllipseBorder(x,y,NicePointMaxRadius*CanvasScale-1*CanvasScale,
-    NicePointMaxRadius*CanvasScale-1*CanvasScale, CanvasScale*1, BGRA(255,255,255,alpha));
+  multi.AddEllipseBorder(x,y,NicePointMaxRadius*CanvasScale-2,
+    NicePointMaxRadius*CanvasScale-2, penWidthStroke, BGRA(0,0,0,alpha));
+  multi.AddEllipseBorder(x,y,NicePointMaxRadius*CanvasScale-2,
+    NicePointMaxRadius*CanvasScale-2, penWidth, BGRA(255,255,255,alpha));
   multi.PolygonOrder:= poLastOnTop;
   multi.Draw(bmp);
   multi.Free;
