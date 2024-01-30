@@ -104,7 +104,7 @@ type
   TVSCursorPosition = record
      bounds: TRect;
      c: TPointF;
-     rx,ry: single;
+     rx,ry,penWidth: single;
   end;
   ArrayOfLayerId = array of integer;
 

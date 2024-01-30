@@ -91,6 +91,7 @@ var
       Button.Cancel := ACancel;
       Button.Default := ADefault;
       Button.Width := DoScaleX(120, OriginalDPI);
+      Button.Height := DoScaleY(24, OriginalDPI);
       self.InsertControl(Button);
 
       Button.Top := y;

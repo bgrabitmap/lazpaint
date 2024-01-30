@@ -427,12 +427,14 @@ end;
 
 function TLazPaintConfig.DefaultImageWidth: integer;
 begin
-  result := iniOptions.ReadInteger('General','DefaultImageWidth',640);
+  result := iniOptions.ReadInteger('General','DefaultImageWidth',
+    round(640 * ScreenInfo.PixelsPerInchX / 96));
 end;
 
 function TLazPaintConfig.DefaultImageHeight: integer;
 begin
-  result := iniOptions.ReadInteger('General','DefaultImageHeight',480);
+  result := iniOptions.ReadInteger('General','DefaultImageHeight',
+    round(480 * ScreenInfo.PixelsPerInchX / 96));
 end;
 
 procedure TLazPaintConfig.SetDefaultImageWidth(value: integer);
