@@ -96,6 +96,7 @@ resourcestring
   rsZoomLayerStackIn = 'Zoom layer stack in';
   rsZoomLayerStackOut = 'Zoom layer stack out';
   rsRightClickForSource = 'Use RIGHT click to define source';
+  rsRightClickForTransformCenter = 'Use RIGHT click to define transform center';
 
   rsFileCannotBeEmpty = 'File cannot be empty';
   rsEmptySelection='Selection is empty';

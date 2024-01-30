@@ -3484,6 +3484,10 @@ msgstr "Use o botão DIREITO para finalizar a forma"
 msgid "Use RIGHT click to define source"
 msgstr "Use o botão DIREITO para definir a origem"
 
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Use o botão DIREITO para definir o centro de transformação"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"

@@ -1,4 +1,4 @@
-﻿msgid ""
+msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
@@ -3495,6 +3495,10 @@ msgstr ""
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
 msgstr "Użyj prawokliku, aby zdefiniować źródło"
+
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Użyj prawokliku, aby zdefiniować centrum transformacji"
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"

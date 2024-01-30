@@ -3230,6 +3230,7 @@ msgid "Make monochromatic"
 msgstr ""
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
+#, fuzzy, badformat
 msgid "Make %1-colors palette from image"
 msgstr "Skapa %1-färgers palett från bilden"
 
@@ -3481,6 +3482,10 @@ msgstr ""
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
 msgstr "Använd Högerklick för att välja källa"
+
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Högerklicka för att definiera omvandlingscentret"
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"

@@ -167,7 +167,7 @@ type
   TToolPopupMessage= (tpmNone, tpmHoldKeyForSquare, tpmHoldKeySnapToPixel,
     tpmReturnValides, tpmBackspaceRemoveLastPoint, tpmRightClickFinishShape, tpmHoldKeyRestrictRotation,
     tpmHoldKeysScaleMode, tpmCurveModeHint, tpmBlendOpBackground,
-    tpmRightClickForSource, tpmNothingToBeDeformed);
+    tpmRightClickForSource, tpmNothingToBeDeformed, tpmRightClickForTransformCenter);
 
   TOnToolChangedHandler = procedure(sender: TToolManager; ANewToolType: TPaintToolType) of object;
   TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage; AKey: Word; AAlways: boolean) of object;
@@ -765,6 +765,7 @@ begin
   tpmBlendOpBackground: result := rsBlendOpNotUsedForBackground;
   tpmRightClickForSource: result := rsRightClickForSource;
   tpmNothingToBeDeformed: result := rsNothingToBeDeformed;
+  tpmRightClickForTransformCenter: result := rsRightClickForTransformCenter;
   else
     result := '';
   end;

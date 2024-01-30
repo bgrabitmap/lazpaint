@@ -3497,6 +3497,10 @@ msgstr ""
 msgid "Use RIGHT click to define source"
 msgstr "单击右键来定义源"
 
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "右键单击以定义转换中心"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"

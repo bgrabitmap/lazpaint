@@ -3460,6 +3460,10 @@ msgstr "Щелчок правой кнопкой мыши, чтобы закон
 msgid "Use RIGHT click to define source"
 msgstr "Щелчок правой кнопкой мыши, чтобы установить источник"
 
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Щелчок правой кнопкой мыши, чтобы определить центр трансформации"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"

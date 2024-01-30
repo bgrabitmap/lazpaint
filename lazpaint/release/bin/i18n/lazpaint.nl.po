@@ -3472,6 +3472,10 @@ msgstr "Gebruik RECHTS klikken om de vorm te finaliseren"
 msgid "Use RIGHT click to define source"
 msgstr "Gebruik RECHTS klikken om de bron te definiëren"
 
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Gebruik RECHTS klikken om het transformatiecentrum te definiëren"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"

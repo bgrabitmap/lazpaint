@@ -3463,6 +3463,10 @@ msgstr ""
 msgid "Use RIGHT click to define source"
 msgstr "Укажете източника с ДЕСЕН цък"
 
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Щракнете с десния бутон, за да зададете центъра на трансформацията"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"

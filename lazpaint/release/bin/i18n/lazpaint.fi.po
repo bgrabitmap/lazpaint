@@ -3469,6 +3469,10 @@ msgstr ""
 msgid "Use RIGHT click to define source"
 msgstr ""
 
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr ""
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"

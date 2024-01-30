@@ -74,6 +74,7 @@ type
     FLastUpdateRectDefined: boolean;
     FOriginalBounds: TRect;
     FOriginalBoundsDefined: boolean;
+    class var RightClickHintShown: boolean;
     function GetIsSelectingTool: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
@@ -545,6 +546,11 @@ end;
 function TToolTransformLayer.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 begin
+  if not RightClickHintShown then
+  begin
+    Manager.ToolPopup(tpmRightClickForTransformCenter);
+    RightClickHintShown := true;
+  end;
   with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
     ptF += PointF(X,Y);
   if FTransforming then

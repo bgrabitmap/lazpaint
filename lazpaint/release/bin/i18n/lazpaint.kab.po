@@ -3502,6 +3502,10 @@ msgstr ""
 msgid "Use RIGHT click to define source"
 msgstr "Seqdec asiti ayfus iwakken ad tesbaduḍ aɣbalu"
 
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr ""
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"
