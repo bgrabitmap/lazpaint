@@ -3467,6 +3467,10 @@ msgstr "Укажете източника с ДЕСЕН цък"
 msgid "Use RIGHT click to define transform center"
 msgstr "Щракнете с десния бутон, за да зададете центъра на трансформацията"
 
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Изпълни този скрипт отново, за да актуализираш ефекта"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"

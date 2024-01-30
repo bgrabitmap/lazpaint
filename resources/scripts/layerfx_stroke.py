@@ -10,7 +10,8 @@ except ImportError:
         
 from lazpaint import colors, image, layer, filters, tools, selection
 
-translation = dialog.translate_dict(["Layer is empty", "Radius", "Color", "Opacity", "Ok", "Cancel"])
+translation = dialog.translate_dict(["Layer is empty", "Radius", "Color", 
+    "Opacity", "Ok", "Cancel", "Run this script again to update effect"])
 
 if layer.is_empty():
     dialog.show_message(translation["Layer is empty"])
@@ -193,6 +194,10 @@ label_color = Label(frame, text=translation["Color"])
 label_color.grid(column=0, row=2)
 button_color = Button(frame, text=translation["Color"] + "...", command=button_color_click)
 button_color.grid(column=1, row=2)
+
+label_info = Label(frame, text=translation["Run this script again to update effect"],
+    background="SystemInfoBackground", foreground="SystemInfoText", borderwidth=1, relief="solid")
+label_info.grid(column=0, rows=3, columnspan=2)
 
 frame.columnconfigure(0, pad=20)
 frame.columnconfigure(1, minsize=250)

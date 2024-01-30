@@ -3314,6 +3314,10 @@ msgstr "Použijte PRAVÝ klik k určení zdroje"
 msgid "Use RIGHT click to define transform center"
 msgstr "Kliknutím pravým tlačítkem myši nastavte střed transformace"
 
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Spusťte tento skript znovu, aby se aktualizoval efekt"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"

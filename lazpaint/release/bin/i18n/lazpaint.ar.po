@@ -3482,6 +3482,10 @@ msgstr ""
 msgid "Use RIGHT click to define transform center"
 msgstr "انقر بزر الماوس الأيمن لتعيين مركز التحويل"
 
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "قم بتشغيل البرنامج النصي مرة أخرى لتحديث التأثير"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"

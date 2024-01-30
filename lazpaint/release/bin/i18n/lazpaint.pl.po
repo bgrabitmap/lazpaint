@@ -3500,6 +3500,10 @@ msgstr "Użyj prawokliku, aby zdefiniować źródło"
 msgid "Use RIGHT click to define transform center"
 msgstr "Użyj prawokliku, aby zdefiniować centrum transformacji"
 
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Uruchom ten skrypt ponownie, aby zaktualizować efekt"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"

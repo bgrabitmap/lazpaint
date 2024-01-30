@@ -3479,6 +3479,10 @@ msgstr ""
 msgid "Use RIGHT click to define transform center"
 msgstr ""
 
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "このスクリプトを再度実行して、効果を更新します"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"

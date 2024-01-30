@@ -3494,6 +3494,10 @@ msgstr "Kaynağı tanımlamak için SAĞ tıklamayı kullanın"
 msgid "Use RIGHT click to define transform center"
 msgstr "Dönüşüm merkezini tanımlamak için sağ tıklayın"
 
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Efekti güncellemek için bu komut dosyasını yeniden çalıştırın"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"

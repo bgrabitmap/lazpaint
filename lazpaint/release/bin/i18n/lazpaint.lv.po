@@ -3508,6 +3508,10 @@ msgstr "Ar peles labo pogu norādi avotu"
 msgid "Use RIGHT click to define transform center"
 msgstr ""
 
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Paleiskite šį scenarijų dar kartą, kad atnaujintumėte efektą"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"

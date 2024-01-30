@@ -201,6 +201,7 @@ resourcestring
   rsUnknownCommand='Unknown command : ';
   rsUnableToSaveFile='Unable to save file : ';
   rsInternalError='Internal error';
+  rsRunScriptAgainToUpdateEffect='Run this script again to update effect';
 
   rsExpectNParameters='expects N parameters : ';
   rsExpect1Parameter='expects one parameter : ';

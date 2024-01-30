@@ -3487,6 +3487,10 @@ msgstr "Använd Högerklick för att välja källa"
 msgid "Use RIGHT click to define transform center"
 msgstr "Högerklicka för att definiera omvandlingscentret"
 
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Kör det här skriptet igen för att uppdatera effekten"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"

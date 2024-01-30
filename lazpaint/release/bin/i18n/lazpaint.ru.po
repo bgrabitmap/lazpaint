@@ -3464,6 +3464,10 @@ msgstr "Щелчок правой кнопкой мыши, чтобы устан
 msgid "Use RIGHT click to define transform center"
 msgstr "Щелчок правой кнопкой мыши, чтобы определить центр трансформации"
 
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Запустите этот скрипт еще раз, чтобы обновить эффект"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"
