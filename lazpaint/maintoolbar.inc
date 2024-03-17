@@ -127,7 +127,6 @@ begin
   Tool_TextPhong.OnClick := @Tool_TextPhongClick;
   Tool_TextShadow.OnClick := @Tool_TextShadowClick;
   Tool_TextOutline.OnClick := @Tool_TextOutlineClick;
-  Panel_TextMore.AutoSize := true;
   Panel_ToolbarBackground.OnMouseMove := @Panel_ToolbarBackgroundMouseMove;
   TimerHidePenPreview.OnTimer := @TimerHidePenPreviewTimer;
   TimerHideTextMore.OnTimer := @TimerHideTextMoreTimer;
@@ -1582,9 +1581,22 @@ begin
 end;
 
 procedure TFMain.ShowTextMore;
+var
+  w, h: Integer;
 begin
   if not Panel_TextMore.Visible then
   begin
+    ToolBar25.AutoSize := false;
+    w := ToolBar25.Width;
+    h := ToolBar25.Height;
+    ToolBar25.GetPreferredSize(w, h);
+    ToolBar25.Width := w;
+    ToolBar25.Height := h;
+    ToolBar25.Left := DoScaleX(2, 96);
+    ToolBar25.Top := DoScaleX(2, 96);
+
+    Panel_TextMore.Width := ToolBar25.Width + DoScaleX(4, 96);
+    Panel_TextMore.Height := ToolBar25.Height + DoScaleX(4, 96);
     Panel_TextMore.Left := min(Panel_Text.Left, ClientWidth-Panel_TextMore.Width);
     Panel_TextMore.Top := Panel_Text.Top+Panel_Text.Height;
     Panel_TextMore.Visible := True;

@@ -974,6 +974,7 @@ begin
   CreateToolbarElements;
   FLayout.DarkTheme := Config.GetDarkTheme;
   DarkThemeInstance.Apply(Panel_PenWidthPreview, Config.GetDarkTheme);
+  DarkThemeInstance.Apply(Panel_TextMore, Config.GetDarkTheme);
 end;
 
 function TFMain.GetToolManager: TToolManager;
@@ -1208,6 +1209,9 @@ begin
 
     SVGImageList1.Width := iconSize;
     SVGImageList1.Height := iconSize;
+    SVGImageList1.PopulateImageList(SVGRasterImageList1, [iconSize]);
+    ToolBar25.ButtonWidth:= iconSize + DoScaleX(4, OriginalDPI, toolbarDPI);
+    ToolBar25.ButtonHeight:= iconSize + DoScaleY(4, OriginalDPI, toolbarDPI);
     Button_Donate.Images := m.ImageList;
     w := Button_Donate.Width; h := Button_Donate.Height;
     Button_Donate.GetPreferredSize(w, h);
