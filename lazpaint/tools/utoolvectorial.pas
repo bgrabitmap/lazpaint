@@ -89,6 +89,7 @@ type
     function GetIsBackEditGradTexPoints: boolean; override;
     function GetIsOutlineEditGradTexPoints: boolean; override;
     function GetGridMatrix: TAffineMatrix; virtual;
+    function GetIsEditingText: boolean; override;
     property Editor: TBGRAOriginalEditor read GetEditor;
   public
     class procedure ForgetHintShown;
@@ -1823,6 +1824,11 @@ begin
     else
       result := AffineMatrixIdentity;
   end;
+end;
+
+function TVectorialTool.GetIsEditingText: boolean;
+begin
+  Result:= assigned(FShape) and (FShape.Usermode = vsuEditText);
 end;
 
 class procedure TVectorialTool.ForgetHintShown;

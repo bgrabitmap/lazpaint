@@ -89,6 +89,7 @@ type
     function GetIdleAction: TLayerAction; virtual;
     function GetLayerOffset: TPoint; virtual;
     function GetIsSelectingTool: boolean; virtual; abstract;
+    function GetIsEditingText: boolean; virtual;
     function FixSelectionTransform: boolean; virtual;
     function FixLayerOffset: boolean; virtual;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; virtual;
@@ -138,6 +139,7 @@ type
     function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; virtual;
     property Manager : TToolManager read FManager;
     property IsSelectingTool: boolean read GetIsSelectingTool;
+    property IsEditingText: boolean read GetIsEditingText;
     property Action : TLayerAction read GetAction;
     property LayerOffset : TPoint read GetLayerOffset;
     property LastToolDrawingLayer: TBGRABitmap read FLastToolDrawingLayer;
@@ -274,6 +276,7 @@ type
     function GetBrushCount: integer;
     function GetBrushInfo: TLazPaintBrush;
     function GetForeColor: TBGRAPixel;
+    function GetIsEditingText: boolean;
     function GetMaxDeformationGridSize: TSize;
     function GetOutlineColor: TBGRAPixel;
     function GetShapeOptionAliasing: boolean;
@@ -566,6 +569,7 @@ type
     property TextOutline: boolean read FTextOutline;
     property TextOutlineWidth: single read FTextOutlineWidth;
     property TextPhong: boolean read FTextPhong write SetTextPhong;
+    property IsEditingText: boolean read GetIsEditingText;
     property LightPosition: TPointF read FLightPosition write SetLightPosition;
     property LightAltitude: integer read FLightAltitude write SetLightAltitude;
     property TextShadow: boolean read FTextShadow write SetTextShadow;
@@ -823,6 +827,11 @@ begin
       TBGRABitmap.ScannerBrush(result, AScan);
     end;
   end;
+end;
+
+function TGenericTool.GetIsEditingText: boolean;
+begin
+  result := false;
 end;
 
 function TGenericTool.GetAllowedBackFillTypes: TVectorialFillTypes;
@@ -1723,6 +1732,11 @@ begin
     result := BGRAToGrayscale(FForeFill.AverageColor)
   else
     result := FForeFill.AverageColor;
+end;
+
+function TToolManager.GetIsEditingText: boolean;
+begin
+  result := Assigned(CurrentTool) and CurrentTool.IsEditingText;
 end;
 
 function TToolManager.GetMaxDeformationGridSize: TSize;

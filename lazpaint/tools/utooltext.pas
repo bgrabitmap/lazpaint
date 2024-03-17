@@ -31,6 +31,7 @@ type
     procedure QuickDefineEnd; override;
     function RoundCoordinate(constref ptF: TPointF): TPointF; override;
     function DoToolKeyDown(var key: Word): TRect; override;
+    function GetIsEditingText: boolean; override;
   public
     constructor Create(AManager: TToolManager); override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -247,6 +248,11 @@ begin
     Result:=inherited DoToolKeyDown(key);
   if (FShape is TTextShape) and (alignBefore <> (FShape as TTextShape).ParagraphAlignment) then
     Manager.TextAlign := (FShape as TTextShape).ParagraphAlignment;
+end;
+
+function TToolText.GetIsEditingText: boolean;
+begin
+  Result:= Assigned(FShape) and (FShape.Usermode = vsuEditText);
 end;
 
 function TToolText.ToolCommand(ACommand: TToolCommand): boolean;

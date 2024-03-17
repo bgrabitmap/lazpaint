@@ -423,16 +423,20 @@ begin
       ToggleBindColorToKey(c, digit);
       PaletteChanged;
       FLazPaintInstance.NotifyColorBinding;
+      Result := True;
+      AKey := 0; // prevent further key event
     end else
     begin
-      if TryToGetColorBoundToKey(digit, c) then
+      if not FLazPaintInstance.ToolManager.IsEditingText and TryToGetColorBoundToKey(digit, c) then
       begin
         if FAltPressed then DoPickColor([ssRight], c)
         else DoPickColor([ssLeft], c);
-      end;
+        Result := True;
+        AKey := 0; // prevent further key event
+      end
+      else
+        result := false;
     end;
-    Result := True;
-    AKey := 0; // prevent further key event
   end else Result := False;
 end;
 

@@ -698,14 +698,14 @@ end;
 
 function TFMain.CatchToolKeyDown(var AKey: Word): boolean;
 begin
-  if Assigned(FLayout) and not SpinEditFocused and (CurrentTool <> ptText) then
+  if Assigned(FLayout) and not SpinEditFocused then
     result := FLayout.CatchToolKeyDown(AKey)
     else result := false;
 end;
 
 function TFMain.CatchToolKeyUp(var AKey: Word): boolean;
 begin
-  if Assigned(FLayout) and not SpinEditFocused and (CurrentTool <> ptText) then
+  if Assigned(FLayout) and not SpinEditFocused then
     result := FLayout.CatchToolKeyUp(AKey)
     else result := false;
 end;
