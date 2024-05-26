@@ -15,7 +15,7 @@ const
   InfiniteRect : TRect = (Left: -MaxLongInt; Top: -MaxLongInt; Right: MaxLongInt; Bottom: MaxLongInt);
   EmptyTextureId = 0;
   DefaultShapeOutlineWidth = 2;
-  MediumShapeCost = 100;
+  MediumShapeCost = 1000;
 
   //not translated because unexpected internal errors are not useful for users
   errDuplicateVectorClass = 'Duplicate class name "%1" for vector shape';
