@@ -12,6 +12,7 @@ uses
 var
   NicePointMaxRadius: integer = 6;
   FrameDashLength: integer = 4;
+  FramePenWidth: integer = 10;
   CanvasScale: integer = 1;
 
 function ComputeRatio(ARatio: string): single;
@@ -29,6 +30,9 @@ function ComputeAngle(dx,dy: single): single;
 function GetSelectionCenter(bmp: TBGRABitmap): TPointF;
 procedure ComputeSelectionMask(image: TBGRABitmap; destMask: TBGRABitmap; ARect: TRect);
 procedure SubstractMask(image: TBGRABitmap; DestX,DestY: Integer; mask: TBGRABitmap; SourceMaskRect: TRect);
+function NiceFrameBounds(ACanvasScale: integer; APoints: array of TPointF): TRect;
+function NiceFrame(ABitmap: TBGRABitmap; ACanvasScale: integer; APoints: array of TPointF;
+  AColor1, AColor2: TBGRAPixel): TRect;
 function NicePointBounds(x,y: single): TRect;
 function NicePoint(bmp: TBGRABitmap; x,y: single; alpha: byte = 192):TRect; overload;
 function NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192):TRect; overload;
@@ -70,7 +74,7 @@ implementation
 
 uses GraphType, math, Types, FileUtil, dialogs, BGRAAnimatedGif,
   BGRAGradients, BGRATextFX, uresourcestrings, LCScaleDPI,
-  BGRAThumbnail, LCVectorPolyShapes, BGRAPolygon;
+  BGRAThumbnail, LCVectorPolyShapes, BGRAPolygon, BGRAPen;
 
 function ComputeRatio(ARatio: string): single;
 var
@@ -1191,6 +1195,47 @@ begin
         inc(pmask);
       end;
     end;
+end;
+
+function NiceFrameBounds(ACanvasScale: integer; APoints: array of TPointF): TRect;
+var
+  rF: TRectF;
+  w: Extended;
+  pt: TPointF;
+begin
+  w := FramePenWidth*ACanvasScale/10 / 2 + 1;
+  rF := EmptyRectF;
+  for pt in APoints do
+    rF := rF.Union(RectF(pt + PointF(0.5, 0.5) - PointF(w, w),
+      pt + PointF(0.5, 0.5) + PointF(w, w)));
+  result := rect(floor(rF.Left), floor(rF.Top),
+    ceil(rF.Right), ceil(rF.Bottom));
+end;
+
+function NiceFrame(ABitmap: TBGRABitmap; ACanvasScale: integer;
+  APoints: array of TPointF; AColor1, AColor2: TBGRAPixel): TRect;
+var
+  w, d: single;
+  filler: TBGRAMultishapeFiller;
+  stroker: TBGRAPenStroker;
+begin
+  result := NiceFrameBounds(ACanvasScale, APoints);
+  w := FramePenWidth*ACanvasScale/10;
+  d := FrameDashLength*ACanvasScale;
+  filler := TBGRAMultishapeFiller.Create;
+  stroker := nil;
+  try
+    stroker := TBGRAPenStroker.Create;
+    stroker.JoinStyle:= pjsRound;
+    filler.AddPolygonStroke(APoints, AColor2, w, stroker);
+    stroker.CustomPenStyle := BGRAPenStyle(d/w, d/w);
+    filler.AddPolygonStroke(APoints, AColor1, w, stroker);
+    filler.PolygonOrder:= poLastOnTop;
+    filler.Draw(ABitmap);
+  finally
+    stroker.Free;
+    filler.Free;
+  end;
 end;
 
 function NicePointBounds(x,y: single): TRect;

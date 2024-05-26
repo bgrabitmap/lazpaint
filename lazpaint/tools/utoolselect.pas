@@ -279,9 +279,7 @@ function TToolSelectRect.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
 var
   ab: TAffineBox;
   ptsF: ArrayOfTPointF;
-  pts: array of TPoint;
   i: Integer;
-  abBounds: TRect;
 begin
   Result:= inherited Render(VirtualScreen, VirtualScreenWidth,
       VirtualScreenHeight, BitmapToVirtualScreen);
@@ -290,19 +288,12 @@ begin
   begin
     ab := TCustomRectShape(FShape).GetAffineBox(
       AffineMatrixTranslation(0.5,0.5)*FEditor.Matrix*AffineMatrixTranslation(-0.5,-0.5), false);
-    abBounds := ab.RectBounds;
-    abBounds.Inflate(1,1);
-    result := RectUnion(result, abBounds);
     if Assigned(VirtualScreen) then
     begin
       ptsF := ab.AsPolygon;
-      pts := nil;
-      setlength(pts, length(ptsF));
-      for i := 0 to high(ptsF) do
-        pts[i] := (ptsF[i]+PointF(0.5,0.5)).Round;
-      VirtualScreen.DrawPolygonAntialias(pts,BGRAWhite,BGRABlack,
-        FrameDashLength*Manager.CanvasScale);
-    end;
+      result := RectUnion(result, NiceFrame(VirtualScreen, Manager.CanvasScale, ptsF, BGRAWhite,BGRABlack));
+    end else
+      result := RectUnion(result, NiceFrameBounds(Manager.CanvasScale, ptsF));
   end;
 end;
 
@@ -327,34 +318,24 @@ function TToolSelectEllipse.Render(VirtualScreen: TBGRABitmap;
   VirtualScreenWidth, VirtualScreenHeight: integer;
   BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 var
-  ab: TAffineBox;
   ptsF: ArrayOfTPointF;
-  pts: array of TPoint;
   i: Integer;
-  abBounds: TRect;
 begin
   Result:= inherited Render(VirtualScreen, VirtualScreenWidth,
       VirtualScreenHeight, BitmapToVirtualScreen);
 
   if BigImage and FQuickDefine then
   begin
-    ab := TCustomRectShape(FShape).GetAffineBox(
-      AffineMatrixTranslation(0.5,0.5)*FEditor.Matrix*AffineMatrixTranslation(-0.5,-0.5), false);
-    abBounds := ab.RectBounds;
-    abBounds.Inflate(1,1);
-    result := RectUnion(result, abBounds);
     if Assigned(VirtualScreen) then
     begin
       with TCustomRectShape(FShape) do
         ptsF := BGRAPath.ComputeEllipse(FEditor.Matrix*Origin,
                     FEditor.Matrix*XAxis,FEditor.Matrix*YAxis);
-      pts := nil;
-      setlength(pts, length(ptsF));
       for i := 0 to high(ptsF) do
-        pts[i] := ptsF[i].Round;
-      VirtualScreen.DrawPolygonAntialias(pts,BGRAWhite,BGRABlack,
-        FrameDashLength*Manager.CanvasScale);
-    end;
+        ptsF[i] := ptsF[i] + PointF(0.5, 0.5);
+      result := RectUnion(result, NiceFrame(VirtualScreen, Manager.CanvasScale, ptsF, BGRAWhite,BGRABlack));
+    end else
+      result := RectUnion(result, NiceFrameBounds(Manager.CanvasScale, ptsF));
   end;
 end;
 

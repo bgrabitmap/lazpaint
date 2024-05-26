@@ -208,6 +208,7 @@ begin
   Application.Initialize;
   UGraph.NicePointMaxRadius:= DoScaleX(UGraph.NicePointMaxRadius, OriginalDPI);
   UGraph.FrameDashLength:= DoScaleX(UGraph.FrameDashLength, OriginalDPI);
+  UGraph.FramePenWidth:= DoScaleX(UGraph.FramePenWidth, OriginalDPI);
 
   LazpaintApplication := TMyLazPaintInstance.Create;
   LazpaintApplication.UseConfig(ActualConfig);

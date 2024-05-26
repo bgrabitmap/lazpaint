@@ -429,7 +429,6 @@ var
   m: TAffineMatrix;
   ab: TAffineBox;
   ptsF: ArrayOfTPointF;
-  pts: array of TPoint;
 begin
   NeedLayerBounds;
 
@@ -446,17 +445,12 @@ begin
             BitmapToVirtualScreen(m*PointF(FLayerBounds.Right-0.001,FLayerBounds.Top+0.001)),
             BitmapToVirtualScreen(m*PointF(FLayerBounds.Left+0.001,FLayerBounds.Bottom-0.001)));
   ptsF := ab.AsPolygon;
-  pts := nil;
-  setlength(pts, length(ptsF));
-  for i := 0 to high(pts) do
-    pts[i] := ptsF[i].Round;
-
-  result := TRect.Union(pts);
-  result.Inflate(1,1);
+  for i := 0 to high(ptsF) do ptsF[i] := ptsF[i] + PointF(0.5, 0.5);
 
   if Assigned(VirtualScreen) then
-    virtualScreen.DrawpolygonAntialias(pts,BGRA(230,255,230,255),BGRA(0,0,0,255),
-      FrameDashLength*Manager.CanvasScale);
+    result := NiceFrame(virtualScreen, Manager.CanvasScale, ptsF,
+      BGRA(230,255,230,255), BGRA(0,0,0,255)) else
+    result := NiceFrameBounds(Manager.CanvasScale, ptsF);
 end;
 
 { TToolTransformLayer }
@@ -740,8 +734,6 @@ var
   m: TAffineMatrix;
   ab: TAffineBox;
   ptsF: ArrayOfTPointF;
-  pts: array of TPoint;
-  ptsRect: TRect;
 begin
   idx := Manager.Image.CurrentLayerIndex;
   if not FOriginalBoundsDefined then
@@ -776,18 +768,13 @@ begin
             BitmapToVirtualScreen(m*PointF(FOriginalBounds.Right-0.001,FOriginalBounds.Top+0.001)),
             BitmapToVirtualScreen(m*PointF(FOriginalBounds.Left+0.001,FOriginalBounds.Bottom-0.001)));
   ptsF := ab.AsPolygon;
-  pts := nil;
-  setlength(pts, length(ptsF));
-  for i := 0 to high(pts) do
-    pts[i] := ptsF[i].Round;
-
-  ptsRect := TRect.Union(pts);
-  ptsRect.Inflate(1,1);
-  Result.Union(ptsRect);
+  for i := 0 to high(ptsF) do ptsF[i] := ptsF[i] + PointF(0.5, 0.5);
 
   if Assigned(VirtualScreen) then
-    virtualScreen.DrawpolygonAntialias(pts,BGRA(230,255,230,255),BGRA(0,0,0,255),
-      FrameDashLength*Manager.CanvasScale);
+    result := NiceFrame(virtualScreen, Manager.CanvasScale, ptsF,
+      BGRA(230,255,230,255), BGRA(0,0,0,255))
+  else
+    result := NiceFrameBounds(Manager.CanvasScale, ptsF)
 end;
 
 function TToolTransformLayer.GetIsSelectingTool: boolean;
