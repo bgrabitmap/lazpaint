@@ -114,6 +114,7 @@ type
   TEditShapeTool = class(TGenericTool)
   private
     function GetNothingSelected: boolean;
+    function GetPointSize: integer;
   protected
     FDownHandled,FRectEditorCapture,FLayerOriginalCapture,
     FLeftButton,FRightButton: boolean;
@@ -401,6 +402,11 @@ end;
 function TEditShapeTool.GetNothingSelected: boolean;
 begin
   result := GetEditMode in [esmNone, esmNoShape];
+end;
+
+function TEditShapeTool.GetPointSize: integer;
+begin
+  result := DoScaleX(PointSize*Manager.CanvasScale,OriginalDPI);
 end;
 
 procedure TEditShapeTool.RetrieveLightPosition;
@@ -970,11 +976,11 @@ begin
         Manager.Image.CurrentState.LayeredBitmap.OriginalEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
       if Assigned(VirtualScreen) then
         result := Manager.Image.CurrentState.LayeredBitmap.DrawEditor(VirtualScreen,
-          Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize*Manager.CanvasScale,OriginalDPI))
+          Manager.Image.CurrentLayerIndex, viewMatrix, GetPointSize)
       else
         result := Manager.Image.CurrentState.LayeredBitmap.GetEditorBounds(
           rect(0,0,VirtualScreenWidth,VirtualScreenHeight),
-          Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize*Manager.CanvasScale,OriginalDPI));
+          Manager.Image.CurrentLayerIndex, viewMatrix, GetPointSize);
       RetrieveLightPosition;
     end;
   esmSelection, esmOtherOriginal:
@@ -987,7 +993,7 @@ begin
         FRectEditor := TVectorOriginalEditor.Create(nil);
         FRectEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
         FRectEditor.Focused := true;
-        FRectEditor.PointSize := DoScaleX(PointSize*Manager.CanvasScale,OriginalDPI);
+        FRectEditor.PointSize := GetPointSize;
       end;
       FRectEditor.Clear;
       editMatrix := AffineMatrixTranslation(-0.5,-0.5)*viewMatrix*AffineMatrixTranslation(0.5,0.5);
@@ -2077,6 +2083,7 @@ var
   s: TPointF;
   avg: single;
 begin
+  if not Assigned(FShape) then exit(EmptyRect);
   if ssShift in ShiftState then
   begin
     s := FQuickDefineUserEndPoint-FQuickDefineStartPoint;
