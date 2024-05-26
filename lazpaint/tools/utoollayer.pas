@@ -16,6 +16,7 @@ type
   TToolMoveLayer = class(TGenericTool)
   protected
     handMoving: boolean;
+    notMovedAtAll: boolean;
     handOriginF: TPointF;
     originalTransformBefore: TAffineMatrix;
     layerOffsetBefore: TPoint;
@@ -152,12 +153,17 @@ end;
 
 function TToolMoveLayer.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
+var
+  ofs: TPoint;
 begin
   result := EmptyRect;
   if not handMoving then
   begin
     GetAction;
     handMoving := true;
+    ofs := LayerOffset;
+    notMovedAtAll:= (toolDest = nil) or
+      (toolDest.GetPixel(ptF.X - ofs.X, ptF.Y - ofs.Y).alpha = 0);
     handOriginF := ptF;
     if UseOriginal then Manager.Image.DraftOriginal := true;
     SaveOffsetBefore;
@@ -294,9 +300,14 @@ end;
 
 function TToolMoveLayer.ToolUp: TRect;
 begin
-  handMoving := false;
+  if handMoving then
+  begin
+    handMoving := false;
+    if UseOriginal then Manager.Image.DraftOriginal := false;
+    if notMovedAtAll then
+      Manager.QueryExitTool;
+  end;
   result := EmptyRect;
-  if UseOriginal then Manager.Image.DraftOriginal := false;
 end;
 
 function TToolMoveLayer.DoToolKeyDown(var key: Word): TRect;

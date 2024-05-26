@@ -102,7 +102,7 @@ type
 
   TToolMoveSelection = class(TTransformSelectionTool)
   protected
-    handMoving: boolean;
+    handMoving, notMovedAtAll: boolean;
     handOriginF: TPointF;
     selectionTransformBefore: TAffineMatrix;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
@@ -570,10 +570,19 @@ end;
 
 function TToolMoveSelection.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
+var
+  untransformedPtF: TPointF;
 begin
   if not handMoving and not Manager.Image.SelectionMaskEmpty then
   begin
     handMoving := true;
+    notMovedAtAll := true;
+    if IsAffineMatrixInversible(Manager.Image.SelectionTransform) then
+    begin
+      untransformedPtF := AffineMatrixInverse(Manager.Image.SelectionTransform) * ptF;
+      if Manager.Image.SelectionMaskReadonly.GetPixel(untransformedPtF.X, untransformedPtF.Y).green <> 0 then
+        notMovedAtAll:= false;
+    end;
     handOriginF := ptF;
     selectionTransformBefore := Manager.Image.SelectionTransform;
   end;
@@ -599,6 +608,7 @@ begin
     if Manager.Image.SelectionTransform <> newSelTransform then
     begin
       Manager.Image.SelectionTransform := newSelTransform;
+      notMovedAtAll := false;
       result := OnlyRenderChange;
     end;
   end;
@@ -612,7 +622,11 @@ end;
 
 function TToolMoveSelection.ToolUp: TRect;
 begin
-  handMoving := false;
+  if handMoving then
+  begin
+    handMoving := false;
+    if notMovedAtAll then Manager.QueryExitTool;
+  end;
   result := EmptyRect;
 end;
 

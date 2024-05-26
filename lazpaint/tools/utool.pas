@@ -191,6 +191,7 @@ type
     FConfigProvider: IConfigProvider;
     FOnQueryColorTarget: TOnQueryColorTargetHandler;
     FShouldExitTool: boolean;
+    FSwitchAfterExitTool: TPaintToolType;
     FImage: TLazPaintImage;
     FBlackAndWhite: boolean;
     FScriptContext: TScriptContext;
@@ -509,6 +510,7 @@ type
     function IsBackEditGradTexPoints: boolean;
     function IsOutlineEditGradTexPoints: boolean;
     procedure QueryExitTool;
+    procedure QueryExitTool(ASwitchTo: TPaintToolType);
     procedure QueryColorTarget(ATarget: TVectorialFill);
 
     function RenderTool(formBitmap: TBGRABitmap): TRect;
@@ -1588,10 +1590,7 @@ begin
   if FShouldExitTool then
   begin
     FShouldExitTool:= false;
-    if FCurrentToolType in[ptRect,ptEllipse,ptPolygon,ptSpline,ptText,ptPhong,ptGradient] then
-      SetCurrentToolType(ptEditShape)
-    else
-      SetCurrentToolType(ptHand);
+    SetCurrentToolType(FSwitchAfterExitTool);
     result := true;
   end else
     result := false;
@@ -3892,7 +3891,16 @@ end;
 
 procedure TToolManager.QueryExitTool;
 begin
+  if FCurrentToolType in[ptRect,ptEllipse,ptPolygon,ptSpline,ptText,ptPhong,ptGradient] then
+    QueryExitTool(ptEditShape)
+  else
+    QueryExitTool(ptHand);
+end;
+
+procedure TToolManager.QueryExitTool(ASwitchTo: TPaintToolType);
+begin
   FShouldExitTool:= true;
+  FSwitchAfterExitTool:= ASwitchTo;
 end;
 
 procedure TToolManager.QueryColorTarget(ATarget: TVectorialFill);

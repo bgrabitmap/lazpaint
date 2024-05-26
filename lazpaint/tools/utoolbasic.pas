@@ -15,7 +15,7 @@ type
 
   TToolHand = class(TReadonlyTool)
   protected
-    handMoving: boolean;
+    handMoving, samePosition: boolean;
     handOriginF: TPointF;
     function FixSelectionTransform: boolean; override;
     function FixLayerOffset: boolean; override;
@@ -23,6 +23,7 @@ type
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
     function GetStatusText: string; override;
+    procedure TrySelect(ptF: TPointF);
   public
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
@@ -81,7 +82,7 @@ type
 implementation
 
 uses Types, Graphics, ugraph, Controls, LazPaintType,
-  UResourceStrings, BGRAPen, math;
+  UResourceStrings, BGRAPen, math, BGRATransform;
 
 { TToolErase }
 
@@ -505,6 +506,7 @@ begin
   if not handMoving then
   begin
     handMoving := true;
+    samePosition := true;
     handOriginF := ptF;
   end;
 end;
@@ -521,6 +523,7 @@ begin
     if newOfs <> Manager.Image.ImageOffset then
     begin
       Manager.Image.ImageOffset := newOfs;
+      samePosition := false;
       result := OnlyRenderChange;
     end;
   end;
@@ -562,6 +565,50 @@ begin
   end;
 end;
 
+procedure TToolHand.TrySelect(ptF: TPointF);
+var
+  untransformedPtF: TPointF;
+  c: TBGRAPixel;
+  ofs: TPoint;
+  original: TVectorOriginal;
+  i: Integer;
+begin
+  if not Manager.Image.SelectionMaskEmpty and
+    not Manager.Image.SelectionLayerIsEmpty and
+    IsAffineMatrixInversible(Manager.Image.SelectionTransform) then
+  begin
+    untransformedPtF := AffineMatrixInverse(Manager.Image.SelectionTransform) * ptF;
+    c := Manager.Image.SelectionLayerReadonly.GetPixel(untransformedPtF.X,untransformedPtF.Y);
+    if c.alpha <> 0 then
+    begin
+      Manager.QueryExitTool(ptMoveSelection);
+      exit;
+    end;
+  end;
+  if GetCurrentLayerKind = lkVectorial then
+  begin
+    original := Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TVectorOriginal;
+    for i := original.ShapeCount-1 downto 0 do
+    begin
+      if original.Shape[i].PointInShape(ptF) then
+      begin
+        original.SelectShape(i);
+        Manager.QueryExitTool(ptEditShape);
+        exit;
+      end;
+    end;
+  end else
+  begin
+    ofs := Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex];
+    c := Manager.Image.CurrentLayerReadOnly.GetPixel(ptF.X - ofs.X,ptF.Y - ofs.Y);
+    if c.alpha <> 0 then
+    begin
+      Manager.QueryExitTool(ptMoveLayer);
+      exit;
+    end;
+  end;
+end;
+
 constructor TToolHand.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
@@ -570,7 +617,14 @@ end;
 
 function TToolHand.ToolUp: TRect;
 begin
-  handMoving := false;
+  if handMoving then
+  begin
+    handMoving := false;
+    if samePosition then
+    begin
+      TrySelect(handOriginF);
+    end;
+  end;
   result := EmptyRect;
 end;
 

@@ -859,6 +859,7 @@ type
     procedure CallScriptFunction(AParams:TVariableSet); overload;
     procedure ZoomFitIfTooBig;
     function RunToolCommand(AToolCommand: TToolCommand): boolean;
+    procedure UpdateSelectionHighlightMode;
     property Scripting: TScriptContext read GetScriptContext;
     property Image: TLazPaintImage read GetImage;
 
@@ -3111,7 +3112,7 @@ begin
         ToolManager.ToolMove(texMapBounds.Right-0.5, texMapBounds.Bottom-0.5, 1);
         ToolManager.ToolUp;
       end;
-      FLayout.FillSelectionHighlight := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
+      UpdateSelectionHighlightMode;
     except
       on ex:Exception do
       begin
@@ -4137,6 +4138,7 @@ begin
     UpdateToolImage;
     UpdatePenWidthToolbar;
     UpdateCurveModeToolbar;
+    UpdateSelectionHighlightMode;
   end;
 end;
 
@@ -4165,6 +4167,11 @@ begin
     result := true;
   end
   else result := false;
+end;
+
+procedure TFMain.UpdateSelectionHighlightMode;
+begin
+  FLayout.FillSelectionHighlight := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
 end;
 
 function TFMain.TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean;
