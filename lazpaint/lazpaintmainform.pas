@@ -1901,6 +1901,12 @@ begin
       if EditDeselect.Execute then
         Key := 0;
     end else
+    if (Key = VK_Y) and snapPressed and EditRedo.Enabled then
+    begin
+      EditRedo.Execute;
+      Key := 0;
+    end
+    else
     if LazPaintInstance.ImageListWindowVisible then
       LazPaintInstance.ImageListWindowVisibleKeyDown(Key,Shift);
     If Key = 0 then UpdateToolbar;
