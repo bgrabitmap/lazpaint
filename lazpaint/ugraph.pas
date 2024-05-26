@@ -62,6 +62,10 @@ procedure DrawPenStyle(ABitmap: TBGRABitmap; ARect: TRect; APenStyle: TPenStyle;
 procedure DrawArrow(AComboBox: TBCComboBox; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState); overload;
 procedure DrawArrow(ABitmap: TBGRABitmap; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; AColor: TBGRAPixel); overload;
 
+function ChangeCanvasSizeOrigin(oldWidth,oldHeight,newWidth, newHeight: integer; anchor: string): TPoint;
+function ChangeBitmapCanvasSize(bmp: TBGRABitmap; ofs: TPoint; oldWidth,oldHeight,newWidth, newHeight: integer;
+  anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRABitmap;
+
 implementation
 
 uses GraphType, math, Types, FileUtil, dialogs, BGRAAnimatedGif,
@@ -1347,6 +1351,80 @@ begin
       inc(pdest);
     end;
   end;
+end;
+
+function ChangeCanvasSizeOrigin(oldWidth,oldHeight,newWidth, newHeight: integer; anchor: string): TPoint;
+var
+  origin: TPoint;
+begin
+  origin := Point((newWidth div 2)-(oldWidth div 2),(newHeight div 2)-(oldHeight div 2));
+  anchor := LowerCase(anchor);
+  if (anchor='topleft') or (anchor='top') or (anchor='topright') then origin.Y := 0;
+  if (anchor='bottomleft') or (anchor='bottom') or (anchor='bottomright') then origin.Y := newHeight-oldHeight;
+  if (anchor='topleft') or (anchor='left') or (anchor='bottomleft') then origin.X := 0;
+  if (anchor='topright') or (anchor='right') or (anchor='bottomright') then origin.X := newWidth-oldWidth;
+  result := origin;
+end;
+
+function ChangeBitmapCanvasSize(bmp: TBGRABitmap; ofs: TPoint; oldWidth,oldHeight,newWidth, newHeight: integer;
+  anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRABitmap;
+var origin: TPoint;
+    xb,yb: integer;
+    dx,dy: integer;
+    minx,miny,maxx,maxy: integer;
+    flippedImages: array[Boolean,Boolean] of TBGRABitmap;
+begin
+   if (newWidth < 1) or (newHeight < 1) then
+     raise exception.Create('Invalid canvas size');
+   origin := ChangeCanvasSizeOrigin(oldWidth, oldHeight, newWidth, newHeight, anchor);
+   inc(origin.x, ofs.x);
+   inc(origin.y, ofs.y);
+
+   result := TBGRABitmap.Create(newWidth,newHeight, background);
+   dx := oldWidth;
+   dy := oldHeight;
+   if repeatImage then
+   begin
+     minx := (0-origin.X-oldWidth+1) div oldWidth;
+     miny := (0-origin.Y-oldHeight+1) div oldHeight;
+     maxx := (newWidth-origin.X+oldWidth-1) div oldWidth;
+     maxy := (newHeight-origin.Y+oldHeight-1) div oldHeight;
+   end else
+   begin
+     minx := 0;
+     miny := 0;
+     maxx := 0;
+     maxy := 0;
+   end;
+   if flipMode and repeatImage then
+   begin
+     flippedImages[false,false] := bmp;
+     if (minx <> 0) or (miny <> 0) or (maxx <> 0) or (maxy <> 0) then
+     begin
+       flippedImages[true,false] := bmp.Duplicate as TBGRABitmap;
+       flippedImages[true,false].HorizontalFlip;
+       flippedImages[true,true] := flippedImages[true,false].Duplicate as TBGRABitmap;
+       flippedImages[true,true].VerticalFlip;
+       flippedImages[false,true] := bmp.Duplicate as TBGRABitmap;
+       flippedImages[false,true].VerticalFlip;
+     end else
+     begin
+       flippedImages[true,false] := nil;  //never used
+       flippedImages[true,true] := nil;
+       flippedImages[false,true] := nil;
+     end;
+     for xb := minx to maxx do
+       for yb := miny to maxy do
+        result.PutImage(origin.x+xb*dx,origin.Y+yb*dy,flippedImages[odd(xb),odd(yb)],dmSet);
+     flippedImages[true,false].free;
+     flippedImages[true,true].free;
+     flippedImages[false,true].free;
+   end else
+   begin
+     for xb := minx to maxx do
+       for yb := miny to maxy do
+        result.PutImage(origin.x+xb*dx,origin.Y+yb*dy,bmp,dmSet);
+   end;
 end;
 
 initialization

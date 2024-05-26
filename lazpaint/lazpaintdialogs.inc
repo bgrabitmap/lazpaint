@@ -23,8 +23,7 @@ begin
   topmostInfo := HideTopmost;
   try
     FormCanvasSize.repeatImage := False;
-    if FormCanvasSize.ShowModal = mrOk then
-      Image.Assign(FormCanvasSize.canvasSizeResult, true, True);
+    FormCanvasSize.ShowModal();
   except
     on ex:Exception do
       ShowError('ShowCanvasSizeDlg',ex.Message);
@@ -39,8 +38,7 @@ begin
   topmostInfo := HideTopmost;
   try
     FormCanvasSize.repeatImage := True;
-    if FormCanvasSize.ShowModal = mrOk then
-      image.Assign(FormCanvasSize.canvasSizeResult,true,True);
+    FormCanvasSize.ShowModal();
   except
     on ex:Exception do
       ShowError('ShowRepeatImageDlg',ex.Message);
@@ -148,7 +146,7 @@ begin
   if (w < 1) or (h < 1) or (w > MaxImageWidth) or (h > MaxImageHeight) then exit(srInvalidParameters);
   anchor := AVars.Strings['Anchor'];
   try
-    Image.Assign(ComputeNewCanvasSize(self, w,h, anchor, false,false), true, True);
+    TImageActions(ImageAction).ChangeCanvasSize(w,h, anchor, false,false);
   except
     on ex: exception do
       result := srException;
@@ -169,7 +167,7 @@ begin
   anchor := AVars.Strings['Anchor'];
   flipMode := AVars.Booleans['Flip'];
   try
-    Image.Assign(ComputeNewCanvasSize(self, w,h, anchor, true,flipMode), true, True);
+    TImageActions(ImageAction).ChangeCanvasSize(w,h, anchor, true,flipMode);
   except
     on ex: exception do
       result := srException;
