@@ -30,8 +30,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="7"/>
-      <MinorVersionNr Value="2"/>
-      <RevisionNr Value="2"/>
+      <MinorVersionNr Value="3"/>
       <CharSet Value="04B0"/>
       <StringTable CompanyName="http://sourceforge.net/projects/lazpaint/" FileDescription="LazPaint" InternalName="lazpaint" OriginalFilename="lazpaint.exe" ProductName="LazPaint"/>
     </VersionInfo>
