@@ -191,7 +191,6 @@ end;
 
 procedure TFHypocycloid.InitParams;
 var
-  isOriginal: Boolean;
   layerIndex, cuspCount, errPos: Integer;
   cuspCountStr: RawByteString;
 begin
