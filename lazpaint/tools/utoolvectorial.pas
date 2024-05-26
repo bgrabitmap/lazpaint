@@ -1200,6 +1200,7 @@ function TEditShapeTool.DoToolKeyDown(var key: Word): TRect;
 var
   handled: boolean;
   keyUtf8: TUTF8Char;
+  diff: TComposedImageDifference;
 begin
   Result:= EmptyRect;
   if (Key = VK_SPACE) and (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape is TTextShape) then
@@ -1218,7 +1219,12 @@ begin
         begin
           if (key = VK_DELETE) and Assigned(GetVectorOriginal.SelectedShape) then
           begin
-            GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+            diff := Manager.Image.DoBegin;
+            try
+              GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+            finally
+              Manager.Image.DoEnd(diff);
+            end;
             key := 0;
           end else
           if (key = VK_ESCAPE) and Assigned(GetVectorOriginal.SelectedShape) then
@@ -1432,6 +1438,7 @@ var
   b: TRect;
   bmp: TBGRABitmap;
   s: TRectShape;
+  diff: TComposedImageDifference;
 begin
   if not ToolProvideCommand(ACommand) then exit(false);
   if ACommand = tcDelete then
@@ -1474,8 +1481,16 @@ begin
           tcMoveToBack: GetVectorOriginal.SelectedShape.SendToBack;
           tcCopy: Result:= CopyShapesToClipboard([GetVectorOriginal.SelectedShape], GetOriginalTransform);
           tcCut: begin
-                   result := CopyShapesToClipboard([GetVectorOriginal.SelectedShape], GetOriginalTransform) and
-                             GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+                   result := CopyShapesToClipboard([GetVectorOriginal.SelectedShape], GetOriginalTransform);
+                   if result then
+                   begin
+                     diff := Manager.Image.DoBegin;
+                     try
+                       GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+                     finally
+                       Manager.Image.DoEnd(diff);
+                     end;
+                   end;
                  end;
           tcAlignLeft..tcAlignBottom: AlignShape(GetVectorOriginal.SelectedShape, ACommand,
                        Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex],
