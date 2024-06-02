@@ -43,7 +43,8 @@ type
 
   TRenderBoundsOption = (rboAssumePenFill, rboAssumeBackFill);
   TRenderBoundsOptions = set of TRenderBoundsOption;
-  TVectorShapeField = (vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill, vsfOutlineFill, vsfOutlineWidth);
+  TVectorShapeField = (vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle,
+                    vsfBackFill, vsfOutlineFill, vsfOutlineWidth, vsfAliased);
   TVectorShapeFields = set of TVectorShapeField;
   TVectorShapeUsermode = (vsuEdit, vsuCreate, vsuEditPenFill, vsuEditBackFill, vsuEditOutlineFill,
                           vsuCurveSetAuto, vsuCurveSetCurve, vsuCurveSetAngle,
@@ -117,10 +118,12 @@ type
 
   TVectorShapeCommonDiff = class(TVectorShapeDiff)
   protected
+    FStartAliased: boolean;
     FStartPenWidth: single;
     FStartPenStyle: TBGRAPenStyle;
     FStartOutlineWidth: single;
     FStartJoinStyle: TPenJoinStyle;
+    FEndAliased: boolean;
     FEndPenWidth: single;
     FEndPenStyle: TBGRAPenStyle;
     FEndOutlineWidth: single;
@@ -201,13 +204,16 @@ type
     FDiffs: TVectorShapeDiffList;
     FFillBeforeChangeBounds: TRectF;
     function GetIsUpdating: boolean;
+    procedure SetAliased(AValue: boolean);
     procedure SetContainer(AValue: TVectorOriginal);
     function GetFill(var AFillVariable: TVectorialFill): TVectorialFill;
     procedure SetFill(var AFillVariable: TVectorialFill; AValue: TVectorialFill; AUpdate: boolean);
     procedure SetId(AValue: integer);
   protected
-    FPenWidth: single;
+    FAliased: boolean;
     FOutlineWidth: single;
+    FPenWidth: single;
+
     FFillChangeWithoutUpdate: boolean;
     procedure BeginEditingUpdate;
     procedure EndEditingUpdate;
@@ -257,6 +263,7 @@ type
       ADefs: TSVGDefine; ANamePrefix: string): string;
     procedure ApplyStrokeStyleToSVG(AElement: TSVGElement; ADefs: TSVGDefine);
     procedure ApplyFillStyleToSVG(AElement: TSVGElement; ADefs: TSVGDefine);
+    procedure ApplyAliasingToSVG(AElement: TSVGElement);
     property Stroker: TBGRAPenStroker read GetStroker;
   public
     constructor Create(AContainer: TVectorOriginal); virtual;
@@ -331,6 +338,7 @@ type
     property Id: integer read FId write SetId;
     property IsFollowingMouse: boolean read GetIsFollowingMouse;
     property IsUpdating: boolean read GetIsUpdating;
+    property Aliased: boolean read FAliased write SetAliased;
     property BackVisible: boolean read GetBackVisible;
     property PenVisible: boolean read GetPenVisibleNow;
     property OutlineVisible: boolean read GetOutlineVisible;
@@ -1011,6 +1019,7 @@ constructor TVectorShapeCommonDiff.Create(AStartShape: TVectorShape);
 begin
   with AStartShape do
   begin
+    FStartAliased:= Aliased;
     FStartPenWidth:= PenWidth;
     FStartPenStyle:= DuplicatePenStyle(PenStyle);
     FStartOutlineWidth:= OutlineWidth;
@@ -1022,6 +1031,7 @@ procedure TVectorShapeCommonDiff.ComputeDiff(AEndShape: TVectorShape);
 begin
   with AEndShape do
   begin
+    FEndAliased:= Aliased;
     FEndPenWidth:= PenWidth;
     FEndPenStyle:= DuplicatePenStyle(PenStyle);
     FEndOutlineWidth:= OutlineWidth;
@@ -1034,6 +1044,7 @@ begin
   with AStartShape do
   begin
     BeginUpdate;
+    FAliased:= FEndAliased;
     FPenWidth := FEndPenWidth;
     Stroker.CustomPenStyle := DuplicatePenStyle(FEndPenStyle);
     FOutlineWidth := FEndOutlineWidth;
@@ -1047,6 +1058,7 @@ begin
   with AEndShape do
   begin
     BeginUpdate;
+    FAliased:= FStartAliased;
     FPenWidth := FStartPenWidth;
     Stroker.CustomPenStyle := DuplicatePenStyle(FStartPenStyle);
     FOutlineWidth := FStartOutlineWidth;
@@ -1060,6 +1072,7 @@ var
   next: TVectorShapeCommonDiff;
 begin
   next := ADiff as TVectorShapeCommonDiff;
+  FEndAliased:= next.FEndAliased;
   FEndPenWidth:= next.FEndPenWidth;
   FEndPenStyle:= DuplicatePenStyle(next.FEndPenStyle);
   FEndOutlineWidth:= next.FEndOutlineWidth;
@@ -1068,7 +1081,8 @@ end;
 
 function TVectorShapeCommonDiff.IsIdentity: boolean;
 begin
-  result := (FStartPenWidth = FEndPenWidth) and
+  result := (FStartAliased = FEndAliased) and
+    (FStartPenWidth = FEndPenWidth) and
     PenStyleEqual(FStartPenStyle, FEndPenStyle) and
     (FStartOutlineWidth = FEndOutlineWidth) and
     (FStartJoinStyle = FEndJoinStyle);
@@ -1775,6 +1789,14 @@ begin
   result := FUpdateCount > 0;
 end;
 
+procedure TVectorShape.SetAliased(AValue: boolean);
+begin
+  if FAliased=AValue then Exit;
+  BeginUpdate(TVectorShapeCommonDiff);
+  FAliased:=AValue;
+  EndUpdate;
+end;
+
 function TVectorShape.GetOutlineWidth: single;
 begin
   result := FOutlineWidth;
@@ -1938,6 +1960,12 @@ begin
       else AElement.fillColor := BackFill.AverageColor;
   end
   else AElement.fillNone;
+end;
+
+procedure TVectorShape.ApplyAliasingToSVG(AElement: TSVGElement);
+begin
+  if Aliased then
+    AElement.shapeRendering:= 'crispEdges';
 end;
 
 procedure TVectorShape.TransformFill(const AMatrix: TAffineMatrix; ABackOnly: boolean);
@@ -2430,6 +2458,7 @@ begin
     if vsfBackFill in f then LoadFill(AStorage, 'back', FBackFill);
     if vsfOutlineFill in f then LoadFill(AStorage, 'outline', FOutlineFill);
     if vsfOutlineWidth in f then OutlineWidth := AStorage.FloatDef['outline-width', DefaultShapeOutlineWidth];
+    if vsfAliased in f then Aliased:= AStorage.BoolDef['aliased', false];
     EndUpdate;
   end;
 end;
@@ -2461,6 +2490,11 @@ begin
     AStorage.RemoveObject('outline-fill');
     AStorage.RemoveAttribute('outline-color');
     AStorage.RemoveAttribute('outline-width');
+  end;
+  if vsfAliased in f then
+  begin
+    if not Aliased then AStorage.RemoveAttribute('aliased')
+    else AStorage.Bool['aliased'] := Aliased;
   end;
 end;
 

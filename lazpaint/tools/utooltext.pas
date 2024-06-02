@@ -170,7 +170,6 @@ begin
     FontEmHeight:= zoom*Manager.TextFontSize*Manager.Image.DPI/72;
     FontName:= Manager.TextFontName;
     FontStyle:= Manager.TextFontStyle;
-    Aliased := Manager.ShapeOptionAliasing;
     LightPosition := AMatrix*Manager.LightPosition;
     AltitudePercent:= Manager.PhongShapeAltitude;
     if FontBidiMode <> Manager.TextBidiMode then

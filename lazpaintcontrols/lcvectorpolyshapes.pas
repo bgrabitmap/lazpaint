@@ -1258,7 +1258,7 @@ end;
 
 class function TPolylineShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill];
+  Result:= [vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill, vsfAliased];
 end;
 
 procedure TPolylineShape.Render(ADest: TBGRABitmap; AMatrix: TAffineMatrix;
@@ -1274,7 +1274,7 @@ begin
     if BackFill.FillType = vftSolid then backScan := nil
     else backScan := BackFill.CreateScanner(AMatrix, ADraft);
 
-    if ADraft then
+    if ADraft or Aliased then
     begin
       if Assigned(backScan) then
         ADest.FillPoly(pts, backScan, dmDrawWithTransparency) else
@@ -1295,7 +1295,7 @@ begin
     else penScan := PenFill.CreateScanner(AMatrix, ADraft);
 
     pts := ComputeStroke(pts, Closed, AMatrix);
-    if ADraft and (PenWidth > 4) then
+    if (ADraft and (PenWidth > 4)) or Aliased then
     begin
       if Assigned(penScan) then
         ADest.FillPoly(pts, penScan, dmDrawWithTransparency) else
@@ -1323,6 +1323,7 @@ begin
   if PenVisible then
     result.strokeLineCapLCL := LineCap;
   ApplyFillStyleToSVG(result, ADefs);
+  ApplyAliasingToSVG(result);
 end;
 
 function TPolylineShape.GetRenderBounds(ADestRect: TRect; AMatrix: TAffineMatrix; AOptions: TRenderBoundsOptions): TRectF;

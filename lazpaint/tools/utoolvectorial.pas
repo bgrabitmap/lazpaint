@@ -265,6 +265,8 @@ begin
     result := result + [ctText,ctAliasing];
     if TTextShape(AShape).PenPhong then include(result, ctAltitude);
   end;
+  if vsfAliased in f then
+    result += [ctAliasing];
 end;
 
 procedure AlignShape(AShape: TVectorShape; ACommand: TToolCommand; const AMatrix: TAffineMatrix; const ARect: TRect);
@@ -440,6 +442,12 @@ begin
     AShape.Usermode := vsuEdit;
   opt := Manager.ShapeOptions;
   f := AShape.MultiFields;
+  if vsfAliased in f then
+  begin
+    if AShape.Aliased then
+      include(opt,toAliasing)
+      else exclude(opt,toAliasing);
+  end;
   doDraw := vsfPenFill in f;
   doFill := vsfBackFill in f;
   if vsfPenStyle in f then
@@ -510,9 +518,6 @@ begin
     Manager.TextVerticalAlign:= VerticalAlignment;
     Manager.SetTextFont(FontName, FontEmHeight*zoom*72/Manager.Image.DPI, FontStyle);
     Manager.TextShadow:= false;
-    if Aliased then
-      include(opt,toAliasing)
-      else exclude(opt,toAliasing);
   end;
   Manager.ShapeOptions := opt;
 
@@ -667,6 +672,8 @@ begin
       m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
       zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2;
       f := shape.MultiFields;
+      if vsfAliased in f then
+        shape.Aliased := Manager.ShapeOptionAliasing;
       if f*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
       begin
         doDraw := toDrawShape in Manager.ShapeOptions;
@@ -725,7 +732,6 @@ begin
         FontName:= Manager.TextFontName;
         FontEmHeight:= Manager.TextFontSize*zoom*Manager.Image.DPI/72;
         FontStyle := Manager.TextFontStyle;
-        Aliased := Manager.ShapeOptionAliasing;
       end;
       if shape is TPhongShape then
       with TPhongShape(shape) do
@@ -1974,6 +1980,8 @@ begin
   zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
   f := FShape.MultiFields;
   gradBox := FShape.SuggestGradientBox(AffineMatrixIdentity);
+  if vsfAliased in f then
+    FShape.Aliased:= Manager.ShapeOptionAliasing;
   if vsfPenFill in f then
   begin
     if HasPen then
