@@ -170,7 +170,7 @@ type
     tpmReturnValides, tpmBackspaceRemoveLastPoint, tpmRightClickFinishShape, tpmHoldKeyRestrictRotation,
     tpmHoldKeysScaleMode, tpmCurveModeHint, tpmBlendOpBackground,
     tpmRightClickForSource, tpmNothingToBeDeformed, tpmRightClickForTransformCenter,
-    tpmLayerEmpty);
+    tpmLayerEmpty, tpmOpacity0);
 
   TOnToolChangedHandler = procedure(sender: TToolManager; ANewToolType: TPaintToolType) of object;
   TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage; AKey: Word; AAlways: boolean) of object;
@@ -774,6 +774,7 @@ begin
   tpmNothingToBeDeformed: result := rsNothingToBeDeformed;
   tpmRightClickForTransformCenter: result := rsRightClickForTransformCenter;
   tpmLayerEmpty: result := rsEmptyLayer;
+  tpmOpacity0: result := rsOpacity + ' = 0';
   else
     result := '';
   end;

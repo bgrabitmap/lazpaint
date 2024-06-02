@@ -348,6 +348,8 @@ end;
 
 function TToolPen.DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
   rightBtn: boolean): TRect;
+var
+  b: TUniversalBrush;
 begin
   if ssSnap in ShiftState then ptF := PointF(pt.X,pt.Y);
   if not penDrawing then
@@ -359,11 +361,20 @@ begin
       shiftClickingRight := rightBtn;
     end else
     begin
-      toolDest.PenStyle := psSolid;
-      penDrawing := true;
-      penDrawingRight := rightBtn;
-      result := StartDrawing(toolDest,ptF,rightBtn);
-      penOrigin := ptF;
+      b := GetUniversalBrush(rightBtn);
+      if b.DoesNothing then
+      begin
+        Manager.ToolPopup(tpmOpacity0, 0, true);
+        result := EmptyRect;
+      end
+      else
+      begin
+        toolDest.PenStyle := psSolid;
+        penDrawing := true;
+        penDrawingRight := rightBtn;
+        result := StartDrawing(toolDest,ptF,rightBtn);
+        penOrigin := ptF;
+      end;
     end;
   end else
     result := EmptyRect;
