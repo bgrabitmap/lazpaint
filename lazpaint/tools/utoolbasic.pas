@@ -453,20 +453,39 @@ begin
   result := EmptyRect;
   if colorpicking then
   begin
-    if (pt.X >= 0) and (pt.Y >= 0) and (pt.X < toolDest.Width) and (pt.Y < toolDest.Height) then
+    if ssShift in ShiftState then
     begin
-      if ssShift in ShiftState then
-        c := Manager.Image.RenderedImage.GetPixel(pt.X,pt.Y)
-        else c := toolDest.GetPixel(pt.X,pt.Y);
-      if colorpickingRight then
+      c := Manager.Image.RenderedImage.GetPixel(pt.X,pt.Y);
+      // rendered image is in fact empty
+      if (c.alpha = 0) and Manager.Image.RenderedImage.Empty then
       begin
-        Manager.BackColor := c;
-        Manager.QueryColorTarget(Manager.BackFill);
-      end else
-      begin
-        Manager.ForeColor := c;
-        Manager.QueryColorTarget(Manager.ForeFill);
+        Manager.ToolPopup(tpmLayerEmpty, 0, true);
+        exit;
       end;
+    end
+    else
+    begin
+      if (pt.X >= 0) and (pt.Y >= 0) and (pt.X < toolDest.Width) and (pt.Y < toolDest.Height) then
+      begin
+        c := toolDest.GetPixel(pt.X,pt.Y);
+        // layer is in fact empty
+        if (c.alpha = 0) and toolDest.Empty then
+        begin
+          Manager.ToolPopup(tpmLayerEmpty, 0, true);
+          exit;
+        end;
+      end
+      else
+        exit;
+    end;
+    if colorpickingRight then
+    begin
+      Manager.BackColor := c;
+      Manager.QueryColorTarget(Manager.BackFill);
+    end else
+    begin
+      Manager.ForeColor := c;
+      Manager.QueryColorTarget(Manager.ForeFill);
     end;
   end;
 end;

@@ -823,7 +823,7 @@ end;
 
 function TLazPaintConfig.DefaultToolForeColor: TBGRAPixel;
 begin
-  result := StrToBGRA(iniOptions.ReadString('Tool','ForeColor','00000080'));
+  result := StrToBGRA(iniOptions.ReadString('Tool','ForeColor','000000FF'));
 end;
 
 function TLazPaintConfig.DefaultToolBackColor: TBGRAPixel;

@@ -537,10 +537,19 @@ begin
 end;
 
 procedure TLazPaintInstance.UseConfig(ini: TInifile);
+var
+  c: TBGRAPixel;
 begin
   FreeAndNil(FConfig);
   BlackAndWhite := ini.ReadBool('General','BlackAndWhite',BlackAndWhite);
   FConfig := TLazPaintConfig.Create(ini,LazPaintVersionStr);
+  // make sure default pen color is not fully or almost fully transparent
+  if FConfig.DefaultToolForeColor.Alpha < 32 then
+  begin
+    c := FConfig.DefaultToolForeColor;
+    c.alpha := 255;
+    FConfig.SetDefaultToolForeColor(c);
+  end;
   ToolManager.LoadFromConfig;
   FGridVisible := Config.DefaultGridVisible;
   FDockLayersAndColors:= Config.DefaultDockLayersAndColors;
