@@ -2299,16 +2299,18 @@ msgid "Saturation"
 msgstr "濃淡"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
-msgstr ""
+msgstr "バックカラー"
 
 #: tfphongfilter.radio_usekeep.caption
 msgid "Keep"
 msgstr ""
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
-msgstr ""
+msgstr "ペンの色"
 
 #: tfphongfilter.radio_usetexture.caption
 msgctxt "tfphongfilter.radio_usetexture.caption"
@@ -2594,6 +2596,63 @@ msgstr "色相"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "濃淡"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr ""
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "バックカラー"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "ペンの色"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "有理数"
+
+#: tfsuperformula.label_size.caption
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "サイズ"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "スパイク数"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "スパイクの重なり"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "幅"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2962,6 +3021,7 @@ msgid "File not saved"
 msgstr ""
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr ""
 

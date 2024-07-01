@@ -2307,6 +2307,7 @@ msgid "Saturation"
 msgstr "Piesātinājums"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Pamatnes krāsa"
 
@@ -2315,6 +2316,7 @@ msgid "Keep"
 msgstr "Saglabāt"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Otas krāsa"
 
@@ -2602,6 +2604,66 @@ msgstr "Nokrāsa"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Piesātinājums"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "Superformulė"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Pamatnes krāsa"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Otas krāsa"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Racionalus"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Izmērs"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Smailių skaičius"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Spyglių sutapimas"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Platums"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2978,6 +3040,7 @@ msgid "File not saved"
 msgstr "Datne netika saglabāts"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Izmērs"
 

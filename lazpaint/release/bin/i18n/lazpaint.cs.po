@@ -2153,6 +2153,7 @@ msgid "Saturation"
 msgstr "Barevnost"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Barva pozadí"
 
@@ -2161,6 +2162,7 @@ msgid "Keep"
 msgstr "Ponechat"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Barva pera"
 
@@ -2442,6 +2444,66 @@ msgstr "Odstín"
 msgctxt "tfshiftcolors.label2.caption"
 msgid "Saturation"
 msgstr "Barevnost"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "Superformule"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Barva pozadí"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Barva pera"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Racionální"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Velikost"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Spike počítat"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Překrytí hrotů"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Šířka"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2804,6 +2866,7 @@ msgid "File not saved"
 msgstr "Neuložený soubor"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Velikost"
 

@@ -263,6 +263,7 @@ type
     function ShowSharpenDlg(AFilterConnector: TObject): TScriptResult; override;
     function ShowPosterizeDlg(AParameters: TVariableSet): TScriptResult; override;
     function ShowHypocycloidDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult; override;
+    function ShowSuperformulaDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult; override;
     procedure ShowPrintDlg; override;
     function HideTopmost: TTopMostInfo; override;
     procedure ShowTopmost(AInfo: TTopMostInfo); override;
@@ -304,7 +305,7 @@ uses Types, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslation,
 
      URadialBlur, UMotionBlur, UEmboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, UPixelate, unoisefilter, ufilters,
-     USharpen, uposterize, uhypocycloid, UPhongFilter, UFilterFunction,
+     USharpen, uposterize, uhypocycloid, USuperformula, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
      {$IFDEF DARWIN}Graphics, BGRAGraphics,{$ENDIF}
 

@@ -434,7 +434,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="108">
+    <Units Count="109">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -1068,6 +1068,14 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit107>
+      <Unit108>
+        <Filename Value="dialog\filter\usuperformula.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FSuperformula"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="USuperformula"/>
+      </Unit108>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

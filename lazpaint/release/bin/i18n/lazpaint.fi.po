@@ -2293,6 +2293,7 @@ msgid "Saturation"
 msgstr "Kylläisyys"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Taustan väri"
 
@@ -2301,6 +2302,7 @@ msgid "Keep"
 msgstr "Säilytä värit"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Kynän väri"
 
@@ -2589,6 +2591,66 @@ msgstr "Värisävy"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Kylläisyys"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "Superkaava"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Taustan väri"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Kynän väri"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Rationaalinen"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Koko"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Piikkien määrä"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Piikkien päällekkäisyys"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Leveys"
 
 #: tftoolbox.caption
 msgctxt "TFTOOLBOX.CAPTION"
@@ -2956,6 +3018,7 @@ msgid "File not saved"
 msgstr "Tiedostoa ei tallennettu"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Koko"
 

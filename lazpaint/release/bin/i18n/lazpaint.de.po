@@ -2312,6 +2312,7 @@ msgid "Saturation"
 msgstr "Sättigung"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Hintergrundfarbe"
 
@@ -2320,6 +2321,7 @@ msgid "Keep"
 msgstr "Behalten"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Stiftfarbe"
 
@@ -2607,6 +2609,66 @@ msgstr "Farbton"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Sättigung"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "Superformel"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Hintergrundfarbe"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Stiftfarbe"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Rational"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Größe"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Spike-Zählung"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Spike-Überlappung"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Breite"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2975,6 +3037,7 @@ msgid "File not saved"
 msgstr "Datei nicht gespeichert"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Größe"
 

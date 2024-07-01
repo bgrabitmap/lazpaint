@@ -26,6 +26,7 @@ type
 
   TFMain = class(TForm)
     RenderHypocycloid: TAction;
+    RenderSuperformula: TAction;
     FileQuickSave: TAction;
     SVGRasterImageList1: TBGRAImageList;
     Panel_TextMore: TPanel;

@@ -308,6 +308,9 @@ type
     function DefaultCuspCount: integer;
     procedure SetDefaultCuspCount(value: integer);
 
+    function DefaultSuperformulaParameters: string;
+    procedure SetDefaultSuperformulaParameters(value: string);
+
     //twirl config
     function DefaultTwirlRadius: double;
     procedure SetDefaultTwirlRadius(value: double);
@@ -1300,6 +1303,16 @@ end;
 procedure TLazPaintConfig.SetDefaultCuspCount(value: integer);
 begin
   iniOptions.WriteInteger('Filter','CuspCount',value);
+end;
+
+function TLazPaintConfig.DefaultSuperformulaParameters: string;
+begin
+  result := iniOptions.ReadString('Filter','SuperformulaParameters','');
+end;
+
+procedure TLazPaintConfig.SetDefaultSuperformulaParameters(value: string);
+begin
+  iniOptions.WriteString('Filter','SuperformulaParameters',value);
 end;
 
 function TLazPaintConfig.DefaultTwirlRadius: double;

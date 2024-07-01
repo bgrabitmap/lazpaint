@@ -593,4 +593,16 @@ begin
   self.ShowTopmost(top);
 end;
 
+function TLazPaintInstance.ShowSuperformulaDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult;
+var oldSelectionNormal: boolean;
+    top: TTopMostInfo;
+begin
+  top := self.HideTopmost;
+  oldSelectionNormal := ShowSelectionNormal;
+  ShowSelectionNormal := true;
+  result := USuperformula.ShowSuperformulaDlg(AInstance, AParameters);
+  ShowSelectionNormal := oldSelectionNormal;
+  self.ShowTopmost(top);
+end;
+
 

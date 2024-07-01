@@ -2300,6 +2300,7 @@ msgid "Saturation"
 msgstr "饱和度"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "背景色"
 
@@ -2308,6 +2309,7 @@ msgid "Keep"
 msgstr "保留"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "钢笔颜色"
 
@@ -2595,6 +2597,66 @@ msgstr "色调"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "饱和度"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr ""
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "背景色"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "钢笔颜色"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "有理数"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "大小"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "峰值计数"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "尖峰重叠"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "宽度"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2971,6 +3033,7 @@ msgid "File not saved"
 msgstr "文件未保存"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "大小"
 

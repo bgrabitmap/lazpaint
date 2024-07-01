@@ -2301,6 +2301,7 @@ msgid "Saturation"
 msgstr "التشبيع"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "لون الخلفية"
 
@@ -2309,6 +2310,7 @@ msgid "Keep"
 msgstr "احتفظ"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "لون القلم"
 
@@ -2596,6 +2598,66 @@ msgstr "تدرج"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "التشبيع"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr ""
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "لون الخلفية"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "لون القلم"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "رقم منطقي"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "حجم"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "عدد ارتفاع"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "تداخل سبايك"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "عرض"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2964,6 +3026,7 @@ msgid "File not saved"
 msgstr "الملف لم يحفظ"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "حجم"
 

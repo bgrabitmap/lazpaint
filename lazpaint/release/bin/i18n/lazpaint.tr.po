@@ -2297,6 +2297,7 @@ msgid "Saturation"
 msgstr "Saturizasyon"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Arkaplan rengi"
 
@@ -2305,6 +2306,7 @@ msgid "Keep"
 msgstr "Hatırla"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Kalem rengi"
 
@@ -2592,6 +2594,66 @@ msgstr "Ton"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Saturasyon"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "Süperformül"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Arkaplan rengi"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Kalem rengi"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Rasyonel"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Boyut"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Spike sayısı"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Spike örtüşmesi"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Genişlik"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2966,6 +3028,7 @@ msgid "File not saved"
 msgstr "Dosya kaydedilmedi"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Boyut"
 
