@@ -2229,6 +2229,14 @@ var
   idxPara, newPos: Integer;
   tl: TBidiTextLayout;
 begin
+  {$IFDEF DARWIN}
+  if (Shift*[ssCtrl, ssAlt] = []) and (Key = skBackspace) then
+  begin
+    KeyPress(#8, AHandled);
+    exit;
+  end;
+  {$ENDIF}
+
   if (FTextLayout = nil) or (Usermode <> vsuEditText) then exit;
 
   if Key = skDelete then
