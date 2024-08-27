@@ -736,7 +736,8 @@ type
     FOnlineUpdater: TLazPaintCustomOnlineUpdater;
     FInitialized: boolean;
     FShouldArrange: boolean;
-    spacePressed, altPressed, snapPressed, shiftPressed: boolean;
+    spacePressed, altPressed, snapPressed, shiftPressed, altGrPressed: boolean;
+    snapPressedTime: TDateTime;
     FirstPaint, LoadToolWindow: boolean;
     FShowSelectionNormal: boolean;
     FLazPaintInstance: TLazPaintCustomInstance;
@@ -1875,10 +1876,33 @@ begin
 end;
 
 procedure TFMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var tempKey: TUTF8Char;
 begin
   try
-    if Key = VK_MENU then altPressed:= true
-    else if (Key = VK_SNAP) or (Key = VK_SNAP2) then snapPressed:= true
+    {$IFDEF WINDOWS}
+    if (Key = VK_E) and altGrPressed then
+    begin
+      // translate directly euro symbol to avoid Ctrl-Alt-E invocation
+      tempKey := '€';
+      FormUTF8KeyPress(Sender, tempKey);
+      if tempKey = #0 then
+      begin
+        Key := 0;
+        exit;
+      end;
+    end;
+    {$ENDIF}
+    if Key = VK_MENU then
+    begin
+      altPressed:= true;
+      // AltGr is received as a quick succession of Ctrl and Alt
+      altGrPressed:= snapPressed and ((Now-snapPressedTime) < 30/(86400*1000));
+    end
+    else if (Key = VK_SNAP) or (Key = VK_SNAP2) then
+    begin
+      snapPressed:= true;
+      snapPressedTime:= Now;
+    end
     else if Key = VK_SHIFT then shiftPressed:= true;
     if Zoom.EditingZoom or EditingColors then exit;
     if not ((CurrentTool = ptText) and SpinEditFocused and (Key = VK_BACK)) and CatchToolKeyDown(Key) then
@@ -2314,7 +2338,11 @@ end;
 
 procedure TFMain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  if Key = VK_MENU then altPressed:= false
+  if Key = VK_MENU then
+  begin
+    altPressed:= false;
+    altGrPressed := false;
+  end
   else if (Key = VK_SNAP) or (Key = VK_SNAP2) then snapPressed:= false
   else if Key = VK_SHIFT then shiftPressed:= false;
   if CatchToolKeyUp(Key) then
