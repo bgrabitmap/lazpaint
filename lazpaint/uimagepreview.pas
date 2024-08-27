@@ -140,7 +140,7 @@ end;
 
 procedure TImagePreview.SurfaceRedraw(Sender: TObject; Bitmap: TBGRABitmap);
 begin
-  FScaling := FSurface.GetCanvasScaleFactor;
+  FScaling := FSurface.GetCanvasScaleFactor * Trunc(Screen.PixelsPerInch/OriginalDPI+0.25);
   TVolatileScrollBar.InitDPI(FScaling);
   FSurfaceScaledHeight := Bitmap.Height;
   if (Bitmap.Width = 0) or (Bitmap.Height = 0) then
@@ -318,8 +318,12 @@ begin
   else
     exit;
 
-  w := round(w*FScaling);
-  h := round(h*FScaling);
+  // SVG is already scaled
+  if FImageFormat <> ifSVG then
+  begin
+    w := round(w*FScaling);
+    h := round(h*FScaling);
+  end;
 
   if w > bitmap.Width then
   begin
