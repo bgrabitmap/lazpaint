@@ -222,7 +222,9 @@ var
   alignBefore: TAlignment;
 begin
   if FShape is TTextShape then
-    alignBefore := (FShape as TTextShape).ParagraphAlignment;
+    alignBefore := (FShape as TTextShape).ParagraphAlignment
+  else
+    alignBefore := taLeftJustify;
   if Key = VK_SPACE then
   begin
     keyUtf8:= ' ';
@@ -232,7 +234,10 @@ begin
   if (Key = VK_ESCAPE) and Assigned(FShape) then
   begin
     if FShape.Usermode = vsuEditText then
+    begin
+      result := EmptyRect;
       FShape.Usermode := vsuEdit
+    end
     else
       result := ValidateShape;
     Key := 0;
@@ -240,6 +245,7 @@ begin
   if (Key = VK_RETURN) and Assigned(FShape) then
   begin
     handled := false;
+    result := EmptyRect;
     FShape.KeyDown(ShiftState, skReturn, handled);
     if not handled then ValidateShape;
     Key := 0;
