@@ -3,6 +3,10 @@ unit uprint;
 
 {$mode objfpc}{$H+}
 
+{$IFDEF LINUX}
+  {$DEFINE PRINTER_COMBO}
+{$ENDIF}
+
 interface
 
 uses
@@ -77,6 +81,8 @@ type
     function GetRotatedSpinTop: TSpinEdit;
     function GetRotatedSpinRight: TSpinEdit;
     function GetRotatedSpinLeft: TSpinEdit;
+    procedure AddPrinterCombo;
+    procedure ComboBox_PrinterChange(Sender: TObject);
   private
     { private declarations }
     FInitializing: boolean;
@@ -98,6 +104,8 @@ type
   public
     Instance: TLazPaintCustomInstance;
     BGRAVirtualScreen1: TBGRAVirtualScreen;
+    ComboBox_Printer: TComboBox;
+    Label_Paper: TLabel;
     { public declarations }
     procedure UpdatePrinterConfig;
     procedure UpdatePrintMargins;
@@ -330,6 +338,37 @@ begin
     result := SpinEdit_Top;
 end;
 
+procedure TFPrint.AddPrinterCombo;
+var
+  i: Integer;
+begin
+  Panel10.RemoveControl(Label_SelectedPrinterAndPaper);
+  Panel10.ChildSizing.Layout:= cclNone;
+
+  Label_Paper := TLabel.Create(self);
+  Label_Paper.AutoSize:= true;
+  Label_Paper.Layout:= tlCenter;
+  Label_Paper.Alignment := taCenter;
+  Label_Paper.Caption := '  (?)';
+  Label_Paper.Align := alRight;
+  Panel10.InsertControl(Label_Paper);
+
+  ComboBox_Printer := TComboBox.Create(self);
+  ComboBox_Printer.Style:= csDropDownList;
+  for i := 0 to Printer.Printers.Count-1 do
+    ComboBox_Printer.Items.Add(Printer.Printers[i]);
+  ComboBox_Printer.Align := alClient;
+  ComboBox_Printer.OnChange:= @ComboBox_PrinterChange;
+  Panel10.InsertControl(ComboBox_Printer);
+end;
+
+procedure TFPrint.ComboBox_PrinterChange(Sender: TObject);
+begin
+  if FInitializing or (ComboBox_Printer.ItemIndex = -1) then exit;
+  Printer.PrinterIndex:= ComboBox_Printer.ItemIndex;
+  UpdatePrinterConfig;
+end;
+
 function TFPrint.GetRotatedSpinRight: TSpinEdit;
 begin
   if printer.Orientation in[poPortrait,poReversePortrait] then
@@ -351,6 +390,10 @@ procedure TFPrint.UpdatePrinterConfig;
 begin
   FInitializing := true;
   Label_SelectedPrinterAndPaper.Caption := ' ' + printer.PrinterName + ' (' + printer.PaperSize.PaperName + ')';
+  if Assigned(Label_Paper) then
+    Label_Paper.Caption := '  (' + printer.PaperSize.PaperName + ')';
+  if Assigned(ComboBox_Printer) then
+    ComboBox_Printer.ItemIndex := Printer.PrinterIndex;;
   if printer.Orientation in[poPortrait,poReversePortrait] then
     ComboBox_Orientation.ItemIndex := 0 else
     ComboBox_Orientation.ItemIndex := 1;
@@ -651,6 +694,10 @@ begin
 
   Panel8.Constraints.MinWidth := Label_Top.Width;
   Panel7.Constraints.MinWidth := Label_Bottom.Width;
+
+  {$IFDEF PRINTER_COMBO}
+  AddPrinterCombo;
+  {$ENDIF}
 end;
 
 {$R *.lfm}
