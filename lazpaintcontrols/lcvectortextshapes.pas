@@ -144,6 +144,7 @@ type
     procedure DeleteTextBefore(ACount: integer);
     procedure DeleteTextAfter(ACount: integer);
     procedure InsertText(ATextUTF8: string);
+    function PrepareCoordToText(out ALayout: TBidiTextLayout; out AMatrix: TAffineMatrix): boolean;
     procedure SelectWithMouse(X,Y: single; AExtend: boolean);
     procedure SelectWordWithMouse(X,Y: single);
     procedure SelectParagraphWithMouse(X,Y: single);
@@ -1014,18 +1015,31 @@ begin
   EndUpdate;
 end;
 
+function TTextShape.PrepareCoordToText(out ALayout: TBidiTextLayout; out
+  AMatrix: TAffineMatrix): boolean;
+var
+  zoom: Single;
+  untransformed, alignMatrix, m: TAffineMatrix;
+begin
+  ALayout := GetTextLayout;
+  zoom := GetTextRenderZoom;
+  untransformed := GetUntransformedMatrix;
+  alignMatrix := GetVerticalAlignMatrix(ALayout);
+  if not IsAffineMatrixInversible(untransformed) then exit(false);
+  AMatrix := AffineMatrixInverse(alignMatrix)*AffineMatrixScale(zoom,zoom)
+          *AffineMatrixInverse(untransformed);
+  result := true;
+end;
+
 procedure TTextShape.SelectWithMouse(X, Y: single; AExtend: boolean);
 var
   newPos: Integer;
   tl: TBidiTextLayout;
-  zoom: Single;
-  untransformed: TAffineMatrix;
+  m: TAffineMatrix;
 begin
+  if not PrepareCoordToText(tl, m) then exit;
   tl := GetTextLayout;
-  zoom := GetTextRenderZoom;
-  untransformed := GetUntransformedMatrix;
-  if not IsAffineMatrixInversible(untransformed) then exit;
-  newPos := tl.GetCharIndexAt(AffineMatrixScale(zoom,zoom)*AffineMatrixInverse(untransformed)*PointF(X,Y));
+  newPos := tl.GetCharIndexAt(m*PointF(X,Y));
   if newPos<>-1 then
   begin
     if (newPos <> FSelEnd) or (not AExtend and (FSelStart <> FSelEnd)) or (UserMode <> vsuEditText) then
@@ -1052,16 +1066,12 @@ var
 
 var
   newPos, paraIndex, startIndex, endIndex: Integer;
-  zoom: Single;
-  untransformed: TAffineMatrix;
+  m: TAffineMatrix;
   inWord: boolean;
 begin
   if UserMode <> vsuEditText then exit;
-  tl := GetTextLayout;
-  zoom := GetTextRenderZoom;
-  untransformed := GetUntransformedMatrix;
-  if not IsAffineMatrixInversible(untransformed) then exit;
-  newPos := tl.GetCharIndexAt(AffineMatrixScale(zoom,zoom)*AffineMatrixInverse(untransformed)*PointF(X,Y), false);
+  if not PrepareCoordToText(tl, m) then exit;
+  newPos := tl.GetCharIndexAt(m*PointF(X,Y), false);
   if newPos<>-1 then
   begin
     paraIndex := tl.GetParagraphAt(newPos);
@@ -1089,15 +1099,11 @@ procedure TTextShape.SelectParagraphWithMouse(X, Y: single);
 var
   newPos, paraIndex: Integer;
   tl: TBidiTextLayout;
-  zoom: Single;
-  untransformed: TAffineMatrix;
+  m: TAffineMatrix;
 begin
   if UserMode <> vsuEditText then exit;
-  tl := GetTextLayout;
-  zoom := GetTextRenderZoom;
-  untransformed := GetUntransformedMatrix;
-  if not IsAffineMatrixInversible(untransformed) then exit;
-  newPos := tl.GetCharIndexAt(AffineMatrixScale(zoom,zoom)*AffineMatrixInverse(untransformed)*PointF(X,Y), false);
+  if not PrepareCoordToText(tl, m) then exit;
+  newPos := tl.GetCharIndexAt(m*PointF(X,Y), false);
   if newPos<>-1 then
   begin
     paraIndex := tl.GetParagraphAt(newPos);
