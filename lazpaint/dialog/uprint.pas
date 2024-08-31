@@ -436,6 +436,7 @@ end;
 procedure TFPrint.Button_PrintClick(Sender: TObject);
 var FPrintTransform: TAffineMatrix;
   marTopLeft,marBottomRight,imgTopLeft,imgBottomRight: TPointF;
+  bmp: TBitmap;
   area: TRect;
 begin
   if (unrotatedTotalMarginInPoints.x >= paperSizeInPoints.x) or
@@ -466,8 +467,13 @@ begin
       Printer.Canvas.Clipping := true;
       imgTopLeft := FPrintTransform*FImagePos;
       imgBottomRight := FPrintTransform*(FImagePos+FImageSize);
-      Printer.Canvas.StretchDraw(rect(round(imgTopLeft.x),round(imgTopLeft.y),
-        round(imgBottomRight.x),round(imgBottomRight.y)), Instance.Image.RenderedImage.Bitmap);
+      bmp := Instance.Image.RenderedImage.MakeBitmapCopy(clWhite);
+      try
+        Printer.Canvas.StretchDraw(rect(round(imgTopLeft.x),round(imgTopLeft.y),
+          round(imgBottomRight.x),round(imgBottomRight.y)), bmp);
+      finally
+        bmp.Free;
+      end;
       Printer.Canvas.Clipping := false;
     end;
     Printer.EndDoc;
