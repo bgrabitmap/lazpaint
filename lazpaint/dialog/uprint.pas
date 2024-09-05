@@ -458,24 +458,21 @@ begin
   try
     FPrintTransform := AffineMatrixScale(Printer.XDPI/72, Printer.YDPI/72);
     Printer.BeginDoc;
-    if not Instance.Image.RenderedImage.Empty then
-    begin
-      marTopLeft := FPrintTransform*unrotatedMarginTopLeftInPoints;
-      marBottomRight := FPrintTransform*(paperSizeInPoints - unrotatedMarginBottomRightInPoints);
-      area := rect(round(marTopLeft.x),round(marTopLeft.y),round(marBottomRight.x),round(marBottomRight.y));
-      Printer.Canvas.ClipRect := area;
-      Printer.Canvas.Clipping := true;
-      imgTopLeft := FPrintTransform*FImagePos;
-      imgBottomRight := FPrintTransform*(FImagePos+FImageSize);
-      bmp := Instance.Image.RenderedImage.MakeBitmapCopy(clWhite);
-      try
-        Printer.Canvas.StretchDraw(rect(round(imgTopLeft.x),round(imgTopLeft.y),
-          round(imgBottomRight.x),round(imgBottomRight.y)), bmp);
-      finally
-        bmp.Free;
-      end;
-      Printer.Canvas.Clipping := false;
+    marTopLeft := FPrintTransform*unrotatedMarginTopLeftInPoints;
+    marBottomRight := FPrintTransform*(paperSizeInPoints - unrotatedMarginBottomRightInPoints);
+    area := rect(round(marTopLeft.x),round(marTopLeft.y),round(marBottomRight.x),round(marBottomRight.y));
+    Printer.Canvas.ClipRect := area;
+    Printer.Canvas.Clipping := true;
+    imgTopLeft := FPrintTransform*FImagePos;
+    imgBottomRight := FPrintTransform*(FImagePos+FImageSize);
+    bmp := Instance.Image.RenderedImage.MakeBitmapCopy(clWhite);
+    try
+      Printer.Canvas.StretchDraw(rect(round(imgTopLeft.x),round(imgTopLeft.y),
+        round(imgBottomRight.x),round(imgBottomRight.y)), bmp);
+    finally
+      bmp.Free;
     end;
+    Printer.Canvas.Clipping := false;
     Printer.EndDoc;
     MessagePopup(rsOkay, 4000);
     inc(FPrintCount);
