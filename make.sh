@@ -11,7 +11,8 @@ EOF
 
 function pub_build
 {
-    git submodule update --init --recursive
+    git clone --depth 1 --branch 'v11.6.3' 'https://github.com/bgrabitmap/bgrabitmap.git'
+    git clone --depth 1 --branch 'v9.0.1.6' 'https://github.com/bgrabitmap/bgracontrols.git'
     lazbuild --verbose --add-package 'bgrabitmap/bgrabitmap/bgrabitmappack.lpk'
     lazbuild --add-package 'bgracontrols/bgracontrols.lpk'
     lazbuild --add-package 'lazpaintcontrols/lazpaintcontrols.lpk'

@@ -1,8 +1,0 @@
-[submodule "bgrabitmap"]
-    path = bgrabitmap
-    url = https://github.com/bgrabitmap/bgrabitmap.git
-    branch = v9.0.1.6
-[submodule "bgracontrols"]
-    path = bgracontrols
-    url = https://github.com/bgrabitmap/bgracontrols.git
-    branch = v11.6.3
