@@ -12,7 +12,7 @@ EOF
 function pub_build
 {
     git submodule update --init --recursive
-    lazbuild --add-package 'bgrabitmap/bgrabitmap/bgrabitmappack.lpk'
+    lazbuild --verbose --add-package 'bgrabitmap/bgrabitmap/bgrabitmappack.lpk'
     lazbuild --add-package 'bgracontrols/bgracontrols.lpk'
     lazbuild --add-package 'lazpaintcontrols/lazpaintcontrols.lpk'
     lazbuild --recursive --build-mode=release 'lazpaint/lazpaint.lpi'
