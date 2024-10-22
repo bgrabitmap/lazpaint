@@ -1,30 +1,27 @@
 #!/usr/bin/env bash
 
-function f_log
+function priv_clippit
 {
-    declare -rAi TAG=(
-        [error]=31
-        [info]=32
-        [audit]=33
-    )
-    printf '%(%y-%m-%d_%T)T\x1b[%dm\t%s:\t%b\x1b[0m\n' -1 "${TAG[${1,,:?}]}" "${1^^}" "${2:?}" 1>&2
-    if [[ ${1} == 'error' ]]; then
-        return 1
-    fi
+    cat <<EOF
+Usage: bash ${0} [OPTIONS]
+Options:
+    build   Build program
+EOF
 }
 
-function f_build
+function pub_build
 {
     git submodule update --init --recursive
     lazbuild --add-package 'bgrabitmap/bgrabitmap/bgrabitmappack.lpk'
     lazbuild --add-package 'bgracontrols/bgracontrols.lpk'
     lazbuild --add-package 'lazpaintcontrols/lazpaintcontrols.lpk'
-    lazbuild 'lazpaint/lazpaint.lpi'
+    lazbuild --recursive --build-mode=release 'lazpaint/lazpaint.lpi'
+    strip 'lazpaint/lazpaint'
 }
 
-function f_main
+function priv_main
 {
-    set -eo pipefail
+    set -euo pipefail
     if !(which lazbuild); then
         source '/etc/os-release'
         case ${ID:?} in
@@ -34,9 +31,13 @@ function f_main
             ;;
         esac
     fi
-    case ${1} in
-        build) f_build;;
-    esac
+    if ((${#})); then
+        case ${1} in
+            build) pub_build;;
+        esac
+    else
+        priv_clippit
+    fi
 }
 
-f_main "${@}"
+priv_main "${@}"
