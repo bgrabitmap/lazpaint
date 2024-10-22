@@ -29,8 +29,6 @@ lazpaint/release/bin/i18n/lazpaint_x64.*
 resources/createresource/backup/
 vectoredit/vectoredit
 vectoredit/backup/
-/bgracontrols
-/bgrabitmap
 *.deb
 lazpaint/release/debian/lazpaint*_no_install.tar.gz
 lazpaint/release/windows/lazpaint*_no_install.zip
