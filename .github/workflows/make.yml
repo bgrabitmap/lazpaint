@@ -1,5 +1,5 @@
 ---
-name: Build
+name: Make
 
 on:
   push:
@@ -29,4 +29,4 @@ jobs:
     - name: Build on Linux
       if: runner.os == 'Linux'
       shell: bash
-      run: bash -x make.sh all
+      run: bash -x make.sh build
