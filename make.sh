@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 
 function priv_clippit
-{
+(
     cat <<EOF
 Usage: bash ${0} [OPTIONS]
 Options:
     build   Build program
 EOF
-}
+)
 
 function pub_build
-{
+(
     git submodule update --init --recursive
-    lazbuild --verbose --add-package 'bgrabitmap/bgrabitmap/bgrabitmappack.lpk'
-    lazbuild --add-package 'bgracontrols/bgracontrols.lpk'
-    lazbuild --add-package 'lazpaintcontrols/lazpaintcontrols.lpk'
+    lazbuild --add-package-link 'bgrabitmap/bgrabitmap/bgrabitmappack.lpk'
+    lazbuild --add-package-link 'bgracontrols/bgracontrols.lpk'
+    lazbuild --add-package-link 'lazpaintcontrols/lazpaintcontrols.lpk'
     lazbuild --recursive --build-mode=release 'lazpaint/lazpaint.lpi'
-    strip 'lazpaint/lazpaint'
-}
+    strip 'lazpaint/release/bin/lazpaint'
+)
 
 function priv_main
-{
+(
     set -euo pipefail
     if !(which lazbuild); then
         source '/etc/os-release'
@@ -38,6 +38,6 @@ function priv_main
     else
         priv_clippit
     fi
-}
+)
 
 priv_main "${@}"
