@@ -24,6 +24,7 @@ type
   TLCVectorialFillControl = class(TWinControl)
   private
     function GetAllowedFillTypes: TVectorialFillTypes;
+    function GetAllowKeyInput: boolean;
     function GetAverageColor: TBGRAPixel;
     function GetCanAdjustToShape: boolean;
     function GetCanEditGradTexPoints: boolean;
@@ -51,6 +52,7 @@ type
     procedure InterfaceMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure SetAllowedFillTypes(AValue: TVectorialFillTypes);
+    procedure SetAllowKeyInput(AValue: boolean);
     procedure SetCanAdjustToShape(AValue: boolean);
     procedure SetCanEditGradTexPoints(AValue: boolean);
     procedure SetEditingGradTexPoints(AValue: boolean);
@@ -112,6 +114,7 @@ type
     property TextureOpacity: byte read GetTexOpacity write SetTextureOpacity;
     property CanAdjustToShape: boolean read GetCanAdjustToShape write SetCanAdjustToShape;
     property PreferredSize: TSize read GetPreferredSizeAsSize;
+    property AllowKeyInput: boolean read GetAllowKeyInput write SetAllowKeyInput;
   published
     property AutoSize;
     property Align;
@@ -165,6 +168,11 @@ end;
 function TLCVectorialFillControl.GetAllowedFillTypes: TVectorialFillTypes;
 begin
   result := FInterface.AllowedFillTypes;
+end;
+
+function TLCVectorialFillControl.GetAllowKeyInput: boolean;
+begin
+  result := FInterface.AllowKeyInput;
 end;
 
 function TLCVectorialFillControl.GetAverageColor: TBGRAPixel;
@@ -291,6 +299,11 @@ procedure TLCVectorialFillControl.SetAllowedFillTypes(
   AValue: TVectorialFillTypes);
 begin
   FInterface.AllowedFillTypes:= AValue;
+end;
+
+procedure TLCVectorialFillControl.SetAllowKeyInput(AValue: boolean);
+begin
+  FInterface.AllowKeyInput := AValue;
 end;
 
 procedure TLCVectorialFillControl.SetCanAdjustToShape(AValue: boolean);

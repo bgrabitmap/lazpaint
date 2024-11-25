@@ -16,6 +16,7 @@ type
   TFNoiseFilter = class(TForm)
     Button_Cancel: TButton;
     Button_OK: TButton;
+    CheckBox_Preview: TCheckBox;
     Label_Opacity: TLabel;
     Panel1: TPanel;
     Panel2: TPanel;
@@ -24,6 +25,7 @@ type
     Radio_RGBNoise: TRadioButton;
     SpinEdit_Alpha: TSpinEdit;
     procedure Button_OKClick(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var {%H-}CanClose: boolean);
     procedure FormDestroy(Sender: TObject);
     procedure FormHide(Sender: TObject);
@@ -36,18 +38,19 @@ type
     FComputedLayer: TBGRABitmap;
     FClosing: boolean;
     procedure InitParams;
+    procedure DisplayComputedImage;
   public
     FInitializing: boolean;
     FFilterConnector: TFilterConnector;
     procedure ComputeFilteredLayer;
-    procedure PreviewNeeded(ARecomputeRandom: boolean);
+    procedure DisplayPreview(ARecomputeRandom: boolean);
   end;
 
 function ShowNoiseFilterDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
-uses BGRAGradientScanner, umac, LCScaleDPI, LazPaintType;
+uses BGRAGradientScanner, umac, LCScaleDPI, LazPaintType, UResourceStrings;
 
 function ShowNoiseFilterDlg(AFilterConnector: TObject): TScriptResult;
 var
@@ -62,7 +65,7 @@ begin
         FNoiseFilter.FFilterConnector.Parameters.Booleans['Validate'] then
       begin
         FNoiseFilter.InitParams;
-        FNoiseFilter.PreviewNeeded(true);
+        FNoiseFilter.DisplayPreview(true);
         FNoiseFilter.FFilterConnector.ValidateAction;
         result := srOk;
       end else
@@ -84,8 +87,20 @@ end;
 
 procedure TFNoiseFilter.Button_OKClick(Sender: TObject);
 begin
+  if not CheckBox_Preview.Checked then
+    DisplayComputedImage;
+
   FFilterConnector.ValidateAction;
   ModalResult := mrOK;
+end;
+
+procedure TFNoiseFilter.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if FInitializing then exit;
+  if CheckBox_Preview.Checked then
+    DisplayComputedImage
+  else
+    FFilterConnector.RestoreBackup;
 end;
 
 procedure TFNoiseFilter.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -106,7 +121,7 @@ end;
 procedure TFNoiseFilter.Radio_NoiseChange(Sender: TObject);
 begin
   if FInitializing then exit;
-  PreviewNeeded(true);
+  DisplayPreview(true);
 end;
 
 procedure TFNoiseFilter.FormCreate(Sender: TObject);
@@ -124,7 +139,7 @@ begin
   Top := FFilterConnector.LazPaintInstance.MainFormBounds.Top;
   FInitializing := false;
   InitParams;
-  PreviewNeeded(True);
+  DisplayPreview(True);
 end;
 
 procedure TFNoiseFilter.SpinEdit_AlphaChange(Sender: TObject);
@@ -132,7 +147,7 @@ begin
   if FInitializing or FClosing then exit;
   if FComputedLayer = nil then ComputeFilteredLayer;
   FComputedLayer.AlphaFill(SpinEdit_Alpha.Value);
-  PreviewNeeded(False);
+  DisplayPreview(False);
 end;
 
 procedure TFNoiseFilter.InitParams;
@@ -153,7 +168,22 @@ begin
     if Booleans['Grayscale'] then Radio_GrayscaleNoise.Checked:= true;
     if IsDefined('Opacity') then SpinEdit_Alpha.Value := Integers['Opacity'];
   end;
+
+  CheckBox_Preview.Checked := True;
+  CheckBox_Preview.Caption := rsPreview;
+  Button_OK.Caption := rsOk;
+  Button_Cancel.Caption := rsCancel;
   FInitializing:= false;
+end;
+
+procedure TFNoiseFilter.DisplayComputedImage;
+begin
+  if SpinEdit_Alpha.Value <> 255 then
+  begin
+    FFilterConnector.RestoreBackup;
+    FFilterConnector.PutImage(FComputedLayer,Radio_RGBNoise.Checked,False,dmDrawWithTransparency);
+  end else
+    FFilterConnector.PutImage(FComputedLayer,Radio_RGBNoise.Checked,False,dmSet);
 end;
 
 procedure TFNoiseFilter.ComputeFilteredLayer;
@@ -166,15 +196,10 @@ begin
   scan.Free;
 end;
 
-procedure TFNoiseFilter.PreviewNeeded(ARecomputeRandom: boolean);
+procedure TFNoiseFilter.DisplayPreview(ARecomputeRandom: boolean);
 begin
   if ARecomputeRandom or (FComputedLayer = nil) then ComputeFilteredLayer;
-  if SpinEdit_Alpha.Value <> 255 then
-  begin
-    FFilterConnector.RestoreBackup;
-    FFilterConnector.PutImage(FComputedLayer,Radio_RGBNoise.Checked,False,dmDrawWithTransparency);
-  end else
-    FFilterConnector.PutImage(FComputedLayer,Radio_RGBNoise.Checked,False,dmSet);
+  if CheckBox_Preview.Checked then DisplayComputedImage;
 end;
 
 end.

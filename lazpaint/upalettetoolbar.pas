@@ -10,10 +10,19 @@ uses
   BGRAVirtualScreen, BGRABitmap,
   LazPaintType, UVolatileScrollBar,
   BGRAPalette, BCButton, Menus,
-  Dialogs, BGRABitmapTypes;
+  Dialogs, BGRABitmapTypes, fgl;
 
 type
   TPaletteVisibilityChangedByUserHandler = procedure(Sender:TObject) of object;
+
+  { TBGRAPixelBinding }
+
+  TBGRAPixelBinding = class(specialize TFPGMap<integer, TBGRAPixel>)
+  private const FKeyPrefix = 'VK_';
+  public
+    function SaveContentToString: string;
+    procedure LoadContentFromString(const aContent: string; FTransparentPalette: boolean);
+  end;
 
   { TPaletteToolbar }
 
@@ -70,6 +79,7 @@ type
     procedure SetVisible(AValue: boolean);
     procedure TryLoadPaletteFrom(AFilename: string);
     procedure TrySavePaletteTo(AFilename: string);
+    procedure DoPickColor(Shift: TShiftState; AColor: TBGRAPixel);
   protected
     procedure PickColor(Shift: TShiftState; X, Y: Integer);
     procedure PaletteChanged;
@@ -85,6 +95,11 @@ type
     procedure ApplyTheme;
     procedure ComputeMenuButtonGlyph;
     property PanelPalette: TBGRAVirtualScreen read GetPanelPalette;
+  private
+    FColorsBindToKey: TBGRAPixelBinding;
+    FSnapPressed, FAltPressed: boolean;
+    procedure ToggleBindColorToKey(aColor: TBGRAPixel; aDigit: integer);
+    function TryToGetColorBoundToKey(aDigit: integer; out aColor: TBGRAPixel): boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -92,6 +107,9 @@ type
     procedure AddColor(AColor: TBGRAPixel);
     procedure RemoveColor(AColor: TBGRAPixel);
     procedure SetBounds(ALeft,ATop,AWidth,AHeight: integer);
+    function CatchToolKeyDown(var AKey: Word): boolean;
+    function CatchToolKeyUp(var AKey: Word): boolean;
+    function GetKeyAssociatedToColor(const AColor: TBGRAPixel): string;
     property Container: TWinControl read FContainer write SetContainer;
     property LazPaintInstance: TLazPaintCustomInstance read FLazPaintInstance write SetLazPaintInstance;
     property Visible: boolean read FVisible write SetVisible;
@@ -106,7 +124,51 @@ implementation
 uses LCScaleDPI, Graphics, Forms, UGraph,
   UResourceStrings, BGRAColorQuantization,
   ULayerAction, UCursors, UFileSystem,
-  udarktheme, UTool, LCVectorialFill;
+  udarktheme, UScripting, UScriptType, UTool, LCVectorialFill, math,
+  LCLType;
+
+{ TBGRAPixelBinding }
+
+function TBGRAPixelBinding.SaveContentToString: string;
+var vars: TVariableSet;
+  i: integer;
+begin
+  Result := '';
+  vars := TVariableSet.Create('');
+  for i:=0 to Count-1 do
+    vars.Pixels[FKeyPrefix+Keys[i].ToString] := Data[i];
+  result := vars.VariablesAsString;
+  vars.Free;
+end;
+
+procedure TBGRAPixelBinding.LoadContentFromString(const aContent: string; FTransparentPalette: boolean);
+var vars: TVariableSet;
+  varName, strDigit: string;
+  i, digit: Integer;
+  v: TScriptVariableReference;
+begin
+  if aContent = '' then exit;
+  vars := TVariableSet.Create('');
+  try
+    if vars.LoadFromVariablesAsString(aContent) = [] then
+    begin
+      Clear;
+      for i:=0 to vars.Count-1 do
+      begin
+        varName := vars.VariableName[i];
+        v := vars.GetVariable(varName);
+        if varName.StartsWith(FKeyPrefix) and (Length(varName) > Length(FKeyPrefix)) and (v.variableType = svtPixel) then
+        begin
+          strDigit := Copy(varName, Length(FKeyPrefix)+1, Length(varName)-Length(FKeyPrefix));
+          if TryStrToInt(strDigit, digit) and (digit in [0..9]) then
+            AddOrSetData(digit, vars.Pixels[varName]);
+        end;
+      end;
+    end;
+  finally
+    vars.Free;
+  end;
+end;
 
 { TPaletteToolbar }
 
@@ -309,6 +371,89 @@ begin
   FMenuButton.Glyph := glyphBmp;
   FMenuButton.GlyphScale := glyphScale;
   glyphBmp.Free;
+end;
+
+procedure TPaletteToolbar.ToggleBindColorToKey(aColor: TBGRAPixel; aDigit: integer);
+var c: TBGRAPixel;
+  procedure RemoveBinding;
+  var idx: integer;
+  begin
+    idx := FColorsBindToKey.IndexOf(aDigit);
+    if idx <> -1 then FColorsBindToKey.Delete(idx);
+    idx := FColorsBindToKey.IndexOfData(aColor);
+    if idx <> -1 then FColorsBindToKey.Delete(idx);
+  end;
+begin
+  if not FTransparentPalette then aColor.alpha := 255;
+
+  if FColorsBindToKey.TryGetData(aDigit, c) then
+  begin
+    RemoveBinding;
+    if aColor <> c then FColorsBindToKey.Add(aDigit, aColor);
+  end else
+  begin
+    RemoveBinding;
+    FColorsBindToKey.Add(aDigit, aColor);
+  end;
+
+  LazPaintInstance.Config.SetDefaultColorsBoundToKeys(FColorsBindToKey.SaveContentToString);
+end;
+
+function TPaletteToolbar.TryToGetColorBoundToKey(aDigit: integer; out aColor: TBGRAPixel): boolean;
+begin
+  Result := FColorsBindToKey.TryGetData(aDigit, aColor);
+end;
+
+function TPaletteToolbar.CatchToolKeyDown(var AKey: Word): boolean;
+var digit: integer;
+  c: TBGRAPixel;
+begin
+  if AKey = VK_MENU then FAltPressed := True
+  else if (AKey = VK_SNAP) or (AKey = VK_SNAP2) then FSnapPressed := True;
+
+  digit := -1;
+  if AKey in [VK_0..VK_9] then digit := AKey - VK_0
+  else if AKey in [VK_NUMPAD0..VK_NUMPAD9] then digit := AKey - VK_NUMPAD0;
+
+  if digit <> -1 then
+  begin
+    if FSnapPressed then
+    begin
+      c := FLazPaintInstance.GetColor(FLazPaintInstance.ChooseColorTarget);
+      ToggleBindColorToKey(c, digit);
+      PaletteChanged;
+      FLazPaintInstance.NotifyColorBinding;
+    end else
+    begin
+      if TryToGetColorBoundToKey(digit, c) then
+      begin
+        if FAltPressed then DoPickColor([ssRight], c)
+        else DoPickColor([ssLeft], c);
+      end;
+    end;
+    Result := True;
+    AKey := 0; // prevent further key event
+  end else Result := False;
+end;
+
+function TPaletteToolbar.CatchToolKeyUp(var AKey: Word): boolean;
+begin
+  if AKey = VK_MENU then FAltPressed := False
+  else if (AKey = VK_SNAP) or (AKey = VK_SNAP2) then FSnapPressed := False;
+  Result := False;
+end;
+
+function TPaletteToolbar.GetKeyAssociatedToColor(const AColor: TBGRAPixel): string;
+var idx: Integer;
+  c: TBGRAPixel;
+begin
+  c := AColor;
+  if not FTransparentPalette and (c.alpha <> 0) then c.alpha := 255;
+  idx := FColorsBindToKey.IndexOfData(c);
+  if idx <> -1 then
+    Result := FColorsBindToKey.Keys[idx].ToString
+  else
+    Result := '';
 end;
 
 procedure TPaletteToolbar.DoClearPalette(Sender: TObject);
@@ -573,6 +718,7 @@ begin
     FVisible := FLazPaintInstance.Config.DefaultPaletteToolbarVisible;
     PanelPalette.Visible := FVisible;
     FillPaletteWithDefault;
+    FColorsBindToKey.LoadContentFromString(FLazPaintInstance.Config.DefaultColorsBoundToKeys, FTransparentPalette);
   end else
   begin
     FColors.Clear;
@@ -641,10 +787,7 @@ begin
   end;
 end;
 
-procedure TPaletteToolbar.PickColor(Shift: TShiftState; X, Y: Integer);
-var idx: integer;
-  c : TBGRAPixel;
-
+procedure TPaletteToolbar.DoPickColor(Shift: TShiftState; AColor: TBGRAPixel);
   procedure NeedGradient(AFill: TVectorialFill);
   begin
     if AFill = LazPaintInstance.ToolManager.ForeFill then
@@ -659,8 +802,8 @@ var idx: integer;
   begin
     NeedGradient(AFill);
     if not (AFill.FillType = vftGradient) then exit;
-    if not FTransparentPalette then c.alpha := AFill.Gradient.StartColor.alpha;
-    AFill.Gradient.StartColor := c;
+    if not FTransparentPalette then AColor.alpha := AFill.Gradient.StartColor.alpha;
+    AFill.Gradient.StartColor := AColor;
     if AFill = LazPaintInstance.ToolManager.ForeFill then
       LazPaintInstance.ChooseColorTarget := ctForeColorStartGrad else
     if AFill = LazPaintInstance.ToolManager.BackFill then
@@ -673,8 +816,8 @@ var idx: integer;
   begin
     NeedGradient(AFill);
     if not (AFill.FillType = vftGradient) then exit;
-    if not FTransparentPalette then c.alpha := AFill.Gradient.EndColor.alpha;
-    AFill.Gradient.EndColor := c;
+    if not FTransparentPalette then AColor.alpha := AFill.Gradient.EndColor.alpha;
+    AFill.Gradient.EndColor := AColor;
     if AFill = LazPaintInstance.ToolManager.ForeFill then
       LazPaintInstance.ChooseColorTarget := ctForeColorEndGrad else
     if AFill = LazPaintInstance.ToolManager.BackFill then
@@ -692,44 +835,50 @@ var idx: integer;
         result := LazPaintInstance.ToolManager.ForeFill;
     end;
   end;
+begin
+  if (ssLeft in Shift) and not (ssRight in Shift) then
+  begin
+    if ssSnap in Shift then
+      ChangeStartColor(GetSelectedFill)
+    else
+    begin
+      if not FTransparentPalette then AColor.alpha := LazPaintInstance.ToolManager.ForeColor.alpha;
+      LazPaintInstance.ToolManager.ForeColor := AColor;
+      LazPaintInstance.ChooseColorTarget:= ctForeColorSolid;
+    end;
+  end else
+  if not (ssLeft in Shift) and (ssRight in Shift) then
+  begin
+    if ssSnap in Shift then
+      ChangeEndColor(GetSelectedFill)
+    else
+    begin
+      if LazPaintInstance.ToolManager.GetCurrentToolType = ptText then
+      begin
+        if not FTransparentPalette then AColor.alpha := LazPaintInstance.ToolManager.OutlineColor.alpha;
+        LazPaintInstance.ToolManager.OutlineColor := AColor;
+        LazPaintInstance.ChooseColorTarget:= ctOutlineColorSolid;
+      end else
+      begin
+        if not FTransparentPalette then AColor.alpha := LazPaintInstance.ToolManager.BackColor.alpha;
+        LazPaintInstance.ToolManager.BackColor := AColor;
+        LazPaintInstance.ChooseColorTarget:= ctBackColorSolid;
+      end;
+    end;
+  end else
+    exit;
+end;
 
+procedure TPaletteToolbar.PickColor(Shift: TShiftState; X, Y: Integer);
+var idx: integer;
+  c : TBGRAPixel;
 begin
   if PtInRect(Point(X,Y),FPaletteColorRect) then
   begin
     idx := (Y-FPaletteColorRect.Top) div FPaletteColorItemHeight + FScrollPos;
     if (idx < 0) or (idx >= FColors.Count) then exit;
     c := FColors.Color[idx];
-    if (ssLeft in Shift) and not (ssRight in Shift) then
-    begin
-      if ssSnap in Shift then
-        ChangeStartColor(GetSelectedFill)
-      else
-      begin
-        if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.ForeColor.alpha;
-        LazPaintInstance.ToolManager.ForeColor := c;
-        LazPaintInstance.ChooseColorTarget:= ctForeColorSolid;
-      end;
-    end else
-    if not (ssLeft in Shift) and (ssRight in Shift) then
-    begin
-      if ssSnap in Shift then
-        ChangeEndColor(GetSelectedFill)
-      else
-      begin
-        if LazPaintInstance.ToolManager.GetCurrentToolType = ptText then
-        begin
-          if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.OutlineColor.alpha;
-          LazPaintInstance.ToolManager.OutlineColor := c;
-          LazPaintInstance.ChooseColorTarget:= ctOutlineColorSolid;
-        end else
-        begin
-          if not FTransparentPalette then c.alpha := LazPaintInstance.ToolManager.BackColor.alpha;
-          LazPaintInstance.ToolManager.BackColor := c;
-          LazPaintInstance.ChooseColorTarget:= ctBackColorSolid;
-        end;
-      end;
-    end else
-      exit;
+    DoPickColor(Shift, c);
   end;
 end;
 
@@ -742,8 +891,9 @@ end;
 procedure TPaletteToolbar.RepaintPalette(Sender: TObject; Bitmap: TBGRABitmap);
 var i,x,y,w,aw,a,h: integer;
   c: TBGRAPixel;
-  nbVisible, maxScroll, availHeight: integer;
+  nbVisible, maxScroll, availHeight, minItemHeight, maxItemHeight: integer;
   clInterm, cSign: TBGRAPixel;
+  strKey: string;
 begin
   FCanvasScale := (Sender as TControl).GetCanvasScaleFactor;
   TVolatileScrollBar.InitDPI(FCanvasScale);
@@ -763,6 +913,10 @@ begin
   h := DoScaleY(round(FPaletteItemHeight*FCanvasScale), OriginalDPI);
   if h < 3 then h := 3;
   availHeight := Bitmap.Height - 2 - y - 1;
+  minItemHeight:= h-1;
+  maxItemHeight := availHeight div max(FColors.Count, 1);
+  FPaletteColorItemHeight := max(min(maxItemHeight, minItemHeight*2), minItemHeight);
+
   nbVisible := availHeight div (h-1);
   if nbVisible < 1 then nbVisible:= 1;
   maxScroll := FColors.Count-nbVisible;
@@ -779,8 +933,10 @@ begin
   if not Assigned(FScrollbar) then
     w := Bitmap.Width-2-x;
   FPaletteColorRect := rect(x,y,x+w,y);
-  FPaletteColorItemHeight := h-1;
+  h := FPaletteColorItemHeight+1;
   nbVisible := (availHeight+h-2) div (h-1);
+  Bitmap.FontFullHeight := Round(h*2/3);
+  Bitmap.FontAntialias := True;
   for i := FScrollPos to FScrollPos+nbVisible-1 do
   if (i >= 0) and (i < FColors.Count) then
   begin
@@ -800,14 +956,24 @@ begin
     begin
       Bitmap.Rectangle(x,y,x+w,y+h,clInterm,c,dmSet);
     end;
+    if (GetLightness(c)/65535 > 0.5) or (FColors.Color[i].alpha = 0) then
+      cSign := BGRABlack else cSign := BGRAWhite;
     if FColors.Color[i] = FLastAddedColor then
     begin
-      if GetLightness(c)/65535 > 0.5 then
-        cSign := BGRABlack else cSign := BGRAWhite;
       Bitmap.DrawPolyLineAntialias(
         Bitmap.ComputeOpenedSpline([PointF(x+(w-aw)*1 div 5, y+h div 4), PointF(x+(w-aw)*2 div 5, y+h*5 div 6),
             PointF(x+(w-aw)*3 div 5, y+h div 4), PointF(x+(w-aw)*4 div 5, y+h div 5)], ssEasyBezier),
             cSign, DoScaleX(15, OriginalDPI)/10);
+    end;
+    strKey := GetKeyAssociatedToColor(FColors.Color[i]);
+    if strKey <> '' then
+    begin
+      if FTransparentPalette then
+        Bitmap.TextOut(x+w-aw-Bitmap.TextSize(strKey).cx-DoScaleX(2, OriginalDPI),
+                       y+h-Bitmap.TextSize(strKey).cy, strKey, cSign, taLeftJustify)
+      else
+        Bitmap.TextOut(x+w-Bitmap.TextSize(strKey).cx-DoScaleX(2, OriginalDPI),
+                       y+h-Bitmap.TextSize(strKey).cy, strKey, cSign, taLeftJustify);
     end;
     y += h-1;
   end;
@@ -850,6 +1016,8 @@ constructor TPaletteToolbar.Create;
 begin
   FPanelPalette := nil;
   FLastAddedColor := BGRAPixelTransparent;
+  FColorsBindToKey := TBGRAPixelBinding.Create;
+  FColorsBindToKey.Duplicates := dupError;
 end;
 
 destructor TPaletteToolbar.Destroy;
@@ -858,6 +1026,7 @@ begin
   FreeAndNil(FScrollbar);
   FreeAndNil(FPanelPalette);
   FreeAndNil(FColors);
+  FreeAndNil(FColorsBindToKey);
   inherited Destroy;
 end;
 

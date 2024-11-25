@@ -17,6 +17,7 @@ type
   TFEmboss = class(TForm)
     Button_OK: TButton;
     Button_Cancel: TButton;
+    CheckBox_Preview: TCheckBox;
     CheckBox_Transparent: TCheckBox;
     CheckBox_PreserveColors: TCheckBox;
     Label_Direction: TLabel;
@@ -26,6 +27,7 @@ type
     TrackBar_Strength: TTrackBar;
     procedure Button_OKClick(Sender: TObject);
     procedure CheckBox_Change(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -45,7 +47,7 @@ type
     FInitializing: boolean;
     procedure ComputeAngle(X,Y: integer);
     function ComputeFilteredLayer: TBGRABitmap;
-    procedure PreviewNeeded;
+    procedure DisplayPreview;
     procedure InitParams;
   public
     FilterConnector: TFilterConnector;
@@ -56,7 +58,7 @@ function ShowEmbossDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
-uses BGRABitmapTypes, math, ugraph, umac;
+uses BGRABitmapTypes, math, ugraph, umac, UResourceStrings;
 
 { TFEmboss }
 
@@ -74,7 +76,7 @@ begin
         FEmboss.FilterConnector.Parameters.Booleans['Validate'] then
       begin
         FEmboss.InitParams;
-        FEmboss.PreviewNeeded;
+        FEmboss.DisplayPreview;
         FEmboss.FilterConnector.ValidateAction;
         result := srOk;
       end else
@@ -101,12 +103,14 @@ end;
 procedure TFEmboss.FormShow(Sender: TObject);
 begin
   InitParams;
-  PreviewNeeded;
+  DisplayPreview;
   Left := FilterConnector.LazPaintInstance.MainFormBounds.Left
 end;
 
 procedure TFEmboss.Button_OKClick(Sender: TObject);
 begin
+  if not CheckBox_Preview.Checked then DisplayPreview;
+
   FilterConnector.ValidateAction;
   FilterConnector.LazPaintInstance.Config.SetDefaultEmbossAngle(angle);
   ModalResult := mrOK;
@@ -114,7 +118,16 @@ end;
 
 procedure TFEmboss.CheckBox_Change(Sender: TObject);
 begin
-  PreviewNeeded;
+  if CheckBox_Preview.Checked then DisplayPreview;
+end;
+
+procedure TFEmboss.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if FInitializing then exit;
+  if CheckBox_Preview.Checked then
+    DisplayPreview
+  else
+    FilterConnector.RestoreBackup;
 end;
 
 procedure TFEmboss.PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -171,7 +184,7 @@ end;
 
 procedure TFEmboss.TrackBar_StrengthChange(Sender: TObject);
 begin
-  PreviewNeeded;
+  if CheckBox_Preview.Checked then DisplayPreview;
   PaintBox1.Repaint;
 end;
 
@@ -180,7 +193,7 @@ begin
   if selectingAngle then
   begin
     angle := ugraph.ComputeAngle(X-PaintBox1.Width/2,Y-PaintBox1.Height/2);
-    PreviewNeeded;
+    if CheckBox_Preview.Checked then DisplayPreview;
     PaintBox1.Repaint;
   end;
 end;
@@ -194,7 +207,7 @@ begin
   result := FilterConnector.BackupLayer.FilterEmboss(angle,FilterConnector.WorkArea,TrackBar_Strength.Position,options) as TBGRABitmap;
 end;
 
-procedure TFEmboss.PreviewNeeded;
+procedure TFEmboss.DisplayPreview;
 begin
   FilterConnector.PutImage(ComputeFilteredLayer,False,True);
 end;
@@ -211,6 +224,11 @@ begin
     if FVars.IsDefined('PreserveColors') then
       CheckBox_PreserveColors.Checked := FVars.Booleans['PreserveColors'];
   end;
+
+  CheckBox_Preview.Checked := True;
+  CheckBox_Preview.Caption := rsPreview;
+  Button_OK.Caption := rsOk;
+  Button_Cancel.Caption := rsCancel;
   FInitializing:= false;
 end;
 

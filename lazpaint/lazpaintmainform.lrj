@@ -293,6 +293,7 @@
 {"hash":124337662,"name":"tfmain.layerexport.hint","sourcebytes":[69,120,112,111,114,116,46,46,46],"value":"Export..."},
 {"hash":164762421,"name":"tfmain.filequicksave.caption","sourcebytes":[81,117,105,99,107,32,115,97,118,101],"value":"Quick save"},
 {"hash":215358547,"name":"tfmain.filequicksave.hint","sourcebytes":[83,97,118,101,32,99,117,114,114,101,110,116,32,102,105,108,101,32,119,105,116,104,111,117,116,32,100,105,97,108,111,103,115],"value":"Save current file without dialogs"},
+{"hash":53140398,"name":"tfmain.renderhypocycloid.caption","sourcebytes":[72,121,112,111,99,121,99,108,111,105,100,46,46,46],"value":"Hypocycloid..."},
 {"hash":66536946,"name":"tfmain.colordialog1.title","sourcebytes":[67,104,111,111,115,101,32,99,111,108,111,114],"value":"Choose color"},
 {"hash":315429,"name":"tfmain.menufile.caption","sourcebytes":[70,105,108,101],"value":"File"},
 {"hash":167619026,"name":"tfmain.itemuseimagebrowser.caption","sourcebytes":[85,115,101,32,105,109,97,103,101,32,98,114,111,119,115,101,114],"value":"Use image browser"},

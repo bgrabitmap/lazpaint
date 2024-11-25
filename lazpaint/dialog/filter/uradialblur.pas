@@ -18,6 +18,7 @@ type
     Button_OK: TButton;
     Button_Cancel: TButton;
     Button3: TButton;
+    CheckBox_Preview: TCheckBox;
     Panel1: TPanel;
     Panel2: TPanel;
     SpinEdit_Radius: TFloatSpinEdit;
@@ -25,18 +26,23 @@ type
     Label_Radius: TLabel;
     Timer1: TTimer;
     procedure Button_OKClick(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SpinEdit_RadiusChange(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
   private
-    FInitializing: boolean;
+    FInitializing, FComputed: boolean;
     FFilterConnector: TFilterConnector;
     FThreadManager: TFilterThreadManager;
     FLastRadius: single;
     FVars: TVariableSet;
+    FComputedImage: TBGRABitmap;
+    procedure DisplayComputedImage;
     procedure PreviewNeeded;
+    procedure StoreComputedImage;
     procedure UpdateStep;
     procedure OnTaskEvent({%H-}ASender: TObject; AEvent: TThreadManagerEvent);
   public
@@ -48,7 +54,7 @@ function ShowRadialBlurDlg(AFilterConnector: TObject; ABlurType:TRadialBlurType;
 
 implementation
 
-uses UMac, BGRAFilters;
+uses UMac, UResourceStrings, BGRAFilters;
 
 function ShowRadialBlurDlg(AFilterConnector: TObject;
   ABlurType: TRadialBlurType; ACaption: string): TScriptResult;
@@ -73,14 +79,40 @@ end;
 
 { TFRadialBlur }
 
+procedure TFRadialBlur.DisplayComputedImage;
+begin
+  if FComputedImage <> nil then
+    FFilterConnector.PutImage(FComputedImage, false, false);
+end;
+
 procedure TFRadialBlur.Button_OKClick(Sender: TObject);
 begin
+  if not CheckBox_Preview.Checked then DisplayComputedImage;
+
   if not FFilterConnector.ActionDone then
   begin
     FFilterConnector.ValidateAction;
     FFilterConnector.lazPaintInstance.Config.SetDefaultBlurRadius(SpinEdit_Radius.Value);
   end;
   ModalResult := mrOK;
+end;
+
+procedure TFRadialBlur.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if FInitializing then exit;
+  if CheckBox_Preview.Checked then
+    DisplayComputedImage
+  else
+  begin
+    StoreComputedImage;
+    FFilterConnector.RestoreBackup;
+  end;
+end;
+
+procedure TFRadialBlur.StoreComputedImage;
+begin
+  if FComputed and (FComputedImage = nil) then
+    FComputedImage := FFilterConnector.ActiveLayer.Duplicate;
 end;
 
 procedure TFRadialBlur.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -97,6 +129,14 @@ begin
   CheckOKCancelBtns(Button_OK{,Button_Cancel});
   CheckFloatSpinEdit(SpinEdit_Radius);
   SpinEdit_Radius.Constraints.MinWidth := DoScaleX(70, OriginalDPI);
+
+  FComputed := false;
+  FComputedImage := nil;
+end;
+
+procedure TFRadialBlur.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(FComputedImage);
 end;
 
 procedure TFRadialBlur.FormShow(Sender: TObject);
@@ -109,6 +149,10 @@ begin
   else
     SpinEdit_Radius.Value := FFilterConnector.LazPaintInstance.Config.DefaultBlurRadius;
   UpdateStep;
+  CheckBox_Preview.Checked := true;
+  CheckBox_Preview.Caption := rsPreview;
+  Button_OK.Caption := rsOk;
+  Button_Cancel.Caption := rsCancel;
   FInitializing := False;
   PreviewNeeded;
   Top := FFilterConnector.LazPaintInstance.MainFormBounds.Top;
@@ -158,7 +202,11 @@ begin
       if FThreadManager.ReadyToClose then
         Close
       else
-        if AEvent = tmeCompletedTask then Button_OK.Enabled := true;
+        if AEvent = tmeCompletedTask then begin
+          Button_OK.Enabled := true;
+          CheckBox_Preview.Enabled := true;
+          FComputed := true;
+        end;
     end;
   tmeStartingNewTask:
     begin
@@ -166,6 +214,12 @@ begin
       Timer1.Interval := 100;
       Timer1.Enabled := true;
       Button_OK.Enabled := false;
+
+      FInitializing := True;
+      CheckBox_Preview.Enabled := false;
+      CheckBox_Preview.Checked := True;
+      FreeAndNil(FComputedImage);
+      FInitializing := False;
     end;
   end;
 end;

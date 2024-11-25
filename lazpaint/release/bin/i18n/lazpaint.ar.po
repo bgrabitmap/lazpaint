@@ -62,16 +62,6 @@ msgctxt "tfabout.label_opensource.caption"
 msgid "Open source (GPLv3)"
 msgstr "مفتوح المصدر (جي بي ال 3) "
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "موافق"
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr "ضبط المنحنيات"
@@ -245,16 +235,6 @@ msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "لون"
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "موافق"
-
 #: tfcolorintensity.caption
 msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
@@ -269,16 +249,6 @@ msgstr "تضاعف"
 msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "إزاحة"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "موافق"
 
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
@@ -304,11 +274,6 @@ msgstr "تدرج"
 msgid "Preset"
 msgstr "مسبقا"
 
-#: tfcustomblur.button_cancel.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "إلغاء"
-
 #: tfcustomblur.button_editmask.caption
 msgid "Edit mask..."
 msgstr "تحرير القناع"
@@ -316,11 +281,6 @@ msgstr "تحرير القناع"
 #: tfcustomblur.button_loadmask.caption
 msgid "Load mask..."
 msgstr "تحميل قناع"
-
-#: tfcustomblur.button_ok.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "موافق"
 
 #: tfcustomblur.caption
 msgctxt "tfcustomblur.caption"
@@ -330,16 +290,6 @@ msgstr "ضبابية مخصصة"
 #: tfcustomblur.openpicturedialog1.title
 msgid "Open grayscale file"
 msgstr "فتح ملف تدرج الرمادي"
-
-#: tfemboss.button_cancel.caption
-msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfemboss.button_ok.caption
-msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "موافق"
 
 #: tfemboss.caption
 msgctxt "tfemboss.caption"
@@ -358,16 +308,6 @@ msgstr ""
 msgctxt "tfemboss.label_direction.caption"
 msgid "Direction :"
 msgstr "إشراف"
-
-#: tffilterfunction.button_cancel.caption
-msgctxt "tffilterfunction.button_cancel.caption"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tffilterfunction.button_ok.caption
-msgctxt "tffilterfunction.button_ok.caption"
-msgid "OK"
-msgstr "موافق"
 
 #: tffilterfunction.caption
 msgid "Apply function"
@@ -472,6 +412,14 @@ msgstr ""
 
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
+msgstr ""
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
 msgstr ""
 
 #: tfimagelist.caption
@@ -1504,6 +1452,10 @@ msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "ضجيج بيرلين دائري"
 
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
+
 #: tfmain.rendermarble.caption
 msgid "Marble"
 msgstr "رخام"
@@ -2090,16 +2042,6 @@ msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "زووم للخارج"
 
-#: tfmotionblur.button_cancel.caption
-msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfmotionblur.button_ok.caption
-msgctxt "TFMOTIONBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "موافق"
-
 #: tfmotionblur.caption
 msgctxt "tfmotionblur.caption"
 msgid "Motion blur"
@@ -2168,16 +2110,6 @@ msgstr ""
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "العرض :"
-
-#: tfnoisefilter.button_cancel.caption
-msgctxt "tfnoisefilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfnoisefilter.button_ok.caption
-msgctxt "tfnoisefilter.button_ok.caption"
-msgid "OK"
-msgstr "موافق"
 
 #: tfnoisefilter.caption
 msgid "Noise filter"
@@ -2316,16 +2248,6 @@ msgstr ""
 msgid "Remove selected light"
 msgstr ""
 
-#: tfphongfilter.button_cancel.caption
-msgctxt "tfphongfilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfphongfilter.button_ok.caption
-msgctxt "tfphongfilter.button_ok.caption"
-msgid "OK"
-msgstr "موافق"
-
 #: tfphongfilter.caption
 msgctxt "tfphongfilter.caption"
 msgid "Shaded map"
@@ -2395,16 +2317,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "النسيج الحالي"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "موافق"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -2420,16 +2332,6 @@ msgctxt "tfpixelate.label_quality.caption"
 msgid "Quality :"
 msgstr "الجودة :"
 
-#: tfposterize.button_cancel.caption
-msgctxt "tfposterize.button_cancel.caption"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfposterize.button_ok.caption
-msgctxt "tfposterize.button_ok.caption"
-msgid "OK"
-msgstr "موافق"
-
 #: tfposterize.caption
 msgctxt "tfposterize.caption"
 msgid "Posterize"
@@ -2444,6 +2346,7 @@ msgid "Levels :"
 msgstr "المستوى :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr ""
 
@@ -2537,16 +2440,6 @@ msgctxt "tfquestion.label_message.caption"
 msgid "."
 msgstr "."
 
-#: tfradialblur.button_cancel.caption
-msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfradialblur.button_ok.caption
-msgctxt "TFRADIALBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "موافق"
-
 #: tfradialblur.caption
 msgctxt "tfradialblur.caption"
 msgid "Radial blur"
@@ -2556,16 +2449,6 @@ msgstr "ضباب شعاعي"
 msgctxt "tfradialblur.label_radius.caption"
 msgid "Radius :"
 msgstr "نصف القطر :"
-
-#: tfrain.button_cancel.caption
-msgctxt "tfrain.button_cancel.caption"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfrain.button_ok.caption
-msgctxt "tfrain.button_ok.caption"
-msgid "OK"
-msgstr "موافق"
 
 #: tfrain.caption
 msgid "Rain"
@@ -2685,16 +2568,6 @@ msgstr ""
 msgid "MioMap"
 msgstr ""
 
-#: tfsharpen.button_cancel.caption
-msgctxt "tfsharpen.button_cancel.caption"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfsharpen.button_ok.caption
-msgctxt "tfsharpen.button_ok.caption"
-msgid "OK"
-msgstr "موافق"
-
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
 msgstr ""
@@ -2703,16 +2576,6 @@ msgstr ""
 msgctxt "tfsharpen.label_amount.caption"
 msgid "Amount :"
 msgstr "القدر :"
-
-#: tfshiftcolors.button_cancel.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfshiftcolors.button_ok.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "موافق"
 
 #: tfshiftcolors.caption
 msgctxt "tfshiftcolors.caption"
@@ -2739,16 +2602,6 @@ msgctxt "tftoolbox.caption"
 msgid "Tools"
 msgstr " الأدوات "
 
-#: tftwirl.button_cancel.caption
-msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tftwirl.button_ok.caption
-msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "موافق"
-
 #: tftwirl.caption
 msgctxt "tftwirl.caption"
 msgid "Twirl"
@@ -2763,16 +2616,6 @@ msgstr "زاوية :"
 msgctxt "tftwirl.label_radius.caption"
 msgid "Radius :"
 msgstr "نصف القطر :"
-
-#: tfwavedisplacement.button_cancel.caption
-msgctxt "tfwavedisplacement.button_cancel.caption"
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: tfwavedisplacement.button_ok.caption
-msgctxt "tfwavedisplacement.button_ok.caption"
-msgid "OK"
-msgstr "موافق"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"
@@ -3480,6 +3323,12 @@ msgstr "من غير المعقول حفظ الصورة الكبيرة في تن�
 msgid "№"
 msgstr "№"
 
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "موافق"
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "حسنا"
@@ -3546,6 +3395,11 @@ msgstr ""
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "الإسم مسبقا"
+
+#: uresourcestrings.rspreview
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr ""
 
 #: uresourcestrings.rspx
 msgid "px"

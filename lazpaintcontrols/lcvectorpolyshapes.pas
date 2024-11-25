@@ -112,6 +112,8 @@ type
     constructor Create(AContainer: TVectorOriginal); override;
     procedure Clear;
     function AddPoint(const APoint: TPointF): integer; virtual;
+    procedure AddPointRange(const APoints: array of TPointF);
+    function GetPointRange: ArrayOfTPointF;
     function RemovePoint(AIndex: integer): boolean;
     procedure RemovePointRange(AFromIndex, AToIndexPlus1: integer);
     procedure InsertPoint(AIndex: integer; APoint: TPointF);
@@ -616,6 +618,7 @@ var
   i: Integer;
   m: TAffineMatrix;
 begin
+  result := nil;
   setlength(result, PointCount);
   m:= MatrixForPixelCentered(AMatrix);
   for i := 0 to PointCount-1 do
@@ -815,11 +818,11 @@ begin
     if segmentLen > 0 then
     begin
       u *= 1/segmentLen;
-      segmentPos := (FMousePos-Points[i])*u;
+      segmentPos := (FMousePos-Points[i])**u;
       if (segmentPos > 0) and (segmentPos< segmentLen) then
       begin
         n := PointF(u.y,-u.x);
-        segmentDist := abs((FMousePos-Points[i])*n);
+        segmentDist := abs((FMousePos-Points[i])**n);
         if segmentDist <= bestSegmentDist then
         begin
           bestSegmentDist := segmentDist;
@@ -914,6 +917,26 @@ function TCustomPolypointShape.AddPoint(const APoint: TPointF): integer;
 begin
   result := PointCount;
   Points[result] := APoint;
+end;
+
+procedure TCustomPolypointShape.AddPointRange(const APoints: array of TPointF);
+var
+  i: Integer;
+begin
+  BeginUpdate(TCustomPolypointShapeDiff);
+  for i := 0 to high(APoints) do
+      AddPoint(APoints[i]);
+  EndUpdate;
+end;
+
+function TCustomPolypointShape.GetPointRange: ArrayOfTPointF;
+var
+  i: Integer;
+begin
+  result := nil;
+  SetLength(result, PointCount);
+  for i := 0 to PointCount-1 do
+      result[i] := Points[i];
 end;
 
 function TCustomPolypointShape.RemovePoint(AIndex: integer): boolean;

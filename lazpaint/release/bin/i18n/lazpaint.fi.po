@@ -54,16 +54,6 @@ msgctxt "TFABOUT.LABEL_OPENSOURCE.CAPTION"
 msgid "Open source (GPLv3)"
 msgstr "Avoin lähdekoodi (GPLv3)"
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "TFADJUSTCURVES.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "TFADJUSTCURVES.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr "Muokkaa käyriä"
@@ -237,16 +227,6 @@ msgctxt "TFCHOOSECOLOR.CAPTION"
 msgid "Color"
 msgstr "Väri"
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
-
 #: tfcolorintensity.caption
 msgctxt "TFCOLORINTENSITY.CAPTION"
 msgid "Intensity"
@@ -260,16 +240,6 @@ msgstr ""
 #: tfcolorintensity.label_shift.caption
 msgctxt "TFCOLORINTENSITY.LABEL_SHIFT.CAPTION"
 msgid "Shift"
-msgstr ""
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
 msgstr ""
 
 #: tfcolorize.caption
@@ -296,11 +266,6 @@ msgstr "Värisävy"
 msgid "Preset"
 msgstr "Esiasetus"
 
-#: tfcustomblur.button_cancel.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
 #: tfcustomblur.button_editmask.caption
 msgid "Edit mask..."
 msgstr "Muokkaa maskia"
@@ -308,11 +273,6 @@ msgstr "Muokkaa maskia"
 #: tfcustomblur.button_loadmask.caption
 msgid "Load mask..."
 msgstr "Lataa maski"
-
-#: tfcustomblur.button_ok.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
 
 #: tfcustomblur.caption
 msgctxt "TFCUSTOMBLUR.CAPTION"
@@ -322,16 +282,6 @@ msgstr "Maskin mukainen sumennus"
 #: tfcustomblur.openpicturedialog1.title
 msgid "Open grayscale file"
 msgstr "Avaa harmaasävytiedosto"
-
-#: tfemboss.button_cancel.caption
-msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfemboss.button_ok.caption
-msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
 
 #: tfemboss.caption
 msgctxt "TFEMBOSS.CAPTION"
@@ -350,16 +300,6 @@ msgstr ""
 msgctxt "TFEMBOSS.LABEL_DIRECTION.CAPTION"
 msgid "Direction :"
 msgstr "Suunta :"
-
-#: tffilterfunction.button_cancel.caption
-msgctxt "TFFILTERFUNCTION.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tffilterfunction.button_ok.caption
-msgctxt "TFFILTERFUNCTION.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
 
 #: tffilterfunction.caption
 msgid "Apply function"
@@ -462,6 +402,14 @@ msgstr "Liukuva peittävyys"
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
 msgstr "Sivujen määrä:"
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr ""
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1494,6 +1442,10 @@ msgctxt "TFMAIN.RENDERCYCLICPERLINNOISE.CAPTION"
 msgid "Cyclic Perlin noise"
 msgstr "Jaksottainen Perlin kohina"
 
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
+
 #: tfmain.rendermarble.caption
 msgid "Marble"
 msgstr "Marmori"
@@ -2081,16 +2033,6 @@ msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "Loitonna"
 
-#: tfmotionblur.button_cancel.caption
-msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfmotionblur.button_ok.caption
-msgctxt "TFMOTIONBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
-
 #: tfmotionblur.caption
 msgctxt "TFMOTIONBLUR.CAPTION"
 msgid "Motion blur"
@@ -2159,16 +2101,6 @@ msgstr ""
 msgctxt "TFNEWIMAGE.LABEL_WIDTH.CAPTION"
 msgid "Width :"
 msgstr "Leveys :"
-
-#: tfnoisefilter.button_cancel.caption
-msgctxt "TFNOISEFILTER.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfnoisefilter.button_ok.caption
-msgctxt "TFNOISEFILTER.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
 
 #: tfnoisefilter.caption
 msgid "Noise filter"
@@ -2307,16 +2239,6 @@ msgstr ""
 msgid "Remove selected light"
 msgstr ""
 
-#: tfphongfilter.button_cancel.caption
-msgctxt "TFPHONGFILTER.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfphongfilter.button_ok.caption
-msgctxt "TFPHONGFILTER.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
-
 #: tfphongfilter.caption
 msgctxt "TFPHONGFILTER.CAPTION"
 msgid "Shaded map"
@@ -2387,16 +2309,6 @@ msgctxt "TFPHONGFILTER.RADIO_USETEXTURE.CAPTION"
 msgid "Current texture"
 msgstr ""
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
-
 #: tfpixelate.caption
 msgctxt "TFPIXELATE.CAPTION"
 msgid "Pixelate"
@@ -2410,16 +2322,6 @@ msgstr "Pkselin koko :"
 #: tfpixelate.label_quality.caption
 msgctxt "TFPIXELATE.LABEL_QUALITY.CAPTION"
 msgid "Quality :"
-msgstr ""
-
-#: tfposterize.button_cancel.caption
-msgctxt "TFPOSTERIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfposterize.button_ok.caption
-msgctxt "TFPOSTERIZE.BUTTON_OK.CAPTION"
-msgid "OK"
 msgstr ""
 
 #: tfposterize.caption
@@ -2436,6 +2338,7 @@ msgid "Levels :"
 msgstr ""
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr ""
 
@@ -2529,16 +2432,6 @@ msgctxt "tfquestion.label_message.caption"
 msgid "."
 msgstr ""
 
-#: tfradialblur.button_cancel.caption
-msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfradialblur.button_ok.caption
-msgctxt "TFRADIALBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
-
 #: tfradialblur.caption
 msgctxt "TFRADIALBLUR.CAPTION"
 msgid "Radial blur"
@@ -2549,16 +2442,6 @@ msgstr "Säteittäinen sumennus"
 msgctxt "TFRADIALBLUR.LABEL_RADIUS.CAPTION"
 msgid "Radius :"
 msgstr "Säde :"
-
-#: tfrain.button_cancel.caption
-msgctxt "TFRAIN.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfrain.button_ok.caption
-msgctxt "TFRAIN.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
 
 #: tfrain.caption
 msgid "Rain"
@@ -2678,16 +2561,6 @@ msgstr ""
 msgid "MioMap"
 msgstr ""
 
-#: tfsharpen.button_cancel.caption
-msgctxt "TFSHARPEN.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfsharpen.button_ok.caption
-msgctxt "TFSHARPEN.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
-
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
 msgstr "Terävöitä/Pehmennä"
@@ -2695,16 +2568,6 @@ msgstr "Terävöitä/Pehmennä"
 #: tfsharpen.label_amount.caption
 msgctxt "TFSHARPEN.LABEL_AMOUNT.CAPTION"
 msgid "Amount :"
-msgstr ""
-
-#: tfshiftcolors.button_cancel.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfshiftcolors.button_ok.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_OK.CAPTION"
-msgid "OK"
 msgstr ""
 
 #: tfshiftcolors.caption
@@ -2732,16 +2595,6 @@ msgctxt "TFTOOLBOX.CAPTION"
 msgid "Tools"
 msgstr "Työkalut"
 
-#: tftwirl.button_cancel.caption
-msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tftwirl.button_ok.caption
-msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr ""
-
 #: tftwirl.caption
 msgctxt "TFTWIRL.CAPTION"
 msgid "Twirl"
@@ -2756,16 +2609,6 @@ msgstr "kulma :"
 msgctxt "TFTWIRL.LABEL_RADIUS.CAPTION"
 msgid "Radius :"
 msgstr "Säde :"
-
-#: tfwavedisplacement.button_cancel.caption
-msgctxt "tfwavedisplacement.button_cancel.caption"
-msgid "Cancel"
-msgstr "Peru"
-
-#: tfwavedisplacement.button_ok.caption
-msgctxt "tfwavedisplacement.button_ok.caption"
-msgid "OK"
-msgstr ""
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"
@@ -3472,6 +3315,11 @@ msgstr ""
 msgid "№"
 msgstr ""
 
+#: uresourcestrings.rsok
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr ""
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "Ok"
@@ -3537,6 +3385,11 @@ msgstr ""
 
 #: uresourcestrings.rspresetname
 msgid "Preset name"
+msgstr ""
+
+#: uresourcestrings.rspreview
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
 msgstr ""
 
 #: uresourcestrings.rspx

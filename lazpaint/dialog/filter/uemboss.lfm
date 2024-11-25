@@ -1,6 +1,6 @@
 object FEmboss: TFEmboss
   Left = 491
-  Height = 277
+  Height = 296
   Top = 168
   Width = 148
   AutoSize = True
@@ -13,18 +13,18 @@ object FEmboss: TFEmboss
   ChildSizing.VerticalSpacing = 8
   ChildSizing.Layout = cclLeftToRightThenTopToBottom
   ChildSizing.ControlsPerLine = 1
-  ClientHeight = 277
+  ClientHeight = 296
   ClientWidth = 148
   Font.Height = -12
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poMainFormCenter
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '2.2.4.0'
   object Label_Direction: TLabel
     Left = 8
     Height = 15
     Top = 8
-    Width = 112
+    Width = 130
     Caption = 'Direction :'
     ParentColor = False
   end
@@ -32,7 +32,7 @@ object FEmboss: TFEmboss
     Left = 8
     Height = 105
     Top = 31
-    Width = 112
+    Width = 130
     OnMouseDown = PaintBox1MouseDown
     OnMouseMove = PaintBox1MouseMove
     OnMouseUp = PaintBox1MouseUp
@@ -40,18 +40,18 @@ object FEmboss: TFEmboss
   end
   object CheckBox_Transparent: TCheckBox
     Left = 8
-    Height = 23
+    Height = 19
     Top = 144
-    Width = 112
+    Width = 130
     Caption = 'Transparent'
     OnChange = CheckBox_Change
     TabOrder = 0
   end
   object CheckBox_PreserveColors: TCheckBox
     Left = 8
-    Height = 23
-    Top = 175
-    Width = 112
+    Height = 19
+    Top = 171
+    Width = 130
     Caption = 'Preserve colors'
     Checked = True
     OnChange = CheckBox_Change
@@ -61,17 +61,17 @@ object FEmboss: TFEmboss
   object Panel1: TPanel
     Left = 8
     Height = 25
-    Top = 206
-    Width = 112
+    Top = 198
+    Width = 130
     BevelOuter = bvNone
     ClientHeight = 25
-    ClientWidth = 112
+    ClientWidth = 130
     TabOrder = 2
     object TrackBar_Strength: TTrackBar
       Left = 0
       Height = 25
       Top = 0
-      Width = 112
+      Width = 130
       Frequency = 64
       Max = 256
       OnChange = TrackBar_StrengthChange
@@ -80,37 +80,48 @@ object FEmboss: TFEmboss
       TabOrder = 0
     end
   end
+  object CheckBox_Preview: TCheckBox
+    Left = 8
+    Height = 19
+    Top = 231
+    Width = 130
+    Caption = 'rsPreview'
+    Checked = True
+    OnChange = CheckBox_PreviewChange
+    State = cbChecked
+    TabOrder = 4
+  end
   object Panel2: TPanel
     Left = 8
     Height = 25
-    Top = 239
-    Width = 112
+    Top = 258
+    Width = 130
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 8
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
     ClientHeight = 25
-    ClientWidth = 112
+    ClientWidth = 130
     TabOrder = 3
     object Button_OK: TButton
       Left = 0
       Height = 25
       Top = 0
-      Width = 42
+      Width = 51
       AutoSize = True
-      Caption = 'OK'
+      Caption = 'rsOK'
       Default = True
       OnClick = Button_OKClick
       TabOrder = 0
     end
     object Button_Cancel: TButton
-      Left = 50
+      Left = 59
       Height = 25
       Top = 0
-      Width = 62
+      Width = 71
       AutoSize = True
       Cancel = True
-      Caption = 'Cancel'
+      Caption = 'rsCancel'
       ModalResult = 2
       TabOrder = 1
     end

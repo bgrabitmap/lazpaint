@@ -18,6 +18,7 @@ type
   TFColorIntensity = class(TForm)
     Button_Cancel: TButton;
     Button_OK: TButton;
+    CheckBox_Preview: TCheckBox;
     FloatSpinEdit_Shift: TFloatSpinEdit;
     FloatSpinEdit_Factor: TFloatSpinEdit;
     Label_Multiply: TLabel;
@@ -25,6 +26,7 @@ type
     TrackBar_Multiply: TTrackBar;
     TrackBar_Shift: TTrackBar;
     procedure Button_OKClick(Sender: TObject);
+    procedure CheckBox_PreviewChange(Sender: TObject);
     procedure FloatSpinEdit_FactorChange(Sender: TObject);
     procedure FloatSpinEdit_ShiftChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -90,6 +92,15 @@ begin
   FFilterConnector.ValidateAction;
   FFilterConnector.Parameters.Floats['Factor'] := FloatSpinEdit_Factor.Value;
   FFilterConnector.Parameters.Floats['Shift'] := FloatSpinEdit_Shift.Value;
+end;
+
+procedure TFColorIntensity.CheckBox_PreviewChange(Sender: TObject);
+begin
+  if not FInitialized then exit;
+  if CheckBox_Preview.Checked then
+    ApplyChosenIntensity
+  else
+   FFilterConnector.RestoreBackup;
 end;
 
 procedure TFColorIntensity.FloatSpinEdit_FactorChange(Sender: TObject);
@@ -198,6 +209,11 @@ begin
     if FFilterConnector.Parameters.IsDefined('Shift') then
       ChosenShift := FFilterConnector.Parameters.Floats['Shift'];
     UpdateSpinEdit;
+
+    Button_OK.Caption := rsOK;
+    Button_Cancel.Caption := rsCancel;
+    CheckBox_Preview.Caption := rsPreview;
+    CheckBox_Preview.Checked := True;
     FInitialized := OldInitialized;
   end;
 end;
@@ -272,6 +288,10 @@ begin
     ciIntensity: FilterIntensity(FFilterConnector, ChosenFactor,ChosenShift);
     ciLightness: FilterLightness(FFilterConnector, ChosenFactor,ChosenShift);
   end;
+
+  FInitialized := False;
+  CheckBox_Preview.Checked := True;
+  FInitialized := True;
 end;
 
 {$R *.lfm}

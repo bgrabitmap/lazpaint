@@ -64,16 +64,6 @@ msgctxt "tfabout.label_opensource.caption"
 msgid "Open source (GPLv3)"
 msgstr "С открытым исходным кодом (GPLv3)"
 
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "ОК"
-
 #: tfadjustcurves.caption
 msgid "Adjust curves"
 msgstr "Регулировка кривых"
@@ -242,16 +232,6 @@ msgctxt "TFCHOOSECOLOR.CAPTION"
 msgid "Color"
 msgstr "Цвет"
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "ОК"
-
 #: tfcolorintensity.caption
 msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
@@ -266,16 +246,6 @@ msgstr "Умножение"
 msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "Сдвиг"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "ОК"
 
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
@@ -301,11 +271,6 @@ msgstr "Оттенок"
 msgid "Preset"
 msgstr "Предустановка"
 
-#: tfcustomblur.button_cancel.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отмена"
-
 #: tfcustomblur.button_editmask.caption
 msgid "Edit mask..."
 msgstr "Редактировать маску..."
@@ -313,11 +278,6 @@ msgstr "Редактировать маску..."
 #: tfcustomblur.button_loadmask.caption
 msgid "Load mask..."
 msgstr "Загрузить маску..."
-
-#: tfcustomblur.button_ok.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "ОК"
 
 #: tfcustomblur.caption
 msgctxt "tfcustomblur.caption"
@@ -327,16 +287,6 @@ msgstr "Пользовательское размытие"
 #: tfcustomblur.openpicturedialog1.title
 msgid "Open grayscale file"
 msgstr "Открыть файл в оттенках серого"
-
-#: tfemboss.button_cancel.caption
-msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfemboss.button_ok.caption
-msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "ОК"
 
 #: tfemboss.caption
 msgctxt "tfemboss.caption"
@@ -355,16 +305,6 @@ msgstr "Прозрачность"
 msgctxt "tfemboss.label_direction.caption"
 msgid "Direction :"
 msgstr "Направление:"
-
-#: tffilterfunction.button_cancel.caption
-msgctxt "tffilterfunction.button_cancel.caption"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tffilterfunction.button_ok.caption
-msgctxt "tffilterfunction.button_ok.caption"
-msgid "OK"
-msgstr "ОК"
 
 #: tffilterfunction.caption
 msgid "Apply function"
@@ -467,6 +407,14 @@ msgstr "Градиент непрозрачности"
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
 msgstr "Кол-во сторон:"
+
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr ""
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr ""
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1493,6 +1441,10 @@ msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "Циклический шум Перлина"
 
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr ""
+
 #: tfmain.rendermarble.caption
 msgid "Marble"
 msgstr "Мрамор"
@@ -2076,16 +2028,6 @@ msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "Уменьшить"
 
-#: tfmotionblur.button_cancel.caption
-msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfmotionblur.button_ok.caption
-msgctxt "TFMOTIONBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "ОК"
-
 #: tfmotionblur.caption
 msgctxt "tfmotionblur.caption"
 msgid "Motion blur"
@@ -2154,16 +2096,6 @@ msgstr "Требуемая память:"
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "Ширина:"
-
-#: tfnoisefilter.button_cancel.caption
-msgctxt "tfnoisefilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfnoisefilter.button_ok.caption
-msgctxt "tfnoisefilter.button_ok.caption"
-msgid "OK"
-msgstr "ОК"
 
 #: tfnoisefilter.caption
 msgid "Noise filter"
@@ -2302,16 +2234,6 @@ msgstr "Добавить точечный свет"
 msgid "Remove selected light"
 msgstr "Удалить источник света"
 
-#: tfphongfilter.button_cancel.caption
-msgctxt "tfphongfilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfphongfilter.button_ok.caption
-msgctxt "tfphongfilter.button_ok.caption"
-msgid "OK"
-msgstr "ОК"
-
 #: tfphongfilter.caption
 msgctxt "tfphongfilter.caption"
 msgid "Shaded map"
@@ -2381,16 +2303,6 @@ msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "Текущ. текстура"
 
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "ОК"
-
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
@@ -2406,16 +2318,6 @@ msgctxt "tfpixelate.label_quality.caption"
 msgid "Quality :"
 msgstr "Качество:"
 
-#: tfposterize.button_cancel.caption
-msgctxt "tfposterize.button_cancel.caption"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfposterize.button_ok.caption
-msgctxt "tfposterize.button_ok.caption"
-msgid "OK"
-msgstr "ОК"
-
 #: tfposterize.caption
 msgctxt "tfposterize.caption"
 msgid "Posterize"
@@ -2430,6 +2332,7 @@ msgid "Levels :"
 msgstr "Уровни :"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Предварительный осмотр"
 
@@ -2523,16 +2426,6 @@ msgctxt "tfquestion.label_message.caption"
 msgid "."
 msgstr "."
 
-#: tfradialblur.button_cancel.caption
-msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfradialblur.button_ok.caption
-msgctxt "TFRADIALBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "ОК"
-
 #: tfradialblur.caption
 msgctxt "tfradialblur.caption"
 msgid "Radial blur"
@@ -2542,16 +2435,6 @@ msgstr "Радиальное размытие"
 msgctxt "tfradialblur.label_radius.caption"
 msgid "Radius :"
 msgstr "Радиус:"
-
-#: tfrain.button_cancel.caption
-msgctxt "tfrain.button_cancel.caption"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfrain.button_ok.caption
-msgctxt "tfrain.button_ok.caption"
-msgid "OK"
-msgstr "ОК"
 
 #: tfrain.caption
 msgid "Rain"
@@ -2671,16 +2554,6 @@ msgstr "32-битный"
 msgid "MioMap"
 msgstr "MioMap"
 
-#: tfsharpen.button_cancel.caption
-msgctxt "tfsharpen.button_cancel.caption"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfsharpen.button_ok.caption
-msgctxt "tfsharpen.button_ok.caption"
-msgid "OK"
-msgstr "ОК"
-
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
 msgstr "Резкость/Сглаженность"
@@ -2689,16 +2562,6 @@ msgstr "Резкость/Сглаженность"
 msgctxt "tfsharpen.label_amount.caption"
 msgid "Amount :"
 msgstr "Эффект:"
-
-#: tfshiftcolors.button_cancel.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfshiftcolors.button_ok.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "ОК"
 
 #: tfshiftcolors.caption
 msgctxt "tfshiftcolors.caption"
@@ -2725,16 +2588,6 @@ msgctxt "tftoolbox.caption"
 msgid "Tools"
 msgstr "Инструменты"
 
-#: tftwirl.button_cancel.caption
-msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tftwirl.button_ok.caption
-msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "ОК"
-
 #: tftwirl.caption
 msgctxt "tftwirl.caption"
 msgid "Twirl"
@@ -2749,16 +2602,6 @@ msgstr "Угол:"
 msgctxt "tftwirl.label_radius.caption"
 msgid "Radius :"
 msgstr "Радиус:"
-
-#: tfwavedisplacement.button_cancel.caption
-msgctxt "tfwavedisplacement.button_cancel.caption"
-msgid "Cancel"
-msgstr "Отмена"
-
-#: tfwavedisplacement.button_ok.caption
-msgctxt "tfwavedisplacement.button_ok.caption"
-msgid "OK"
-msgstr "ОК"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"
@@ -3463,6 +3306,12 @@ msgstr "Не стоит сохранять такое большое изобр�
 msgid "№"
 msgstr "№"
 
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "ОК"
+
 #: uresourcestrings.rsokay
 msgid "Okay"
 msgstr "ОК"
@@ -3528,6 +3377,12 @@ msgstr "Постеризовать слой используя палитру"
 #: uresourcestrings.rspresetname
 msgid "Preset name"
 msgstr "Предустановленное имя"
+
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Предварительный осмотр"
 
 #: uresourcestrings.rspx
 msgid "px"
@@ -3787,3 +3642,4 @@ msgstr "Увеличить размер стопки слоёв"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Увеличить размер стопки слоёв"
+

@@ -126,6 +126,9 @@ begin
     if AInstance.Image.SelectionLayerIsEmpty then
       applyOfsBefore := true;
 
+  if filter = pfHypocycloid then
+    exit(AInstance.ShowHypocycloidDlg(AInstance, AParameters));
+
   try
     FilterConnector := TFilterConnector.Create(AInstance, AParameters, applyOfsBefore);
     layer := FilterConnector.ActiveLayer;

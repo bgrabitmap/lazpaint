@@ -1,6 +1,6 @@
 object FMotionBlur: TFMotionBlur
   Left = 438
-  Height = 217
+  Height = 236
   Top = 173
   Width = 148
   AutoSize = True
@@ -13,25 +13,26 @@ object FMotionBlur: TFMotionBlur
   ChildSizing.VerticalSpacing = 8
   ChildSizing.Layout = cclLeftToRightThenTopToBottom
   ChildSizing.ControlsPerLine = 1
-  ClientHeight = 217
+  ClientHeight = 236
   ClientWidth = 148
   Font.Height = -12
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '2.2.4.0'
   object Panel1: TPanel
     Left = 8
     Height = 23
     Top = 8
-    Width = 124
+    Width = 130
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 8
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
     ClientHeight = 23
-    ClientWidth = 124
+    ClientWidth = 130
     TabOrder = 1
     object Label_Distance: TLabel
       Left = 0
@@ -51,7 +52,6 @@ object FMotionBlur: TFMotionBlur
       DecimalPlaces = 1
       Increment = 3
       MaxValue = 1000
-      MinValue = 0
       OnChange = SpinEdit_DistanceChange
       TabOrder = 0
       Value = 5
@@ -61,7 +61,7 @@ object FMotionBlur: TFMotionBlur
     Left = 8
     Height = 19
     Top = 39
-    Width = 124
+    Width = 130
     Caption = 'Oriented'
     Checked = True
     OnChange = Checkbox_OrientedChange
@@ -72,43 +72,54 @@ object FMotionBlur: TFMotionBlur
     Left = 8
     Height = 105
     Top = 66
-    Width = 124
+    Width = 130
     OnMouseDown = PaintBox1MouseDown
     OnMouseMove = PaintBox1MouseMove
     OnMouseUp = PaintBox1MouseUp
     OnPaint = PaintBox1Paint
   end
+  object CheckBox_Preview: TCheckBox
+    Left = 8
+    Height = 19
+    Top = 179
+    Width = 130
+    Caption = 'rsPreview'
+    Checked = True
+    OnChange = CheckBox_PreviewChange
+    State = cbChecked
+    TabOrder = 3
+  end
   object Panel2: TPanel
     Left = 8
     Height = 25
-    Top = 179
-    Width = 124
+    Top = 206
+    Width = 130
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 8
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
     ClientHeight = 25
-    ClientWidth = 124
+    ClientWidth = 130
     TabOrder = 2
     object Button_OK: TButton
       Left = 0
       Height = 25
       Top = 0
-      Width = 42
+      Width = 51
       AutoSize = True
-      Caption = 'OK'
+      Caption = 'rsOK'
       Default = True
       OnClick = Button_OKClick
       TabOrder = 0
     end
     object Button_Cancel: TButton
-      Left = 50
+      Left = 59
       Height = 25
       Top = 0
-      Width = 62
+      Width = 71
       AutoSize = True
       Cancel = True
-      Caption = 'Cancel'
+      Caption = 'rsCancel'
       ModalResult = 2
       TabOrder = 1
     end
@@ -117,7 +128,7 @@ object FMotionBlur: TFMotionBlur
     Enabled = False
     Interval = 200
     OnTimer = Timer1Timer
-    left = 112
-    top = 96
+    Left = 112
+    Top = 96
   end
 end

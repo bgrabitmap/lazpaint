@@ -37,6 +37,7 @@ type
       {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure PaintBox_WindPaint(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    procedure TrackBar_QuantityChange(Sender: TObject);
   private
     { private declarations }
     wind: single;
@@ -64,7 +65,7 @@ function ShowRainDlg(AFilterConnector: TObject): TScriptResult;
 
 implementation
 
-uses LCScaleDPI, umac, LazPaintType;
+uses LCScaleDPI, umac, LazPaintType, UResourceStrings;
 
 function ShowRainDlg(AFilterConnector: TObject): TScriptResult;
 var
@@ -128,6 +129,9 @@ begin
   PreviewNeeded;
   Left := FilterConnector.LazPaintInstance.MainFormBounds.Left;
   Timer1.Enabled := true;
+
+  Button_OK.Caption := rsOK;
+  Button_Cancel.Caption := rsCancel;
 end;
 
 procedure TFRain.PaintBox_WindMouseDown(Sender: TObject; Button: TMouseButton;
@@ -187,6 +191,12 @@ begin
   RainRenderer.RainElapse(0.1, RainQuantity, FilterConnector.BackupLayer.Width, FilterConnector.BackupLayer.Height);
   PreviewNeeded;
   Timer1.Enabled:= true;
+end;
+
+procedure TFRain.TrackBar_QuantityChange(Sender: TObject);
+begin
+  FreeAndNil(FRenderer);
+  PreviewNeeded;
 end;
 
 function TFRain.GetRainRenderer: TRainRenderer;

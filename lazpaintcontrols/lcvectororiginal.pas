@@ -2741,6 +2741,7 @@ var
   i: Integer;
 begin
   result := EmptyRectF;
+  if ACount = 0 then exit;
   if (AStartIndex < 0) or (AStartIndex+ACount > ShapeCount) then
     raise exception.Create(rsIndexOutOfBounds);
   for i := AStartIndex to AStartIndex+ACount-1 do

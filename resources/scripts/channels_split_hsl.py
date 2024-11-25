@@ -2,7 +2,7 @@
 # (fr) Canaux > Séparer TSL
 from lazpaint import image, dialog, layer, filters
 
-translation = dialog.translate_dict(["Layer already split", "Hue", "Saturation", "Lightness", "Alpha": "Alpha"])
+translation = dialog.translate_dict(["Layer already split", "Hue", "Saturation", "Lightness", "Alpha"])
 
 # check if it is a channel
 if layer.get_registry("split-channel") is not None:
