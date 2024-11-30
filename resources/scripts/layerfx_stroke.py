@@ -196,7 +196,7 @@ button_color = Button(frame, text=translation["Color"] + "...", command=button_c
 button_color.grid(column=1, row=2)
 
 label_info = Label(frame, text=translation["Run this script again to update effect"],
-    background="SystemInfoBackground", foreground="SystemInfoText", borderwidth=1, relief="solid")
+    background="lemon chiffon", foreground="black", borderwidth=1, relief="solid")
 label_info.grid(column=0, rows=3, columnspan=2)
 
 frame.columnconfigure(0, pad=20)

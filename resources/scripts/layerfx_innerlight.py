@@ -241,7 +241,7 @@ scale_opacity.grid(column=1, row=2, sticky=W+E, padx=10)
 scale_opacity.set(chosen_opacity)
 
 label_info = Label(frame, text=translation["Run this script again to update effect"],
-    background="SystemInfoBackground", foreground="SystemInfoText", borderwidth=1, relief="solid")
+    background="lemon chiffon", foreground="black", borderwidth=1, relief="solid")
 label_info.grid(column=0, rows=3, columnspan=2)
 
 
