@@ -2385,6 +2385,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "Saglabāt attiecību"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Attēla izmērs"
@@ -2426,6 +2432,12 @@ msgstr "Drukas iekārta un papīrs:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Labā pusē:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2533,6 +2545,7 @@ msgid "Quality:"
 msgstr "Kvalitāte:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 

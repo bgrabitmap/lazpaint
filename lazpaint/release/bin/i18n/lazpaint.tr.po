@@ -2375,6 +2375,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "En-boy oranını koruOran"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Resim boyutu"
@@ -2416,6 +2422,12 @@ msgstr "Printer and paper:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Sağ:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2523,6 +2535,7 @@ msgid "Quality:"
 msgstr "Kalite:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 

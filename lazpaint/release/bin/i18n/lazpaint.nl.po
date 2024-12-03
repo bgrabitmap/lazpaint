@@ -2378,6 +2378,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "Aspectverhouding behouden"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Afbeeldingsgrootte"
@@ -2419,6 +2425,12 @@ msgstr "Printer en papier:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Rechts:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2526,6 +2538,7 @@ msgid "Quality:"
 msgstr "Kwaliteit:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 

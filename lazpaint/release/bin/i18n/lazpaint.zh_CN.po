@@ -2378,6 +2378,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "保持纵横比"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "图像大小"
@@ -2419,6 +2425,12 @@ msgstr "打印机和纸张:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "右:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2526,6 +2538,7 @@ msgid "Quality:"
 msgstr "品质:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 

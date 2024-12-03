@@ -2371,6 +2371,11 @@ msgctxt "TFPRINT.CHECKBOX_RATIO.CAPTION"
 msgid "Keep aspect ratio"
 msgstr ""
 
+#: tfprint.combobox_orientation.text
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr ""
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Kuvan koko"
@@ -2412,6 +2417,11 @@ msgstr "Tulostin ja paperikoko"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Oikea reuna:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr ""
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2520,6 +2530,7 @@ msgid "Quality:"
 msgstr ""
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr ""
 

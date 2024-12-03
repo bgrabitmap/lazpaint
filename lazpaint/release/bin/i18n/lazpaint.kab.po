@@ -2381,6 +2381,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "Ḥrez assaɣ n tmeẓri"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Tiddi n tugna"
@@ -2422,6 +2428,12 @@ msgstr "Tasaggazt akked ukaɣeḍ:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Ayfus:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2529,6 +2541,7 @@ msgid "Quality:"
 msgstr "Taɣara:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 
