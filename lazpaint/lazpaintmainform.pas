@@ -3151,6 +3151,13 @@ begin
         ToolManager.ToolUp;
       end;
       UpdateSelectionHighlightMode;
+      {$IFDEF LINUX}
+      if Tool = ptDeformation then
+      begin
+        Application.ProcessMessages;
+        Invalidate;
+      end;
+      {$ENDIF}
     except
       on ex:Exception do
       begin
