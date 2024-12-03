@@ -5646,6 +5646,12 @@ object FMain: TFMain
       Caption = 'SuperFormula...'
       OnExecute = RenderAnyExecute
     end
+    object FileCheckScriptsSecure: TAction
+      Category = 'File'
+      Caption = 'Check scripts are secure'
+      OnExecute = FileCheckScriptsSecureExecute
+      OnUpdate = FileCheckScriptsSecureUpdate
+    end
   end
   object ColorDialog1: TColorDialog
     Title = 'Choose color'

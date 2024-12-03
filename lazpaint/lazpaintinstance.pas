@@ -1906,6 +1906,7 @@ begin
   try
     FScriptTempFileNames := TStringList.Create;
     p := TPythonScript.Create;
+    p.CheckScriptSecure:= Config.DefaultCheckScriptsSecure;
     if Trim(ACaption).Length > 0 then
       FScriptName:= Trim(ACaption)
       else FScriptName := AFilename;

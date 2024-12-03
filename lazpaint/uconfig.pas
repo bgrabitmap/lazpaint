@@ -108,6 +108,9 @@ type
     function DefaultScriptDirectory: string;
     procedure SetDefaultScriptDirectory(value: string);
 
+    function DefaultCheckScriptsSecure: boolean;
+    procedure SetDefaultCheckScriptsSecure(value: boolean);
+
     function DefaultIconSize(defaultValue: integer): integer;
     procedure SetDefaultIconSize(value: integer);
     function GetDarkTheme: boolean;
@@ -1755,6 +1758,16 @@ end;
 procedure TLazPaintConfig.SetDefaultScriptDirectory(value: string);
 begin
   iniOptions.WriteString('General','ScriptDirectory',ChompPathDelim(value))
+end;
+
+function TLazPaintConfig.DefaultCheckScriptsSecure: boolean;
+begin
+  result := iniOptions.ReadBool('General', 'CheckScriptsSecure', true);
+end;
+
+procedure TLazPaintConfig.SetDefaultCheckScriptsSecure(value: boolean);
+begin
+  iniOptions.WriteBool('General', 'CheckScriptsSecure', value);
 end;
 
 function TLazPaintConfig.DefaultIconSize(defaultValue: integer): integer;

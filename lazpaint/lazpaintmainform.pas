@@ -25,6 +25,7 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    FileCheckScriptsSecure: TAction;
     RenderHypocycloid: TAction;
     RenderSuperformula: TAction;
     FileQuickSave: TAction;
@@ -485,6 +486,8 @@ type
     procedure EditShapeCenterVerticallyUpdate(Sender: TObject);
     procedure EditShapeToCurveExecute(Sender: TObject);
     procedure EditShapeToCurveUpdate(Sender: TObject);
+    procedure FileCheckScriptsSecureExecute(Sender: TObject);
+    procedure FileCheckScriptsSecureUpdate(Sender: TObject);
     procedure FileChooseEntryExecute(Sender: TObject);
     procedure FileChooseEntryUpdate(Sender: TObject);
     procedure FileExportExecute(Sender: TObject);
@@ -3513,6 +3516,16 @@ end;
 procedure TFMain.EditShapeToCurveUpdate(Sender: TObject);
 begin
   EditShapeToCurve.Enabled := ToolManager.ToolProvideCommand(tcShapeToSpline);
+end;
+
+procedure TFMain.FileCheckScriptsSecureExecute(Sender: TObject);
+begin
+  Config.SetDefaultCheckScriptsSecure(not Config.DefaultCheckScriptsSecure);
+end;
+
+procedure TFMain.FileCheckScriptsSecureUpdate(Sender: TObject);
+begin
+  FileCheckScriptsSecure.Checked := Config.DefaultCheckScriptsSecure;
 end;
 
 procedure TFMain.FileChooseEntryExecute(Sender: TObject);

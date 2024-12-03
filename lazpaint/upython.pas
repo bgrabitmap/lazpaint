@@ -23,6 +23,7 @@ type
 
   TPythonScript = class
   private
+    FCheckScriptSecure: boolean;
     FPythonBin: string;
     FPythonVersion: string;
     FLinePrefix: RawByteString;
@@ -51,6 +52,7 @@ type
     property PythonVersion: string read FPythonVersion;
     property PythonVersionMajor: integer read GetPythonVersionMajor;
     property ErrorText: UTF8String read FErrorText;
+    property CheckScriptSecure: boolean read FCheckScriptSecure write FCheckScriptSecure;
   end;
 
 function GetPythonVersion(APythonBin: string = DefaultPythonBin): string;
@@ -653,7 +655,8 @@ function TPythonScript.Run(AScriptFilename: UTF8String;
 var exitCode: integer;
 begin
   result := false;
-  if not CheckScriptAndDependencySafe(AScriptFilename, APythonVersion) then exit;
+  if CheckScriptSecure and
+    not CheckScriptAndDependencySafe(AScriptFilename, APythonVersion) then exit;
   FLinePrefix := '';
   FFirstOutput:= true;
   AutomationEnvironment.Values['PYTHONPATH'] := DefaultScriptDirectory;
