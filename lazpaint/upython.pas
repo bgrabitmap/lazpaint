@@ -457,14 +457,14 @@ begin
   if FFirstOutput then
   begin
     if ALine <> 'LazPaint script'#9 then
-      raise exception.Create('This is not a LazPaint script')
+      raise exception.Create(rsNotLazPaintScript)
     else
     begin
       FFirstOutput:= false;
       if Assigned(FPythonSend) then
         FPythonSend(chr(27)+'LazPaint')
       else
-        raise exception.Create('Send callback not defined');
+        raise exception.Create('"Send" callback not defined');
     end;
   end;
 
@@ -576,8 +576,7 @@ begin
     begin
       safeModules.Free;
       unsafeModules.Free;
-      raise exception.Create('The script file does not seem to be safe: ' +
-                             filesToCheck[curFile]);
+      raise exception.Create(StringReplace(rsScriptNotSafe, '%1', filesToCheck[curFile], []));
     end;
     if Assigned(unsafeModules) then
     begin
@@ -603,9 +602,10 @@ begin
     proceed := true;
     if Assigned(OnWarning) then
     begin
-      OnWarning(self, 'Are you sure you would like to run this script? ' +
-        'The following modules used by this script may be unsafe: '+
-        allUnsafeModules.CommaText, proceed);
+      OnWarning(self,
+        StringReplace(rsSureToRunUnsafeScript, '%1',
+          allUnsafeModules.CommaText, []),
+        proceed);
     end;
     allUnsafeModules.Free;
     if not proceed then exit(false);

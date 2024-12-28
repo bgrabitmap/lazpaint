@@ -20,6 +20,11 @@ resourcestring
   rsLazPaint = 'LazPaint';
   rsDonate = 'Donate...';
   rsScript = 'Script';
+  rsNotLazPaintScript = 'This is not a LazPaint script';
+  rsScriptNotSafe = 'The script file does not seem to be safe: %1';
+  rsSureToRunUnsafeScript =
+    'Are you sure you would like to run this script? ' +
+    'The following modules used by this script may be unsafe: %1';
   rsFunctionNotDefined = 'The function %1 is not defined.';
   rsPythonUnexpectedVersion = 'Expected Python version %1 but %2 found.';
   rsOpening='Opening';
