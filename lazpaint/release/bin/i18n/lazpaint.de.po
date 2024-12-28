@@ -426,11 +426,11 @@ msgstr "Anzahl der Seiten:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Hypozykloide"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Spitzen:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -764,6 +764,10 @@ msgstr "Änderungen prüfen"
 #: tfmain.exportpicturedialog.title
 msgid "Export as..."
 msgstr "Ausführen als..."
+
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Überprüfen, ob Skripte sicher sind"
 
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
@@ -1465,7 +1469,7 @@ msgstr "Perlin-Rauschen (zyklisch)"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Hypozykloide..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -1494,6 +1498,12 @@ msgstr "Spuren im Schnee"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Stein"
+
+#: tfmain.rendersuperformula.caption
+#, fuzzy
+msgctxt "tfmain.rendersuperformula.caption"
+msgid "Superformula"
+msgstr "Superformel"
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -2624,6 +2634,7 @@ msgid "Saturation"
 msgstr "Sättigung"
 
 #: tfsuperformula.caption
+msgctxt "tfsuperformula.caption"
 msgid "Superformula"
 msgstr "Superformel"
 
@@ -3403,6 +3414,10 @@ msgstr "Es gibt nichts zu verformen"
 msgid "There is nothing to be retrieved"
 msgstr "Es gibt nichts zurückzuholen"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "Dies ist kein LazPaint-Skript"
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "Es wird nicht empfohlen, ein so großes Bild in diesem Dateiformat zu speichern."
@@ -3603,6 +3618,10 @@ msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Skript"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "Die Skriptdatei scheint nicht sicher zu sein: %1"
+
 #: uresourcestrings.rsselectblendoperation
 #, fuzzy
 msgctxt "uresourcestrings.rsselectblendoperation"
@@ -3646,6 +3665,10 @@ msgstr "Gerät"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "Strich"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "Sind Sie sicher, dass Sie dieses Skript ausführen möchten? Die folgenden Module, die von diesem Skript verwendet werden, könnten unsicher sein: %1"
 
 #: uresourcestrings.rstextoutline
 #, fuzzy
