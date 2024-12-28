@@ -1059,6 +1059,8 @@ begin
 end;
 
 procedure TFMain.Init;
+var
+  str: string;
 begin
   FInitialized := false;
   Config := LazPaintInstance.Config;
@@ -1141,6 +1143,9 @@ begin
   Panel_CopyPaste.Visible := Config.DefaultCopyPasteToolbarVisible;
   Panel_Coordinates.Visible := Config.DefaultCoordinatesToolbarVisible;
   FLayout.ToolBoxPopup := PopupToolbox;
+  str := Trim(RenderSuperformula.Caption);
+  if (str <> '') and (str[length(str)] <> '.') then
+    RenderSuperformula.Caption := str + '...';
 
   {$IFDEF DARWIN}
   ImageHorizontalFlip.ShortCut := ShortCut(VK_H, [ssMeta, ssCtrl]);
