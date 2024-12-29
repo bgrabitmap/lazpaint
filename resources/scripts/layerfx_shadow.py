@@ -12,7 +12,8 @@ except ImportError:
         
 from lazpaint import colors, image, layer, filters, tools, selection
 
-translation = dialog.translate_dict(["Layer is empty", "Shadow of ", "Radius", "Offset", "Opacity", "Ok", "Cancel"])
+translation = dialog.translate_dict(["Layer is empty", "Shadow of ", 
+    "Radius", "Offset", "Opacity", "Ok", "Cancel", "Run this script again to update effect"])
 
 if layer.is_empty():
     dialog.show_message(translation["Layer is empty"])
@@ -199,6 +200,10 @@ label_opacity.grid(column=0, row=3)
 scale_opacity = Scale(frame, from_=0, to=MAX_OPACITY, orient=HORIZONTAL, command=scale_opacity_update)
 scale_opacity.grid(column=1, row=3, sticky=W+E, padx=10)
 scale_opacity.set(chosen_opacity)
+
+label_info = Label(frame, text=translation["Run this script again to update effect"],
+    background="lemon chiffon", foreground="black", borderwidth=1, relief="solid")
+label_info.grid(column=0, rows=4, columnspan=2)
 
 frame.columnconfigure(0, pad=20)
 frame.columnconfigure(1, minsize=250)

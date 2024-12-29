@@ -120,14 +120,16 @@ begin
       exit;
   end;
 
+  if filter = pfHypocycloid then
+    exit(AInstance.ShowHypocycloidDlg(AInstance, AParameters));
+  if filter = pfSuperformula then
+    exit(AInstance.ShowSuperformulaDlg(AInstance, AParameters));
+
   applyOfsBefore:= false;
   if not (filter in[pfSharpen, pfSmooth, pfClearType, pfClearTypeInverse, pfNormalize, pfMedian,
             pfNegative, pfLinearNegative, pfComplementaryColor, pfGrayscale]) then
     if AInstance.Image.SelectionLayerIsEmpty then
       applyOfsBefore := true;
-
-  if filter = pfHypocycloid then
-    exit(AInstance.ShowHypocycloidDlg(AInstance, AParameters));
 
   try
     FilterConnector := TFilterConnector.Create(AInstance, AParameters, applyOfsBefore);

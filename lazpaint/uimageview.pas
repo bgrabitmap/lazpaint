@@ -467,7 +467,7 @@ begin
     if not FVirtualScreen.ClipRect.IsEmpty then
     begin
       renderRect := FLastPictureParameters.scaledZoomedArea;
-      OffsetRect(renderRect, -FLastPictureParameters.scaledVirtualScreenArea.Left,
+      Types.OffsetRect(renderRect, -FLastPictureParameters.scaledVirtualScreenArea.Left,
                              -FLastPictureParameters.scaledVirtualScreenArea.Top);
 
       DrawThumbnailCheckers(FVirtualScreen, renderRect, Image.IsIconCursor, DoScaleX(60*CanvasScale, OriginalDPI)/60);
@@ -549,8 +549,8 @@ begin
       oldClip := FVirtualScreen.ClipRect;
       FVirtualScreen.ClipRect := rectBack;
       FVirtualScreen.PenStyle := psSolid;
-      FVirtualScreen.DrawPolygonAntialias(cursorcontourF,BGRA(0,0,0,192),3*CanvasScale);
-      FVirtualScreen.DrawPolygonAntialias(cursorcontourF,BGRA(255,255,255,255),1*CanvasScale);
+      FVirtualScreen.DrawPolygonAntialias(cursorcontourF,BGRA(0,0,0,192),3*cursorPos.penWidth);
+      FVirtualScreen.DrawPolygonAntialias(cursorcontourF,BGRA(255,255,255,255),cursorPos.penWidth);
       FVirtualScreen.ClipRect := oldClip;
       DrawPart;
 
@@ -892,9 +892,9 @@ begin
 end;
 
 function TImageView.GetPenCursorPosition: TVSCursorPosition;
-const margin = 2;
 var
   tl,br: TPointF;
+  margin: single;
 begin
   with LazPaintInstance.ToolManager do
   begin
@@ -902,14 +902,16 @@ begin
     tl := self.BitmapToVirtualScreen(ToolCurrentCursorPos.X-PenWidth/2,ToolCurrentCursorPos.Y-PenWidth/2);
     br := self.BitmapToVirtualScreen(ToolCurrentCursorPos.X+PenWidth/2,ToolCurrentCursorPos.Y+PenWidth/2);
   end;
+  result.penWidth:= max(1, 0.75 * ScreenInfo.PixelsPerInchX / OriginalDPI * CanvasScale);
   result.rx := (br.x-tl.x)/2-0.5;
   result.ry := (br.y-tl.y)/2-0.5;
+  margin := result.penWidth/2*3 + 1;
   if FPenCursorVisible then
   begin
-    result.bounds.left := floor(tl.x)-margin*CanvasScale;
-    result.bounds.top := floor(tl.y)-margin*CanvasScale;
-    result.bounds.right := ceil(br.x)+1+2*margin*CanvasScale;
-    result.bounds.bottom := ceil(br.y)+1+2*margin*CanvasScale;
+    result.bounds.left := floor(tl.x-margin)-1;
+    result.bounds.top := floor(tl.y-margin)-1;
+    result.bounds.right := ceil(br.x+margin)+2;
+    result.bounds.bottom := ceil(br.y+margin)+2;
   end else
     result.bounds := EmptyRect;
 end;
@@ -941,7 +943,7 @@ begin
     area.Right := (area.Right+CanvasScale-1) div CanvasScale;
     area.Bottom := (area.Bottom+CanvasScale-1) div CanvasScale;
   end;
-  OffsetRect(area, FLastPictureParameters.virtualScreenArea.Left,
+  Types.OffsetRect(area, FLastPictureParameters.virtualScreenArea.Left,
                    FLastPictureParameters.virtualScreenArea.Top);
   {$IFDEF IMAGEVIEW_DIRECTUPDATE}
   PaintVirtualScreenImplementation(AWorkArea, area);
@@ -966,7 +968,7 @@ begin
     result := GetRenderUpdateRectVS(True);
     result := RectUnion(result,FPenCursorPosBefore.bounds);
     result := RectUnion(result,FPenCursorPos.bounds);
-    OffsetRect(result, FLastPictureParameters.scaledVirtualScreenArea.Left,
+    Types.OffsetRect(result, FLastPictureParameters.scaledVirtualScreenArea.Left,
                      FLastPictureParameters.scaledVirtualScreenArea.Top);
     if CanvasScale > 1 then
     begin

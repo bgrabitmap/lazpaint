@@ -150,6 +150,8 @@ procedure TFHypocycloid.Button_OKClick(Sender: TObject);
 begin
   TimerDisplay.Enabled := false;
   if not FPreviewDone then DisplayShape;
+
+  FInstance.Config.SetDefaultCuspCount(SpinEdit_CuspCount.Value);
 end;
 
 procedure TFHypocycloid.Button_CancelClick(Sender: TObject);
@@ -191,7 +193,6 @@ end;
 
 procedure TFHypocycloid.InitParams;
 var
-  isOriginal: Boolean;
   layerIndex, cuspCount, errPos: Integer;
   cuspCountStr: RawByteString;
 begin
@@ -225,6 +226,8 @@ end;
 
 procedure TFHypocycloid.NeedPreview;
 begin
+  if FInitializing then exit;
+
   TimerDisplay.Enabled := false;
   TimerDisplay.Enabled := true;
   FPreviewDone := false;

@@ -89,6 +89,7 @@ type
     function GetIsBackEditGradTexPoints: boolean; override;
     function GetIsOutlineEditGradTexPoints: boolean; override;
     function GetGridMatrix: TAffineMatrix; virtual;
+    function GetIsEditingText: boolean; override;
     property Editor: TBGRAOriginalEditor read GetEditor;
   public
     class procedure ForgetHintShown;
@@ -113,6 +114,7 @@ type
   TEditShapeTool = class(TGenericTool)
   private
     function GetNothingSelected: boolean;
+    function GetPointSize: integer;
   protected
     FDownHandled,FRectEditorCapture,FLayerOriginalCapture,
     FLeftButton,FRightButton: boolean;
@@ -263,6 +265,8 @@ begin
     result := result + [ctText,ctAliasing];
     if TTextShape(AShape).PenPhong then include(result, ctAltitude);
   end;
+  if vsfAliased in f then
+    result += [ctAliasing];
 end;
 
 procedure AlignShape(AShape: TVectorShape; ACommand: TToolCommand; const AMatrix: TAffineMatrix; const ARect: TRect);
@@ -402,6 +406,11 @@ begin
   result := GetEditMode in [esmNone, esmNoShape];
 end;
 
+function TEditShapeTool.GetPointSize: integer;
+begin
+  result := DoScaleX(PointSize*Manager.CanvasScale,OriginalDPI);
+end;
+
 procedure TEditShapeTool.RetrieveLightPosition;
 var
   shape: TVectorShape;
@@ -433,6 +442,12 @@ begin
     AShape.Usermode := vsuEdit;
   opt := Manager.ShapeOptions;
   f := AShape.MultiFields;
+  if vsfAliased in f then
+  begin
+    if AShape.Aliased then
+      include(opt,toAliasing)
+      else exclude(opt,toAliasing);
+  end;
   doDraw := vsfPenFill in f;
   doFill := vsfBackFill in f;
   if vsfPenStyle in f then
@@ -503,9 +518,6 @@ begin
     Manager.TextVerticalAlign:= VerticalAlignment;
     Manager.SetTextFont(FontName, FontEmHeight*zoom*72/Manager.Image.DPI, FontStyle);
     Manager.TextShadow:= false;
-    if Aliased then
-      include(opt,toAliasing)
-      else exclude(opt,toAliasing);
   end;
   Manager.ShapeOptions := opt;
 
@@ -660,6 +672,8 @@ begin
       m := AffineMatrixInverse(Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex]);
       zoom := (VectLen(m[1,1],m[2,1])+VectLen(m[1,2],m[2,2]))/2;
       f := shape.MultiFields;
+      if vsfAliased in f then
+        shape.Aliased := Manager.ShapeOptionAliasing;
       if f*[vsfPenFill,vsfBackFill,vsfPenStyle] = [vsfPenFill,vsfBackFill,vsfPenStyle] then
       begin
         doDraw := toDrawShape in Manager.ShapeOptions;
@@ -718,7 +732,6 @@ begin
         FontName:= Manager.TextFontName;
         FontEmHeight:= Manager.TextFontSize*zoom*Manager.Image.DPI/72;
         FontStyle := Manager.TextFontStyle;
-        Aliased := Manager.ShapeOptionAliasing;
       end;
       if shape is TPhongShape then
       with TPhongShape(shape) do
@@ -969,11 +982,11 @@ begin
         Manager.Image.CurrentState.LayeredBitmap.OriginalEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
       if Assigned(VirtualScreen) then
         result := Manager.Image.CurrentState.LayeredBitmap.DrawEditor(VirtualScreen,
-          Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize*Manager.CanvasScale,OriginalDPI))
+          Manager.Image.CurrentLayerIndex, viewMatrix, GetPointSize)
       else
         result := Manager.Image.CurrentState.LayeredBitmap.GetEditorBounds(
           rect(0,0,VirtualScreenWidth,VirtualScreenHeight),
-          Manager.Image.CurrentLayerIndex, viewMatrix, DoScaleX(PointSize*Manager.CanvasScale,OriginalDPI));
+          Manager.Image.CurrentLayerIndex, viewMatrix, GetPointSize);
       RetrieveLightPosition;
     end;
   esmSelection, esmOtherOriginal:
@@ -986,7 +999,7 @@ begin
         FRectEditor := TVectorOriginalEditor.Create(nil);
         FRectEditor.GridMatrix := AffineMatrixScale(0.5,0.5);
         FRectEditor.Focused := true;
-        FRectEditor.PointSize := DoScaleX(PointSize*Manager.CanvasScale,OriginalDPI);
+        FRectEditor.PointSize := GetPointSize;
       end;
       FRectEditor.Clear;
       editMatrix := AffineMatrixTranslation(-0.5,-0.5)*viewMatrix*AffineMatrixTranslation(0.5,0.5);
@@ -1199,6 +1212,7 @@ function TEditShapeTool.DoToolKeyDown(var key: Word): TRect;
 var
   handled: boolean;
   keyUtf8: TUTF8Char;
+  diff: TComposedImageDifference;
 begin
   Result:= EmptyRect;
   if (Key = VK_SPACE) and (GetEditMode = esmShape) and (GetVectorOriginal.SelectedShape is TTextShape) then
@@ -1217,7 +1231,12 @@ begin
         begin
           if (key = VK_DELETE) and Assigned(GetVectorOriginal.SelectedShape) then
           begin
-            GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+            diff := Manager.Image.DoBegin;
+            try
+              GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+            finally
+              Manager.Image.DoEnd(diff);
+            end;
             key := 0;
           end else
           if (key = VK_ESCAPE) and Assigned(GetVectorOriginal.SelectedShape) then
@@ -1431,6 +1450,7 @@ var
   b: TRect;
   bmp: TBGRABitmap;
   s: TRectShape;
+  diff: TComposedImageDifference;
 begin
   if not ToolProvideCommand(ACommand) then exit(false);
   if ACommand = tcDelete then
@@ -1473,8 +1493,16 @@ begin
           tcMoveToBack: GetVectorOriginal.SelectedShape.SendToBack;
           tcCopy: Result:= CopyShapesToClipboard([GetVectorOriginal.SelectedShape], GetOriginalTransform);
           tcCut: begin
-                   result := CopyShapesToClipboard([GetVectorOriginal.SelectedShape], GetOriginalTransform) and
-                             GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+                   result := CopyShapesToClipboard([GetVectorOriginal.SelectedShape], GetOriginalTransform);
+                   if result then
+                   begin
+                     diff := Manager.Image.DoBegin;
+                     try
+                       GetVectorOriginal.RemoveShape(GetVectorOriginal.SelectedShape);
+                     finally
+                       Manager.Image.DoEnd(diff);
+                     end;
+                   end;
                  end;
           tcAlignLeft..tcAlignBottom: AlignShape(GetVectorOriginal.SelectedShape, ACommand,
                        Manager.Image.LayerOriginalMatrix[Manager.Image.CurrentLayerIndex],
@@ -1825,6 +1853,11 @@ begin
   end;
 end;
 
+function TVectorialTool.GetIsEditingText: boolean;
+begin
+  Result:= assigned(FShape) and (FShape.Usermode = vsuEditText);
+end;
+
 class procedure TVectorialTool.ForgetHintShown;
 begin
   SquareHintShown:= false;
@@ -1947,6 +1980,8 @@ begin
   zoom := (VectLen(AMatrix[1,1],AMatrix[2,1])+VectLen(AMatrix[1,2],AMatrix[2,2]))/2;
   f := FShape.MultiFields;
   gradBox := FShape.SuggestGradientBox(AffineMatrixIdentity);
+  if vsfAliased in f then
+    FShape.Aliased:= Manager.ShapeOptionAliasing;
   if vsfPenFill in f then
   begin
     if HasPen then
@@ -2056,6 +2091,7 @@ var
   s: TPointF;
   avg: single;
 begin
+  if not Assigned(FShape) then exit(EmptyRect);
   if ssShift in ShiftState then
   begin
     s := FQuickDefineUserEndPoint-FQuickDefineStartPoint;

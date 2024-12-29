@@ -5641,6 +5641,17 @@ object FMain: TFMain
       Caption = 'Hypocycloid...'
       OnExecute = RenderAnyExecute
     end
+    object RenderSuperformula: TAction
+      Category = 'Render'
+      Caption = 'SuperFormula...'
+      OnExecute = RenderAnyExecute
+    end
+    object FileCheckScriptsSecure: TAction
+      Category = 'File'
+      Caption = 'Check scripts are secure'
+      OnExecute = FileCheckScriptsSecureExecute
+      OnUpdate = FileCheckScriptsSecureUpdate
+    end
   end
   object ColorDialog1: TColorDialog
     Title = 'Choose color'

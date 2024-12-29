@@ -1,4 +1,4 @@
-﻿msgid ""
+msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
@@ -2312,6 +2312,7 @@ msgid "Saturation"
 msgstr "Nasycenie"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Kolor tła"
 
@@ -2320,6 +2321,7 @@ msgid "Keep"
 msgstr "Trzymaj"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Kolor pióra"
 
@@ -2388,6 +2390,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "Zachowaj proporcje"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Rozmiar obrazu"
@@ -2429,6 +2437,12 @@ msgstr "Drukarka i papier:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Prawy:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2536,6 +2550,7 @@ msgid "Quality:"
 msgstr "Jakość:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 
@@ -2607,6 +2622,66 @@ msgstr "Odcień"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Jasność"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "Superformuła"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Kolor tła"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Kolor pióra"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Liczba wymierna"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Rozmiar"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Liczba skoków"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Nakładanie się kolców"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Szerokość"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2977,6 +3052,7 @@ msgid "File not saved"
 msgstr "Plik nie został zapisany"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Rozmiar"
 
@@ -3495,6 +3571,14 @@ msgstr ""
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
 msgstr "Użyj prawokliku, aby zdefiniować źródło"
+
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Użyj prawokliku, aby zdefiniować centrum transformacji"
+
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Uruchom ten skrypt ponownie, aby zaktualizować efekt"
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"

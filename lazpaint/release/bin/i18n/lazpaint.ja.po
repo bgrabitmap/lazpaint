@@ -2299,16 +2299,18 @@ msgid "Saturation"
 msgstr "濃淡"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
-msgstr ""
+msgstr "バックカラー"
 
 #: tfphongfilter.radio_usekeep.caption
 msgid "Keep"
 msgstr ""
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
-msgstr ""
+msgstr "ペンの色"
 
 #: tfphongfilter.radio_usetexture.caption
 msgctxt "tfphongfilter.radio_usetexture.caption"
@@ -2375,6 +2377,11 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "アスペクト比を保持する"
 
+#: tfprint.combobox_orientation.text
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr ""
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr ""
@@ -2415,6 +2422,11 @@ msgstr ""
 
 #: tfprint.label_right.caption
 msgid "Right:"
+msgstr ""
+
+#: tfprint.label_selectedprinterandpaper.caption
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
 msgstr ""
 
 #: tfprint.label_top.caption
@@ -2523,6 +2535,7 @@ msgid "Quality:"
 msgstr ""
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr ""
 
@@ -2594,6 +2607,63 @@ msgstr "色相"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "濃淡"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr ""
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "バックカラー"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "ペンの色"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "有理数"
+
+#: tfsuperformula.label_size.caption
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "サイズ"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "スパイク数"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "スパイクの重なり"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "幅"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2962,8 +3032,10 @@ msgid "File not saved"
 msgstr ""
 
 #: uresourcestrings.rsfilesize
+#, fuzzy
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
-msgstr ""
+msgstr "サイズ"
 
 #: uresourcestrings.rsfilesystem
 msgid "File system"
@@ -3474,6 +3546,14 @@ msgstr ""
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
 msgstr ""
+
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr ""
+
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "このスクリプトを再度実行して、効果を更新します"
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"

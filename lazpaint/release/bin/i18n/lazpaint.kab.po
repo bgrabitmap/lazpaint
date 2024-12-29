@@ -2303,6 +2303,7 @@ msgid "Saturation"
 msgstr "Tawant"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Ini n ugilal"
 
@@ -2311,6 +2312,7 @@ msgid "Keep"
 msgstr "Ḥrez"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Ini n yimru"
 
@@ -2379,6 +2381,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "Ḥrez assaɣ n tmeẓri"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Tiddi n tugna"
@@ -2420,6 +2428,12 @@ msgstr "Tasaggazt akked ukaɣeḍ:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Ayfus:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2527,6 +2541,7 @@ msgid "Quality:"
 msgstr "Taɣara:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 
@@ -2598,6 +2613,66 @@ msgstr "Tiɣmi"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Tawant"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr ""
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Ini n ugilal"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Ini n yimru"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr ""
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Tiddi"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr ""
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr ""
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Tehri"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2974,6 +3049,7 @@ msgid "File not saved"
 msgstr "Afaylu ur yeklis ara"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Tiddi"
 
@@ -3501,6 +3577,14 @@ msgstr ""
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
 msgstr "Seqdec asiti ayfus iwakken ad tesbaduḍ aɣbalu"
+
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr ""
+
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr ""
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"

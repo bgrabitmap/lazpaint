@@ -31,6 +31,7 @@ type
     procedure QuickDefineEnd; override;
     function RoundCoordinate(constref ptF: TPointF): TPointF; override;
     function DoToolKeyDown(var key: Word): TRect; override;
+    function GetIsEditingText: boolean; override;
   public
     constructor Create(AManager: TToolManager); override;
     function GetContextualToolbars: TContextualToolbars; override;
@@ -169,7 +170,6 @@ begin
     FontEmHeight:= zoom*Manager.TextFontSize*Manager.Image.DPI/72;
     FontName:= Manager.TextFontName;
     FontStyle:= Manager.TextFontStyle;
-    Aliased := Manager.ShapeOptionAliasing;
     LightPosition := AMatrix*Manager.LightPosition;
     AltitudePercent:= Manager.PhongShapeAltitude;
     if FontBidiMode <> Manager.TextBidiMode then
@@ -222,7 +222,9 @@ var
   alignBefore: TAlignment;
 begin
   if FShape is TTextShape then
-    alignBefore := (FShape as TTextShape).ParagraphAlignment;
+    alignBefore := (FShape as TTextShape).ParagraphAlignment
+  else
+    alignBefore := taLeftJustify;
   if Key = VK_SPACE then
   begin
     keyUtf8:= ' ';
@@ -232,7 +234,10 @@ begin
   if (Key = VK_ESCAPE) and Assigned(FShape) then
   begin
     if FShape.Usermode = vsuEditText then
+    begin
+      result := EmptyRect;
       FShape.Usermode := vsuEdit
+    end
     else
       result := ValidateShape;
     Key := 0;
@@ -240,6 +245,7 @@ begin
   if (Key = VK_RETURN) and Assigned(FShape) then
   begin
     handled := false;
+    result := EmptyRect;
     FShape.KeyDown(ShiftState, skReturn, handled);
     if not handled then ValidateShape;
     Key := 0;
@@ -247,6 +253,11 @@ begin
     Result:=inherited DoToolKeyDown(key);
   if (FShape is TTextShape) and (alignBefore <> (FShape as TTextShape).ParagraphAlignment) then
     Manager.TextAlign := (FShape as TTextShape).ParagraphAlignment;
+end;
+
+function TToolText.GetIsEditingText: boolean;
+begin
+  Result:= Assigned(FShape) and (FShape.Usermode = vsuEditText);
 end;
 
 function TToolText.ToolCommand(ACommand: TToolCommand): boolean;
