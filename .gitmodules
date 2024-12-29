@@ -1,0 +1,6 @@
+[submodule "use/bgracontrols"]
+	path = use/bgracontrols
+	url = git@github.com:bgrabitmap/bgracontrols.git
+[submodule "use/bgrabitmap"]
+	path = use/bgrabitmap
+	url = git@github.com:bgrabitmap/bgrabitmap.git
