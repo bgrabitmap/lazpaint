@@ -9,35 +9,10 @@ Options:
 " | Out-Host
 }
 
-Function Request-File {
-    While ($Input.MoveNext()) {
-        New-Variable -Name VAR -Option Constant -Value @{
-            Uri = $Input.Current
-            OutFile = (Split-Path -Path $Input.Current -Leaf).Split('?')[0]
-        }
-        Invoke-WebRequest @VAR
-        Return $VAR.OutFile
-    }
-}
-
-Function Install-Program {
-    While ($Input.MoveNext()) {
-        Switch ((Split-Path -Path $Input.Current -Leaf).Split('.')[-1]) {
-            'msi' {
-                & msiexec /passive /package $Input.Current | Out-Null
-            }
-            Default {
-                & ".\$($Input.Current)" /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART | Out-Null
-            }
-        }
-        Remove-Item $Input.Current
-    }
-}
-
 Function Build-Project {
     New-Variable -Name VAR -Option Constant -Value @{
         Src = 'lazpaint'
-        Use = 'use'
+        Use = '.'
         Pkg = 'use\components.txt'
     }
     If (! (Test-Path -Path $Var.Src)) {
@@ -106,6 +81,31 @@ Function Build-Project {
                 Return $exitCode
             } | Measure-Object -Sum
     ).Sum
+}
+
+Function Request-File {
+    While ($Input.MoveNext()) {
+        New-Variable -Name VAR -Option Constant -Value @{
+            Uri = $Input.Current
+            OutFile = (Split-Path -Path $Input.Current -Leaf).Split('?')[0]
+        }
+        Invoke-WebRequest @VAR
+        Return $VAR.OutFile
+    }
+}
+
+Function Install-Program {
+    While ($Input.MoveNext()) {
+        Switch ((Split-Path -Path $Input.Current -Leaf).Split('.')[-1]) {
+            'msi' {
+                & msiexec /passive /package $Input.Current | Out-Null
+            }
+            Default {
+                & ".\$($Input.Current)" /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART | Out-Null
+            }
+        }
+        Remove-Item $Input.Current
+    }
 }
 
 Function Switch-Action {

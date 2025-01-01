@@ -1407,6 +1407,6 @@ begin
 end;
 
 begin
-  {$i ../../resources/fillimages.lrs}
+  {$i ../resources/fillimages.lrs}
 end.
 
