@@ -72,6 +72,12 @@ function priv_lazbuild
         fi 1>&2
         rm "${TMP[out]}"
     done < <(find "${VAR[src]}" -type 'f' -name '*.lpi' | sort)
+    find "${VAR[src]}" -type 'f' -name '*.py' -printf '\033[32m\tlint files.py\t%p\033[0m\n' -exec \
+        python3 -m pylint {} + 1>&2
+    find "${VAR[src]}" -type 'f' -name '*.c' -printf '\033[32m\tlint files.c\t%p\033[0m\n' -exec \
+        cppcheck --language=c --enable=warning,style --template=gcc {} + 1>&2
+    find "${VAR[src]}" -type 'f' -name '*.sh' -printf '\033[32m\tlint files.sh\t%p\033[0m\n' -exec \
+        shellcheck --external-sources {} + 1>&2
     exit "${errors}"
 )
 
