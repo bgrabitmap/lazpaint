@@ -72,18 +72,40 @@ function priv_lazbuild
         fi 1>&2
         rm "${TMP[out]}"
     done < <(find "${VAR[src]}" -type 'f' -name '*.lpi' | sort)
-    find 'resources' -type 'f' -name '*.py' -printf '\033[32m\tlint files.py\t%p\033[0m\n' -exec \
-        python3 -m pylint {} + 1>&2
-    find "${VAR[src]}" -type 'f' -name '*.c' -printf '\033[32m\tlint files.c\t%p\033[0m\n' -exec \
-        cppcheck --language=c --enable=warning,style --template=gcc {} + 1>&2
-    find "${PWD}" -type 'f' -name '*.sh' -printf '\033[32m\tlint files.sh\t%p\033[0m\n' -exec \
-        shellcheck --external-sources {} + 1>&2
+    
+    # Python linting
+    find 'resources' -type 'f' -name '*.py' | while read -r file; do
+        printf '\033[32m\tLinting Python file: %s\033[0m\n' "$file"
+        if ! python3 -m pylint "$file" 1>&2; then
+            printf '\033[31m\tError in Python linting: %s\033[0m\n' "$file"
+            ((errors+=1))
+        fi
+    done
+
+    # C linting
+    find "${VAR[src]}" -type 'f' -name '*.c' | while read -r file; do
+        printf '\033[32m\tLinting C file: %s\033[0m\n' "$file"
+        if ! cppcheck --language=c --enable=warning,style --template=gcc "$file" 1>&2; then
+            printf '\033[31m\tError in C linting: %s\033[0m\n' "$file"
+            ((errors+=1))
+        fi
+    done
+
+    # Shell script linting
+    find "${PWD}" -type 'f' -name '*.sh' | while read -r file; do
+        printf '\033[32m\tLinting Shell script: %s\033[0m\n' "$file"
+        if ! shellcheck --external-sources "$file" 1>&2; then
+            printf '\033[31m\tError in Shell linting: %s\033[0m\n' "$file"
+            ((errors+=1))
+        fi
+    done
+
     exit "${errors}"
 )
 
 function priv_main
 (
-    set -euo pipefail
+    set -uo pipefail
     if ((${#})); then
         case ${1} in
             build) priv_lazbuild ;;
