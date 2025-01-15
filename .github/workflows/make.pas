@@ -216,6 +216,7 @@ type
     finally
       List.Free;
     end;
+    {$IFDEF LINUX}
     List := FindAllFiles(GetCurrentDir, '*.py', True);
     try
       for Each in List do
@@ -237,6 +238,7 @@ type
     finally
       List.Free;
     end;
+    {$ENDIF}
     WriteLn(stderr);
     if ExitCode <> 0 then
       WriteLn(stderr, #27'[31m', 'Errors: ', ExitCode, #27'[0m')
