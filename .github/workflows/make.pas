@@ -181,17 +181,6 @@ type
       end
   end;
 
-  function LintShell(Path: string): Output;
-  begin
-    if RunCommand('python3', ['-m', 'pylint', Path], Result.Output) then
-      Writeln(stderr, #27'[33m', Result.Output, #27'[0m')
-    else
-      begin
-        Writeln(stderr, #27'[31m', Result.Output, #27'[0m');
-        ExitCode += 1;
-      end
-  end;
-
   procedure Main;
   var
     Each, Item: string;
