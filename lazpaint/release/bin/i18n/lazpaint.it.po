@@ -4,11 +4,11 @@ msgstr "Content-Type: text/plain; charset=UTF-8"
 #: tablet.getprocfailed
 #, object-pascal-format
 msgid "Procedure %s failed to load properly."
-msgstr ""
+msgstr "La procedura %s non è stata caricata correttamente."
 
 #: tablet.openfailed
 msgid "Tablet context failed to open."
-msgstr ""
+msgstr "Impossibile aprire il contesto del tablet."
 
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
@@ -18,11 +18,11 @@ msgstr "Dona..."
 #: tfabout.caption
 msgctxt "tfabout.caption"
 msgid "About"
-msgstr ""
+msgstr "Informazioni"
 
 #: tfabout.labelurl.caption
 msgid "http://sourceforge.net/projects/lazpaint/"
-msgstr ""
+msgstr "http://sourceforge.net/projects/lazpaint/"
 
 #: tfabout.label_authors.caption
 msgctxt "tfabout.label_authors.caption"
@@ -32,12 +32,12 @@ msgstr "Autori:"
 #: tfabout.label_authorsvalue.caption
 msgctxt "tfabout.label_authorsvalue.caption"
 msgid "Circular helped by FabienWang, Lainz and others"
-msgstr ""
+msgstr "Circolare assistito da FabienWang, Lainz e altri"
 
 #: tfabout.label_homepage.caption
 msgctxt "tfabout.label_homepage.caption"
 msgid "Homepage:"
-msgstr ""
+msgstr "Pagina iniziale:"
 
 #: tfabout.label_libraries.caption
 msgctxt "tfabout.label_libraries.caption"
@@ -52,7 +52,7 @@ msgstr "Licenza"
 #: tfabout.label_opensource.caption
 msgctxt "tfabout.label_opensource.caption"
 msgid "Open source (GPLv3)"
-msgstr ""
+msgstr "Open source (GPLv3)"
 
 #: tfadjustcurves.caption
 msgid "Adjust curves"
@@ -65,7 +65,7 @@ msgstr "Abbandona questa curva e cominciane una nuova"
 #: tfadjustcurves.toolbutton_posterize.hint
 msgctxt "tfadjustcurves.toolbutton_posterize.hint"
 msgid "Posterize"
-msgstr ""
+msgstr "Posterizza"
 
 #: tfadjustcurves.toolbutton_removepoint.hint
 msgid "Remove selected point (Del)"
@@ -79,7 +79,7 @@ msgstr "Cancella"
 #: tfblendop.button_ok.caption
 msgctxt "tfblendop.button_ok.caption"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfblendop.caption
 msgid "Blend operation"
@@ -93,16 +93,16 @@ msgstr "Categorie di miscele"
 #: tfblendop.label_blendopvalue.caption
 msgctxt "tfblendop.label_blendopvalue.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfblendop.label_kritaover.caption
 msgctxt "tfblendop.label_kritaover.caption"
 msgid "Krita"
-msgstr ""
+msgstr "Krita"
 
 #: tfblendop.label_kritaover.hint
 msgid "Blend operations that are available in Krita"
-msgstr ""
+msgstr "Operazioni di fusione disponibili in Krita"
 
 #: tfblendop.label_otherover.caption
 msgctxt "tfblendop.label_otherover.caption"
@@ -111,12 +111,12 @@ msgstr "Altro"
 
 #: tfblendop.label_otherover.hint
 msgid "Blend operations of LazPaint and Paint.NET"
-msgstr ""
+msgstr "Operazioni di fusione di LazPaint e Paint.NET"
 
 #: tfblendop.label_patternover.caption
 msgctxt "tfblendop.label_patternover.caption"
 msgid "Pattern over"
-msgstr ""
+msgstr "Motivo sopra"
 
 #: tfblendop.label_patternover.hint
 msgid "Preview blend operation with the specified image on top"
@@ -125,7 +125,7 @@ msgstr "Anteprima di miscelazione con l'immagine in alto"
 #: tfblendop.label_patternunder.caption
 msgctxt "tfblendop.label_patternunder.caption"
 msgid "Pattern under"
-msgstr ""
+msgstr "Motivo sotto"
 
 #: tfblendop.label_patternunder.hint
 msgid "Preview blend operation with the specified image underneath"
@@ -143,7 +143,7 @@ msgstr "Seleziona operazione di miscela:"
 #: tfblendop.label_svgover.caption
 msgctxt "tfblendop.label_svgover.caption"
 msgid "Basic SVG"
-msgstr ""
+msgstr "SVG di base"
 
 #: tfblendop.label_svgover.hint
 msgid "Basic blend operations that are available in virtually all image editors"
@@ -160,7 +160,7 @@ msgstr "Usa questa cartella all'avvio"
 #: tfbrowseimages.label_status.caption
 msgctxt "tfbrowseimages.label_status.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfbrowseimages.toolbutton_createfolderorcontainer.hint
 msgid "Create folder or container"
@@ -196,16 +196,16 @@ msgstr "Cancella"
 #: tfcanvassize.button_ok.caption
 msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfcanvassize.caption
 msgctxt "tfcanvassize.caption"
 msgid "Canvas size"
-msgstr ""
+msgstr "Dimensioni della tela"
 
 #: tfcanvassize.checkbox_flipmode.caption
 msgid "Flip mode"
-msgstr ""
+msgstr "Modalità specchio"
 
 #: tfcanvassize.label_anchor.caption
 msgctxt "tfcanvassize.label_anchor.caption"
@@ -240,7 +240,7 @@ msgstr "Moltiplica"
 #: tfcolorintensity.label_shift.caption
 msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
-msgstr ""
+msgstr "Sposta"
 
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
@@ -281,7 +281,7 @@ msgstr "Sfocatura ottimale"
 
 #: tfcustomblur.openpicturedialog1.title
 msgid "Open grayscale file"
-msgstr ""
+msgstr "Apri file in scala di grigi"
 
 #: tfemboss.caption
 msgctxt "tfemboss.caption"
@@ -307,7 +307,7 @@ msgstr "Applica funzione"
 
 #: tffilterfunction.checkbox_gamma.caption
 msgid "Gamma correction"
-msgstr ""
+msgstr "Correzione gamma"
 
 #: tffilterfunction.checkbox_gsba.caption
 msgctxt "tffilterfunction.checkbox_gsba.caption"
@@ -317,52 +317,52 @@ msgstr "Tonalità e luminosità corretti"
 #: tffilterfunction.label_aequals.caption
 msgctxt "tffilterfunction.label_aequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_alphaequals.caption
 msgctxt "tffilterfunction.label_alphaequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_bequals.caption
 msgctxt "tffilterfunction.label_bequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_blueequals.caption
 msgctxt "tffilterfunction.label_blueequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_greenequals.caption
 msgctxt "tffilterfunction.label_greenequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_hueequals.caption
 msgctxt "tffilterfunction.label_hueequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_lequals.caption
 msgctxt "tffilterfunction.label_lequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_lightnessequals.caption
 msgctxt "tffilterfunction.label_lightnessequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_redequals.caption
 msgctxt "tffilterfunction.label_redequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_saturationequals.caption
 msgctxt "tffilterfunction.label_saturationequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_variables.caption
 msgid "Variables :"
@@ -370,16 +370,16 @@ msgstr "Variabili"
 
 #: tffilterfunction.tabsheet_hsl.caption
 msgid "HSL"
-msgstr ""
+msgstr "HSL"
 
 #: tffilterfunction.tabsheet_lab.caption
 msgid "Lab"
-msgstr ""
+msgstr "Lab"
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
 msgid "RGB"
-msgstr ""
+msgstr "RGB"
 
 #: tfgeometricbrush.button_cancel.caption
 msgctxt "tfgeometricbrush.button_cancel.caption"
@@ -389,7 +389,7 @@ msgstr "Cancella"
 #: tfgeometricbrush.button_ok.caption
 msgctxt "tfgeometricbrush.button_ok.caption"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfgeometricbrush.caption
 msgid "Geometric brush"
@@ -401,63 +401,63 @@ msgstr "Gradiente di opacità"
 
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
-msgstr ""
+msgstr "Numero di lati:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Ipocicloide"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Cuspidi:"
 
 #: tfimagelist.caption
 msgid "Image List"
-msgstr ""
+msgstr "Elenco immagini"
 
 #: tfimagelist.pmautouncheckonopen.caption
 msgid "Autouncheck files after being open"
-msgstr ""
+msgstr "Deseleziona automaticamente i file dopo l'apertura"
 
 #: tfimagelist.pmautouncheckonsave.caption
 msgid "Autouncheck files after being edited and saved"
-msgstr ""
+msgstr "Deseleziona automaticamente i file dopo la modifica e il salvataggio"
 
 #: tfimagelist.pmremoveall.caption
 msgid "Empty image list"
-msgstr ""
+msgstr "Svuota elenco immagini"
 
 #: tfimagelist.pmremovenonexistent.caption
 msgid "Remove nonexistent images"
-msgstr ""
+msgstr "Rimuovi immagini inesistenti"
 
 #: tfimagelist.pmremoveunchecked.caption
 msgid "Remove unchecked images"
-msgstr ""
+msgstr "Rimuovi immagini deselezionate"
 
 #: tfimagelist.pmunchecknonexistent.caption
 msgid "Uncheck nonexistent files"
-msgstr ""
+msgstr "Deseleziona file inesistenti"
 
 #: tfimagelist.stringgrid1.columns[0].title.caption
 msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[1].title.caption
 msgctxt "tfimagelist.stringgrid1.columns[1].title.caption"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[2].title.caption
 msgctxt "tfimagelist.stringgrid1.columns[2].title.caption"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[3].title.caption
 msgctxt "tfimagelist.stringgrid1.columns[3].title.caption"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.tbaddfiles.hint
 msgid "Add images to list"
@@ -465,11 +465,11 @@ msgstr "Aggiungi immagine alla lista"
 
 #: tfimagelist.tbautouncheck.hint
 msgid "Enable/disable autounchecking for processed files"
-msgstr ""
+msgstr "Attiva/disattiva la deselezione automatica per i file elaborati"
 
 #: tfimagelist.tbautozoomfit.hint
 msgid "Enable/disable autofitting images in the LazPaint window"
-msgstr ""
+msgstr "Attiva/disattiva l'adattamento automatico delle immagini nella finestra di LazPaint"
 
 #: tfimagelist.tbcheckall.hint
 msgid "Check all files for processing"
@@ -556,7 +556,7 @@ msgstr "Dona..."
 #: tfmain.caption
 msgctxt "tfmain.caption"
 msgid "LazPaint"
-msgstr ""
+msgstr "LazPaint"
 
 #: tfmain.colorcolorize.caption
 msgid "Colorize..."
@@ -580,7 +580,7 @@ msgstr "Luminosità/Contrasto..."
 
 #: tfmain.colorposterize.caption
 msgid "Posterize..."
-msgstr ""
+msgstr "Posterizza..."
 
 #: tfmain.colorshiftcolors.caption
 msgctxt "tfmain.colorshiftcolors.caption"
@@ -589,11 +589,11 @@ msgstr "Cambia colori..."
 
 #: tfmain.combobox_arrowend.hint
 msgid "Ending arrow"
-msgstr ""
+msgstr "Freccia finale"
 
 #: tfmain.combobox_arrowstart.hint
 msgid "Starting arrow"
-msgstr ""
+msgstr "Freccia iniziale"
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
@@ -749,7 +749,7 @@ msgstr "Scegli..."
 
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
-msgstr ""
+msgstr "Scegli una voce all'interno del file"
 
 #: tfmain.fileexport.caption
 msgctxt "tfmain.fileexport.caption"
@@ -787,11 +787,11 @@ msgstr "Stampa"
 
 #: tfmain.filequicksave.caption
 msgid "Quick save"
-msgstr ""
+msgstr "Salvataggio rapido"
 
 #: tfmain.filequicksave.hint
 msgid "Save current file without dialogs"
-msgstr ""
+msgstr "Salva il file corrente senza finestre di dialogo"
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -805,7 +805,7 @@ msgstr "Ricarica"
 
 #: tfmain.fileremembersaveformat.hint
 msgid "Remember save format"
-msgstr ""
+msgstr "Ricorda il formato di salvataggio"
 
 #: tfmain.filerunscript.caption
 msgid "Run script..."
@@ -840,7 +840,7 @@ msgstr "Salva selezione come..."
 #: tfmain.fileuseimagebrowser.caption
 msgctxt "tfmain.fileuseimagebrowser.caption"
 msgid "Use image browser"
-msgstr ""
+msgstr "Usa il browser immagini"
 
 #: tfmain.filterblurbox.caption
 msgid "Box blur..."
@@ -883,11 +883,11 @@ msgstr "Sfocatura gaussiana..."
 
 #: tfmain.filtercleartype.caption
 msgid "ClearType"
-msgstr ""
+msgstr "ClearType"
 
 #: tfmain.filtercleartypeinverse.caption
 msgid "Inverse ClearType"
-msgstr ""
+msgstr "ClearType inverso"
 
 #: tfmain.filtercomplementarycolor.caption
 msgid "Complementary colors"
@@ -916,11 +916,11 @@ msgstr "Scala di grigi"
 #: tfmain.filterlinearnegative.caption
 msgctxt "tfmain.filterlinearnegative.caption"
 msgid "Linear negative"
-msgstr ""
+msgstr "Negativo lineare"
 
 #: tfmain.filtermedian.caption
 msgid "Median"
-msgstr ""
+msgstr "Mediana"
 
 #: tfmain.filternegative.caption
 msgctxt "tfmain.filternegative.caption"
@@ -942,11 +942,11 @@ msgstr "Mappa ombreggiata..."
 
 #: tfmain.filterpixelate.caption
 msgid "Pixelate..."
-msgstr ""
+msgstr "Pixelizza..."
 
 #: tfmain.filterplane.caption
 msgid "Plane (slow)"
-msgstr ""
+msgstr "Piano (lento)"
 
 #: tfmain.filterrain.caption
 msgid "Rain..."
@@ -958,7 +958,7 @@ msgstr "Evidenzia..."
 
 #: tfmain.filtersmooth.caption
 msgid "Smooth"
-msgstr ""
+msgstr "Leviga"
 
 #: tfmain.filtersphere.caption
 msgctxt "TFMAIN.FILTERSPHERE.CAPTION"
@@ -971,19 +971,19 @@ msgstr "Ruota/volteggia..."
 
 #: tfmain.filterwavedisplacement.caption
 msgid "Wave displacement..."
-msgstr ""
+msgstr "Spostamento ondulato..."
 
 #: tfmain.forgetdialoganswers.caption
 msgid "Forget dialog box answers"
-msgstr ""
+msgstr "Dimentica le risposte delle finestre di dialogo"
 
 #: tfmain.forgetdialoganswers.hint
 msgid "Forget answers given to dialog boxes"
-msgstr ""
+msgstr "Dimentica le risposte fornite nelle finestre di dialogo"
 
 #: tfmain.helpabout.caption
 msgid "About..."
-msgstr ""
+msgstr "Informazioni su..."
 
 #: tfmain.helpindex.caption
 msgid "Index..."
@@ -991,7 +991,7 @@ msgstr "Indice..."
 
 #: tfmain.imagechangecanvassize.caption
 msgid "Canvas size..."
-msgstr ""
+msgstr "Dimensioni della tela..."
 
 #: tfmain.imageclearalpha.caption
 msgid "Clear alpha channel and set background"
@@ -999,20 +999,20 @@ msgstr "Pilisci canale alfa e imposta sfondo"
 
 #: tfmain.imagecrop.caption
 msgid "Crop to selection"
-msgstr ""
+msgstr "Ritaglia alla selezione"
 
 #: tfmain.imagecroplayer.caption
 msgid "Crop to selection and current layer"
-msgstr ""
+msgstr "Ritaglia alla selezione e al livello corrente"
 
 #: tfmain.imagefillbackground.caption
 msgid "Fill background with antialiasing"
-msgstr ""
+msgstr "Riempi sfondo con antialiasing"
 
 #: tfmain.imageflatten.caption
 msgctxt "tfmain.imageflatten.caption"
 msgid "Flatten image"
-msgstr ""
+msgstr "Appiattisci immagine"
 
 #: tfmain.imagehorizontalflip.caption
 msgctxt "tfmain.imagehorizontalflip.caption"
@@ -1027,7 +1027,7 @@ msgstr "Capovolgi in orizzontale"
 #: tfmain.imagelinearnegative.caption
 msgctxt "tfmain.imagelinearnegative.caption"
 msgid "Linear negative"
-msgstr ""
+msgstr "Negativo lineare"
 
 #: tfmain.imagenegative.caption
 #, fuzzy
@@ -1041,27 +1041,27 @@ msgstr "Ripeti..."
 
 #: tfmain.imageresample.caption
 msgid "Resample..."
-msgstr ""
+msgstr "Riscalatura..."
 
 #: tfmain.imageresample.hint
 msgid "Resample image"
-msgstr ""
+msgstr "Riscala immagine"
 
 #: tfmain.imagerotate180.caption
 msgid "Rotate 180°"
-msgstr ""
+msgstr "Ruota di 180°"
 
 #: tfmain.imagerotateccw.caption
 msgid "Rotate 90° CCW"
-msgstr ""
+msgstr "Ruota di 90° in senso antiorario"
 
 #: tfmain.imagerotatecw.caption
 msgid "Rotate 90° CW"
-msgstr ""
+msgstr "Ruota di 90° in senso orario"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
-msgstr ""
+msgstr "Zoom intelligente x3"
 
 #: tfmain.imageswapredblue.caption
 msgid "Swap red and blue channels"
@@ -1079,7 +1079,7 @@ msgstr "Capovolgi l'immagine in verticale"
 #: tfmain.image_currenttool.hint
 msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
 msgid "Selected tool"
-msgstr ""
+msgstr "Strumento selezionato"
 
 #: tfmain.image_swapcolors.hint
 msgctxt "tfmain.image_swapcolors.hint"
@@ -1102,15 +1102,15 @@ msgstr "Schermo intero"
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
-msgstr ""
+msgstr "Usa il browser immagini"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
-msgstr ""
+msgstr "Ancorare la barra degli strumenti"
 
 #: tfmain.label_altitude.caption
 msgid "Altitude"
-msgstr ""
+msgstr "Altitudine"
 
 #: tfmain.label_back.caption
 msgctxt "tfmain.label_back.caption"
@@ -1124,7 +1124,7 @@ msgstr "Spazzola"
 
 #: tfmain.label_coordinates.caption
 msgid "9999x9999"
-msgstr ""
+msgstr "9999x9999"
 
 #: tfmain.label_coordinates.hint
 msgid "Coordinates"
@@ -1133,7 +1133,7 @@ msgstr "Cooordinate"
 #: tfmain.label_currentdiff.caption
 msgctxt "TFMAIN.LABEL_CURRENTDIFF.CAPTION"
 msgid "100%"
-msgstr ""
+msgstr "100%"
 
 #: tfmain.label_currentdiff.hint
 msgid "Color difference"
@@ -1142,11 +1142,11 @@ msgstr "Differenza di colore"
 #: tfmain.label_currentzoom.caption
 msgctxt "TFMAIN.LABEL_CURRENTZOOM.CAPTION"
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: tfmain.label_currentzoom.hint
 msgid "Current zoom"
-msgstr ""
+msgstr "Zoom attuale"
 
 #: tfmain.label_curve.caption
 msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
@@ -1166,7 +1166,7 @@ msgstr "Griglia"
 #: tfmain.label_gridx.caption
 msgctxt "tfmain.label_gridx.caption"
 msgid "x"
-msgstr ""
+msgstr "x"
 
 #: tfmain.label_outlinewidth.caption
 msgctxt "tfmain.label_outlinewidth.caption"
@@ -1190,12 +1190,12 @@ msgstr "Bordo"
 
 #: tfmain.label_ratio.caption
 msgid "Ratio"
-msgstr ""
+msgstr "Rapporto"
 
 #: tfmain.label_shadowoffset.caption
 msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
 msgid "Offset"
-msgstr ""
+msgstr "Offset"
 
 #: tfmain.label_shape.caption
 msgctxt "TFMAIN.LABEL_SHAPE.CAPTION"
@@ -1204,7 +1204,7 @@ msgstr "Sagoma/forma"
 
 #: tfmain.label_spacing.caption
 msgid "Spacing"
-msgstr ""
+msgstr "Spaziatura"
 
 #: tfmain.label_text.caption
 msgctxt "TFMAIN.LABEL_TEXT.CAPTION"
@@ -1258,7 +1258,7 @@ msgstr "Muovi livello"
 
 #: tfmain.layerrasterize.hint
 msgid "Rasterize layer"
-msgstr ""
+msgstr "Rasterizza livello"
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "tfmain.layerremovecurrent.hint"
@@ -1277,7 +1277,7 @@ msgstr "Capovolgi livello in verticale"
 
 #: tfmain.layerzoom.hint
 msgid "Zoom layer"
-msgstr ""
+msgstr "Zoom livello"
 
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
@@ -1311,7 +1311,7 @@ msgstr "Modifica"
 
 #: tfmain.menufile.caption
 msgid "File"
-msgstr ""
+msgstr "File"
 
 #: tfmain.menufiletoolbar.caption
 msgid "Show file toolbar"
@@ -1361,7 +1361,7 @@ msgstr "Render"
 #: tfmain.menuscript.caption
 msgctxt "tfmain.menuscript.caption"
 msgid "Script"
-msgstr ""
+msgstr "Script"
 
 #: tfmain.menuselect.caption
 msgctxt "tfmain.menuselect.caption"
@@ -1380,11 +1380,11 @@ msgstr "Strumenti"
 
 #: tfmain.menuundocktoolbox.caption
 msgid "Undock"
-msgstr ""
+msgstr "Sgancia"
 
 #: tfmain.menuundoredotoolbar.caption
 msgid "Show undo/redo toolbar"
-msgstr ""
+msgstr "Mostra la barra degli strumenti Annulla/Ripristina"
 
 #: tfmain.menuview.caption
 msgctxt "tfmain.menuview.caption"
@@ -1393,7 +1393,7 @@ msgstr "Vedi/vista"
 
 #: tfmain.menuzoomtoolbar.caption
 msgid "Show zoom toolbar"
-msgstr ""
+msgstr "Mostra la barra degli strumenti dello zoom"
 
 #: tfmain.open3dobjectdialog.title
 msgctxt "tfmain.open3dobjectdialog.title"
@@ -1407,22 +1407,22 @@ msgstr "Apri spazzola"
 #: tfmain.openpicturedialog1.title
 msgctxt "TFMAIN.OPENPICTUREDIALOG1.TITLE"
 msgid "Open existing image"
-msgstr ""
+msgstr "Apri immagine esistente"
 
 #: tfmain.opentexturedialog.title
 msgctxt "tfmain.opentexturedialog.title"
 msgid "Open texture"
-msgstr ""
+msgstr "Apri texture"
 
 #: tfmain.perspective_repeat.hint
 msgctxt "tfmain.perspective_repeat.hint"
 msgid "Repeat image"
-msgstr ""
+msgstr "Ripeti immagine"
 
 #: tfmain.perspective_twoplanes.hint
 msgctxt "tfmain.perspective_twoplanes.hint"
 msgid "Draw opposite plane too"
-msgstr ""
+msgstr "Disegna anche il piano opposto"
 
 #: tfmain.rendercamouflage.caption
 msgid "Camouflage"
@@ -1439,11 +1439,11 @@ msgstr "Acqua con colori a scelta"
 #: tfmain.rendercyclicperlinnoise.caption
 msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
-msgstr ""
+msgstr "Rumore di Perlin ciclico"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Ipocicloide..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -1455,7 +1455,7 @@ msgstr "Pavimento di metallo"
 
 #: tfmain.renderperlinnoise.caption
 msgid "Perlin noise"
-msgstr ""
+msgstr "Rumore di Perlin"
 
 #: tfmain.renderplastik.caption
 msgid "Plastik"
@@ -1463,11 +1463,11 @@ msgstr "Plastica"
 
 #: tfmain.renderroundstone.caption
 msgid "Round stone"
-msgstr ""
+msgstr "Pietra rotonda"
 
 #: tfmain.rendersnowprint.caption
 msgid "Snow print"
-msgstr ""
+msgstr "Stampa neve"
 
 #: tfmain.renderstone.caption
 msgid "Stone"
@@ -1506,17 +1506,17 @@ msgstr "Capovolgi selezione in verticale"
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
-msgstr ""
+msgstr "Dimensione orizzontale della freccia"
 
 #: tfmain.spinedit_arrowsizey.hint
 msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
-msgstr ""
+msgstr "Dimensione verticale della freccia"
 
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
 msgid "Spacing between patterns"
-msgstr ""
+msgstr "Spaziatura tra i motivi"
 
 #: tfmain.spinedit_eraser.hint
 msgctxt "tfmain.spinedit_eraser.hint"
@@ -1536,7 +1536,7 @@ msgstr "Misura del bordo"
 #: tfmain.spinedit_shapealtitude.hint
 msgctxt "tfmain.spinedit_shapealtitude.hint"
 msgid "Shape altitude"
-msgstr ""
+msgstr "Altitudine della forma"
 
 #: tfmain.spinedit_textblur.hint
 msgctxt "tfmain.spinedit_textblur.hint"
@@ -1546,17 +1546,17 @@ msgstr "Sfocatura dell'ombra"
 #: tfmain.spinedit_textoutlinewidth.hint
 msgctxt "tfmain.spinedit_textoutlinewidth.hint"
 msgid "Text outline width"
-msgstr ""
+msgstr "Larghezza del contorno del testo"
 
 #: tfmain.spinedit_textshadowx.hint
 msgctxt "tfmain.spinedit_textshadowx.hint"
 msgid "Horizontal shadow offset"
-msgstr ""
+msgstr "Offset ombra orizzontale"
 
 #: tfmain.spinedit_textshadowy.hint
 msgctxt "tfmain.spinedit_textshadowy.hint"
 msgid "Vertical shadow offset"
-msgstr ""
+msgstr "Offset ombra verticale"
 
 #: tfmain.spinedit_textsize.hint
 msgctxt "tfmain.spinedit_textsize.hint"
@@ -1571,7 +1571,7 @@ msgstr "Spazzola"
 #: tfmain.toolchangedocking.hint
 msgctxt "tfmain.toolchangedocking.hint"
 msgid "Change docking"
-msgstr ""
+msgstr "Cambia ancoraggio"
 
 #: tfmain.toolclone.hint
 msgid "Clone tool"
@@ -1610,11 +1610,11 @@ msgstr "Riempimento"
 
 #: tfmain.toolgradient.caption
 msgid "Gradient"
-msgstr ""
+msgstr "Gradiente"
 
 #: tfmain.toolgradient.hint
 msgid "Render gradient"
-msgstr ""
+msgstr "Crea gradiente"
 
 #: tfmain.toolhand.caption
 msgid "Hand"
@@ -1622,29 +1622,29 @@ msgstr "Mano"
 
 #: tfmain.toolhand.hint
 msgid "Move and scroll picture"
-msgstr ""
+msgstr "Sposta e scorri immagine"
 
 #: tfmain.toolhotspot.caption
 msgctxt "tfmain.toolhotspot.caption"
 msgid "Hot spot"
-msgstr ""
+msgstr "Punto caldo"
 
 #: tfmain.toolhotspot.hint
 msgid "Choose hot spot of a cursor"
-msgstr ""
+msgstr "Scegli il punto caldo del cursore"
 
 #: tfmain.toollayermapping.hint
 msgctxt "tfmain.toollayermapping.hint"
 msgid "Layer perspective"
-msgstr ""
+msgstr "Prospettiva del livello"
 
 #: tfmain.toolmagicwand.caption
 msgid "Magic wand"
-msgstr ""
+msgstr "Bacchetta magica"
 
 #: tfmain.toolmagicwand.hint
 msgid "Magic wand select"
-msgstr ""
+msgstr "Selezione con bacchetta magica"
 
 #: tfmain.toolmoveselection.hint
 msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
@@ -1739,31 +1739,31 @@ msgstr "Testo"
 #: tfmain.tooltexturemapping.hint
 msgctxt "tfmain.tooltexturemapping.hint"
 msgid "Texture mapping"
-msgstr ""
+msgstr "Mappatura texture"
 
 #: tfmain.tool_aliasing.hint
 msgid "Disable antialiasing"
-msgstr ""
+msgstr "Disattiva antialiasing"
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
 msgid "Flat cap"
-msgstr ""
+msgstr "Estremità piatta"
 
 #: tfmain.tool_capround.hint
 msgctxt "TFMAIN.TOOL_CAPROUND.HINT"
 msgid "Round cap"
-msgstr ""
+msgstr "Estremità arrotondata"
 
 #: tfmain.tool_capsquare.hint
 msgctxt "TFMAIN.TOOL_CAPSQUARE.HINT"
 msgid "Square cap"
-msgstr ""
+msgstr "Estremità quadrata"
 
 #: tfmain.tool_closeshape.hint
 msgctxt "tfmain.tool_closeshape.hint"
 msgid "Close shape"
-msgstr ""
+msgstr "Chiudi forma"
 
 #: tfmain.tool_curvemodeangle.hint
 msgid "Draw an angle"
@@ -1772,7 +1772,7 @@ msgstr "Disegna un angolo"
 #: tfmain.tool_curvemodeauto.hint
 msgctxt "tfmain.tool_curvemodeauto.hint"
 msgid "Autodetect angles"
-msgstr ""
+msgstr "Rileva automaticamente gli angoli"
 
 #: tfmain.tool_curvemodecurve.hint
 msgid "Draw a curve"
@@ -1780,7 +1780,7 @@ msgstr "Disegna curva"
 
 #: tfmain.tool_curvemovepoint.hint
 msgid "Move point"
-msgstr ""
+msgstr "Sposta punto"
 
 #: tfmain.tool_drawshapeborder.hint
 msgctxt "tfmain.tool_drawshapeborder.hint"
@@ -1795,7 +1795,7 @@ msgstr "Rendi trasparente"
 #: tfmain.tool_eraseblur.hint
 msgctxt "tfmain.tool_eraseblur.hint"
 msgid "Soften"
-msgstr ""
+msgstr "Ammorbidisci"
 
 #: tfmain.tool_erasedarken.hint
 msgid "Darken"
@@ -1812,27 +1812,27 @@ msgstr "Evidenziato"
 #: tfmain.tool_fillshape.hint
 msgctxt "tfmain.tool_fillshape.hint"
 msgid "Fill shape"
-msgstr ""
+msgstr "Riempi forma"
 
 #: tfmain.tool_gridmovewithoutdeformation.hint
 msgctxt "tfmain.tool_gridmovewithoutdeformation.hint"
 msgid "Move grid without deformation"
-msgstr ""
+msgstr "Sposta griglia senza deformazione"
 
 #: tfmain.tool_joinbevel.hint
 msgctxt "TFMAIN.TOOL_JOINBEVEL.HINT"
 msgid "Bevel join"
-msgstr ""
+msgstr "Giunzione smussata"
 
 #: tfmain.tool_joinmiter.hint
 msgctxt "TFMAIN.TOOL_JOINMITER.HINT"
 msgid "Miter join"
-msgstr ""
+msgstr "Giunzione a smusso"
 
 #: tfmain.tool_joinround.hint
 msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
 msgid "Round join"
-msgstr ""
+msgstr "Giunzione arrotondata"
 
 #: tfmain.tool_phongshapecone.hint
 msgctxt "tfmain.tool_phongshapecone.hint"
@@ -1852,7 +1852,7 @@ msgstr "Rettangolo"
 #: tfmain.tool_phongshaperoundrect.hint
 msgctxt "tfmain.tool_phongshaperoundrect.hint"
 msgid "Rounded rectangle"
-msgstr ""
+msgstr "Rettangolo arrotondato"
 
 #: tfmain.tool_phongshapesphere.hint
 msgctxt "tfmain.tool_phongshapesphere.hint"
@@ -1882,11 +1882,11 @@ msgstr "Riempimento progressivo"
 
 #: tfmain.tool_textalignbottom.hint
 msgid "Align bottom"
-msgstr ""
+msgstr "Allinea in basso"
 
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
-msgstr ""
+msgstr "Centra"
 
 #: tfmain.tool_textalignleft.hint
 msgid "Align left"
@@ -1894,7 +1894,7 @@ msgstr "Allinea a sinistra"
 
 #: tfmain.tool_textalignmiddle.hint
 msgid "Center vertically"
-msgstr ""
+msgstr "Centra verticalmente"
 
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
@@ -1902,15 +1902,15 @@ msgstr "Allinea a destra"
 
 #: tfmain.tool_textaligntop.hint
 msgid "Align top"
-msgstr ""
+msgstr "Allinea in alto"
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"
-msgstr ""
+msgstr "Bidirezionale"
 
 #: tfmain.tool_textbold.hint
 msgid "Bold"
-msgstr ""
+msgstr "Grassetto"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -1919,25 +1919,25 @@ msgstr "Scegli carattere"
 
 #: tfmain.tool_textitalic.hint
 msgid "Italic"
-msgstr ""
+msgstr "Corsivo"
 
 #: tfmain.tool_textltr.hint
 msgid "Left to right"
-msgstr ""
+msgstr "Da sinistra a destra"
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
 msgid "Text outline"
-msgstr ""
+msgstr "Contorno del testo"
 
 #: tfmain.tool_textphong.hint
 msgctxt "TFMAIN.TOOL_TEXTPHONG.HINT"
 msgid "Text phong shading"
-msgstr ""
+msgstr "Sfumatura Phong del testo"
 
 #: tfmain.tool_textrtl.hint
 msgid "Right to left"
-msgstr ""
+msgstr "Da destra a sinistra"
 
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
@@ -1946,11 +1946,11 @@ msgstr "Testo ombrato"
 
 #: tfmain.tool_textstrikeout.hint
 msgid "Strikeout"
-msgstr ""
+msgstr "Barrato"
 
 #: tfmain.tool_textunderline.hint
 msgid "Underline"
-msgstr ""
+msgstr "Sottolineato"
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -1968,7 +1968,7 @@ msgstr "Griglia"
 
 #: tfmain.viewimagelist.caption
 msgid "Image list"
-msgstr ""
+msgstr "Elenco immagini"
 
 #: tfmain.viewlayerstack.caption
 msgctxt "tfmain.viewlayerstack.caption"
@@ -1992,11 +1992,11 @@ msgstr "Tavolozza"
 
 #: tfmain.viewstatusbar.caption
 msgid "Status bar"
-msgstr ""
+msgstr "Barra di stato"
 
 #: tfmain.viewtoolbox.caption
 msgid "Toolbox"
-msgstr ""
+msgstr "Barra degli strumenti"
 
 #: tfmain.viewworkspacecolor.caption
 msgid "Set workspace color..."
@@ -2015,7 +2015,7 @@ msgstr "Aggiusta lo zoom alla finestra"
 #: tfmain.viewzoomin.hint
 msgctxt "TFMAIN.VIEWZOOMIN.HINT"
 msgid "Zoom in"
-msgstr ""
+msgstr "Ingrandisci"
 
 #: tfmain.viewzoomoriginal.caption
 msgctxt "TFMAIN.VIEWZOOMORIGINAL.CAPTION"
@@ -2024,12 +2024,12 @@ msgstr "Dimensione originale"
 
 #: tfmain.viewzoomoriginal.hint
 msgid "Zoom to original pixel size"
-msgstr ""
+msgstr "Zoom alla dimensione originale dei pixel"
 
 #: tfmain.viewzoomout.hint
 msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
-msgstr ""
+msgstr "Riduci"
 
 #: tfmotionblur.caption
 msgctxt "tfmotionblur.caption"
@@ -2038,7 +2038,7 @@ msgstr "Sfocatura in movimento"
 
 #: tfmotionblur.checkbox_oriented.caption
 msgid "Oriented"
-msgstr ""
+msgstr "Orientato"
 
 #: tfmotionblur.label_distance.caption
 msgctxt "tfmotionblur.label_distance.caption"
@@ -2053,7 +2053,7 @@ msgstr "Cancella"
 #: tfmultiimage.button_ok.caption
 msgctxt "tfmultiimage.button_ok.caption"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfmultiimage.caption
 msgid "Choose image"
@@ -2067,7 +2067,7 @@ msgstr "Cancella"
 #: tfnewimage.button_ok.caption
 msgctxt "TFNEWIMAGE.BUTTON_OK.CAPTION"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfnewimage.caption
 msgctxt "tfnewimage.caption"
@@ -2076,11 +2076,11 @@ msgstr "Nuova immagine"
 
 #: tfnewimage.combobox_bitdepth.text
 msgid "32"
-msgstr ""
+msgstr "32"
 
 #: tfnewimage.label_bitdepth.caption
 msgid "Bit depth :"
-msgstr ""
+msgstr "Profondità bit:"
 
 #: tfnewimage.label_height.caption
 msgctxt "tfnewimage.label_height.caption"
@@ -2089,11 +2089,11 @@ msgstr "Altezza"
 
 #: tfnewimage.label_height1.caption
 msgid "Ratio :"
-msgstr ""
+msgstr "Proporzioni:"
 
 #: tfnewimage.label_memoryrequired.caption
 msgid "Memory required :"
-msgstr ""
+msgstr "Memoria necessaria:"
 
 #: tfnewimage.label_width.caption
 msgctxt "tfnewimage.label_width.caption"
@@ -2114,7 +2114,7 @@ msgstr "Rumore in scala di grigi"
 
 #: tfnoisefilter.radio_rgbnoise.caption
 msgid "RGB noise"
-msgstr ""
+msgstr "Rumore RGB"
 
 #: tfobject3d.button_cancel.caption
 msgctxt "tfobject3d.button_cancel.caption"
@@ -2127,32 +2127,32 @@ msgstr "Scrivi testo..."
 
 #: tfobject3d.button_notex.caption
 msgid "No tex."
-msgstr ""
+msgstr "Nessuna tex."
 
 #: tfobject3d.button_ok.caption
 msgctxt "tfobject3d.button_ok.caption"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfobject3d.caption
 msgid "3D object"
-msgstr ""
+msgstr "Oggetto 3D"
 
 #: tfobject3d.checkbox_antialiasing.caption
 msgid "Antialiasing"
-msgstr ""
+msgstr "Antialiasing"
 
 #: tfobject3d.checkbox_biface.caption
 msgid "2-sided faces"
-msgstr ""
+msgstr "Facce a 2 lati"
 
 #: tfobject3d.checkbox_textureinterp.caption
 msgid "Texture interpolation"
-msgstr ""
+msgstr "Interpolazione texture"
 
 #: tfobject3d.groupbox_selectedlight.caption
 msgid "Selected light"
-msgstr ""
+msgstr "Luce selezionata"
 
 #: tfobject3d.groupbox_selectedmaterial.caption
 msgctxt "tfobject3d.groupbox_selectedmaterial.caption"
@@ -2177,7 +2177,7 @@ msgstr "Altezza :"
 #: tfobject3d.label_lightingnormals.caption
 msgctxt "tfobject3d.label_lightingnormals.caption"
 msgid "Lighting normals :"
-msgstr ""
+msgstr "Normali di illuminazione:"
 
 #: tfobject3d.label_lights.caption
 msgid "Lights :"
@@ -2196,7 +2196,7 @@ msgstr "Opacità : "
 #: tfobject3d.label_specularindex.caption
 msgctxt "tfobject3d.label_specularindex.caption"
 msgid "Spec. index :"
-msgstr ""
+msgstr "Indice spec.:"
 
 #: tfobject3d.label_width.caption
 msgctxt "tfobject3d.label_width.caption"
@@ -2206,7 +2206,7 @@ msgstr "Larghezza :"
 #: tfobject3d.label_zoom.caption
 msgctxt "tfobject3d.label_zoom.caption"
 msgid "Zoom"
-msgstr ""
+msgstr "Zoom"
 
 #: tfobject3d.lights.caption
 msgid "Lights"
@@ -2219,15 +2219,15 @@ msgstr "Materiali"
 #: tfobject3d.opentexturedialog.title
 msgctxt "tfobject3d.opentexturedialog.title"
 msgid "Open texture"
-msgstr ""
+msgstr "Apri texture"
 
 #: tfobject3d.rendering.caption
 msgid "Rendering"
-msgstr ""
+msgstr "Rendering"
 
 #: tfobject3d.tooladddirectional.hint
 msgid "Add a directional light"
-msgstr ""
+msgstr "Aggiungi una luce direzionale"
 
 #: tfobject3d.toolpointlight.hint
 msgid "Add a point light"
@@ -2249,27 +2249,27 @@ msgstr "Colore"
 
 #: tfphongfilter.groupbox_color1.caption
 msgid "Altitude map"
-msgstr ""
+msgstr "Mappa altitudine"
 
 #: tfphongfilter.label_altitude.caption
 msgid "Global altitude :"
-msgstr ""
+msgstr "Altitudine globale:"
 
 #: tfphongfilter.label_lightposition.caption
 msgid "Light position :"
-msgstr ""
+msgstr "Posizione della luce:"
 
 #: tfphongfilter.radio_mapalpha.caption
 msgid "Alpha"
-msgstr ""
+msgstr "Alfa"
 
 #: tfphongfilter.radio_mapblue.caption
 msgid "B"
-msgstr ""
+msgstr "B"
 
 #: tfphongfilter.radio_mapgreen.caption
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #: tfphongfilter.radio_maplightness.caption
 msgctxt "tfphongfilter.radio_maplightness.caption"
@@ -2278,11 +2278,11 @@ msgstr "Luminosità"
 
 #: tfphongfilter.radio_maplinearlightness.caption
 msgid "Linear lightness"
-msgstr ""
+msgstr "Luminosità lineare"
 
 #: tfphongfilter.radio_mapred.caption
 msgid "R"
-msgstr ""
+msgstr "R"
 
 #: tfphongfilter.radio_mapsaturation.caption
 msgctxt "tfphongfilter.radio_mapsaturation.caption"
@@ -2292,7 +2292,7 @@ msgstr "Saturazione"
 #: tfphongfilter.radio_usebackcolor.caption
 msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
-msgstr ""
+msgstr "Colore di sfondo"
 
 #: tfphongfilter.radio_usekeep.caption
 msgid "Keep"
@@ -2311,12 +2311,12 @@ msgstr "Testo corrente"
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
-msgstr ""
+msgstr "Pixelizza"
 
 #: tfpixelate.label_pixelsize.caption
 msgctxt "tfpixelate.label_pixelsize.caption"
 msgid "Pixel size :"
-msgstr ""
+msgstr "Dimensione pixel:"
 
 #: tfpixelate.label_quality.caption
 msgctxt "tfpixelate.label_quality.caption"
@@ -2326,11 +2326,11 @@ msgstr "Qualità"
 #: tfposterize.caption
 msgctxt "tfposterize.caption"
 msgid "Posterize"
-msgstr ""
+msgstr "Posterizza"
 
 #: tfposterize.checkbox_bylightness.caption
 msgid "By lightness"
-msgstr ""
+msgstr "Per luminosità"
 
 #: tfposterize.label_levels.caption
 msgid "Levels :"
@@ -2344,7 +2344,7 @@ msgstr "Anteprima"
 #: tfpreviewdialog.lstatus.caption
 msgctxt "tfpreviewdialog.lstatus.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfprint.button_configureprinter.caption
 msgid "Configure..."
@@ -2366,12 +2366,12 @@ msgstr "Stampa"
 #: tfprint.checkbox_ratio.caption
 msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
-msgstr ""
+msgstr "Mantieni proporzioni"
 
 #: tfprint.combobox_orientation.text
 msgctxt "tfprint.combobox_orientation.text"
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
@@ -2383,17 +2383,17 @@ msgstr "Margini"
 
 #: tfprint.label_bottom.caption
 msgid "Bottom:"
-msgstr ""
+msgstr "In basso:"
 
 #: tfprint.label_dpix.caption
 msgctxt "tfprint.label_dpix.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfprint.label_dpiy.caption
 msgctxt "tfprint.label_dpiy.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfprint.label_height.caption
 msgid "Height:"
@@ -2409,7 +2409,7 @@ msgstr "Orientamento"
 
 #: tfprint.label_printerandpaper.caption
 msgid "Printer and paper:"
-msgstr ""
+msgstr "Stampante e carta:"
 
 #: tfprint.label_right.caption
 msgid "Right:"
@@ -2418,7 +2418,7 @@ msgstr "Destra"
 #: tfprint.label_selectedprinterandpaper.caption
 msgctxt "tfprint.label_selectedprinterandpaper.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2439,7 +2439,7 @@ msgstr "Ricorda questa scelta"
 #: tfquestion.label_message.caption
 msgctxt "tfquestion.label_message.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfradialblur.caption
 msgctxt "tfradialblur.caption"
@@ -2471,17 +2471,17 @@ msgstr "Cancella"
 #: tfresample.button_ok.caption
 msgctxt "TFRESAMPLE.BUTTON_OK.CAPTION"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfresample.caption
 msgctxt "tfresample.caption"
 msgid "Resample"
-msgstr ""
+msgstr "Riscalatura"
 
 #: tfresample.checkbox_ratio.caption
 msgctxt "tfresample.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
-msgstr ""
+msgstr "Mantieni proporzioni"
 
 #: tfresample.label_height.caption
 msgctxt "tfresample.label_height.caption"
@@ -2506,7 +2506,7 @@ msgstr "Cancella"
 #: tfsaveoption.button_ok.caption
 msgctxt "tfsaveoption.button_ok.caption"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfsaveoption.caption
 msgctxt "tfsaveoption.caption"
@@ -2515,11 +2515,11 @@ msgstr "Salva"
 
 #: tfsaveoption.checkbox_dithering.caption
 msgid "Dithering"
-msgstr ""
+msgstr "Dithering"
 
 #: tfsaveoption.checkbox_lossless.caption
 msgid "Lossless"
-msgstr ""
+msgstr "Senza perdita"
 
 #: tfsaveoption.label1.caption
 msgid "Quality:"
@@ -2528,15 +2528,15 @@ msgstr "Qualità:"
 #: tfsaveoption.label_0.caption
 msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #: tfsaveoption.label_1.caption
 msgid "100"
-msgstr ""
+msgstr "100"
 
 #: tfsaveoption.label_50.caption
 msgid "50"
-msgstr ""
+msgstr "50"
 
 #: tfsaveoption.label_colordepth.caption
 msgid "Color depth:"
@@ -2548,41 +2548,41 @@ msgstr "Dimensione"
 
 #: tfsaveoption.radiobutton_16colors.caption
 msgid "16 colors"
-msgstr ""
+msgstr "16 colori"
 
 #: tfsaveoption.radiobutton_24bitsperpixel.caption
 msgid "24 bits"
-msgstr ""
+msgstr "24 bit"
 
 #: tfsaveoption.radiobutton_256colors.caption
 msgid "256 colors"
-msgstr ""
+msgstr "256 colori"
 
 #: tfsaveoption.radiobutton_2colors.caption
 msgid "2 colors"
-msgstr ""
+msgstr "2 colori"
 
 #: tfsaveoption.radiobutton_32bitsperpixel.caption
 msgid "32 bits"
-msgstr ""
+msgstr "32 bit"
 
 #: tfsaveoption.radiobutton_miomap.caption
 msgid "MioMap"
-msgstr ""
+msgstr "MioMap"
 
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
-msgstr ""
+msgstr "Affila/Leviga"
 
 #: tfsharpen.label_amount.caption
 msgctxt "tfsharpen.label_amount.caption"
 msgid "Amount :"
-msgstr ""
+msgstr "Quantità:"
 
 #: tfshiftcolors.caption
 msgctxt "tfshiftcolors.caption"
 msgid "Shift colors"
-msgstr ""
+msgstr "Sposta colori"
 
 #: tfshiftcolors.checkbox_gsba.caption
 #, fuzzy
@@ -2615,7 +2615,7 @@ msgstr ""
 #: tfsuperformula.label_backcolor.caption
 msgctxt "tfsuperformula.label_backcolor.caption"
 msgid "Back color"
-msgstr ""
+msgstr "Colore di sfondo"
 
 #: tfsuperformula.label_n1.caption
 msgid "n1"
@@ -2666,7 +2666,7 @@ msgstr "Strumenti"
 #: tftwirl.caption
 msgctxt "tftwirl.caption"
 msgid "Twirl"
-msgstr ""
+msgstr "Vortice"
 
 #: tftwirl.label_angle.caption
 msgctxt "tftwirl.label_angle.caption"
@@ -2680,27 +2680,27 @@ msgstr "Raggio :"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"
-msgstr ""
+msgstr "Spostamento ondulato"
 
 #: tfwavedisplacement.label_displacement.caption
 msgid "Displacement :"
-msgstr ""
+msgstr "Spostamento:"
 
 #: tfwavedisplacement.label_phase.caption
 msgid "Phase :"
-msgstr ""
+msgstr "Fase:"
 
 #: tfwavedisplacement.label_wavelength.caption
 msgid "Wavelength :"
-msgstr ""
+msgstr "Lunghezza d'onda:"
 
 #: uresourcestrings.rsactioninprogress
 msgid "Action in progress"
-msgstr ""
+msgstr "Azione in corso"
 
 #: uresourcestrings.rsaddtoimagelist
 msgid "Add files to the image processing list"
-msgstr ""
+msgstr "Aggiungi file all'elenco di elaborazione immagini"
 
 #: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
@@ -2720,15 +2720,15 @@ msgstr "Tutti i file supportati"
 
 #: uresourcestrings.rsalt
 msgid "ALT"
-msgstr ""
+msgstr "ALT"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
-msgstr ""
+msgstr "GIF animata"
 
 #: uresourcestrings.rsautodetect
 msgid "Autodetect"
-msgstr ""
+msgstr "Rilevamento automatico"
 
 #: uresourcestrings.rsback
 #, fuzzy
@@ -2738,7 +2738,7 @@ msgstr "Indietro"
 
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
-msgstr ""
+msgstr "Premi BACKSPACE per rimuovere l'ultimo punto"
 
 #: uresourcestrings.rsbestquality
 msgctxt "uresourcestrings.rsbestquality"
@@ -2747,19 +2747,19 @@ msgstr "Qualità migliore"
 
 #: uresourcestrings.rsbitmap
 msgid "Bitmap"
-msgstr ""
+msgstr "Bitmap"
 
 #: uresourcestrings.rsblack
 msgid "Black"
-msgstr ""
+msgstr "Nero"
 
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
-msgstr ""
+msgstr "L'operazione di fusione si applica solo se c'è un livello sottostante"
 
 #: uresourcestrings.rsblue
 msgid "Blue"
-msgstr ""
+msgstr "Blu"
 
 #: uresourcestrings.rsbrightness
 msgid "Brightness"
@@ -2767,7 +2767,7 @@ msgstr "Luminosità"
 
 #: uresourcestrings.rsbytes
 msgid "Bytes"
-msgstr ""
+msgstr "Byte"
 
 #: uresourcestrings.rscancel
 msgctxt "uresourcestrings.rscancel"
@@ -2776,24 +2776,24 @@ msgstr "Cancella"
 
 #: uresourcestrings.rscancelledbyuser
 msgid "Cancelled by user"
-msgstr ""
+msgstr "Annullato dall'utente"
 
 #: uresourcestrings.rscannotdrawshapeonsvglayer
 msgid "Cannot draw shape on SVG layer"
-msgstr ""
+msgstr "Impossibile disegnare la forma sul livello SVG"
 
 #: uresourcestrings.rscannotopenfile
 msgid "Cannot open file"
-msgstr ""
+msgstr "Impossibile aprire il file"
 
 #: uresourcestrings.rscanvassize
 msgctxt "uresourcestrings.rscanvassize"
 msgid "Canvas size"
-msgstr ""
+msgstr "Dimensioni della tela"
 
 #: uresourcestrings.rscdrom
 msgid "CD"
-msgstr ""
+msgstr "CD"
 
 #: uresourcestrings.rschannels
 msgid "Channels"
@@ -2806,19 +2806,19 @@ msgstr "Pulisci tavolozza"
 #: uresourcestrings.rscloserequest
 msgctxt "uresourcestrings.rscloserequest"
 msgid "Close request"
-msgstr ""
+msgstr "Richiesta di chiusura"
 
 #: uresourcestrings.rscmd
 msgid "CMD"
-msgstr ""
+msgstr "CMD"
 
 #: uresourcestrings.rscolordescription
 msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr ""
+msgstr "Descrizione del colore: fai clic per inserire un colore utilizzando i nomi o la notazione CSS."
 
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
-msgstr ""
+msgstr "Sovrapposizione di colore"
 
 #: uresourcestrings.rscolors
 msgctxt "uresourcestrings.rscolors"
@@ -2827,15 +2827,15 @@ msgstr "Colori"
 
 #: uresourcestrings.rsconfirmdeletefromcontainer
 msgid "Are you sure you want to delete this file from the container?"
-msgstr ""
+msgstr "Sei sicuro di voler eliminare questo file dal contenitore?"
 
 #: uresourcestrings.rsconfirmdeletemultiplefromcontainer
 msgid "Are you sure you want to delete these %1 files from the container?"
-msgstr ""
+msgstr "Sei sicuro di voler eliminare questi %1 file dal contenitore?"
 
 #: uresourcestrings.rsconfirmmovemultipletotrash
 msgid "Are you sure you want to move these %1 files to the trash?"
-msgstr ""
+msgstr "Sei sicuro di voler spostare questi %1 file nel cestino?"
 
 #: uresourcestrings.rsconfirmmovetotrash
 msgid "Are you sure you want to move this file to the trash?"
@@ -2852,17 +2852,17 @@ msgstr "Contrasto"
 #: uresourcestrings.rscorrectedhueccw
 msgctxt "uresourcestrings.rscorrectedhueccw"
 msgid "Corr. Hue CCW"
-msgstr ""
+msgstr "Corr. Tonalità CCW"
 
 #: uresourcestrings.rscorrectedhuecw
 msgctxt "uresourcestrings.rscorrectedhuecw"
 msgid "Corr. Hue CW"
-msgstr ""
+msgstr "Corr. Tonalità CW"
 
 #: uresourcestrings.rscosine
 msgctxt "uresourcestrings.rscosine"
 msgid "Cosine"
-msgstr ""
+msgstr "Coseno"
 
 #: uresourcestrings.rscrop
 msgid "Crop"
@@ -2870,19 +2870,19 @@ msgstr "Ritaglia"
 
 #: uresourcestrings.rsctrl
 msgid "CTRL"
-msgstr ""
+msgstr "CTRL"
 
 #: uresourcestrings.rscurrentlayernotsplit
 msgid "Current layer is not split"
-msgstr ""
+msgstr "Il livello corrente non è diviso"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
-msgstr ""
+msgstr "Premi S o X per impostare la modalità curva dell'ultimo punto"
 
 #: uresourcestrings.rscyan
 msgid "Cyan"
-msgstr ""
+msgstr "Ciano"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
@@ -2895,15 +2895,15 @@ msgstr "Cancella"
 
 #: uresourcestrings.rsdeleteimageentry
 msgid "Delete selected image entry?"
-msgstr ""
+msgstr "Eliminare l'elemento immagine selezionato?"
 
 #: uresourcestrings.rsdirectorynotempty
 msgid "Directory is not empty"
-msgstr ""
+msgstr "La directory non è vuota"
 
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
-msgstr ""
+msgstr "Dither del livello utilizzando la tavolozza"
 
 #: uresourcestrings.rsdonate
 #, fuzzy
@@ -2913,15 +2913,15 @@ msgstr "Dona..."
 
 #: uresourcestrings.rsdownload
 msgid "Download"
-msgstr ""
+msgstr "Scarica"
 
 #: uresourcestrings.rsdropshadow
 msgid "Drop shadow"
-msgstr ""
+msgstr "Ombra esterna"
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
-msgstr ""
+msgstr "Duplica immagine"
 
 #: uresourcestrings.rseditmask
 msgctxt "uresourcestrings.rseditmask"
@@ -2935,7 +2935,7 @@ msgstr "Modifica selezione"
 #: uresourcestrings.rsedittexture
 msgctxt "uresourcestrings.rsedittexture"
 msgid "Edit texture"
-msgstr ""
+msgstr "Modifica texture"
 
 #: uresourcestrings.rsemptylayer
 msgid "Layer is empty"
@@ -2947,11 +2947,11 @@ msgstr "La selezione è vuota"
 
 #: uresourcestrings.rsendwithoutmatchingbegin
 msgid "End without matching begin"
-msgstr ""
+msgstr "Fine senza corrispondenza con l'inizio"
 
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
-msgstr ""
+msgstr "Inserisci il nome per la nuova cartella o contenitore (utilizzando l'estensione RES o LRS):"
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
@@ -2959,7 +2959,7 @@ msgstr "Scrivi nome livello"
 
 #: uresourcestrings.rsentries
 msgid "Entries"
-msgstr ""
+msgstr "Voci"
 
 #: uresourcestrings.rserror
 msgid "Error"
@@ -2967,45 +2967,45 @@ msgstr "Errore"
 
 #: uresourcestrings.rserrordecodingraw
 msgid "Error decoding raw image."
-msgstr ""
+msgstr "Errore durante la decodifica dell'immagine raw."
 
 #: uresourcestrings.rserrorloadingoriginal
 msgid "Error while loading original however layer can be rasterized."
-msgstr ""
+msgstr "Errore durante il caricamento dell'originale, tuttavia il livello può essere rasterizzato."
 
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
-msgstr "\"%1\""
+msgstr "Errore nell'apertura del file \"%1\""
 
 #: uresourcestrings.rsexception
 msgid "An exception was encountered"
-msgstr ""
+msgstr "Si è verificata un'eccezione"
 
 #: uresourcestrings.rsexitrequest
 msgctxt "uresourcestrings.rsexitrequest"
 msgid "Exit request"
-msgstr ""
+msgstr "Richiesta di uscita"
 
 #: uresourcestrings.rsexpect1parameter
 msgid "expects one parameter : "
-msgstr ""
+msgstr "richiede un parametro: "
 
 #: uresourcestrings.rsexpect2parameters
 msgid "expects two parameters : "
-msgstr ""
+msgstr "richiede due parametri: "
 
 #: uresourcestrings.rsexpectnparameters
 msgid "expects N parameters : "
-msgstr ""
+msgstr "richiede N parametri: "
 
 #: uresourcestrings.rsfast
 msgctxt "uresourcestrings.rsfast"
 msgid "Fast"
-msgstr ""
+msgstr "Veloce"
 
 #: uresourcestrings.rsfilecannotbeempty
 msgid "File cannot be empty"
-msgstr ""
+msgstr "Il file non può essere vuoto"
 
 #: uresourcestrings.rsfiledate
 msgid "Date"
@@ -3018,11 +3018,11 @@ msgstr "Questa estensione non è supportata"
 
 #: uresourcestrings.rsfileformatnotrecognized
 msgid "The file format has not been recognized."
-msgstr ""
+msgstr "Il formato del file non è stato riconosciuto."
 
 #: uresourcestrings.rsfilename
 msgid "Filename"
-msgstr ""
+msgstr "Nome file"
 
 #: uresourcestrings.rsfilenotfound
 msgid "File not found!"
@@ -3039,20 +3039,20 @@ msgstr "Dimensione"
 
 #: uresourcestrings.rsfilesystem
 msgid "File system"
-msgstr ""
+msgstr "Sistema di file"
 
 #: uresourcestrings.rsfiletype
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 #: uresourcestrings.rsfixeddrive
 msgid "Fixed"
-msgstr ""
+msgstr "Fisso"
 
 #: uresourcestrings.rsflattenimage
 msgctxt "uresourcestrings.rsflattenimage"
 msgid "Flatten image"
-msgstr ""
+msgstr "Appiattisci immagine"
 
 #: uresourcestrings.rsfolder
 msgid "Folder"
@@ -3060,23 +3060,23 @@ msgstr "Cartella"
 
 #: uresourcestrings.rsfolderorcontaineralreadyexists
 msgid "Folder or container already exists."
-msgstr ""
+msgstr "La cartella o il contenitore esiste già."
 
 #: uresourcestrings.rsfollowingerrorsoccurred
 msgid "Following errors occurred:"
-msgstr ""
+msgstr "Si sono verificati i seguenti errori:"
 
 #: uresourcestrings.rsfractaltree
 msgid "Fractal tree"
-msgstr ""
+msgstr "Albero frattale"
 
 #: uresourcestrings.rsframes
 msgid "Frames"
-msgstr ""
+msgstr "Fotogrammi"
 
 #: uresourcestrings.rsfunctionnotdefined
 msgid "The function %1 is not defined."
-msgstr ""
+msgstr "La funzione %1 non è definita."
 
 #: uresourcestrings.rsgreen
 msgid "Green"
@@ -3085,28 +3085,28 @@ msgstr "Verde"
 #: uresourcestrings.rshalfcosine
 msgctxt "uresourcestrings.rshalfcosine"
 msgid "Half-cosine"
-msgstr ""
+msgstr "Semi-coseno"
 
 #: uresourcestrings.rsholdkeyforsquare
 msgid "Hold %1 to draw a square or a circle"
-msgstr ""
+msgstr "Tieni premuto %1 per disegnare un quadrato o un cerchio"
 
 #: uresourcestrings.rsholdkeyrestrictrotation
 msgid "Hold %1 to restrict rotation angle"
-msgstr ""
+msgstr "Tieni premuto %1 per limitare l'angolo di rotazione"
 
 #: uresourcestrings.rsholdkeysnaptopixel
 msgid "Hold %1 to snap to pixels"
-msgstr ""
+msgstr "Tieni premuto %1 per agganciare ai pixel"
 
 #: uresourcestrings.rsholdkeysscalemode
 msgid "Hold %1 or %2 to scale"
-msgstr ""
+msgstr "Tieni premuto %1 o %2 per scalare"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"
 msgid "Hot spot"
-msgstr ""
+msgstr "Punto caldo"
 
 #: uresourcestrings.rshue
 msgctxt "uresourcestrings.rshue"
@@ -3116,25 +3116,25 @@ msgstr "Tonalità"
 #: uresourcestrings.rshueccw
 msgctxt "uresourcestrings.rshueccw"
 msgid "Hue CCW"
-msgstr ""
+msgstr "Tonalità CCW"
 
 #: uresourcestrings.rshuecw
 msgctxt "uresourcestrings.rshuecw"
 msgid "Hue CW"
-msgstr ""
+msgstr "Tonalità CW"
 
 #: uresourcestrings.rsiconimagealreadyexists
 msgid "There is already an image with this size and depth."
-msgstr ""
+msgstr "Esiste già un'immagine con queste dimensioni e profondità."
 
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
-msgstr ""
+msgstr "Icona/cursore"
 
 #: uresourcestrings.rsiconsize
 msgctxt "uresourcestrings.rsiconsize"
 msgid "Icon size"
-msgstr ""
+msgstr "Dimensioni icona"
 
 #: uresourcestrings.rsimage
 #, fuzzy
@@ -3149,19 +3149,19 @@ msgstr "L'immagine è troppo grande"
 #: uresourcestrings.rsinfinity
 msgctxt "uresourcestrings.rsinfinity"
 msgid "Infinity"
-msgstr ""
+msgstr "Infinito"
 
 #: uresourcestrings.rsinformation
 msgid "Information"
-msgstr ""
+msgstr "Informazioni"
 
 #: uresourcestrings.rsinnerlight
 msgid "Inner light"
-msgstr ""
+msgstr "Luce interna"
 
 #: uresourcestrings.rsinnershadow
 msgid "Inner shadow"
-msgstr ""
+msgstr "Ombra interna"
 
 #: uresourcestrings.rsintensity
 #, fuzzy
@@ -3171,11 +3171,11 @@ msgstr "intensità"
 
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
-msgstr ""
+msgstr "Errore interno"
 
 #: uresourcestrings.rsinvalidangle
 msgid "Invalid angle"
-msgstr ""
+msgstr "Angolo non valido"
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
@@ -3183,7 +3183,7 @@ msgstr "Nome non valido"
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "
-msgstr ""
+msgstr "Opacità non valida: "
 
 #: uresourcestrings.rsinvalidparameters
 msgid "Invalid parameters"
@@ -3191,11 +3191,11 @@ msgstr "Parametri invalidi"
 
 #: uresourcestrings.rsinvalidresamplesize
 msgid "Invalid resample size : "
-msgstr ""
+msgstr "Dimensione di riscalatura non valida: "
 
 #: uresourcestrings.rsinvalidsizefornew
 msgid "Invalid size for new : "
-msgstr ""
+msgstr "Dimensione non valida per la nuova: "
 
 #: uresourcestrings.rskeepchanges
 msgctxt "uresourcestrings.rskeepchanges"
@@ -3204,15 +3204,15 @@ msgstr "Accetti le modifiche ?"
 
 #: uresourcestrings.rskeepemptyspace
 msgid "Keep empty space around opaque pixels?"
-msgstr ""
+msgstr "Mantenere spazio vuoto attorno ai pixel opachi?"
 
 #: uresourcestrings.rslanczos
 msgid "Lanczos %1"
-msgstr ""
+msgstr "Lanczos %1"
 
 #: uresourcestrings.rslandscape
 msgid "Landscape"
-msgstr ""
+msgstr "Orizzontale"
 
 #: uresourcestrings.rslatestversion
 msgid "The latest version of LazPaint available online is"
@@ -3220,7 +3220,7 @@ msgstr "L'ultima versione di LazPaint disponibile online è"
 
 #: uresourcestrings.rslava
 msgid "Lava"
-msgstr ""
+msgstr "Lava"
 
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
@@ -3229,11 +3229,11 @@ msgstr "Livello"
 
 #: uresourcestrings.rslayeralreadysplit
 msgid "Layer already split"
-msgstr ""
+msgstr "Livello già diviso"
 
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
-msgstr ""
+msgstr "Immagine a livelli"
 
 #: uresourcestrings.rslayereffect
 msgid "Layer effect"
@@ -3247,11 +3247,11 @@ msgstr "Livelli"
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
 msgid "LazPaint"
-msgstr ""
+msgstr "LazPaint"
 
 #: uresourcestrings.rslazpaintonly
 msgid "LazPaint only"
-msgstr ""
+msgstr "Solo LazPaint"
 
 #: uresourcestrings.rslight
 msgctxt "uresourcestrings.rslight"
@@ -3265,16 +3265,16 @@ msgstr "Luminosità"
 
 #: uresourcestrings.rslightposition
 msgid "Light position"
-msgstr ""
+msgstr "Posizione della luce"
 
 #: uresourcestrings.rslinear
 msgctxt "uresourcestrings.rslinear"
 msgid "Linear"
-msgstr ""
+msgstr "Lineare"
 
 #: uresourcestrings.rslinearrgb
 msgid "Linear RGB"
-msgstr ""
+msgstr "RGB lineare"
 
 #: uresourcestrings.rsloadandmergepalette
 msgid "Load and merge palette..."
@@ -3290,11 +3290,11 @@ msgstr "Carica tavolozza"
 
 #: uresourcestrings.rsloopcount
 msgid "Loop count"
-msgstr ""
+msgstr "Conteggio cicli"
 
 #: uresourcestrings.rsmagenta
 msgid "Magenta"
-msgstr ""
+msgstr "Magenta"
 
 #: uresourcestrings.rsmakemonochromatic
 msgid "Make monochromatic"
@@ -3302,7 +3302,7 @@ msgstr "Rendere monocromatico"
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
-msgstr ""
+msgstr "Crea una tavolozza di %1 colori dall'immagine"
 
 #: uresourcestrings.rsmask
 msgid "Mask"
@@ -3310,7 +3310,7 @@ msgstr "Maschera"
 
 #: uresourcestrings.rsmaskfromalphachannel
 msgid "Mask from alpha channel"
-msgstr ""
+msgstr "Maschera dal canale alfa"
 
 #: uresourcestrings.rsmerge
 msgid "Merge"
@@ -3323,11 +3323,11 @@ msgstr "Vuoi fondere la selezione ?"
 #: uresourcestrings.rsmitchell
 msgctxt "uresourcestrings.rsmitchell"
 msgid "Mitchell"
-msgstr ""
+msgstr "Mitchell"
 
 #: uresourcestrings.rsmorethanonefile
 msgid "You are trying to open more than one file. How would you like these files to be opened?"
-msgstr ""
+msgstr "Stai cercando di aprire più file. Come vuoi aprirli?"
 
 #: uresourcestrings.rsmovingorrotatingselection
 msgctxt "uresourcestrings.rsmovingorrotatingselection"
@@ -3336,7 +3336,7 @@ msgstr "Muovi o ruota la selezione"
 
 #: uresourcestrings.rsmustreleaseselection
 msgid "You must first release the selection"
-msgstr ""
+msgstr "Devi prima rilasciare la selezione"
 
 #: uresourcestrings.rsmustshowlayer
 msgid "You must first make the layer visible"
@@ -3344,7 +3344,7 @@ msgstr "Devi prima rendere il livello visibile"
 
 #: uresourcestrings.rsnetworkdrive
 msgid "Network"
-msgstr ""
+msgstr "Rete"
 
 #: uresourcestrings.rsnewimage
 msgctxt "uresourcestrings.rsnewimage"
@@ -3353,28 +3353,28 @@ msgstr "Nuova immagine"
 
 #: uresourcestrings.rsnewmask
 msgid "New mask"
-msgstr ""
+msgstr "Nuova maschera"
 
 #: uresourcestrings.rsno
 msgid "No"
-msgstr ""
+msgstr "No"
 
 #: uresourcestrings.rsnoactivelayer
 msgid "No active layer"
-msgstr ""
+msgstr "Nessun livello attivo"
 
 #: uresourcestrings.rsnoactiveselection
 msgid "There is no active selection"
-msgstr ""
+msgstr "Non c'è nessuna selezione attiva"
 
 #: uresourcestrings.rsnoandproceedtonext
 msgid "Do not save and open another file"
-msgstr ""
+msgstr "Non salvare e apri un altro file"
 
 #: uresourcestrings.rsnoname
 msgctxt "uresourcestrings.rsnoname"
 msgid "noname"
-msgstr ""
+msgstr "senza nome"
 
 #: uresourcestrings.rsnormalblendop
 msgid "Normal"
@@ -3382,34 +3382,34 @@ msgstr "Normale"
 
 #: uresourcestrings.rsnotchromaticchannel
 msgid "This is not a chromatic channel"
-msgstr ""
+msgstr "Questo non è un canale cromatico"
 
 #: uresourcestrings.rsnothingtobedeformed
 msgctxt "uresourcestrings.rsnothingtobedeformed"
 msgid "There is nothing to be deformed"
-msgstr ""
+msgstr "Non c'è nulla da deformare"
 
 #: uresourcestrings.rsnothingtoberetrieved
 msgctxt "uresourcestrings.rsnothingtoberetrieved"
 msgid "There is nothing to be retrieved"
-msgstr ""
+msgstr "Non c'è nulla da recuperare"
 
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
-msgstr ""
+msgstr "Non è ragionevole salvare un'immagine così grande in questo formato di file."
 
 #: uresourcestrings.rsnumber
 msgid "№"
-msgstr ""
+msgstr "№"
 
 #: uresourcestrings.rsok
 msgctxt "uresourcestrings.rsok"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: uresourcestrings.rsokay
 msgid "Okay"
-msgstr ""
+msgstr "Va bene"
 
 #: uresourcestrings.rsopacity
 msgctxt "uresourcestrings.rsopacity"
@@ -3422,7 +3422,7 @@ msgstr "Apri"
 
 #: uresourcestrings.rsopenfilesaslayers
 msgid "Open files as layers in a single image"
-msgstr ""
+msgstr "Apri i file come livelli in un'unica immagine"
 
 #: uresourcestrings.rsopenfirstfileonly
 msgid "Open the first file only"
@@ -3430,11 +3430,11 @@ msgstr "Apri solo il primo file"
 
 #: uresourcestrings.rsopening
 msgid "Opening"
-msgstr ""
+msgstr "Apertura"
 
 #: uresourcestrings.rsopenmultipleimagefiles
 msgid "Open multiple image files"
-msgstr ""
+msgstr "Apri più file immagine"
 
 #: uresourcestrings.rsotherblendop
 msgid "Other..."
@@ -3442,7 +3442,7 @@ msgstr "Altro..."
 
 #: uresourcestrings.rsoverwritefile
 msgid "File already exists. Do you want to overwrite it?"
-msgstr ""
+msgstr "Il file esiste già. Vuoi sovrascriverlo?"
 
 #: uresourcestrings.rspaletteincludesalphachannel
 msgid "Palette includes alpha channel"
@@ -3461,7 +3461,7 @@ msgstr "Penna"
 #: uresourcestrings.rspercent
 msgctxt "uresourcestrings.rspercent"
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: uresourcestrings.rsportait
 msgid "Portrait"
@@ -3469,11 +3469,11 @@ msgstr "Ritratto"
 
 #: uresourcestrings.rsposterizelayerusingpalette
 msgid "Posterize layer using palette"
-msgstr ""
+msgstr "Posterizza il livello utilizzando la tavolozza"
 
 #: uresourcestrings.rspresetname
 msgid "Preset name"
-msgstr ""
+msgstr "Nome predefinito"
 
 #: uresourcestrings.rspreview
 #, fuzzy
@@ -3483,19 +3483,19 @@ msgstr "Anteprima"
 
 #: uresourcestrings.rspx
 msgid "px"
-msgstr ""
+msgstr "px"
 
 #: uresourcestrings.rspythonunexpectedversion
 msgid "Expected Python version %1 but %2 found."
-msgstr ""
+msgstr "Versione Python attesa %1, ma trovata %2."
 
 #: uresourcestrings.rsramdisk
 msgid "RAM disk"
-msgstr ""
+msgstr "Disco RAM"
 
 #: uresourcestrings.rsrasterlayer
 msgid "Raster layer"
-msgstr ""
+msgstr "Livello raster"
 
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
@@ -3512,11 +3512,11 @@ msgstr "Ricarica"
 
 #: uresourcestrings.rsreloadchanged
 msgid "Bitmap has been modified. Do you really want to reload?"
-msgstr ""
+msgstr "Il bitmap è stato modificato. Vuoi davvero ricaricarlo?"
 
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
-msgstr ""
+msgstr "Removibile"
 
 #: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
@@ -3530,16 +3530,16 @@ msgstr "Render"
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
 msgid "Repeat image"
-msgstr ""
+msgstr "Ripeti immagine"
 
 #: uresourcestrings.rsresamplingimage
 msgid "Resampling image..."
-msgstr ""
+msgstr "Riscalatura immagine..."
 
 #: uresourcestrings.rsretrieveselectedarea
 msgctxt "uresourcestrings.rsretrieveselectedarea"
 msgid "Do you want to retrieve selected area?"
-msgstr ""
+msgstr "Vuoi recuperare l'area selezionata?"
 
 #: uresourcestrings.rsreturnvalides
 msgid "Press ENTER to validate"
@@ -3548,19 +3548,19 @@ msgstr "Premi ENTER per eseguire"
 #: uresourcestrings.rsrgb
 msgctxt "uresourcestrings.rsrgb"
 msgid "RGB"
-msgstr ""
+msgstr "RGB"
 
 #: uresourcestrings.rsrightclickfinishshape
 msgid "Use RIGHT click to finish shape"
-msgstr ""
+msgstr "Usa il tasto DESTRO per terminare la forma"
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
-msgstr ""
+msgstr "Usa il tasto DESTRO per definire la sorgente"
 
 #: uresourcestrings.rsrightclickfortransformcenter
 msgid "Use RIGHT click to define transform center"
-msgstr ""
+msgstr "Usa il tasto DESTRO per definire il centro di trasformazione"
 
 #: uresourcestrings.rsrunscriptagaintoupdateeffect
 msgid "Run this script again to update effect"
@@ -3588,12 +3588,12 @@ msgstr "L'immagine corrente è stata modificata. Vuoi salavare le modifiche ?"
 
 #: uresourcestrings.rssavepaletteas
 msgid "Save palette as..."
-msgstr ""
+msgstr "Salva tavolozza come..."
 
 #: uresourcestrings.rsscript
 msgctxt "uresourcestrings.rsscript"
 msgid "Script"
-msgstr ""
+msgstr "Script"
 
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
@@ -3602,7 +3602,7 @@ msgstr "Seleziona operazione di miscela"
 
 #: uresourcestrings.rsshift
 msgid "SHIFT"
-msgstr ""
+msgstr "SHIFT"
 
 #: uresourcestrings.rsshowpalette
 #, fuzzy
@@ -3612,12 +3612,12 @@ msgstr "Mostra tavolozza"
 
 #: uresourcestrings.rssourceposition
 msgid "Source position"
-msgstr ""
+msgstr "Posizione sorgente"
 
 #: uresourcestrings.rsspline
 msgctxt "uresourcestrings.rsspline"
 msgid "Spline"
-msgstr ""
+msgstr "Spline"
 
 #: uresourcestrings.rssplitcmyk
 msgid "Split CMYK"
@@ -3633,25 +3633,25 @@ msgstr "Dividere RGB"
 
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
-msgstr ""
+msgstr "Dispositivo"
 
 #: uresourcestrings.rsstroke
 msgid "Stroke"
-msgstr ""
+msgstr "Tratto"
 
 #: uresourcestrings.rstextoutline
 msgctxt "uresourcestrings.rstextoutline"
 msgid "Text outline"
-msgstr ""
+msgstr "Contorno testo"
 
 #: uresourcestrings.rstexturemapping
 msgctxt "uresourcestrings.rstexturemapping"
 msgid "Texture mapping"
-msgstr ""
+msgstr "Mappatura texture"
 
 #: uresourcestrings.rstherearenocheckeditems
 msgid "There are no checked items. Check some items or add some new ones."
-msgstr ""
+msgstr "Non ci sono elementi selezionati. Seleziona alcuni elementi o aggiungine di nuovi."
 
 #: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
 msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
@@ -3659,67 +3659,67 @@ msgstr "\"Enregistrer sous...\" depuis le menu principal."
 
 #: uresourcestrings.rstodo
 msgid "To do"
-msgstr ""
+msgstr "Da fare"
 
 #: uresourcestrings.rstodoimages
 msgid "Images left: %1"
-msgstr ""
+msgstr "Immagini rimaste: %1"
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
-msgstr ""
+msgstr "Lo strumento non può essere usato su un livello invisibile"
 
 #: uresourcestrings.rstoomanyactions
 msgid "Too many actions"
-msgstr ""
+msgstr "Troppe azioni"
 
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
-msgstr ""
+msgstr "Troppi livelli"
 
 #: uresourcestrings.rstoomanyshapesinlayer
 msgid "Too many shapes in layer"
-msgstr ""
+msgstr "Troppe forme nel livello"
 
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
-msgstr ""
+msgstr "Immagini totali: %1"
 
 #: uresourcestrings.rstransferselectiontootherlayer
 msgid "Transfer selection to other layer?"
-msgstr ""
+msgstr "Trasferire la selezione su un altro livello?"
 
 #: uresourcestrings.rstransformedrasterlayer
 msgid "Transformed raster layer"
-msgstr ""
+msgstr "Livello raster trasformato"
 
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
-msgstr ""
+msgstr "Vuoi trasformare il contenuto della selezione?"
 
 #: uresourcestrings.rsunabletoapplyfilter
 msgid "Unable to apply filter : "
-msgstr ""
+msgstr "Impossibile applicare il filtro: "
 
 #: uresourcestrings.rsunabletoloadfile
 msgid "Unable to load file : "
-msgstr ""
+msgstr "Impossibile caricare il file: "
 
 #: uresourcestrings.rsunabletosavefile
 msgid "Unable to save file : "
-msgstr ""
+msgstr "Impossibile salvare il file: "
 
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
-msgstr ""
+msgstr "Comando sconosciuto: "
 
 #: uresourcestrings.rsunknownoriginal
 msgid "Unknown original"
-msgstr ""
+msgstr "Originale sconosciuto"
 
 #: uresourcestrings.rsvectoriallayer
 msgid "Vectorial layer"
-msgstr ""
+msgstr "Livello vettoriale"
 
 #: uresourcestrings.rsversion
 msgid "Version"
@@ -3727,7 +3727,7 @@ msgstr "Versione"
 
 #: uresourcestrings.rsverticalsize
 msgid "Vertical size"
-msgstr ""
+msgstr "Dimensione verticale"
 
 #: uresourcestrings.rsvisible
 msgid "Visibile"
@@ -3735,7 +3735,7 @@ msgstr "Visibile"
 
 #: uresourcestrings.rsyellow
 msgid "Yellow"
-msgstr ""
+msgstr "Giallo"
 
 #: uresourcestrings.rsyes
 msgid "Yes"
@@ -3744,10 +3744,9 @@ msgstr "Sì"
 #: uresourcestrings.rszoomlayerstackin
 msgctxt "uresourcestrings.rszoomlayerstackin"
 msgid "Zoom layer stack in"
-msgstr ""
+msgstr "Zoom nel gruppo di livelli"
 
 #: uresourcestrings.rszoomlayerstackout
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
-msgstr ""
-
+msgstr "Zoom fuori dal gruppo di livelli"
