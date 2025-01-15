@@ -422,11 +422,11 @@ msgstr "Aantal zijden:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Hypocycloïde"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Knobbels:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1455,7 +1455,7 @@ msgstr "Cyclische Perlin-ruis"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Hypocycloïde..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

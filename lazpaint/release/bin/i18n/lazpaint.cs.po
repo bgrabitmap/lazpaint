@@ -392,11 +392,11 @@ msgstr "Počet stran:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Hypocyklóida"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Hroty:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1371,7 +1371,7 @@ msgstr "Kruhový Perlinův šum"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Hypocyklóida..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

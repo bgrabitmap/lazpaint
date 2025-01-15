@@ -802,11 +802,11 @@ msgstr "Imprimer..."
 
 #: tfmain.filequicksave.caption
 msgid "Quick save"
-msgstr ""
+msgstr "Sauvegarde rapide"
 
 #: tfmain.filequicksave.hint
 msgid "Save current file without dialogs"
-msgstr ""
+msgstr "Sauvegarder le fichier sans boite de dialogue"
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -3573,11 +3573,11 @@ msgstr "RGB"
 
 #: uresourcestrings.rsrightclickfinishshape
 msgid "Use RIGHT click to finish shape"
-msgstr ""
+msgstr "Utilisez le clic DROIT pour finir la forme"
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
-msgstr "Utiliser le clic DROIT pour définir la source"
+msgstr "Utilisez le clic DROIT pour définir la source"
 
 #: uresourcestrings.rsrightclickfortransformcenter
 msgid "Use RIGHT click to define transform center"

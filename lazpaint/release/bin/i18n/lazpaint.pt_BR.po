@@ -32,7 +32,7 @@ msgstr "Sobre"
 
 #: tfabout.labelurl.caption
 msgid "http://sourceforge.net/projects/lazpaint/"
-msgstr ""
+msgstr "http://sourceforge.net/projects/lazpaint/"
 
 #: tfabout.label_authors.caption
 msgctxt "TFABOUT.LABEL_AUTHORS.CAPTION"
@@ -415,11 +415,11 @@ msgstr "Número de lados:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Hipocicloide"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Pontas:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1452,7 +1452,7 @@ msgstr "Ruído Perlin cíclica"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Hipocicloide..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

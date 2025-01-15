@@ -18,7 +18,7 @@ msgstr "Процедуру %s не удалось загрузить прави�
 
 #: tablet.openfailed
 msgid "Tablet context failed to open."
-msgstr ""
+msgstr "Не удалось открыть контекст планшета."
 
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
@@ -410,11 +410,11 @@ msgstr "Кол-во сторон:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Гипоциклоида"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Вершины:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1443,7 +1443,7 @@ msgstr "Циклический шум Перлина"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Гипоциклоида..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"

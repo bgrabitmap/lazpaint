@@ -3375,7 +3375,7 @@ msgstr "يجب عليك أولا جعل الطبقة مرئية"
 
 #: uresourcestrings.rsnetworkdrive
 msgid "Network"
-msgstr ""
+msgstr "الشبكة"
 
 #: uresourcestrings.rsnewimage
 msgctxt "uresourcestrings.rsnewimage"

@@ -418,11 +418,11 @@ msgstr "边数 :"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "摆线"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "尖点："
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -430,11 +430,11 @@ msgstr "图像列表"
 
 #: tfimagelist.pmautouncheckonopen.caption
 msgid "Autouncheck files after being open"
-msgstr ""
+msgstr "打开后自动取消选中文件"
 
 #: tfimagelist.pmautouncheckonsave.caption
 msgid "Autouncheck files after being edited and saved"
-msgstr ""
+msgstr "编辑并保存后自动取消选中文件"
 
 #: tfimagelist.pmremoveall.caption
 msgid "Empty image list"
@@ -804,7 +804,7 @@ msgstr "快速保存"
 
 #: tfmain.filequicksave.hint
 msgid "Save current file without dialogs"
-msgstr ""
+msgstr "无需对话框保存当前文件"
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -1454,7 +1454,7 @@ msgstr "环状佩林噪声"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "摆线..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -2613,7 +2613,7 @@ msgstr "饱和度"
 
 #: tfsuperformula.caption
 msgid "Superformula"
-msgstr ""
+msgstr "超级公式"
 
 #: tfsuperformula.label_a.caption
 msgid "a"
@@ -3171,11 +3171,11 @@ msgstr "信息"
 
 #: uresourcestrings.rsinnerlight
 msgid "Inner light"
-msgstr ""
+msgstr "内部光"
 
 #: uresourcestrings.rsinnershadow
 msgid "Inner shadow"
-msgstr ""
+msgstr "内部阴影"
 
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
@@ -3188,7 +3188,7 @@ msgstr "内部错误"
 
 #: uresourcestrings.rsinvalidangle
 msgid "Invalid angle"
-msgstr ""
+msgstr "无效的角度"
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
@@ -3242,7 +3242,7 @@ msgstr "层"
 
 #: uresourcestrings.rslayeralreadysplit
 msgid "Layer already split"
-msgstr ""
+msgstr "图层已拆分"
 
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
@@ -3323,7 +3323,7 @@ msgstr "图层蒙版"
 
 #: uresourcestrings.rsmaskfromalphachannel
 msgid "Mask from alpha channel"
-msgstr ""
+msgstr "从 Alpha 通道生成蒙版"
 
 #: uresourcestrings.rsmerge
 msgid "Merge"
@@ -3395,7 +3395,7 @@ msgstr "正常"
 
 #: uresourcestrings.rsnotchromaticchannel
 msgid "This is not a chromatic channel"
-msgstr ""
+msgstr "这不是一个色度通道"
 
 #: uresourcestrings.rsnothingtobedeformed
 msgctxt "uresourcestrings.rsnothingtobedeformed"
@@ -3567,7 +3567,7 @@ msgstr "RGB"
 
 #: uresourcestrings.rsrightclickfinishshape
 msgid "Use RIGHT click to finish shape"
-msgstr ""
+msgstr "右键单击以完成形状"
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
@@ -3635,15 +3635,15 @@ msgstr "插值"
 
 #: uresourcestrings.rssplitcmyk
 msgid "Split CMYK"
-msgstr ""
+msgstr "分离 CMYK"
 
 #: uresourcestrings.rssplithsl
 msgid "Split HSL"
-msgstr ""
+msgstr "分离 HSL"
 
 #: uresourcestrings.rssplitrgb
 msgid "Split RGB"
-msgstr ""
+msgstr "分离 RGB"
 
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
@@ -3742,7 +3742,7 @@ msgstr "版本"
 
 #: uresourcestrings.rsverticalsize
 msgid "Vertical size"
-msgstr ""
+msgstr "垂直尺寸"
 
 #: uresourcestrings.rsvisible
 msgid "Visibile"

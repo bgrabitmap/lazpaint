@@ -415,11 +415,11 @@ msgstr "Número de lados:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Hipocicloide"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Cúspides:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1448,7 +1448,7 @@ msgstr "Ruido Perlin Cíclico"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Hipocicloide..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
