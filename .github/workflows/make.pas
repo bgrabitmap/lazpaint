@@ -171,7 +171,7 @@ type
       end
   end;
 
-  function LintPython(Path: string): Output;
+  function LintShell(Path: string): Output;
   begin
     WriteLn(stderr, #27'[33m', 'Linting Shell file: ', Path, #27'[0m');
     if not RunCommand('shellcheck', ['--external-sources', Path], Result.Output) then
