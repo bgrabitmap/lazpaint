@@ -4,16 +4,16 @@ msgstr "Content-Type: text/plain; charset=UTF-8"
 #: tablet.getprocfailed
 #, object-pascal-format
 msgid "Procedure %s failed to load properly."
-msgstr ""
+msgstr "Toiminnon %s lataaminen epäonnistui oikein."
 
 #: tablet.openfailed
 msgid "Tablet context failed to open."
-msgstr ""
+msgstr "Tablettikontekstin avaaminen epäonnistui."
 
 #: tfabout.button_donate.caption
 msgctxt "TFABOUT.BUTTON_DONATE.CAPTION"
 msgid "Donate..."
-msgstr ""
+msgstr "Lahjoita..."
 
 #: tfabout.caption
 msgctxt "TFABOUT.CAPTION"
@@ -22,7 +22,7 @@ msgstr "Tietoja"
 
 #: tfabout.labelurl.caption
 msgid "http://sourceforge.net/projects/lazpaint/"
-msgstr ""
+msgstr "http://sourceforge.net/projects/lazpaint/"
 
 #: tfabout.label_authors.caption
 msgctxt "TFABOUT.LABEL_AUTHORS.CAPTION"
@@ -65,7 +65,7 @@ msgstr "Hylkää nykyinen käyrä ja aloita uusi"
 #: tfadjustcurves.toolbutton_posterize.hint
 msgctxt "tfadjustcurves.toolbutton_posterize.hint"
 msgid "Posterize"
-msgstr ""
+msgstr "Posterisointi"
 
 #: tfadjustcurves.toolbutton_removepoint.hint
 msgid "Remove selected point (Del)"
@@ -79,75 +79,75 @@ msgstr "Peru"
 #: tfblendop.button_ok.caption
 msgctxt "TFBLENDOP.BUTTON_OK.CAPTION"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfblendop.caption
 msgid "Blend operation"
-msgstr ""
+msgstr "Yhdistämisoperaatio"
 
 #: tfblendop.label_blendopcategory.caption
 msgctxt "TFBLENDOP.LABEL_BLENDOPCATEGORY.CAPTION"
 msgid "Category of blend operation"
-msgstr ""
+msgstr "Yhdistämisoperaation kategoria"
 
 #: tfblendop.label_blendopvalue.caption
 msgctxt "tfblendop.label_blendopvalue.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfblendop.label_kritaover.caption
 msgctxt "TFBLENDOP.LABEL_KRITAOVER.CAPTION"
 msgid "Krita"
-msgstr ""
+msgstr "Krita"
 
 #: tfblendop.label_kritaover.hint
 msgid "Blend operations that are available in Krita"
-msgstr ""
+msgstr "Yhdistämisoperaatiot, jotka ovat käytettävissä Kritassa"
 
 #: tfblendop.label_otherover.caption
 msgctxt "TFBLENDOP.LABEL_OTHEROVER.CAPTION"
 msgid "Other"
-msgstr ""
+msgstr "Muu"
 
 #: tfblendop.label_otherover.hint
 msgid "Blend operations of LazPaint and Paint.NET"
-msgstr ""
+msgstr "LazPaintin ja Paint.NETin yhdistämisoperaatiot"
 
 #: tfblendop.label_patternover.caption
 msgctxt "TFBLENDOP.LABEL_PATTERNOVER.CAPTION"
 msgid "Pattern over"
-msgstr ""
+msgstr "Kuvio päällä"
 
 #: tfblendop.label_patternover.hint
 msgid "Preview blend operation with the specified image on top"
-msgstr ""
+msgstr "Esikatsele yhdistämisoperaatio määritetyn kuvan ollessa päällä"
 
 #: tfblendop.label_patternunder.caption
 msgctxt "TFBLENDOP.LABEL_PATTERNUNDER.CAPTION"
 msgid "Pattern under"
-msgstr ""
+msgstr "Kuvio alla"
 
 #: tfblendop.label_patternunder.hint
 msgid "Preview blend operation with the specified image underneath"
-msgstr ""
+msgstr "Esikatsele yhdistämisoperaatio määritetyn kuvan ollessa alla"
 
 #: tfblendop.label_previewwith.caption
 msgctxt "TFBLENDOP.LABEL_PREVIEWWITH.CAPTION"
 msgid "Preview with"
-msgstr ""
+msgstr "Esikatselu"
 
 #: tfblendop.label_selectedblendop.caption
 msgid "Selected blend operation :"
-msgstr ""
+msgstr "Valittu yhdistämisoperaatio :"
 
 #: tfblendop.label_svgover.caption
 msgctxt "TFBLENDOP.LABEL_SVGOVER.CAPTION"
 msgid "Basic SVG"
-msgstr ""
+msgstr "Perus-SVG"
 
 #: tfblendop.label_svgover.hint
 msgid "Basic blend operations that are available in virtually all image editors"
-msgstr ""
+msgstr "Perusyhdistämisoperaatiot, jotka ovat käytettävissä melkein kaikissa kuvankäsittelyohjelmissa"
 
 #: tfbrowseimages.caption
 msgid "Browse images"
@@ -155,16 +155,16 @@ msgstr "Selaa kuvia"
 
 #: tfbrowseimages.checkbox_usedirectoryonstartup.caption
 msgid "Use this directory on startup"
-msgstr ""
+msgstr "Käytä tätä hakemistoa käynnistyksessä"
 
 #: tfbrowseimages.label_status.caption
 msgctxt "tfbrowseimages.label_status.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfbrowseimages.toolbutton_createfolderorcontainer.hint
 msgid "Create folder or container"
-msgstr ""
+msgstr "Luo kansio tai säilö"
 
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
@@ -196,7 +196,7 @@ msgstr "Peru"
 #: tfcanvassize.button_ok.caption
 msgctxt "TFCANVASSIZE.BUTTON_OK.CAPTION"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfcanvassize.caption
 msgctxt "TFCANVASSIZE.CAPTION"
@@ -205,12 +205,12 @@ msgstr "Kuva-alueen koko"
 
 #: tfcanvassize.checkbox_flipmode.caption
 msgid "Flip mode"
-msgstr ""
+msgstr "Kääntötila"
 
 #: tfcanvassize.label_anchor.caption
 msgctxt "TFCANVASSIZE.LABEL_ANCHOR.CAPTION"
 msgid "Anchor :"
-msgstr ""
+msgstr "Ankkuri :"
 
 #: tfcanvassize.label_height.caption
 msgctxt "TFCANVASSIZE.LABEL_HEIGHT.CAPTION"
@@ -235,27 +235,27 @@ msgstr "Voimakkuus"
 #: tfcolorintensity.label_multiply.caption
 msgctxt "TFCOLORINTENSITY.LABEL_MULTIPLY.CAPTION"
 msgid "Multiply"
-msgstr ""
+msgstr "Kerro"
 
 #: tfcolorintensity.label_shift.caption
 msgctxt "TFCOLORINTENSITY.LABEL_SHIFT.CAPTION"
 msgid "Shift"
-msgstr ""
+msgstr "Siirrä"
 
 #: tfcolorize.caption
 msgctxt "TFCOLORIZE.CAPTION"
 msgid "Colorize"
-msgstr ""
+msgstr "Väritä"
 
 #: tfcolorize.checkbox_gsba.caption
 msgctxt "TFCOLORIZE.CHECKBOX_GSBA.CAPTION"
 msgid "Corrected hue and lightness"
-msgstr ""
+msgstr "Korjattu sävy ja kirkkaus"
 
 #: tfcolorize.label_colorness.caption
 msgctxt "TFCOLORIZE.LABEL_COLORNESS.CAPTION"
 msgid "Colorness"
-msgstr ""
+msgstr "Värikkyys"
 
 #: tfcolorize.label_hue.caption
 msgctxt "TFCOLORIZE.LABEL_HUE.CAPTION"
@@ -290,11 +290,11 @@ msgstr "Kohokuviointi"
 
 #: tfemboss.checkbox_preservecolors.caption
 msgid "Preserve colors"
-msgstr ""
+msgstr "Säilytä värit"
 
 #: tfemboss.checkbox_transparent.caption
 msgid "Transparent"
-msgstr ""
+msgstr "Läpinäkyvä"
 
 #: tfemboss.label_direction.caption
 msgctxt "TFEMBOSS.LABEL_DIRECTION.CAPTION"
@@ -303,83 +303,83 @@ msgstr "Suunta :"
 
 #: tffilterfunction.caption
 msgid "Apply function"
-msgstr ""
+msgstr "Käytä funktiota"
 
 #: tffilterfunction.checkbox_gamma.caption
 msgid "Gamma correction"
-msgstr ""
+msgstr "Gamma-korjaus"
 
 #: tffilterfunction.checkbox_gsba.caption
 msgctxt "TFFILTERFUNCTION.CHECKBOX_GSBA.CAPTION"
 msgid "Corrected hue and lightness"
-msgstr ""
+msgstr "Korjattu sävy ja kirkkaus"
 
 #: tffilterfunction.label_aequals.caption
 msgctxt "tffilterfunction.label_aequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_alphaequals.caption
 msgctxt "tffilterfunction.label_alphaequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_bequals.caption
 msgctxt "tffilterfunction.label_bequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_blueequals.caption
 msgctxt "tffilterfunction.label_blueequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_greenequals.caption
 msgctxt "tffilterfunction.label_greenequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_hueequals.caption
 msgctxt "tffilterfunction.label_hueequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_lequals.caption
 msgctxt "tffilterfunction.label_lequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_lightnessequals.caption
 msgctxt "tffilterfunction.label_lightnessequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_redequals.caption
 msgctxt "tffilterfunction.label_redequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_saturationequals.caption
 msgctxt "tffilterfunction.label_saturationequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_variables.caption
 msgid "Variables :"
-msgstr ""
+msgstr "Muuttujat :"
 
 #: tffilterfunction.tabsheet_hsl.caption
 msgid "HSL"
-msgstr ""
+msgstr "HSL"
 
 #: tffilterfunction.tabsheet_lab.caption
 msgid "Lab"
-msgstr ""
+msgstr "Lab"
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
 msgid "RGB"
-msgstr ""
+msgstr "RGB"
 
 #: tfgeometricbrush.button_cancel.caption
 msgctxt "TFGEOMETRICBRUSH.BUTTON_CANCEL.CAPTION"
@@ -389,7 +389,7 @@ msgstr "Peru"
 #: tfgeometricbrush.button_ok.caption
 msgctxt "TFGEOMETRICBRUSH.BUTTON_OK.CAPTION"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfgeometricbrush.caption
 msgid "Geometric brush"
@@ -405,11 +405,11 @@ msgstr "Sivujen määrä:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Hyposyklodi"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Kärjet:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -417,11 +417,11 @@ msgstr "Kuvaluettelo"
 
 #: tfimagelist.pmautouncheckonopen.caption
 msgid "Autouncheck files after being open"
-msgstr ""
+msgstr "Poista valinnat tiedostoista avaamisen jälkeen"
 
 #: tfimagelist.pmautouncheckonsave.caption
 msgid "Autouncheck files after being edited and saved"
-msgstr ""
+msgstr "Poista valinnat tiedostoista muokkaamisen ja tallennuksen jälkeen"
 
 #: tfimagelist.pmremoveall.caption
 msgid "Empty image list"
@@ -429,35 +429,35 @@ msgstr "Tyhjä kuvaluettelo"
 
 #: tfimagelist.pmremovenonexistent.caption
 msgid "Remove nonexistent images"
-msgstr ""
+msgstr "Poista olemattomat kuvat"
 
 #: tfimagelist.pmremoveunchecked.caption
 msgid "Remove unchecked images"
-msgstr ""
+msgstr "Poista valitsemattomat kuvat"
 
 #: tfimagelist.pmunchecknonexistent.caption
 msgid "Uncheck nonexistent files"
-msgstr ""
+msgstr "Poista valinnat olemattomista tiedostoista"
 
 #: tfimagelist.stringgrid1.columns[0].title.caption
 msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[1].title.caption
 msgctxt "TFIMAGELIST.STRINGGRID1.COLUMNS[1].TITLE.CAPTION"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[2].title.caption
 msgctxt "TFIMAGELIST.STRINGGRID1.COLUMNS[2].TITLE.CAPTION"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[3].title.caption
 msgctxt "TFIMAGELIST.STRINGGRID1.COLUMNS[3].TITLE.CAPTION"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.tbaddfiles.hint
 msgid "Add images to list"
@@ -465,15 +465,15 @@ msgstr "Lisää kuvat luetteloon"
 
 #: tfimagelist.tbautouncheck.hint
 msgid "Enable/disable autounchecking for processed files"
-msgstr ""
+msgstr "Ota käyttöön/poista käytöstä automaattinen valintojen poistaminen käsitellyistä tiedostoista"
 
 #: tfimagelist.tbautozoomfit.hint
 msgid "Enable/disable autofitting images in the LazPaint window"
-msgstr ""
+msgstr "Ota käyttöön/poista käytöstä kuvien automaattinen sovitus LazPaint-ikkunaan"
 
 #: tfimagelist.tbcheckall.hint
 msgid "Check all files for processing"
-msgstr ""
+msgstr "Valitse kaikki tiedostot käsittelyä varten"
 
 #: tfimagelist.tbminiwindow.hint
 msgid "Switch to miniwindow"
@@ -521,7 +521,7 @@ msgstr "Poista valitut kuvat luettelosta"
 
 #: tfimagelist.tbuncheckall.hint
 msgid "Uncheck all files for processing"
-msgstr ""
+msgstr "Poista kaikkien tiedostojen valinnat käsittelyä varten"
 
 #: tflayerstack.caption
 #, fuzzy
@@ -532,7 +532,7 @@ msgstr "Kerrokset"
 #: tfloading.caption
 msgctxt "tfloading.caption"
 msgid "Loading..."
-msgstr ""
+msgstr "Ladataan..."
 
 #: tfmain.brushcreategeometric.hint
 msgctxt "TFMAIN.BRUSHCREATEGEOMETRIC.HINT"
@@ -542,25 +542,25 @@ msgstr "Muokkaa sudin geometriaa"
 #: tfmain.brushloadfromfile.hint
 msgctxt "TFMAIN.BRUSHLOADFROMFILE.HINT"
 msgid "Load brush from file..."
-msgstr ""
+msgstr "Lataa sivellin tiedostosta..."
 
 #: tfmain.brushremovecurrent.hint
 msgid "Remove current brush"
-msgstr ""
+msgstr "Poista nykyinen sivellin"
 
 #: tfmain.button_donate.caption
 msgctxt "tfmain.button_donate.caption"
 msgid "Donate..."
-msgstr ""
+msgstr "Lahjoita..."
 
 #: tfmain.caption
 msgctxt "TFMAIN.CAPTION"
 msgid "LazPaint"
-msgstr ""
+msgstr "LazPaint"
 
 #: tfmain.colorcolorize.caption
 msgid "Colorize..."
-msgstr ""
+msgstr "Väritä..."
 
 #: tfmain.colorcurves.caption
 msgid "Curves..."
@@ -568,7 +568,7 @@ msgstr "Käyrät"
 
 #: tfmain.colordialog1.title
 msgid "Choose color"
-msgstr ""
+msgstr "Valitse väri"
 
 #: tfmain.colorintensity.caption
 msgid "Intensity..."
@@ -580,24 +580,24 @@ msgstr "Kirkkaus / kontrasti"
 
 #: tfmain.colorposterize.caption
 msgid "Posterize..."
-msgstr ""
+msgstr "Posterisointi..."
 
 #: tfmain.colorshiftcolors.caption
 msgctxt "TFMAIN.COLORSHIFTCOLORS.CAPTION"
 msgid "Shift colors..."
-msgstr ""
+msgstr "Siirrä värejä..."
 
 #: tfmain.combobox_arrowend.hint
 msgid "Ending arrow"
-msgstr ""
+msgstr "Päättävä nuoli"
 
 #: tfmain.combobox_arrowstart.hint
 msgid "Starting arrow"
-msgstr ""
+msgstr "Aloittava nuoli"
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
-msgstr ""
+msgstr "Kynän tyyli"
 
 #: tfmain.editcopy.caption
 msgid "Copy"
@@ -613,7 +613,7 @@ msgstr "Leikkaa"
 
 #: tfmain.editcut.hint
 msgid "Cut selection"
-msgstr ""
+msgstr "Leikkaa valinta"
 
 #: tfmain.editdeleteselection.caption
 msgctxt "tfmain.editdeleteselection.caption"
@@ -622,7 +622,7 @@ msgstr "Poista"
 
 #: tfmain.editdeleteselection.hint
 msgid "Delete selection"
-msgstr ""
+msgstr "Poista valinta"
 
 #: tfmain.editdeselect.hint
 msgctxt "TFMAIN.EDITDESELECT.HINT"
@@ -636,19 +636,19 @@ msgstr "Käänteinen valinta"
 
 #: tfmain.editmovedown.hint
 msgid "Move down"
-msgstr ""
+msgstr "Siirrä alas"
 
 #: tfmain.editmovetoback.hint
 msgid "Send to back"
-msgstr ""
+msgstr "Lähetä taustalle"
 
 #: tfmain.editmovetofront.hint
 msgid "Bring to front"
-msgstr ""
+msgstr "Tuo etualalle"
 
 #: tfmain.editmoveup.hint
 msgid "Move up"
-msgstr ""
+msgstr "Siirrä ylös"
 
 #: tfmain.editpaste.hint
 msgctxt "TFMAIN.EDITPASTE.HINT"
@@ -685,35 +685,35 @@ msgstr "Muokkaa valintaa..."
 
 #: tfmain.editselectionfit.caption
 msgid "Selection fit"
-msgstr ""
+msgstr "Valinnan sovitus"
 
 #: tfmain.editshapealignbottom.hint
 msgid "Align shape to the bottom"
-msgstr ""
+msgstr "Tasaa muoto alareunaan"
 
 #: tfmain.editshapealignleft.hint
 msgid "Align shape left"
-msgstr ""
+msgstr "Tasaa muoto vasemmalle"
 
 #: tfmain.editshapealignright.hint
 msgid "Align shape right"
-msgstr ""
+msgstr "Tasaa muoto oikealle"
 
 #: tfmain.editshapealigntop.hint
 msgid "Align shape to the top"
-msgstr ""
+msgstr "Tasaa muoto yläreunaan"
 
 #: tfmain.editshapecenterhorizontally.hint
 msgid "Center shape horizontally"
-msgstr ""
+msgstr "Keskitä muoto vaakasuunnassa"
 
 #: tfmain.editshapecentervertically.hint
 msgid "Center shape vertically"
-msgstr ""
+msgstr "Keskitä muoto pystysuunnassa"
 
 #: tfmain.editshapetocurve.hint
 msgid "Convert shape to curve"
-msgstr ""
+msgstr "Muunna muoto käyräksi"
 
 #: tfmain.editundo.caption
 msgid "Undo"
@@ -734,7 +734,7 @@ msgstr "Peruuta muutokset"
 
 #: tfmain.embeddedvalidate.caption
 msgid "Validate"
-msgstr ""
+msgstr "Vahvista"
 
 #: tfmain.embeddedvalidate.hint
 msgid "Validate modifications"
@@ -742,28 +742,28 @@ msgstr "Hyväksy muutokset"
 
 #: tfmain.exportpicturedialog.title
 msgid "Export as..."
-msgstr ""
+msgstr "Vie muodossa..."
 
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
-msgstr ""
+msgstr "Valitse kohta..."
 
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
-msgstr ""
+msgstr "Valitse kohta tiedoston sisällä"
 
 #: tfmain.fileexport.caption
 msgctxt "tfmain.fileexport.caption"
 msgid "Export..."
-msgstr ""
+msgstr "Vie..."
 
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
-msgstr ""
+msgstr "Tuo 3D-objekti..."
 
 #: tfmain.fileloadselection.caption
 msgid "Load selection..."
-msgstr ""
+msgstr "Lataa valinta..."
 
 #: tfmain.filenew.caption
 msgid "New..."
@@ -788,11 +788,11 @@ msgstr "Tulosta..."
 
 #: tfmain.filequicksave.caption
 msgid "Quick save"
-msgstr ""
+msgstr "Pikatalletus"
 
 #: tfmain.filequicksave.hint
 msgid "Save current file without dialogs"
-msgstr ""
+msgstr "Tallenna nykyinen tiedosto ilman valintaikkunoita"
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -802,15 +802,15 @@ msgstr "Lopeta"
 #: tfmain.filereload.caption
 msgctxt "TFMAIN.FILERELOAD.CAPTION"
 msgid "Reload"
-msgstr ""
+msgstr "Lataa uudelleen"
 
 #: tfmain.fileremembersaveformat.hint
 msgid "Remember save format"
-msgstr ""
+msgstr "Muista tallennusmuoto"
 
 #: tfmain.filerunscript.caption
 msgid "Run script..."
-msgstr ""
+msgstr "Suorita skripti..."
 
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
@@ -831,26 +831,26 @@ msgstr "Tallenna nimellä"
 
 #: tfmain.filesaveasinsamefolder.caption
 msgid "Save in same folder..."
-msgstr ""
+msgstr "Tallenna samaan kansioon..."
 
 #: tfmain.filesaveselectionas.caption
 msgctxt "TFMAIN.FILESAVESELECTIONAS.CAPTION"
 msgid "Save selection as..."
-msgstr ""
+msgstr "Tallenna valinta nimellä..."
 
 #: tfmain.fileuseimagebrowser.caption
 msgctxt "tfmain.fileuseimagebrowser.caption"
 msgid "Use image browser"
-msgstr ""
+msgstr "Käytä kuvien selainta"
 
 #: tfmain.filterblurbox.caption
 msgid "Box blur..."
-msgstr ""
+msgstr "Laatikkoepätarkkuus..."
 
 #: tfmain.filterblurcorona.caption
 msgctxt "TFMAIN.FILTERBLURCORONA.CAPTION"
 msgid "Corona blur..."
-msgstr ""
+msgstr "Koronaepätarkkuus..."
 
 #: tfmain.filterblurcustom.caption
 msgctxt "TFMAIN.FILTERBLURCUSTOM.CAPTION"
@@ -860,12 +860,12 @@ msgstr "Maskin mukainen sumennus"
 #: tfmain.filterblurdisk.caption
 msgctxt "TFMAIN.FILTERBLURDISK.CAPTION"
 msgid "Disk blur..."
-msgstr ""
+msgstr "Levyepätarkkuus..."
 
 #: tfmain.filterblurfast.caption
 msgctxt "TFMAIN.FILTERBLURFAST.CAPTION"
 msgid "Fast blur..."
-msgstr ""
+msgstr "Nopea epätarkkuus..."
 
 #: tfmain.filterblurmotion.caption
 msgctxt "TFMAIN.FILTERBLURMOTION.CAPTION"
@@ -875,32 +875,32 @@ msgstr "Liike epäterävyys"
 #: tfmain.filterblurprecise.caption
 msgctxt "TFMAIN.FILTERBLURPRECISE.CAPTION"
 msgid "Precise blur..."
-msgstr ""
+msgstr "Tarkka epätarkkuus..."
 
 #: tfmain.filterblurradial.caption
 msgctxt "TFMAIN.FILTERBLURRADIAL.CAPTION"
 msgid "Gaussian blur..."
-msgstr ""
+msgstr "Gaussin epätarkkuus..."
 
 #: tfmain.filtercleartype.caption
 msgid "ClearType"
-msgstr ""
+msgstr "ClearType"
 
 #: tfmain.filtercleartypeinverse.caption
 msgid "Inverse ClearType"
-msgstr ""
+msgstr "Käänteinen ClearType"
 
 #: tfmain.filtercomplementarycolor.caption
 msgid "Complementary colors"
-msgstr ""
+msgstr "Täydentävät värit"
 
 #: tfmain.filtercontour.caption
 msgid "Contour"
-msgstr ""
+msgstr "Ääriviiva"
 
 #: tfmain.filtercylinder.caption
 msgid "Cylinder"
-msgstr ""
+msgstr "Sylinteri"
 
 #: tfmain.filteremboss.caption
 msgid "Emboss..."
@@ -908,7 +908,7 @@ msgstr "Kohokuviointi..."
 
 #: tfmain.filterfunction.caption
 msgid "Apply function..."
-msgstr ""
+msgstr "Käytä funktiota..."
 
 #: tfmain.filtergrayscale.caption
 msgid "Grayscale"
@@ -934,7 +934,7 @@ msgstr "Kohinasuodatin..."
 
 #: tfmain.filternormalize.caption
 msgid "Normalize"
-msgstr ""
+msgstr "Normalisoi"
 
 #: tfmain.filterphong.caption
 msgctxt "tfmain.filterphong.caption"
@@ -947,7 +947,7 @@ msgstr "Pikselöinti..."
 
 #: tfmain.filterplane.caption
 msgid "Plane (slow)"
-msgstr ""
+msgstr "Taso (hidas)"
 
 #: tfmain.filterrain.caption
 msgid "Rain..."
@@ -973,15 +973,15 @@ msgstr "Pyörre"
 
 #: tfmain.filterwavedisplacement.caption
 msgid "Wave displacement..."
-msgstr ""
+msgstr "Aallon siirtymä..."
 
 #: tfmain.forgetdialoganswers.caption
 msgid "Forget dialog box answers"
-msgstr ""
+msgstr "Unohda valintaikkunoiden vastaukset"
 
 #: tfmain.forgetdialoganswers.hint
 msgid "Forget answers given to dialog boxes"
-msgstr ""
+msgstr "Unohda valintaikkunoissa annetut vastaukset"
 
 #: tfmain.helpabout.caption
 msgid "About..."
@@ -989,15 +989,15 @@ msgstr "Tietoja..."
 
 #: tfmain.helpindex.caption
 msgid "Index..."
-msgstr ""
+msgstr "Indeksi..."
 
 #: tfmain.imagechangecanvassize.caption
 msgid "Canvas size..."
-msgstr ""
+msgstr "Kankaan koko..."
 
 #: tfmain.imageclearalpha.caption
 msgid "Clear alpha channel and set background"
-msgstr ""
+msgstr "Tyhjennä alfakanava ja aseta tausta"
 
 #: tfmain.imagecrop.caption
 msgid "Crop to selection"
@@ -1005,11 +1005,11 @@ msgstr "Leikkaa valinta"
 
 #: tfmain.imagecroplayer.caption
 msgid "Crop to selection and current layer"
-msgstr ""
+msgstr "Rajaa valintaan ja nykyiseen kerrokseen"
 
 #: tfmain.imagefillbackground.caption
 msgid "Fill background with antialiasing"
-msgstr ""
+msgstr "Täytä tausta reunojenpehmennyksellä"
 
 #: tfmain.imageflatten.caption
 msgctxt "tfmain.imageflatten.caption"
@@ -1024,7 +1024,7 @@ msgstr "Peilaa vaakasuunnassa"
 #: tfmain.imagehorizontalflip.hint
 msgctxt "tfmain.imagehorizontalflip.hint"
 msgid "Flip image horizontally"
-msgstr ""
+msgstr "Käännä kuva vaakasuunnassa"
 
 #: tfmain.imagelinearnegative.caption
 msgctxt "tfmain.imagelinearnegative.caption"
@@ -1038,15 +1038,15 @@ msgstr "Negatiivi"
 
 #: tfmain.imagerepeat.caption
 msgid "Repeat..."
-msgstr ""
+msgstr "Toista..."
 
 #: tfmain.imageresample.caption
 msgid "Resample..."
-msgstr ""
+msgstr "Näytteenotto uudelleen..."
 
 #: tfmain.imageresample.hint
 msgid "Resample image"
-msgstr ""
+msgstr "Näytteenotto kuvasta uudelleen"
 
 #: tfmain.imagerotate180.caption
 msgid "Rotate 180°"
@@ -1062,11 +1062,11 @@ msgstr "Kierrä 90° myötäpäivään"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
-msgstr ""
+msgstr "Älykäs zoomaus x3"
 
 #: tfmain.imageswapredblue.caption
 msgid "Swap red and blue channels"
-msgstr ""
+msgstr "Vaihda punainen ja sininen kanava"
 
 #: tfmain.imageverticalflip.caption
 msgctxt "tfmain.imageverticalflip.caption"
@@ -1075,7 +1075,7 @@ msgstr "Peilaa pystysuunnassa"
 
 #: tfmain.imageverticalflip.hint
 msgid "Flip image vertically"
-msgstr ""
+msgstr "Käännä kuva pystysuunnassa"
 
 #: tfmain.image_currenttool.hint
 msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
@@ -1089,12 +1089,12 @@ msgstr "Vaihda värit"
 
 #: tfmain.itemdocklayersandcolors.caption
 msgid "Dock layers and colors"
-msgstr ""
+msgstr "Kiinnitä kerrokset ja värit"
 
 #: tfmain.itemdonate.caption
 msgctxt "TFMAIN.ITEMDONATE.CAPTION"
 msgid "Donate..."
-msgstr ""
+msgstr "Lahjoita..."
 
 #: tfmain.itemfullscreen.caption
 msgid "Fullscreen"
@@ -1103,11 +1103,11 @@ msgstr "Kokoruututila"
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
-msgstr ""
+msgstr "Käytä kuvien selainta"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
-msgstr ""
+msgstr "Kiinnitä työkalupakki"
 
 #: tfmain.label_altitude.caption
 msgid "Altitude"
@@ -1125,7 +1125,7 @@ msgstr "Suti"
 
 #: tfmain.label_coordinates.caption
 msgid "9999x9999"
-msgstr ""
+msgstr "9999x9999"
 
 #: tfmain.label_coordinates.hint
 msgid "Coordinates"
@@ -1134,16 +1134,16 @@ msgstr "Koordinaatit"
 #: tfmain.label_currentdiff.caption
 msgctxt "TFMAIN.LABEL_CURRENTDIFF.CAPTION"
 msgid "100%"
-msgstr ""
+msgstr "100%"
 
 #: tfmain.label_currentdiff.hint
 msgid "Color difference"
-msgstr ""
+msgstr "Värieron"
 
 #: tfmain.label_currentzoom.caption
 msgctxt "TFMAIN.LABEL_CURRENTZOOM.CAPTION"
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: tfmain.label_currentzoom.hint
 msgid "Current zoom"
@@ -1158,7 +1158,7 @@ msgstr "Muodokas"
 #: tfmain.label_eraser.caption
 msgctxt "TFMAIN.LABEL_ERASER.CAPTION"
 msgid "Erase"
-msgstr ""
+msgstr "Pyyhi"
 
 #: tfmain.label_grid.caption
 #, fuzzy
@@ -1169,7 +1169,7 @@ msgstr "Ruudukko"
 #: tfmain.label_gridx.caption
 msgctxt "TFMAIN.LABEL_GRIDX.CAPTION"
 msgid "x"
-msgstr ""
+msgstr "x"
 
 #: tfmain.label_outlinewidth.caption
 msgctxt "TFMAIN.LABEL_OUTLINEWIDTH.CAPTION"
@@ -1193,12 +1193,12 @@ msgstr "Reunus"
 
 #: tfmain.label_ratio.caption
 msgid "Ratio"
-msgstr ""
+msgstr "Suhde"
 
 #: tfmain.label_shadowoffset.caption
 msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
 msgid "Offset"
-msgstr ""
+msgstr "Siirto"
 
 #: tfmain.label_shape.caption
 msgctxt "TFMAIN.LABEL_SHAPE.CAPTION"
@@ -1217,12 +1217,12 @@ msgstr "Teksti"
 #: tfmain.label_textblur.caption
 msgctxt "TFMAIN.LABEL_TEXTBLUR.CAPTION"
 msgid "Blur"
-msgstr ""
+msgstr "Sumennus"
 
 #: tfmain.label_tolerance.caption
 msgctxt "TFMAIN.LABEL_TOLERANCE.CAPTION"
 msgid "Tolerance"
-msgstr ""
+msgstr "Sietokyky"
 
 #: tfmain.layeraddnew.hint
 msgctxt "tfmain.layeraddnew.hint"
@@ -1237,7 +1237,7 @@ msgstr "Kahdenna valittu kerros"
 #: tfmain.layerexport.hint
 msgctxt "tfmain.layerexport.hint"
 msgid "Export..."
-msgstr ""
+msgstr "Vie..."
 
 #: tfmain.layerfromfile.hint
 msgctxt "TFMAIN.LAYERFROMFILE.HINT"
@@ -1260,7 +1260,7 @@ msgstr "Siirrä kerrosta"
 
 #: tfmain.layerrasterize.hint
 msgid "Rasterize layer"
-msgstr ""
+msgstr "Rasteroi kerros"
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "TFMAIN.LAYERREMOVECURRENT.HINT"
@@ -1279,11 +1279,11 @@ msgstr "Peilaa kerrosta pystysuunnassa"
 
 #: tfmain.layerzoom.hint
 msgid "Zoom layer"
-msgstr ""
+msgstr "Zoomaa kerros"
 
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
-msgstr ""
+msgstr "Lataa valinta"
 
 #: tfmain.menucolors.caption
 msgctxt "TFMAIN.MENUCOLORS.CAPTION"
@@ -1317,7 +1317,7 @@ msgstr "Tiedosto"
 
 #: tfmain.menufiletoolbar.caption
 msgid "Show file toolbar"
-msgstr ""
+msgstr "Näytä tiedostotyökalupalkki"
 
 #: tfmain.menufilter.caption
 msgctxt "TFMAIN.MENUFILTER.CAPTION"
@@ -1352,7 +1352,7 @@ msgstr "Viimeisimmät tiedostot"
 #: tfmain.menuremovetransparency.caption
 msgctxt "TFMAIN.MENUREMOVETRANSPARENCY.CAPTION"
 msgid "Remove transparency"
-msgstr ""
+msgstr "Poista läpinäkyvyys"
 
 #: tfmain.menurender.caption
 msgctxt "TFMAIN.MENURENDER.CAPTION"
@@ -1362,7 +1362,7 @@ msgstr "Muodosta"
 #: tfmain.menuscript.caption
 msgctxt "tfmain.menuscript.caption"
 msgid "Script"
-msgstr ""
+msgstr "Skripti"
 
 #: tfmain.menuselect.caption
 msgctxt "TFMAIN.MENUSELECT.CAPTION"
@@ -1400,20 +1400,20 @@ msgstr "Näytä suurennus/pienennys kuvakkeet kuvakerivillä"
 #: tfmain.open3dobjectdialog.title
 msgctxt "TFMAIN.OPEN3DOBJECTDIALOG.TITLE"
 msgid "Import 3D object"
-msgstr ""
+msgstr "Tuo 3D-objekti"
 
 #: tfmain.openbrushdialog.title
 msgid "Open brush"
-msgstr ""
+msgstr "Avaa sivellin"
 
 #: tfmain.openpicturedialog1.title
 msgid "Open existing image"
-msgstr ""
+msgstr "Avaa olemassa oleva kuva"
 
 #: tfmain.opentexturedialog.title
 msgctxt "tfmain.opentexturedialog.title"
 msgid "Open texture"
-msgstr ""
+msgstr "Avaa tekstuuri"
 
 #: tfmain.perspective_repeat.hint
 msgctxt "TFMAIN.PERSPECTIVE_REPEAT.HINT"
@@ -1444,7 +1444,7 @@ msgstr "Jaksottainen Perlin kohina"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Hyposyklodi..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -1494,40 +1494,40 @@ msgstr "Tallenna nimellä..."
 #: tfmain.saveselectiondialog.title
 msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
 msgid "Save selection as..."
-msgstr ""
+msgstr "Tallenna valinta nimellä..."
 
 #: tfmain.selectionhorizontalflip.hint
 msgid "Flip selection horizontally"
-msgstr ""
+msgstr "Käännä valinta vaakasuunnassa"
 
 #: tfmain.selectionverticalflip.hint
 msgid "Flip selection vertically"
-msgstr ""
+msgstr "Käännä valinta pystysuunnassa"
 
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
-msgstr ""
+msgstr "Nuolen vaakasuuntainen koko"
 
 #: tfmain.spinedit_arrowsizey.hint
 msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
-msgstr ""
+msgstr "Nuolen pystysuuntainen koko"
 
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
 msgid "Spacing between patterns"
-msgstr ""
+msgstr "Kuvioiden välinen väli"
 
 #: tfmain.spinedit_eraser.hint
 msgctxt "tfmain.spinedit_eraser.hint"
 msgid "Eraser opacity"
-msgstr ""
+msgstr "Pyyhkimen peittävyys"
 
 #: tfmain.spinedit_penwidth.hint
 msgctxt "tfmain.spinedit_penwidth.hint"
 msgid "Pen width"
-msgstr ""
+msgstr "Kynän leveys"
 
 #: tfmain.spinedit_phongbordersize.hint
 msgctxt "tfmain.spinedit_phongbordersize.hint"
@@ -1542,7 +1542,7 @@ msgstr "Muodon korkeus"
 #: tfmain.spinedit_textblur.hint
 msgctxt "tfmain.spinedit_textblur.hint"
 msgid "Shadow blur"
-msgstr ""
+msgstr "Varjon sumennus"
 
 #: tfmain.spinedit_textoutlinewidth.hint
 msgctxt "tfmain.spinedit_textoutlinewidth.hint"
@@ -1552,12 +1552,12 @@ msgstr "Kirjaimen reunan vahvuus"
 #: tfmain.spinedit_textshadowx.hint
 msgctxt "tfmain.spinedit_textshadowx.hint"
 msgid "Horizontal shadow offset"
-msgstr ""
+msgstr "Varjon vaakasuuntainen siirto"
 
 #: tfmain.spinedit_textshadowy.hint
 msgctxt "tfmain.spinedit_textshadowy.hint"
 msgid "Vertical shadow offset"
-msgstr ""
+msgstr "Varjon pystysuuntainen siirto"
 
 #: tfmain.spinedit_textsize.hint
 msgctxt "tfmain.spinedit_textsize.hint"
@@ -1572,11 +1572,11 @@ msgstr "Suti"
 #: tfmain.toolchangedocking.hint
 msgctxt "TFMAIN.TOOLCHANGEDOCKING.HINT"
 msgid "Change docking"
-msgstr ""
+msgstr "Vaihda telakointia"
 
 #: tfmain.toolclone.hint
 msgid "Clone tool"
-msgstr ""
+msgstr "Kloonaustyökalu"
 
 #: tfmain.toolcolorpicker.hint
 msgctxt "TFMAIN.TOOLCOLORPICKER.HINT"
@@ -1593,7 +1593,7 @@ msgstr "Muodonmuutosruudukko"
 
 #: tfmain.tooleditshape.hint
 msgid "Edit shape"
-msgstr ""
+msgstr "Muokkaa muotoa"
 
 #: tfmain.toolellipse.hint
 msgctxt "TFMAIN.TOOLELLIPSE.HINT"
@@ -1628,11 +1628,11 @@ msgstr "Kuvan siirto ja vieritys"
 #: tfmain.toolhotspot.caption
 msgctxt "tfmain.toolhotspot.caption"
 msgid "Hot spot"
-msgstr ""
+msgstr "Kuumapiste"
 
 #: tfmain.toolhotspot.hint
 msgid "Choose hot spot of a cursor"
-msgstr ""
+msgstr "Valitse kohdistimen kuumapiste"
 
 #: tfmain.toollayermapping.hint
 msgctxt "TFMAIN.TOOLLAYERMAPPING.HINT"
@@ -1641,20 +1641,20 @@ msgstr "Kerroksen perspektiivin muuttaminen"
 
 #: tfmain.toolmagicwand.caption
 msgid "Magic wand"
-msgstr ""
+msgstr "Taikasauva"
 
 #: tfmain.toolmagicwand.hint
 msgid "Magic wand select"
-msgstr ""
+msgstr "Taikasauvan valinta"
 
 #: tfmain.toolmoveselection.hint
 msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
 msgid "Move selection"
-msgstr ""
+msgstr "Siirrä valintaa"
 
 #: tfmain.toolopenedcurve.hint
 msgid "Opened curve"
-msgstr ""
+msgstr "Avoin käyrä"
 
 #: tfmain.toolpen.caption
 msgctxt "TFMAIN.TOOLPEN.CAPTION"
@@ -1676,11 +1676,11 @@ msgstr "Monikulmio"
 
 #: tfmain.toolpolygon.hint
 msgid "Polygon or polyline"
-msgstr ""
+msgstr "Monikulmio tai murtoviiva"
 
 #: tfmain.toolpolyline.hint
 msgid "Polyline"
-msgstr ""
+msgstr "Murtoviiva"
 
 #: tfmain.toolrect.hint
 msgctxt "TFMAIN.TOOLRECT.HINT"
@@ -1690,7 +1690,7 @@ msgstr "Suorakulmio"
 #: tfmain.toolrotateselection.hint
 msgctxt "TFMAIN.TOOLROTATESELECTION.HINT"
 msgid "Rotate selection"
-msgstr ""
+msgstr "Kierrä valintaa"
 
 #: tfmain.toolselectellipse.hint
 msgctxt "TFMAIN.TOOLSELECTELLIPSE.HINT"
@@ -1705,7 +1705,7 @@ msgstr "Kynällävalinta"
 #: tfmain.toolselectpen.hint
 msgctxt "TFMAIN.TOOLSELECTPEN.HINT"
 msgid "Draw selection with pen"
-msgstr ""
+msgstr "Piirrä valinta kynällä"
 
 #: tfmain.toolselectpoly.hint
 msgctxt "TFMAIN.TOOLSELECTPOLY.HINT"
@@ -1720,7 +1720,7 @@ msgstr "Suorakulmiovalinta"
 #: tfmain.toolselectspline.hint
 msgctxt "TFMAIN.TOOLSELECTSPLINE.HINT"
 msgid "Select curve"
-msgstr ""
+msgstr "Valitse käyrä"
 
 #: tfmain.toolspline.caption
 msgctxt "TFMAIN.TOOLSPLINE.CAPTION"
@@ -1741,26 +1741,26 @@ msgstr "Teksti"
 #: tfmain.tooltexturemapping.hint
 msgctxt "tfmain.tooltexturemapping.hint"
 msgid "Texture mapping"
-msgstr ""
+msgstr "Tekstuurikartoitus"
 
 #: tfmain.tool_aliasing.hint
 msgid "Disable antialiasing"
-msgstr ""
+msgstr "Poista reunojenpehmennys käytöstä"
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
 msgid "Flat cap"
-msgstr ""
+msgstr "Tylppä pää"
 
 #: tfmain.tool_capround.hint
 msgctxt "TFMAIN.TOOL_CAPROUND.HINT"
 msgid "Round cap"
-msgstr ""
+msgstr "Pyöreä pää"
 
 #: tfmain.tool_capsquare.hint
 msgctxt "TFMAIN.TOOL_CAPSQUARE.HINT"
 msgid "Square cap"
-msgstr ""
+msgstr "Nelikulmainen pää"
 
 #: tfmain.tool_closeshape.hint
 msgctxt "TFMAIN.TOOL_CLOSESHAPE.HINT"
@@ -1774,7 +1774,7 @@ msgstr "Piirrä kulmana"
 #: tfmain.tool_curvemodeauto.hint
 msgctxt "TFMAIN.TOOL_CURVEMODEAUTO.HINT"
 msgid "Autodetect angles"
-msgstr ""
+msgstr "Tunnista kulmat automaattisesti"
 
 #: tfmain.tool_curvemodecurve.hint
 msgid "Draw a curve"
@@ -1792,24 +1792,24 @@ msgstr "Piirrä kehys"
 #: tfmain.tool_erasealpha.hint
 msgctxt "TFMAIN.TOOL_ERASEALPHA.HINT"
 msgid "Make transparent"
-msgstr ""
+msgstr "Tee läpinäkyväksi"
 
 #: tfmain.tool_eraseblur.hint
 msgctxt "TFMAIN.TOOL_ERASEBLUR.HINT"
 msgid "Soften"
-msgstr ""
+msgstr "Pehmennä"
 
 #: tfmain.tool_erasedarken.hint
 msgid "Darken"
-msgstr ""
+msgstr "Tummenna"
 
 #: tfmain.tool_eraselighten.hint
 msgid "Lighten"
-msgstr ""
+msgstr "Vaalenna"
 
 #: tfmain.tool_erasesharpen.hint
 msgid "Sharpen"
-msgstr ""
+msgstr "Teroita"
 
 #: tfmain.tool_fillshape.hint
 msgctxt "TFMAIN.TOOL_FILLSHAPE.HINT"
@@ -1874,44 +1874,44 @@ msgstr "Pystyssä oleva sylinteri"
 #: tfmain.tool_progressivefloodfill.caption
 msgctxt "TFMAIN.TOOL_PROGRESSIVEFLOODFILL.CAPTION"
 msgid "Progressive floodfill"
-msgstr ""
+msgstr "Progressiivinen täyttö"
 
 #: tfmain.tool_progressivefloodfill.hint
 msgctxt "TFMAIN.TOOL_PROGRESSIVEFLOODFILL.HINT"
 msgid "Progressive floodfill"
-msgstr ""
+msgstr "Progressiivinen täyttö"
 
 #: tfmain.tool_textalignbottom.hint
 msgid "Align bottom"
-msgstr ""
+msgstr "Tasaa alareunaan"
 
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
-msgstr ""
+msgstr "Keskitä"
 
 #: tfmain.tool_textalignleft.hint
 msgid "Align left"
-msgstr ""
+msgstr "Tasaa vasemmalle"
 
 #: tfmain.tool_textalignmiddle.hint
 msgid "Center vertically"
-msgstr ""
+msgstr "Keskitä pystysuunnassa"
 
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
-msgstr ""
+msgstr "Tasaa oikealle"
 
 #: tfmain.tool_textaligntop.hint
 msgid "Align top"
-msgstr ""
+msgstr "Tasaa yläreunaan"
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"
-msgstr ""
+msgstr "Kaksisuuntainen"
 
 #: tfmain.tool_textbold.hint
 msgid "Bold"
-msgstr ""
+msgstr "Lihavointi"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -1920,11 +1920,11 @@ msgstr "Valitse kirjaisin..."
 
 #: tfmain.tool_textitalic.hint
 msgid "Italic"
-msgstr ""
+msgstr "Kursiivi"
 
 #: tfmain.tool_textltr.hint
 msgid "Left to right"
-msgstr ""
+msgstr "Vasemmalta oikealle"
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1934,24 +1934,24 @@ msgstr "Kirjaimen reunus"
 #: tfmain.tool_textphong.hint
 msgctxt "TFMAIN.TOOL_TEXTPHONG.HINT"
 msgid "Text phong shading"
-msgstr ""
+msgstr "Tekstin Phong-varjostus"
 
 #: tfmain.tool_textrtl.hint
 msgid "Right to left"
-msgstr ""
+msgstr "Oikealta vasemmalle"
 
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
 msgid "Text shadow"
-msgstr ""
+msgstr "Tekstin varjo"
 
 #: tfmain.tool_textstrikeout.hint
 msgid "Strikeout"
-msgstr ""
+msgstr "Yliviivaus"
 
 #: tfmain.tool_textunderline.hint
 msgid "Underline"
-msgstr ""
+msgstr "Alleviivaus"
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -1960,7 +1960,7 @@ msgstr "Värit"
 
 #: tfmain.viewdarktheme.caption
 msgid "Dark theme"
-msgstr ""
+msgstr "Tumma teema"
 
 #: tfmain.viewgrid.caption
 msgctxt "TFMAIN.VIEWGRID.CAPTION"
@@ -1979,7 +1979,7 @@ msgstr "Kerrokset"
 #: tfmain.viewlayerstackbutton.caption
 msgctxt "TFMAIN.VIEWLAYERSTACKBUTTON.CAPTION"
 msgid "Show layers"
-msgstr ""
+msgstr "Näytä kerrokset"
 
 #: tfmain.viewlayerstackbutton.hint
 msgctxt "TFMAIN.VIEWLAYERSTACKBUTTON.HINT"
@@ -1993,7 +1993,7 @@ msgstr "Paletti"
 
 #: tfmain.viewstatusbar.caption
 msgid "Status bar"
-msgstr ""
+msgstr "Tilarivi"
 
 #: tfmain.viewtoolbox.caption
 msgid "Toolbox"
@@ -2001,7 +2001,7 @@ msgstr "Työkalut"
 
 #: tfmain.viewworkspacecolor.caption
 msgid "Set workspace color..."
-msgstr ""
+msgstr "Aseta työtilan väri..."
 
 #: tfmain.viewzoomfit.caption
 #, fuzzy
@@ -2045,7 +2045,7 @@ msgstr "Suunnattu"
 #: tfmotionblur.label_distance.caption
 msgctxt "TFMOTIONBLUR.LABEL_DISTANCE.CAPTION"
 msgid "Distance :"
-msgstr ""
+msgstr "Etäisyys :"
 
 #: tfmultiimage.button_cancel.caption
 msgctxt "TFMULTIIMAGE.BUTTON_CANCEL.CAPTION"
@@ -2055,11 +2055,11 @@ msgstr "Peru"
 #: tfmultiimage.button_ok.caption
 msgctxt "TFMULTIIMAGE.BUTTON_OK.CAPTION"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfmultiimage.caption
 msgid "Choose image"
-msgstr ""
+msgstr "Valitse kuva"
 
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
@@ -2069,7 +2069,7 @@ msgstr "Peru"
 #: tfnewimage.button_ok.caption
 msgctxt "TFNEWIMAGE.BUTTON_OK.CAPTION"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfnewimage.caption
 msgctxt "TFNEWIMAGE.CAPTION"
@@ -2078,11 +2078,11 @@ msgstr "Uusi kuva"
 
 #: tfnewimage.combobox_bitdepth.text
 msgid "32"
-msgstr ""
+msgstr "32"
 
 #: tfnewimage.label_bitdepth.caption
 msgid "Bit depth :"
-msgstr ""
+msgstr "Bittisyvyys :"
 
 #: tfnewimage.label_height.caption
 msgctxt "TFNEWIMAGE.LABEL_HEIGHT.CAPTION"
@@ -2091,11 +2091,11 @@ msgstr "Korkeus :"
 
 #: tfnewimage.label_height1.caption
 msgid "Ratio :"
-msgstr ""
+msgstr "Suhde :"
 
 #: tfnewimage.label_memoryrequired.caption
 msgid "Memory required :"
-msgstr ""
+msgstr "Tarvittava muisti :"
 
 #: tfnewimage.label_width.caption
 msgctxt "TFNEWIMAGE.LABEL_WIDTH.CAPTION"
@@ -2125,41 +2125,41 @@ msgstr "Peru"
 
 #: tfobject3d.button_loadtex.caption
 msgid "Texture..."
-msgstr ""
+msgstr "Tekstuuri..."
 
 #: tfobject3d.button_notex.caption
 msgid "No tex."
-msgstr ""
+msgstr "Ei tekst."
 
 #: tfobject3d.button_ok.caption
 msgctxt "TFOBJECT3D.BUTTON_OK.CAPTION"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfobject3d.caption
 msgid "3D object"
-msgstr ""
+msgstr "3D-objekti"
 
 #: tfobject3d.checkbox_antialiasing.caption
 msgid "Antialiasing"
-msgstr ""
+msgstr "Reunojenpehmennys"
 
 #: tfobject3d.checkbox_biface.caption
 msgid "2-sided faces"
-msgstr ""
+msgstr "Kaksipuoliset pinnat"
 
 #: tfobject3d.checkbox_textureinterp.caption
 msgid "Texture interpolation"
-msgstr ""
+msgstr "Tekstuurin interpolointi"
 
 #: tfobject3d.groupbox_selectedlight.caption
 msgid "Selected light"
-msgstr ""
+msgstr "Valittu valo"
 
 #: tfobject3d.groupbox_selectedmaterial.caption
 msgctxt "TFOBJECT3D.GROUPBOX_SELECTEDMATERIAL.CAPTION"
 msgid "Selected material"
-msgstr ""
+msgstr "Valittu materiaali"
 
 #: tfobject3d.label_color.caption
 msgctxt "TFOBJECT3D.LABEL_COLOR.CAPTION"
@@ -2179,26 +2179,26 @@ msgstr "Korkeus :"
 #: tfobject3d.label_lightingnormals.caption
 msgctxt "TFOBJECT3D.LABEL_LIGHTINGNORMALS.CAPTION"
 msgid "Lighting normals :"
-msgstr ""
+msgstr "Valaisun normaalit :"
 
 #: tfobject3d.label_lights.caption
 msgid "Lights :"
-msgstr ""
+msgstr "Valot :"
 
 #: tfobject3d.label_materials.caption
 msgctxt "TFOBJECT3D.LABEL_MATERIALS.CAPTION"
 msgid "Materials :"
-msgstr ""
+msgstr "Materiaalit :"
 
 #: tfobject3d.label_opacity.caption
 msgctxt "TFOBJECT3D.LABEL_OPACITY.CAPTION"
 msgid "Opacity :"
-msgstr ""
+msgstr "Peittävyys :"
 
 #: tfobject3d.label_specularindex.caption
 msgctxt "TFOBJECT3D.LABEL_SPECULARINDEX.CAPTION"
 msgid "Spec. index :"
-msgstr ""
+msgstr "Kiiltokerroin :"
 
 #: tfobject3d.label_width.caption
 msgctxt "TFOBJECT3D.LABEL_WIDTH.CAPTION"
@@ -2208,36 +2208,36 @@ msgstr "Leveys :"
 #: tfobject3d.label_zoom.caption
 msgctxt "TFOBJECT3D.LABEL_ZOOM.CAPTION"
 msgid "Zoom"
-msgstr ""
+msgstr "Zoomaa"
 
 #: tfobject3d.lights.caption
 msgid "Lights"
-msgstr ""
+msgstr "Valot"
 
 #: tfobject3d.materials.caption
 msgid "Materials"
-msgstr ""
+msgstr "Materiaalit"
 
 #: tfobject3d.opentexturedialog.title
 msgctxt "TFOBJECT3D.OPENTEXTUREDIALOG.TITLE"
 msgid "Open texture"
-msgstr ""
+msgstr "Avaa tekstuuri"
 
 #: tfobject3d.rendering.caption
 msgid "Rendering"
-msgstr ""
+msgstr "Renderöinti"
 
 #: tfobject3d.tooladddirectional.hint
 msgid "Add a directional light"
-msgstr ""
+msgstr "Lisää suunnattu valo"
 
 #: tfobject3d.toolpointlight.hint
 msgid "Add a point light"
-msgstr ""
+msgstr "Lisää pistemäinen valo"
 
 #: tfobject3d.toolremoveselectedlight.hint
 msgid "Remove selected light"
-msgstr ""
+msgstr "Poista valittu valo"
 
 #: tfphongfilter.caption
 msgctxt "TFPHONGFILTER.CAPTION"
@@ -2251,11 +2251,11 @@ msgstr "Väri"
 
 #: tfphongfilter.groupbox_color1.caption
 msgid "Altitude map"
-msgstr ""
+msgstr "Korkeuskartta"
 
 #: tfphongfilter.label_altitude.caption
 msgid "Global altitude :"
-msgstr ""
+msgstr "Globaali korkeus :"
 
 #: tfphongfilter.label_lightposition.caption
 msgid "Light position :"
@@ -2263,15 +2263,15 @@ msgstr "Valon paikka :"
 
 #: tfphongfilter.radio_mapalpha.caption
 msgid "Alpha"
-msgstr ""
+msgstr "Alfa"
 
 #: tfphongfilter.radio_mapblue.caption
 msgid "B"
-msgstr ""
+msgstr "B"
 
 #: tfphongfilter.radio_mapgreen.caption
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #: tfphongfilter.radio_maplightness.caption
 #, fuzzy
@@ -2281,11 +2281,11 @@ msgstr "Valoisuus"
 
 #: tfphongfilter.radio_maplinearlightness.caption
 msgid "Linear lightness"
-msgstr ""
+msgstr "Lineaarinen kirkkaus"
 
 #: tfphongfilter.radio_mapred.caption
 msgid "R"
-msgstr ""
+msgstr "R"
 
 #: tfphongfilter.radio_mapsaturation.caption
 msgctxt "TFPHONGFILTER.RADIO_MAPSATURATION.CAPTION"
@@ -2309,7 +2309,7 @@ msgstr "Kynän väri"
 #: tfphongfilter.radio_usetexture.caption
 msgctxt "TFPHONGFILTER.RADIO_USETEXTURE.CAPTION"
 msgid "Current texture"
-msgstr ""
+msgstr "Nykyinen tekstuuri"
 
 #: tfpixelate.caption
 msgctxt "TFPIXELATE.CAPTION"
@@ -2324,30 +2324,30 @@ msgstr "Pkselin koko :"
 #: tfpixelate.label_quality.caption
 msgctxt "TFPIXELATE.LABEL_QUALITY.CAPTION"
 msgid "Quality :"
-msgstr ""
+msgstr "Laatu :"
 
 #: tfposterize.caption
 msgctxt "TFPOSTERIZE.CAPTION"
 msgid "Posterize"
-msgstr ""
+msgstr "Posterisointi"
 
 #: tfposterize.checkbox_bylightness.caption
 msgid "By lightness"
-msgstr ""
+msgstr "Kirkkauden mukaan"
 
 #: tfposterize.label_levels.caption
 msgid "Levels :"
-msgstr ""
+msgstr "Tasot :"
 
 #: tfpreviewdialog.caption
 msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
-msgstr ""
+msgstr "Esikatselu"
 
 #: tfpreviewdialog.lstatus.caption
 msgctxt "tfpreviewdialog.lstatus.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfprint.button_configureprinter.caption
 msgid "Configure..."
@@ -2369,12 +2369,12 @@ msgstr "Tulosta"
 #: tfprint.checkbox_ratio.caption
 msgctxt "TFPRINT.CHECKBOX_RATIO.CAPTION"
 msgid "Keep aspect ratio"
-msgstr ""
+msgstr "Säilytä kuvasuhde"
 
 #: tfprint.combobox_orientation.text
 msgctxt "tfprint.combobox_orientation.text"
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
@@ -2391,12 +2391,12 @@ msgstr "Alaosa:"
 #: tfprint.label_dpix.caption
 msgctxt "TFPRINT.LABEL_DPIX.CAPTION"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfprint.label_dpiy.caption
 msgctxt "TFPRINT.LABEL_DPIY.CAPTION"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfprint.label_height.caption
 msgid "Height:"
@@ -2421,7 +2421,7 @@ msgstr "Oikea reuna:"
 #: tfprint.label_selectedprinterandpaper.caption
 msgctxt "tfprint.label_selectedprinterandpaper.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2433,16 +2433,16 @@ msgstr "Leveys:"
 
 #: tfquestion.caption
 msgid "Question"
-msgstr ""
+msgstr "Kysymys"
 
 #: tfquestion.checkbox_rememberchoice.caption
 msgid "Remember this choice"
-msgstr ""
+msgstr "Muista tämä valinta"
 
 #: tfquestion.label_message.caption
 msgctxt "tfquestion.label_message.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfradialblur.caption
 msgctxt "TFRADIALBLUR.CAPTION"
@@ -2475,17 +2475,17 @@ msgstr "Peru"
 #: tfresample.button_ok.caption
 msgctxt "TFRESAMPLE.BUTTON_OK.CAPTION"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfresample.caption
 msgctxt "TFRESAMPLE.CAPTION"
 msgid "Resample"
-msgstr ""
+msgstr "Näytteenotto uudelleen"
 
 #: tfresample.checkbox_ratio.caption
 msgctxt "tfresample.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
-msgstr ""
+msgstr "Säilytä kuvasuhde"
 
 #: tfresample.label_height.caption
 msgctxt "TFRESAMPLE.LABEL_HEIGHT.CAPTION"
@@ -2495,7 +2495,7 @@ msgstr "Korkeus :"
 #: tfresample.label_quality.caption
 msgctxt "TFRESAMPLE.LABEL_QUALITY.CAPTION"
 msgid "Quality :"
-msgstr ""
+msgstr "Laatu :"
 
 #: tfresample.label_width.caption
 msgctxt "TFRESAMPLE.LABEL_WIDTH.CAPTION"
@@ -2510,7 +2510,7 @@ msgstr "Peru"
 #: tfsaveoption.button_ok.caption
 msgctxt "TFSAVEOPTION.BUTTON_OK.CAPTION"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: tfsaveoption.caption
 msgctxt "TFSAVEOPTION.CAPTION"
@@ -2523,32 +2523,32 @@ msgstr "Rasterointi"
 
 #: tfsaveoption.checkbox_lossless.caption
 msgid "Lossless"
-msgstr ""
+msgstr "Häviötön"
 
 #: tfsaveoption.label1.caption
 msgid "Quality:"
-msgstr ""
+msgstr "Laatu:"
 
 #: tfsaveoption.label_0.caption
 msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #: tfsaveoption.label_1.caption
 msgid "100"
-msgstr ""
+msgstr "100"
 
 #: tfsaveoption.label_50.caption
 msgid "50"
-msgstr ""
+msgstr "50"
 
 #: tfsaveoption.label_colordepth.caption
 msgid "Color depth:"
-msgstr ""
+msgstr "Värisyvyys:"
 
 #: tfsaveoption.label_size.caption
 msgid "Size:"
-msgstr ""
+msgstr "Koko:"
 
 #: tfsaveoption.radiobutton_16colors.caption
 msgid "16 colors"
@@ -2556,7 +2556,7 @@ msgstr "16 väriä"
 
 #: tfsaveoption.radiobutton_24bitsperpixel.caption
 msgid "24 bits"
-msgstr ""
+msgstr "24 bittiä"
 
 #: tfsaveoption.radiobutton_256colors.caption
 msgid "256 colors"
@@ -2568,11 +2568,11 @@ msgstr "2 väriä"
 
 #: tfsaveoption.radiobutton_32bitsperpixel.caption
 msgid "32 bits"
-msgstr ""
+msgstr "32 bittiä"
 
 #: tfsaveoption.radiobutton_miomap.caption
 msgid "MioMap"
-msgstr ""
+msgstr "MioMap"
 
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
@@ -2581,17 +2581,17 @@ msgstr "Terävöitä/Pehmennä"
 #: tfsharpen.label_amount.caption
 msgctxt "TFSHARPEN.LABEL_AMOUNT.CAPTION"
 msgid "Amount :"
-msgstr ""
+msgstr "Määrä :"
 
 #: tfshiftcolors.caption
 msgctxt "TFSHIFTCOLORS.CAPTION"
 msgid "Shift colors"
-msgstr ""
+msgstr "Siirrä värejä"
 
 #: tfshiftcolors.checkbox_gsba.caption
 msgctxt "tfshiftcolors.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
-msgstr ""
+msgstr "Korjattu sävy ja kirkkaus"
 
 #: tfshiftcolors.label1.caption
 msgctxt "TFSHIFTCOLORS.LABEL1.CAPTION"
@@ -2685,27 +2685,27 @@ msgstr "Säde :"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"
-msgstr ""
+msgstr "Aallon siirtymä"
 
 #: tfwavedisplacement.label_displacement.caption
 msgid "Displacement :"
-msgstr ""
+msgstr "Siirtymä :"
 
 #: tfwavedisplacement.label_phase.caption
 msgid "Phase :"
-msgstr ""
+msgstr "Vaihe :"
 
 #: tfwavedisplacement.label_wavelength.caption
 msgid "Wavelength :"
-msgstr ""
+msgstr "Aallonpituus :"
 
 #: uresourcestrings.rsactioninprogress
 msgid "Action in progress"
-msgstr ""
+msgstr "Toiminto käynnissä"
 
 #: uresourcestrings.rsaddtoimagelist
 msgid "Add files to the image processing list"
-msgstr ""
+msgstr "Lisää tiedostoja kuvankäsittelylistalle"
 
 #: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
@@ -2713,7 +2713,7 @@ msgstr "Lisää väri väripalettiin"
 
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
-msgstr ""
+msgstr "Tasaa muoto"
 
 #: uresourcestrings.rsallapplications
 msgid "all"
@@ -2725,15 +2725,15 @@ msgstr "Kaikki tuetut tiedostotyypit"
 
 #: uresourcestrings.rsalt
 msgid "ALT"
-msgstr ""
+msgstr "ALT"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
-msgstr ""
+msgstr "Animoitu GIF"
 
 #: uresourcestrings.rsautodetect
 msgid "Autodetect"
-msgstr ""
+msgstr "Automaattinen tunnistus"
 
 #: uresourcestrings.rsback
 #, fuzzy
@@ -2751,15 +2751,15 @@ msgstr "Paras laatu"
 
 #: uresourcestrings.rsbitmap
 msgid "Bitmap"
-msgstr ""
+msgstr "Bitmap"
 
 #: uresourcestrings.rsblack
 msgid "Black"
-msgstr ""
+msgstr "Musta"
 
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
-msgstr ""
+msgstr "Yhdistämisoperaatiota käytetään vain, jos sen alla on kerros"
 
 #: uresourcestrings.rsblue
 msgid "Blue"
@@ -2771,7 +2771,7 @@ msgstr "Kirkkaus"
 
 #: uresourcestrings.rsbytes
 msgid "Bytes"
-msgstr ""
+msgstr "Tavua"
 
 #: uresourcestrings.rscancel
 msgctxt "uresourcestrings.rscancel"
@@ -2780,15 +2780,15 @@ msgstr "Peru"
 
 #: uresourcestrings.rscancelledbyuser
 msgid "Cancelled by user"
-msgstr ""
+msgstr "Käyttäjä peruutti"
 
 #: uresourcestrings.rscannotdrawshapeonsvglayer
 msgid "Cannot draw shape on SVG layer"
-msgstr ""
+msgstr "Muotoa ei voi piirtää SVG-kerrokseen"
 
 #: uresourcestrings.rscannotopenfile
 msgid "Cannot open file"
-msgstr ""
+msgstr "Tiedostoa ei voi avata"
 
 #: uresourcestrings.rscanvassize
 msgctxt "uresourcestrings.rscanvassize"
@@ -2797,31 +2797,31 @@ msgstr "Kuva-alueen koko"
 
 #: uresourcestrings.rscdrom
 msgid "CD"
-msgstr ""
+msgstr "CD"
 
 #: uresourcestrings.rschannels
 msgid "Channels"
-msgstr ""
+msgstr "Kanavat"
 
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
-msgstr ""
+msgstr "Tyhjennä paletti"
 
 #: uresourcestrings.rscloserequest
 msgid "Close request"
-msgstr ""
+msgstr "Sulkemispyyntö"
 
 #: uresourcestrings.rscmd
 msgid "CMD"
-msgstr ""
+msgstr "CMD"
 
 #: uresourcestrings.rscolordescription
 msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr ""
+msgstr "Värikuvaus: kirjoita väri näppäimistöllä käyttämällä värien nimiä tai CSS-merkintöjä."
 
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
-msgstr ""
+msgstr "Väripäällyste"
 
 #: uresourcestrings.rscolors
 msgctxt "uresourcestrings.rscolors"
@@ -2830,23 +2830,23 @@ msgstr "Värit"
 
 #: uresourcestrings.rsconfirmdeletefromcontainer
 msgid "Are you sure you want to delete this file from the container?"
-msgstr ""
+msgstr "Haluatko varmasti poistaa tämän tiedoston säilöstä?"
 
 #: uresourcestrings.rsconfirmdeletemultiplefromcontainer
 msgid "Are you sure you want to delete these %1 files from the container?"
-msgstr ""
+msgstr "Haluatko varmasti poistaa nämä %1 tiedostoa säilöstä?"
 
 #: uresourcestrings.rsconfirmmovemultipletotrash
 msgid "Are you sure you want to move these %1 files to the trash?"
-msgstr ""
+msgstr "Haluatko varmasti siirtää nämä %1 tiedostoa roskakoriin?"
 
 #: uresourcestrings.rsconfirmmovetotrash
 msgid "Are you sure you want to move this file to the trash?"
-msgstr ""
+msgstr "Haluatko varmasti siirtää tämän tiedoston roskakoriin?"
 
 #: uresourcestrings.rsconflictingactions
 msgid "Conflicting actions"
-msgstr ""
+msgstr "Ristiriitaiset toiminnot"
 
 #: uresourcestrings.rscontrast
 msgid "Contrast"
@@ -2855,40 +2855,40 @@ msgstr "Kontrasti"
 #: uresourcestrings.rscorrectedhueccw
 msgctxt "uresourcestrings.rscorrectedhueccw"
 msgid "Corr. Hue CCW"
-msgstr ""
+msgstr "Korj. sävy vastapäivään"
 
 #: uresourcestrings.rscorrectedhuecw
 msgctxt "uresourcestrings.rscorrectedhuecw"
 msgid "Corr. Hue CW"
-msgstr ""
+msgstr "Korj. sävy myötäpäivään"
 
 #: uresourcestrings.rscosine
 msgid "Cosine"
-msgstr ""
+msgstr "Kosini"
 
 #: uresourcestrings.rscrop
 msgid "Crop"
-msgstr ""
+msgstr "Rajaa"
 
 #: uresourcestrings.rsctrl
 msgid "CTRL"
-msgstr ""
+msgstr "CTRL"
 
 #: uresourcestrings.rscurrentlayernotsplit
 msgid "Current layer is not split"
-msgstr ""
+msgstr "Nykyinen kerros ei ole jaettu"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
-msgstr ""
+msgstr "Paina S tai X asettaaksesi viimeisen pisteen käyrätilan"
 
 #: uresourcestrings.rscyan
 msgid "Cyan"
-msgstr ""
+msgstr "Syaani"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
-msgstr ""
+msgstr "Oletuspaletti"
 
 #: uresourcestrings.rsdeletefile
 msgctxt "uresourcestrings.rsdeletefile"
@@ -2897,11 +2897,11 @@ msgstr "Poista"
 
 #: uresourcestrings.rsdeleteimageentry
 msgid "Delete selected image entry?"
-msgstr ""
+msgstr "Poista valittu kuva?"
 
 #: uresourcestrings.rsdirectorynotempty
 msgid "Directory is not empty"
-msgstr ""
+msgstr "Hakemisto ei ole tyhjä"
 
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
@@ -2910,7 +2910,7 @@ msgstr "Rasteroi kerros kayttäen väripalettia"
 #: uresourcestrings.rsdonate
 msgctxt "uresourcestrings.rsdonate"
 msgid "Donate..."
-msgstr ""
+msgstr "Lahjoita..."
 
 #: uresourcestrings.rsdownload
 msgid "Download"
@@ -2918,11 +2918,11 @@ msgstr "Ladata"
 
 #: uresourcestrings.rsdropshadow
 msgid "Drop shadow"
-msgstr ""
+msgstr "Varjostus"
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
-msgstr ""
+msgstr "Kaksoiskuva"
 
 #: uresourcestrings.rseditmask
 msgid "Edit mask"
@@ -2934,7 +2934,7 @@ msgstr "Muokkaa valintaa"
 
 #: uresourcestrings.rsedittexture
 msgid "Edit texture"
-msgstr ""
+msgstr "Muokkaa tekstuuria"
 
 #: uresourcestrings.rsemptylayer
 msgid "Layer is empty"
@@ -2942,15 +2942,15 @@ msgstr "Kerros on tyhjä"
 
 #: uresourcestrings.rsemptyselection
 msgid "Selection is empty"
-msgstr ""
+msgstr "Valinta on tyhjä"
 
 #: uresourcestrings.rsendwithoutmatchingbegin
 msgid "End without matching begin"
-msgstr ""
+msgstr "Loppu ilman vastaavaa alkua"
 
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
-msgstr ""
+msgstr "Anna uuden kansion tai säilön nimi (käytä RES- tai LRS-laajennusta):"
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
@@ -2958,7 +2958,7 @@ msgstr "Anna kerroksen nimi:"
 
 #: uresourcestrings.rsentries
 msgid "Entries"
-msgstr ""
+msgstr "Merkinnät"
 
 #: uresourcestrings.rserror
 msgid "Error"
@@ -2966,11 +2966,11 @@ msgstr "Virhe"
 
 #: uresourcestrings.rserrordecodingraw
 msgid "Error decoding raw image."
-msgstr ""
+msgstr "Virhe raakatiedoston purkamisessa."
 
 #: uresourcestrings.rserrorloadingoriginal
 msgid "Error while loading original however layer can be rasterized."
-msgstr ""
+msgstr "Virhe alkuperäisen lataamisessa, mutta kerros voidaan rasteroida."
 
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
@@ -2978,31 +2978,31 @@ msgstr "Virhe avattaessa tiedostoa \"%1\""
 
 #: uresourcestrings.rsexception
 msgid "An exception was encountered"
-msgstr ""
+msgstr "Poikkeus havaittu"
 
 #: uresourcestrings.rsexitrequest
 msgid "Exit request"
-msgstr ""
+msgstr "Poistumispyyntö"
 
 #: uresourcestrings.rsexpect1parameter
 msgid "expects one parameter : "
-msgstr ""
+msgstr "odottaa yhtä parametria : "
 
 #: uresourcestrings.rsexpect2parameters
 msgid "expects two parameters : "
-msgstr ""
+msgstr "odottaa kahta parametria : "
 
 #: uresourcestrings.rsexpectnparameters
 msgid "expects N parameters : "
-msgstr ""
+msgstr "odottaa N parametria : "
 
 #: uresourcestrings.rsfast
 msgid "Fast"
-msgstr ""
+msgstr "Nopea"
 
 #: uresourcestrings.rsfilecannotbeempty
 msgid "File cannot be empty"
-msgstr ""
+msgstr "Tiedosto ei voi olla tyhjä"
 
 #: uresourcestrings.rsfiledate
 msgid "Date"
@@ -3014,7 +3014,7 @@ msgstr "Tätä tiedostopäätettä ei tueta."
 
 #: uresourcestrings.rsfileformatnotrecognized
 msgid "The file format has not been recognized."
-msgstr ""
+msgstr "Tiedostomuotoa ei tunnistettu."
 
 #: uresourcestrings.rsfilename
 msgid "Filename"
@@ -3037,13 +3037,13 @@ msgstr "Koko"
 msgid "File system"
 msgstr ""
 
-#: uresourcestrings.rsfiletype
-msgid "Type"
-msgstr "Tyyppi"
+#: uresourcestrings.rsfilesystem
+msgid "File system"
+msgstr "Tiedostojärjestelmä"
 
 #: uresourcestrings.rsfixeddrive
 msgid "Fixed"
-msgstr ""
+msgstr "Kiinteä"
 
 #: uresourcestrings.rsflattenimage
 #, fuzzy
@@ -3061,19 +3061,19 @@ msgstr ""
 
 #: uresourcestrings.rsfollowingerrorsoccurred
 msgid "Following errors occurred:"
-msgstr ""
+msgstr "Seuraavat virheet ilmenivät:"
 
 #: uresourcestrings.rsfractaltree
 msgid "Fractal tree"
-msgstr ""
+msgstr "Fraktaalipuu"
 
 #: uresourcestrings.rsframes
 msgid "Frames"
-msgstr ""
+msgstr "Kehykset"
 
 #: uresourcestrings.rsfunctionnotdefined
 msgid "The function %1 is not defined."
-msgstr ""
+msgstr "Funktiota %1 ei ole määritelty."
 
 #: uresourcestrings.rsgreen
 msgid "Green"
@@ -3081,28 +3081,28 @@ msgstr "Vihreä"
 
 #: uresourcestrings.rshalfcosine
 msgid "Half-cosine"
-msgstr ""
+msgstr "Puoli-kosini"
 
 #: uresourcestrings.rsholdkeyforsquare
 msgid "Hold %1 to draw a square or a circle"
-msgstr ""
+msgstr "Pidä %1 pohjassa piirtääksesi neliön tai ympyrän"
 
 #: uresourcestrings.rsholdkeyrestrictrotation
 msgid "Hold %1 to restrict rotation angle"
-msgstr ""
+msgstr "Pidä %1 rajoittaaksesi kiertokulmaa"
 
 #: uresourcestrings.rsholdkeysnaptopixel
 msgid "Hold %1 to snap to pixels"
-msgstr ""
+msgstr "Pidä %1 kiinnittääksesi pikseleihin"
 
 #: uresourcestrings.rsholdkeysscalemode
 msgid "Hold %1 or %2 to scale"
-msgstr ""
+msgstr "Pidä %1 tai %2 skaalausta varten"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"
 msgid "Hot spot"
-msgstr ""
+msgstr "Kuumapiste"
 
 #: uresourcestrings.rshue
 msgctxt "uresourcestrings.rshue"
@@ -3112,25 +3112,25 @@ msgstr "Värisävy"
 #: uresourcestrings.rshueccw
 msgctxt "uresourcestrings.rshueccw"
 msgid "Hue CCW"
-msgstr ""
+msgstr "Sävy vastapäivään"
 
 #: uresourcestrings.rshuecw
 msgctxt "uresourcestrings.rshuecw"
 msgid "Hue CW"
-msgstr ""
+msgstr "Sävy myötäpäivään"
 
 #: uresourcestrings.rsiconimagealreadyexists
 msgid "There is already an image with this size and depth."
-msgstr ""
+msgstr "Tällä koolla ja syvyydellä on jo kuva."
 
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
-msgstr ""
+msgstr "Ikoni/kohdistin"
 
 #: uresourcestrings.rsiconsize
 msgctxt "uresourcestrings.rsiconsize"
 msgid "Icon size"
-msgstr ""
+msgstr "Ikonin koko"
 
 #: uresourcestrings.rsimage
 #, fuzzy
@@ -3145,19 +3145,19 @@ msgstr "Kuva on liian iso"
 #: uresourcestrings.rsinfinity
 msgctxt "uresourcestrings.rsinfinity"
 msgid "Infinity"
-msgstr ""
+msgstr "Äärettömyys"
 
 #: uresourcestrings.rsinformation
 msgid "Information"
-msgstr ""
+msgstr "Tiedot"
 
 #: uresourcestrings.rsinnerlight
 msgid "Inner light"
-msgstr ""
+msgstr "Sisävalo"
 
 #: uresourcestrings.rsinnershadow
 msgid "Inner shadow"
-msgstr ""
+msgstr "Sisävarjo"
 
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
@@ -3166,43 +3166,43 @@ msgstr "Voimakkuus"
 
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
-msgstr ""
+msgstr "Sisäinen virhe"
 
 #: uresourcestrings.rsinvalidangle
 msgid "Invalid angle"
-msgstr ""
+msgstr "Virheellinen kulma"
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
-msgstr ""
+msgstr "Virheellinen nimi"
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "
-msgstr ""
+msgstr "Virheellinen peittävyys : "
 
 #: uresourcestrings.rsinvalidparameters
 msgid "Invalid parameters"
-msgstr ""
+msgstr "Virheelliset parametrit"
 
 #: uresourcestrings.rsinvalidresamplesize
 msgid "Invalid resample size : "
-msgstr ""
+msgstr "Virheellinen uudelleennäytteenoton koko : "
 
 #: uresourcestrings.rsinvalidsizefornew
 msgid "Invalid size for new : "
-msgstr ""
+msgstr "Virheellinen koko uudelle : "
 
 #: uresourcestrings.rskeepchanges
 msgid "Do you want to keep changes?"
-msgstr ""
+msgstr "Haluatko säilyttää muutokset?"
 
 #: uresourcestrings.rskeepemptyspace
 msgid "Keep empty space around opaque pixels?"
-msgstr ""
+msgstr "Säilytä tyhjä tila läpinäkymättömien pikseleiden ympärillä?"
 
 #: uresourcestrings.rslanczos
 msgid "Lanczos %1"
-msgstr ""
+msgstr "Lanczos %1"
 
 #: uresourcestrings.rslandscape
 msgid "Landscape"
@@ -3210,11 +3210,11 @@ msgstr "Vaaka"
 
 #: uresourcestrings.rslatestversion
 msgid "The latest version of LazPaint available online is"
-msgstr ""
+msgstr "LazPaintin uusin saatavilla oleva versio verkossa on"
 
 #: uresourcestrings.rslava
 msgid "Lava"
-msgstr ""
+msgstr "Lava"
 
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
@@ -3223,15 +3223,15 @@ msgstr "Kerros"
 
 #: uresourcestrings.rslayeralreadysplit
 msgid "Layer already split"
-msgstr ""
+msgstr "Kerros on jo jaettu"
 
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
-msgstr ""
+msgstr "Kerrostettu kuva"
 
 #: uresourcestrings.rslayereffect
 msgid "Layer effect"
-msgstr ""
+msgstr "Kerrosvaikutus"
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
@@ -3241,11 +3241,11 @@ msgstr "Kerrokset"
 #: uresourcestrings.rslazpaint
 msgctxt "uresourcestrings.rslazpaint"
 msgid "LazPaint"
-msgstr ""
+msgstr "LazPaint"
 
 #: uresourcestrings.rslazpaintonly
 msgid "LazPaint only"
-msgstr ""
+msgstr "Vain LazPaint"
 
 #: uresourcestrings.rslight
 msgid "Light"
@@ -3262,35 +3262,35 @@ msgstr "Valon paikka"
 
 #: uresourcestrings.rslinear
 msgid "Linear"
-msgstr ""
+msgstr "Lineaarinen"
 
 #: uresourcestrings.rslinearrgb
 msgid "Linear RGB"
-msgstr ""
+msgstr "Lineaarinen RGB"
 
 #: uresourcestrings.rsloadandmergepalette
 msgid "Load and merge palette..."
-msgstr ""
+msgstr "Lataa ja yhdistä paletti..."
 
 #: uresourcestrings.rsloading
 msgid "Loading"
-msgstr ""
+msgstr "Ladataan"
 
 #: uresourcestrings.rsloadpalette
 msgid "Load palette..."
-msgstr ""
+msgstr "Lataa paletti..."
 
 #: uresourcestrings.rsloopcount
 msgid "Loop count"
-msgstr ""
+msgstr "Toistojen määrä"
 
 #: uresourcestrings.rsmagenta
 msgid "Magenta"
-msgstr ""
+msgstr "Magenta"
 
 #: uresourcestrings.rsmakemonochromatic
 msgid "Make monochromatic"
-msgstr ""
+msgstr "Tee yksiväriseksi"
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
@@ -3298,35 +3298,35 @@ msgstr "Tee %1-värinen väripaletti kuvasta"
 
 #: uresourcestrings.rsmask
 msgid "Mask"
-msgstr ""
+msgstr "Maski"
 
 #: uresourcestrings.rsmaskfromalphachannel
 msgid "Mask from alpha channel"
-msgstr ""
+msgstr "Maski alfakanavasta"
 
 #: uresourcestrings.rsmerge
 msgid "Merge"
-msgstr ""
+msgstr "Yhdistä"
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
-msgstr ""
+msgstr "Haluatko yhdistää valinnan?"
 
 #: uresourcestrings.rsmitchell
 msgid "Mitchell"
-msgstr ""
+msgstr "Mitchell"
 
 #: uresourcestrings.rsmorethanonefile
 msgid "You are trying to open more than one file. How would you like these files to be opened?"
-msgstr ""
+msgstr "Yrität avata useamman kuin yhden tiedoston. Kuinka haluaisit avata nämä tiedostot?"
 
 #: uresourcestrings.rsmovingorrotatingselection
 msgid "Moving or rotating selection"
-msgstr ""
+msgstr "Valinnan siirtäminen tai kiertäminen"
 
 #: uresourcestrings.rsmustreleaseselection
 msgid "You must first release the selection"
-msgstr ""
+msgstr "Sinun on ensin vapautettava valinta"
 
 #: uresourcestrings.rsmustshowlayer
 msgid "You must first make the layer visible"
@@ -3334,7 +3334,7 @@ msgstr "Ensin täytyy laittaa kerros näkyväsi"
 
 #: uresourcestrings.rsnetworkdrive
 msgid "Network"
-msgstr ""
+msgstr "Verkko"
 
 #: uresourcestrings.rsnewimage
 msgctxt "uresourcestrings.rsnewimage"
@@ -3343,7 +3343,7 @@ msgstr "Uusi kuva"
 
 #: uresourcestrings.rsnewmask
 msgid "New mask"
-msgstr ""
+msgstr "Uusi maski"
 
 #: uresourcestrings.rsno
 msgid "No"
@@ -3351,7 +3351,7 @@ msgstr "Ei"
 
 #: uresourcestrings.rsnoactivelayer
 msgid "No active layer"
-msgstr ""
+msgstr "Ei aktiivista kerrosta"
 
 #: uresourcestrings.rsnoactiveselection
 msgid "There is no active selection"
@@ -3363,15 +3363,15 @@ msgstr "Älä tallenna ja avaa toinen tiedosto"
 
 #: uresourcestrings.rsnoname
 msgid "noname"
-msgstr ""
+msgstr "nimetön"
 
 #: uresourcestrings.rsnormalblendop
 msgid "Normal"
-msgstr ""
+msgstr "Normaali"
 
 #: uresourcestrings.rsnotchromaticchannel
 msgid "This is not a chromatic channel"
-msgstr ""
+msgstr "Tämä ei ole värikanava"
 
 #: uresourcestrings.rsnothingtobedeformed
 msgid "There is nothing to be deformed"
@@ -3379,20 +3379,20 @@ msgstr "Ei löydy mitään muutettavaa"
 
 #: uresourcestrings.rsnothingtoberetrieved
 msgid "There is nothing to be retrieved"
-msgstr ""
+msgstr "Ei mitään palautettavaa"
 
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
-msgstr ""
+msgstr "Ei ole järkevää tallentaa näin suurta kuvaa tähän tiedostomuotoon."
 
 #: uresourcestrings.rsnumber
 msgid "№"
-msgstr ""
+msgstr "№"
 
 #: uresourcestrings.rsok
 msgctxt "uresourcestrings.rsok"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: uresourcestrings.rsokay
 msgid "Okay"
@@ -3408,35 +3408,35 @@ msgstr "Avaa"
 
 #: uresourcestrings.rsopenfilesaslayers
 msgid "Open files as layers in a single image"
-msgstr ""
+msgstr "Avaa tiedostot kerroksina yhdessä kuvassa"
 
 #: uresourcestrings.rsopenfirstfileonly
 msgid "Open the first file only"
-msgstr ""
+msgstr "Avaa vain ensimmäinen tiedosto"
 
 #: uresourcestrings.rsopening
 msgid "Opening"
-msgstr ""
+msgstr "Avataan"
 
 #: uresourcestrings.rsopenmultipleimagefiles
 msgid "Open multiple image files"
-msgstr ""
+msgstr "Avaa useita kuvatiedostoja"
 
 #: uresourcestrings.rsotherblendop
 msgid "Other..."
-msgstr ""
+msgstr "Muu..."
 
 #: uresourcestrings.rsoverwritefile
 msgid "File already exists. Do you want to overwrite it?"
-msgstr ""
+msgstr "Tiedosto on jo olemassa. Haluatko korvata sen?"
 
 #: uresourcestrings.rspaletteincludesalphachannel
 msgid "Palette includes alpha channel"
-msgstr ""
+msgstr "Paletti sisältää alfakanavan"
 
 #: uresourcestrings.rspaletteoptions
 msgid "Palette options"
-msgstr ""
+msgstr "Palettiasetukset"
 
 #: uresourcestrings.rspen
 #, fuzzy
@@ -3447,7 +3447,7 @@ msgstr "Kynä"
 #: uresourcestrings.rspercent
 msgctxt "uresourcestrings.rspercent"
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: uresourcestrings.rsportait
 msgid "Portrait"
@@ -3455,32 +3455,32 @@ msgstr "Pysty"
 
 #: uresourcestrings.rsposterizelayerusingpalette
 msgid "Posterize layer using palette"
-msgstr ""
+msgstr "Posterisoi kerros käyttäen palettia"
 
 #: uresourcestrings.rspresetname
 msgid "Preset name"
-msgstr ""
+msgstr "Esiasetuksen nimi"
 
 #: uresourcestrings.rspreview
 msgctxt "uresourcestrings.rspreview"
 msgid "Preview"
-msgstr ""
+msgstr "Esikatselu"
 
 #: uresourcestrings.rspx
 msgid "px"
-msgstr ""
+msgstr "px"
 
 #: uresourcestrings.rspythonunexpectedversion
 msgid "Expected Python version %1 but %2 found."
-msgstr ""
+msgstr "Odotettu Python-versio on %1, mutta löydettiin %2."
 
 #: uresourcestrings.rsramdisk
 msgid "RAM disk"
-msgstr ""
+msgstr "RAM-levy"
 
 #: uresourcestrings.rsrasterlayer
 msgid "Raster layer"
-msgstr ""
+msgstr "Rasterikerros"
 
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
@@ -3493,15 +3493,15 @@ msgstr "Punainen"
 #: uresourcestrings.rsreload
 msgctxt "uresourcestrings.rsreload"
 msgid "Reload"
-msgstr ""
+msgstr "Lataa uudelleen"
 
 #: uresourcestrings.rsreloadchanged
 msgid "Bitmap has been modified. Do you really want to reload?"
-msgstr ""
+msgstr "Bitmap on muokattu. Haluatko varmasti ladata sen uudelleen?"
 
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
-msgstr ""
+msgstr "Irrotettava"
 
 #: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
@@ -3520,32 +3520,32 @@ msgstr "Toista kuvaa"
 
 #: uresourcestrings.rsresamplingimage
 msgid "Resampling image..."
-msgstr ""
+msgstr "Näytteenoton tekeminen uudelleen kuvalle..."
 
 #: uresourcestrings.rsretrieveselectedarea
 msgid "Do you want to retrieve selected area?"
-msgstr ""
+msgstr "Haluatko palauttaa valitun alueen?"
 
 #: uresourcestrings.rsreturnvalides
 msgid "Press ENTER to validate"
-msgstr ""
+msgstr "Paina ENTER vahvistaaksesi"
 
 #: uresourcestrings.rsrgb
 msgctxt "uresourcestrings.rsrgb"
 msgid "RGB"
-msgstr ""
+msgstr "RGB"
 
 #: uresourcestrings.rsrightclickfinishshape
 msgid "Use RIGHT click to finish shape"
-msgstr ""
+msgstr "Käytä oikeaa napsautusta viimeistelläksesi muodon"
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
-msgstr ""
+msgstr "Käytä oikeaa napsautusta määrittääksesi lähteen"
 
 #: uresourcestrings.rsrightclickfortransformcenter
 msgid "Use RIGHT click to define transform center"
-msgstr ""
+msgstr "Käytä oikeaa napsautusta määrittääksesi muunnoskeskuksen"
 
 #: uresourcestrings.rsrunscriptagaintoupdateeffect
 msgid "Run this script again to update effect"
@@ -3564,7 +3564,7 @@ msgstr "Tallenna"
 #: uresourcestrings.rssaveasbuttonhint
 msgctxt "uresourcestrings.rssaveasbuttonhint"
 msgid "Save with specified filename"
-msgstr ""
+msgstr "Tallenna määritetyllä tiedostonimellä"
 
 #: uresourcestrings.rssavechanges
 msgid "Current bitmap has been modified. Do you want to save changes?"
@@ -3572,21 +3572,21 @@ msgstr "Tämänhetkistä kuvaa on muokattu. Tallennetaanko muutokset?"
 
 #: uresourcestrings.rssavepaletteas
 msgid "Save palette as..."
-msgstr ""
+msgstr "Tallenna paletti nimellä..."
 
 #: uresourcestrings.rsscript
 msgctxt "uresourcestrings.rsscript"
 msgid "Script"
-msgstr ""
+msgstr "Skripti"
 
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
-msgstr ""
+msgstr "Valitse yhdistämisoperaatio"
 
 #: uresourcestrings.rsshift
 msgid "SHIFT"
-msgstr ""
+msgstr "SHIFT"
 
 #: uresourcestrings.rsshowpalette
 msgctxt "uresourcestrings.rsshowpalette"
@@ -3595,32 +3595,32 @@ msgstr "Näytä paletti"
 
 #: uresourcestrings.rssourceposition
 msgid "Source position"
-msgstr ""
+msgstr "Lähdepaikka"
 
 #: uresourcestrings.rsspline
 msgctxt "uresourcestrings.rsspline"
 msgid "Spline"
-msgstr ""
+msgstr "Käyrä"
 
 #: uresourcestrings.rssplitcmyk
 msgid "Split CMYK"
-msgstr ""
+msgstr "Jaa CMYK"
 
 #: uresourcestrings.rssplithsl
 msgid "Split HSL"
-msgstr ""
+msgstr "Jaa HSL"
 
 #: uresourcestrings.rssplitrgb
 msgid "Split RGB"
-msgstr ""
+msgstr "Jaa RGB"
 
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
-msgstr ""
+msgstr "Laite"
 
 #: uresourcestrings.rsstroke
 msgid "Stroke"
-msgstr ""
+msgstr "Veto"
 
 #: uresourcestrings.rstextoutline
 #, fuzzy
@@ -3631,39 +3631,39 @@ msgstr "Kirjaimen reunus"
 #: uresourcestrings.rstexturemapping
 msgctxt "uresourcestrings.rstexturemapping"
 msgid "Texture mapping"
-msgstr ""
+msgstr "Tekstuurikartoitus"
 
 #: uresourcestrings.rstherearenocheckeditems
 msgid "There are no checked items. Check some items or add some new ones."
-msgstr ""
+msgstr "Ei valittuja kohteita. Valitse joitain kohteita tai lisää uusia."
 
 #: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
 msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
-msgstr ""
+msgstr "Tälle tiedostolle ei ole annettu nimeä. Käytä \"Tallenna nimellä...\" päävalikosta."
 
 #: uresourcestrings.rstodo
 msgid "To do"
-msgstr ""
+msgstr "Tehtävä"
 
 #: uresourcestrings.rstodoimages
 msgid "Images left: %1"
-msgstr ""
+msgstr "Jäljellä olevat kuvat: %1"
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
-msgstr ""
+msgstr "Työkalua ei voi käyttää näkymättömällä kerroksella"
 
 #: uresourcestrings.rstoomanyactions
 msgid "Too many actions"
-msgstr ""
+msgstr "Liian monta toimintoa"
 
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
-msgstr ""
+msgstr "Liian monta kerrosta"
 
 #: uresourcestrings.rstoomanyshapesinlayer
 msgid "Too many shapes in layer"
-msgstr ""
+msgstr "Liian monta muotoa kerroksessa"
 
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
@@ -3671,55 +3671,55 @@ msgstr "Kuvia kaikkiaan: %1"
 
 #: uresourcestrings.rstransferselectiontootherlayer
 msgid "Transfer selection to other layer?"
-msgstr ""
+msgstr "Siirrä valinta toiseen kerrokseen?"
 
 #: uresourcestrings.rstransformedrasterlayer
 msgid "Transformed raster layer"
-msgstr ""
+msgstr "Muunnettu rasterikerros"
 
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
-msgstr ""
+msgstr "Haluatko muuntaa valinnan sisällön?"
 
 #: uresourcestrings.rsunabletoapplyfilter
 msgid "Unable to apply filter : "
-msgstr ""
+msgstr "Suodatinta ei voi käyttää : "
 
 #: uresourcestrings.rsunabletoloadfile
 msgid "Unable to load file : "
-msgstr ""
+msgstr "Tiedostoa ei voi ladata : "
 
 #: uresourcestrings.rsunabletosavefile
 msgid "Unable to save file : "
-msgstr ""
+msgstr "Tiedostoa ei voi tallentaa : "
 
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
-msgstr ""
+msgstr "Tuntematon komento : "
 
 #: uresourcestrings.rsunknownoriginal
 msgid "Unknown original"
-msgstr ""
+msgstr "Tuntematon alkuperä"
 
 #: uresourcestrings.rsvectoriallayer
 msgid "Vectorial layer"
-msgstr ""
+msgstr "Vektorikerros"
 
 #: uresourcestrings.rsversion
 msgid "Version"
-msgstr ""
+msgstr "Versio"
 
 #: uresourcestrings.rsverticalsize
 msgid "Vertical size"
-msgstr ""
+msgstr "Pystysuuntainen koko"
 
 #: uresourcestrings.rsvisible
 msgid "Visibile"
-msgstr ""
+msgstr "Näkyvä"
 
 #: uresourcestrings.rsyellow
 msgid "Yellow"
-msgstr ""
+msgstr "Keltainen"
 
 #: uresourcestrings.rsyes
 msgid "Yes"
