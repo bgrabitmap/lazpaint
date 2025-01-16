@@ -3,46 +3,58 @@ unit uprint;
 
 {$mode objfpc}{$H+}
 
+{$IFDEF LINUX}
+  {$DEFINE PRINTER_COMBO}
+{$ENDIF}
+
 interface
 
 uses
   Classes, SysUtils, FileUtil, PrintersDlgs, LResources, Forms, Controls,
   Graphics, Dialogs, StdCtrls, Spin, BGRAVirtualScreen, BGRABitmap,
-  BGRABitmapTypes, LazPaintType, BGRATransform;
+  BGRABitmapTypes, LazPaintType, BGRATransform, ExtCtrls;
 
 type
 
   { TFPrint }
 
   TFPrint = class(TForm)
-    BGRAVirtualScreen1: TBGRAVirtualScreen;
-    Button_ZoomFit: TButton;
+    Label_SelectedPrinterAndPaper: TLabel;
+    Panel1: TPanel;
+    Label_PrinterAndPaper: TLabel;
     Button_ConfigurePrinter: TButton;
-    Button_Print: TButton;
-    CheckBox_Ratio: TCheckBox;
+    Panel10: TPanel;
+    Panel2: TPanel;
+    Label_Orientation: TLabel;
     ComboBox_Orientation: TComboBox;
-    GroupBox_ImageSize: TGroupBox;
     GroupBox_Margins: TGroupBox;
+    Panel3: TPanel;
+    Label_Top: TLabel;
+    SpinEdit_Top: TSpinEdit;
+    Panel8: TPanel;
+    Panel4: TPanel;
+    Label_Left: TLabel;
+    SpinEdit_Left: TSpinEdit;
+    Label_Right: TLabel;
+    SpinEdit_Right: TSpinEdit;
+    Panel5: TPanel;
+    Label_Bottom: TLabel;
+    SpinEdit_Bottom: TSpinEdit;
+    Panel7: TPanel;
+    GroupBox_ImageSize: TGroupBox;
+    CheckBox_Ratio: TCheckBox;
+    Panel6: TPanel;
     Label_DpiX: TLabel;
     Label_DpiY: TLabel;
-    Label_Left: TLabel;
-    Label_Width: TLabel;
-    Label_Height: TLabel;
-    Label_Top: TLabel;
-    Label_Right: TLabel;
-    Label_Bottom: TLabel;
-    Label_Orientation: TLabel;
-    Label_SelectedPrinterAndPaper: TLabel;
-    Label_PrinterAndPaper: TLabel;
-    PrinterSetupDialog1: TPrinterSetupDialog;
     SpinEdit_DpiX: TSpinEdit;
     SpinEdit_DpiY: TSpinEdit;
+    Label_Width: TLabel;
+    Label_Height: TLabel;
     SpinEdit_Width: TSpinEdit;
     SpinEdit_Height: TSpinEdit;
-    SpinEdit_Top: TSpinEdit;
-    SpinEdit_Bottom: TSpinEdit;
-    SpinEdit_Left: TSpinEdit;
-    SpinEdit_Right: TSpinEdit;
+    Button_ZoomFit: TButton;
+    Button_Print: TButton;
+    PrinterSetupDialog1: TPrinterSetupDialog;
     procedure BGRAVirtualScreen1MouseDown(Sender: TObject;
       Button: TMouseButton; {%H-}Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure BGRAVirtualScreen1MouseMove(Sender: TObject; {%H-}Shift: TShiftState;
@@ -69,6 +81,8 @@ type
     function GetRotatedSpinTop: TSpinEdit;
     function GetRotatedSpinRight: TSpinEdit;
     function GetRotatedSpinLeft: TSpinEdit;
+    procedure AddPrinterCombo;
+    procedure ComboBox_PrinterChange(Sender: TObject);
   private
     { private declarations }
     FInitializing: boolean;
@@ -89,6 +103,9 @@ type
     property DpiY: single read GetDpiY;
   public
     Instance: TLazPaintCustomInstance;
+    BGRAVirtualScreen1: TBGRAVirtualScreen;
+    ComboBox_Printer: TComboBox;
+    Label_Paper: TLabel;
     { public declarations }
     procedure UpdatePrinterConfig;
     procedure UpdatePrintMargins;
@@ -203,14 +220,8 @@ end;
 { TFPrint }
 
 procedure TFPrint.FormShow(Sender: TObject);
-var gap: integer;
 begin
   FInitializing:= true;
-  gap := Label_SelectedPrinterAndPaper.Left-(Label_PrinterAndPaper.Left + Label_PrinterAndPaper.Width);
-  Label_PrinterAndPaper.AutoSize := true;
-  Label_PrinterAndPaper.Top := Label_SelectedPrinterAndPaper.Top+(Label_SelectedPrinterAndPaper.Height-Label_PrinterAndPaper.Height) div 2;
-  Label_SelectedPrinterAndPaper.Left := Label_PrinterAndPaper.Left + Label_PrinterAndPaper.Width+gap;
-  Label_SelectedPrinterAndPaper.Width := Button_ConfigurePrinter.Left - Label_SelectedPrinterAndPaper.Left - gap;
 
   ComboBox_Orientation.Items.Clear;
   ComboBox_Orientation.Items.Add(rsPortait);
@@ -327,6 +338,37 @@ begin
     result := SpinEdit_Top;
 end;
 
+procedure TFPrint.AddPrinterCombo;
+var
+  i: Integer;
+begin
+  Panel10.RemoveControl(Label_SelectedPrinterAndPaper);
+  Panel10.ChildSizing.Layout:= cclNone;
+
+  Label_Paper := TLabel.Create(self);
+  Label_Paper.AutoSize:= true;
+  Label_Paper.Layout:= tlCenter;
+  Label_Paper.Alignment := taCenter;
+  Label_Paper.Caption := '  (?)';
+  Label_Paper.Align := alRight;
+  Panel10.InsertControl(Label_Paper);
+
+  ComboBox_Printer := TComboBox.Create(self);
+  ComboBox_Printer.Style:= csDropDownList;
+  for i := 0 to Printer.Printers.Count-1 do
+    ComboBox_Printer.Items.Add(Printer.Printers[i]);
+  ComboBox_Printer.Align := alClient;
+  ComboBox_Printer.OnChange:= @ComboBox_PrinterChange;
+  Panel10.InsertControl(ComboBox_Printer);
+end;
+
+procedure TFPrint.ComboBox_PrinterChange(Sender: TObject);
+begin
+  if FInitializing or (ComboBox_Printer.ItemIndex = -1) then exit;
+  Printer.PrinterIndex:= ComboBox_Printer.ItemIndex;
+  UpdatePrinterConfig;
+end;
+
 function TFPrint.GetRotatedSpinRight: TSpinEdit;
 begin
   if printer.Orientation in[poPortrait,poReversePortrait] then
@@ -348,6 +390,10 @@ procedure TFPrint.UpdatePrinterConfig;
 begin
   FInitializing := true;
   Label_SelectedPrinterAndPaper.Caption := ' ' + printer.PrinterName + ' (' + printer.PaperSize.PaperName + ')';
+  if Assigned(Label_Paper) then
+    Label_Paper.Caption := '  (' + printer.PaperSize.PaperName + ')';
+  if Assigned(ComboBox_Printer) then
+    ComboBox_Printer.ItemIndex := Printer.PrinterIndex;;
   if printer.Orientation in[poPortrait,poReversePortrait] then
     ComboBox_Orientation.ItemIndex := 0 else
     ComboBox_Orientation.ItemIndex := 1;
@@ -390,6 +436,7 @@ end;
 procedure TFPrint.Button_PrintClick(Sender: TObject);
 var FPrintTransform: TAffineMatrix;
   marTopLeft,marBottomRight,imgTopLeft,imgBottomRight: TPointF;
+  bmp: TBitmap;
   area: TRect;
 begin
   if (unrotatedTotalMarginInPoints.x >= paperSizeInPoints.x) or
@@ -398,14 +445,10 @@ begin
   if FLabelCount = nil then
   begin
     FLabelCount := TLabel.Create(self);
-    FLabelCount.Left := Button_Print.Left + Button_Print.Width;
-    FLabelCount.Top := Button_Print.Top;
     FLabelCount.AutoSize := false;
-    FLabelCount.Height := Button_Print.Height;
-    FLabelCount.Width := BGRAVirtualScreen1.Left - FLabelCount.Left;
     FLabelCount.Layout := tlCenter;
     FLabelCount.Alignment := taCenter;
-    InsertControl(FLabelCount);
+    Panel2.InsertControl(FLabelCount);
   end;
 
   FLabelCount.Caption:= '...';
@@ -415,19 +458,21 @@ begin
   try
     FPrintTransform := AffineMatrixScale(Printer.XDPI/72, Printer.YDPI/72);
     Printer.BeginDoc;
-    if not Instance.Image.RenderedImage.Empty then
-    begin
-      marTopLeft := FPrintTransform*unrotatedMarginTopLeftInPoints;
-      marBottomRight := FPrintTransform*(paperSizeInPoints - unrotatedMarginBottomRightInPoints);
-      area := rect(round(marTopLeft.x),round(marTopLeft.y),round(marBottomRight.x),round(marBottomRight.y));
-      Printer.Canvas.ClipRect := area;
-      Printer.Canvas.Clipping := true;
-      imgTopLeft := FPrintTransform*FImagePos;
-      imgBottomRight := FPrintTransform*(FImagePos+FImageSize);
+    marTopLeft := FPrintTransform*unrotatedMarginTopLeftInPoints;
+    marBottomRight := FPrintTransform*(paperSizeInPoints - unrotatedMarginBottomRightInPoints);
+    area := rect(round(marTopLeft.x),round(marTopLeft.y),round(marBottomRight.x),round(marBottomRight.y));
+    Printer.Canvas.ClipRect := area;
+    Printer.Canvas.Clipping := true;
+    imgTopLeft := FPrintTransform*FImagePos;
+    imgBottomRight := FPrintTransform*(FImagePos+FImageSize);
+    bmp := Instance.Image.RenderedImage.MakeBitmapCopy(clWhite);
+    try
       Printer.Canvas.StretchDraw(rect(round(imgTopLeft.x),round(imgTopLeft.y),
-        round(imgBottomRight.x),round(imgBottomRight.y)), Instance.Image.RenderedImage.Bitmap);
-      Printer.Canvas.Clipping := false;
+        round(imgBottomRight.x),round(imgBottomRight.y)), bmp);
+    finally
+      bmp.Free;
     end;
+    Printer.Canvas.Clipping := false;
     Printer.EndDoc;
     MessagePopup(rsOkay, 4000);
     inc(FPrintCount);
@@ -568,7 +613,11 @@ procedure TFPrint.BGRAVirtualScreen1MouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 var
   imgTopLeft,imgBottomRight: TPointF;
+  factor: double;
 begin
+  factor := GetCanvasScaleFactor;
+  X := Round(X*Factor);
+  Y := Round(Y*Factor);
   if FMovingImage then
   begin
     FWantedImagePos += PointF((x-FPrevMousePos.x)*invZoom.x,(y-FPrevMousePos.y)*invZoom.y);
@@ -626,8 +675,16 @@ end;
 procedure TFPrint.FormCreate(Sender: TObject);
 begin
   ScaleControl(Self,OriginalDPI);
+  BGRAVirtualScreen1 := TBGRAVirtualScreen.Create(self);
+  BGRAVirtualScreen1.Align := alClient;
   BGRAVirtualScreen1.BitmapAutoScale:= false;
   BGRAVirtualScreen1.Color := clDkGray;
+  BGRAVirtualScreen1.OnMouseDown := @BGRAVirtualScreen1MouseDown;
+  BGRAVirtualScreen1.OnMouseMove := @BGRAVirtualScreen1MouseMove;
+  BGRAVirtualScreen1.OnMouseUp := @BGRAVirtualScreen1MouseUp;
+  BGRAVirtualScreen1.OnRedraw := @BGRAVirtualScreen1Redraw;
+  BGRAVirtualScreen1.OnResize := @BGRAVirtualScreen1Resize;
+  InsertControl(BGRAVirtualScreen1);
 
   CheckSpinEdit(SpinEdit_DpiY);
   CheckSpinEdit(SpinEdit_DpiX);
@@ -638,6 +695,12 @@ begin
   CheckSpinEdit(SpinEdit_Width);
   CheckSpinEdit(SpinEdit_Height);
 
+  Panel8.Constraints.MinWidth := Label_Top.Width;
+  Panel7.Constraints.MinWidth := Label_Bottom.Width;
+
+  {$IFDEF PRINTER_COMBO}
+  AddPrinterCombo;
+  {$ENDIF}
 end;
 
 {$R *.lfm}

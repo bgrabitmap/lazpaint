@@ -1,8 +1,8 @@
 object FHypocycloid: TFHypocycloid
   Left = 989
-  Height = 90
+  Height = 180
   Top = 156
-  Width = 203
+  Width = 464
   AutoSize = True
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
@@ -13,40 +13,41 @@ object FHypocycloid: TFHypocycloid
   ChildSizing.VerticalSpacing = 8
   ChildSizing.Layout = cclLeftToRightThenTopToBottom
   ChildSizing.ControlsPerLine = 1
-  ClientHeight = 90
-  ClientWidth = 203
+  ClientHeight = 180
+  ClientWidth = 464
+  DesignTimePPI = 192
   OnCreate = FormCreate
   OnHide = FormHide
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.2.6.0'
+  LCLVersion = '3.4.0.0'
   object Panel1: TPanel
     Left = 8
-    Height = 21
+    Height = 40
     Top = 8
-    Width = 130
+    Width = 206
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 8
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
-    ClientHeight = 21
-    ClientWidth = 130
+    ClientHeight = 40
+    ClientWidth = 206
     TabOrder = 0
     object Label_Amount: TLabel
       Left = 0
-      Height = 21
+      Height = 40
       Top = 0
-      Width = 42
+      Width = 68
       Caption = 'Cusps:'
       Layout = tlCenter
       ParentColor = False
     end
     object SpinEdit_CuspCount: TSpinEdit
-      Left = 50
-      Height = 21
+      Left = 76
+      Height = 40
       Top = 0
-      Width = 65
-      Constraints.MinWidth = 65
+      Width = 130
+      Constraints.MinWidth = 130
       MaxValue = 20
       MinValue = 1
       OnChange = SpinEdit_CuspCountChange
@@ -56,47 +57,47 @@ object FHypocycloid: TFHypocycloid
   end
   object Panel2: TPanel
     Left = 8
-    Height = 20
-    Top = 37
-    Width = 130
+    Height = 42
+    Top = 56
+    Width = 206
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 8
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
-    ClientHeight = 20
-    ClientWidth = 130
+    ClientHeight = 42
+    ClientWidth = 206
     TabOrder = 1
     object Button_OK: TButton
       Left = 0
-      Height = 20
+      Height = 42
       Top = 0
-      Width = 50
+      Width = 76
       AutoSize = True
       Caption = 'rsOK'
       Default = True
       Enabled = False
       ModalResult = 1
-      OnClick = Button_OKClick
       TabOrder = 0
+      OnClick = Button_OKClick
     end
     object Button_Cancel: TButton
-      Left = 58
-      Height = 20
+      Left = 84
+      Height = 42
       Top = 0
-      Width = 72
+      Width = 115
       AutoSize = True
       Cancel = True
       Caption = 'rsCancel'
       ModalResult = 2
-      OnClick = Button_CancelClick
       TabOrder = 1
+      OnClick = Button_CancelClick
     end
   end
   object TimerDisplay: TTimer
     Enabled = False
     Interval = 200
     OnTimer = TimerDisplayTimer
-    Left = 152
-    Top = 24
+    Left = 304
+    Top = 48
   end
 end

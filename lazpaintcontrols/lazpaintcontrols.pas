@@ -11,7 +11,8 @@ uses
   LCToolbars, LCVectorialFill, LCVectorialFillInterface, LCVectorOriginal, 
   LCVectorPolyShapes, LCVectorRectShapes, LCVectorialFillControl, 
   LCVectorShapes, LCVectorTextShapes, LCScaleDPI, LCVectorClipboard, 
-  LCResourceString, LCVectorMultishape, LazarusPackageIntf;
+  LCResourceString, LCVectorMultishape, LCSuperformulaOriginal, 
+  LazarusPackageIntf;
 
 implementation
 

@@ -19,9 +19,9 @@
     <key>CFBundleSignature</key>
     <string>lazp</string>
     <key>CFBundleShortVersionString</key>
-    <string>7.2.2</string>
+    <string>7.3</string>
     <key>CFBundleVersion</key>
-    <string>7.2.2</string>
+    <string>7.3</string>
     <key>CSResourcesFileMapped</key>
     <true/>
     <key>CFBundleDocumentTypes</key>

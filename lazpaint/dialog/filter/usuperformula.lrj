@@ -1,0 +1,17 @@
+{"version":1,"strings":[
+{"hash":180693153,"name":"tfsuperformula.caption","sourcebytes":[83,117,112,101,114,102,111,114,109,117,108,97],"value":"Superformula"},
+{"hash":6952354,"name":"tfsuperformula.label_pencolor.caption","sourcebytes":[80,101,110,32,99,111,108,111,114],"value":"Pen color"},
+{"hash":6159272,"name":"tfsuperformula.label_width.caption","sourcebytes":[87,105,100,116,104],"value":"Width"},
+{"hash":225371890,"name":"tfsuperformula.label_backcolor.caption","sourcebytes":[66,97,99,107,32,99,111,108,111,114],"value":"Back color"},
+{"hash":120855620,"name":"tfsuperformula.label_spikecount.caption","sourcebytes":[83,112,105,107,101,32,99,111,117,110,116],"value":"Spike count"},
+{"hash":145777148,"name":"tfsuperformula.label_rational.caption","sourcebytes":[82,97,116,105,111,110,97,108],"value":"Rational"},
+{"hash":368901,"name":"tfsuperformula.label_size.caption","sourcebytes":[83,105,122,101],"value":"Size"},
+{"hash":1809,"name":"tfsuperformula.label_n1.caption","sourcebytes":[110,49],"value":"n1"},
+{"hash":1810,"name":"tfsuperformula.label_n2.caption","sourcebytes":[110,50],"value":"n2"},
+{"hash":1811,"name":"tfsuperformula.label_n3.caption","sourcebytes":[110,51],"value":"n3"},
+{"hash":213689792,"name":"tfsuperformula.label_spikeoverlap.caption","sourcebytes":[83,112,105,107,101,32,111,118,101,114,108,97,112],"value":"Spike overlap"},
+{"hash":97,"name":"tfsuperformula.label_a.caption","sourcebytes":[97],"value":"a"},
+{"hash":98,"name":"tfsuperformula.label_b.caption","sourcebytes":[98],"value":"b"},
+{"hash":497723,"name":"tfsuperformula.button_ok.caption","sourcebytes":[114,115,79,75],"value":"rsOK"},
+{"hash":127421996,"name":"tfsuperformula.button_cancel.caption","sourcebytes":[114,115,67,97,110,99,101,108],"value":"rsCancel"}
+]}

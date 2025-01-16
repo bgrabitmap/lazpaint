@@ -21,12 +21,10 @@ type
     FFontEmHeightBefore: single;
     FFontNameBefore: string;
     FFontStyleBefore: TFontStyles;
-    FAliasedBefore: boolean;
     FFontBidiModeAfter: TFontBidiMode;
     FFontEmHeightAfter: single;
     FFontNameAfter: string;
     FFontStyleAfter: TFontStyles;
-    FAliasedAfter: boolean;
   public
     constructor Create(AStartShape: TVectorShape); override;
     procedure ComputeDiff(AEndShape: TVectorShape); override;
@@ -80,7 +78,6 @@ type
 
   TTextShape = class(TCustomRectShape)
   private
-    FAliased: boolean;
     FAltitudePercent: single;
     FPenPhong: boolean;
     FPenFillIteration: integer;
@@ -112,7 +109,6 @@ type
       {%H-}ASubBrokenIndex, {%H-}ACharIndex: integer);
     procedure OnMoveLightPos({%H-}ASender: TObject; {%H-}APrevCoord, ANewCoord: TPointF;
       {%H-}AShift: TShiftState);
-    procedure SetAliased(AValue: boolean);
     procedure SetAltitudePercent(AValue: single);
     procedure SetPenPhong(AValue: boolean);
     procedure SetFontBidiMode(AValue: TFontBidiMode);
@@ -148,6 +144,7 @@ type
     procedure DeleteTextBefore(ACount: integer);
     procedure DeleteTextAfter(ACount: integer);
     procedure InsertText(ATextUTF8: string);
+    function PrepareCoordToText(out ALayout: TBidiTextLayout; out AMatrix: TAffineMatrix): boolean;
     procedure SelectWithMouse(X,Y: single; AExtend: boolean);
     procedure SelectWordWithMouse(X,Y: single);
     procedure SelectParagraphWithMouse(X,Y: single);
@@ -207,7 +204,6 @@ type
     property PenPhong: boolean read FPenPhong write SetPenPhong;
     property LightPosition: TPointF read FLightPosition write SetLightPosition;
     property AltitudePercent: single read FAltitudePercent write SetAltitudePercent;
-    property Aliased: boolean read FAliased write SetAliased;
   end;
 
 function FontStyleToStr(AStyle: TFontStyles): string;
@@ -471,7 +467,6 @@ begin
     FFontEmHeightBefore:= FFontEmHeight;
     FFontNameBefore:= FFontName;
     FFontStyleBefore:= FFontStyle;
-    FAliasedBefore := FAliased;
   end;
 end;
 
@@ -483,7 +478,6 @@ begin
     FFontEmHeightAfter:= FFontEmHeight;
     FFontNameAfter:= FFontName;
     FFontStyleAfter:= FFontStyle;
-    FAliasedAfter := FAliased;
   end;
 end;
 
@@ -496,7 +490,6 @@ begin
     FFontEmHeight := FFontEmHeightAfter;
     FFontName := FFontNameAfter;
     FFontStyle := FFontStyleAfter;
-    FAliased := FAliasedAfter;
     if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
     EndUpdate;
   end;
@@ -511,7 +504,6 @@ begin
     FFontEmHeight := FFontEmHeightBefore;
     FFontName := FFontNameBefore;
     FFontStyle := FFontStyleBefore;
-    FAliased := FAliasedBefore;
     if Assigned(FTextLayout) then FTextLayout.InvalidateLayout;
     EndUpdate;
   end;
@@ -526,7 +518,6 @@ begin
   FFontEmHeightAfter := next.FFontEmHeightAfter;
   FFontNameAfter := next.FFontNameAfter;
   FFontStyleAfter := next.FFontStyleAfter;
-  FAliasedAfter := next.FAliasedAfter;
 end;
 
 function TTextShapeFontDiff.IsIdentity: boolean;
@@ -534,8 +525,7 @@ begin
   result := (FFontBidiModeBefore = FFontBidiModeAfter) and
     (FFontEmHeightBefore = FFontEmHeightAfter) and
     (FFontNameBefore = FFontNameAfter) and
-    (FFontStyleBefore = FFontStyleAfter) and
-    (FAliasedBefore = FAliasedAfter);
+    (FFontStyleBefore = FFontStyleAfter);
 end;
 
 { TTextShape }
@@ -682,15 +672,6 @@ procedure TTextShape.OnMoveLightPos(ASender: TObject; APrevCoord,
   ANewCoord: TPointF; AShift: TShiftState);
 begin
   LightPosition := ANewCoord;
-end;
-
-procedure TTextShape.SetAliased(AValue: boolean);
-begin
-  if FAliased=AValue then Exit;
-  BeginUpdate(TTextShapeFontDiff);
-  FAliased:=AValue;
-  InvalidateAll;
-  EndUpdate;
 end;
 
 procedure TTextShape.SetAltitudePercent(AValue: single);
@@ -1034,18 +1015,31 @@ begin
   EndUpdate;
 end;
 
+function TTextShape.PrepareCoordToText(out ALayout: TBidiTextLayout; out
+  AMatrix: TAffineMatrix): boolean;
+var
+  zoom: Single;
+  untransformed, alignMatrix, m: TAffineMatrix;
+begin
+  ALayout := GetTextLayout;
+  zoom := GetTextRenderZoom;
+  untransformed := GetUntransformedMatrix;
+  alignMatrix := GetVerticalAlignMatrix(ALayout);
+  if not IsAffineMatrixInversible(untransformed) then exit(false);
+  AMatrix := AffineMatrixInverse(alignMatrix)*AffineMatrixScale(zoom,zoom)
+          *AffineMatrixInverse(untransformed);
+  result := true;
+end;
+
 procedure TTextShape.SelectWithMouse(X, Y: single; AExtend: boolean);
 var
   newPos: Integer;
   tl: TBidiTextLayout;
-  zoom: Single;
-  untransformed: TAffineMatrix;
+  m: TAffineMatrix;
 begin
+  if not PrepareCoordToText(tl, m) then exit;
   tl := GetTextLayout;
-  zoom := GetTextRenderZoom;
-  untransformed := GetUntransformedMatrix;
-  if not IsAffineMatrixInversible(untransformed) then exit;
-  newPos := tl.GetCharIndexAt(AffineMatrixScale(zoom,zoom)*AffineMatrixInverse(untransformed)*PointF(X,Y));
+  newPos := tl.GetCharIndexAt(m*PointF(X,Y));
   if newPos<>-1 then
   begin
     if (newPos <> FSelEnd) or (not AExtend and (FSelStart <> FSelEnd)) or (UserMode <> vsuEditText) then
@@ -1072,16 +1066,12 @@ var
 
 var
   newPos, paraIndex, startIndex, endIndex: Integer;
-  zoom: Single;
-  untransformed: TAffineMatrix;
+  m: TAffineMatrix;
   inWord: boolean;
 begin
   if UserMode <> vsuEditText then exit;
-  tl := GetTextLayout;
-  zoom := GetTextRenderZoom;
-  untransformed := GetUntransformedMatrix;
-  if not IsAffineMatrixInversible(untransformed) then exit;
-  newPos := tl.GetCharIndexAt(AffineMatrixScale(zoom,zoom)*AffineMatrixInverse(untransformed)*PointF(X,Y), false);
+  if not PrepareCoordToText(tl, m) then exit;
+  newPos := tl.GetCharIndexAt(m*PointF(X,Y), false);
   if newPos<>-1 then
   begin
     paraIndex := tl.GetParagraphAt(newPos);
@@ -1109,15 +1099,11 @@ procedure TTextShape.SelectParagraphWithMouse(X, Y: single);
 var
   newPos, paraIndex: Integer;
   tl: TBidiTextLayout;
-  zoom: Single;
-  untransformed: TAffineMatrix;
+  m: TAffineMatrix;
 begin
   if UserMode <> vsuEditText then exit;
-  tl := GetTextLayout;
-  zoom := GetTextRenderZoom;
-  untransformed := GetUntransformedMatrix;
-  if not IsAffineMatrixInversible(untransformed) then exit;
-  newPos := tl.GetCharIndexAt(AffineMatrixScale(zoom,zoom)*AffineMatrixInverse(untransformed)*PointF(X,Y), false);
+  if not PrepareCoordToText(tl, m) then exit;
+  newPos := tl.GetCharIndexAt(m*PointF(X,Y), false);
   if newPos<>-1 then
   begin
     paraIndex := tl.GetParagraphAt(newPos);
@@ -1186,7 +1172,6 @@ begin
   FPenFillIteration := 0;
   FAltitudePercent:= DefaultAltitudePercent;
   FLightPosition := PointF(0,0);
-  FAliased := false;
   FCurBrokenLineImageId := 0;
 end;
 
@@ -1247,8 +1232,6 @@ begin
   end else
     SetDefaultFont;
 
-  Aliased := AStorage.Bool['aliased'];
-
   phongObj := AStorage.OpenObject('pen-phong');
   PenPhong := Assigned(phongObj);
   if PenPhong then
@@ -1299,7 +1282,6 @@ begin
   font.RawString['bidi'] := FontBidiModeToStr(FontBidiMode);
   font.RawString['style'] := FontStyleToStr(FontStyle);
   font.Free;
-  AStorage.Bool['aliased'] := Aliased;
 
   if PenPhong then
   begin
@@ -1340,7 +1322,7 @@ end;
 
 class function TTextShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenFill,vsfOutlineFill,vsfOutlineWidth];
+  Result:= [vsfPenFill,vsfOutlineFill,vsfOutlineWidth,vsfAliased];
 end;
 
 class function TTextShape.PreferPixelCentered: boolean;
@@ -1886,7 +1868,8 @@ begin
   begin
     tempRenderNewList := TStringList.Create;
     useBrokenLinesRender := not ADraft and (Usermode = vsuEditText);
-    if not tempStorage.AffineMatrixEquals('last-matrix', AMatrix) or
+    if (tempStorage.Bool['aliased'] <> Aliased) or
+       not tempStorage.AffineMatrixEquals('last-matrix', AMatrix) or
        not tempStorage.PointFEquals('origin', Origin) or
        not tempStorage.PointFEquals('x-axis', XAxis) or
        not tempStorage.PointFEquals('y-axis', YAxis) or
@@ -1900,6 +1883,7 @@ begin
         tempStorage.RemoveObject(tempRenderCurList[fileIdx]);
       tempRenderCurList.Free;
 
+      tempStorage.RemoveAttribute('aliased');
       tempStorage.RemoveAttribute('last-matrix');
       tempStorage.RemoveAttribute('origin');
       tempStorage.RemoveAttribute('x-axis');
@@ -2100,6 +2084,7 @@ begin
         tempStorage.RemoveObject(tempRenderCurList[fileIdx]);
     tempRenderCurList.Free;
 
+    tempStorage.Bool['aliased'] := Aliased;
     tempStorage.AffineMatrix['last-matrix'] := AMatrix;
     tempStorage.PointF['origin'] := Origin;
     tempStorage.PointF['x-axis'] := XAxis;
@@ -2250,6 +2235,14 @@ var
   idxPara, newPos: Integer;
   tl: TBidiTextLayout;
 begin
+  {$IFDEF DARWIN}
+  if (Shift*[ssCtrl, ssAlt] = []) and (Key = skBackspace) then
+  begin
+    KeyPress(#8, AHandled);
+    exit;
+  end;
+  {$ENDIF}
+
   if (FTextLayout = nil) or (Usermode <> vsuEditText) then exit;
 
   if Key = skDelete then

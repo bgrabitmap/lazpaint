@@ -21,7 +21,7 @@
       </Linking>
     </CompilerOptions>
     <Version Minor="2" Release="1"/>
-    <Files Count="13">
+    <Files Count="14">
       <Item1>
         <Filename Value="lctoolbars.pas"/>
         <UnitName Value="LCToolbars"/>
@@ -75,6 +75,10 @@
         <Filename Value="lcvectormultishape.pas"/>
         <UnitName Value="LCVectorMultishape"/>
       </Item13>
+      <Item14>
+        <Filename Value="lcsuperformulaoriginal.pas"/>
+        <UnitName Value="LCSuperformulaOriginal"/>
+      </Item14>
     </Files>
     <CompatibilityMode Value="True"/>
     <i18n>

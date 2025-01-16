@@ -18,7 +18,7 @@ msgstr "Процедуру %s не удалось загрузить прави�
 
 #: tablet.openfailed
 msgid "Tablet context failed to open."
-msgstr ""
+msgstr "Не удалось открыть контекст планшета."
 
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
@@ -410,11 +410,11 @@ msgstr "Кол-во сторон:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Гипоциклоида"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Вершины:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -1443,7 +1443,7 @@ msgstr "Циклический шум Перлина"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Гипоциклоида..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -2287,6 +2287,7 @@ msgid "Saturation"
 msgstr "Насыщенность"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Дополнит."
 
@@ -2295,6 +2296,7 @@ msgid "Keep"
 msgstr "Как есть"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Основной"
 
@@ -2363,6 +2365,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "Сохранять пропорции"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Размер изображения"
@@ -2404,6 +2412,12 @@ msgstr "Принтер и бумага:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Справа:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2511,6 +2525,7 @@ msgid "Quality:"
 msgstr "Качество:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 
@@ -2582,6 +2597,66 @@ msgstr "Оттенок"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Насыщенность"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "Суперформула"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Дополнит."
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Основной"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Рациональное"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Размер"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Количество шипов"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Перекрытие шипов"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Ширина"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2948,6 +3023,7 @@ msgid "File not saved"
 msgstr "Файл не сохранен"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Размер"
 
@@ -3459,6 +3535,14 @@ msgstr "Щелчок правой кнопкой мыши, чтобы закон
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
 msgstr "Щелчок правой кнопкой мыши, чтобы установить источник"
+
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Щелчок правой кнопкой мыши, чтобы определить центр трансформации"
+
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Запустите этот скрипт еще раз, чтобы обновить эффект"
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"

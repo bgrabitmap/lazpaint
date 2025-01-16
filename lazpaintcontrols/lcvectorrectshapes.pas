@@ -927,7 +927,7 @@ end;
 
 class function TRectShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill];
+  Result:= [vsfPenFill, vsfPenWidth, vsfPenStyle, vsfJoinStyle, vsfBackFill, vsfAliased];
 end;
 
 function TRectShape.AppendToSVG(AContent: TSVGContent; ADefs: TSVGDefine): TSVGElement;
@@ -973,6 +973,7 @@ begin
     result.Matrix[cuPixel] := m;
     ApplyStrokeStyleToSVG(result, ADefs);
     ApplyFillStyleToSVG(result, ADefs);
+    ApplyAliasingToSVG(result);
   end;
 end;
 
@@ -995,7 +996,7 @@ begin
 
     if GetOrthoRect(AMatrix, orthoRect) then
     begin
-      if ADraft then
+      if ADraft or Aliased then
       begin
         r:= rect(round(orthoRect.Left+0.5),round(orthoRect.Top+0.5),round(orthoRect.Right+0.5),round(orthoRect.Bottom+0.5));
         if Assigned(backScan) then
@@ -1023,7 +1024,7 @@ begin
       end;
     end else
     begin
-      if ADraft then
+      if ADraft or Aliased then
       begin
         if Assigned(backScan) then
           ADest.FillPoly(pts, backScan, dmDrawWithTransparency) else
@@ -1059,7 +1060,7 @@ begin
     else penScan := PenFill.CreateScanner(AMatrix, ADraft);
 
     pts := ComputeStroke(pts,true, AMatrix);
-    if ADraft and (PenWidth > 4) then
+    if (ADraft and (PenWidth > 4)) or Aliased then
     begin
       if Assigned(penScan) then
         ADest.FillPoly(pts, penScan, dmDrawWithTransparency) else
@@ -1195,7 +1196,7 @@ end;
 
 class function TEllipseShape.Fields: TVectorShapeFields;
 begin
-  Result:= [vsfPenFill, vsfPenWidth, vsfPenStyle, vsfBackFill];
+  Result:= [vsfPenFill, vsfPenWidth, vsfPenStyle, vsfBackFill, vsfAliased];
 end;
 
 function TEllipseShape.AppendToSVG(AContent: TSVGContent; ADefs: TSVGDefine): TSVGElement;
@@ -1219,6 +1220,7 @@ begin
   end;
   ApplyStrokeStyleToSVG(result, ADefs);
   ApplyFillStyleToSVG(result, ADefs);
+  ApplyAliasingToSVG(result);
 end;
 
 function TEllipseShape.GetAlignBounds(const ALayoutRect: TRect;
@@ -1264,7 +1266,7 @@ var
   pts: Array of TPointF;
   orthoRect: TRectF;
   center, radius: TPointF;
-  draftPen, isOrtho: Boolean;
+  aliasedPen, isOrtho: Boolean;
   r: TRect;
   backScan, penScan: TBGRACustomScanner;
   penZoom: Single;
@@ -1280,7 +1282,7 @@ begin
       if BackFill.FillType = vftSolid then backScan := nil
       else backScan := BackFill.CreateScanner(AMatrix, ADraft);
 
-      if ADraft then
+      if ADraft or Aliased then
       begin
         r := rect(round(orthoRect.Left),round(orthoRect.Top),round(orthoRect.Right),round(orthoRect.Bottom));
         if Assigned(backScan) then
@@ -1300,13 +1302,13 @@ begin
     begin
       if PenFill.FillType = vftSolid then penScan := nil
       else penScan := PenFill.CreateScanner(AMatrix, ADraft);
-      draftPen := ADraft and (PenWidth > 4);
+      aliasedPen := (ADraft and (PenWidth > 4)) or Aliased;
 
-      if IsAffineMatrixScaledRotation(AMatrix) and not (draftPen and Assigned(penScan)) then
+      if IsAffineMatrixScaledRotation(AMatrix) and not (aliasedPen and Assigned(penScan)) then
       begin
         penZoom := VectLen(AMatrix[1,1],AMatrix[2,1]);
         ADest.CustomPenStyle := PenStyle;
-        if draftPen then
+        if aliasedPen then
           ADest.Ellipse(center.x, center.y, radius.x, radius.y, PenColor, PenWidth*penZoom, dmDrawWithTransparency)
         else
         begin
@@ -1320,7 +1322,7 @@ begin
         m:= MatrixForPixelCentered(AMatrix);
         pts := ComputeEllipse(m*FOrigin, m*FXAxis, m*FYAxis);
         pts := ComputeStroke(pts,true, AMatrix);
-        if draftPen then
+        if aliasedPen then
         begin
           if Assigned(penScan) then
             ADest.FillPoly(pts, penScan, dmDrawWithTransparency) else
@@ -1345,7 +1347,7 @@ begin
       if BackFill.FillType = vftSolid then backScan := nil
       else backScan := BackFill.CreateScanner(AMatrix, ADraft);
 
-      if ADraft then
+      if ADraft or Aliased then
       begin
         if Assigned(backScan) then
           ADest.FillPoly(pts, backScan, dmDrawWithTransparency) else
@@ -1366,7 +1368,7 @@ begin
       else penScan := PenFill.CreateScanner(AMatrix, ADraft);
 
       pts := ComputeStroke(pts,true, AMatrix);
-      if ADraft and (PenWidth > 4) then
+      if (ADraft and (PenWidth > 4)) or Aliased then
       begin
         if Assigned(penScan) then
           ADest.FillPoly(pts, penScan, dmDrawWithTransparency) else
