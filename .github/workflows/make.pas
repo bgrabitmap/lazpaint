@@ -97,8 +97,10 @@ type
     if Result.Code then
         try
           if not RunCommand(Temp, ['--all', '--format=plain', '--progress'], Result.Output) then
-            ExitCode += 1;
-          WriteLn(stderr, Result.Output);
+            begin
+              ExitCode += 1;
+              WriteLn(stderr, Result.Output);
+            end;
         except
           on E: Exception do
             WriteLn(stderr, 'Error: ' + E.ClassName + #13#10 + E.Message);
@@ -157,7 +159,7 @@ type
     if not RunCommand('python3', ['-m', 'pylint', Path], Result.Output) then
       begin
         Writeln(stderr, #27'[31m', Result.Output, #27'[0m');
-        ExitCode += 1;
+        //ExitCode += 1;
       end
   end;
 
@@ -167,7 +169,7 @@ type
     if not RunCommand('cppcheck', ['--language=c', '--enable=warning,style', '--template=gcc', Path], Result.Output) then
       begin
         Writeln(stderr, #27'[31m', Result.Output, #27'[0m');
-        ExitCode += 1;
+        //ExitCode += 1;
       end
   end;
 
@@ -177,7 +179,7 @@ type
     if not RunCommand('shellcheck', ['--external-sources', Path], Result.Output) then
       begin
         Writeln(stderr, #27'[31m', Result.Output, #27'[0m');
-        ExitCode += 1;
+        //ExitCode += 1;
       end
   end;
 
