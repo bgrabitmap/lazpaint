@@ -3035,7 +3035,7 @@ msgstr "Koko"
 
 #: uresourcestrings.rsfilesystem
 msgid "File system"
-msgstr ""
+msgstr "Tiedostojärjestelmä"
 
 #: uresourcestrings.rsfilesystem
 msgid "File system"
@@ -3057,7 +3057,7 @@ msgstr "Kansio"
 
 #: uresourcestrings.rsfolderorcontaineralreadyexists
 msgid "Folder or container already exists."
-msgstr ""
+msgstr "Kansio tai säilö on jo olemassa."
 
 #: uresourcestrings.rsfollowingerrorsoccurred
 msgid "Following errors occurred:"
