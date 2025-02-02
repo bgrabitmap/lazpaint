@@ -3755,7 +3755,7 @@ msgid "Vertical size"
 msgstr "Vertikālais izmērs"
 
 #: uresourcestrings.rsvisible
-msgid "Visible"
+msgid "Visibile"
 msgstr "Redzams"
 
 #: uresourcestrings.rsyellow
