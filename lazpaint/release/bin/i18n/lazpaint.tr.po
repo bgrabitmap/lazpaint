@@ -416,11 +416,11 @@ msgstr "Kenar sayısı:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Hiposikloid"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Tepe noktaları:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -600,11 +600,11 @@ msgstr "Renkleri değiştir..."
 
 #: tfmain.combobox_arrowend.hint
 msgid "Ending arrow"
-msgstr ""
+msgstr "Bitiş oku"
 
 #: tfmain.combobox_arrowstart.hint
 msgid "Starting arrow"
-msgstr ""
+msgstr "Başlangıç oku"
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
@@ -798,11 +798,11 @@ msgstr "Yazdır..."
 
 #: tfmain.filequicksave.caption
 msgid "Quick save"
-msgstr ""
+msgstr "Hızlı kaydet"
 
 #: tfmain.filequicksave.hint
 msgid "Save current file without dialogs"
-msgstr ""
+msgstr "Mevcut dosyayı diyalogsuz kaydet"
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -1451,7 +1451,7 @@ msgstr "Döngüsel Perlin gürültüsü"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Hiposikloid..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -1889,7 +1889,7 @@ msgstr "Aşamalı kova"
 
 #: tfmain.tool_textalignbottom.hint
 msgid "Align bottom"
-msgstr ""
+msgstr "Alta hizala"
 
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
@@ -1901,7 +1901,7 @@ msgstr "Şekli sola hizala"
 
 #: tfmain.tool_textalignmiddle.hint
 msgid "Center vertically"
-msgstr ""
+msgstr "Dikey hizala"
 
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
@@ -1909,15 +1909,15 @@ msgstr "Şekli sağa hizala"
 
 #: tfmain.tool_textaligntop.hint
 msgid "Align top"
-msgstr ""
+msgstr "Üste hizala"
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"
-msgstr ""
+msgstr "Çift yönlü"
 
 #: tfmain.tool_textbold.hint
 msgid "Bold"
-msgstr ""
+msgstr "Kalın"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -1926,11 +1926,11 @@ msgstr "Yazı tipini seçin..."
 
 #: tfmain.tool_textitalic.hint
 msgid "Italic"
-msgstr ""
+msgstr "İtalik"
 
 #: tfmain.tool_textltr.hint
 msgid "Left to right"
-msgstr ""
+msgstr "Soldan sağa"
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1944,7 +1944,7 @@ msgstr "Metin phong gölgelendirme"
 
 #: tfmain.tool_textrtl.hint
 msgid "Right to left"
-msgstr ""
+msgstr "Sağdan sola"
 
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
@@ -1953,11 +1953,11 @@ msgstr "Metin gölgesi"
 
 #: tfmain.tool_textstrikeout.hint
 msgid "Strikeout"
-msgstr ""
+msgstr "Üzeri çizili"
 
 #: tfmain.tool_textunderline.hint
 msgid "Underline"
-msgstr ""
+msgstr "Altı çizili"
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -2760,7 +2760,7 @@ msgstr "Bitmap"
 
 #: uresourcestrings.rsblack
 msgid "Black"
-msgstr ""
+msgstr "Siyah"
 
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
@@ -2806,7 +2806,7 @@ msgstr "CD"
 
 #: uresourcestrings.rschannels
 msgid "Channels"
-msgstr ""
+msgstr "Kanallar"
 
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
@@ -2823,11 +2823,11 @@ msgstr "CMD"
 
 #: uresourcestrings.rscolordescription
 msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr ""
+msgstr "Renk açıklaması: Klavyede renk adlarını veya CSS gösterimini kullanarak renk girmek için tıklayın."
 
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
-msgstr ""
+msgstr "Renk kaplaması"
 
 #: uresourcestrings.rscolors
 msgctxt "uresourcestrings.rscolors"
@@ -2883,7 +2883,7 @@ msgstr "CTRL"
 
 #: uresourcestrings.rscurrentlayernotsplit
 msgid "Current layer is not split"
-msgstr ""
+msgstr "Geçerli katman bölünmemiş"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -2891,7 +2891,7 @@ msgstr "Son noktanın eğri modunu ayarlamak için S veya X'e basın"
 
 #: uresourcestrings.rscyan
 msgid "Cyan"
-msgstr ""
+msgstr "Camgöbeği"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
@@ -2925,7 +2925,7 @@ msgstr "İndir"
 
 #: uresourcestrings.rsdropshadow
 msgid "Drop shadow"
-msgstr ""
+msgstr "Gölge ekle"
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
@@ -3076,7 +3076,7 @@ msgstr "Aşağıdaki hatalar oluştu:"
 
 #: uresourcestrings.rsfractaltree
 msgid "Fractal tree"
-msgstr ""
+msgstr "Fraktal ağaç"
 
 #: uresourcestrings.rsframes
 msgid "Frames"
@@ -3165,11 +3165,11 @@ msgstr "Bilgi"
 
 #: uresourcestrings.rsinnerlight
 msgid "Inner light"
-msgstr ""
+msgstr "İç ışık"
 
 #: uresourcestrings.rsinnershadow
 msgid "Inner shadow"
-msgstr ""
+msgstr "İç gölge"
 
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
@@ -3182,7 +3182,7 @@ msgstr "İç hata"
 
 #: uresourcestrings.rsinvalidangle
 msgid "Invalid angle"
-msgstr ""
+msgstr "Geçersiz açı"
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
@@ -3227,7 +3227,7 @@ msgstr "LazPaint'in çevrimiçi olarak sunulan en son sürümü"
 
 #: uresourcestrings.rslava
 msgid "Lava"
-msgstr ""
+msgstr "Lava"
 
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
@@ -3236,7 +3236,7 @@ msgstr "Katman"
 
 #: uresourcestrings.rslayeralreadysplit
 msgid "Layer already split"
-msgstr ""
+msgstr "Katman zaten bölünmüş"
 
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
@@ -3244,7 +3244,7 @@ msgstr "Katmanlı görüntü"
 
 #: uresourcestrings.rslayereffect
 msgid "Layer effect"
-msgstr ""
+msgstr "Katman efekti"
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
@@ -3301,11 +3301,11 @@ msgstr "Döngü sayısı"
 
 #: uresourcestrings.rsmagenta
 msgid "Magenta"
-msgstr ""
+msgstr "Macenta"
 
 #: uresourcestrings.rsmakemonochromatic
 msgid "Make monochromatic"
-msgstr ""
+msgstr "Tek renk yap"
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
@@ -3313,15 +3313,15 @@ msgstr "Görüntüden %1-renk paleti yap"
 
 #: uresourcestrings.rsmask
 msgid "Mask"
-msgstr ""
+msgstr "Maske"
 
 #: uresourcestrings.rsmaskfromalphachannel
 msgid "Mask from alpha channel"
-msgstr ""
+msgstr "Alfa kanalından maske"
 
 #: uresourcestrings.rsmerge
 msgid "Merge"
-msgstr ""
+msgstr "Birleştir"
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -3360,7 +3360,7 @@ msgstr "Yeni resim"
 
 #: uresourcestrings.rsnewmask
 msgid "New mask"
-msgstr ""
+msgstr "Yeni maske"
 
 #: uresourcestrings.rsno
 msgid "No"
@@ -3389,7 +3389,7 @@ msgstr "Normal"
 
 #: uresourcestrings.rsnotchromaticchannel
 msgid "This is not a chromatic channel"
-msgstr ""
+msgstr "Bu bir kromatik kanal değil"
 
 #: uresourcestrings.rsnothingtobedeformed
 msgctxt "uresourcestrings.rsnothingtobedeformed"
@@ -3560,7 +3560,7 @@ msgstr "RGB"
 
 #: uresourcestrings.rsrightclickfinishshape
 msgid "Use RIGHT click to finish shape"
-msgstr ""
+msgstr "Şekli tamamlamak için SAĞ tıklayın"
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
@@ -3628,15 +3628,15 @@ msgstr "Spline"
 
 #: uresourcestrings.rssplitcmyk
 msgid "Split CMYK"
-msgstr ""
+msgstr "CMYK ayır"
 
 #: uresourcestrings.rssplithsl
 msgid "Split HSL"
-msgstr ""
+msgstr "HSL ayır"
 
 #: uresourcestrings.rssplitrgb
 msgid "Split RGB"
-msgstr ""
+msgstr "RGB ayır"
 
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
@@ -3644,7 +3644,7 @@ msgstr "Cihaz"
 
 #: uresourcestrings.rsstroke
 msgid "Stroke"
-msgstr ""
+msgstr "Çizgi"
 
 #: uresourcestrings.rstextoutline
 msgctxt "uresourcestrings.rstextoutline"
@@ -3730,19 +3730,19 @@ msgstr "Vektörel katman"
 
 #: uresourcestrings.rsversion
 msgid "Version"
-msgstr ""
+msgstr "Sürüm"
 
 #: uresourcestrings.rsverticalsize
 msgid "Vertical size"
-msgstr ""
+msgstr "Dikey boyut"
 
 #: uresourcestrings.rsvisible
 msgid "Visibile"
-msgstr ""
+msgstr "Görünür"
 
 #: uresourcestrings.rsyellow
 msgid "Yellow"
-msgstr ""
+msgstr "Sarı"
 
 #: uresourcestrings.rsyes
 msgid "Yes"
