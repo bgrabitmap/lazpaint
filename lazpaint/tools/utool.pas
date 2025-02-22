@@ -1590,7 +1590,7 @@ end;
 
 function TToolManager.CheckExitTool: boolean;
 begin
-  if FShouldExitTool then
+  if FShouldExitTool and not ToolSleeping then
   begin
     FShouldExitTool:= false;
     SetCurrentToolType(FSwitchAfterExitTool);

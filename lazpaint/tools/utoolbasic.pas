@@ -603,6 +603,7 @@ var
   original: TVectorOriginal;
   i: Integer;
 begin
+  if Manager.ToolSleeping then exit;
   if not Manager.Image.SelectionMaskEmpty and
     not Manager.Image.SelectionLayerIsEmpty and
     IsAffineMatrixInversible(Manager.Image.SelectionTransform) then
