@@ -41,7 +41,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 var lazpaint: TLazPaintInstance;
 begin
   lazpaint := TLazPaintInstance.Create;
-  lazpaint.AboutText:= 'This is the normal application';
+  //lazpaint.AboutText:= 'This is the normal application';
   lazpaint.Run;
   lazpaint.Free;
 end;
@@ -51,7 +51,7 @@ var lazpaint: TLazPaintInstance;
     bmp: TBitmap;
 begin
   lazpaint := TLazPaintInstance.Create(True);
-  lazpaint.AboutText:= 'This is an embedded application';
+  //lazpaint.AboutText:= 'This is an embedded application';
   lazpaint.Run;
   if lazpaint.EmbeddedResult = mrOK then
   begin

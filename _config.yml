@@ -1,2 +1,7 @@
 title: LazPaint
 theme: jekyll-theme-cayman
+exclude:
+  - use/
+  - Install/
+  - web/
+  - winmake/

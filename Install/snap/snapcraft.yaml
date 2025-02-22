@@ -1,9 +1,46 @@
 name: lazpaint
 title: LazPaint
-version: '7.1.6'
+version: '7.2.2'
 summary: Image editor with raster and vector layers.
 description: |
+  Free cross-platform image editor with raster and vector layers, written in Lazarus (Free Pascal).
   Can read layered files (lzp, ora, pdn, oXo, flat psd), multi-images (gif, ico, tiff), flat files (bmp, jpeg, pcx, png, tga, webp, xpm, xwd), raw images (dng, cr2, nef, arw...), vectorial (svg), 3D (obj). Has drawing tools, vector shapes, phong shading, curve adjustments, filters, render some textures, Python scripting. Uses Qt5 widgetset.
+  
+  **Features**
+  * Files: read and write a variety of file formats, including layered bitmaps and 3D files.
+  * Tools: many tools are available to draw on the layers.
+  * Edit/Select: select parts of an image with antialiasing and modify the selection as a mask.
+  * View: color window, layer stack window and toolbox window.
+  * Command line: call LazPaint from a console.
+  
+  **Image manipulation**
+  * An image can be resampled, flipped horizontally and vertically.
+  * Smart zoom x3 : resize the image x3 and detects borders; this provides a useful zoom with ancient games sprites.
+ 
+  **Color manipulation**
+  * Colorize : set the color of an image while preserving intensities
+  * Shift colors : cycle colors and change colorness (saturation)
+  * Intensity : make colors lighter or darker without making them white
+  * Lightness : make colors lighter or darker by making them whiter
+  * Normalize : use the whole range of each color channel and alpha channel
+  * Negative : invert colors (with gamma correction)
+  * Linear negative : invert colors (without gamma correction)
+  * Grayscale : converts colors to grayscale with gamma correction
+  
+  **Filters**
+  Filters can be applied to the whole image or to the active selection.
+  * Radial blur : non directional blur
+  * Motion blur : directional blur
+  * Custom blur : blur according to a mask
+  * Sharpen : makes contours more accurate, complementary to Smooth
+  * Smooth : softens whole image, complementary to Sharpen
+  * Median : computes the median of colors around each pixel, which softens corners
+  * Contour : draws contours on a white background (like a pencil drawing)
+  * Emboss : draws contours with shadow
+  * Sphere : spherical projection
+  * Cylinder : cylinder projection
+  * Clouds : add clouds of the current pen color
+  * Scripts: scripts are provided to do layer effects. You can as well write your own Python scripts.  
 confinement: strict
 base: core20
 grade: stable
@@ -19,10 +56,10 @@ parts:
     - wget
     - libgtk2.0-dev
     override-build: |
-      wget -nc https://deac-ams.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.12/lazarus-project_2.0.12-0_amd64.deb
-      wget -nc https://netix.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.12/fpc-laz_3.2.0-1_amd64.deb
-      wget -nc https://netix.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.12/fpc-src_3.2.0-1_amd64.deb
-      apt install ./lazarus-project_2.0.12-0_amd64.deb ./fpc-laz_3.2.0-1_amd64.deb ./fpc-src_3.2.0-1_amd64.deb
+      wget -nc https://downloads.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.2/lazarus-project_2.2.2-0_amd64.deb
+      wget -nc https://downloads.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.2/fpc-laz_3.2.2-210709_amd64.deb
+      wget -nc https://downloads.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.2/fpc-src_3.2.2-210709_amd64.deb
+      apt install ./lazarus-project_2.2.2-0_amd64.deb ./fpc-laz_3.2.2-210709_amd64.deb ./fpc-src_3.2.2-210709_amd64.deb
     prime: [-*]
   lazpaint:
     plugin: nil
