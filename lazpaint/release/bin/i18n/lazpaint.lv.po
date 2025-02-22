@@ -762,6 +762,10 @@ msgstr "Pārbaudīt izmaiņas"
 msgid "Export as..."
 msgstr "Eksportēt kā ..."
 
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Pārbaudīt, vai skripti ir droši"
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Ielasi citu daļu ..."
@@ -1489,6 +1493,10 @@ msgstr "Atkušņa ledus"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Raupjš akmens"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "Superformulė..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -3414,6 +3422,10 @@ msgctxt "uresourcestrings.rsnothingtoberetrieved"
 msgid "There is nothing to be retrieved"
 msgstr "Nav ko atdabūt"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "Šis nav LazPaint skripts"
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "Nav prātīgi saglabāt tik lielu attēlu šajā datnes formātā."
@@ -3617,6 +3629,10 @@ msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Skripts"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "Skripta fails, šķiet, nav drošs: %1"
+
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
@@ -3662,6 +3678,10 @@ msgstr "Ierīce"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "Kontūra"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "Vai esat pārliecināts, ka vēlaties palaist šo skriptu? Šī skripta izmantotie moduļi var būt nedroši: %1"
 
 #: uresourcestrings.rstextoutline
 #, fuzzy

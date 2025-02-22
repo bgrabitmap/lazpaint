@@ -752,6 +752,10 @@ msgstr "Validar modificaciones"
 msgid "Export as..."
 msgstr "Exportar como..."
 
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Verificar que los scripts sean seguros"
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Elegir entrada..."
@@ -1477,6 +1481,10 @@ msgstr "Impresión en la nieve"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Piedra"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "SuperFórmula..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -3397,6 +3405,10 @@ msgctxt "uresourcestrings.rsnothingtoberetrieved"
 msgid "There is nothing to be retrieved"
 msgstr "No hay nada para ser recuperado"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "Este no es un script de LazPaint"
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "No es razonable guardar una imagen tan grande con este formato."
@@ -3598,6 +3610,10 @@ msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Guión"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "El archivo de script no parece ser seguro: %1"
+
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
@@ -3640,6 +3656,10 @@ msgstr "Dispositivo"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "Trazo"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "¿Estás seguro de que deseas ejecutar este script? Los siguientes módulos utilizados por este script pueden ser inseguros: %1"
 
 #: uresourcestrings.rstextoutline
 msgctxt "uresourcestrings.rstextoutline"

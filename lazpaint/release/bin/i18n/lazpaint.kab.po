@@ -757,6 +757,10 @@ msgstr "Sentem ibeddilen"
 msgid "Export as..."
 msgstr "Sifeḍ am..."
 
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Senqed ma yella yisennayen d imɣurifen"
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Fren anekcum..."
@@ -1486,6 +1490,10 @@ msgstr "Idrizen deg udfel"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Aẓru"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "Tamestɣant tameɣzunt..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -2898,7 +2906,7 @@ msgstr "Ssed S neɣ X iwakken ad tesɣewreḍ askar n uzlig i tenqiḍt taneggar
 
 #: uresourcestrings.rscyan
 msgid "Cyan"
-msgstr "Cyan
+msgstr "Aẓewweɣ"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
@@ -3410,6 +3418,10 @@ msgctxt "uresourcestrings.rsnothingtoberetrieved"
 msgid "There is nothing to be retrieved"
 msgstr "Ulac d acu ara d-terreḍ"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "Ayagi mačči d usennay n LazPaint"
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "Ur iwulem ara ad teskelseḍ tugna s umasal-agi n ufaylu."
@@ -3615,6 +3627,10 @@ msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Askript"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "Afaylu n usennay mačči d amɣurif: %1"
+
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
@@ -3657,6 +3673,10 @@ msgstr "Tibenkatin"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "Ineggura"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "Tettḥamleḍ ad tsenseḍ usennay-a? Iḥulfan-a seg usennay-a zemren ad ilɛun d iruray: %1"
 
 #: uresourcestrings.rstextoutline
 msgctxt "uresourcestrings.rstextoutline"

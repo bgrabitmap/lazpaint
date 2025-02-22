@@ -743,6 +743,10 @@ msgstr "Esegui le modifiche"
 msgid "Export as..."
 msgstr "Esporta come"
 
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Verificare che gli script siano sicuri"
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Scegli..."
@@ -1472,6 +1476,10 @@ msgstr "Stampa neve"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Pietra"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "SuperFormula..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -3394,6 +3402,10 @@ msgctxt "uresourcestrings.rsnothingtoberetrieved"
 msgid "There is nothing to be retrieved"
 msgstr "Non c'è nulla da recuperare"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "Questo non è uno script di LazPaint"
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "Non è ragionevole salvare un'immagine così grande in questo formato di file."
@@ -3595,6 +3607,10 @@ msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Script"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "Il file di script non sembra essere sicuro: %1"
+
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
@@ -3638,6 +3654,10 @@ msgstr "Dispositivo"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "Tratto"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "Sei sicuro di voler eseguire questo script? I seguenti moduli utilizzati da questo script potrebbero non essere sicuri: %1"
 
 #: uresourcestrings.rstextoutline
 msgctxt "uresourcestrings.rstextoutline"
@@ -3750,3 +3770,4 @@ msgstr "Zoom nel gruppo di livelli"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Zoom fuori dal gruppo di livelli"
+

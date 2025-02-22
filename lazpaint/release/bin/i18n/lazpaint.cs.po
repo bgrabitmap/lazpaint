@@ -717,6 +717,10 @@ msgstr "Ověřit úpravy"
 msgid "Export as..."
 msgstr "Exportovat jako..."
 
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Ověřit bezpečnost skriptů"
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Vybrat položku..."
@@ -1400,6 +1404,10 @@ msgstr "Sněžný tisk"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Kámen"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "SuperFormula..."
 
 #: tfmain.renderwater.caption
 msgid "Water"
@@ -3224,6 +3232,10 @@ msgstr "Nic k pokřivení"
 msgid "There is nothing to be retrieved"
 msgstr "Nic k obdržení"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "Toto není skript LazPaint"
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "Není rozumně ukládat tak velký obrázek v tomto formátu."
@@ -3421,6 +3433,10 @@ msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Skript"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "Zdá se, že soubor se skriptem není bezpečný: %1"
+
 #: uresourcestrings.rsselectblendoperation
 msgid "Select blend operation"
 msgstr "Vybrat operaci mísení"
@@ -3461,6 +3477,10 @@ msgstr "Zařízení"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "Čára"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "Opravdu chcete spustit tento skript? Následující moduly použité v tomto skriptu mohou být nebezpečné: %1"
 
 #: uresourcestrings.rstextoutline
 msgctxt "uresourcestrings.rstextoutline"

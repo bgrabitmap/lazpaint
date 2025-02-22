@@ -753,6 +753,10 @@ msgstr "変更を確認する"
 msgid "Export as..."
 msgstr "エクスポート..."
 
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "スクリプトの安全性を確認"
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "エントリを選択..."
@@ -1480,6 +1484,10 @@ msgstr "雪模様"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "石"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "スーパー公式..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -3377,6 +3385,10 @@ msgstr "変形するものがありません"
 msgid "There is nothing to be retrieved"
 msgstr "取得するものがありません"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "これは LazPaint のスクリプトではありません"
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "この形式でこんな大きな画像を保存するのは適切ではありません"
@@ -3435,7 +3447,7 @@ msgid "Palette options"
 msgstr "パレットオプション"
 
 #: uresourcestrings.rspen
-msgctxt "uresourcestrings.rspen" 
+msgctxt "uresourcestrings.rspen"
 msgid "Pen"
 msgstr "ペン"
 
@@ -3573,6 +3585,10 @@ msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "スクリプト"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "このスクリプトファイルは安全ではない可能性があります: %1"
+
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
@@ -3615,6 +3631,10 @@ msgstr "デバイス"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "ストローク"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "このスクリプトを実行してもよろしいですか？ このスクリプトで使用される以下のモジュールは安全でない可能性があります: %1"
 
 #: uresourcestrings.rstextoutline
 msgctxt "uresourcestrings.rstextoutline"
@@ -3727,3 +3747,4 @@ msgstr "レイヤースタックをズームイン"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "レイヤースタックをズームアウト"
+

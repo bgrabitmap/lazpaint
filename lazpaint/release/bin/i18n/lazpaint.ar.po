@@ -1490,8 +1490,8 @@ msgstr "حجر"
 
 #: tfmain.rendersuperformula.caption
 msgctxt "tfmain.rendersuperformula.caption"
-msgid "Superformula"
-msgstr "الصيغة الفائقة"
+msgid "SuperFormula..."
+msgstr "الصيغة الفائقة..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -2781,7 +2781,7 @@ msgstr "يتم تطبيق عملية المزج إلا إذا كان هناك ط
 
 #: uresourcestrings.rsblue
 msgid "Blue"
-mmsgstr "أزرق"
+msgstr "أزرق"
 
 #: uresourcestrings.rsbrightness
 msgid "Brightness"
@@ -3786,3 +3786,4 @@ msgstr "تكبير مكدس الطبقات"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "تصغير مكدس الطبقات"
+

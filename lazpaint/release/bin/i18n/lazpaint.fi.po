@@ -744,6 +744,10 @@ msgstr "Hyväksy muutokset"
 msgid "Export as..."
 msgstr "Vie muodossa..."
 
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Tarkista, että komentosarjat ovat turvallisia"
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Valitse kohta..."
@@ -1473,6 +1477,10 @@ msgstr "Lumen jälki"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Kivi"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "Superkaava..."
 
 #: tfmain.renderwater.caption
 msgctxt "TFMAIN.RENDERWATER.CAPTION"
@@ -3381,6 +3389,10 @@ msgstr "Ei löydy mitään muutettavaa"
 msgid "There is nothing to be retrieved"
 msgstr "Ei mitään palautettavaa"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "Tämä ei ole LazPaint-komentosarja"
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "Ei ole järkevää tallentaa näin suurta kuvaa tähän tiedostomuotoon."
@@ -3579,6 +3591,10 @@ msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Skripti"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "Komentosarjatiedosto ei vaikuta turvalliselta: %1"
+
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
@@ -3621,6 +3637,10 @@ msgstr "Laite"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "Veto"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "Haluatko varmasti suorittaa tämän komentosarjan? Seuraavat moduulit, joita tämä komentosarja käyttää, voivat olla turvattomia: %1"
 
 #: uresourcestrings.rstextoutline
 #, fuzzy

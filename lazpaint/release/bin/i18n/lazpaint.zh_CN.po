@@ -756,6 +756,10 @@ msgstr "确认更改"
 msgid "Export as..."
 msgstr "导出为..."
 
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "检查脚本是否安全"
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "选择条目..."
@@ -1483,6 +1487,10 @@ msgstr "雪印"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "石头"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "超级公式"
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -3407,6 +3415,10 @@ msgctxt "uresourcestrings.rsnothingtoberetrieved"
 msgid "There is nothing to be retrieved"
 msgstr "没有可接收内容"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "这不是 LazPaint 脚本"
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "此文件格式不适合保存如此大的图像。"
@@ -3610,6 +3622,10 @@ msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "脚本"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "该脚本文件似乎不安全：%1"
+
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
@@ -3652,6 +3668,10 @@ msgstr "设备"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "描边效果"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "您确定要运行此脚本吗？该脚本使用的以下模块可能不安全：%1"
 
 #: uresourcestrings.rstextoutline
 #, fuzzy

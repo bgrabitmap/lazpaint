@@ -754,6 +754,10 @@ msgstr "Değişiklikleri doğrula"
 msgid "Export as..."
 msgstr "Farklı dışa aktar..."
 
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Komut dosyalarının güvenli olduğunu kontrol et"
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Girişi seçin..."
@@ -1480,6 +1484,10 @@ msgstr "Ayak izi"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Taş"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "Süperformül..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -3401,6 +3409,10 @@ msgctxt "uresourcestrings.rsnothingtoberetrieved"
 msgid "There is nothing to be retrieved"
 msgstr "Alınacak bir şey yok"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "Bu bir LazPaint komut dosyası değil"
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "Bu kadar büyük bir görüntüyü bu dosya formatında kaydetmek mantıklı değil."
@@ -3603,6 +3615,10 @@ msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Komut dosyası"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "Komut dosyası güvenli görünmüyor: %1"
+
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
@@ -3645,6 +3661,10 @@ msgstr "Cihaz"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "Çizgi"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "Bu komut dosyasını çalıştırmak istediğinizden emin misiniz? Bu komut dosyasında kullanılan aşağıdaki modüller güvensiz olabilir: %1"
 
 #: uresourcestrings.rstextoutline
 msgctxt "uresourcestrings.rstextoutline"

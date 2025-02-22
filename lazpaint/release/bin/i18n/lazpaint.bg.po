@@ -754,7 +754,7 @@ msgstr "Изнасяне като..."
 
 #: tfmain.filecheckscriptssecure.caption
 msgid "Check scripts are secure"
-msgstr "Проверка дали скриптовете са безопасни"<
+msgstr "Проверка дали скриптовете са безопасни"
 
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
@@ -1485,10 +1485,9 @@ msgid "Stone"
 msgstr "Камък"
 
 #: tfmain.rendersuperformula.caption
-#, fuzzy
 msgctxt "tfmain.rendersuperformula.caption"
-msgid "Superformula"
-msgstr "Суперформула"
+msgid "SuperFormula..."
+msgstr "Суперформула..."
 
 #: tfmain.renderwater.caption
 msgctxt "TFMAIN.RENDERWATER.CAPTION"
@@ -2136,6 +2135,16 @@ msgstr "Текстура..."
 #: tfobject3d.button_notex.caption
 msgid "No tex."
 msgstr "Без текстура"
+
+#: tfobject3d.button_ok.caption
+#, fuzzy
+msgctxt "tfobject3d.button_ok.caption"
+msgid "OK"
+msgstr "Добре"
+
+#: tfobject3d.caption
+msgid "3D object"
+msgstr "3D обект"
 
 #: tfobject3d.checkbox_antialiasing.caption
 msgid "Antialiasing"

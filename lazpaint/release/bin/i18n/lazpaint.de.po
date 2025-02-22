@@ -1500,10 +1500,9 @@ msgid "Stone"
 msgstr "Stein"
 
 #: tfmain.rendersuperformula.caption
-#, fuzzy
 msgctxt "tfmain.rendersuperformula.caption"
-msgid "Superformula"
-msgstr "Superformel"
+msgid "SuperFormula..."
+msgstr "Superformel..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"

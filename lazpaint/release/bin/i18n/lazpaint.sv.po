@@ -754,6 +754,10 @@ msgstr "Bekräfta ändringar"
 msgid "Export as..."
 msgstr "Exportera som..."
 
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr ""
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Välj post..."
@@ -1482,6 +1486,10 @@ msgstr "Snöavtryck"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Sten"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "Superformel..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -3395,6 +3403,10 @@ msgstr "Det finns inget att förvränga"
 msgid "There is nothing to be retrieved"
 msgstr "Det finns inget att återhämta"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr ""
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "Det är inte rimligt att spara en så stor bild i det här filformatet."
@@ -3595,6 +3607,10 @@ msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Skript"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr ""
+
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
@@ -3637,6 +3653,10 @@ msgstr "Enhet"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "Penseldrag"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr ""
 
 #: uresourcestrings.rstextoutline
 #, fuzzy
