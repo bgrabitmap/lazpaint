@@ -1,5 +1,7 @@
-msgid "Last-Translator: Shotokan forum Ubuntu.it\n"
-msgstr "Content-Type: text/plain; charset=UTF-8"
+msgid ""
+msgstr ""
+"Last-Translator: Shotokan forum Ubuntu.it\n"
+"Content-Type: text/plain; charset=UTF-8"
 
 #: tablet.getprocfailed
 #, object-pascal-format
@@ -32,7 +34,7 @@ msgstr "Autori:"
 #: tfabout.label_authorsvalue.caption
 msgctxt "tfabout.label_authorsvalue.caption"
 msgid "Circular helped by FabienWang, Lainz and others"
-msgstr "Circolare assistito da FabienWang, Lainz e altri"
+msgstr "Circular assistito da FabienWang, Lainz e altri"
 
 #: tfabout.label_homepage.caption
 msgctxt "tfabout.label_homepage.caption"
