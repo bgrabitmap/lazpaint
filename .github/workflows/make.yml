@@ -44,7 +44,7 @@ jobs:
       shell: powershell
       run: |
         New-Variable -Option Constant -Name VAR -Value @{
-            Uri = 'https://fossies.org/windows/misc/lazarus-3.6-fpc-3.2.2-win64.exe'
+            Uri = 'https://fossies.org/windows/misc/lazarus-3.8-fpc-3.2.2-win64.exe'
             OutFile = (New-TemporaryFile).FullName + '.exe'
         }
         Invoke-WebRequest @VAR
