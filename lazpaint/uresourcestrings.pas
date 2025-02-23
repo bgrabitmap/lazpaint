@@ -41,7 +41,7 @@ resourcestring
   rsErrorDecodingRaw='Error decoding raw image.';
   rsErrorLoadingOriginal='Error while loading original however layer can be rasterized.';
   rsRasterLayer = 'Raster layer';
-  rsVisible = 'Visibile';
+  rsVisible = 'Visible';
   rsTransformedRasterLayer = 'Transformed raster layer';
   rsVectorialLayer = 'Vectorial layer';
   rsUnknownOriginal = 'Unknown original';

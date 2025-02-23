@@ -3769,7 +3769,7 @@ msgid "Vertical size"
 msgstr "Tamezla n teɣzi"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
+msgid "Visible"
 msgstr "Iṭṭef"
 
 #: uresourcestrings.rsyellow

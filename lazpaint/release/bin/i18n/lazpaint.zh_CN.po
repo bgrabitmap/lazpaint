@@ -3765,7 +3765,7 @@ msgid "Vertical size"
 msgstr "垂直尺寸"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
+msgid "Visible"
 msgstr "可见的"
 
 #: uresourcestrings.rsyellow

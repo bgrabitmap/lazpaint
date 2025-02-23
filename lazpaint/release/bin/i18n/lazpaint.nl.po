@@ -3738,7 +3738,7 @@ msgid "Vertical size"
 msgstr "Verticale afmeting"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
+msgid "Visible"
 msgstr "Zichtbaar"
 
 #: uresourcestrings.rsyellow

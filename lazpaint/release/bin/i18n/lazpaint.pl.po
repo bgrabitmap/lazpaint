@@ -3764,7 +3764,7 @@ msgid "Vertical size"
 msgstr "Rozmiar pionowy"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
+msgid "Visible"
 msgstr "Widoczna"
 
 #: uresourcestrings.rsyellow

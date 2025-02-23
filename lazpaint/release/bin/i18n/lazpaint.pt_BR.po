@@ -3751,7 +3751,7 @@ msgid "Vertical size"
 msgstr "Tamanho vertical"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
+msgid "Visible"
 msgstr "Visível"
 
 #: uresourcestrings.rsyellow

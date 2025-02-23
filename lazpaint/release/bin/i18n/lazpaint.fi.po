@@ -3045,9 +3045,9 @@ msgstr "Koko"
 msgid "File system"
 msgstr "Tiedostojärjestelmä"
 
-#: uresourcestrings.rsfilesystem
-msgid "File system"
-msgstr "Tiedostojärjestelmä"
+#: uresourcestrings.rsfiletype
+msgid "Type"
+msgstr ""
 
 #: uresourcestrings.rsfixeddrive
 msgid "Fixed"
@@ -3734,7 +3734,7 @@ msgid "Vertical size"
 msgstr "Pystysuuntainen koko"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
+msgid "Visible"
 msgstr "Näkyvä"
 
 #: uresourcestrings.rsyellow

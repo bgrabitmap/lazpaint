@@ -3722,7 +3722,7 @@ msgid "Vertical size"
 msgstr "Вертикален размер"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
+msgid "Visible"
 msgstr "Видимо"
 
 #: uresourcestrings.rsyellow

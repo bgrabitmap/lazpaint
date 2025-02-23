@@ -2998,31 +2998,6 @@ msgstr "خطأ في فتح الملف \"%1\""
 msgid "An exception was encountered"
 msgstr "تمت مواجهة استثناء"
 
-#: uresourcestrings.rsdirectorynotempty
-msgid "Directory is not empty"
-msgstr "الدليل غير فارغ"
-
-#: uresourcestrings.rsditherlayerusingpalette
-msgid "Dither layer using palette"
-msgstr "تمويه الطبقة باستخدام اللوحة"
-
-#: uresourcestrings.rsdonate
-msgctxt "uresourcestrings.rsdonate"
-msgid "Donate..."
-msgstr "تبرع..."
-
-#: uresourcestrings.rsdownload
-msgid "Download"
-msgstr "تنزيل"
-
-#: uresourcestrings.rsdropshadow
-msgid "Drop shadow"
-msgstr "إسقاط ظل"
-
-#: uresourcestrings.rsduplicateimage
-msgid "Duplicate image"
-msgstr "تكرار الصورة"
-
 #: uresourcestrings.rsexitrequest
 msgid "Exit request"
 msgstr "طلب خروج"
@@ -3766,7 +3741,7 @@ msgid "Vertical size"
 msgstr "الحجم العمودي"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
+msgid "Visible"
 msgstr "مرئي"
 
 #: uresourcestrings.rsyellow

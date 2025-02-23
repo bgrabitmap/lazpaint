@@ -3573,7 +3573,7 @@ msgid "Vertical size"
 msgstr "Svislá velikost"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
+msgid "Visible"
 msgstr "Viditelné"
 
 #: uresourcestrings.rsyellow
