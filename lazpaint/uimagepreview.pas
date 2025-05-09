@@ -991,7 +991,7 @@ begin
           reader := CreateBGRAImageReader(FImageFormat);
           try
             FSingleImage := TBGRABitmap.Create;
-            FSingleImage.LoadFromStream(source,reader);
+            FSingleImage.LoadFromStream(source,reader,[loBmpAutoOpaque]);
             if reader is TFPReaderOpenRaster then FImageNbLayers := TFPReaderOpenRaster(reader).NbLayers else
             if reader is TFPReaderPaintDotNet then FImageNbLayers := TFPReaderPaintDotNet(reader).NbLayers else
             if reader is TBGRAReaderLazPaint then FImageNbLayers := TBGRAReaderLazPaint(reader).NbLayers else

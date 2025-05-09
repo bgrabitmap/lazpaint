@@ -758,7 +758,7 @@ begin
     end else
     begin
       bmp := TBGRABitmap.Create;
-      bmp.LoadFromStream(s);
+      bmp.LoadFromStream(s, [lobmpAutoOpaque]);
       Assign(bmp,true,false);
       bmp := nil;
     end;
