@@ -89,6 +89,7 @@ type
     function GetIdleAction: TLayerAction; virtual;
     function GetLayerOffset: TPoint; virtual;
     function GetIsSelectingTool: boolean; virtual; abstract;
+    function GetIsEditingText: boolean; virtual;
     function FixSelectionTransform: boolean; virtual;
     function FixLayerOffset: boolean; virtual;
     function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; virtual;
@@ -138,6 +139,7 @@ type
     function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; virtual;
     property Manager : TToolManager read FManager;
     property IsSelectingTool: boolean read GetIsSelectingTool;
+    property IsEditingText: boolean read GetIsEditingText;
     property Action : TLayerAction read GetAction;
     property LayerOffset : TPoint read GetLayerOffset;
     property LastToolDrawingLayer: TBGRABitmap read FLastToolDrawingLayer;
@@ -167,7 +169,8 @@ type
   TToolPopupMessage= (tpmNone, tpmHoldKeyForSquare, tpmHoldKeySnapToPixel,
     tpmReturnValides, tpmBackspaceRemoveLastPoint, tpmRightClickFinishShape, tpmHoldKeyRestrictRotation,
     tpmHoldKeysScaleMode, tpmCurveModeHint, tpmBlendOpBackground,
-    tpmRightClickForSource, tpmNothingToBeDeformed);
+    tpmRightClickForSource, tpmNothingToBeDeformed, tpmRightClickForTransformCenter,
+    tpmLayerEmpty, tpmOpacity0);
 
   TOnToolChangedHandler = procedure(sender: TToolManager; ANewToolType: TPaintToolType) of object;
   TOnPopupToolHandler = procedure(sender: TToolManager; APopupMessage: TToolPopupMessage; AKey: Word; AAlways: boolean) of object;
@@ -189,6 +192,7 @@ type
     FConfigProvider: IConfigProvider;
     FOnQueryColorTarget: TOnQueryColorTargetHandler;
     FShouldExitTool: boolean;
+    FSwitchAfterExitTool: TPaintToolType;
     FImage: TLazPaintImage;
     FBlackAndWhite: boolean;
     FScriptContext: TScriptContext;
@@ -274,6 +278,7 @@ type
     function GetBrushCount: integer;
     function GetBrushInfo: TLazPaintBrush;
     function GetForeColor: TBGRAPixel;
+    function GetIsEditingText: boolean;
     function GetMaxDeformationGridSize: TSize;
     function GetOutlineColor: TBGRAPixel;
     function GetShapeOptionAliasing: boolean;
@@ -506,6 +511,7 @@ type
     function IsBackEditGradTexPoints: boolean;
     function IsOutlineEditGradTexPoints: boolean;
     procedure QueryExitTool;
+    procedure QueryExitTool(ASwitchTo: TPaintToolType);
     procedure QueryColorTarget(ATarget: TVectorialFill);
 
     function RenderTool(formBitmap: TBGRABitmap): TRect;
@@ -566,6 +572,7 @@ type
     property TextOutline: boolean read FTextOutline;
     property TextOutlineWidth: single read FTextOutlineWidth;
     property TextPhong: boolean read FTextPhong write SetTextPhong;
+    property IsEditingText: boolean read GetIsEditingText;
     property LightPosition: TPointF read FLightPosition write SetLightPosition;
     property LightAltitude: integer read FLightAltitude write SetLightAltitude;
     property TextShadow: boolean read FTextShadow write SetTextShadow;
@@ -765,6 +772,9 @@ begin
   tpmBlendOpBackground: result := rsBlendOpNotUsedForBackground;
   tpmRightClickForSource: result := rsRightClickForSource;
   tpmNothingToBeDeformed: result := rsNothingToBeDeformed;
+  tpmRightClickForTransformCenter: result := rsRightClickForTransformCenter;
+  tpmLayerEmpty: result := rsEmptyLayer;
+  tpmOpacity0: result := rsOpacity + ' = 0';
   else
     result := '';
   end;
@@ -822,6 +832,11 @@ begin
       TBGRABitmap.ScannerBrush(result, AScan);
     end;
   end;
+end;
+
+function TGenericTool.GetIsEditingText: boolean;
+begin
+  result := false;
 end;
 
 function TGenericTool.GetAllowedBackFillTypes: TVectorialFillTypes;
@@ -1575,13 +1590,10 @@ end;
 
 function TToolManager.CheckExitTool: boolean;
 begin
-  if FShouldExitTool then
+  if FShouldExitTool and not ToolSleeping then
   begin
     FShouldExitTool:= false;
-    if FCurrentToolType in[ptRect,ptEllipse,ptPolygon,ptSpline,ptText,ptPhong,ptGradient] then
-      SetCurrentToolType(ptEditShape)
-    else
-      SetCurrentToolType(ptHand);
+    SetCurrentToolType(FSwitchAfterExitTool);
     result := true;
   end else
     result := false;
@@ -1722,6 +1734,11 @@ begin
     result := BGRAToGrayscale(FForeFill.AverageColor)
   else
     result := FForeFill.AverageColor;
+end;
+
+function TToolManager.GetIsEditingText: boolean;
+begin
+  result := Assigned(CurrentTool) and CurrentTool.IsEditingText;
 end;
 
 function TToolManager.GetMaxDeformationGridSize: TSize;
@@ -3877,7 +3894,16 @@ end;
 
 procedure TToolManager.QueryExitTool;
 begin
+  if FCurrentToolType in[ptRect,ptEllipse,ptPolygon,ptSpline,ptText,ptPhong,ptGradient] then
+    QueryExitTool(ptEditShape)
+  else
+    QueryExitTool(ptHand);
+end;
+
+procedure TToolManager.QueryExitTool(ASwitchTo: TPaintToolType);
+begin
   FShouldExitTool:= true;
+  FSwitchAfterExitTool:= ASwitchTo;
 end;
 
 procedure TToolManager.QueryColorTarget(ATarget: TVectorialFill);

@@ -12,11 +12,11 @@ msgstr ""
 #: tablet.getprocfailed
 #, object-pascal-format
 msgid "Procedure %s failed to load properly."
-msgstr ""
+msgstr "手続き %s の読み込みに失敗しました。"
 
 #: tablet.openfailed
 msgid "Tablet context failed to open."
-msgstr ""
+msgstr "タブレットコンテキストを開くことができませんでした。"
 
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
@@ -26,7 +26,7 @@ msgstr "寄付する..."
 #: tfabout.caption
 msgctxt "tfabout.caption"
 msgid "About"
-msgstr "About"
+msgstr "概要"
 
 #: tfabout.labelurl.caption
 msgid "http://sourceforge.net/projects/lazpaint/"
@@ -35,22 +35,22 @@ msgstr "http://sourceforge.net/projects/lazpaint/"
 #: tfabout.label_authors.caption
 msgctxt "tfabout.label_authors.caption"
 msgid "Authors:"
-msgstr "Authors"
+msgstr "作者:"
 
 #: tfabout.label_authorsvalue.caption
 msgctxt "tfabout.label_authorsvalue.caption"
 msgid "Circular helped by FabienWang, Lainz and others"
-msgstr "Circular, FabienWang, Lainz"
+msgstr "Circular, FabienWang, Lainz ほか"
 
 #: tfabout.label_homepage.caption
 msgctxt "tfabout.label_homepage.caption"
 msgid "Homepage:"
-msgstr "Homepage"
+msgstr "ホームページ:"
 
 #: tfabout.label_libraries.caption
 msgctxt "tfabout.label_libraries.caption"
 msgid "Libraries used:"
-msgstr "使用しているライブラリ:"
+msgstr "使用ライブラリ:"
 
 #: tfabout.label_licence.caption
 msgctxt "tfabout.label_licence.caption"
@@ -60,24 +60,24 @@ msgstr "ライセンス:"
 #: tfabout.label_opensource.caption
 msgctxt "tfabout.label_opensource.caption"
 msgid "Open source (GPLv3)"
-msgstr "Open source (GPLv3)"
+msgstr "オープンソース (GPLv3)"
 
 #: tfadjustcurves.caption
 msgid "Adjust curves"
-msgstr ""
+msgstr "曲線の調整"
 
 #: tfadjustcurves.toolbutton_newcurve.hint
 msgid "Discard current curve and start a new one"
-msgstr ""
+msgstr "現在の曲線を破棄して新しい曲線を開始します"
 
 #: tfadjustcurves.toolbutton_posterize.hint
 msgctxt "tfadjustcurves.toolbutton_posterize.hint"
 msgid "Posterize"
-msgstr ""
+msgstr "ポスタライズ"
 
 #: tfadjustcurves.toolbutton_removepoint.hint
 msgid "Remove selected point (Del)"
-msgstr ""
+msgstr "選択したポイントを削除 (Del)"
 
 #: tfblendop.button_cancel.caption
 msgctxt "tfblendop.button_cancel.caption"
@@ -91,110 +91,110 @@ msgstr "OK"
 
 #: tfblendop.caption
 msgid "Blend operation"
-msgstr ""
+msgstr "ブレンド操作"
 
 #: tfblendop.label_blendopcategory.caption
 msgctxt "tfblendop.label_blendopcategory.caption"
 msgid "Category of blend operation"
-msgstr ""
+msgstr "ブレンド操作のカテゴリ"
 
 #: tfblendop.label_blendopvalue.caption
 msgctxt "tfblendop.label_blendopvalue.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfblendop.label_kritaover.caption
 msgctxt "tfblendop.label_kritaover.caption"
 msgid "Krita"
-msgstr ""
+msgstr "Krita"
 
 #: tfblendop.label_kritaover.hint
 msgid "Blend operations that are available in Krita"
-msgstr ""
+msgstr "Krita で利用可能なブレンド操作"
 
 #: tfblendop.label_otherover.caption
 msgctxt "tfblendop.label_otherover.caption"
 msgid "Other"
-msgstr ""
+msgstr "その他"
 
 #: tfblendop.label_otherover.hint
 msgid "Blend operations of LazPaint and Paint.NET"
-msgstr ""
+msgstr "LazPaint と Paint.NET のブレンド操作"
 
 #: tfblendop.label_patternover.caption
 msgctxt "tfblendop.label_patternover.caption"
 msgid "Pattern over"
-msgstr ""
+msgstr "パターン上"
 
 #: tfblendop.label_patternover.hint
 msgid "Preview blend operation with the specified image on top"
-msgstr ""
+msgstr "指定した画像を上に配置したブレンド操作のプレビュー"
 
 #: tfblendop.label_patternunder.caption
 msgctxt "tfblendop.label_patternunder.caption"
 msgid "Pattern under"
-msgstr ""
+msgstr "パターン下"
 
 #: tfblendop.label_patternunder.hint
 msgid "Preview blend operation with the specified image underneath"
-msgstr ""
+msgstr "指定した画像を下に配置したブレンド操作のプレビュー"
 
 #: tfblendop.label_previewwith.caption
 msgctxt "tfblendop.label_previewwith.caption"
 msgid "Preview with"
-msgstr ""
+msgstr "プレビュー:"
 
 #: tfblendop.label_selectedblendop.caption
 msgid "Selected blend operation :"
-msgstr ""
+msgstr "選択したブレンド操作:"
 
 #: tfblendop.label_svgover.caption
 msgctxt "tfblendop.label_svgover.caption"
 msgid "Basic SVG"
-msgstr ""
+msgstr "基本 SVG"
 
 #: tfblendop.label_svgover.hint
 msgid "Basic blend operations that are available in virtually all image editors"
-msgstr ""
+msgstr "ほぼすべての画像エディタで利用可能な基本的なブレンド操作"
 
 #: tfbrowseimages.caption
 msgid "Browse images"
-msgstr ""
+msgstr "画像を参照"
 
 #: tfbrowseimages.checkbox_usedirectoryonstartup.caption
 msgid "Use this directory on startup"
-msgstr ""
+msgstr "起動時にこのディレクトリを使用する"
 
 #: tfbrowseimages.label_status.caption
 msgctxt "tfbrowseimages.label_status.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfbrowseimages.toolbutton_createfolderorcontainer.hint
 msgid "Create folder or container"
-msgstr ""
+msgstr "フォルダーまたはコンテナを作成"
 
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
-msgstr ""
+msgstr "1つ上のディレクトリへ移動"
 
 #: tfbrowseimages.toolbutton_openselectedfiles.hint
 msgid "Open selected files"
-msgstr ""
+msgstr "選択したファイルを開く"
 
 #: tfbrowseimages.toolbutton_viewbigicon.hint
 msgctxt "tfbrowseimages.toolbutton_viewbigicon.hint"
 msgid "Show big icons"
-msgstr ""
+msgstr "大きなアイコンを表示"
 
 #: tfbrowseimages.toolbutton_viewdetails.hint
 msgctxt "tfbrowseimages.toolbutton_viewdetails.hint"
 msgid "Show details and preview"
-msgstr ""
+msgstr "詳細とプレビューを表示"
 
 #: tfbrowseimages.tool_selectdrive.hint
 msgid "Select drive"
-msgstr ""
+msgstr "ドライブを選択"
 
 #: tfcanvassize.button_cancel.caption
 msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
@@ -253,12 +253,12 @@ msgstr "シフト"
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
 msgid "Colorize"
-msgstr "Colorize"
+msgstr "着色"
 
 #: tfcolorize.checkbox_gsba.caption
 msgctxt "tfcolorize.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
-msgstr ""
+msgstr "補正された色相と明度"
 
 #: tfcolorize.label_colorness.caption
 msgctxt "tfcolorize.label_colorness.caption"
@@ -272,15 +272,15 @@ msgstr "色相"
 
 #: tfcolorize.label_preset.caption
 msgid "Preset"
-msgstr ""
+msgstr "プリセット"
 
 #: tfcustomblur.button_editmask.caption
 msgid "Edit mask..."
-msgstr "マスク編集"
+msgstr "マスク編集..."
 
 #: tfcustomblur.button_loadmask.caption
 msgid "Load mask..."
-msgstr "マスク読み込み"
+msgstr "マスク読み込み..."
 
 #: tfcustomblur.caption
 msgctxt "tfcustomblur.caption"
@@ -289,7 +289,7 @@ msgstr "カスタムブラー"
 
 #: tfcustomblur.openpicturedialog1.title
 msgid "Open grayscale file"
-msgstr "注意：ブラー用に作成されたグレースケール画像を開く"
+msgstr "グレースケール画像を開く"
 
 #: tfemboss.caption
 msgctxt "tfemboss.caption"
@@ -298,11 +298,11 @@ msgstr "エンボス"
 
 #: tfemboss.checkbox_preservecolors.caption
 msgid "Preserve colors"
-msgstr ""
+msgstr "色を保持する"
 
 #: tfemboss.checkbox_transparent.caption
 msgid "Transparent"
-msgstr ""
+msgstr "透明"
 
 #: tfemboss.label_direction.caption
 msgctxt "tfemboss.label_direction.caption"
@@ -311,83 +311,83 @@ msgstr "方向:"
 
 #: tffilterfunction.caption
 msgid "Apply function"
-msgstr ""
+msgstr "関数を適用"
 
 #: tffilterfunction.checkbox_gamma.caption
 msgid "Gamma correction"
-msgstr ""
+msgstr "ガンマ補正"
 
 #: tffilterfunction.checkbox_gsba.caption
 msgctxt "tffilterfunction.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
-msgstr ""
+msgstr "補正された色相と明度"
 
 #: tffilterfunction.label_aequals.caption
 msgctxt "tffilterfunction.label_aequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_alphaequals.caption
 msgctxt "tffilterfunction.label_alphaequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_bequals.caption
 msgctxt "tffilterfunction.label_bequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_blueequals.caption
 msgctxt "tffilterfunction.label_blueequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_greenequals.caption
 msgctxt "tffilterfunction.label_greenequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_hueequals.caption
 msgctxt "tffilterfunction.label_hueequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_lequals.caption
 msgctxt "tffilterfunction.label_lequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_lightnessequals.caption
 msgctxt "tffilterfunction.label_lightnessequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_redequals.caption
 msgctxt "tffilterfunction.label_redequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_saturationequals.caption
 msgctxt "tffilterfunction.label_saturationequals.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tffilterfunction.label_variables.caption
 msgid "Variables :"
-msgstr ""
+msgstr "変数:"
 
 #: tffilterfunction.tabsheet_hsl.caption
 msgid "HSL"
-msgstr ""
+msgstr "HSL"
 
 #: tffilterfunction.tabsheet_lab.caption
 msgid "Lab"
-msgstr ""
+msgstr "Lab"
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
 msgid "RGB"
-msgstr ""
+msgstr "RGB"
 
 #: tfgeometricbrush.button_cancel.caption
 msgctxt "tfgeometricbrush.button_cancel.caption"
@@ -401,135 +401,135 @@ msgstr "OK"
 
 #: tfgeometricbrush.caption
 msgid "Geometric brush"
-msgstr ""
+msgstr "幾何学的ブラシ"
 
 #: tfgeometricbrush.checkbox_isgradient.caption
 msgid "Opacity gradient"
-msgstr ""
+msgstr "不透明度グラデーション"
 
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
-msgstr ""
+msgstr "辺の数:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "ハイポサイクロイド"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "尖点数:"
 
 #: tfimagelist.caption
 msgid "Image List"
-msgstr ""
+msgstr "画像リスト"
 
 #: tfimagelist.pmautouncheckonopen.caption
 msgid "Autouncheck files after being open"
-msgstr ""
+msgstr "開いた後にファイルのチェックを外す"
 
 #: tfimagelist.pmautouncheckonsave.caption
 msgid "Autouncheck files after being edited and saved"
-msgstr ""
+msgstr "編集後保存したファイルのチェックを外す"
 
 #: tfimagelist.pmremoveall.caption
 msgid "Empty image list"
-msgstr ""
+msgstr "画像リストを空にする"
 
 #: tfimagelist.pmremovenonexistent.caption
 msgid "Remove nonexistent images"
-msgstr ""
+msgstr "存在しない画像を削除"
 
 #: tfimagelist.pmremoveunchecked.caption
 msgid "Remove unchecked images"
-msgstr ""
+msgstr "チェックを外した画像を削除"
 
 #: tfimagelist.pmunchecknonexistent.caption
 msgid "Uncheck nonexistent files"
-msgstr ""
+msgstr "存在しないファイルのチェックを外す"
 
 #: tfimagelist.stringgrid1.columns[0].title.caption
 msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[1].title.caption
 msgctxt "tfimagelist.stringgrid1.columns[1].title.caption"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[2].title.caption
 msgctxt "tfimagelist.stringgrid1.columns[2].title.caption"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[3].title.caption
 msgctxt "tfimagelist.stringgrid1.columns[3].title.caption"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.tbaddfiles.hint
 msgid "Add images to list"
-msgstr ""
+msgstr "画像をリストに追加"
 
 #: tfimagelist.tbautouncheck.hint
 msgid "Enable/disable autounchecking for processed files"
-msgstr ""
+msgstr "処理済みファイルの自動チェックを有効/無効にする"
 
 #: tfimagelist.tbautozoomfit.hint
 msgid "Enable/disable autofitting images in the LazPaint window"
-msgstr ""
+msgstr "LazPaintウィンドウ内の画像の自動フィッティングを有効/無効にする"
 
 #: tfimagelist.tbcheckall.hint
 msgid "Check all files for processing"
-msgstr ""
+msgstr "すべてのファイルを処理対象として選択"
 
 #: tfimagelist.tbminiwindow.hint
 msgid "Switch to miniwindow"
-msgstr ""
+msgstr "ミニウィンドウに切り替え"
 
 #: tfimagelist.tbmovedown.hint
 msgid "Move selected items down"
-msgstr ""
+msgstr "選択した項目を下に移動"
 
 #: tfimagelist.tbmoveup.hint
 msgid "Move selected items up"
-msgstr ""
+msgstr "選択した項目を上に移動"
 
 #: tfimagelist.tbnormalwindows.hint
 msgid "Switch to normal window"
-msgstr ""
+msgstr "通常ウィンドウに切り替え"
 
 #: tfimagelist.tbopenimage.hint
 msgid "Open current image"
-msgstr ""
+msgstr "現在の画像を開く"
 
 #: tfimagelist.tbopennext.hint
 msgctxt "tfimagelist.tbopennext.hint"
 msgid "Open next image (Alt-Right)"
-msgstr ""
+msgstr "次の画像を開く (Alt-右)"
 
 #: tfimagelist.tbopennextsw.hint
 msgctxt "tfimagelist.tbopennextsw.hint"
 msgid "Open next image"
-msgstr ""
+msgstr "次の画像を開く"
 
 #: tfimagelist.tbopenprev.hint
 msgctxt "tfimagelist.tbopenprev.hint"
 msgid "Open previous image (Alt-Left)"
-msgstr ""
+msgstr "前の画像を開く (Alt-左)"
 
 #: tfimagelist.tbopenprevsw.hint
 msgctxt "tfimagelist.tbopenprevsw.hint"
 msgid "Open previous image"
-msgstr ""
+msgstr "前の画像を開く"
 
 #: tfimagelist.tbremoveitem.hint
 msgid "Remove selected images from list"
-msgstr ""
+msgstr "リストから選択した画像を削除"
 
 #: tfimagelist.tbuncheckall.hint
 msgid "Uncheck all files for processing"
-msgstr ""
+msgstr "すべてのファイルのチェックを外す"
 
 #: tflayerstack.caption
 #, fuzzy
@@ -540,21 +540,21 @@ msgstr "レイヤー"
 #: tfloading.caption
 msgctxt "tfloading.caption"
 msgid "Loading..."
-msgstr ""
+msgstr "読み込み中..."
 
 #: tfmain.brushcreategeometric.hint
 msgctxt "tfmain.brushcreategeometric.hint"
 msgid "Create geometric brush"
-msgstr ""
+msgstr "幾何学的ブラシを作成"
 
 #: tfmain.brushloadfromfile.hint
 msgctxt "tfmain.brushloadfromfile.hint"
 msgid "Load brush from file..."
-msgstr ""
+msgstr "ファイルからブラシを読み込む..."
 
 #: tfmain.brushremovecurrent.hint
 msgid "Remove current brush"
-msgstr ""
+msgstr "現在のブラシを削除"
 
 #: tfmain.button_donate.caption
 #, fuzzy
@@ -569,11 +569,11 @@ msgstr "LazPaint"
 
 #: tfmain.colorcolorize.caption
 msgid "Colorize..."
-msgstr "Colorize..."
+msgstr "着色..."
 
 #: tfmain.colorcurves.caption
 msgid "Curves..."
-msgstr ""
+msgstr "曲線..."
 
 #: tfmain.colordialog1.title
 msgid "Choose color"
@@ -585,28 +585,28 @@ msgstr "輝度..."
 
 #: tfmain.colorlightness.caption
 msgid "Brightness / Contrast..."
-msgstr "明度/ コントラスト..."
+msgstr "明度 / コントラスト..."
 
 #: tfmain.colorposterize.caption
 msgid "Posterize..."
-msgstr ""
+msgstr "ポスタライズ..."
 
 #: tfmain.colorshiftcolors.caption
 msgctxt "tfmain.colorshiftcolors.caption"
 msgid "Shift colors..."
-msgstr "色シフト..."
+msgstr "色のシフト..."
 
 #: tfmain.combobox_arrowend.hint
 msgid "Ending arrow"
-msgstr ""
+msgstr "終了矢印"
 
 #: tfmain.combobox_arrowstart.hint
 msgid "Starting arrow"
-msgstr ""
+msgstr "開始矢印"
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
-msgstr ""
+msgstr "ペンスタイル"
 
 #: tfmain.editcopy.caption
 msgid "Copy"
@@ -631,7 +631,7 @@ msgstr "削除"
 
 #: tfmain.editdeleteselection.hint
 msgid "Delete selection"
-msgstr ""
+msgstr "選択領域を削除"
 
 #: tfmain.editdeselect.hint
 msgctxt "TFMAIN.EDITDESELECT.HINT"
@@ -645,19 +645,19 @@ msgstr "選択領域を反転"
 
 #: tfmain.editmovedown.hint
 msgid "Move down"
-msgstr ""
+msgstr "下に移動"
 
 #: tfmain.editmovetoback.hint
 msgid "Send to back"
-msgstr ""
+msgstr "背面に送る"
 
 #: tfmain.editmovetofront.hint
 msgid "Bring to front"
-msgstr ""
+msgstr "前面に移動"
 
 #: tfmain.editmoveup.hint
 msgid "Move up"
-msgstr ""
+msgstr "上に移動"
 
 #: tfmain.editpaste.hint
 msgctxt "TFMAIN.EDITPASTE.HINT"
@@ -670,7 +670,7 @@ msgstr "新規イメージとして貼付け"
 
 #: tfmain.editpasteasnewlayer.caption
 msgid "Paste as new layer"
-msgstr ""
+msgstr "新規レイヤーとして貼付け"
 
 #: tfmain.editredo.hint
 msgctxt "TFMAIN.EDITREDO.HINT"
@@ -690,7 +690,7 @@ msgstr "全選択"
 
 #: tfmain.editselection.caption
 msgid "Edit selection..."
-msgstr ""
+msgstr "選択範囲を編集..."
 
 #: tfmain.editselectionfit.caption
 msgid "Selection fit"
@@ -698,31 +698,31 @@ msgstr "領域をフィットさせる"
 
 #: tfmain.editshapealignbottom.hint
 msgid "Align shape to the bottom"
-msgstr ""
+msgstr "形状を下端に揃える"
 
 #: tfmain.editshapealignleft.hint
 msgid "Align shape left"
-msgstr ""
+msgstr "形状を左端に揃える"
 
 #: tfmain.editshapealignright.hint
 msgid "Align shape right"
-msgstr ""
+msgstr "形状を右端に揃える"
 
 #: tfmain.editshapealigntop.hint
 msgid "Align shape to the top"
-msgstr ""
+msgstr "形状を上端に揃える"
 
 #: tfmain.editshapecenterhorizontally.hint
 msgid "Center shape horizontally"
-msgstr ""
+msgstr "形状を水平に中央揃え"
 
 #: tfmain.editshapecentervertically.hint
 msgid "Center shape vertically"
-msgstr ""
+msgstr "形状を垂直に中央揃え"
 
 #: tfmain.editshapetocurve.hint
 msgid "Convert shape to curve"
-msgstr ""
+msgstr "形状を曲線に変換"
 
 #: tfmain.editundo.caption
 msgid "Undo"
@@ -730,7 +730,7 @@ msgstr "アンドゥ"
 
 #: tfmain.editundo.hint
 msgid "Undo last modification"
-msgstr "アンドゥ"
+msgstr "最後の変更を元に戻す"
 
 #: tfmain.embeddedcancel.caption
 msgctxt "TFMAIN.EMBEDDEDCANCEL.CAPTION"
@@ -743,32 +743,36 @@ msgstr "変更をキャンセルする"
 
 #: tfmain.embeddedvalidate.caption
 msgid "Validate"
-msgstr "Validate"
+msgstr "確認"
 
 #: tfmain.embeddedvalidate.hint
 msgid "Validate modifications"
-msgstr "Validate modifications"
+msgstr "変更を確認する"
 
 #: tfmain.exportpicturedialog.title
 msgid "Export as..."
-msgstr ""
+msgstr "エクスポート..."
+
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "スクリプトの安全性を確認"
 
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
-msgstr ""
+msgstr "エントリを選択..."
 
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
-msgstr ""
+msgstr "ファイル内のエントリを選択"
 
 #: tfmain.fileexport.caption
 msgctxt "tfmain.fileexport.caption"
 msgid "Export..."
-msgstr ""
+msgstr "エクスポート..."
 
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
-msgstr ""
+msgstr "3Dオブジェクトをインポート..."
 
 #: tfmain.fileloadselection.caption
 msgid "Load selection..."
@@ -793,15 +797,15 @@ msgstr "既存ファイルを開く"
 
 #: tfmain.fileprint.caption
 msgid "Print..."
-msgstr ""
+msgstr "印刷..."
 
 #: tfmain.filequicksave.caption
 msgid "Quick save"
-msgstr ""
+msgstr "クイックセーブ"
 
 #: tfmain.filequicksave.hint
 msgid "Save current file without dialogs"
-msgstr ""
+msgstr "ダイアログなしで現在のファイルを保存"
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -811,15 +815,15 @@ msgstr "終了"
 #: tfmain.filereload.caption
 msgctxt "tfmain.filereload.caption"
 msgid "Reload"
-msgstr ""
+msgstr "再読み込み"
 
 #: tfmain.fileremembersaveformat.hint
 msgid "Remember save format"
-msgstr ""
+msgstr "保存形式を記憶する"
 
 #: tfmain.filerunscript.caption
 msgid "Run script..."
-msgstr ""
+msgstr "スクリプトを実行..."
 
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
@@ -828,7 +832,7 @@ msgstr "保存"
 
 #: tfmain.filesave.hint
 msgid "Save current file"
-msgstr "現在作業中のデータを保存します"
+msgstr "現在のファイルを保存"
 
 #: tfmain.filesaveas.caption
 msgid "Save as..."
@@ -836,11 +840,11 @@ msgstr "名前を付けて保存..."
 
 #: tfmain.filesaveas.hint
 msgid "Save file as"
-msgstr "名前を付けて保存"
+msgstr "ファイルを名前を付けて保存"
 
 #: tfmain.filesaveasinsamefolder.caption
 msgid "Save in same folder..."
-msgstr ""
+msgstr "同じフォルダーに保存..."
 
 #: tfmain.filesaveselectionas.caption
 msgctxt "TFMAIN.FILESAVESELECTIONAS.CAPTION"
@@ -850,11 +854,11 @@ msgstr "選択領域を保存..."
 #: tfmain.fileuseimagebrowser.caption
 msgctxt "tfmain.fileuseimagebrowser.caption"
 msgid "Use image browser"
-msgstr ""
+msgstr "イメージブラウザを使用"
 
 #: tfmain.filterblurbox.caption
 msgid "Box blur..."
-msgstr ""
+msgstr "ボックスブラー..."
 
 #: tfmain.filterblurcorona.caption
 msgctxt "tfmain.filterblurcorona.caption"
@@ -874,34 +878,34 @@ msgstr "ディスクブラー..."
 #: tfmain.filterblurfast.caption
 msgctxt "tfmain.filterblurfast.caption"
 msgid "Fast blur..."
-msgstr "ファーストブラー"
+msgstr "高速ブラー..."
 
 #: tfmain.filterblurmotion.caption
 msgctxt "tfmain.filterblurmotion.caption"
 msgid "Motion blur..."
-msgstr "モーションブラー"
+msgstr "モーションブラー..."
 
 #: tfmain.filterblurprecise.caption
 msgctxt "tfmain.filterblurprecise.caption"
 msgid "Precise blur..."
-msgstr "Preciseブラー..."
+msgstr "精密ブラー..."
 
 #: tfmain.filterblurradial.caption
 msgctxt "tfmain.filterblurradial.caption"
 msgid "Gaussian blur..."
-msgstr "Gaussブラー..."
+msgstr "ガウスブラー..."
 
 #: tfmain.filtercleartype.caption
 msgid "ClearType"
-msgstr ""
+msgstr "クリアタイプ"
 
 #: tfmain.filtercleartypeinverse.caption
 msgid "Inverse ClearType"
-msgstr ""
+msgstr "反転クリアタイプ"
 
 #: tfmain.filtercomplementarycolor.caption
 msgid "Complementary colors"
-msgstr ""
+msgstr "補色"
 
 #: tfmain.filtercontour.caption
 msgid "Contour"
@@ -917,7 +921,7 @@ msgstr "エンボス..."
 
 #: tfmain.filterfunction.caption
 msgid "Apply function..."
-msgstr ""
+msgstr "関数を適用..."
 
 #: tfmain.filtergrayscale.caption
 msgid "Grayscale"
@@ -926,11 +930,11 @@ msgstr "グレースケール"
 #: tfmain.filterlinearnegative.caption
 msgctxt "tfmain.filterlinearnegative.caption"
 msgid "Linear negative"
-msgstr "Linear negative"
+msgstr "リニア反転"
 
 #: tfmain.filtermedian.caption
 msgid "Median"
-msgstr "Median"
+msgstr "中央値フィルタ"
 
 #: tfmain.filternegative.caption
 msgctxt "tfmain.filternegative.caption"
@@ -939,57 +943,57 @@ msgstr "色調反転"
 
 #: tfmain.filternoise.caption
 msgid "Noise filter..."
-msgstr ""
+msgstr "ノイズフィルタ..."
 
 #: tfmain.filternormalize.caption
 msgid "Normalize"
-msgstr "Normalize"
+msgstr "正規化"
 
 #: tfmain.filterphong.caption
 msgctxt "tfmain.filterphong.caption"
 msgid "Shaded map..."
-msgstr ""
+msgstr "シェードマップ..."
 
 #: tfmain.filterpixelate.caption
 msgid "Pixelate..."
-msgstr "モザイク..."
+msgstr "ピクセル化..."
 
 #: tfmain.filterplane.caption
 msgid "Plane (slow)"
-msgstr "Planeフィルタ(slow)"
+msgstr "平面 (遅い)"
 
 #: tfmain.filterrain.caption
 msgid "Rain..."
-msgstr ""
+msgstr "雨フィルタ..."
 
 #: tfmain.filtersharpen.caption
 msgid "Sharpen..."
-msgstr "Sharpenフィルタ..."
+msgstr "シャープ化..."
 
 #: tfmain.filtersmooth.caption
 msgid "Smooth"
-msgstr "Smoothフィルタ"
+msgstr "スムース"
 
 #: tfmain.filtersphere.caption
 msgctxt "TFMAIN.FILTERSPHERE.CAPTION"
 msgid "Sphere"
-msgstr "Sphereフィルタ"
+msgstr "球体"
 
 #: tfmain.filtertwirl.caption
 msgid "Twirl..."
-msgstr "Twirlフィルタ..."
+msgstr "ねじれ..."
 
 #: tfmain.filterwavedisplacement.caption
 msgid "Wave displacement..."
-msgstr ""
+msgstr "波状変位..."
 
 #: tfmain.forgetdialoganswers.caption
 msgid "Forget dialog box answers"
-msgstr ""
+msgstr "ダイアログの応答を忘れる"
 
 #: tfmain.forgetdialoganswers.hint
 msgid "Forget answers given to dialog boxes"
-msgstr ""
+msgstr "ダイアログに与えられた応答を忘れる"
 
 #: tfmain.helpabout.caption
 msgid "About..."
@@ -1005,56 +1009,56 @@ msgstr "キャンバスの大きさ..."
 
 #: tfmain.imageclearalpha.caption
 msgid "Clear alpha channel and set background"
-msgstr "アルファチャンネルを落として貼付ける"
+msgstr "アルファチャンネルをクリアして背景を設定"
 
 #: tfmain.imagecrop.caption
 msgid "Crop to selection"
-msgstr "領域を切り抜く"
+msgstr "選択範囲を切り抜き"
 
 #: tfmain.imagecroplayer.caption
 msgid "Crop to selection and current layer"
-msgstr ""
+msgstr "選択範囲と現在のレイヤーを切り抜き"
 
 #: tfmain.imagefillbackground.caption
 msgid "Fill background with antialiasing"
-msgstr "Fill background with antialiasing"
+msgstr "アンチエイリアスで背景を塗りつぶし"
 
 #: tfmain.imageflatten.caption
 msgctxt "tfmain.imageflatten.caption"
 msgid "Flatten image"
-msgstr ""
+msgstr "イメージを統合"
 
 #: tfmain.imagehorizontalflip.caption
 msgctxt "tfmain.imagehorizontalflip.caption"
 msgid "Horizontal flip"
-msgstr "水平フリップ"
+msgstr "水平反転"
 
 #: tfmain.imagehorizontalflip.hint
 msgctxt "tfmain.imagehorizontalflip.hint"
 msgid "Flip image horizontally"
-msgstr "水平方向にイメージをひっくり返す"
+msgstr "画像を水平方向に反転"
 
 #: tfmain.imagelinearnegative.caption
 msgctxt "tfmain.imagelinearnegative.caption"
 msgid "Linear negative"
-msgstr "Linear negative"
+msgstr "線形反転"
 
 #: tfmain.imagenegative.caption
 msgctxt "tfmain.imagenegative.caption"
 msgid "Negative"
-msgstr "色調反転"
+msgstr "ネガティブ"
 
 #: tfmain.imagerepeat.caption
 msgid "Repeat..."
-msgstr "Repeat..."
+msgstr "繰り返し..."
 
 #: tfmain.imageresample.caption
 msgid "Resample..."
-msgstr "Resample..."
+msgstr "リサンプル..."
 
 #: tfmain.imageresample.hint
 msgid "Resample image"
-msgstr "Resample image"
+msgstr "画像をリサンプル"
 
 #: tfmain.imagerotate180.caption
 msgid "Rotate 180°"
@@ -1070,34 +1074,34 @@ msgstr "時計回りに90°回転"
 
 #: tfmain.imagesmartzoom3.caption
 msgid "Smart zoom x3"
-msgstr "スマートズームx3"
+msgstr "スマートズーム x3"
 
 #: tfmain.imageswapredblue.caption
 msgid "Swap red and blue channels"
-msgstr ""
+msgstr "赤と青のチャンネルを交換"
 
 #: tfmain.imageverticalflip.caption
 msgctxt "tfmain.imageverticalflip.caption"
 msgid "Vertical flip"
-msgstr "垂直フリップ"
+msgstr "垂直反転"
 
 #: tfmain.imageverticalflip.hint
 msgid "Flip image vertically"
-msgstr "鉛直方向に画面をひっくり返す"
+msgstr "画像を垂直方向に反転"
 
 #: tfmain.image_currenttool.hint
 msgctxt "TFMAIN.IMAGE_CURRENTTOOL.HINT"
 msgid "Selected tool"
-msgstr "選択されてるツール"
+msgstr "選択ツール"
 
 #: tfmain.image_swapcolors.hint
 msgctxt "tfmain.image_swapcolors.hint"
 msgid "Switch color"
-msgstr "切り変える"
+msgstr "色を切り替え"
 
 #: tfmain.itemdocklayersandcolors.caption
 msgid "Dock layers and colors"
-msgstr ""
+msgstr "レイヤーと色をドッキング"
 
 #: tfmain.itemdonate.caption
 msgctxt "tfmain.itemdonate.caption"
@@ -1106,16 +1110,16 @@ msgstr "寄付する..."
 
 #: tfmain.itemfullscreen.caption
 msgid "Fullscreen"
-msgstr ""
+msgstr "フルスクリーン"
 
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
-msgstr ""
+msgstr "イメージブラウザを使用"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
-msgstr ""
+msgstr "ツールボックスをドッキング"
 
 #: tfmain.label_altitude.caption
 msgid "Altitude"
@@ -1124,18 +1128,18 @@ msgstr "高さ"
 #: tfmain.label_back.caption
 msgctxt "tfmain.label_back.caption"
 msgid "Back"
-msgstr "背景色"
+msgstr "背景"
 
 #: tfmain.label_brush.caption
 msgctxt "tfmain.label_brush.caption"
 msgid "Brush"
-msgstr ""
+msgstr "ブラシ"
 
 #: tfmain.label_coordinates.caption
 #, fuzzy
 #| msgid "99999x99999"
 msgid "9999x9999"
-msgstr "99999x99999"
+msgstr "9999x9999"
 
 #: tfmain.label_coordinates.hint
 msgid "Coordinates"
@@ -1148,7 +1152,7 @@ msgstr "100%"
 
 #: tfmain.label_currentdiff.hint
 msgid "Color difference"
-msgstr ""
+msgstr "色の差異"
 
 #: tfmain.label_currentzoom.caption
 msgctxt "TFMAIN.LABEL_CURRENTZOOM.CAPTION"
@@ -1157,17 +1161,17 @@ msgstr "%"
 
 #: tfmain.label_currentzoom.hint
 msgid "Current zoom"
-msgstr "現在の拡縮率"
+msgstr "現在のズーム"
 
 #: tfmain.label_curve.caption
 msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
 msgid "Curve"
-msgstr "カーブ"
+msgstr "曲線"
 
 #: tfmain.label_eraser.caption
 msgctxt "tfmain.label_eraser.caption"
 msgid "Erase"
-msgstr "消しゴム"
+msgstr "消去"
 
 #: tfmain.label_grid.caption
 msgctxt "TFMAIN.LABEL_GRID.CAPTION"
@@ -1197,11 +1201,11 @@ msgstr "幅"
 #: tfmain.label_phongborder.caption
 msgctxt "tfmain.label_phongborder.caption"
 msgid "Border"
-msgstr "線画"
+msgstr "境界線"
 
 #: tfmain.label_ratio.caption
 msgid "Ratio"
-msgstr ""
+msgstr "比率"
 
 #: tfmain.label_shadowoffset.caption
 msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
@@ -1215,7 +1219,7 @@ msgstr "図形"
 
 #: tfmain.label_spacing.caption
 msgid "Spacing"
-msgstr ""
+msgstr "間隔"
 
 #: tfmain.label_text.caption
 msgctxt "TFMAIN.LABEL_TEXT.CAPTION"
@@ -1225,7 +1229,7 @@ msgstr "テキスト"
 #: tfmain.label_textblur.caption
 msgctxt "TFMAIN.LABEL_TEXTBLUR.CAPTION"
 msgid "Blur"
-msgstr "ブラー"
+msgstr "ぼかし"
 
 #: tfmain.label_tolerance.caption
 msgctxt "tfmain.label_tolerance.caption"
@@ -1235,84 +1239,84 @@ msgstr "許容値"
 #: tfmain.layeraddnew.hint
 msgctxt "tfmain.layeraddnew.hint"
 msgid "Add new layer"
-msgstr ""
+msgstr "新しいレイヤーを追加"
 
 #: tfmain.layerduplicate.hint
 msgctxt "tfmain.layerduplicate.hint"
 msgid "Duplicate selected layer"
-msgstr ""
+msgstr "選択されたレイヤーを複製"
 
 #: tfmain.layerexport.hint
 msgctxt "tfmain.layerexport.hint"
 msgid "Export..."
-msgstr ""
+msgstr "エクスポート..."
 
 #: tfmain.layerfromfile.hint
 msgctxt "tfmain.layerfromfile.hint"
 msgid "Import layer from file..."
-msgstr ""
+msgstr "ファイルからレイヤーをインポート..."
 
 #: tfmain.layerhorizontalflip.hint
 msgid "Flip layer horizontally"
-msgstr ""
+msgstr "レイヤーを水平反転"
 
 #: tfmain.layermergeover.hint
 msgctxt "tfmain.layermergeover.hint"
 msgid "Merge layer over"
-msgstr ""
+msgstr "レイヤーを上に結合"
 
 #: tfmain.layermove.hint
 msgctxt "tfmain.layermove.hint"
 msgid "Move layer"
-msgstr ""
+msgstr "レイヤーを移動"
 
 #: tfmain.layerrasterize.hint
 msgid "Rasterize layer"
-msgstr ""
+msgstr "レイヤーをラスタライズ"
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "tfmain.layerremovecurrent.hint"
 msgid "Remove layer"
-msgstr ""
+msgstr "レイヤーを削除"
 
 #: tfmain.layerrotate.hint
 msgctxt "tfmain.layerrotate.hint"
 msgid "Rotate layer"
-msgstr ""
+msgstr "レイヤーを回転"
 
 #: tfmain.layerverticalflip.hint
 msgctxt "tfmain.layerverticalflip.hint"
 msgid "Flip layer vertically"
-msgstr ""
+msgstr "レイヤーを垂直反転"
 
 #: tfmain.layerzoom.hint
 msgid "Zoom layer"
-msgstr ""
+msgstr "レイヤーをズーム"
 
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
-msgstr "領域をロード"
+msgstr "選択範囲を読み込む"
 
 #: tfmain.menucolors.caption
 msgctxt "tfmain.menucolors.caption"
 msgid "Colors"
-msgstr "色パレット"
+msgstr "色"
 
 #: tfmain.menucoordinatestoolbar.caption
 msgid "Show coordinates"
-msgstr ""
+msgstr "座標を表示"
 
 #: tfmain.menucopypastetoolbar.caption
 msgid "Show copy/paste toolbar"
-msgstr ""
+msgstr "コピー/ペーストツールバーを表示"
 
 #: tfmain.menudocktoolboxleft.caption
 msgid "Dock left"
-msgstr ""
+msgstr "左にドッキング"
 
 #: tfmain.menudocktoolboxright.caption
 msgid "Dock right"
-msgstr ""
+msgstr "右にドッキング"
 
 #: tfmain.menuedit.caption
 msgctxt "tfmain.menuedit.caption"
@@ -1325,7 +1329,7 @@ msgstr "ファイル"
 
 #: tfmain.menufiletoolbar.caption
 msgid "Show file toolbar"
-msgstr ""
+msgstr "ファイルツールバーを表示"
 
 #: tfmain.menufilter.caption
 msgctxt "tfmain.menufilter.caption"
@@ -1345,12 +1349,12 @@ msgstr "イメージ"
 #: tfmain.menulanguage.caption
 msgctxt "tfmain.menulanguage.caption"
 msgid "Language"
-msgstr "言語の"
+msgstr "言語"
 
 #: tfmain.menuradialblur.caption
 msgctxt "tfmain.menuradialblur.caption"
 msgid "Radial blur"
-msgstr "Radialブラー"
+msgstr "放射状ぼかし"
 
 #: tfmain.menurecentfiles.caption
 msgctxt "tfmain.menurecentfiles.caption"
@@ -1360,7 +1364,7 @@ msgstr "最近使ったファイル"
 #: tfmain.menuremovetransparency.caption
 msgctxt "tfmain.menuremovetransparency.caption"
 msgid "Remove transparency"
-msgstr "透明部分を取り除く"
+msgstr "透明性を削除"
 
 #: tfmain.menurender.caption
 msgctxt "tfmain.menurender.caption"
@@ -1370,7 +1374,7 @@ msgstr "レンダリング"
 #: tfmain.menuscript.caption
 msgctxt "tfmain.menuscript.caption"
 msgid "Script"
-msgstr ""
+msgstr "スクリプト"
 
 #: tfmain.menuselect.caption
 msgctxt "tfmain.menuselect.caption"
@@ -1380,7 +1384,7 @@ msgstr "選択"
 #: tfmain.menushowpalette.caption
 msgctxt "tfmain.menushowpalette.caption"
 msgid "Show palette"
-msgstr ""
+msgstr "パレットを表示"
 
 #: tfmain.menutool.caption
 msgctxt "tfmain.menutool.caption"
@@ -1389,33 +1393,33 @@ msgstr "ツール"
 
 #: tfmain.menuundocktoolbox.caption
 msgid "Undock"
-msgstr ""
+msgstr "ドッキング解除"
 
 #: tfmain.menuundoredotoolbar.caption
 msgid "Show undo/redo toolbar"
-msgstr ""
+msgstr "アンドゥ/リドゥツールバーを表示"
 
 #: tfmain.menuview.caption
 msgctxt "tfmain.menuview.caption"
 msgid "View"
-msgstr "View"
+msgstr "表示"
 
 #: tfmain.menuzoomtoolbar.caption
 msgid "Show zoom toolbar"
-msgstr ""
+msgstr "ズームツールバーを表示"
 
 #: tfmain.open3dobjectdialog.title
 msgctxt "tfmain.open3dobjectdialog.title"
 msgid "Import 3D object"
-msgstr ""
+msgstr "3Dオブジェクトをインポート"
 
 #: tfmain.openbrushdialog.title
 msgid "Open brush"
-msgstr ""
+msgstr "ブラシを開く"
 
 #: tfmain.openpicturedialog1.title
 msgid "Open existing image"
-msgstr "既存のファイルを開く"
+msgstr "既存のイメージを開く"
 
 #: tfmain.opentexturedialog.title
 msgctxt "tfmain.opentexturedialog.title"
@@ -1425,16 +1429,16 @@ msgstr "テクスチャを開く"
 #: tfmain.perspective_repeat.hint
 msgctxt "tfmain.perspective_repeat.hint"
 msgid "Repeat image"
-msgstr "イメージをリピートする"
+msgstr "画像をリピート"
 
 #: tfmain.perspective_twoplanes.hint
 msgctxt "tfmain.perspective_twoplanes.hint"
 msgid "Draw opposite plane too"
-msgstr ""
+msgstr "反対の面も描画"
 
 #: tfmain.rendercamouflage.caption
 msgid "Camouflage"
-msgstr "カモフラージュ"
+msgstr "迷彩"
 
 #: tfmain.renderclouds.caption
 msgid "Clouds"
@@ -1442,24 +1446,24 @@ msgstr "雲"
 
 #: tfmain.rendercustomwater.caption
 msgid "Water with custom colors"
-msgstr "任意の色合いの水"
+msgstr "カスタムカラーの水"
 
 #: tfmain.rendercyclicperlinnoise.caption
 msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
-msgstr "Cyclic Perlinノイズ"
+msgstr "周期的なPerlinノイズ"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "ヒポサイクロイド..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
-msgstr "マーブル大理石"
+msgstr "大理石"
 
 #: tfmain.rendermetalfloor.caption
 msgid "Metal floor"
-msgstr "メタルっぽい床"
+msgstr "金属の床"
 
 #: tfmain.renderperlinnoise.caption
 msgid "Perlin noise"
@@ -1467,74 +1471,78 @@ msgstr "Perlinノイズ"
 
 #: tfmain.renderplastik.caption
 msgid "Plastik"
-msgstr "プラスティク"
+msgstr "プラスチック"
 
 #: tfmain.renderroundstone.caption
 msgid "Round stone"
-msgstr "Round stone"
+msgstr "丸石"
 
 #: tfmain.rendersnowprint.caption
 msgid "Snow print"
-msgstr "Snow print"
+msgstr "雪模様"
 
 #: tfmain.renderstone.caption
 msgid "Stone"
-msgstr "Stone"
+msgstr "石"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "スーパー公式..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
 msgid "Water"
-msgstr "Water"
+msgstr "水"
 
 #: tfmain.renderwood.caption
 msgid "Wood"
-msgstr "Wood"
+msgstr "木材"
 
 #: tfmain.renderwoodvertical.caption
 msgid "Vertical wood"
-msgstr "Vertical wood"
+msgstr "垂直木材"
 
 #: tfmain.savepicturedialog1.title
 msgid "Save file as..."
-msgstr "名前を付けてファイルを保存..."
+msgstr "名前を付けて保存..."
 
 #: tfmain.saveselectiondialog.title
 msgctxt "TFMAIN.SAVESELECTIONDIALOG.TITLE"
 msgid "Save selection as..."
-msgstr "選択領域を保存..."
+msgstr "選択範囲を保存..."
 
 #: tfmain.selectionhorizontalflip.hint
 msgid "Flip selection horizontally"
-msgstr ""
+msgstr "選択範囲を水平反転"
 
 #: tfmain.selectionverticalflip.hint
 msgid "Flip selection vertically"
-msgstr ""
+msgstr "選択範囲を垂直反転"
 
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
-msgstr ""
+msgstr "矢印の水平サイズ"
 
 #: tfmain.spinedit_arrowsizey.hint
 msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
-msgstr ""
+msgstr "矢印の垂直サイズ"
 
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
 msgid "Spacing between patterns"
-msgstr ""
+msgstr "パターン間の間隔"
 
 #: tfmain.spinedit_eraser.hint
 msgctxt "tfmain.spinedit_eraser.hint"
 msgid "Eraser opacity"
-msgstr "消しゴムの透過度"
+msgstr "消しゴムの不透明度"
 
 #: tfmain.spinedit_penwidth.hint
 msgctxt "tfmain.spinedit_penwidth.hint"
 msgid "Pen width"
-msgstr "ペンの幅"
+msgstr "ペン幅"
 
 #: tfmain.spinedit_phongbordersize.hint
 msgctxt "tfmain.spinedit_phongbordersize.hint"
@@ -1549,41 +1557,41 @@ msgstr "図形の高さ"
 #: tfmain.spinedit_textblur.hint
 msgctxt "tfmain.spinedit_textblur.hint"
 msgid "Shadow blur"
-msgstr "ドロップシャドウ"
+msgstr "影のぼかし"
 
 #: tfmain.spinedit_textoutlinewidth.hint
 msgctxt "tfmain.spinedit_textoutlinewidth.hint"
 msgid "Text outline width"
-msgstr ""
+msgstr "テキストのアウトライン幅"
 
 #: tfmain.spinedit_textshadowx.hint
 msgctxt "tfmain.spinedit_textshadowx.hint"
 msgid "Horizontal shadow offset"
-msgstr "水平方向への影のオフセット"
+msgstr "影の水平オフセット"
 
 #: tfmain.spinedit_textshadowy.hint
 msgctxt "tfmain.spinedit_textshadowy.hint"
 msgid "Vertical shadow offset"
-msgstr "垂直方向への影のオフセット"
+msgstr "影の垂直オフセット"
 
 #: tfmain.spinedit_textsize.hint
 msgctxt "tfmain.spinedit_textsize.hint"
 msgid "Text size"
-msgstr ""
+msgstr "テキストサイズ"
 
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
-msgstr ""
+msgstr "ブラシ"
 
 #: tfmain.toolchangedocking.hint
 msgctxt "tfmain.toolchangedocking.hint"
 msgid "Change docking"
-msgstr ""
+msgstr "ドッキングを変更"
 
 #: tfmain.toolclone.hint
 msgid "Clone tool"
-msgstr ""
+msgstr "クローンツール"
 
 #: tfmain.toolcolorpicker.hint
 msgctxt "TFMAIN.TOOLCOLORPICKER.HINT"
@@ -1592,15 +1600,15 @@ msgstr "カラーピッカー"
 
 #: tfmain.tooldeformation.caption
 msgid "Deformation"
-msgstr "グリッド変形"
+msgstr "変形"
 
 #: tfmain.tooldeformation.hint
 msgid "Deformation grid"
-msgstr "グリッドを変形させる"
+msgstr "変形グリッド"
 
 #: tfmain.tooleditshape.hint
 msgid "Edit shape"
-msgstr ""
+msgstr "図形を編集する"
 
 #: tfmain.toolellipse.hint
 msgctxt "TFMAIN.TOOLELLIPSE.HINT"
@@ -1622,29 +1630,29 @@ msgstr "グラデーション"
 
 #: tfmain.toolgradient.hint
 msgid "Render gradient"
-msgstr "Render gradient"
+msgstr "グラデーションを描画する"
 
 #: tfmain.toolhand.caption
 msgid "Hand"
-msgstr "移動"
+msgstr "手"
 
 #: tfmain.toolhand.hint
 msgid "Move and scroll picture"
-msgstr "画像を動かしたりスクロールさせたり"
+msgstr "画像を移動したりスクロールする"
 
 #: tfmain.toolhotspot.caption
 msgctxt "tfmain.toolhotspot.caption"
 msgid "Hot spot"
-msgstr ""
+msgstr "ホットスポット"
 
 #: tfmain.toolhotspot.hint
 msgid "Choose hot spot of a cursor"
-msgstr ""
+msgstr "カーソルのホットスポットを選択する"
 
 #: tfmain.toollayermapping.hint
 msgctxt "tfmain.toollayermapping.hint"
 msgid "Layer perspective"
-msgstr ""
+msgstr "レイヤーの遠近法を設定する"
 
 #: tfmain.toolmagicwand.caption
 msgid "Magic wand"
@@ -1657,11 +1665,11 @@ msgstr "魔法の杖で選択する"
 #: tfmain.toolmoveselection.hint
 msgctxt "TFMAIN.TOOLMOVESELECTION.HINT"
 msgid "Move selection"
-msgstr "選択領域を移動する"
+msgstr "選択範囲を移動する"
 
 #: tfmain.toolopenedcurve.hint
 msgid "Opened curve"
-msgstr ""
+msgstr "開いた曲線"
 
 #: tfmain.toolpen.caption
 msgctxt "TFMAIN.TOOLPEN.CAPTION"
@@ -1675,7 +1683,7 @@ msgstr "シンプルなペン"
 #: tfmain.toolphong.hint
 msgctxt "TFMAIN.TOOLPHONG.HINT"
 msgid "Shaded shape"
-msgstr "影付きの図形"
+msgstr "影付きの図形を描画する"
 
 #: tfmain.toolpolygon.caption
 msgid "Polygon"
@@ -1683,11 +1691,11 @@ msgstr "多角形"
 
 #: tfmain.toolpolygon.hint
 msgid "Polygon or polyline"
-msgstr "多角形もしくはポリライン"
+msgstr "多角形またはポリライン"
 
 #: tfmain.toolpolyline.hint
 msgid "Polyline"
-msgstr ""
+msgstr "ポリライン"
 
 #: tfmain.toolrect.hint
 msgctxt "TFMAIN.TOOLRECT.HINT"
@@ -1697,7 +1705,7 @@ msgstr "矩形"
 #: tfmain.toolrotateselection.hint
 msgctxt "TFMAIN.TOOLROTATESELECTION.HINT"
 msgid "Rotate selection"
-msgstr "選択領域を回転する"
+msgstr "選択範囲を回転する"
 
 #: tfmain.toolselectellipse.hint
 msgctxt "TFMAIN.TOOLSELECTELLIPSE.HINT"
@@ -1707,38 +1715,37 @@ msgstr "楕円を選択する"
 #: tfmain.toolselectpen.caption
 msgctxt "tfmain.toolselectpen.caption"
 msgid "Selection pen"
-msgstr "ペンで選択"
+msgstr "選択ペン"
 
 #: tfmain.toolselectpen.hint
 msgctxt "tfmain.toolselectpen.hint"
 msgid "Draw selection with pen"
-msgstr "ペンで選択する"
+msgstr "ペンで選択範囲を描画する"
 
 #: tfmain.toolselectpoly.hint
 msgctxt "TFMAIN.TOOLSELECTPOLY.HINT"
 msgid "Select polygon"
-msgstr "多角形で選択する"
+msgstr "多角形を選択する"
 
 #: tfmain.toolselectrect.hint
 msgctxt "TFMAIN.TOOLSELECTRECT.HINT"
 msgid "Select rectangle"
-msgstr "矩形で選択する"
+msgstr "矩形を選択する"
 
 #: tfmain.toolselectspline.hint
 msgctxt "tfmain.toolselectspline.hint"
 msgid "Select curve"
-msgstr "カーブを選択する"
+msgstr "曲線を選択する"
 
 #: tfmain.toolspline.caption
 msgctxt "TFMAIN.TOOLSPLINE.CAPTION"
 msgid "Curve"
-msgstr "カーブ"
+msgstr "曲線"
 
 #: tfmain.toolspline.hint
-#, fuzzy
 msgctxt "tfmain.toolspline.hint"
 msgid "Curve"
-msgstr "カーブ"
+msgstr "曲線"
 
 #: tfmain.tooltext.hint
 msgctxt "TFMAIN.TOOLTEXT.HINT"
@@ -1748,26 +1755,26 @@ msgstr "テキスト"
 #: tfmain.tooltexturemapping.hint
 msgctxt "tfmain.tooltexturemapping.hint"
 msgid "Texture mapping"
-msgstr ""
+msgstr "テクスチャマッピング"
 
 #: tfmain.tool_aliasing.hint
 msgid "Disable antialiasing"
-msgstr ""
+msgstr "アンチエイリアスを無効化"
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
 msgid "Flat cap"
-msgstr "フラットなキャプション"
+msgstr "フラットキャップ"
 
 #: tfmain.tool_capround.hint
 msgctxt "TFMAIN.TOOL_CAPROUND.HINT"
 msgid "Round cap"
-msgstr "丸いキャプション"
+msgstr "ラウンドキャップ"
 
 #: tfmain.tool_capsquare.hint
 msgctxt "TFMAIN.TOOL_CAPSQUARE.HINT"
 msgid "Square cap"
-msgstr "四角いキャプション"
+msgstr "スクエアキャップ"
 
 #: tfmain.tool_closeshape.hint
 msgctxt "tfmain.tool_closeshape.hint"
@@ -1776,72 +1783,72 @@ msgstr "図形を閉じる"
 
 #: tfmain.tool_curvemodeangle.hint
 msgid "Draw an angle"
-msgstr ""
+msgstr "角度を描く"
 
 #: tfmain.tool_curvemodeauto.hint
 msgctxt "tfmain.tool_curvemodeauto.hint"
 msgid "Autodetect angles"
-msgstr ""
+msgstr "角度を自動検出"
 
 #: tfmain.tool_curvemodecurve.hint
 msgid "Draw a curve"
-msgstr ""
+msgstr "曲線を描く"
 
 #: tfmain.tool_curvemovepoint.hint
 msgid "Move point"
-msgstr ""
+msgstr "ポイントを移動する"
 
 #: tfmain.tool_drawshapeborder.hint
 msgctxt "tfmain.tool_drawshapeborder.hint"
 msgid "Draw border"
-msgstr "線を引く"
+msgstr "境界線を描く"
 
 #: tfmain.tool_erasealpha.hint
 msgctxt "tfmain.tool_erasealpha.hint"
 msgid "Make transparent"
-msgstr ""
+msgstr "透明化する"
 
 #: tfmain.tool_eraseblur.hint
 msgctxt "tfmain.tool_eraseblur.hint"
 msgid "Soften"
-msgstr ""
+msgstr "柔らかくする"
 
 #: tfmain.tool_erasedarken.hint
 msgid "Darken"
-msgstr ""
+msgstr "暗くする"
 
 #: tfmain.tool_eraselighten.hint
 msgid "Lighten"
-msgstr ""
+msgstr "明るくする"
 
 #: tfmain.tool_erasesharpen.hint
 msgid "Sharpen"
-msgstr ""
+msgstr "シャープにする"
 
 #: tfmain.tool_fillshape.hint
 msgctxt "tfmain.tool_fillshape.hint"
 msgid "Fill shape"
-msgstr "塗りつぶし"
+msgstr "形状を塗りつぶす"
 
 #: tfmain.tool_gridmovewithoutdeformation.hint
 msgctxt "tfmain.tool_gridmovewithoutdeformation.hint"
 msgid "Move grid without deformation"
-msgstr "グリッドを移動する"
+msgstr "グリッドを変形せずに移動"
 
 #: tfmain.tool_joinbevel.hint
 msgctxt "TFMAIN.TOOL_JOINBEVEL.HINT"
 msgid "Bevel join"
-msgstr "Bevel join"
+msgstr "ベベルジョイン"
 
 #: tfmain.tool_joinmiter.hint
 msgctxt "TFMAIN.TOOL_JOINMITER.HINT"
 msgid "Miter join"
-msgstr "Miter join"
+msgstr "マイタージョイン"
 
 #: tfmain.tool_joinround.hint
 msgctxt "TFMAIN.TOOL_JOINROUND.HINT"
 msgid "Round join"
-msgstr "Round join"
+msgstr "ラウンドジョイン"
 
 #: tfmain.tool_phongshapecone.hint
 msgctxt "tfmain.tool_phongshapecone.hint"
@@ -1851,123 +1858,123 @@ msgstr "円錐"
 #: tfmain.tool_phongshapehorizontalcylinder.hint
 msgctxt "tfmain.tool_phongshapehorizontalcylinder.hint"
 msgid "Horizontal cylinder"
-msgstr ""
+msgstr "水平円柱"
 
 #: tfmain.tool_phongshaperectangle.hint
 msgctxt "tfmain.tool_phongshaperectangle.hint"
 msgid "Rectangle"
-msgstr "四角"
+msgstr "四角形"
 
 #: tfmain.tool_phongshaperoundrect.hint
 msgctxt "tfmain.tool_phongshaperoundrect.hint"
 msgid "Rounded rectangle"
-msgstr "角丸な四角"
+msgstr "角丸四角形"
 
 #: tfmain.tool_phongshapesphere.hint
 msgctxt "tfmain.tool_phongshapesphere.hint"
 msgid "Sphere"
-msgstr "球"
+msgstr "球体"
 
 #: tfmain.tool_phongshapeverticalcone.hint
 msgctxt "tfmain.tool_phongshapeverticalcone.hint"
 msgid "Vertical cone"
-msgstr ""
+msgstr "垂直円錐"
 
 #: tfmain.tool_phongshapeverticalcylinder.hint
 msgctxt "tfmain.tool_phongshapeverticalcylinder.hint"
 msgid "Vertical cylinder"
-msgstr ""
+msgstr "垂直円柱"
 
 #: tfmain.tool_progressivefloodfill.caption
 msgctxt "tfmain.tool_progressivefloodfill.caption"
 msgid "Progressive floodfill"
-msgstr "プログレッシブで塗りつぶす"
+msgstr "プログレッシブ塗りつぶし"
 
 #: tfmain.tool_progressivefloodfill.hint
 msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
-msgstr "プログレッシブで塗りつぶす"
+msgstr "プログレッシブ塗りつぶし"
 
 #: tfmain.tool_textalignbottom.hint
 msgid "Align bottom"
-msgstr ""
+msgstr "下揃え"
 
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
-msgstr ""
+msgstr "中央揃え"
 
 #: tfmain.tool_textalignleft.hint
 msgid "Align left"
-msgstr ""
+msgstr "左揃え"
 
 #: tfmain.tool_textalignmiddle.hint
 msgid "Center vertically"
-msgstr ""
+msgstr "垂直中央揃え"
 
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
-msgstr ""
+msgstr "右揃え"
 
 #: tfmain.tool_textaligntop.hint
 msgid "Align top"
-msgstr ""
+msgstr "上揃え"
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"
-msgstr ""
+msgstr "双方向"
 
 #: tfmain.tool_textbold.hint
 msgid "Bold"
-msgstr ""
+msgstr "太字"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
 msgid "Choose font..."
-msgstr "フォント選択..."
+msgstr "フォントを選択..."
 
 #: tfmain.tool_textitalic.hint
 msgid "Italic"
-msgstr ""
+msgstr "斜体"
 
 #: tfmain.tool_textltr.hint
 msgid "Left to right"
-msgstr ""
+msgstr "左から右"
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
 msgid "Text outline"
-msgstr "アウトライン"
+msgstr "テキストの輪郭"
 
 #: tfmain.tool_textphong.hint
 msgctxt "TFMAIN.TOOL_TEXTPHONG.HINT"
 msgid "Text phong shading"
-msgstr ""
+msgstr "テキストのフォンシェーディング"
 
 #: tfmain.tool_textrtl.hint
 msgid "Right to left"
-msgstr ""
+msgstr "右から左"
 
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
 msgid "Text shadow"
-msgstr "テキストシャドゥ"
+msgstr "テキストの影"
 
 #: tfmain.tool_textstrikeout.hint
 msgid "Strikeout"
-msgstr ""
+msgstr "打ち消し線"
 
 #: tfmain.tool_textunderline.hint
 msgid "Underline"
-msgstr ""
+msgstr "下線"
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
 msgid "Colors"
-msgstr "色パレット"
+msgstr "色"
 
 #: tfmain.viewdarktheme.caption
 msgid "Dark theme"
-msgstr ""
+msgstr "ダークテーマ"
 
 #: tfmain.viewgrid.caption
 msgctxt "TFMAIN.VIEWGRID.CAPTION"
@@ -1976,10 +1983,9 @@ msgstr "グリッド"
 
 #: tfmain.viewimagelist.caption
 msgid "Image list"
-msgstr ""
+msgstr "画像リスト"
 
 #: tfmain.viewlayerstack.caption
-#, fuzzy
 msgctxt "tfmain.viewlayerstack.caption"
 msgid "Layers"
 msgstr "レイヤー"
@@ -1987,21 +1993,21 @@ msgstr "レイヤー"
 #: tfmain.viewlayerstackbutton.caption
 msgctxt "tfmain.viewlayerstackbutton.caption"
 msgid "Show layers"
-msgstr ""
+msgstr "レイヤーを表示"
 
 #: tfmain.viewlayerstackbutton.hint
 msgctxt "tfmain.viewlayerstackbutton.hint"
 msgid "Show or hide layer stack window"
-msgstr ""
+msgstr "レイヤースタックウィンドウを表示または非表示にする"
 
 #: tfmain.viewpalette.caption
 msgctxt "tfmain.viewpalette.caption"
 msgid "Palette"
-msgstr ""
+msgstr "パレット"
 
 #: tfmain.viewstatusbar.caption
 msgid "Status bar"
-msgstr ""
+msgstr "ステータスバー"
 
 #: tfmain.viewtoolbox.caption
 msgid "Toolbox"
@@ -2009,17 +2015,17 @@ msgstr "ツールボックス"
 
 #: tfmain.viewworkspacecolor.caption
 msgid "Set workspace color..."
-msgstr ""
+msgstr "作業領域の色を設定..."
 
 #: tfmain.viewzoomfit.caption
 msgctxt "tfmain.viewzoomfit.caption"
 msgid "Zoom fit"
-msgstr "ズームfit"
+msgstr "ズームフィット"
 
 #: tfmain.viewzoomfit.hint
 msgctxt "TFMAIN.VIEWZOOMFIT.HINT"
 msgid "Zoom to fit in the window"
-msgstr "ウィンドウサイズに合わせてズームする"
+msgstr "ウィンドウサイズに合わせてズーム"
 
 #: tfmain.viewzoomin.hint
 msgctxt "TFMAIN.VIEWZOOMIN.HINT"
@@ -2033,7 +2039,7 @@ msgstr "元のサイズ"
 
 #: tfmain.viewzoomoriginal.hint
 msgid "Zoom to original pixel size"
-msgstr "ズームをやめて元のサイズに戻す"
+msgstr "元のピクセルサイズにズーム"
 
 #: tfmain.viewzoomout.hint
 msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
@@ -2047,7 +2053,7 @@ msgstr "モーションブラー"
 
 #: tfmotionblur.checkbox_oriented.caption
 msgid "Oriented"
-msgstr "両方向にのばす"
+msgstr "方向性あり"
 
 #: tfmotionblur.label_distance.caption
 msgctxt "tfmotionblur.label_distance.caption"
@@ -2066,7 +2072,7 @@ msgstr "OK"
 
 #: tfmultiimage.caption
 msgid "Choose image"
-msgstr ""
+msgstr "画像を選択"
 
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
@@ -2081,15 +2087,15 @@ msgstr "OK"
 #: tfnewimage.caption
 msgctxt "tfnewimage.caption"
 msgid "New image"
-msgstr "新規画像"
+msgstr "新しい画像"
 
 #: tfnewimage.combobox_bitdepth.text
 msgid "32"
-msgstr ""
+msgstr "32"
 
 #: tfnewimage.label_bitdepth.caption
 msgid "Bit depth :"
-msgstr ""
+msgstr "ビット深度:"
 
 #: tfnewimage.label_height.caption
 msgctxt "tfnewimage.label_height.caption"
@@ -2098,11 +2104,11 @@ msgstr "高さ:"
 
 #: tfnewimage.label_height1.caption
 msgid "Ratio :"
-msgstr ""
+msgstr "比率:"
 
 #: tfnewimage.label_memoryrequired.caption
 msgid "Memory required :"
-msgstr ""
+msgstr "必要なメモリ:"
 
 #: tfnewimage.label_width.caption
 msgctxt "tfnewimage.label_width.caption"
@@ -2111,19 +2117,19 @@ msgstr "幅:"
 
 #: tfnoisefilter.caption
 msgid "Noise filter"
-msgstr ""
+msgstr "ノイズフィルター"
 
 #: tfnoisefilter.label_opacity.caption
 msgid "Opacity:"
-msgstr ""
+msgstr "不透明度:"
 
 #: tfnoisefilter.radio_grayscalenoise.caption
 msgid "Grayscale noise"
-msgstr ""
+msgstr "グレースケールノイズ"
 
 #: tfnoisefilter.radio_rgbnoise.caption
 msgid "RGB noise"
-msgstr ""
+msgstr "RGBノイズ"
 
 #: tfobject3d.button_cancel.caption
 msgctxt "tfobject3d.button_cancel.caption"
@@ -2132,11 +2138,11 @@ msgstr "キャンセル"
 
 #: tfobject3d.button_loadtex.caption
 msgid "Texture..."
-msgstr ""
+msgstr "テクスチャ..."
 
 #: tfobject3d.button_notex.caption
 msgid "No tex."
-msgstr ""
+msgstr "テクスチャなし"
 
 #: tfobject3d.button_ok.caption
 msgctxt "tfobject3d.button_ok.caption"
@@ -2145,38 +2151,38 @@ msgstr "OK"
 
 #: tfobject3d.caption
 msgid "3D object"
-msgstr ""
+msgstr "3Dオブジェクト"
 
 #: tfobject3d.checkbox_antialiasing.caption
 msgid "Antialiasing"
-msgstr ""
+msgstr "アンチエイリアス"
 
 #: tfobject3d.checkbox_biface.caption
 msgid "2-sided faces"
-msgstr ""
+msgstr "両面フェイス"
 
 #: tfobject3d.checkbox_textureinterp.caption
 msgid "Texture interpolation"
-msgstr ""
+msgstr "テクスチャ補間"
 
 #: tfobject3d.groupbox_selectedlight.caption
 msgid "Selected light"
-msgstr ""
+msgstr "選択された光源"
 
 #: tfobject3d.groupbox_selectedmaterial.caption
 msgctxt "tfobject3d.groupbox_selectedmaterial.caption"
 msgid "Selected material"
-msgstr ""
+msgstr "選択されたマテリアル"
 
 #: tfobject3d.label_color.caption
 msgctxt "tfobject3d.label_color.caption"
 msgid "Color :"
-msgstr ""
+msgstr "色:"
 
 #: tfobject3d.label_color1.caption
 msgctxt "tfobject3d.label_color1.caption"
 msgid "Color :"
-msgstr ""
+msgstr "色:"
 
 #: tfobject3d.label_height.caption
 msgctxt "tfobject3d.label_height.caption"
@@ -2186,26 +2192,26 @@ msgstr "高さ:"
 #: tfobject3d.label_lightingnormals.caption
 msgctxt "tfobject3d.label_lightingnormals.caption"
 msgid "Lighting normals :"
-msgstr ""
+msgstr "ライティング法線:"
 
 #: tfobject3d.label_lights.caption
 msgid "Lights :"
-msgstr ""
+msgstr "光源:"
 
 #: tfobject3d.label_materials.caption
 msgctxt "tfobject3d.label_materials.caption"
 msgid "Materials :"
-msgstr ""
+msgstr "マテリアル:"
 
 #: tfobject3d.label_opacity.caption
 msgctxt "tfobject3d.label_opacity.caption"
 msgid "Opacity :"
-msgstr ""
+msgstr "不透明度:"
 
 #: tfobject3d.label_specularindex.caption
 msgctxt "tfobject3d.label_specularindex.caption"
 msgid "Spec. index :"
-msgstr ""
+msgstr "スペキュラー指数:"
 
 #: tfobject3d.label_width.caption
 msgctxt "tfobject3d.label_width.caption"
@@ -2215,15 +2221,15 @@ msgstr "幅:"
 #: tfobject3d.label_zoom.caption
 msgctxt "tfobject3d.label_zoom.caption"
 msgid "Zoom"
-msgstr ""
+msgstr "ズーム"
 
 #: tfobject3d.lights.caption
 msgid "Lights"
-msgstr ""
+msgstr "光源"
 
 #: tfobject3d.materials.caption
 msgid "Materials"
-msgstr ""
+msgstr "マテリアル"
 
 #: tfobject3d.opentexturedialog.title
 msgctxt "tfobject3d.opentexturedialog.title"
@@ -2232,24 +2238,24 @@ msgstr "テクスチャを開く"
 
 #: tfobject3d.rendering.caption
 msgid "Rendering"
-msgstr ""
+msgstr "レンダリング"
 
 #: tfobject3d.tooladddirectional.hint
 msgid "Add a directional light"
-msgstr ""
+msgstr "指向性ライトを追加"
 
 #: tfobject3d.toolpointlight.hint
 msgid "Add a point light"
-msgstr ""
+msgstr "ポイントライトを追加"
 
 #: tfobject3d.toolremoveselectedlight.hint
 msgid "Remove selected light"
-msgstr ""
+msgstr "選択した光源を削除"
 
 #: tfphongfilter.caption
 msgctxt "tfphongfilter.caption"
 msgid "Shaded map"
-msgstr ""
+msgstr "シェードマップ"
 
 #: tfphongfilter.groupbox_color.caption
 msgctxt "tfphongfilter.groupbox_color.caption"
@@ -2258,27 +2264,27 @@ msgstr "色"
 
 #: tfphongfilter.groupbox_color1.caption
 msgid "Altitude map"
-msgstr ""
+msgstr "標高マップ"
 
 #: tfphongfilter.label_altitude.caption
 msgid "Global altitude :"
-msgstr ""
+msgstr "全体の標高:"
 
 #: tfphongfilter.label_lightposition.caption
 msgid "Light position :"
-msgstr ""
+msgstr "光源の位置:"
 
 #: tfphongfilter.radio_mapalpha.caption
 msgid "Alpha"
-msgstr ""
+msgstr "アルファ"
 
 #: tfphongfilter.radio_mapblue.caption
 msgid "B"
-msgstr ""
+msgstr "青"
 
 #: tfphongfilter.radio_mapgreen.caption
 msgid "G"
-msgstr ""
+msgstr "緑"
 
 #: tfphongfilter.radio_maplightness.caption
 msgctxt "tfphongfilter.radio_maplightness.caption"
@@ -2287,28 +2293,30 @@ msgstr "明度"
 
 #: tfphongfilter.radio_maplinearlightness.caption
 msgid "Linear lightness"
-msgstr ""
+msgstr "線形明度"
 
 #: tfphongfilter.radio_mapred.caption
 msgid "R"
-msgstr ""
+msgstr "赤"
 
 #: tfphongfilter.radio_mapsaturation.caption
 msgctxt "tfphongfilter.radio_mapsaturation.caption"
 msgid "Saturation"
-msgstr "濃淡"
+msgstr "彩度"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
-msgstr ""
+msgstr "背景色"
 
 #: tfphongfilter.radio_usekeep.caption
 msgid "Keep"
-msgstr ""
+msgstr "保持"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
-msgstr ""
+msgstr "ペンの色"
 
 #: tfphongfilter.radio_usetexture.caption
 msgctxt "tfphongfilter.radio_usetexture.caption"
@@ -2318,130 +2326,140 @@ msgstr "現在のテクスチャ"
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
 msgid "Pixelate"
-msgstr "モザイク"
+msgstr "モザイク化"
 
 #: tfpixelate.label_pixelsize.caption
 msgctxt "tfpixelate.label_pixelsize.caption"
 msgid "Pixel size :"
-msgstr "画素のサイズ:"
+msgstr "ピクセルサイズ:"
 
 #: tfpixelate.label_quality.caption
 msgctxt "tfpixelate.label_quality.caption"
 msgid "Quality :"
-msgstr "精度:"
+msgstr "品質:"
 
 #: tfposterize.caption
 msgctxt "tfposterize.caption"
 msgid "Posterize"
-msgstr ""
+msgstr "ポスタライズ"
 
 #: tfposterize.checkbox_bylightness.caption
 msgid "By lightness"
-msgstr ""
+msgstr "明度に基づく"
 
 #: tfposterize.label_levels.caption
 msgid "Levels :"
-msgstr ""
+msgstr "レベル:"
 
 #: tfpreviewdialog.caption
 msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
-msgstr ""
+msgstr "プレビュー"
 
 #: tfpreviewdialog.lstatus.caption
 msgctxt "tfpreviewdialog.lstatus.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfprint.button_configureprinter.caption
 msgid "Configure..."
-msgstr ""
+msgstr "設定..."
 
 #: tfprint.button_print.caption
 msgid "Print!"
-msgstr ""
+msgstr "印刷!"
 
 #: tfprint.button_zoomfit.caption
 msgctxt "tfprint.button_zoomfit.caption"
 msgid "Zoom fit"
-msgstr "ズームfit"
+msgstr "ズームフィット"
 
 #: tfprint.caption
 msgid "Print"
-msgstr ""
+msgstr "印刷"
 
 #: tfprint.checkbox_ratio.caption
 msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
-msgstr "アスペクト比を保持する"
+msgstr "アスペクト比を保持"
+
+#: tfprint.combobox_orientation.text
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
 
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
-msgstr ""
+msgstr "画像サイズ"
 
 #: tfprint.groupbox_margins.caption
 msgid "Margins"
-msgstr ""
+msgstr "余白"
 
 #: tfprint.label_bottom.caption
 msgid "Bottom:"
-msgstr ""
+msgstr "下:"
 
 #: tfprint.label_dpix.caption
 msgctxt "tfprint.label_dpix.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfprint.label_dpiy.caption
 msgctxt "tfprint.label_dpiy.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfprint.label_height.caption
 msgid "Height:"
-msgstr ""
+msgstr "高さ:"
 
 #: tfprint.label_left.caption
 msgid "Left:"
-msgstr ""
+msgstr "左:"
 
 #: tfprint.label_orientation.caption
 msgid "Orientation:"
-msgstr ""
+msgstr "向き:"
 
 #: tfprint.label_printerandpaper.caption
 msgid "Printer and paper:"
-msgstr ""
+msgstr "プリンターと用紙:"
 
 #: tfprint.label_right.caption
 msgid "Right:"
-msgstr ""
+msgstr "右:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
-msgstr ""
+msgstr "上:"
 
 #: tfprint.label_width.caption
 msgid "Width:"
-msgstr ""
+msgstr "幅:"
 
 #: tfquestion.caption
 msgid "Question"
-msgstr ""
+msgstr "質問"
 
 #: tfquestion.checkbox_rememberchoice.caption
 msgid "Remember this choice"
-msgstr ""
+msgstr "この選択を記憶する"
 
 #: tfquestion.label_message.caption
 msgctxt "tfquestion.label_message.caption"
 msgid "."
-msgstr ""
+msgstr "."
 
 #: tfradialblur.caption
 msgctxt "tfradialblur.caption"
 msgid "Radial blur"
-msgstr "Radialブラー"
+msgstr "ラディアルブラー"
 
 #: tfradialblur.label_radius.caption
 msgctxt "tfradialblur.label_radius.caption"
@@ -2450,15 +2468,15 @@ msgstr "半径:"
 
 #: tfrain.caption
 msgid "Rain"
-msgstr ""
+msgstr "雨"
 
 #: tfrain.label_quantity.caption
 msgid "Quantity:"
-msgstr ""
+msgstr "量:"
 
 #: tfrain.label_wind.caption
 msgid "Wind :"
-msgstr ""
+msgstr "風:"
 
 #: tfresample.button_cancel.caption
 msgctxt "TFRESAMPLE.BUTTON_CANCEL.CAPTION"
@@ -2488,7 +2506,7 @@ msgstr "高さ:"
 #: tfresample.label_quality.caption
 msgctxt "tfresample.label_quality.caption"
 msgid "Quality :"
-msgstr "精度:"
+msgstr "品質:"
 
 #: tfresample.label_width.caption
 msgctxt "tfresample.label_width.caption"
@@ -2512,78 +2530,79 @@ msgstr "保存"
 
 #: tfsaveoption.checkbox_dithering.caption
 msgid "Dithering"
-msgstr ""
+msgstr "ディザリング"
 
 #: tfsaveoption.checkbox_lossless.caption
 msgid "Lossless"
-msgstr ""
+msgstr "ロスレス"
 
 #: tfsaveoption.label1.caption
 msgid "Quality:"
-msgstr ""
+msgstr "品質:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #: tfsaveoption.label_1.caption
 msgid "100"
-msgstr ""
+msgstr "100"
 
 #: tfsaveoption.label_50.caption
 msgid "50"
-msgstr ""
+msgstr "50"
 
 #: tfsaveoption.label_colordepth.caption
 msgid "Color depth:"
-msgstr ""
+msgstr "色深度:"
 
 #: tfsaveoption.label_size.caption
 msgid "Size:"
-msgstr ""
+msgstr "サイズ:"
 
 #: tfsaveoption.radiobutton_16colors.caption
 msgid "16 colors"
-msgstr ""
+msgstr "16色"
 
 #: tfsaveoption.radiobutton_24bitsperpixel.caption
 msgid "24 bits"
-msgstr ""
+msgstr "24ビット"
 
 #: tfsaveoption.radiobutton_256colors.caption
 msgid "256 colors"
-msgstr ""
+msgstr "256色"
 
 #: tfsaveoption.radiobutton_2colors.caption
 msgid "2 colors"
-msgstr ""
+msgstr "2色"
 
 #: tfsaveoption.radiobutton_32bitsperpixel.caption
 msgid "32 bits"
-msgstr ""
+msgstr "32ビット"
 
 #: tfsaveoption.radiobutton_miomap.caption
 msgid "MioMap"
-msgstr ""
+msgstr "MioMap"
 
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
-msgstr ""
+msgstr "シャープ/スムーズ"
 
 #: tfsharpen.label_amount.caption
 msgctxt "tfsharpen.label_amount.caption"
 msgid "Amount :"
-msgstr ""
+msgstr "量:"
 
 #: tfshiftcolors.caption
 msgctxt "tfshiftcolors.caption"
 msgid "Shift colors"
-msgstr "色合いをずらす"
+msgstr "色相をシフト"
 
 #: tfshiftcolors.checkbox_gsba.caption
 msgctxt "tfshiftcolors.checkbox_gsba.caption"
 msgid "Corrected hue and lightness"
-msgstr ""
+msgstr "修正された色相と明度"
 
 #: tfshiftcolors.label1.caption
 msgctxt "TFSHIFTCOLORS.LABEL1.CAPTION"
@@ -2594,6 +2613,62 @@ msgstr "色相"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "濃淡"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "スーパー公式"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr "a"
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr "b"
+
+#: tfsuperformula.label_backcolor.caption
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "背景色"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr "n1"
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr "n2"
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr "n3"
+
+#: tfsuperformula.label_pencolor.caption
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "ペンの色"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "有理数"
+
+#: tfsuperformula.label_size.caption
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "サイズ"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "スパイク数"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "スパイクの重なり"
+
+#: tfsuperformula.label_width.caption
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "幅"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2617,93 +2692,92 @@ msgstr "半径:"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"
-msgstr ""
+msgstr "波動変位"
 
 #: tfwavedisplacement.label_displacement.caption
 msgid "Displacement :"
-msgstr ""
+msgstr "変位:"
 
 #: tfwavedisplacement.label_phase.caption
 msgid "Phase :"
-msgstr ""
+msgstr "位相:"
 
 #: tfwavedisplacement.label_wavelength.caption
 msgid "Wavelength :"
-msgstr ""
+msgstr "波長:"
 
 #: uresourcestrings.rsactioninprogress
 msgid "Action in progress"
-msgstr ""
+msgstr "処理中"
 
 #: uresourcestrings.rsaddtoimagelist
 msgid "Add files to the image processing list"
-msgstr ""
+msgstr "画像処理リストにファイルを追加"
 
 #: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
-msgstr ""
+msgstr "パレットに色を追加"
 
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
-msgstr ""
+msgstr "形状を整列"
 
 #: uresourcestrings.rsallapplications
 msgid "all"
-msgstr ""
+msgstr "すべて"
 
 #: uresourcestrings.rsallsupportedfiletypes
 msgid "All supported filetypes"
-msgstr ""
+msgstr "すべての対応ファイルタイプ"
 
 #: uresourcestrings.rsalt
 msgid "ALT"
-msgstr ""
+msgstr "ALT"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
-msgstr ""
+msgstr "アニメーションGIF"
 
 #: uresourcestrings.rsautodetect
 msgid "Autodetect"
-msgstr ""
+msgstr "自動検出"
 
 #: uresourcestrings.rsback
-#, fuzzy
 msgctxt "uresourcestrings.rsback"
 msgid "Back"
 msgstr "背景色"
 
 #: uresourcestrings.rsbackspaceremovelastpoint
 msgid "Press BACKSPACE to remove last point"
-msgstr ""
+msgstr "最後のポイントを削除するにはBACKSPACEを押します"
 
 #: uresourcestrings.rsbestquality
 msgid "Best quality"
-msgstr "Best quality"
+msgstr "最高品質"
 
 #: uresourcestrings.rsbitmap
 msgid "Bitmap"
-msgstr ""
+msgstr "ビットマップ"
 
 #: uresourcestrings.rsblack
 msgid "Black"
-msgstr ""
+msgstr "黒"
 
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
-msgstr ""
+msgstr "ブレンド操作は、下にレイヤーがある場合にのみ適用されます"
 
 #: uresourcestrings.rsblue
 msgid "Blue"
-msgstr ""
+msgstr "青"
 
 #: uresourcestrings.rsbrightness
 msgid "Brightness"
-msgstr ""
+msgstr "明るさ"
 
 #: uresourcestrings.rsbytes
 msgid "Bytes"
-msgstr ""
+msgstr "バイト"
 
 #: uresourcestrings.rscancel
 msgctxt "uresourcestrings.rscancel"
@@ -2712,15 +2786,15 @@ msgstr "キャンセル"
 
 #: uresourcestrings.rscancelledbyuser
 msgid "Cancelled by user"
-msgstr ""
+msgstr "ユーザーによってキャンセルされました"
 
 #: uresourcestrings.rscannotdrawshapeonsvglayer
 msgid "Cannot draw shape on SVG layer"
-msgstr ""
+msgstr "SVGレイヤーに図形を描画できません"
 
 #: uresourcestrings.rscannotopenfile
 msgid "Cannot open file"
-msgstr ""
+msgstr "ファイルを開くことができません"
 
 #: uresourcestrings.rscanvassize
 msgctxt "uresourcestrings.rscanvassize"
@@ -2729,31 +2803,31 @@ msgstr "キャンバスのサイズ"
 
 #: uresourcestrings.rscdrom
 msgid "CD"
-msgstr ""
+msgstr "CD"
 
 #: uresourcestrings.rschannels
 msgid "Channels"
-msgstr ""
+msgstr "チャンネル"
 
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
-msgstr ""
+msgstr "パレットをクリア"
 
 #: uresourcestrings.rscloserequest
 msgid "Close request"
-msgstr "Close request"
+msgstr "閉じるリクエスト"
 
 #: uresourcestrings.rscmd
 msgid "CMD"
-msgstr ""
+msgstr "CMD"
 
 #: uresourcestrings.rscolordescription
 msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
-msgstr ""
+msgstr "色の説明：キーボードで色の名前やCSS記法を使って入力してください。"
 
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
-msgstr ""
+msgstr "カラーオーバーレイ"
 
 #: uresourcestrings.rscolors
 msgctxt "uresourcestrings.rscolors"
@@ -2762,23 +2836,23 @@ msgstr "色パレット"
 
 #: uresourcestrings.rsconfirmdeletefromcontainer
 msgid "Are you sure you want to delete this file from the container?"
-msgstr ""
+msgstr "このファイルをコンテナから削除してもよろしいですか？"
 
 #: uresourcestrings.rsconfirmdeletemultiplefromcontainer
 msgid "Are you sure you want to delete these %1 files from the container?"
-msgstr ""
+msgstr "これらの%1ファイルをコンテナから削除してもよろしいですか？"
 
 #: uresourcestrings.rsconfirmmovemultipletotrash
 msgid "Are you sure you want to move these %1 files to the trash?"
-msgstr ""
+msgstr "これらの%1ファイルをゴミ箱に移動してもよろしいですか？"
 
 #: uresourcestrings.rsconfirmmovetotrash
 msgid "Are you sure you want to move this file to the trash?"
-msgstr ""
+msgstr "このファイルをゴミ箱に移動してもよろしいですか？"
 
 #: uresourcestrings.rsconflictingactions
 msgid "Conflicting actions"
-msgstr ""
+msgstr "矛盾するアクション"
 
 #: uresourcestrings.rscontrast
 msgid "Contrast"
@@ -2787,12 +2861,12 @@ msgstr "コントラスト"
 #: uresourcestrings.rscorrectedhueccw
 msgctxt "uresourcestrings.rscorrectedhueccw"
 msgid "Corr. Hue CCW"
-msgstr ""
+msgstr "補正色相CCW"
 
 #: uresourcestrings.rscorrectedhuecw
 msgctxt "uresourcestrings.rscorrectedhuecw"
 msgid "Corr. Hue CW"
-msgstr ""
+msgstr "補正色相CW"
 
 #: uresourcestrings.rscosine
 msgid "Cosine"
@@ -2800,27 +2874,27 @@ msgstr "コサイン"
 
 #: uresourcestrings.rscrop
 msgid "Crop"
-msgstr "切り抜く"
+msgstr "切り抜き"
 
 #: uresourcestrings.rsctrl
 msgid "CTRL"
-msgstr ""
+msgstr "CTRL"
 
 #: uresourcestrings.rscurrentlayernotsplit
 msgid "Current layer is not split"
-msgstr ""
+msgstr "現在のレイヤーは分割されていません"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
-msgstr ""
+msgstr "最後のポイントのカーブモードを設定するにはSまたはXを押してください"
 
 #: uresourcestrings.rscyan
 msgid "Cyan"
-msgstr ""
+msgstr "シアン"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
-msgstr ""
+msgstr "デフォルトパレット"
 
 #: uresourcestrings.rsdeletefile
 msgctxt "uresourcestrings.rsdeletefile"
@@ -2829,18 +2903,17 @@ msgstr "削除"
 
 #: uresourcestrings.rsdeleteimageentry
 msgid "Delete selected image entry?"
-msgstr ""
+msgstr "選択した画像エントリを削除しますか？"
 
 #: uresourcestrings.rsdirectorynotempty
 msgid "Directory is not empty"
-msgstr ""
+msgstr "ディレクトリは空ではありません"
 
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
-msgstr ""
+msgstr "パレットを使用してレイヤーをディザリング"
 
 #: uresourcestrings.rsdonate
-#, fuzzy
 msgctxt "uresourcestrings.rsdonate"
 msgid "Donate..."
 msgstr "寄付する..."
@@ -2851,11 +2924,11 @@ msgstr "ダウンロード"
 
 #: uresourcestrings.rsdropshadow
 msgid "Drop shadow"
-msgstr ""
+msgstr "ドロップシャドウ"
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
-msgstr ""
+msgstr "画像を複製"
 
 #: uresourcestrings.rseditmask
 msgid "Edit mask"
@@ -2863,15 +2936,15 @@ msgstr "マスク編集"
 
 #: uresourcestrings.rseditselection
 msgid "Edit selection"
-msgstr ""
+msgstr "選択を編集"
 
 #: uresourcestrings.rsedittexture
 msgid "Edit texture"
-msgstr "テキスチャ編集"
+msgstr "テクスチャ編集"
 
 #: uresourcestrings.rsemptylayer
 msgid "Layer is empty"
-msgstr ""
+msgstr "レイヤーが空です"
 
 #: uresourcestrings.rsemptyselection
 msgid "Selection is empty"
@@ -2879,161 +2952,162 @@ msgstr "選択領域が空です"
 
 #: uresourcestrings.rsendwithoutmatchingbegin
 msgid "End without matching begin"
-msgstr ""
+msgstr "対応する開始がありません"
 
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
-msgstr ""
+msgstr "新しいフォルダまたはコンテナの名前を入力してください（RESまたはLRS拡張子を使用）："
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
-msgstr ""
+msgstr "レイヤー名を入力してください："
 
 #: uresourcestrings.rsentries
 msgid "Entries"
-msgstr ""
+msgstr "エントリ"
 
 #: uresourcestrings.rserror
 msgid "Error"
-msgstr ""
+msgstr "エラー"
 
 #: uresourcestrings.rserrordecodingraw
 msgid "Error decoding raw image."
-msgstr ""
+msgstr "RAW画像のデコードエラー。"
 
 #: uresourcestrings.rserrorloadingoriginal
 msgid "Error while loading original however layer can be rasterized."
-msgstr ""
+msgstr "元のデータを読み込む際にエラーが発生しましたが、レイヤーをラスタライズできます。"
 
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
-msgstr ""
+msgstr "ファイル \"%1\" を開く際にエラーが発生しました"
 
 #: uresourcestrings.rsexception
 msgid "An exception was encountered"
-msgstr ""
+msgstr "例外が発生しました"
 
 #: uresourcestrings.rsexitrequest
 msgid "Exit request"
-msgstr "Exit request"
+msgstr "終了リクエスト"
 
 #: uresourcestrings.rsexpect1parameter
 msgid "expects one parameter : "
-msgstr ""
+msgstr "1つのパラメータを期待しています: "
 
 #: uresourcestrings.rsexpect2parameters
 msgid "expects two parameters : "
-msgstr ""
+msgstr "2つのパラメータを期待しています: "
 
 #: uresourcestrings.rsexpectnparameters
 msgid "expects N parameters : "
-msgstr ""
+msgstr "N個のパラメータを期待しています: "
 
 #: uresourcestrings.rsfast
 msgid "Fast"
-msgstr "Fast"
+msgstr "速い"
 
 #: uresourcestrings.rsfilecannotbeempty
 msgid "File cannot be empty"
-msgstr ""
+msgstr "ファイルは空にできません"
 
 #: uresourcestrings.rsfiledate
 msgid "Date"
-msgstr ""
+msgstr "日付"
 
 #: uresourcestrings.rsfileextensionnotsupported
 msgid "This file extension is not supported."
-msgstr "この拡張子のファイルはサポートされてません"
+msgstr "この拡張子のファイルはサポートされていません"
 
 #: uresourcestrings.rsfileformatnotrecognized
 msgid "The file format has not been recognized."
-msgstr ""
+msgstr "ファイル形式が認識されませんでした"
 
 #: uresourcestrings.rsfilename
 msgid "Filename"
-msgstr ""
+msgstr "ファイル名"
 
 #: uresourcestrings.rsfilenotfound
 msgid "File not found!"
-msgstr ""
+msgstr "ファイルが見つかりません！"
 
 #: uresourcestrings.rsfilenotsaved
 msgid "File not saved"
-msgstr ""
+msgstr "ファイルが保存されていません"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
-msgstr ""
+msgstr "サイズ"
 
 #: uresourcestrings.rsfilesystem
 msgid "File system"
-msgstr ""
+msgstr "ファイルシステム"
 
 #: uresourcestrings.rsfiletype
 msgid "Type"
-msgstr ""
+msgstr "タイプ"
 
 #: uresourcestrings.rsfixeddrive
 msgid "Fixed"
-msgstr ""
+msgstr "固定"
 
 #: uresourcestrings.rsflattenimage
 msgctxt "uresourcestrings.rsflattenimage"
 msgid "Flatten image"
-msgstr ""
+msgstr "画像を統合"
 
 #: uresourcestrings.rsfolder
 msgid "Folder"
-msgstr ""
+msgstr "フォルダ"
 
 #: uresourcestrings.rsfolderorcontaineralreadyexists
 msgid "Folder or container already exists."
-msgstr ""
+msgstr "フォルダまたはコンテナはすでに存在します。"
 
 #: uresourcestrings.rsfollowingerrorsoccurred
 msgid "Following errors occurred:"
-msgstr ""
+msgstr "次のエラーが発生しました："
 
 #: uresourcestrings.rsfractaltree
 msgid "Fractal tree"
-msgstr ""
+msgstr "フラクタルツリー"
 
 #: uresourcestrings.rsframes
 msgid "Frames"
-msgstr ""
+msgstr "フレーム"
 
 #: uresourcestrings.rsfunctionnotdefined
 msgid "The function %1 is not defined."
-msgstr ""
+msgstr "関数 %1 は定義されていません。"
 
 #: uresourcestrings.rsgreen
 msgid "Green"
-msgstr ""
+msgstr "緑"
 
 #: uresourcestrings.rshalfcosine
 msgid "Half-cosine"
-msgstr "Half-cosine"
+msgstr "ハーフコサイン"
 
 #: uresourcestrings.rsholdkeyforsquare
 msgid "Hold %1 to draw a square or a circle"
-msgstr ""
+msgstr "%1を押し続けると、正方形または円を描けます"
 
 #: uresourcestrings.rsholdkeyrestrictrotation
 msgid "Hold %1 to restrict rotation angle"
-msgstr ""
+msgstr "%1を押し続けると回転角度が制限されます"
 
 #: uresourcestrings.rsholdkeysnaptopixel
 msgid "Hold %1 to snap to pixels"
-msgstr ""
+msgstr "%1を押し続けるとピクセルにスナップします"
 
 #: uresourcestrings.rsholdkeysscalemode
 msgid "Hold %1 or %2 to scale"
-msgstr ""
+msgstr "%1または%2を押し続けるとスケールします"
 
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"
 msgid "Hot spot"
-msgstr ""
+msgstr "ホットスポット"
 
 #: uresourcestrings.rshue
 msgctxt "uresourcestrings.rshue"
@@ -3043,52 +3117,51 @@ msgstr "色相"
 #: uresourcestrings.rshueccw
 msgctxt "uresourcestrings.rshueccw"
 msgid "Hue CCW"
-msgstr ""
+msgstr "色相CCW"
 
 #: uresourcestrings.rshuecw
 msgctxt "uresourcestrings.rshuecw"
 msgid "Hue CW"
-msgstr ""
+msgstr "色相CW"
 
 #: uresourcestrings.rsiconimagealreadyexists
 msgid "There is already an image with this size and depth."
-msgstr ""
+msgstr "このサイズと深さの画像はすでに存在します。"
 
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
-msgstr ""
+msgstr "アイコン/カーソル"
 
 #: uresourcestrings.rsiconsize
 msgctxt "uresourcestrings.rsiconsize"
 msgid "Icon size"
-msgstr ""
+msgstr "アイコンサイズ"
 
 #: uresourcestrings.rsimage
-#, fuzzy
 msgctxt "uresourcestrings.rsimage"
 msgid "Image"
 msgstr "イメージ"
 
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
-msgstr ""
+msgstr "画像が大きすぎます"
 
 #: uresourcestrings.rsinfinity
 msgctxt "uresourcestrings.rsinfinity"
 msgid "Infinity"
-msgstr ""
+msgstr "無限大"
 
 #: uresourcestrings.rsinformation
 msgid "Information"
-msgstr ""
+msgstr "情報"
 
 #: uresourcestrings.rsinnerlight
 msgid "Inner light"
-msgstr ""
+msgstr "内側の光"
 
 #: uresourcestrings.rsinnershadow
 msgid "Inner shadow"
-msgstr ""
+msgstr "内側の影"
 
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
@@ -3101,68 +3174,68 @@ msgstr "内部エラー"
 
 #: uresourcestrings.rsinvalidangle
 msgid "Invalid angle"
-msgstr ""
+msgstr "無効な角度"
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
-msgstr ""
+msgstr "無効な名前"
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "
-msgstr ""
+msgstr "無効な不透明度："
 
 #: uresourcestrings.rsinvalidparameters
 msgid "Invalid parameters"
-msgstr ""
+msgstr "無効なパラメータ"
 
 #: uresourcestrings.rsinvalidresamplesize
 msgid "Invalid resample size : "
-msgstr ""
+msgstr "無効なリサンプルサイズ："
 
 #: uresourcestrings.rsinvalidsizefornew
 msgid "Invalid size for new : "
-msgstr ""
+msgstr "新しい項目の無効なサイズ："
 
 #: uresourcestrings.rskeepchanges
 msgid "Do you want to keep changes?"
-msgstr "変更を保存しますか?"
+msgstr "変更を保存しますか？"
 
 #: uresourcestrings.rskeepemptyspace
 msgid "Keep empty space around opaque pixels?"
-msgstr "Keep empty space around opaque pixels?"
+msgstr "不透明なピクセルの周りに空白を保持しますか？"
 
 #: uresourcestrings.rslanczos
 msgid "Lanczos %1"
-msgstr ""
+msgstr "ランツォス %1"
 
 #: uresourcestrings.rslandscape
 msgid "Landscape"
-msgstr ""
+msgstr "横向き"
 
 #: uresourcestrings.rslatestversion
 msgid "The latest version of LazPaint available online is"
-msgstr ""
+msgstr "オンラインで利用可能なLazPaintの最新バージョンは"
 
 #: uresourcestrings.rslava
 msgid "Lava"
-msgstr ""
+msgstr "溶岩"
 
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
 msgid "Layer"
-msgstr "層"
+msgstr "レイヤー"
 
 #: uresourcestrings.rslayeralreadysplit
 msgid "Layer already split"
-msgstr ""
+msgstr "レイヤーはすでに分割されています"
 
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
-msgstr ""
+msgstr "レイヤー化された画像"
 
 #: uresourcestrings.rslayereffect
 msgid "Layer effect"
-msgstr ""
+msgstr "レイヤー効果"
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
@@ -3176,96 +3249,96 @@ msgstr "LazPaint"
 
 #: uresourcestrings.rslazpaintonly
 msgid "LazPaint only"
-msgstr ""
+msgstr "LazPaintのみ"
 
 #: uresourcestrings.rslight
 msgid "Light"
-msgstr "ライト"
+msgstr "光"
 
 #: uresourcestrings.rslightness
 msgctxt "uresourcestrings.rslightness"
 msgid "Lightness"
-msgstr "明度"
+msgstr "明るさ"
 
 #: uresourcestrings.rslightposition
 msgid "Light position"
-msgstr "ライトの位置"
+msgstr "光の位置"
 
 #: uresourcestrings.rslinear
 msgid "Linear"
-msgstr "Linear"
+msgstr "リニア"
 
 #: uresourcestrings.rslinearrgb
 msgid "Linear RGB"
-msgstr ""
+msgstr "リニアRGB"
 
 #: uresourcestrings.rsloadandmergepalette
 msgid "Load and merge palette..."
-msgstr ""
+msgstr "パレットを読み込み、統合..."
 
 #: uresourcestrings.rsloading
 msgid "Loading"
-msgstr ""
+msgstr "読み込み中"
 
 #: uresourcestrings.rsloadpalette
 msgid "Load palette..."
-msgstr ""
+msgstr "パレットを読み込む..."
 
 #: uresourcestrings.rsloopcount
 msgid "Loop count"
-msgstr ""
+msgstr "ループ回数"
 
 #: uresourcestrings.rsmagenta
 msgid "Magenta"
-msgstr ""
+msgstr "マゼンタ"
 
 #: uresourcestrings.rsmakemonochromatic
 msgid "Make monochromatic"
-msgstr ""
+msgstr "モノクロ化する"
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
-msgstr ""
+msgstr "画像から%1色のパレットを作成"
 
 #: uresourcestrings.rsmask
 msgid "Mask"
-msgstr ""
+msgstr "マスク"
 
 #: uresourcestrings.rsmaskfromalphachannel
 msgid "Mask from alpha channel"
-msgstr ""
+msgstr "アルファチャンネルからマスク作成"
 
 #: uresourcestrings.rsmerge
 msgid "Merge"
-msgstr ""
+msgstr "マージ"
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
-msgstr "選択領域をマージしますか?"
+msgstr "選択範囲をマージしますか？"
 
 #: uresourcestrings.rsmitchell
 msgid "Mitchell"
-msgstr "Mitchell"
+msgstr "ミッチェル"
 
 #: uresourcestrings.rsmorethanonefile
 msgid "You are trying to open more than one file. How would you like these files to be opened?"
-msgstr ""
+msgstr "複数のファイルを開こうとしています。それらのファイルをどのように開きますか？"
 
 #: uresourcestrings.rsmovingorrotatingselection
 msgid "Moving or rotating selection"
-msgstr "領域を移動もしくは回転する"
+msgstr "選択範囲の移動または回転中"
 
 #: uresourcestrings.rsmustreleaseselection
 msgid "You must first release the selection"
-msgstr ""
+msgstr "まず選択を解除する必要があります"
 
 #: uresourcestrings.rsmustshowlayer
 msgid "You must first make the layer visible"
-msgstr ""
+msgstr "まずレイヤーを表示する必要があります"
 
 #: uresourcestrings.rsnetworkdrive
 msgid "Network"
-msgstr ""
+msgstr "ネットワーク"
 
 #: uresourcestrings.rsnewimage
 msgctxt "uresourcestrings.rsnewimage"
@@ -3274,104 +3347,106 @@ msgstr "新規画像"
 
 #: uresourcestrings.rsnewmask
 msgid "New mask"
-msgstr ""
+msgstr "新しいマスク"
 
 #: uresourcestrings.rsno
 msgid "No"
-msgstr ""
+msgstr "いいえ"
 
 #: uresourcestrings.rsnoactivelayer
 msgid "No active layer"
-msgstr "No active layer"
+msgstr "アクティブなレイヤーがありません"
 
 #: uresourcestrings.rsnoactiveselection
 msgid "There is no active selection"
-msgstr "There is no active selection"
+msgstr "アクティブな選択範囲がありません"
 
 #: uresourcestrings.rsnoandproceedtonext
 msgid "Do not save and open another file"
-msgstr ""
+msgstr "保存せずに次のファイルを開く"
 
 #: uresourcestrings.rsnoname
 msgid "noname"
-msgstr "名称未定義"
+msgstr "名前なし"
 
 #: uresourcestrings.rsnormalblendop
 msgid "Normal"
-msgstr ""
+msgstr "通常"
 
 #: uresourcestrings.rsnotchromaticchannel
 msgid "This is not a chromatic channel"
-msgstr ""
+msgstr "これは色彩チャンネルではありません"
 
 #: uresourcestrings.rsnothingtobedeformed
 msgid "There is nothing to be deformed"
-msgstr "There is nothing to be deformed"
+msgstr "変形するものがありません"
 
 #: uresourcestrings.rsnothingtoberetrieved
 msgid "There is nothing to be retrieved"
-msgstr "There is nothing to be retrieved"
+msgstr "取得するものがありません"
+
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "これは LazPaint のスクリプトではありません"
 
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
-msgstr ""
+msgstr "この形式でこんな大きな画像を保存するのは適切ではありません"
 
 #: uresourcestrings.rsnumber
 msgid "№"
-msgstr ""
+msgstr "番号"
 
 #: uresourcestrings.rsok
-#, fuzzy
 msgctxt "uresourcestrings.rsok"
 msgid "OK"
 msgstr "OK"
 
 #: uresourcestrings.rsokay
 msgid "Okay"
-msgstr ""
+msgstr "了解"
 
 #: uresourcestrings.rsopacity
 msgid "Opacity"
-msgstr "透過度"
+msgstr "不透明度"
 
 #: uresourcestrings.rsopen
 msgid "Open"
-msgstr ""
+msgstr "開く"
 
 #: uresourcestrings.rsopenfilesaslayers
 msgid "Open files as layers in a single image"
-msgstr ""
+msgstr "複数のファイルを1つの画像のレイヤーとして開く"
 
 #: uresourcestrings.rsopenfirstfileonly
 msgid "Open the first file only"
-msgstr ""
+msgstr "最初のファイルのみ開く"
 
 #: uresourcestrings.rsopening
 msgid "Opening"
-msgstr ""
+msgstr "開いています"
 
 #: uresourcestrings.rsopenmultipleimagefiles
 msgid "Open multiple image files"
-msgstr ""
+msgstr "複数の画像ファイルを開く"
 
 #: uresourcestrings.rsotherblendop
 msgid "Other..."
-msgstr ""
+msgstr "その他..."
 
 #: uresourcestrings.rsoverwritefile
 msgid "File already exists. Do you want to overwrite it?"
-msgstr ""
+msgstr "ファイルはすでに存在します。上書きしますか？"
 
 #: uresourcestrings.rspaletteincludesalphachannel
 msgid "Palette includes alpha channel"
-msgstr ""
+msgstr "パレットにアルファチャンネルを含む"
 
 #: uresourcestrings.rspaletteoptions
 msgid "Palette options"
-msgstr ""
+msgstr "パレットオプション"
 
 #: uresourcestrings.rspen
-#, fuzzy
 msgctxt "uresourcestrings.rspen"
 msgid "Pen"
 msgstr "ペン"
@@ -3383,64 +3458,63 @@ msgstr "%"
 
 #: uresourcestrings.rsportait
 msgid "Portrait"
-msgstr ""
+msgstr "縦向き"
 
 #: uresourcestrings.rsposterizelayerusingpalette
 msgid "Posterize layer using palette"
-msgstr ""
+msgstr "パレットを使ってレイヤーをポスタライズ"
 
 #: uresourcestrings.rspresetname
 msgid "Preset name"
-msgstr ""
+msgstr "プリセット名"
 
 #: uresourcestrings.rspreview
 msgctxt "uresourcestrings.rspreview"
 msgid "Preview"
-msgstr ""
+msgstr "プレビュー"
 
 #: uresourcestrings.rspx
 msgid "px"
-msgstr ""
+msgstr "px"
 
 #: uresourcestrings.rspythonunexpectedversion
 msgid "Expected Python version %1 but %2 found."
-msgstr ""
+msgstr "Pythonのバージョン%1を期待していましたが、%2が見つかりました。"
 
 #: uresourcestrings.rsramdisk
 msgid "RAM disk"
-msgstr ""
+msgstr "RAMディスク"
 
 #: uresourcestrings.rsrasterlayer
 msgid "Raster layer"
-msgstr ""
+msgstr "ラスターレイヤー"
 
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
-msgstr ""
+msgstr "最近のディレクトリ:"
 
 #: uresourcestrings.rsred
 msgid "Red"
-msgstr ""
+msgstr "赤"
 
 #: uresourcestrings.rsreload
 msgctxt "uresourcestrings.rsreload"
 msgid "Reload"
-msgstr ""
+msgstr "再読み込み"
 
 #: uresourcestrings.rsreloadchanged
 msgid "Bitmap has been modified. Do you really want to reload?"
-msgstr ""
+msgstr "ビットマップが変更されています。本当に再読み込みしますか？"
 
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
-msgstr ""
+msgstr "取り外し可能"
 
 #: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
-msgstr ""
+msgstr "パレットから色を削除"
 
 #: uresourcestrings.rsrender
-#, fuzzy
 msgctxt "uresourcestrings.rsrender"
 msgid "Render"
 msgstr "レンダリング"
@@ -3448,32 +3522,40 @@ msgstr "レンダリング"
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
 msgid "Repeat image"
-msgstr "イメージをリピートする"
+msgstr "画像を繰り返す"
 
 #: uresourcestrings.rsresamplingimage
 msgid "Resampling image..."
-msgstr ""
+msgstr "画像を再サンプリング中..."
 
 #: uresourcestrings.rsretrieveselectedarea
 msgid "Do you want to retrieve selected area?"
-msgstr "Do you want to retrieve selected area?"
+msgstr "選択された領域を取得しますか？"
 
 #: uresourcestrings.rsreturnvalides
 msgid "Press ENTER to validate"
-msgstr ""
+msgstr "ENTERキーを押して確認"
 
 #: uresourcestrings.rsrgb
 msgctxt "uresourcestrings.rsrgb"
 msgid "RGB"
-msgstr ""
+msgstr "RGB"
 
 #: uresourcestrings.rsrightclickfinishshape
 msgid "Use RIGHT click to finish shape"
-msgstr ""
+msgstr "右クリックで図形を完了する"
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
-msgstr ""
+msgstr "右クリックでソースを定義"
+
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "右クリックで変換の中心を定義"
+
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "このスクリプトを再度実行して効果を更新する"
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
@@ -3488,38 +3570,42 @@ msgstr "保存"
 #: uresourcestrings.rssaveasbuttonhint
 msgctxt "uresourcestrings.rssaveasbuttonhint"
 msgid "Save with specified filename"
-msgstr ""
+msgstr "指定したファイル名で保存"
 
 #: uresourcestrings.rssavechanges
 msgid "Current bitmap has been modified. Do you want to save changes?"
-msgstr "現在編集中のファイルは変更されてます。変更を保存しますか?"
+msgstr "現在のビットマップが変更されています。変更を保存しますか？"
 
 #: uresourcestrings.rssavepaletteas
 msgid "Save palette as..."
-msgstr ""
+msgstr "パレットを保存..."
 
 #: uresourcestrings.rsscript
 msgctxt "uresourcestrings.rsscript"
 msgid "Script"
-msgstr ""
+msgstr "スクリプト"
+
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "このスクリプトファイルは安全ではない可能性があります: %1"
 
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
-msgstr ""
+msgstr "ブレンド操作を選択"
 
 #: uresourcestrings.rsshift
 msgid "SHIFT"
-msgstr ""
+msgstr "SHIFT"
 
 #: uresourcestrings.rsshowpalette
 msgctxt "uresourcestrings.rsshowpalette"
 msgid "Show palette"
-msgstr ""
+msgstr "パレットを表示"
 
 #: uresourcestrings.rssourceposition
 msgid "Source position"
-msgstr ""
+msgstr "ソース位置"
 
 #: uresourcestrings.rsspline
 msgctxt "uresourcestrings.rsspline"
@@ -3528,134 +3614,137 @@ msgstr "スプライン"
 
 #: uresourcestrings.rssplitcmyk
 msgid "Split CMYK"
-msgstr ""
+msgstr "CMYKに分割"
 
 #: uresourcestrings.rssplithsl
 msgid "Split HSL"
-msgstr ""
+msgstr "HSLに分割"
 
 #: uresourcestrings.rssplitrgb
 msgid "Split RGB"
-msgstr ""
+msgstr "RGBに分割"
 
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
-msgstr ""
+msgstr "デバイス"
 
 #: uresourcestrings.rsstroke
 msgid "Stroke"
-msgstr ""
+msgstr "ストローク"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "このスクリプトを実行してもよろしいですか？ このスクリプトで使用される以下のモジュールは安全でない可能性があります: %1"
 
 #: uresourcestrings.rstextoutline
-#, fuzzy
 msgctxt "uresourcestrings.rstextoutline"
 msgid "Text outline"
-msgstr "アウトライン"
+msgstr "テキストアウトライン"
 
 #: uresourcestrings.rstexturemapping
 msgctxt "uresourcestrings.rstexturemapping"
 msgid "Texture mapping"
-msgstr ""
+msgstr "テクスチャマッピング"
 
 #: uresourcestrings.rstherearenocheckeditems
 msgid "There are no checked items. Check some items or add some new ones."
-msgstr ""
+msgstr "チェックされた項目がありません。項目をチェックするか、新しい項目を追加してください。"
 
 #: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
 msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
-msgstr ""
+msgstr "このファイルには名前が指定されていません。メインメニューの「名前を付けて保存...」を使用してください。"
 
 #: uresourcestrings.rstodo
 msgid "To do"
-msgstr ""
+msgstr "やるべきこと"
 
 #: uresourcestrings.rstodoimages
 msgid "Images left: %1"
-msgstr ""
+msgstr "残りの画像: %1"
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
-msgstr ""
+msgstr "ツールは非表示のレイヤーでは使用できません"
 
 #: uresourcestrings.rstoomanyactions
 msgid "Too many actions"
-msgstr ""
+msgstr "アクションが多すぎます"
 
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
-msgstr ""
+msgstr "レイヤーが多すぎます"
 
 #: uresourcestrings.rstoomanyshapesinlayer
 msgid "Too many shapes in layer"
-msgstr ""
+msgstr "レイヤー内の形状が多すぎます"
 
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
-msgstr ""
+msgstr "合計画像: %1"
 
 #: uresourcestrings.rstransferselectiontootherlayer
 msgid "Transfer selection to other layer?"
-msgstr ""
+msgstr "選択を他のレイヤーに移動しますか？"
 
 #: uresourcestrings.rstransformedrasterlayer
 msgid "Transformed raster layer"
-msgstr ""
+msgstr "変形されたラスターレイヤー"
 
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
-msgstr ""
+msgstr "選択内容を変形しますか？"
 
 #: uresourcestrings.rsunabletoapplyfilter
 msgid "Unable to apply filter : "
-msgstr "フィルターを適用できませんでした:"
+msgstr "フィルターを適用できませんでした: "
 
 #: uresourcestrings.rsunabletoloadfile
 msgid "Unable to load file : "
-msgstr "ファイルを開けませんでした:"
+msgstr "ファイルを開けませんでした: "
 
 #: uresourcestrings.rsunabletosavefile
 msgid "Unable to save file : "
-msgstr "ファイルの保存に失敗しました:"
+msgstr "ファイルの保存に失敗しました: "
 
 #: uresourcestrings.rsunknowncommand
 msgid "Unknown command : "
-msgstr "Unknown command:"
+msgstr "不明なコマンド: "
 
 #: uresourcestrings.rsunknownoriginal
 msgid "Unknown original"
-msgstr ""
+msgstr "不明なオリジナル"
 
 #: uresourcestrings.rsvectoriallayer
 msgid "Vectorial layer"
-msgstr ""
+msgstr "ベクターレイヤー"
 
 #: uresourcestrings.rsversion
 msgid "Version"
-msgstr ""
+msgstr "バージョン"
 
 #: uresourcestrings.rsverticalsize
 msgid "Vertical size"
-msgstr ""
+msgstr "縦サイズ"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
-msgstr ""
+msgid "Visible"
+msgstr "表示"
 
 #: uresourcestrings.rsyellow
 msgid "Yellow"
-msgstr ""
+msgstr "黄色"
 
 #: uresourcestrings.rsyes
 msgid "Yes"
-msgstr ""
+msgstr "はい"
 
 #: uresourcestrings.rszoomlayerstackin
 msgctxt "uresourcestrings.rszoomlayerstackin"
 msgid "Zoom layer stack in"
-msgstr ""
+msgstr "レイヤースタックをズームイン"
 
 #: uresourcestrings.rszoomlayerstackout
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
-msgstr ""
+msgstr "レイヤースタックをズームアウト"
 

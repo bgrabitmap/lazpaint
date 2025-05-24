@@ -1,4 +1,4 @@
-﻿msgid ""
+msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
@@ -395,7 +395,7 @@ msgstr "HSL"
 
 #: tffilterfunction.tabsheet_lab.caption
 msgid "Lab"
-msgstr ""
+msgstr "Lab"
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
@@ -426,11 +426,11 @@ msgstr "Liczba stron:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Hipocykloida"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Wierzchołki:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -610,11 +610,11 @@ msgstr "Zmień kolory..."
 
 #: tfmain.combobox_arrowend.hint
 msgid "Ending arrow"
-msgstr ""
+msgstr "Strzałka końcowa"
 
 #: tfmain.combobox_arrowstart.hint
 msgid "Starting arrow"
-msgstr ""
+msgstr "Strzałka początkowa"
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
@@ -765,6 +765,10 @@ msgstr "Zatwierdź modyfikacje"
 msgid "Export as..."
 msgstr "Eksportuj jako..."
 
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Sprawdź, czy skrypty są bezpieczne"
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Wybierz wpis"
@@ -809,11 +813,11 @@ msgstr "Drukuj..."
 
 #: tfmain.filequicksave.caption
 msgid "Quick save"
-msgstr ""
+msgstr "Szybki zapis"
 
 #: tfmain.filequicksave.hint
 msgid "Save current file without dialogs"
-msgstr ""
+msgstr "Zapisz bieżący plik bez dialogów"
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -1465,7 +1469,7 @@ msgstr "Szum Perlina (cykliczny)"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Hipocykloida..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -1494,6 +1498,10 @@ msgstr "Ślady na śniegu"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Skała"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "Superformuła..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -1904,7 +1912,7 @@ msgstr "Wypełnienie progresywne"
 
 #: tfmain.tool_textalignbottom.hint
 msgid "Align bottom"
-msgstr ""
+msgstr "Wyrównaj do dołu"
 
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
@@ -1916,7 +1924,7 @@ msgstr "Wyrównaj do lewej"
 
 #: tfmain.tool_textalignmiddle.hint
 msgid "Center vertically"
-msgstr ""
+msgstr "Wyśrodkuj pionowo"
 
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
@@ -1924,15 +1932,15 @@ msgstr "Wyrównaj do prawej"
 
 #: tfmain.tool_textaligntop.hint
 msgid "Align top"
-msgstr ""
+msgstr "Wyrównaj do góry"
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"
-msgstr ""
+msgstr "Dwukierunkowy"
 
 #: tfmain.tool_textbold.hint
 msgid "Bold"
-msgstr ""
+msgstr "Pogrubienie"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -1941,11 +1949,11 @@ msgstr "Wybierz czcionkę..."
 
 #: tfmain.tool_textitalic.hint
 msgid "Italic"
-msgstr ""
+msgstr "Kursywa"
 
 #: tfmain.tool_textltr.hint
 msgid "Left to right"
-msgstr ""
+msgstr "Od lewej do prawej"
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1959,7 +1967,7 @@ msgstr "Cień tekstu phong"
 
 #: tfmain.tool_textrtl.hint
 msgid "Right to left"
-msgstr ""
+msgstr "Od prawej do lewej"
 
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
@@ -1968,11 +1976,11 @@ msgstr "Cień tekstu"
 
 #: tfmain.tool_textstrikeout.hint
 msgid "Strikeout"
-msgstr ""
+msgstr "Przekreślenie"
 
 #: tfmain.tool_textunderline.hint
 msgid "Underline"
-msgstr ""
+msgstr "Podkreślenie"
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -2098,7 +2106,7 @@ msgstr "Nowy obraz"
 
 #: tfnewimage.combobox_bitdepth.text
 msgid "32"
-msgstr ""
+msgstr "32"
 
 #: tfnewimage.label_bitdepth.caption
 msgid "Bit depth :"
@@ -2312,6 +2320,7 @@ msgid "Saturation"
 msgstr "Nasycenie"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Kolor tła"
 
@@ -2320,6 +2329,7 @@ msgid "Keep"
 msgstr "Trzymaj"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Kolor pióra"
 
@@ -2388,6 +2398,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "Zachowaj proporcje"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Rozmiar obrazu"
@@ -2429,6 +2445,12 @@ msgstr "Drukarka i papier:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Prawy:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2529,13 +2551,14 @@ msgstr "Ditering"
 
 #: tfsaveoption.checkbox_lossless.caption
 msgid "Lossless"
-msgstr ""
+msgstr "Bezstratny"
 
 #: tfsaveoption.label1.caption
 msgid "Quality:"
 msgstr "Jakość:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 
@@ -2607,6 +2630,66 @@ msgstr "Odcień"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Jasność"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "Superformuła"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Kolor tła"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Kolor pióra"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Liczba wymierna"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Rozmiar"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Liczba skoków"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Nakładanie się kolców"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Szerokość"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2702,7 +2785,7 @@ msgstr "Bitmap"
 
 #: uresourcestrings.rsblack
 msgid "Black"
-msgstr ""
+msgstr "Czarny"
 
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
@@ -2748,7 +2831,7 @@ msgstr "CD"
 
 #: uresourcestrings.rschannels
 msgid "Channels"
-msgstr ""
+msgstr "Kanały"
 
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
@@ -2768,7 +2851,7 @@ msgstr "Opis koloru: kliknij, aby wpisać kolor za pomocą klawiatury, używają
 
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
-msgstr ""
+msgstr "Nakładka koloru"
 
 #: uresourcestrings.rscolors
 msgctxt "uresourcestrings.rscolors"
@@ -2823,7 +2906,7 @@ msgstr "CTRL"
 
 #: uresourcestrings.rscurrentlayernotsplit
 msgid "Current layer is not split"
-msgstr ""
+msgstr "Bieżąca warstwa nie jest podzielona"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -2831,7 +2914,7 @@ msgstr "Naciśnij S lub X, aby ustawić tryb krzywej ostatniego punktu"
 
 #: uresourcestrings.rscyan
 msgid "Cyan"
-msgstr ""
+msgstr "Cyjan"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
@@ -2866,7 +2949,7 @@ msgstr "Pobieranie"
 
 #: uresourcestrings.rsdropshadow
 msgid "Drop shadow"
-msgstr ""
+msgstr "Cień"
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
@@ -2977,6 +3060,7 @@ msgid "File not saved"
 msgstr "Plik nie został zapisany"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Rozmiar"
 
@@ -3008,11 +3092,11 @@ msgstr "Folder lub kontener już istnieje."
 
 #: uresourcestrings.rsfollowingerrorsoccurred
 msgid "Following errors occurred:"
-msgstr ""
+msgstr "Wystąpiły następujące błędy:"
 
 #: uresourcestrings.rsfractaltree
 msgid "Fractal tree"
-msgstr ""
+msgstr "Drzewo fraktalne"
 
 #: uresourcestrings.rsframes
 msgid "Frames"
@@ -3100,11 +3184,11 @@ msgstr "Informacje"
 
 #: uresourcestrings.rsinnerlight
 msgid "Inner light"
-msgstr ""
+msgstr "Wewnętrzne światło"
 
 #: uresourcestrings.rsinnershadow
 msgid "Inner shadow"
-msgstr ""
+msgstr "Wewnętrzny cień"
 
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
@@ -3117,7 +3201,7 @@ msgstr "Błąd wewnętrzny"
 
 #: uresourcestrings.rsinvalidangle
 msgid "Invalid angle"
-msgstr ""
+msgstr "Nieprawidłowy kąt"
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
@@ -3161,7 +3245,7 @@ msgstr "Najnowsza wersja LazPaint dostępna online "
 
 #: uresourcestrings.rslava
 msgid "Lava"
-msgstr ""
+msgstr "Lava"
 
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
@@ -3170,7 +3254,7 @@ msgstr "Warstwa"
 
 #: uresourcestrings.rslayeralreadysplit
 msgid "Layer already split"
-msgstr ""
+msgstr "Warstwa jest już podzielona"
 
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
@@ -3178,7 +3262,7 @@ msgstr "Obraz warstwowy"
 
 #: uresourcestrings.rslayereffect
 msgid "Layer effect"
-msgstr ""
+msgstr "Efekt warstwy"
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
@@ -3233,11 +3317,11 @@ msgstr "Liczba pętli"
 
 #: uresourcestrings.rsmagenta
 msgid "Magenta"
-msgstr ""
+msgstr "Magenta"
 
 #: uresourcestrings.rsmakemonochromatic
 msgid "Make monochromatic"
-msgstr ""
+msgstr "Przekształć na monochromatyczny"
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
@@ -3245,15 +3329,15 @@ msgstr "Utwórz paletę %1-kolorową z obrazu"
 
 #: uresourcestrings.rsmask
 msgid "Mask"
-msgstr ""
+msgstr "Maska"
 
 #: uresourcestrings.rsmaskfromalphachannel
 msgid "Mask from alpha channel"
-msgstr ""
+msgstr "Maska z kanału alfa"
 
 #: uresourcestrings.rsmerge
 msgid "Merge"
-msgstr ""
+msgstr "Scal"
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -3292,7 +3376,7 @@ msgstr "Nowy obraz"
 
 #: uresourcestrings.rsnewmask
 msgid "New mask"
-msgstr ""
+msgstr "Nowa maska"
 
 #: uresourcestrings.rsno
 msgid "No"
@@ -3320,7 +3404,7 @@ msgstr "Normalny"
 
 #: uresourcestrings.rsnotchromaticchannel
 msgid "This is not a chromatic channel"
-msgstr ""
+msgstr "To nie jest kanał chromatyczny"
 
 #: uresourcestrings.rsnothingtobedeformed
 msgid "There is nothing to be deformed"
@@ -3329,6 +3413,10 @@ msgstr "Nie ma nic do zdeformowania"
 #: uresourcestrings.rsnothingtoberetrieved
 msgid "There is nothing to be retrieved"
 msgstr "Nie ma nic do odzyskania"
+
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "To nie jest skrypt LazPaint"
 
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
@@ -3490,11 +3578,19 @@ msgstr "RGB"
 
 #: uresourcestrings.rsrightclickfinishshape
 msgid "Use RIGHT click to finish shape"
-msgstr ""
+msgstr "Użyj PRAWEGO przycisku myszy, aby zakończyć kształt"
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
 msgstr "Użyj prawokliku, aby zdefiniować źródło"
+
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Użyj prawokliku, aby zdefiniować centrum transformacji"
+
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Uruchom ten skrypt ponownie, aby zaktualizować efekt"
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
@@ -3524,6 +3620,10 @@ msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Skrypt"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "Plik skryptu wydaje się niebezpieczny: %1"
+
 #: uresourcestrings.rsselectblendoperation
 #, fuzzy
 msgctxt "uresourcestrings.rsselectblendoperation"
@@ -3550,15 +3650,15 @@ msgstr "Klinowa"
 
 #: uresourcestrings.rssplitcmyk
 msgid "Split CMYK"
-msgstr ""
+msgstr "Podziel CMYK"
 
 #: uresourcestrings.rssplithsl
 msgid "Split HSL"
-msgstr ""
+msgstr "Podziel HSL"
 
 #: uresourcestrings.rssplitrgb
 msgid "Split RGB"
-msgstr ""
+msgstr "Podziel RGB"
 
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
@@ -3566,7 +3666,11 @@ msgstr "Urządzenie"
 
 #: uresourcestrings.rsstroke
 msgid "Stroke"
-msgstr ""
+msgstr "Obrys"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "Czy na pewno chcesz uruchomić ten skrypt? Następujące moduły używane przez ten skrypt mogą być niebezpieczne: %1"
 
 #: uresourcestrings.rstextoutline
 #, fuzzy
@@ -3653,19 +3757,19 @@ msgstr "Warstwa wektorowa"
 
 #: uresourcestrings.rsversion
 msgid "Version"
-msgstr ""
+msgstr "Wersja"
 
 #: uresourcestrings.rsverticalsize
 msgid "Vertical size"
-msgstr ""
+msgstr "Rozmiar pionowy"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
+msgid "Visible"
 msgstr "Widoczna"
 
 #: uresourcestrings.rsyellow
 msgid "Yellow"
-msgstr ""
+msgstr "Żółty"
 
 #: uresourcestrings.rsyes
 msgid "Yes"

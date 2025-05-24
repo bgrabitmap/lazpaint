@@ -40,7 +40,7 @@ uses
   URainType, UFormRain, UPaletteToolbar, uselectionhighlight,
   UImagePreview, UPreviewDialog, UQuestion, UTiff, UImageView,
   UDarkTheme, URaw, UProcessAuto, UPython, UImageBackup, ULayerStackInterface,
-  UChooseColorInterface, UIconCache, uhypocycloid;
+  UChooseColorInterface, UIconCache, uhypocycloid, USuperformula;
 
 //sometimes LResources disappear in the uses clause
 
@@ -208,6 +208,7 @@ begin
   Application.Initialize;
   UGraph.NicePointMaxRadius:= DoScaleX(UGraph.NicePointMaxRadius, OriginalDPI);
   UGraph.FrameDashLength:= DoScaleX(UGraph.FrameDashLength, OriginalDPI);
+  UGraph.FramePenWidth:= DoScaleX(UGraph.FramePenWidth, OriginalDPI);
 
   LazpaintApplication := TMyLazPaintInstance.Create;
   LazpaintApplication.UseConfig(ActualConfig);

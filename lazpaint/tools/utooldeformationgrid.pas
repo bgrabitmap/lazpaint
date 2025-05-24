@@ -1225,6 +1225,7 @@ var curPt,rightPt,downPt: TPointF;
     xb,yb: Integer;
 begin
   result := EmptyRect;
+  if (VirtualScreen = nil) and (deformationGrid = nil) then exit;
   if not ToolDeformationGridNeeded then exit;
   for xb := 0 to deformationGridNbX-1 do
     for yb := 0 to deformationGridNbY-1 do

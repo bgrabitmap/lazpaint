@@ -12,11 +12,11 @@ msgstr ""
 #: tablet.getprocfailed
 #, object-pascal-format
 msgid "Procedure %s failed to load properly."
-msgstr ""
+msgstr "فشل تحميل الإجراء %s بشكل صحيح."
 
 #: tablet.openfailed
 msgid "Tablet context failed to open."
-msgstr ""
+msgstr "فشل فتح سياق الجهاز اللوحي."
 
 #: tfabout.button_donate.caption
 msgctxt "tfabout.button_donate.caption"
@@ -163,7 +163,7 @@ msgstr "تصفح الصور"
 
 #: tfbrowseimages.checkbox_usedirectoryonstartup.caption
 msgid "Use this directory on startup"
-msgstr ""
+msgstr "استخدام هذا الدليل عند بدء التشغيل"
 
 #: tfbrowseimages.label_status.caption
 msgctxt "tfbrowseimages.label_status.caption"
@@ -172,7 +172,7 @@ msgstr "."
 
 #: tfbrowseimages.toolbutton_createfolderorcontainer.hint
 msgid "Create folder or container"
-msgstr ""
+msgstr "إنشاء مجلد أو حاوية"
 
 #: tfbrowseimages.toolbutton_goup.hint
 msgid "Go one directory up"
@@ -180,7 +180,7 @@ msgstr "الصعود بمجلد"
 
 #: tfbrowseimages.toolbutton_openselectedfiles.hint
 msgid "Open selected files"
-msgstr ""
+msgstr "فتح الملفات المحددة"
 
 #: tfbrowseimages.toolbutton_viewbigicon.hint
 msgctxt "tfbrowseimages.toolbutton_viewbigicon.hint"
@@ -194,7 +194,7 @@ msgstr "عرض التفاصيل و المعاينة"
 
 #: tfbrowseimages.tool_selectdrive.hint
 msgid "Select drive"
-msgstr ""
+msgstr "اختر محرك الأقراص"
 
 #: tfcanvassize.button_cancel.caption
 msgctxt "TFCANVASSIZE.BUTTON_CANCEL.CAPTION"
@@ -298,11 +298,11 @@ msgstr "زخرف"
 
 #: tfemboss.checkbox_preservecolors.caption
 msgid "Preserve colors"
-msgstr ""
+msgstr "الحفاظ على الألوان"
 
 #: tfemboss.checkbox_transparent.caption
 msgid "Transparent"
-msgstr ""
+msgstr "شفاف"
 
 #: tfemboss.label_direction.caption
 msgctxt "tfemboss.label_direction.caption"
@@ -315,7 +315,7 @@ msgstr "تطبيق الوضيفة"
 
 #: tffilterfunction.checkbox_gamma.caption
 msgid "Gamma correction"
-msgstr ""
+msgstr "تصحيح غاما"
 
 #: tffilterfunction.checkbox_gsba.caption
 msgctxt "tffilterfunction.checkbox_gsba.caption"
@@ -385,7 +385,7 @@ msgstr "HSL"
 
 #: tffilterfunction.tabsheet_lab.caption
 msgid "Lab"
-msgstr ""
+msgstr "Lab"
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
@@ -404,23 +404,23 @@ msgstr "موافق"
 
 #: tfgeometricbrush.caption
 msgid "Geometric brush"
-msgstr ""
+msgstr "فرشاة هندسية"
 
 #: tfgeometricbrush.checkbox_isgradient.caption
 msgid "Opacity gradient"
-msgstr ""
+msgstr "تدرج العتامة"
 
 #: tfgeometricbrush.label1.caption
 msgid "Number of sides:"
-msgstr ""
+msgstr "عدد الجوانب:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "منحنى الهيبوسيكلويد"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "الحواف:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -547,16 +547,16 @@ msgstr "تحميل ..."
 #: tfmain.brushcreategeometric.hint
 msgctxt "tfmain.brushcreategeometric.hint"
 msgid "Create geometric brush"
-msgstr ""
+msgstr "إنشاء فرشاة هندسية"
 
 #: tfmain.brushloadfromfile.hint
 msgctxt "tfmain.brushloadfromfile.hint"
 msgid "Load brush from file..."
-msgstr ""
+msgstr "تحميل الفرشاة من ملف..."
 
 #: tfmain.brushremovecurrent.hint
 msgid "Remove current brush"
-msgstr ""
+msgstr "إزالة الفرشاة الحالية"
 
 #: tfmain.button_donate.caption
 #, fuzzy
@@ -600,15 +600,15 @@ msgstr "سحب اللون..."
 
 #: tfmain.combobox_arrowend.hint
 msgid "Ending arrow"
-msgstr ""
+msgstr "السهم النهائي"
 
 #: tfmain.combobox_arrowstart.hint
 msgid "Starting arrow"
-msgstr ""
+msgstr "السهم الابتدائي"
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
-msgstr ""
+msgstr "نمط القلم"
 
 #: tfmain.editcopy.caption
 msgid "Copy"
@@ -647,19 +647,19 @@ msgstr "عكس تحديد"
 
 #: tfmain.editmovedown.hint
 msgid "Move down"
-msgstr ""
+msgstr "تحريك لأسفل"
 
 #: tfmain.editmovetoback.hint
 msgid "Send to back"
-msgstr ""
+msgstr "إرسال للخلف"
 
 #: tfmain.editmovetofront.hint
 msgid "Bring to front"
-msgstr ""
+msgstr "جلب إلى الأمام"
 
 #: tfmain.editmoveup.hint
 msgid "Move up"
-msgstr ""
+msgstr "تحريك لأعلى"
 
 #: tfmain.editpaste.hint
 msgctxt "TFMAIN.EDITPASTE.HINT"
@@ -672,7 +672,7 @@ msgstr "لصق كاصورة جديدة"
 
 #: tfmain.editpasteasnewlayer.caption
 msgid "Paste as new layer"
-msgstr ""
+msgstr "لصق كطبقة جديدة"
 
 #: tfmain.editredo.hint
 msgctxt "TFMAIN.EDITREDO.HINT"
@@ -700,31 +700,31 @@ msgstr "تحديد ملائم"
 
 #: tfmain.editshapealignbottom.hint
 msgid "Align shape to the bottom"
-msgstr ""
+msgstr "محاذاة الشكل للأسفل"
 
 #: tfmain.editshapealignleft.hint
 msgid "Align shape left"
-msgstr ""
+msgstr "محاذاة الشكل لليسار"
 
 #: tfmain.editshapealignright.hint
 msgid "Align shape right"
-msgstr ""
+msgstr "محاذاة الشكل لليمين"
 
 #: tfmain.editshapealigntop.hint
 msgid "Align shape to the top"
-msgstr ""
+msgstr "محاذاة الشكل للأعلى"
 
 #: tfmain.editshapecenterhorizontally.hint
 msgid "Center shape horizontally"
-msgstr ""
+msgstr "مركز الشكل أفقيًا"
 
 #: tfmain.editshapecentervertically.hint
 msgid "Center shape vertically"
-msgstr ""
+msgstr "مركز الشكل رأسيًا"
 
 #: tfmain.editshapetocurve.hint
 msgid "Convert shape to curve"
-msgstr ""
+msgstr "تحويل الشكل إلى منحنى"
 
 #: tfmain.editundo.caption
 msgid "Undo"
@@ -753,20 +753,24 @@ msgstr "ثبت التعديل"
 
 #: tfmain.exportpicturedialog.title
 msgid "Export as..."
-msgstr ""
+msgstr "تصدير كـ..."
+
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "التحقق من أمان النصوص"
 
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
-msgstr ""
+msgstr "اختر إدخالًا..."
 
 #: tfmain.filechooseentry.hint
 msgid "Choose entry within file"
-msgstr ""
+msgstr "اختر إدخالًا داخل الملف"
 
 #: tfmain.fileexport.caption
 msgctxt "tfmain.fileexport.caption"
 msgid "Export..."
-msgstr ""
+msgstr "تصدير..."
 
 #: tfmain.fileimport3d.caption
 msgid "Import 3D object..."
@@ -799,11 +803,11 @@ msgstr "طباعة..."
 
 #: tfmain.filequicksave.caption
 msgid "Quick save"
-msgstr ""
+msgstr "حفظ سريع"
 
 #: tfmain.filequicksave.hint
 msgid "Save current file without dialogs"
-msgstr ""
+msgstr "حفظ الملف الحالي دون نوافذ حوار"
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -817,11 +821,11 @@ msgstr "إعادة تحميل"
 
 #: tfmain.fileremembersaveformat.hint
 msgid "Remember save format"
-msgstr ""
+msgstr "تذكر تنسيق الحفظ"
 
 #: tfmain.filerunscript.caption
 msgid "Run script..."
-msgstr ""
+msgstr "تشغيل نص برمجي..."
 
 #: tfmain.filesave.caption
 msgctxt "TFMAIN.FILESAVE.CAPTION"
@@ -852,11 +856,11 @@ msgstr "حفظ التحديد ك.."
 #: tfmain.fileuseimagebrowser.caption
 msgctxt "tfmain.fileuseimagebrowser.caption"
 msgid "Use image browser"
-msgstr ""
+msgstr "استخدام مستعرض الصور"
 
 #: tfmain.filterblurbox.caption
 msgid "Box blur..."
-msgstr ""
+msgstr "تمويه الصندوق..."
 
 #: tfmain.filterblurcorona.caption
 msgctxt "tfmain.filterblurcorona.caption"
@@ -962,7 +966,7 @@ msgstr "مستوي (بطئ)"
 
 #: tfmain.filterrain.caption
 msgid "Rain..."
-msgstr ""
+msgstr "مطر..."
 
 #: tfmain.filtersharpen.caption
 msgid "Sharpen..."
@@ -983,15 +987,15 @@ msgstr "برم"
 
 #: tfmain.filterwavedisplacement.caption
 msgid "Wave displacement..."
-msgstr ""
+msgstr "إزاحة الموجة..."
 
 #: tfmain.forgetdialoganswers.caption
 msgid "Forget dialog box answers"
-msgstr ""
+msgstr "نسيان إجابات مربعات الحوار"
 
 #: tfmain.forgetdialoganswers.hint
 msgid "Forget answers given to dialog boxes"
-msgstr ""
+msgstr "نسيان الإجابات المقدمة في مربعات الحوار"
 
 #: tfmain.helpabout.caption
 msgid "About..."
@@ -1015,7 +1019,7 @@ msgstr "المحصول الى التحديد"
 
 #: tfmain.imagecroplayer.caption
 msgid "Crop to selection and current layer"
-msgstr ""
+msgstr "اقتصاص حسب التحديد والطبقة الحالية"
 
 #: tfmain.imagefillbackground.caption
 msgid "Fill background with antialiasing"
@@ -1076,7 +1080,7 @@ msgstr "التكبير الذكي x3"
 
 #: tfmain.imageswapredblue.caption
 msgid "Swap red and blue channels"
-msgstr ""
+msgstr "تبديل القنوات الحمراء والزرقاء"
 
 #: tfmain.imageverticalflip.caption
 msgctxt "tfmain.imageverticalflip.caption"
@@ -1099,7 +1103,7 @@ msgstr "تبديل اللون"
 
 #: tfmain.itemdocklayersandcolors.caption
 msgid "Dock layers and colors"
-msgstr ""
+msgstr "إرساء الطبقات والألوان"
 
 #: tfmain.itemdonate.caption
 msgctxt "tfmain.itemdonate.caption"
@@ -1108,16 +1112,16 @@ msgstr "تبرع..."
 
 #: tfmain.itemfullscreen.caption
 msgid "Fullscreen"
-msgstr ""
+msgstr "شاشة كاملة"
 
 #: tfmain.itemuseimagebrowser.caption
 msgctxt "tfmain.itemuseimagebrowser.caption"
 msgid "Use image browser"
-msgstr ""
+msgstr "استخدام مستعرض الصور"
 
 #: tfmain.itemviewdocktoolbox.caption
 msgid "Dock toolbox"
-msgstr ""
+msgstr "إرساء صندوق الأدوات"
 
 #: tfmain.label_altitude.caption
 msgid "Altitude"
@@ -1131,7 +1135,7 @@ msgstr "رجوع"
 #: tfmain.label_brush.caption
 msgctxt "tfmain.label_brush.caption"
 msgid "Brush"
-msgstr ""
+msgstr "فرشاة"
 
 #: tfmain.label_coordinates.caption
 #, fuzzy
@@ -1150,7 +1154,7 @@ msgstr "100%"
 
 #: tfmain.label_currentdiff.hint
 msgid "Color difference"
-msgstr ""
+msgstr "فرق الألوان"
 
 #: tfmain.label_currentzoom.caption
 msgctxt "TFMAIN.LABEL_CURRENTZOOM.CAPTION"
@@ -1203,7 +1207,7 @@ msgstr "الحدود"
 
 #: tfmain.label_ratio.caption
 msgid "Ratio"
-msgstr ""
+msgstr "النسبة"
 
 #: tfmain.label_shadowoffset.caption
 msgctxt "TFMAIN.LABEL_SHADOWOFFSET.CAPTION"
@@ -1217,7 +1221,7 @@ msgstr "شكل"
 
 #: tfmain.label_spacing.caption
 msgid "Spacing"
-msgstr ""
+msgstr "التباعد"
 
 #: tfmain.label_text.caption
 msgctxt "TFMAIN.LABEL_TEXT.CAPTION"
@@ -1247,7 +1251,7 @@ msgstr "تكرار الطبقة المنتقات"
 #: tfmain.layerexport.hint
 msgctxt "tfmain.layerexport.hint"
 msgid "Export..."
-msgstr ""
+msgstr "تصدير..."
 
 #: tfmain.layerfromfile.hint
 msgctxt "tfmain.layerfromfile.hint"
@@ -1270,7 +1274,7 @@ msgstr "تحريك الطبقة"
 
 #: tfmain.layerrasterize.hint
 msgid "Rasterize layer"
-msgstr ""
+msgstr "تحويل الطبقة إلى نقطية"
 
 #: tfmain.layerremovecurrent.hint
 msgctxt "tfmain.layerremovecurrent.hint"
@@ -1289,7 +1293,7 @@ msgstr "قلب الطبقة عموديا"
 
 #: tfmain.layerzoom.hint
 msgid "Zoom layer"
-msgstr ""
+msgstr "تكبير الطبقة"
 
 #: tfmain.loadselectiondialog.title
 msgid "Load selection"
@@ -1302,19 +1306,19 @@ msgstr "الألوان"
 
 #: tfmain.menucoordinatestoolbar.caption
 msgid "Show coordinates"
-msgstr ""
+msgstr "إظهار الإحداثيات"
 
 #: tfmain.menucopypastetoolbar.caption
 msgid "Show copy/paste toolbar"
-msgstr ""
+msgstr "إظهار شريط أدوات النسخ/اللصق"
 
 #: tfmain.menudocktoolboxleft.caption
 msgid "Dock left"
-msgstr ""
+msgstr "إرساء يسار"
 
 #: tfmain.menudocktoolboxright.caption
 msgid "Dock right"
-msgstr ""
+msgstr "إرساء يمين"
 
 #: tfmain.menuedit.caption
 msgctxt "tfmain.menuedit.caption"
@@ -1327,7 +1331,7 @@ msgstr "ملف"
 
 #: tfmain.menufiletoolbar.caption
 msgid "Show file toolbar"
-msgstr ""
+msgstr "إظهار شريط أدوات الملف"
 
 #: tfmain.menufilter.caption
 msgctxt "tfmain.menufilter.caption"
@@ -1383,7 +1387,7 @@ msgstr "تحديد"
 #: tfmain.menushowpalette.caption
 msgctxt "tfmain.menushowpalette.caption"
 msgid "Show palette"
-msgstr ""
+msgstr "إظهار لوحة الألوان"
 
 #: tfmain.menutool.caption
 msgctxt "tfmain.menutool.caption"
@@ -1392,11 +1396,11 @@ msgstr "أداة"
 
 #: tfmain.menuundocktoolbox.caption
 msgid "Undock"
-msgstr ""
+msgstr "إلغاء الإرساء"
 
 #: tfmain.menuundoredotoolbar.caption
 msgid "Show undo/redo toolbar"
-msgstr ""
+msgstr "إظهار شريط أدوات التراجع/الإعادة"
 
 #: tfmain.menuview.caption
 msgctxt "tfmain.menuview.caption"
@@ -1405,7 +1409,7 @@ msgstr "معاينة"
 
 #: tfmain.menuzoomtoolbar.caption
 msgid "Show zoom toolbar"
-msgstr ""
+msgstr "إظهار شريط أدوات التكبير"
 
 #: tfmain.open3dobjectdialog.title
 msgctxt "tfmain.open3dobjectdialog.title"
@@ -1414,7 +1418,7 @@ msgstr "فتح ملف موجود"
 
 #: tfmain.openbrushdialog.title
 msgid "Open brush"
-msgstr ""
+msgstr "فتح فرشاة"
 
 #: tfmain.openpicturedialog1.title
 msgid "Open existing image"
@@ -1454,7 +1458,7 @@ msgstr "ضجيج بيرلين دائري"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "منحنى الهيبوسيكلويد..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -1484,6 +1488,11 @@ msgstr "طباعة ثلج"
 msgid "Stone"
 msgstr "حجر"
 
+#: tfmain.rendersuperformula.caption
+msgctxt "tfmain.rendersuperformula.caption"
+msgid "SuperFormula..."
+msgstr "الصيغة الفائقة..."
+
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
 msgid "Water"
@@ -1508,26 +1517,26 @@ msgstr "حفظ التحديد ك..."
 
 #: tfmain.selectionhorizontalflip.hint
 msgid "Flip selection horizontally"
-msgstr ""
+msgstr "قلب التحديد أفقيًا"
 
 #: tfmain.selectionverticalflip.hint
 msgid "Flip selection vertically"
-msgstr ""
+msgstr "قلب التحديد رأسيًا"
 
 #: tfmain.spinedit_arrowsizex.hint
 msgctxt "tfmain.spinedit_arrowsizex.hint"
 msgid "Horizontal size of the arrow"
-msgstr ""
+msgstr "الحجم الأفقي للسهم"
 
 #: tfmain.spinedit_arrowsizey.hint
 msgctxt "tfmain.spinedit_arrowsizey.hint"
 msgid "Vertical size of the arrow"
-msgstr ""
+msgstr "الحجم الرأسي للسهم"
 
 #: tfmain.spinedit_brushspacing.hint
 msgctxt "tfmain.spinedit_brushspacing.hint"
 msgid "Spacing between patterns"
-msgstr ""
+msgstr "المسافة بين الأنماط"
 
 #: tfmain.spinedit_eraser.hint
 msgctxt "tfmain.spinedit_eraser.hint"
@@ -1557,7 +1566,7 @@ msgstr "ضلال الضبابية"
 #: tfmain.spinedit_textoutlinewidth.hint
 msgctxt "tfmain.spinedit_textoutlinewidth.hint"
 msgid "Text outline width"
-msgstr ""
+msgstr "عرض حدود النص"
 
 #: tfmain.spinedit_textshadowx.hint
 msgctxt "tfmain.spinedit_textshadowx.hint"
@@ -1572,21 +1581,21 @@ msgstr "ظل الإزاحة العمودي"
 #: tfmain.spinedit_textsize.hint
 msgctxt "tfmain.spinedit_textsize.hint"
 msgid "Text size"
-msgstr ""
+msgstr "حجم النص"
 
 #: tfmain.toolbrush.hint
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
-msgstr ""
+msgstr "فرشاة"
 
 #: tfmain.toolchangedocking.hint
 msgctxt "tfmain.toolchangedocking.hint"
 msgid "Change docking"
-msgstr ""
+msgstr "تغيير الإرساء"
 
 #: tfmain.toolclone.hint
 msgid "Clone tool"
-msgstr ""
+msgstr "أداة النسخ"
 
 #: tfmain.toolcolorpicker.hint
 msgctxt "TFMAIN.TOOLCOLORPICKER.HINT"
@@ -1603,7 +1612,7 @@ msgstr "تشويه الشبكة"
 
 #: tfmain.tooleditshape.hint
 msgid "Edit shape"
-msgstr ""
+msgstr "تحرير الشكل"
 
 #: tfmain.toolellipse.hint
 msgctxt "TFMAIN.TOOLELLIPSE.HINT"
@@ -1638,11 +1647,11 @@ msgstr "حرك و مرر الصورة"
 #: tfmain.toolhotspot.caption
 msgctxt "tfmain.toolhotspot.caption"
 msgid "Hot spot"
-msgstr ""
+msgstr "النقطة الفعالة"
 
 #: tfmain.toolhotspot.hint
 msgid "Choose hot spot of a cursor"
-msgstr ""
+msgstr "اختر النقطة الفعالة للمؤشر"
 
 #: tfmain.toollayermapping.hint
 msgctxt "tfmain.toollayermapping.hint"
@@ -1664,7 +1673,7 @@ msgstr "تحريك التحدد"
 
 #: tfmain.toolopenedcurve.hint
 msgid "Opened curve"
-msgstr ""
+msgstr "منحنى مفتوح"
 
 #: tfmain.toolpen.caption
 msgctxt "TFMAIN.TOOLPEN.CAPTION"
@@ -1690,7 +1699,7 @@ msgstr "مضلع او مضلع خطي"
 
 #: tfmain.toolpolyline.hint
 msgid "Polyline"
-msgstr ""
+msgstr "خط متعدد"
 
 #: tfmain.toolrect.hint
 msgctxt "TFMAIN.TOOLRECT.HINT"
@@ -1755,7 +1764,7 @@ msgstr "رسم النسيج"
 
 #: tfmain.tool_aliasing.hint
 msgid "Disable antialiasing"
-msgstr ""
+msgstr "تعطيل التنعيم"
 
 #: tfmain.tool_capflat.hint
 msgctxt "TFMAIN.TOOL_CAPFLAT.HINT"
@@ -1811,15 +1820,15 @@ msgstr "لين"
 
 #: tfmain.tool_erasedarken.hint
 msgid "Darken"
-msgstr ""
+msgstr "تغميق"
 
 #: tfmain.tool_eraselighten.hint
 msgid "Lighten"
-msgstr ""
+msgstr "تفتيح"
 
 #: tfmain.tool_erasesharpen.hint
 msgid "Sharpen"
-msgstr ""
+msgstr "تحسين الحدة"
 
 #: tfmain.tool_fillshape.hint
 msgctxt "tfmain.tool_fillshape.hint"
@@ -1893,35 +1902,35 @@ msgstr "ملء  متدرج"
 
 #: tfmain.tool_textalignbottom.hint
 msgid "Align bottom"
-msgstr ""
+msgstr "محاذاة للأسفل"
 
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
-msgstr ""
+msgstr "المركز"
 
 #: tfmain.tool_textalignleft.hint
 msgid "Align left"
-msgstr ""
+msgstr "محاذاة لليسار"
 
 #: tfmain.tool_textalignmiddle.hint
 msgid "Center vertically"
-msgstr ""
+msgstr "توسيط رأسي"
 
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
-msgstr ""
+msgstr "محاذاة لليمين"
 
 #: tfmain.tool_textaligntop.hint
 msgid "Align top"
-msgstr ""
+msgstr "محاذاة للأعلى"
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"
-msgstr ""
+msgstr "ثنائي الاتجاه"
 
 #: tfmain.tool_textbold.hint
 msgid "Bold"
-msgstr ""
+msgstr "غامق"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -1930,11 +1939,11 @@ msgstr "اختيار الخط..."
 
 #: tfmain.tool_textitalic.hint
 msgid "Italic"
-msgstr ""
+msgstr "مائل"
 
 #: tfmain.tool_textltr.hint
 msgid "Left to right"
-msgstr ""
+msgstr "من اليسار إلى اليمين"
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1948,7 +1957,7 @@ msgstr "نص بتظليل فونغ"
 
 #: tfmain.tool_textrtl.hint
 msgid "Right to left"
-msgstr ""
+msgstr "من اليمين إلى اليسار"
 
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
@@ -1957,11 +1966,11 @@ msgstr "ظل النص"
 
 #: tfmain.tool_textstrikeout.hint
 msgid "Strikeout"
-msgstr ""
+msgstr "خط يتوسط النص"
 
 #: tfmain.tool_textunderline.hint
 msgid "Underline"
-msgstr ""
+msgstr "تسطير"
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -1970,7 +1979,7 @@ msgstr "الألوان"
 
 #: tfmain.viewdarktheme.caption
 msgid "Dark theme"
-msgstr ""
+msgstr "سمة داكنة"
 
 #: tfmain.viewgrid.caption
 msgctxt "TFMAIN.VIEWGRID.CAPTION"
@@ -1999,11 +2008,11 @@ msgstr "عرض او إخفاء نافذة مكدس الطبقات"
 #: tfmain.viewpalette.caption
 msgctxt "tfmain.viewpalette.caption"
 msgid "Palette"
-msgstr ""
+msgstr "لوحة ألوان"
 
 #: tfmain.viewstatusbar.caption
 msgid "Status bar"
-msgstr ""
+msgstr "شريط الحالة"
 
 #: tfmain.viewtoolbox.caption
 msgid "Toolbox"
@@ -2011,7 +2020,7 @@ msgstr "علبة الأدوات"
 
 #: tfmain.viewworkspacecolor.caption
 msgid "Set workspace color..."
-msgstr ""
+msgstr "تعيين لون مساحة العمل..."
 
 #: tfmain.viewzoomfit.caption
 msgctxt "tfmain.viewzoomfit.caption"
@@ -2087,11 +2096,11 @@ msgstr "صورة جديدة"
 
 #: tfnewimage.combobox_bitdepth.text
 msgid "32"
-msgstr ""
+msgstr "32"
 
 #: tfnewimage.label_bitdepth.caption
 msgid "Bit depth :"
-msgstr ""
+msgstr "عمق البت:"
 
 #: tfnewimage.label_height.caption
 msgctxt "tfnewimage.label_height.caption"
@@ -2100,11 +2109,11 @@ msgstr "الطول :"
 
 #: tfnewimage.label_height1.caption
 msgid "Ratio :"
-msgstr ""
+msgstr "النسبة :"
 
 #: tfnewimage.label_memoryrequired.caption
 msgid "Memory required :"
-msgstr ""
+msgstr "الذاكرة المطلوبة :"
 
 #: tfnewimage.label_width.caption
 msgctxt "tfnewimage.label_width.caption"
@@ -2138,7 +2147,7 @@ msgstr "نسيج..."
 
 #: tfobject3d.button_notex.caption
 msgid "No tex."
-msgstr ""
+msgstr "بدون نسيج"
 
 #: tfobject3d.button_ok.caption
 msgctxt "tfobject3d.button_ok.caption"
@@ -2163,7 +2172,7 @@ msgstr "نسيج متولد"
 
 #: tfobject3d.groupbox_selectedlight.caption
 msgid "Selected light"
-msgstr ""
+msgstr "الإضاءة المحددة"
 
 #: tfobject3d.groupbox_selectedmaterial.caption
 msgctxt "tfobject3d.groupbox_selectedmaterial.caption"
@@ -2192,7 +2201,7 @@ msgstr "إضاءة طبيعية"
 
 #: tfobject3d.label_lights.caption
 msgid "Lights :"
-msgstr ""
+msgstr "الإضاءة :"
 
 #: tfobject3d.label_materials.caption
 msgctxt "tfobject3d.label_materials.caption"
@@ -2221,7 +2230,7 @@ msgstr "زوم"
 
 #: tfobject3d.lights.caption
 msgid "Lights"
-msgstr ""
+msgstr "الإضاءة"
 
 #: tfobject3d.materials.caption
 msgid "Materials"
@@ -2238,15 +2247,15 @@ msgstr "تصيير"
 
 #: tfobject3d.tooladddirectional.hint
 msgid "Add a directional light"
-msgstr ""
+msgstr "إضافة إضاءة موجهة"
 
 #: tfobject3d.toolpointlight.hint
 msgid "Add a point light"
-msgstr ""
+msgstr "إضافة إضاءة نقطة"
 
 #: tfobject3d.toolremoveselectedlight.hint
 msgid "Remove selected light"
-msgstr ""
+msgstr "إزالة الإضاءة المحددة"
 
 #: tfphongfilter.caption
 msgctxt "tfphongfilter.caption"
@@ -2301,6 +2310,7 @@ msgid "Saturation"
 msgstr "التشبيع"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "لون الخلفية"
 
@@ -2309,6 +2319,7 @@ msgid "Keep"
 msgstr "احتفظ"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "لون القلم"
 
@@ -2348,7 +2359,7 @@ msgstr "المستوى :"
 #: tfpreviewdialog.caption
 msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
-msgstr ""
+msgstr "معاينة"
 
 #: tfpreviewdialog.lstatus.caption
 msgctxt "tfpreviewdialog.lstatus.caption"
@@ -2376,6 +2387,11 @@ msgstr "طباعة"
 msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "إبقاء نسبة الجانب"
+
+#: tfprint.combobox_orientation.text
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
 
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
@@ -2419,6 +2435,12 @@ msgstr "طابعات و اوراق"
 msgid "Right:"
 msgstr "اليمين:"
 
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
+
 #: tfprint.label_top.caption
 msgid "Top:"
 msgstr "الأعلى"
@@ -2429,11 +2451,11 @@ msgstr "العرض:"
 
 #: tfquestion.caption
 msgid "Question"
-msgstr ""
+msgstr "سؤال"
 
 #: tfquestion.checkbox_rememberchoice.caption
 msgid "Remember this choice"
-msgstr ""
+msgstr "تذكر هذا الاختيار"
 
 #: tfquestion.label_message.caption
 msgctxt "tfquestion.label_message.caption"
@@ -2452,15 +2474,15 @@ msgstr "نصف القطر :"
 
 #: tfrain.caption
 msgid "Rain"
-msgstr ""
+msgstr "مطر"
 
 #: tfrain.label_quantity.caption
 msgid "Quantity:"
-msgstr ""
+msgstr "الكمية:"
 
 #: tfrain.label_wind.caption
 msgid "Wind :"
-msgstr ""
+msgstr "الرياح :"
 
 #: tfresample.button_cancel.caption
 msgctxt "TFRESAMPLE.BUTTON_CANCEL.CAPTION"
@@ -2514,63 +2536,64 @@ msgstr "حفظ"
 
 #: tfsaveoption.checkbox_dithering.caption
 msgid "Dithering"
-msgstr ""
+msgstr "تنقيط"
 
 #: tfsaveoption.checkbox_lossless.caption
 msgid "Lossless"
-msgstr ""
+msgstr "بدون فقدان"
 
 #: tfsaveoption.label1.caption
 msgid "Quality:"
-msgstr ""
+msgstr "الجودة:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #: tfsaveoption.label_1.caption
 msgid "100"
-msgstr ""
+msgstr "100"
 
 #: tfsaveoption.label_50.caption
 msgid "50"
-msgstr ""
+msgstr "50"
 
 #: tfsaveoption.label_colordepth.caption
 msgid "Color depth:"
-msgstr ""
+msgstr "عمق الألوان:"
 
 #: tfsaveoption.label_size.caption
 msgid "Size:"
-msgstr ""
+msgstr "الحجم:"
 
 #: tfsaveoption.radiobutton_16colors.caption
 msgid "16 colors"
-msgstr ""
+msgstr "16 لونًا"
 
 #: tfsaveoption.radiobutton_24bitsperpixel.caption
 msgid "24 bits"
-msgstr ""
+msgstr "24 بت"
 
 #: tfsaveoption.radiobutton_256colors.caption
 msgid "256 colors"
-msgstr ""
+msgstr "256 لونًا"
 
 #: tfsaveoption.radiobutton_2colors.caption
 msgid "2 colors"
-msgstr ""
+msgstr "لونان"
 
 #: tfsaveoption.radiobutton_32bitsperpixel.caption
 msgid "32 bits"
-msgstr ""
+msgstr "32 بت"
 
 #: tfsaveoption.radiobutton_miomap.caption
 msgid "MioMap"
-msgstr ""
+msgstr "MioMap"
 
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
-msgstr ""
+msgstr "تحسين/تنعيم"
 
 #: tfsharpen.label_amount.caption
 msgctxt "tfsharpen.label_amount.caption"
@@ -2597,6 +2620,67 @@ msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "التشبيع"
 
+#: tfsuperformula.caption
+msgctxt "tfsuperformula.caption"
+msgid "Superformula"
+msgstr "الصيغة الفائقة"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "لون الخلفية"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "لون القلم"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "رقم منطقي"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "حجم"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "عدد ارتفاع"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "تداخل سبايك"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "عرض"
+
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
 msgid "Tools"
@@ -2619,19 +2703,19 @@ msgstr "نصف القطر :"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"
-msgstr ""
+msgstr "إزاحة الموجة"
 
 #: tfwavedisplacement.label_displacement.caption
 msgid "Displacement :"
-msgstr ""
+msgstr "الإزاحة:"
 
 #: tfwavedisplacement.label_phase.caption
 msgid "Phase :"
-msgstr ""
+msgstr "الطور:"
 
 #: tfwavedisplacement.label_wavelength.caption
 msgid "Wavelength :"
-msgstr ""
+msgstr "طول الموجة:"
 
 #: uresourcestrings.rsactioninprogress
 msgid "Action in progress"
@@ -2643,11 +2727,11 @@ msgstr "إضافة الملفات الى قائمة الصور المعالجة"
 
 #: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
-msgstr ""
+msgstr "إضافة لون إلى اللوحة"
 
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
-msgstr ""
+msgstr "محاذاة الشكل"
 
 #: uresourcestrings.rsallapplications
 msgid "all"
@@ -2659,15 +2743,15 @@ msgstr "كل الملفات المدعمة"
 
 #: uresourcestrings.rsalt
 msgid "ALT"
-msgstr ""
+msgstr "ALT"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
-msgstr ""
+msgstr "صور GIF متحركة"
 
 #: uresourcestrings.rsautodetect
 msgid "Autodetect"
-msgstr ""
+msgstr "كشف تلقائي"
 
 #: uresourcestrings.rsback
 #, fuzzy
@@ -2685,11 +2769,11 @@ msgstr "أفضل نوعية"
 
 #: uresourcestrings.rsbitmap
 msgid "Bitmap"
-msgstr ""
+msgstr "خريطة نقطية"
 
 #: uresourcestrings.rsblack
 msgid "Black"
-msgstr ""
+msgstr "أسود"
 
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
@@ -2697,7 +2781,7 @@ msgstr "يتم تطبيق عملية المزج إلا إذا كان هناك ط
 
 #: uresourcestrings.rsblue
 msgid "Blue"
-msgstr ""
+msgstr "أزرق"
 
 #: uresourcestrings.rsbrightness
 msgid "Brightness"
@@ -2705,7 +2789,7 @@ msgstr "سطوع"
 
 #: uresourcestrings.rsbytes
 msgid "Bytes"
-msgstr ""
+msgstr "بايتات"
 
 #: uresourcestrings.rscancel
 msgctxt "uresourcestrings.rscancel"
@@ -2714,11 +2798,11 @@ msgstr "إلغاء"
 
 #: uresourcestrings.rscancelledbyuser
 msgid "Cancelled by user"
-msgstr ""
+msgstr "أُلغيت بواسطة المستخدم"
 
 #: uresourcestrings.rscannotdrawshapeonsvglayer
 msgid "Cannot draw shape on SVG layer"
-msgstr ""
+msgstr "لا يمكن رسم الشكل على طبقة SVG"
 
 #: uresourcestrings.rscannotopenfile
 msgid "Cannot open file"
@@ -2731,15 +2815,15 @@ msgstr "حجم الصورة"
 
 #: uresourcestrings.rscdrom
 msgid "CD"
-msgstr ""
+msgstr "قرص مضغوط"
 
 #: uresourcestrings.rschannels
 msgid "Channels"
-msgstr ""
+msgstr "قنوات"
 
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
-msgstr ""
+msgstr "مسح لوحة الألوان"
 
 #: uresourcestrings.rscloserequest
 msgid "Close request"
@@ -2747,7 +2831,7 @@ msgstr "طلب الغلق"
 
 #: uresourcestrings.rscmd
 msgid "CMD"
-msgstr ""
+msgstr "CMD"
 
 #: uresourcestrings.rscolordescription
 msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
@@ -2755,7 +2839,7 @@ msgstr "وصف اللون : انقر في اللون مع لوحة المفات�
 
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
-msgstr ""
+msgstr "تراكب اللون"
 
 #: uresourcestrings.rscolors
 msgctxt "uresourcestrings.rscolors"
@@ -2764,19 +2848,19 @@ msgstr "الألوان"
 
 #: uresourcestrings.rsconfirmdeletefromcontainer
 msgid "Are you sure you want to delete this file from the container?"
-msgstr ""
+msgstr "هل أنت متأكد أنك تريد حذف هذا الملف من الحاوية؟"
 
 #: uresourcestrings.rsconfirmdeletemultiplefromcontainer
 msgid "Are you sure you want to delete these %1 files from the container?"
-msgstr ""
+msgstr "هل أنت متأكد أنك تريد حذف هذه الملفات (%1) من الحاوية؟"
 
 #: uresourcestrings.rsconfirmmovemultipletotrash
 msgid "Are you sure you want to move these %1 files to the trash?"
-msgstr ""
+msgstr "هل أنت متأكد أنك تريد نقل هذه الملفات (%1) إلى سلة المهملات؟"
 
 #: uresourcestrings.rsconfirmmovetotrash
 msgid "Are you sure you want to move this file to the trash?"
-msgstr ""
+msgstr "هل أنت متأكد أنك تريد نقل هذا الملف إلى سلة المهملات؟"
 
 #: uresourcestrings.rsconflictingactions
 msgid "Conflicting actions"
@@ -2789,12 +2873,12 @@ msgstr "تباين"
 #: uresourcestrings.rscorrectedhueccw
 msgctxt "uresourcestrings.rscorrectedhueccw"
 msgid "Corr. Hue CCW"
-msgstr ""
+msgstr "تصحيح تدرج اللون عكس عقارب الساعة"
 
 #: uresourcestrings.rscorrectedhuecw
 msgctxt "uresourcestrings.rscorrectedhuecw"
 msgid "Corr. Hue CW"
-msgstr ""
+msgstr "تصحيح تدرج اللون مع عقارب الساعة"
 
 #: uresourcestrings.rscosine
 msgid "Cosine"
@@ -2806,11 +2890,11 @@ msgstr "محصول"
 
 #: uresourcestrings.rsctrl
 msgid "CTRL"
-msgstr ""
+msgstr "CTRL"
 
 #: uresourcestrings.rscurrentlayernotsplit
 msgid "Current layer is not split"
-msgstr ""
+msgstr "الطبقة الحالية غير مقسمة"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -2818,11 +2902,11 @@ msgstr "اضغط S أو X لتعيين وضع منحنى آخر نقطة"
 
 #: uresourcestrings.rscyan
 msgid "Cyan"
-msgstr ""
+msgstr "سماوي"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
-msgstr ""
+msgstr "لوحة الألوان الافتراضية"
 
 #: uresourcestrings.rsdeletefile
 msgctxt "uresourcestrings.rsdeletefile"
@@ -2831,33 +2915,32 @@ msgstr "حذف"
 
 #: uresourcestrings.rsdeleteimageentry
 msgid "Delete selected image entry?"
-msgstr ""
+msgstr "حذف الإدخال المحدد للصورة؟"
 
 #: uresourcestrings.rsdirectorynotempty
 msgid "Directory is not empty"
-msgstr ""
+msgstr "الدليل غير فارغ"
 
 #: uresourcestrings.rsditherlayerusingpalette
 msgid "Dither layer using palette"
-msgstr ""
+msgstr "تمويه الطبقة باستخدام اللوحة"
 
 #: uresourcestrings.rsdonate
-#, fuzzy
 msgctxt "uresourcestrings.rsdonate"
 msgid "Donate..."
 msgstr "تبرع..."
 
 #: uresourcestrings.rsdownload
 msgid "Download"
-msgstr "تحميل"
+msgstr "تنزيل"
 
 #: uresourcestrings.rsdropshadow
 msgid "Drop shadow"
-msgstr ""
+msgstr "إسقاط ظل"
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
-msgstr ""
+msgstr "تكرار الصورة"
 
 #: uresourcestrings.rseditmask
 msgid "Edit mask"
@@ -2881,11 +2964,11 @@ msgstr "التحديد فارغ"
 
 #: uresourcestrings.rsendwithoutmatchingbegin
 msgid "End without matching begin"
-msgstr ""
+msgstr "نهاية بدون بداية مطابقة"
 
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
-msgstr ""
+msgstr "أدخل اسمًا للمجلد أو الحاوية الجديدة (باستخدام امتداد RES أو LRS):"
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
@@ -2893,27 +2976,27 @@ msgstr "ادخل إسم الطبقة:"
 
 #: uresourcestrings.rsentries
 msgid "Entries"
-msgstr ""
+msgstr "إدخالات"
 
 #: uresourcestrings.rserror
 msgid "Error"
-msgstr ""
+msgstr "خطأ"
 
 #: uresourcestrings.rserrordecodingraw
 msgid "Error decoding raw image."
-msgstr ""
+msgstr "خطأ في فك ترميز الصورة الخام."
 
 #: uresourcestrings.rserrorloadingoriginal
 msgid "Error while loading original however layer can be rasterized."
-msgstr ""
+msgstr "خطأ أثناء تحميل الأصل ولكن يمكن تحويل الطبقة إلى نقطية."
 
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
-msgstr ""
+msgstr "خطأ في فتح الملف \"%1\""
 
 #: uresourcestrings.rsexception
 msgid "An exception was encountered"
-msgstr ""
+msgstr "تمت مواجهة استثناء"
 
 #: uresourcestrings.rsexitrequest
 msgid "Exit request"
@@ -2937,11 +3020,11 @@ msgstr "سريع"
 
 #: uresourcestrings.rsfilecannotbeempty
 msgid "File cannot be empty"
-msgstr ""
+msgstr "لا يمكن أن يكون الملف فارغًا"
 
 #: uresourcestrings.rsfiledate
 msgid "Date"
-msgstr ""
+msgstr "التاريخ"
 
 #: uresourcestrings.rsfileextensionnotsupported
 msgid "This file extension is not supported."
@@ -2957,19 +3040,20 @@ msgstr "إسم الملف"
 
 #: uresourcestrings.rsfilenotfound
 msgid "File not found!"
-msgstr ""
+msgstr "الملف غير موجود!"
 
 #: uresourcestrings.rsfilenotsaved
 msgid "File not saved"
 msgstr "الملف لم يحفظ"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "حجم"
 
 #: uresourcestrings.rsfilesystem
 msgid "File system"
-msgstr ""
+msgstr "نظام الملفات"
 
 #: uresourcestrings.rsfiletype
 msgid "Type"
@@ -2977,10 +3061,9 @@ msgstr "نوع"
 
 #: uresourcestrings.rsfixeddrive
 msgid "Fixed"
-msgstr ""
+msgstr "ثابت"
 
 #: uresourcestrings.rsflattenimage
-#, fuzzy
 msgctxt "uresourcestrings.rsflattenimage"
 msgid "Flatten image"
 msgstr "تسطيح الصورة"
@@ -2991,19 +3074,19 @@ msgstr "مجلد"
 
 #: uresourcestrings.rsfolderorcontaineralreadyexists
 msgid "Folder or container already exists."
-msgstr ""
+msgstr "المجلد أو الحاوية موجود بالفعل."
 
 #: uresourcestrings.rsfollowingerrorsoccurred
 msgid "Following errors occurred:"
-msgstr ""
+msgstr "حدثت الأخطاء التالية:"
 
 #: uresourcestrings.rsfractaltree
 msgid "Fractal tree"
-msgstr ""
+msgstr "شجرة كسورية"
 
 #: uresourcestrings.rsframes
 msgid "Frames"
-msgstr ""
+msgstr "إطارات"
 
 #: uresourcestrings.rsfunctionnotdefined
 msgid "The function %1 is not defined."
@@ -3011,7 +3094,7 @@ msgstr "لم يتعرف على وضيفة %1"
 
 #: uresourcestrings.rsgreen
 msgid "Green"
-msgstr ""
+msgstr "أخضر"
 
 #: uresourcestrings.rshalfcosine
 msgid "Half-cosine"
@@ -3036,7 +3119,7 @@ msgstr "إضغط %1 او %2 للتحريف"
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"
 msgid "Hot spot"
-msgstr ""
+msgstr "النقطة الساخنة"
 
 #: uresourcestrings.rshue
 msgctxt "uresourcestrings.rshue"
@@ -3046,28 +3129,27 @@ msgstr "تدرج"
 #: uresourcestrings.rshueccw
 msgctxt "uresourcestrings.rshueccw"
 msgid "Hue CCW"
-msgstr ""
+msgstr "تدرج عكس عقارب الساعة"
 
 #: uresourcestrings.rshuecw
 msgctxt "uresourcestrings.rshuecw"
 msgid "Hue CW"
-msgstr ""
+msgstr "تدرج مع عقارب الساعة"
 
 #: uresourcestrings.rsiconimagealreadyexists
 msgid "There is already an image with this size and depth."
-msgstr ""
+msgstr "يوجد بالفعل صورة بهذا الحجم والعمق."
 
 #: uresourcestrings.rsiconorcursor
 msgid "Icon/cursor"
-msgstr ""
+msgstr "رمز/مؤشر"
 
 #: uresourcestrings.rsiconsize
 msgctxt "uresourcestrings.rsiconsize"
 msgid "Icon size"
-msgstr ""
+msgstr "حجم الرمز"
 
 #: uresourcestrings.rsimage
-#, fuzzy
 msgctxt "uresourcestrings.rsimage"
 msgid "Image"
 msgstr "صورة"
@@ -3079,7 +3161,7 @@ msgstr "الصورة كبيرة جدا"
 #: uresourcestrings.rsinfinity
 msgctxt "uresourcestrings.rsinfinity"
 msgid "Infinity"
-msgstr ""
+msgstr "لانهاية"
 
 #: uresourcestrings.rsinformation
 msgid "Information"
@@ -3087,11 +3169,11 @@ msgstr "معلومات"
 
 #: uresourcestrings.rsinnerlight
 msgid "Inner light"
-msgstr ""
+msgstr "ضوء داخلي"
 
 #: uresourcestrings.rsinnershadow
 msgid "Inner shadow"
-msgstr ""
+msgstr "ظل داخلي"
 
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
@@ -3104,11 +3186,11 @@ msgstr "خطأ داخلي"
 
 #: uresourcestrings.rsinvalidangle
 msgid "Invalid angle"
-msgstr ""
+msgstr "زاوية غير صالحة"
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
-msgstr ""
+msgstr "اسم غير صالح"
 
 #: uresourcestrings.rsinvalidopacity
 msgid "Invalid opacity : "
@@ -3116,7 +3198,7 @@ msgstr "تعتيم غير صالح :"
 
 #: uresourcestrings.rsinvalidparameters
 msgid "Invalid parameters"
-msgstr ""
+msgstr "معلمات غير صالحة"
 
 #: uresourcestrings.rsinvalidresamplesize
 msgid "Invalid resample size : "
@@ -3148,7 +3230,7 @@ msgstr "أحدث نسخة من LazPaint على شبكة الإنترنت هي"
 
 #: uresourcestrings.rslava
 msgid "Lava"
-msgstr ""
+msgstr "حمم بركانية"
 
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
@@ -3157,15 +3239,15 @@ msgstr "طبقة"
 
 #: uresourcestrings.rslayeralreadysplit
 msgid "Layer already split"
-msgstr ""
+msgstr "الطبقة مقسمة بالفعل"
 
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
-msgstr ""
+msgstr "صورة بطبقات"
 
 #: uresourcestrings.rslayereffect
 msgid "Layer effect"
-msgstr ""
+msgstr "تأثير الطبقة"
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
@@ -3200,11 +3282,11 @@ msgstr "خطي"
 
 #: uresourcestrings.rslinearrgb
 msgid "Linear RGB"
-msgstr ""
+msgstr "RGB خطي"
 
 #: uresourcestrings.rsloadandmergepalette
 msgid "Load and merge palette..."
-msgstr ""
+msgstr "تحميل ودمج لوحة الألوان..."
 
 #: uresourcestrings.rsloading
 msgid "Loading"
@@ -3212,35 +3294,35 @@ msgstr "تحميل"
 
 #: uresourcestrings.rsloadpalette
 msgid "Load palette..."
-msgstr ""
+msgstr "تحميل لوحة الألوان..."
 
 #: uresourcestrings.rsloopcount
 msgid "Loop count"
-msgstr ""
+msgstr "عدد الحلقات"
 
 #: uresourcestrings.rsmagenta
 msgid "Magenta"
-msgstr ""
+msgstr "أرجواني"
 
 #: uresourcestrings.rsmakemonochromatic
 msgid "Make monochromatic"
-msgstr ""
+msgstr "جعل أحادي اللون"
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
-msgstr ""
+msgstr "إنشاء لوحة ألوان من الصورة تحتوي على %1 لونًا"
 
 #: uresourcestrings.rsmask
 msgid "Mask"
-msgstr ""
+msgstr "قناع"
 
 #: uresourcestrings.rsmaskfromalphachannel
 msgid "Mask from alpha channel"
-msgstr ""
+msgstr "قناع من قناة ألفا"
 
 #: uresourcestrings.rsmerge
 msgid "Merge"
-msgstr ""
+msgstr "دمج"
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -3268,7 +3350,7 @@ msgstr "يجب عليك أولا جعل الطبقة مرئية"
 
 #: uresourcestrings.rsnetworkdrive
 msgid "Network"
-msgstr ""
+msgstr "الشبكة"
 
 #: uresourcestrings.rsnewimage
 msgctxt "uresourcestrings.rsnewimage"
@@ -3277,7 +3359,7 @@ msgstr "صورة جديدة"
 
 #: uresourcestrings.rsnewmask
 msgid "New mask"
-msgstr ""
+msgstr "قناع جديد"
 
 #: uresourcestrings.rsno
 msgid "No"
@@ -3305,7 +3387,7 @@ msgstr "عادي"
 
 #: uresourcestrings.rsnotchromaticchannel
 msgid "This is not a chromatic channel"
-msgstr ""
+msgstr "هذه ليست قناة لونية"
 
 #: uresourcestrings.rsnothingtobedeformed
 msgid "There is nothing to be deformed"
@@ -3314,6 +3396,10 @@ msgstr "لا يوجد شيئ للتشويه"
 #: uresourcestrings.rsnothingtoberetrieved
 msgid "There is nothing to be retrieved"
 msgstr "لا يوجد شيئ للإسترجاع"
+
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "هذا ليس برنامج نصي لـ LazPaint"
 
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
@@ -3363,18 +3449,17 @@ msgstr "أخر..."
 
 #: uresourcestrings.rsoverwritefile
 msgid "File already exists. Do you want to overwrite it?"
-msgstr ""
+msgstr "الملف موجود بالفعل. هل تريد استبداله؟"
 
 #: uresourcestrings.rspaletteincludesalphachannel
 msgid "Palette includes alpha channel"
-msgstr ""
+msgstr "تتضمن لوحة الألوان قناة ألفا"
 
 #: uresourcestrings.rspaletteoptions
 msgid "Palette options"
-msgstr ""
+msgstr "خيارات لوحة الألوان"
 
 #: uresourcestrings.rspen
-#, fuzzy
 msgctxt "uresourcestrings.rspen"
 msgid "Pen"
 msgstr "قلم"
@@ -3390,7 +3475,7 @@ msgstr "لوحة"
 
 #: uresourcestrings.rsposterizelayerusingpalette
 msgid "Posterize layer using palette"
-msgstr ""
+msgstr "تحويل الطبقة إلى تدرج لوني باستخدام اللوحة"
 
 #: uresourcestrings.rspresetname
 msgid "Preset name"
@@ -3399,7 +3484,7 @@ msgstr "الإسم مسبقا"
 #: uresourcestrings.rspreview
 msgctxt "uresourcestrings.rspreview"
 msgid "Preview"
-msgstr ""
+msgstr "معاينة"
 
 #: uresourcestrings.rspx
 msgid "px"
@@ -3407,15 +3492,15 @@ msgstr "px"
 
 #: uresourcestrings.rspythonunexpectedversion
 msgid "Expected Python version %1 but %2 found."
-msgstr ""
+msgstr "الإصدار المتوقع من Python هو %1 ولكن تم العثور على %2."
 
 #: uresourcestrings.rsramdisk
 msgid "RAM disk"
-msgstr ""
+msgstr "قرص RAM"
 
 #: uresourcestrings.rsrasterlayer
 msgid "Raster layer"
-msgstr ""
+msgstr "طبقة نقطية"
 
 #: uresourcestrings.rsrecentdirectories
 msgid "Recent directories:"
@@ -3423,7 +3508,7 @@ msgstr "المجلدات الأخيرة:"
 
 #: uresourcestrings.rsred
 msgid "Red"
-msgstr ""
+msgstr "أحمر"
 
 #: uresourcestrings.rsreload
 msgctxt "uresourcestrings.rsreload"
@@ -3436,14 +3521,13 @@ msgstr "تم تعديل الصورة النقطية. هل تريد حقا إعا
 
 #: uresourcestrings.rsremovabledrive
 msgid "Removable"
-msgstr ""
+msgstr "قابل للإزالة"
 
 #: uresourcestrings.rsremovefrompalette
 msgid "Remove color from palette"
-msgstr ""
+msgstr "إزالة اللون من اللوحة"
 
 #: uresourcestrings.rsrender
-#, fuzzy
 msgctxt "uresourcestrings.rsrender"
 msgid "Render"
 msgstr "تصيير"
@@ -3455,7 +3539,7 @@ msgstr "تكرار الصورة"
 
 #: uresourcestrings.rsresamplingimage
 msgid "Resampling image..."
-msgstr ""
+msgstr "إعادة تحجيم الصورة..."
 
 #: uresourcestrings.rsretrieveselectedarea
 msgid "Do you want to retrieve selected area?"
@@ -3472,11 +3556,19 @@ msgstr "RGB"
 
 #: uresourcestrings.rsrightclickfinishshape
 msgid "Use RIGHT click to finish shape"
-msgstr ""
+msgstr "استخدم النقر بزر الفأرة الأيمن لإنهاء الشكل"
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
-msgstr ""
+msgstr "استخدم النقر بزر الفأرة الأيمن لتحديد المصدر"
+
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "انقر بزر الماوس الأيمن لتعيين مركز التحويل"
+
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "قم بتشغيل البرنامج النصي مرة أخرى لتحديث التأثير"
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
@@ -3491,7 +3583,7 @@ msgstr "حفظ"
 #: uresourcestrings.rssaveasbuttonhint
 msgctxt "uresourcestrings.rssaveasbuttonhint"
 msgid "Save with specified filename"
-msgstr ""
+msgstr "احفظ بالاسم المحدد"
 
 #: uresourcestrings.rssavechanges
 msgid "Current bitmap has been modified. Do you want to save changes?"
@@ -3499,31 +3591,34 @@ msgstr "تم تعديل الصورة الحالية. هل تريد حفظ الت
 
 #: uresourcestrings.rssavepaletteas
 msgid "Save palette as..."
-msgstr ""
+msgstr "احفظ لوحة الألوان باسم..."
 
 #: uresourcestrings.rsscript
 msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "سكريبت"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "يبدو أن ملف البرنامج النصي غير آمن: %1"
+
 #: uresourcestrings.rsselectblendoperation
-#, fuzzy
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
 msgstr "تحديد عملية المزج"
 
 #: uresourcestrings.rsshift
 msgid "SHIFT"
-msgstr ""
+msgstr "SHIFT"
 
 #: uresourcestrings.rsshowpalette
 msgctxt "uresourcestrings.rsshowpalette"
 msgid "Show palette"
-msgstr ""
+msgstr "عرض لوحة الألوان"
 
 #: uresourcestrings.rssourceposition
 msgid "Source position"
-msgstr ""
+msgstr "موضع المصدر"
 
 #: uresourcestrings.rsspline
 msgctxt "uresourcestrings.rsspline"
@@ -3532,23 +3627,27 @@ msgstr "رتب"
 
 #: uresourcestrings.rssplitcmyk
 msgid "Split CMYK"
-msgstr ""
+msgstr "فصل CMYK"
 
 #: uresourcestrings.rssplithsl
 msgid "Split HSL"
-msgstr ""
+msgstr "فصل HSL"
 
 #: uresourcestrings.rssplitrgb
 msgid "Split RGB"
-msgstr ""
+msgstr "فصل RGB"
 
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
-msgstr ""
+msgstr "جهاز"
 
 #: uresourcestrings.rsstroke
 msgid "Stroke"
-msgstr ""
+msgstr "حد"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "هل أنت متأكد أنك تريد تشغيل هذا البرنامج النصي؟ قد تكون الوحدات التالية المستخدمة في هذا البرنامج النصي غير آمنة: %1"
 
 #: uresourcestrings.rstextoutline
 #, fuzzy
@@ -3575,27 +3674,27 @@ msgstr "للقيام"
 
 #: uresourcestrings.rstodoimages
 msgid "Images left: %1"
-msgstr ""
+msgstr "الصور المتبقية: %1"
 
 #: uresourcestrings.rstooloninvisiblelayer
 msgid "Tool cannot be used on an invisible layer"
-msgstr ""
+msgstr "لا يمكن استخدام الأداة على طبقة غير مرئية"
 
 #: uresourcestrings.rstoomanyactions
 msgid "Too many actions"
-msgstr ""
+msgstr "عدد كبير جدًا من الإجراءات"
 
 #: uresourcestrings.rstoomanylayers
 msgid "Too many layers"
-msgstr ""
+msgstr "عدد كبير جدًا من الطبقات"
 
 #: uresourcestrings.rstoomanyshapesinlayer
 msgid "Too many shapes in layer"
-msgstr ""
+msgstr "عدد كبير جدًا من الأشكال في الطبقة"
 
 #: uresourcestrings.rstotalimages
 msgid "Total images: %1"
-msgstr ""
+msgstr "إجمالي الصور: %1"
 
 #: uresourcestrings.rstransferselectiontootherlayer
 msgid "Transfer selection to other layer?"
@@ -3603,11 +3702,11 @@ msgstr "نقل التحديد إلى طبقة أخرى؟"
 
 #: uresourcestrings.rstransformedrasterlayer
 msgid "Transformed raster layer"
-msgstr ""
+msgstr "طبقة نقطية محولة"
 
 #: uresourcestrings.rstransformselectioncontent
 msgid "Do you want to transform content of the selection?"
-msgstr ""
+msgstr "هل تريد تحويل محتوى التحديد؟"
 
 #: uresourcestrings.rsunabletoapplyfilter
 msgid "Unable to apply filter : "
@@ -3627,40 +3726,38 @@ msgstr "الأمر غير معروف :"
 
 #: uresourcestrings.rsunknownoriginal
 msgid "Unknown original"
-msgstr ""
+msgstr "الأصل غير معروف"
 
 #: uresourcestrings.rsvectoriallayer
 msgid "Vectorial layer"
-msgstr ""
+msgstr "طبقة متجهية"
 
 #: uresourcestrings.rsversion
 msgid "Version"
-msgstr ""
+msgstr "الإصدار"
 
 #: uresourcestrings.rsverticalsize
 msgid "Vertical size"
-msgstr ""
+msgstr "الحجم العمودي"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
-msgstr ""
+msgid "Visible"
+msgstr "مرئي"
 
 #: uresourcestrings.rsyellow
 msgid "Yellow"
-msgstr ""
+msgstr "أصفر"
 
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "نعم"
 
 #: uresourcestrings.rszoomlayerstackin
-#, fuzzy
 msgctxt "uresourcestrings.rszoomlayerstackin"
 msgid "Zoom layer stack in"
 msgstr "تكبير مكدس الطبقات"
 
 #: uresourcestrings.rszoomlayerstackout
-#, fuzzy
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "تصغير مكدس الطبقات"

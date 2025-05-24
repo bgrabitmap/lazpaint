@@ -1,0 +1,337 @@
+object FSuperformula: TFSuperformula
+  Left = 649
+  Height = 372
+  Top = 269
+  Width = 1100
+  AutoSize = True
+  Caption = 'Superformula'
+  ClientHeight = 372
+  ClientWidth = 1100
+  DesignTimePPI = 192
+  OnCreate = FormCreate
+  OnHide = FormHide
+  OnShow = FormShow
+  LCLVersion = '3.4.0.0'
+  object Panel_Parameters: TPanel
+    Left = 0
+    Height = 222
+    Top = 0
+    Width = 1100
+    Align = alTop
+    AutoSize = True
+    ChildSizing.LeftRightSpacing = 16
+    ChildSizing.TopBottomSpacing = 16
+    ChildSizing.HorizontalSpacing = 32
+    ChildSizing.VerticalSpacing = 8
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 6
+    ClientHeight = 222
+    ClientWidth = 1100
+    ParentFont = False
+    TabOrder = 0
+    object Label_PenColor: TLabel
+      Left = 17
+      Height = 44
+      Top = 17
+      Width = 189
+      Caption = 'Pen color'
+      ParentColor = False
+      ParentFont = False
+    end
+    object ColorButton_PenColor: TColorButton
+      Left = 238
+      Height = 44
+      Top = 17
+      Width = 145
+      BorderWidth = 4
+      ButtonColorSize = 32
+      ButtonColor = 8404992
+      Constraints.MinHeight = 44
+      OnColorChanged = ColorButton_PenColorColorChanged
+      ParentFont = False
+    end
+    object Label_Width: TLabel
+      Left = 415
+      Height = 44
+      Top = 17
+      Width = 131
+      Caption = 'Width'
+      ParentColor = False
+      ParentFont = False
+    end
+    object SpinEdit_Width: TFloatSpinEdit
+      Left = 578
+      Height = 44
+      Top = 17
+      Width = 145
+      DecimalPlaces = 0
+      Increment = 10
+      MaxValue = 1000
+      OnChange = SpinEdit_WidthChange
+      ParentFont = False
+      TabOrder = 7
+      Value = 80
+    end
+    object Label_BackColor: TLabel
+      Left = 755
+      Height = 44
+      Top = 17
+      Width = 154
+      Caption = 'Back color'
+      ParentColor = False
+      ParentFont = False
+    end
+    object ColorButton_BackColor: TColorButton
+      Left = 941
+      Height = 44
+      Top = 17
+      Width = 142
+      BorderWidth = 4
+      ButtonColorSize = 32
+      ButtonColor = 12615680
+      OnColorChanged = ColorButton_BackColorColorChanged
+      ParentFont = False
+    end
+    object Label_SpikeCount: TLabel
+      Left = 17
+      Height = 40
+      Top = 69
+      Width = 189
+      Caption = 'Spike count'
+      ParentColor = False
+      ParentFont = False
+    end
+    object SpinEdit_M: TFloatSpinEdit
+      Left = 238
+      Height = 40
+      Top = 69
+      Width = 145
+      Increment = 0.2
+      MaxValue = 100
+      MinValue = 0.01
+      OnChange = SpinEdit_MChange
+      ParentFont = False
+      TabOrder = 2
+      Value = 8
+    end
+    object Label_Rational: TLabel
+      Left = 415
+      Height = 40
+      Top = 69
+      Width = 131
+      Caption = 'Rational'
+    end
+    object CheckBox_MRational: TCheckBox
+      Left = 578
+      Height = 40
+      Top = 69
+      Width = 145
+      Checked = True
+      State = cbChecked
+      TabOrder = 8
+      OnChange = CheckBox_MRationalChange
+    end
+    object Label_Size: TLabel
+      Left = 755
+      Height = 40
+      Top = 69
+      Width = 154
+      Caption = 'Size'
+      ParentColor = False
+      ParentFont = False
+    end
+    object SpinEdit_Size: TFloatSpinEdit
+      Left = 941
+      Height = 40
+      Top = 69
+      Width = 142
+      DecimalPlaces = 0
+      Increment = 25
+      MaxValue = 1000000
+      MinValue = 1
+      OnChange = SpinEdit_SizeChange
+      ParentFont = False
+      TabOrder = 6
+      Value = 200
+    end
+    object Label_N1: TLabel
+      Left = 17
+      Height = 40
+      Top = 117
+      Width = 189
+      Caption = 'n1'
+      ParentColor = False
+      ParentFont = False
+    end
+    object SpinEdit_N1: TFloatSpinEdit
+      Left = 238
+      Height = 40
+      Top = 117
+      Width = 145
+      DecimalPlaces = 3
+      Increment = 0.05
+      MaxValue = 1000000
+      MinValue = 0.01
+      OnChange = SpinEdit_N1Change
+      ParentFont = False
+      TabOrder = 3
+      Value = 1
+    end
+    object Label_N2: TLabel
+      Left = 415
+      Height = 40
+      Top = 117
+      Width = 131
+      Caption = 'n2'
+      ParentColor = False
+      ParentFont = False
+    end
+    object SpinEdit_N2: TFloatSpinEdit
+      Left = 578
+      Height = 40
+      Top = 117
+      Width = 145
+      DecimalPlaces = 3
+      Increment = 0.05
+      MaxValue = 1000000
+      MinValue = 0.1
+      OnChange = SpinEdit_N2Change
+      ParentFont = False
+      TabOrder = 4
+      Value = 2
+    end
+    object Label_N3: TLabel
+      Left = 755
+      Height = 40
+      Top = 117
+      Width = 154
+      Caption = 'n3'
+      ParentColor = False
+      ParentFont = False
+    end
+    object SpinEdit_N3: TFloatSpinEdit
+      Left = 941
+      Height = 40
+      Top = 117
+      Width = 142
+      DecimalPlaces = 3
+      Increment = 0.05
+      MaxValue = 1000000
+      MinValue = 0.1
+      OnChange = SpinEdit_N3Change
+      ParentFont = False
+      TabOrder = 5
+      Value = 1
+    end
+    object Label_SpikeOverlap: TLabel
+      Left = 17
+      Height = 40
+      Top = 165
+      Width = 189
+      Caption = 'Spike overlap'
+    end
+    object CheckBox_SpikeOverlap: TCheckBox
+      Left = 238
+      Height = 40
+      Top = 165
+      Width = 145
+      Checked = True
+      State = cbChecked
+      TabOrder = 9
+      OnChange = CheckBox_SpikeOverlapChange
+    end
+    object Label_A: TLabel
+      Left = 415
+      Height = 40
+      Top = 165
+      Width = 131
+      Caption = 'a'
+      ParentColor = False
+      ParentFont = False
+    end
+    object SpinEdit_A: TFloatSpinEdit
+      Left = 578
+      Height = 40
+      Top = 165
+      Width = 145
+      DecimalPlaces = 3
+      Increment = 0.05
+      MaxValue = 1000000
+      MinValue = 0.1
+      OnChange = SpinEdit_AChange
+      ParentFont = False
+      TabOrder = 0
+      Value = 1
+    end
+    object Label_B: TLabel
+      Left = 755
+      Height = 40
+      Top = 165
+      Width = 154
+      Caption = 'b'
+      ParentColor = False
+      ParentFont = False
+    end
+    object SpinEdit_B: TFloatSpinEdit
+      Left = 941
+      Height = 40
+      Top = 165
+      Width = 142
+      DecimalPlaces = 3
+      Increment = 0.05
+      MaxValue = 1000000
+      MinValue = 0.1
+      OnChange = SpinEdit_BChange
+      ParentFont = False
+      TabOrder = 1
+      Value = 1
+    end
+  end
+  object Panel_Buttons: TPanel
+    Left = 0
+    Height = 42
+    Top = 222
+    Width = 1100
+    Align = alTop
+    BevelOuter = bvNone
+    ChildSizing.HorizontalSpacing = 8
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    ClientHeight = 42
+    ClientWidth = 1100
+    TabOrder = 1
+    object Button_OK: TButton
+      Left = 0
+      Height = 42
+      Top = 0
+      Width = 76
+      AutoSize = True
+      Caption = 'rsOK'
+      Default = True
+      Enabled = False
+      ModalResult = 1
+      TabOrder = 0
+      OnClick = Button_OKClick
+    end
+    object Button_Cancel: TButton
+      Left = 84
+      Height = 42
+      Top = 0
+      Width = 115
+      AutoSize = True
+      Cancel = True
+      Caption = 'rsCancel'
+      ModalResult = 2
+      TabOrder = 1
+      OnClick = Button_CancelClick
+    end
+  end
+  object TimerDisplay: TTimer
+    Enabled = False
+    Interval = 200
+    OnTimer = TimerDisplayTimer
+    Left = 456
+    Top = 208
+  end
+end

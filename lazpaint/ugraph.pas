@@ -12,6 +12,7 @@ uses
 var
   NicePointMaxRadius: integer = 6;
   FrameDashLength: integer = 4;
+  FramePenWidth: integer = 10;
   CanvasScale: integer = 1;
 
 function ComputeRatio(ARatio: string): single;
@@ -29,6 +30,9 @@ function ComputeAngle(dx,dy: single): single;
 function GetSelectionCenter(bmp: TBGRABitmap): TPointF;
 procedure ComputeSelectionMask(image: TBGRABitmap; destMask: TBGRABitmap; ARect: TRect);
 procedure SubstractMask(image: TBGRABitmap; DestX,DestY: Integer; mask: TBGRABitmap; SourceMaskRect: TRect);
+function NiceFrameBounds(ACanvasScale: integer; APoints: array of TPointF): TRect;
+function NiceFrame(ABitmap: TBGRABitmap; ACanvasScale: integer; APoints: array of TPointF;
+  AColor1, AColor2: TBGRAPixel): TRect;
 function NicePointBounds(x,y: single): TRect;
 function NicePoint(bmp: TBGRABitmap; x,y: single; alpha: byte = 192):TRect; overload;
 function NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192):TRect; overload;
@@ -62,11 +66,15 @@ procedure DrawPenStyle(ABitmap: TBGRABitmap; ARect: TRect; APenStyle: TPenStyle;
 procedure DrawArrow(AComboBox: TBCComboBox; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; State: TOwnerDrawState); overload;
 procedure DrawArrow(ABitmap: TBGRABitmap; ARect: TRect; AStart: boolean; AKindStr: string; ALineCap: TPenEndCap; AColor: TBGRAPixel); overload;
 
+function ChangeCanvasSizeOrigin(oldWidth,oldHeight,newWidth, newHeight: integer; anchor: string): TPoint;
+function ChangeBitmapCanvasSize(bmp: TBGRABitmap; ofs: TPoint; oldWidth,oldHeight,newWidth, newHeight: integer;
+  anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRABitmap;
+
 implementation
 
 uses GraphType, math, Types, FileUtil, dialogs, BGRAAnimatedGif,
   BGRAGradients, BGRATextFX, uresourcestrings, LCScaleDPI,
-  BGRAThumbnail, LCVectorPolyShapes, BGRAPolygon;
+  BGRAThumbnail, LCVectorPolyShapes, BGRAPolygon, BGRAPen;
 
 function ComputeRatio(ARatio: string): single;
 var
@@ -1189,26 +1197,78 @@ begin
     end;
 end;
 
-function NicePointBounds(x,y: single): TRect;
+function NiceFrameBounds(ACanvasScale: integer; APoints: array of TPointF): TRect;
+var
+  rF: TRectF;
+  w: Extended;
+  pt: TPointF;
 begin
-  result := rect(floor(x)-NicePointMaxRadius*CanvasScale-1,floor(y)-NicePointMaxRadius*CanvasScale-1,
-  ceil(x)+NicePointMaxRadius*CanvasScale+2,ceil(y)+NicePointMaxRadius*CanvasScale+2);
+  w := FramePenWidth*ACanvasScale/10 / 2 + 1;
+  rF := EmptyRectF;
+  for pt in APoints do
+    rF := rF.Union(RectF(pt + PointF(0.5, 0.5) - PointF(w, w),
+      pt + PointF(0.5, 0.5) + PointF(w, w)));
+  result := rect(floor(rF.Left), floor(rF.Top),
+    ceil(rF.Right), ceil(rF.Bottom));
+end;
+
+function NiceFrame(ABitmap: TBGRABitmap; ACanvasScale: integer;
+  APoints: array of TPointF; AColor1, AColor2: TBGRAPixel): TRect;
+var
+  w, d: single;
+  filler: TBGRAMultishapeFiller;
+  stroker: TBGRAPenStroker;
+begin
+  result := NiceFrameBounds(ACanvasScale, APoints);
+  w := FramePenWidth*ACanvasScale/10;
+  d := FrameDashLength*ACanvasScale;
+  filler := TBGRAMultishapeFiller.Create;
+  stroker := nil;
+  try
+    stroker := TBGRAPenStroker.Create;
+    stroker.JoinStyle:= pjsRound;
+    filler.AddPolygonStroke(APoints, AColor2, w, stroker);
+    stroker.CustomPenStyle := BGRAPenStyle(d/w, d/w);
+    filler.AddPolygonStroke(APoints, AColor1, w, stroker);
+    filler.PolygonOrder:= poLastOnTop;
+    filler.Draw(ABitmap);
+  finally
+    stroker.Free;
+    filler.Free;
+  end;
+end;
+
+function NicePointBounds(x,y: single): TRect;
+var
+  penWidth, penWidthStroke: Single;
+begin
+  penWidth := NicePointMaxRadius*CanvasScale / 6;
+  if penWidth < 1 then penWidth := 1;
+  penWidthStroke := penWidth * 3.5;
+  result := rect(floor(x-NicePointMaxRadius*CanvasScale-penWidthStroke/2)-1,
+    floor(y-NicePointMaxRadius*CanvasScale-penWidthStroke/2)-1,
+    ceil(x+NicePointMaxRadius*CanvasScale+penWidthStroke/2)+2,
+    ceil(y+NicePointMaxRadius*CanvasScale+penWidthStroke/2)+2);
 end;
 
 function NicePoint(bmp: TBGRABitmap; x, y: single; alpha: byte = 192): TRect;
 var
   multi: TBGRAMultishapeFiller;
   oldClip: TRect;
+  penWidth, penWidthStroke: Single;
 begin
   result := NicePointBounds(x,y);
   if not Assigned(bmp) then exit;
   oldClip := bmp.ClipRect;
   bmp.IntersectClip(result);
+  penWidth := NicePointMaxRadius*CanvasScale / 6;
+  if penWidth < 1 then penWidth := 1;
+  penWidthStroke := penWidth * 3.5;
   multi := TBGRAMultishapeFiller.Create;
-  multi.AddEllipseBorder(x,y,NicePointMaxRadius*CanvasScale-1*CanvasScale,
-    NicePointMaxRadius*CanvasScale-1*CanvasScale, CanvasScale*3, BGRA(0,0,0,alpha));
-  multi.AddEllipseBorder(x,y,NicePointMaxRadius*CanvasScale-1*CanvasScale,
-    NicePointMaxRadius*CanvasScale-1*CanvasScale, CanvasScale*1, BGRA(255,255,255,alpha));
+  multi.AddEllipseBorder(x,y,NicePointMaxRadius*CanvasScale-2,
+    NicePointMaxRadius*CanvasScale-2, penWidthStroke, BGRA(0,0,0,alpha));
+  multi.AddEllipseBorder(x,y,NicePointMaxRadius*CanvasScale-2,
+    NicePointMaxRadius*CanvasScale-2, penWidth, BGRA(255,255,255,alpha));
   multi.PolygonOrder:= poLastOnTop;
   multi.Draw(bmp);
   multi.Free;
@@ -1336,6 +1396,80 @@ begin
       inc(pdest);
     end;
   end;
+end;
+
+function ChangeCanvasSizeOrigin(oldWidth,oldHeight,newWidth, newHeight: integer; anchor: string): TPoint;
+var
+  origin: TPoint;
+begin
+  origin := Point((newWidth div 2)-(oldWidth div 2),(newHeight div 2)-(oldHeight div 2));
+  anchor := LowerCase(anchor);
+  if (anchor='topleft') or (anchor='top') or (anchor='topright') then origin.Y := 0;
+  if (anchor='bottomleft') or (anchor='bottom') or (anchor='bottomright') then origin.Y := newHeight-oldHeight;
+  if (anchor='topleft') or (anchor='left') or (anchor='bottomleft') then origin.X := 0;
+  if (anchor='topright') or (anchor='right') or (anchor='bottomright') then origin.X := newWidth-oldWidth;
+  result := origin;
+end;
+
+function ChangeBitmapCanvasSize(bmp: TBGRABitmap; ofs: TPoint; oldWidth,oldHeight,newWidth, newHeight: integer;
+  anchor: string; background: TBGRAPixel; repeatImage: boolean; flipMode: boolean = false): TBGRABitmap;
+var origin: TPoint;
+    xb,yb: integer;
+    dx,dy: integer;
+    minx,miny,maxx,maxy: integer;
+    flippedImages: array[Boolean,Boolean] of TBGRABitmap;
+begin
+   if (newWidth < 1) or (newHeight < 1) then
+     raise exception.Create('Invalid canvas size');
+   origin := ChangeCanvasSizeOrigin(oldWidth, oldHeight, newWidth, newHeight, anchor);
+   inc(origin.x, ofs.x);
+   inc(origin.y, ofs.y);
+
+   result := TBGRABitmap.Create(newWidth,newHeight, background);
+   dx := oldWidth;
+   dy := oldHeight;
+   if repeatImage then
+   begin
+     minx := (0-origin.X-oldWidth+1) div oldWidth;
+     miny := (0-origin.Y-oldHeight+1) div oldHeight;
+     maxx := (newWidth-origin.X+oldWidth-1) div oldWidth;
+     maxy := (newHeight-origin.Y+oldHeight-1) div oldHeight;
+   end else
+   begin
+     minx := 0;
+     miny := 0;
+     maxx := 0;
+     maxy := 0;
+   end;
+   if flipMode and repeatImage then
+   begin
+     flippedImages[false,false] := bmp;
+     if (minx <> 0) or (miny <> 0) or (maxx <> 0) or (maxy <> 0) then
+     begin
+       flippedImages[true,false] := bmp.Duplicate as TBGRABitmap;
+       flippedImages[true,false].HorizontalFlip;
+       flippedImages[true,true] := flippedImages[true,false].Duplicate as TBGRABitmap;
+       flippedImages[true,true].VerticalFlip;
+       flippedImages[false,true] := bmp.Duplicate as TBGRABitmap;
+       flippedImages[false,true].VerticalFlip;
+     end else
+     begin
+       flippedImages[true,false] := nil;  //never used
+       flippedImages[true,true] := nil;
+       flippedImages[false,true] := nil;
+     end;
+     for xb := minx to maxx do
+       for yb := miny to maxy do
+        result.PutImage(origin.x+xb*dx,origin.Y+yb*dy,flippedImages[odd(xb),odd(yb)],dmSet);
+     flippedImages[true,false].free;
+     flippedImages[true,true].free;
+     flippedImages[false,true].free;
+   end else
+   begin
+     for xb := minx to maxx do
+       for yb := miny to maxy do
+        result.PutImage(origin.x+xb*dx,origin.Y+yb*dy,bmp,dmSet);
+   end;
 end;
 
 initialization

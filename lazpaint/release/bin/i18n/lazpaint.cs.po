@@ -392,11 +392,11 @@ msgstr "Počet stran:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Hypocyklóida"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Hroty:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -716,6 +716,10 @@ msgstr "Ověřit úpravy"
 #: tfmain.exportpicturedialog.title
 msgid "Export as..."
 msgstr "Exportovat jako..."
+
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Ověřit bezpečnost skriptů"
 
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
@@ -1371,7 +1375,7 @@ msgstr "Kruhový Perlinův šum"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Hypocyklóida..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -1400,6 +1404,10 @@ msgstr "Sněžný tisk"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Kámen"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "SuperFormula..."
 
 #: tfmain.renderwater.caption
 msgid "Water"
@@ -2153,6 +2161,7 @@ msgid "Saturation"
 msgstr "Barevnost"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Barva pozadí"
 
@@ -2161,6 +2170,7 @@ msgid "Keep"
 msgstr "Ponechat"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Barva pera"
 
@@ -2226,6 +2236,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "Udržovat poměr"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Velikost obrázku"
@@ -2267,6 +2283,12 @@ msgstr "Tiskárna a papír:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Vpravo:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2373,6 +2395,7 @@ msgid "Quality:"
 msgstr "Kvalita:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 
@@ -2442,6 +2465,66 @@ msgstr "Odstín"
 msgctxt "tfshiftcolors.label2.caption"
 msgid "Saturation"
 msgstr "Barevnost"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "Superformule"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Barva pozadí"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Barva pera"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Racionální"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Velikost"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Spike počítat"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Překrytí hrotů"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Šířka"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2804,6 +2887,7 @@ msgid "File not saved"
 msgstr "Neuložený soubor"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Velikost"
 
@@ -3148,6 +3232,10 @@ msgstr "Nic k pokřivení"
 msgid "There is nothing to be retrieved"
 msgstr "Nic k obdržení"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "Toto není skript LazPaint"
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "Není rozumně ukládat tak velký obrázek v tomto formátu."
@@ -3310,6 +3398,14 @@ msgstr "Použijte PRAVÝ klik k ukončení tvaru"
 msgid "Use RIGHT click to define source"
 msgstr "Použijte PRAVÝ klik k určení zdroje"
 
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Kliknutím pravým tlačítkem myši nastavte střed transformace"
+
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Spusťte tento skript znovu, aby se aktualizoval efekt"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"
@@ -3336,6 +3432,10 @@ msgstr "Uložit paletu jako..."
 msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Skript"
+
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "Zdá se, že soubor se skriptem není bezpečný: %1"
 
 #: uresourcestrings.rsselectblendoperation
 msgid "Select blend operation"
@@ -3377,6 +3477,10 @@ msgstr "Zařízení"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "Čára"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "Opravdu chcete spustit tento skript? Následující moduly použité v tomto skriptu mohou být nebezpečné: %1"
 
 #: uresourcestrings.rstextoutline
 msgctxt "uresourcestrings.rstextoutline"
@@ -3469,7 +3573,7 @@ msgid "Vertical size"
 msgstr "Svislá velikost"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
+msgid "Visible"
 msgstr "Viditelné"
 
 #: uresourcestrings.rsyellow

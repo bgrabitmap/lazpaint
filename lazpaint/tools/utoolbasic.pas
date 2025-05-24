@@ -15,7 +15,7 @@ type
 
   TToolHand = class(TReadonlyTool)
   protected
-    handMoving: boolean;
+    handMoving, samePosition: boolean;
     handOriginF: TPointF;
     function FixSelectionTransform: boolean; override;
     function FixLayerOffset: boolean; override;
@@ -23,6 +23,7 @@ type
       {%H-}rightBtn: boolean): TRect; override;
     function DoToolMove({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF): TRect; override;
     function GetStatusText: string; override;
+    procedure TrySelect(ptF: TPointF);
   public
     constructor Create(AManager: TToolManager); override;
     function ToolUp: TRect; override;
@@ -81,7 +82,7 @@ type
 implementation
 
 uses Types, Graphics, ugraph, Controls, LazPaintType,
-  UResourceStrings, BGRAPen, math;
+  UResourceStrings, BGRAPen, math, BGRATransform;
 
 { TToolErase }
 
@@ -347,6 +348,8 @@ end;
 
 function TToolPen.DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
   rightBtn: boolean): TRect;
+var
+  b: TUniversalBrush;
 begin
   if ssSnap in ShiftState then ptF := PointF(pt.X,pt.Y);
   if not penDrawing then
@@ -358,11 +361,20 @@ begin
       shiftClickingRight := rightBtn;
     end else
     begin
-      toolDest.PenStyle := psSolid;
-      penDrawing := true;
-      penDrawingRight := rightBtn;
-      result := StartDrawing(toolDest,ptF,rightBtn);
-      penOrigin := ptF;
+      b := GetUniversalBrush(rightBtn);
+      if b.DoesNothing then
+      begin
+        Manager.ToolPopup(tpmOpacity0, 0, true);
+        result := EmptyRect;
+      end
+      else
+      begin
+        toolDest.PenStyle := psSolid;
+        penDrawing := true;
+        penDrawingRight := rightBtn;
+        result := StartDrawing(toolDest,ptF,rightBtn);
+        penOrigin := ptF;
+      end;
     end;
   end else
     result := EmptyRect;
@@ -452,20 +464,39 @@ begin
   result := EmptyRect;
   if colorpicking then
   begin
-    if (pt.X >= 0) and (pt.Y >= 0) and (pt.X < toolDest.Width) and (pt.Y < toolDest.Height) then
+    if ssShift in ShiftState then
     begin
-      if ssShift in ShiftState then
-        c := Manager.Image.RenderedImage.GetPixel(pt.X,pt.Y)
-        else c := toolDest.GetPixel(pt.X,pt.Y);
-      if colorpickingRight then
+      c := Manager.Image.RenderedImage.GetPixel(pt.X,pt.Y);
+      // rendered image is in fact empty
+      if (c.alpha = 0) and Manager.Image.RenderedImage.Empty then
       begin
-        Manager.BackColor := c;
-        Manager.QueryColorTarget(Manager.BackFill);
-      end else
-      begin
-        Manager.ForeColor := c;
-        Manager.QueryColorTarget(Manager.ForeFill);
+        Manager.ToolPopup(tpmLayerEmpty, 0, true);
+        exit;
       end;
+    end
+    else
+    begin
+      if (pt.X >= 0) and (pt.Y >= 0) and (pt.X < toolDest.Width) and (pt.Y < toolDest.Height) then
+      begin
+        c := toolDest.GetPixel(pt.X,pt.Y);
+        // layer is in fact empty
+        if (c.alpha = 0) and toolDest.Empty then
+        begin
+          Manager.ToolPopup(tpmLayerEmpty, 0, true);
+          exit;
+        end;
+      end
+      else
+        exit;
+    end;
+    if colorpickingRight then
+    begin
+      Manager.BackColor := c;
+      Manager.QueryColorTarget(Manager.BackFill);
+    end else
+    begin
+      Manager.ForeColor := c;
+      Manager.QueryColorTarget(Manager.ForeFill);
     end;
   end;
 end;
@@ -505,6 +536,7 @@ begin
   if not handMoving then
   begin
     handMoving := true;
+    samePosition := true;
     handOriginF := ptF;
   end;
 end;
@@ -521,6 +553,7 @@ begin
     if newOfs <> Manager.Image.ImageOffset then
     begin
       Manager.Image.ImageOffset := newOfs;
+      samePosition := false;
       result := OnlyRenderChange;
     end;
   end;
@@ -562,6 +595,51 @@ begin
   end;
 end;
 
+procedure TToolHand.TrySelect(ptF: TPointF);
+var
+  untransformedPtF: TPointF;
+  c: TBGRAPixel;
+  ofs: TPoint;
+  original: TVectorOriginal;
+  i: Integer;
+begin
+  if Manager.ToolSleeping then exit;
+  if not Manager.Image.SelectionMaskEmpty and
+    not Manager.Image.SelectionLayerIsEmpty and
+    IsAffineMatrixInversible(Manager.Image.SelectionTransform) then
+  begin
+    untransformedPtF := AffineMatrixInverse(Manager.Image.SelectionTransform) * ptF;
+    c := Manager.Image.SelectionLayerReadonly.GetPixel(untransformedPtF.X,untransformedPtF.Y);
+    if c.alpha <> 0 then
+    begin
+      Manager.QueryExitTool(ptMoveSelection);
+      exit;
+    end;
+  end;
+  if GetCurrentLayerKind = lkVectorial then
+  begin
+    original := Manager.Image.LayerOriginal[Manager.Image.CurrentLayerIndex] as TVectorOriginal;
+    for i := original.ShapeCount-1 downto 0 do
+    begin
+      if original.Shape[i].PointInShape(ptF) then
+      begin
+        original.SelectShape(i);
+        Manager.QueryExitTool(ptEditShape);
+        exit;
+      end;
+    end;
+  end else
+  begin
+    ofs := Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex];
+    c := Manager.Image.CurrentLayerReadOnly.GetPixel(ptF.X - ofs.X,ptF.Y - ofs.Y);
+    if c.alpha <> 0 then
+    begin
+      Manager.QueryExitTool(ptMoveLayer);
+      exit;
+    end;
+  end;
+end;
+
 constructor TToolHand.Create(AManager: TToolManager);
 begin
   inherited Create(AManager);
@@ -570,7 +648,14 @@ end;
 
 function TToolHand.ToolUp: TRect;
 begin
-  handMoving := false;
+  if handMoving then
+  begin
+    handMoving := false;
+    if samePosition then
+    begin
+      TrySelect(handOriginF);
+    end;
+  end;
   result := EmptyRect;
 end;
 

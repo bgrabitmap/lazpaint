@@ -23,6 +23,7 @@ type
 
   TPythonScript = class
   private
+    FCheckScriptSecure: boolean;
     FPythonBin: string;
     FPythonVersion: string;
     FLinePrefix: RawByteString;
@@ -51,6 +52,7 @@ type
     property PythonVersion: string read FPythonVersion;
     property PythonVersionMajor: integer read GetPythonVersionMajor;
     property ErrorText: UTF8String read FErrorText;
+    property CheckScriptSecure: boolean read FCheckScriptSecure write FCheckScriptSecure;
   end;
 
 function GetPythonVersion(APythonBin: string = DefaultPythonBin): string;
@@ -455,14 +457,14 @@ begin
   if FFirstOutput then
   begin
     if ALine <> 'LazPaint script'#9 then
-      raise exception.Create('This is not a LazPaint script')
+      raise exception.Create(rsNotLazPaintScript)
     else
     begin
       FFirstOutput:= false;
       if Assigned(FPythonSend) then
         FPythonSend(chr(27)+'LazPaint')
       else
-        raise exception.Create('Send callback not defined');
+        raise exception.Create('"Send" callback not defined');
     end;
   end;
 
@@ -574,8 +576,7 @@ begin
     begin
       safeModules.Free;
       unsafeModules.Free;
-      raise exception.Create('The script file does not seem to be safe: ' +
-                             filesToCheck[curFile]);
+      raise exception.Create(StringReplace(rsScriptNotSafe, '%1', filesToCheck[curFile], []));
     end;
     if Assigned(unsafeModules) then
     begin
@@ -601,9 +602,10 @@ begin
     proceed := true;
     if Assigned(OnWarning) then
     begin
-      OnWarning(self, 'Are you sure you would like to run this script? ' +
-        'The following modules used by this script may be unsafe: '+
-        allUnsafeModules.CommaText, proceed);
+      OnWarning(self,
+        StringReplace(rsSureToRunUnsafeScript, '%1',
+          allUnsafeModules.CommaText, []),
+        proceed);
     end;
     allUnsafeModules.Free;
     if not proceed then exit(false);
@@ -653,7 +655,8 @@ function TPythonScript.Run(AScriptFilename: UTF8String;
 var exitCode: integer;
 begin
   result := false;
-  if not CheckScriptAndDependencySafe(AScriptFilename, APythonVersion) then exit;
+  if CheckScriptSecure and
+    not CheckScriptAndDependencySafe(AScriptFilename, APythonVersion) then exit;
   FLinePrefix := '';
   FFirstOutput:= true;
   AutomationEnvironment.Values['PYTHONPATH'] := DefaultScriptDirectory;

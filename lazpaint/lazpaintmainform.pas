@@ -25,7 +25,9 @@ type
   { TFMain }
 
   TFMain = class(TForm)
+    FileCheckScriptsSecure: TAction;
     RenderHypocycloid: TAction;
+    RenderSuperformula: TAction;
     FileQuickSave: TAction;
     SVGRasterImageList1: TBGRAImageList;
     Panel_TextMore: TPanel;
@@ -484,6 +486,8 @@ type
     procedure EditShapeCenterVerticallyUpdate(Sender: TObject);
     procedure EditShapeToCurveExecute(Sender: TObject);
     procedure EditShapeToCurveUpdate(Sender: TObject);
+    procedure FileCheckScriptsSecureExecute(Sender: TObject);
+    procedure FileCheckScriptsSecureUpdate(Sender: TObject);
     procedure FileChooseEntryExecute(Sender: TObject);
     procedure FileChooseEntryUpdate(Sender: TObject);
     procedure FileExportExecute(Sender: TObject);
@@ -735,7 +739,8 @@ type
     FOnlineUpdater: TLazPaintCustomOnlineUpdater;
     FInitialized: boolean;
     FShouldArrange: boolean;
-    spacePressed, altPressed, snapPressed, shiftPressed: boolean;
+    spacePressed, altPressed, snapPressed, shiftPressed, altGrPressed: boolean;
+    snapPressedTime: TDateTime;
     FirstPaint, LoadToolWindow: boolean;
     FShowSelectionNormal: boolean;
     FLazPaintInstance: TLazPaintCustomInstance;
@@ -859,6 +864,7 @@ type
     procedure CallScriptFunction(AParams:TVariableSet); overload;
     procedure ZoomFitIfTooBig;
     function RunToolCommand(AToolCommand: TToolCommand): boolean;
+    procedure UpdateSelectionHighlightMode;
     property Scripting: TScriptContext read GetScriptContext;
     property Image: TLazPaintImage read GetImage;
 
@@ -962,6 +968,9 @@ begin
   ComboBox_ArrowEnd.Font.Height := ComboBox_BrushSelect.Font.Height;
   {$ENDIF}
 
+  ClientWidth := DoScaleX(ClientWidth, 96);
+  ClientHeight := DoScaleY(ClientHeight, 96);
+
   FInitialized := true;
   FirstPaint := true;
 end;
@@ -971,6 +980,7 @@ begin
   CreateToolbarElements;
   FLayout.DarkTheme := Config.GetDarkTheme;
   DarkThemeInstance.Apply(Panel_PenWidthPreview, Config.GetDarkTheme);
+  DarkThemeInstance.Apply(Panel_TextMore, Config.GetDarkTheme);
 end;
 
 function TFMain.GetToolManager: TToolManager;
@@ -1049,6 +1059,8 @@ begin
 end;
 
 procedure TFMain.Init;
+var
+  str: string;
 begin
   FInitialized := false;
   Config := LazPaintInstance.Config;
@@ -1131,6 +1143,9 @@ begin
   Panel_CopyPaste.Visible := Config.DefaultCopyPasteToolbarVisible;
   Panel_Coordinates.Visible := Config.DefaultCoordinatesToolbarVisible;
   FLayout.ToolBoxPopup := PopupToolbox;
+  str := Trim(RenderSuperformula.Caption);
+  if (str <> '') and (str[length(str)] <> '.') then
+    RenderSuperformula.Caption := str + '...';
 
   {$IFDEF DARWIN}
   ImageHorizontalFlip.ShortCut := ShortCut(VK_H, [ssMeta, ssCtrl]);
@@ -1205,6 +1220,9 @@ begin
 
     SVGImageList1.Width := iconSize;
     SVGImageList1.Height := iconSize;
+    SVGImageList1.PopulateImageList(SVGRasterImageList1, [iconSize]);
+    ToolBar25.ButtonWidth:= iconSize + DoScaleX(4, OriginalDPI, toolbarDPI);
+    ToolBar25.ButtonHeight:= iconSize + DoScaleY(4, OriginalDPI, toolbarDPI);
     Button_Donate.Images := m.ImageList;
     w := Button_Donate.Width; h := Button_Donate.Height;
     Button_Donate.GetPreferredSize(w, h);
@@ -1866,10 +1884,33 @@ begin
 end;
 
 procedure TFMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var tempKey: TUTF8Char;
 begin
   try
-    if Key = VK_MENU then altPressed:= true
-    else if (Key = VK_SNAP) or (Key = VK_SNAP2) then snapPressed:= true
+    {$IFDEF WINDOWS}
+    if (Key = VK_E) and altGrPressed then
+    begin
+      // translate directly euro symbol to avoid Ctrl-Alt-E invocation
+      tempKey := '€';
+      FormUTF8KeyPress(Sender, tempKey);
+      if tempKey = #0 then
+      begin
+        Key := 0;
+        exit;
+      end;
+    end;
+    {$ENDIF}
+    if Key = VK_MENU then
+    begin
+      altPressed:= true;
+      // AltGr is received as a quick succession of Ctrl and Alt
+      altGrPressed:= snapPressed and ((Now-snapPressedTime) < 30/(86400*1000));
+    end
+    else if (Key = VK_SNAP) or (Key = VK_SNAP2) then
+    begin
+      snapPressed:= true;
+      snapPressedTime:= Now;
+    end
     else if Key = VK_SHIFT then shiftPressed:= true;
     if Zoom.EditingZoom or EditingColors then exit;
     if not ((CurrentTool = ptText) and SpinEditFocused and (Key = VK_BACK)) and CatchToolKeyDown(Key) then
@@ -1893,6 +1934,12 @@ begin
       if EditDeselect.Execute then
         Key := 0;
     end else
+    if (Key = VK_Y) and snapPressed and EditRedo.Enabled then
+    begin
+      EditRedo.Execute;
+      Key := 0;
+    end
+    else
     if LazPaintInstance.ImageListWindowVisible then
       LazPaintInstance.ImageListWindowVisibleKeyDown(Key,Shift);
     If Key = 0 then UpdateToolbar;
@@ -2299,7 +2346,11 @@ end;
 
 procedure TFMain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  if Key = VK_MENU then altPressed:= false
+  if Key = VK_MENU then
+  begin
+    altPressed:= false;
+    altGrPressed := false;
+  end
   else if (Key = VK_SNAP) or (Key = VK_SNAP2) then snapPressed:= false
   else if Key = VK_SHIFT then shiftPressed:= false;
   if CatchToolKeyUp(Key) then
@@ -3104,7 +3155,14 @@ begin
         ToolManager.ToolMove(texMapBounds.Right-0.5, texMapBounds.Bottom-0.5, 1);
         ToolManager.ToolUp;
       end;
-      FLayout.FillSelectionHighlight := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
+      UpdateSelectionHighlightMode;
+      {$IFDEF LINUX}
+      if Tool = ptDeformation then
+      begin
+        Application.ProcessMessages;
+        Invalidate;
+      end;
+      {$ENDIF}
     except
       on ex:Exception do
       begin
@@ -3470,6 +3528,16 @@ end;
 procedure TFMain.EditShapeToCurveUpdate(Sender: TObject);
 begin
   EditShapeToCurve.Enabled := ToolManager.ToolProvideCommand(tcShapeToSpline);
+end;
+
+procedure TFMain.FileCheckScriptsSecureExecute(Sender: TObject);
+begin
+  Config.SetDefaultCheckScriptsSecure(not Config.DefaultCheckScriptsSecure);
+end;
+
+procedure TFMain.FileCheckScriptsSecureUpdate(Sender: TObject);
+begin
+  FileCheckScriptsSecure.Checked := Config.DefaultCheckScriptsSecure;
 end;
 
 procedure TFMain.FileChooseEntryExecute(Sender: TObject);
@@ -4130,6 +4198,7 @@ begin
     UpdateToolImage;
     UpdatePenWidthToolbar;
     UpdateCurveModeToolbar;
+    UpdateSelectionHighlightMode;
   end;
 end;
 
@@ -4158,6 +4227,11 @@ begin
     result := true;
   end
   else result := false;
+end;
+
+procedure TFMain.UpdateSelectionHighlightMode;
+begin
+  FLayout.FillSelectionHighlight := ToolManager.DisplayFilledSelection and not FShowSelectionNormal;
 end;
 
 function TFMain.TryOpenFileUTF8(filenameUTF8: string; AddToRecent: Boolean;

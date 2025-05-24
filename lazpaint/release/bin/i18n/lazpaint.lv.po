@@ -393,7 +393,7 @@ msgstr "HSL"
 
 #: tffilterfunction.tabsheet_lab.caption
 msgid "Lab"
-msgstr ""
+msgstr "Lab"
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
@@ -424,11 +424,11 @@ msgstr "Malu skaits:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Hipocikloīds"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Smailes:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -608,11 +608,11 @@ msgstr "Nobīdīt krāsas ..."
 
 #: tfmain.combobox_arrowend.hint
 msgid "Ending arrow"
-msgstr ""
+msgstr "Beigu bultiņa"
 
 #: tfmain.combobox_arrowstart.hint
 msgid "Starting arrow"
-msgstr ""
+msgstr "Sākuma bultiņa"
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
@@ -762,6 +762,10 @@ msgstr "Pārbaudīt izmaiņas"
 msgid "Export as..."
 msgstr "Eksportēt kā ..."
 
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Pārbaudīt, vai skripti ir droši"
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Ielasi citu daļu ..."
@@ -806,11 +810,11 @@ msgstr "Izdrukāt ..."
 
 #: tfmain.filequicksave.caption
 msgid "Quick save"
-msgstr ""
+msgstr "Ātrā saglabāšana"
 
 #: tfmain.filequicksave.hint
 msgid "Save current file without dialogs"
-msgstr ""
+msgstr "Saglabāt pašreizējo failu bez dialogiem"
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -902,11 +906,11 @@ msgstr "Izpludināšana pēc Gausa ..."
 
 #: tfmain.filtercleartype.caption
 msgid "ClearType"
-msgstr ""
+msgstr "ClearType"
 
 #: tfmain.filtercleartypeinverse.caption
 msgid "Inverse ClearType"
-msgstr ""
+msgstr "Apgrieztais ClearType"
 
 #: tfmain.filtercomplementarycolor.caption
 msgid "Complementary colors"
@@ -965,7 +969,7 @@ msgstr "Apvienot pikseļus ..."
 
 #: tfmain.filterplane.caption
 msgid "Plane (slow)"
-msgstr ""
+msgstr "Plakne (lēni)"
 
 #: tfmain.filterrain.caption
 msgid "Rain..."
@@ -1460,7 +1464,7 @@ msgstr "Perlina troksnis flīzēm"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Hipocikloīds..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -1489,6 +1493,10 @@ msgstr "Atkušņa ledus"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Raupjš akmens"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "Superformulė..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -1644,11 +1652,11 @@ msgstr "Pārvieto attēlu pa skata lauku"
 #: tfmain.toolhotspot.caption
 msgctxt "tfmain.toolhotspot.caption"
 msgid "Hot spot"
-msgstr ""
+msgstr "Karstais punkts"
 
 #: tfmain.toolhotspot.hint
 msgid "Choose hot spot of a cursor"
-msgstr ""
+msgstr "Izvēlieties kursora karsto punktu"
 
 #: tfmain.toollayermapping.hint
 msgctxt "tfmain.toollayermapping.hint"
@@ -1898,7 +1906,7 @@ msgstr "Vienmērīgs aizpildījums"
 
 #: tfmain.tool_textalignbottom.hint
 msgid "Align bottom"
-msgstr ""
+msgstr "Līdzināt apakšā"
 
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
@@ -1910,7 +1918,7 @@ msgstr "Līdzināt pa kreisi"
 
 #: tfmain.tool_textalignmiddle.hint
 msgid "Center vertically"
-msgstr ""
+msgstr "Centrēt vertikāli"
 
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
@@ -1918,15 +1926,15 @@ msgstr "Līdzināt pa labi"
 
 #: tfmain.tool_textaligntop.hint
 msgid "Align top"
-msgstr ""
+msgstr "Līdzināt augšā"
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"
-msgstr ""
+msgstr "Divvirzienu"
 
 #: tfmain.tool_textbold.hint
 msgid "Bold"
-msgstr ""
+msgstr "Treknraksts"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -1935,11 +1943,11 @@ msgstr "Izvēlies fontu ..."
 
 #: tfmain.tool_textitalic.hint
 msgid "Italic"
-msgstr ""
+msgstr "Slīpraksts"
 
 #: tfmain.tool_textltr.hint
 msgid "Left to right"
-msgstr ""
+msgstr "No kreisās uz labo"
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1953,7 +1961,7 @@ msgstr "Telpiski burti"
 
 #: tfmain.tool_textrtl.hint
 msgid "Right to left"
-msgstr ""
+msgstr "No labās uz kreiso"
 
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
@@ -1962,11 +1970,11 @@ msgstr "Teksta ēna"
 
 #: tfmain.tool_textstrikeout.hint
 msgid "Strikeout"
-msgstr ""
+msgstr "Pārsvītrots"
 
 #: tfmain.tool_textunderline.hint
 msgid "Underline"
-msgstr ""
+msgstr "Pasvītrots"
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -2143,7 +2151,7 @@ msgstr "Virsmas raksts ..."
 
 #: tfobject3d.button_notex.caption
 msgid "No tex."
-msgstr ""
+msgstr "Bez teks."
 
 #: tfobject3d.button_ok.caption
 msgctxt "tfobject3d.button_ok.caption"
@@ -2213,7 +2221,7 @@ msgstr "Redzamība:"
 #: tfobject3d.label_specularindex.caption
 msgctxt "tfobject3d.label_specularindex.caption"
 msgid "Spec. index :"
-msgstr ""
+msgstr "Spec. indekss:"
 
 #: tfobject3d.label_width.caption
 msgctxt "tfobject3d.label_width.caption"
@@ -2307,6 +2315,7 @@ msgid "Saturation"
 msgstr "Piesātinājums"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Pamatnes krāsa"
 
@@ -2315,6 +2324,7 @@ msgid "Keep"
 msgstr "Saglabāt"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Otas krāsa"
 
@@ -2383,6 +2393,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "Saglabāt attiecību"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Attēla izmērs"
@@ -2424,6 +2440,12 @@ msgstr "Drukas iekārta un papīrs:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Labā pusē:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2524,13 +2546,14 @@ msgstr "Neīstā tonēšana"
 
 #: tfsaveoption.checkbox_lossless.caption
 msgid "Lossless"
-msgstr ""
+msgstr "Bez zudumiem"
 
 #: tfsaveoption.label1.caption
 msgid "Quality:"
 msgstr "Kvalitāte:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 
@@ -2572,7 +2595,7 @@ msgstr "32 biti"
 
 #: tfsaveoption.radiobutton_miomap.caption
 msgid "MioMap"
-msgstr ""
+msgstr "MioMap"
 
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
@@ -2602,6 +2625,66 @@ msgstr "Nokrāsa"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Piesātinājums"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "Superformulė"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Pamatnes krāsa"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Otas krāsa"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Racionalus"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Izmērs"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Smailių skaičius"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Spyglių sutapimas"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Platums"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2665,7 +2748,7 @@ msgstr "Visi atbalstītie failu formāti"
 
 #: uresourcestrings.rsalt
 msgid "ALT"
-msgstr ""
+msgstr "ALT"
 
 #: uresourcestrings.rsanimatedgif
 msgid "Animated GIF"
@@ -2696,7 +2779,7 @@ msgstr "Rastrs"
 
 #: uresourcestrings.rsblack
 msgid "Black"
-msgstr ""
+msgstr "Melns"
 
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
@@ -2742,7 +2825,7 @@ msgstr "CD"
 
 #: uresourcestrings.rschannels
 msgid "Channels"
-msgstr ""
+msgstr "Kanāli"
 
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
@@ -2755,7 +2838,7 @@ msgstr "Aizvērt pieprasījumu"
 
 #: uresourcestrings.rscmd
 msgid "CMD"
-msgstr ""
+msgstr "CMD"
 
 #: uresourcestrings.rscolordescription
 msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
@@ -2763,7 +2846,7 @@ msgstr "Krāsas apraksts: ieklikškini, lai ierakstītu krāsas vārdu angliski 
 
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
-msgstr ""
+msgstr "Krāsu pārklājums"
 
 #: uresourcestrings.rscolors
 msgctxt "uresourcestrings.rscolors"
@@ -2797,17 +2880,17 @@ msgstr "Kontrasts"
 #: uresourcestrings.rscorrectedhueccw
 msgctxt "uresourcestrings.rscorrectedhueccw"
 msgid "Corr. Hue CCW"
-msgstr ""
+msgstr "Korekc. nokrāsa PPV"
 
 #: uresourcestrings.rscorrectedhuecw
 msgctxt "uresourcestrings.rscorrectedhuecw"
 msgid "Corr. Hue CW"
-msgstr ""
+msgstr "Korekc. nokrāsa PV"
 
 #: uresourcestrings.rscosine
 msgctxt "uresourcestrings.rscosine"
 msgid "Cosine"
-msgstr ""
+msgstr "Kosinuss"
 
 #: uresourcestrings.rscrop
 msgid "Crop"
@@ -2815,11 +2898,11 @@ msgstr "Apcirpt"
 
 #: uresourcestrings.rsctrl
 msgid "CTRL"
-msgstr ""
+msgstr "CTRL"
 
 #: uresourcestrings.rscurrentlayernotsplit
 msgid "Current layer is not split"
-msgstr ""
+msgstr "Pašreizējais slānis nav sadalīts"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -2827,7 +2910,7 @@ msgstr "Spied [S] vai [X], lai uzdotu līknes pēdējā punkta veidu"
 
 #: uresourcestrings.rscyan
 msgid "Cyan"
-msgstr ""
+msgstr "Ciāna"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
@@ -2862,7 +2945,7 @@ msgstr "Lejupielādēt"
 
 #: uresourcestrings.rsdropshadow
 msgid "Drop shadow"
-msgstr ""
+msgstr "Krītošā ēna"
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
@@ -2916,7 +2999,7 @@ msgstr "Kļūda atkodējot attēlu."
 
 #: uresourcestrings.rserrorloadingoriginal
 msgid "Error while loading original however layer can be rasterized."
-msgstr ""
+msgstr "Kļūda, ielādējot oriģinālu, tomēr slāni var rasterizēt."
 
 #: uresourcestrings.rserroronopeningfile
 msgid "Error on opening file \"%1\""
@@ -2978,6 +3061,7 @@ msgid "File not saved"
 msgstr "Datne netika saglabāts"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Izmērs"
 
@@ -3013,7 +3097,7 @@ msgstr "Kļūda:"
 
 #: uresourcestrings.rsfractaltree
 msgid "Fractal tree"
-msgstr ""
+msgstr "Fraktāļu koks"
 
 #: uresourcestrings.rsframes
 msgid "Frames"
@@ -3030,7 +3114,7 @@ msgstr "Zaļš"
 #: uresourcestrings.rshalfcosine
 msgctxt "uresourcestrings.rshalfcosine"
 msgid "Half-cosine"
-msgstr ""
+msgstr "Pus-kosinuss"
 
 #: uresourcestrings.rsholdkeyforsquare
 msgid "Hold %1 to draw a square or a circle"
@@ -3051,7 +3135,7 @@ msgstr "Turi %1 vai %2 lai mērogotu"
 #: uresourcestrings.rshotspot
 msgctxt "uresourcestrings.rshotspot"
 msgid "Hot spot"
-msgstr ""
+msgstr "Karstais punkts"
 
 #: uresourcestrings.rshue
 msgctxt "uresourcestrings.rshue"
@@ -3061,12 +3145,12 @@ msgstr "Nokrāsa"
 #: uresourcestrings.rshueccw
 msgctxt "uresourcestrings.rshueccw"
 msgid "Hue CCW"
-msgstr ""
+msgstr "Nokrāsa PPV"
 
 #: uresourcestrings.rshuecw
 msgctxt "uresourcestrings.rshuecw"
 msgid "Hue CW"
-msgstr ""
+msgstr "Nokrāsa PV"
 
 #: uresourcestrings.rsiconimagealreadyexists
 msgid "There is already an image with this size and depth."
@@ -3102,11 +3186,11 @@ msgstr "Informācija"
 
 #: uresourcestrings.rsinnerlight
 msgid "Inner light"
-msgstr ""
+msgstr "Iekšējais apgaismojums"
 
 #: uresourcestrings.rsinnershadow
 msgid "Inner shadow"
-msgstr ""
+msgstr "Iekšējā ēna"
 
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
@@ -3119,7 +3203,7 @@ msgstr "Iekšējā kļūda"
 
 #: uresourcestrings.rsinvalidangle
 msgid "Invalid angle"
-msgstr ""
+msgstr "Nederīgs leņķis"
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
@@ -3152,7 +3236,7 @@ msgstr "Paturēt tukšumu ap redzamajiem pikseļiem?"
 
 #: uresourcestrings.rslanczos
 msgid "Lanczos %1"
-msgstr ""
+msgstr "Lanczos %1"
 
 #: uresourcestrings.rslandscape
 msgid "Landscape"
@@ -3164,7 +3248,7 @@ msgstr "Tīmeklī piejamā LazPaint versija ir"
 
 #: uresourcestrings.rslava
 msgid "Lava"
-msgstr ""
+msgstr "Lava"
 
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
@@ -3173,7 +3257,7 @@ msgstr "Slaņim"
 
 #: uresourcestrings.rslayeralreadysplit
 msgid "Layer already split"
-msgstr ""
+msgstr "Slānis jau ir sadalīts"
 
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
@@ -3181,7 +3265,7 @@ msgstr "Attēls ar slāņiem"
 
 #: uresourcestrings.rslayereffect
 msgid "Layer effect"
-msgstr ""
+msgstr "Slāņa efekts"
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
@@ -3218,7 +3302,7 @@ msgstr "Tiešs"
 
 #: uresourcestrings.rslinearrgb
 msgid "Linear RGB"
-msgstr ""
+msgstr "Lineārs RGB"
 
 #: uresourcestrings.rsloadandmergepalette
 msgid "Load and merge palette..."
@@ -3238,11 +3322,11 @@ msgstr "Atkārtojuma reizes"
 
 #: uresourcestrings.rsmagenta
 msgid "Magenta"
-msgstr ""
+msgstr "Magenta"
 
 #: uresourcestrings.rsmakemonochromatic
 msgid "Make monochromatic"
-msgstr ""
+msgstr "Pārvērst par monohromātisku"
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
@@ -3250,15 +3334,15 @@ msgstr "Izveidot no attēla %1 krāsu paleti"
 
 #: uresourcestrings.rsmask
 msgid "Mask"
-msgstr ""
+msgstr "Maska"
 
 #: uresourcestrings.rsmaskfromalphachannel
 msgid "Mask from alpha channel"
-msgstr ""
+msgstr "Maska no alfa kanāla"
 
 #: uresourcestrings.rsmerge
 msgid "Merge"
-msgstr ""
+msgstr "Apvienot"
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -3297,7 +3381,7 @@ msgstr "Jauns attēls"
 
 #: uresourcestrings.rsnewmask
 msgid "New mask"
-msgstr ""
+msgstr "Jauna maska"
 
 #: uresourcestrings.rsno
 msgid "No"
@@ -3326,7 +3410,7 @@ msgstr "Parasta"
 
 #: uresourcestrings.rsnotchromaticchannel
 msgid "This is not a chromatic channel"
-msgstr ""
+msgstr "Šis nav hromatiskais kanāls"
 
 #: uresourcestrings.rsnothingtobedeformed
 msgctxt "uresourcestrings.rsnothingtobedeformed"
@@ -3337,6 +3421,10 @@ msgstr "Neka nav pārveidojams"
 msgctxt "uresourcestrings.rsnothingtoberetrieved"
 msgid "There is nothing to be retrieved"
 msgstr "Nav ko atdabūt"
+
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "Šis nav LazPaint skripts"
 
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
@@ -3436,7 +3524,7 @@ msgstr "Pitona %1 versijas vietā atrasta %2."
 
 #: uresourcestrings.rsramdisk
 msgid "RAM disk"
-msgstr ""
+msgstr "RAM disks"
 
 #: uresourcestrings.rsrasterlayer
 msgid "Raster layer"
@@ -3498,11 +3586,19 @@ msgstr "RGB"
 
 #: uresourcestrings.rsrightclickfinishshape
 msgid "Use RIGHT click to finish shape"
-msgstr ""
+msgstr "Izmantojiet peles labo pogu, lai pabeigtu formu"
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
 msgstr "Ar peles labo pogu norādi avotu"
+
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Ar peles labo pogu norādiet transformācijas centru"
+
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Paleiskite šį scenarijų dar kartą, kad atnaujintumėte efektą"
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
@@ -3533,6 +3629,10 @@ msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Skripts"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "Skripta fails, šķiet, nav drošs: %1"
+
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
@@ -3561,15 +3661,15 @@ msgstr "Pielāgots"
 
 #: uresourcestrings.rssplitcmyk
 msgid "Split CMYK"
-msgstr ""
+msgstr "Sadalīt CMYK"
 
 #: uresourcestrings.rssplithsl
 msgid "Split HSL"
-msgstr ""
+msgstr "Sadalīt HSL"
 
 #: uresourcestrings.rssplitrgb
 msgid "Split RGB"
-msgstr ""
+msgstr "Sadalīt RGB"
 
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
@@ -3577,7 +3677,11 @@ msgstr "Ierīce"
 
 #: uresourcestrings.rsstroke
 msgid "Stroke"
-msgstr ""
+msgstr "Kontūra"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "Vai esat pārliecināts, ka vēlaties palaist šo skriptu? Šī skripta izmantotie moduļi var būt nedroši: %1"
 
 #: uresourcestrings.rstextoutline
 #, fuzzy
@@ -3664,19 +3768,19 @@ msgstr "Vektoru slānis"
 
 #: uresourcestrings.rsversion
 msgid "Version"
-msgstr ""
+msgstr "Versija"
 
 #: uresourcestrings.rsverticalsize
 msgid "Vertical size"
-msgstr ""
+msgstr "Vertikālais izmērs"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
-msgstr ""
+msgid "Visible"
+msgstr "Redzams"
 
 #: uresourcestrings.rsyellow
 msgid "Yellow"
-msgstr ""
+msgstr "Dzeltens"
 
 #: uresourcestrings.rsyes
 msgid "Yes"

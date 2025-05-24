@@ -13,6 +13,7 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 
 #: tablet.getprocfailed
+#, object-pascal-format
 msgid "Procedure %s failed to load properly."
 msgstr "Prosedür %s düzgün bir şekilde yüklenemedi."
 
@@ -63,16 +64,6 @@ msgstr "Lisans:"
 msgctxt "tfabout.label_opensource.caption"
 msgid "Open source (GPLv3)"
 msgstr "Açık kaynak (GPLv3)"
-
-#: tfadjustcurves.button_cancel.caption
-msgctxt "tfadjustcurves.button_cancel.caption"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tfadjustcurves.button_ok.caption
-msgctxt "tfadjustcurves.button_ok.caption"
-msgid "OK"
-msgstr "Tamam"
 
 #: tfadjustcurves.caption
 msgid "Adjust curves"
@@ -166,8 +157,7 @@ msgid "Basic SVG"
 msgstr "Temel SVG"
 
 #: tfblendop.label_svgover.hint
-msgid ""
-"Basic blend operations that are available in virtually all image editors"
+msgid "Basic blend operations that are available in virtually all image editors"
 msgstr "Neredeyse tüm resim editörlerinde bulunan temel karıştırma işlemleri"
 
 #: tfbrowseimages.caption
@@ -248,16 +238,6 @@ msgctxt "tfchoosecolor.caption"
 msgid "Color"
 msgstr "Renk"
 
-#: tfcolorintensity.button_cancel.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tfcolorintensity.button_ok.caption
-msgctxt "TFCOLORINTENSITY.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Tamam"
-
 #: tfcolorintensity.caption
 msgctxt "tfcolorintensity.caption"
 msgid "Intensity"
@@ -272,16 +252,6 @@ msgstr "Çarpma"
 msgctxt "tfcolorintensity.label_shift.caption"
 msgid "Shift"
 msgstr "Shift"
-
-#: tfcolorize.button_cancel.caption
-msgctxt "TFCOLORIZE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tfcolorize.button_ok.caption
-msgctxt "TFCOLORIZE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Tamam"
 
 #: tfcolorize.caption
 msgctxt "tfcolorize.caption"
@@ -307,11 +277,6 @@ msgstr "Renk tonu"
 msgid "Preset"
 msgstr "Ön ayar"
 
-#: tfcustomblur.button_cancel.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Vazgeç"
-
 #: tfcustomblur.button_editmask.caption
 msgid "Edit mask..."
 msgstr "Maskeyi düzenle..."
@@ -319,11 +284,6 @@ msgstr "Maskeyi düzenle..."
 #: tfcustomblur.button_loadmask.caption
 msgid "Load mask..."
 msgstr "Maskeyi yükle..."
-
-#: tfcustomblur.button_ok.caption
-msgctxt "TFCUSTOMBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Tamam"
 
 #: tfcustomblur.caption
 msgctxt "tfcustomblur.caption"
@@ -333,16 +293,6 @@ msgstr "Özel bulanıklık"
 #: tfcustomblur.openpicturedialog1.title
 msgid "Open grayscale file"
 msgstr "Gri tonlamalı dosyayı aç"
-
-#: tfemboss.button_cancel.caption
-msgctxt "TFEMBOSS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tfemboss.button_ok.caption
-msgctxt "TFEMBOSS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Tamam"
 
 #: tfemboss.caption
 msgctxt "tfemboss.caption"
@@ -361,16 +311,6 @@ msgstr "Şeffaf"
 msgctxt "tfemboss.label_direction.caption"
 msgid "Direction :"
 msgstr "Yön:"
-
-#: tffilterfunction.button_cancel.caption
-msgctxt "tffilterfunction.button_cancel.caption"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tffilterfunction.button_ok.caption
-msgctxt "tffilterfunction.button_ok.caption"
-msgid "OK"
-msgstr "Tamam"
 
 #: tffilterfunction.caption
 msgid "Apply function"
@@ -474,6 +414,14 @@ msgstr "Saydamlık gradyanı"
 msgid "Number of sides:"
 msgstr "Kenar sayısı:"
 
+#: tfhypocycloid.caption
+msgid "Hypocycloid"
+msgstr "Hiposikloid"
+
+#: tfhypocycloid.label_amount.caption
+msgid "Cusps:"
+msgstr "Tepe noktaları:"
+
 #: tfimagelist.caption
 msgid "Image List"
 msgstr "Resim Listesi"
@@ -484,9 +432,7 @@ msgstr "Dosyalar açıldıktan sonra otomatik olarak işaretini kaldır"
 
 #: tfimagelist.pmautouncheckonsave.caption
 msgid "Autouncheck files after being edited and saved"
-msgstr ""
-"Düzenlendikten ve kaydedildikten sonra dosyaları otomatik olarak işaretini "
-"kaldır"
+msgstr "Düzenlendikten ve kaydedildikten sonra dosyaları otomatik olarak işaretini kaldır"
 
 #: tfimagelist.pmremoveall.caption
 msgid "Empty image list"
@@ -530,14 +476,11 @@ msgstr "Listeye resim ekle"
 
 #: tfimagelist.tbautouncheck.hint
 msgid "Enable/disable autounchecking for processed files"
-msgstr ""
-"İşlenen dosyalar için otomatik kontrolü etkinleştirme/devre dışı bırakma"
+msgstr "İşlenen dosyalar için otomatik kontrolü etkinleştirme/devre dışı bırakma"
 
 #: tfimagelist.tbautozoomfit.hint
 msgid "Enable/disable autofitting images in the LazPaint window"
-msgstr ""
-"LazPaint penceresinde resimlerin otomatik olarak sığdırılmasının "
-"etkinleştirilmesi/devre dışı bırakılması"
+msgstr "LazPaint penceresinde resimlerin otomatik olarak sığdırılmasının etkinleştirilmesi/devre dışı bırakılması"
 
 #: tfimagelist.tbcheckall.hint
 msgid "Check all files for processing"
@@ -615,6 +558,12 @@ msgstr "Dosyadan fırça yükle..."
 msgid "Remove current brush"
 msgstr "Geçerli fırçayı kaldır"
 
+#: tfmain.button_donate.caption
+#, fuzzy
+msgctxt "tfmain.button_donate.caption"
+msgid "Donate..."
+msgstr "Bağış yapın..."
+
 #: tfmain.caption
 msgctxt "tfmain.caption"
 msgid "LazPaint"
@@ -648,6 +597,14 @@ msgstr "Posterleştir..."
 msgctxt "tfmain.colorshiftcolors.caption"
 msgid "Shift colors..."
 msgstr "Renkleri değiştir..."
+
+#: tfmain.combobox_arrowend.hint
+msgid "Ending arrow"
+msgstr "Bitiş oku"
+
+#: tfmain.combobox_arrowstart.hint
+msgid "Starting arrow"
+msgstr "Başlangıç oku"
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
@@ -797,6 +754,10 @@ msgstr "Değişiklikleri doğrula"
 msgid "Export as..."
 msgstr "Farklı dışa aktar..."
 
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Komut dosyalarının güvenli olduğunu kontrol et"
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Girişi seçin..."
@@ -838,6 +799,14 @@ msgstr "Mevcut dosyayı aç"
 #: tfmain.fileprint.caption
 msgid "Print..."
 msgstr "Yazdır..."
+
+#: tfmain.filequicksave.caption
+msgid "Quick save"
+msgstr "Hızlı kaydet"
+
+#: tfmain.filequicksave.hint
+msgid "Save current file without dialogs"
+msgstr "Mevcut dosyayı diyalogsuz kaydet"
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -1198,11 +1167,6 @@ msgctxt "TFMAIN.LABEL_CURVE.CAPTION"
 msgid "Curve"
 msgstr "Eğri"
 
-#: tfmain.label_donate.caption
-msgctxt "tfmain.label_donate.caption"
-msgid "Donate..."
-msgstr "Bağış..."
-
 #: tfmain.label_eraser.caption
 msgctxt "tfmain.label_eraser.caption"
 msgid "Erase"
@@ -1489,6 +1453,10 @@ msgctxt "tfmain.rendercyclicperlinnoise.caption"
 msgid "Cyclic Perlin noise"
 msgstr "Döngüsel Perlin gürültüsü"
 
+#: tfmain.renderhypocycloid.caption
+msgid "Hypocycloid..."
+msgstr "Hiposikloid..."
+
 #: tfmain.rendermarble.caption
 msgid "Marble"
 msgstr "Mermer"
@@ -1516,6 +1484,10 @@ msgstr "Ayak izi"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Taş"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "Süperformül..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -1611,11 +1583,6 @@ msgstr "Yazı boyutu"
 msgctxt "tfmain.toolbrush.hint"
 msgid "Brush"
 msgstr "Fırça"
-
-#: tfmain.toolbutton_donate.hint
-msgctxt "tfmain.toolbutton_donate.hint"
-msgid "Donate..."
-msgstr "Bağış..."
 
 #: tfmain.toolchangedocking.hint
 msgctxt "tfmain.toolchangedocking.hint"
@@ -1928,6 +1895,10 @@ msgctxt "tfmain.tool_progressivefloodfill.hint"
 msgid "Progressive floodfill"
 msgstr "Aşamalı kova"
 
+#: tfmain.tool_textalignbottom.hint
+msgid "Align bottom"
+msgstr "Alta hizala"
+
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
 msgstr "Ortala"
@@ -1936,14 +1907,38 @@ msgstr "Ortala"
 msgid "Align left"
 msgstr "Şekli sola hizala"
 
+#: tfmain.tool_textalignmiddle.hint
+msgid "Center vertically"
+msgstr "Dikey hizala"
+
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
 msgstr "Şekli sağa hizala"
+
+#: tfmain.tool_textaligntop.hint
+msgid "Align top"
+msgstr "Üste hizala"
+
+#: tfmain.tool_textbidirectional.hint
+msgid "Bidirectional"
+msgstr "Çift yönlü"
+
+#: tfmain.tool_textbold.hint
+msgid "Bold"
+msgstr "Kalın"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
 msgid "Choose font..."
 msgstr "Yazı tipini seçin..."
+
+#: tfmain.tool_textitalic.hint
+msgid "Italic"
+msgstr "İtalik"
+
+#: tfmain.tool_textltr.hint
+msgid "Left to right"
+msgstr "Soldan sağa"
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1955,10 +1950,22 @@ msgctxt "TFMAIN.TOOL_TEXTPHONG.HINT"
 msgid "Text phong shading"
 msgstr "Metin phong gölgelendirme"
 
+#: tfmain.tool_textrtl.hint
+msgid "Right to left"
+msgstr "Sağdan sola"
+
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
 msgid "Text shadow"
 msgstr "Metin gölgesi"
+
+#: tfmain.tool_textstrikeout.hint
+msgid "Strikeout"
+msgstr "Üzeri çizili"
+
+#: tfmain.tool_textunderline.hint
+msgid "Underline"
+msgstr "Altı çizili"
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -2039,16 +2046,6 @@ msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
 msgstr "Uzaklaştır"
 
-#: tfmotionblur.button_cancel.caption
-msgctxt "TFMOTIONBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tfmotionblur.button_ok.caption
-msgctxt "TFMOTIONBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Tamam"
-
 #: tfmotionblur.caption
 msgctxt "tfmotionblur.caption"
 msgid "Motion blur"
@@ -2076,46 +2073,6 @@ msgstr "Tamam"
 #: tfmultiimage.caption
 msgid "Choose image"
 msgstr "Renk seç"
-
-#: tfnewimage.bgrashape1.caption
-msgid "BGRAShape1"
-msgstr "BGRAShape1"
-
-#: tfnewimage.bgrashape10.caption
-msgid "BGRAShape10"
-msgstr "BGRAShape10"
-
-#: tfnewimage.bgrashape2.caption
-msgid "BGRAShape2"
-msgstr "BGRAShape2"
-
-#: tfnewimage.bgrashape3.caption
-msgid "BGRAShape3"
-msgstr "BGRAShape3"
-
-#: tfnewimage.bgrashape4.caption
-msgid "BGRAShape4"
-msgstr "BGRAShape4"
-
-#: tfnewimage.bgrashape5.caption
-msgid "BGRAShape5"
-msgstr "BGRAShape5"
-
-#: tfnewimage.bgrashape6.caption
-msgid "BGRAShape6"
-msgstr "BGRAShape6"
-
-#: tfnewimage.bgrashape7.caption
-msgid "BGRAShape7"
-msgstr "BGRAShape7"
-
-#: tfnewimage.bgrashape8.caption
-msgid "BGRAShape8"
-msgstr "BGRAShape8"
-
-#: tfnewimage.bgrashape9.caption
-msgid "BGRAShape9"
-msgstr "BGRAShape9"
 
 #: tfnewimage.button_cancel.caption
 msgctxt "TFNEWIMAGE.BUTTON_CANCEL.CAPTION"
@@ -2157,24 +2114,6 @@ msgstr "Memory required:"
 msgctxt "tfnewimage.label_width.caption"
 msgid "Width :"
 msgstr "Genişlik:"
-
-#: tfnewimage.toolbar_ratio.caption
-msgid "ToolBar_Ratio"
-msgstr "AraçÇubuğu_yönü"
-
-#: tfnewimage.toolbutton_clearratio.caption
-msgid "ToolButton_ClearRatio"
-msgstr "AraçDüğmesi_TemizOran"
-
-#: tfnoisefilter.button_cancel.caption
-msgctxt "tfnoisefilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tfnoisefilter.button_ok.caption
-msgctxt "tfnoisefilter.button_ok.caption"
-msgid "OK"
-msgstr "Tamam"
 
 #: tfnoisefilter.caption
 msgid "Noise filter"
@@ -2313,16 +2252,6 @@ msgstr "Noktasal ışık ekleyin"
 msgid "Remove selected light"
 msgstr "Seçilen ışığı sil"
 
-#: tfphongfilter.button_cancel.caption
-msgctxt "tfphongfilter.button_cancel.caption"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tfphongfilter.button_ok.caption
-msgctxt "tfphongfilter.button_ok.caption"
-msgid "OK"
-msgstr "Tamam"
-
 #: tfphongfilter.caption
 msgctxt "tfphongfilter.caption"
 msgid "Shaded map"
@@ -2376,6 +2305,7 @@ msgid "Saturation"
 msgstr "Saturizasyon"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Arkaplan rengi"
 
@@ -2384,6 +2314,7 @@ msgid "Keep"
 msgstr "Hatırla"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Kalem rengi"
 
@@ -2391,16 +2322,6 @@ msgstr "Kalem rengi"
 msgctxt "tfphongfilter.radio_usetexture.caption"
 msgid "Current texture"
 msgstr "Mevcut doku"
-
-#: tfpixelate.button_cancel.caption
-msgctxt "TFPIXELATE.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tfpixelate.button_ok.caption
-msgctxt "TFPIXELATE.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Tamam"
 
 #: tfpixelate.caption
 msgctxt "tfpixelate.caption"
@@ -2417,16 +2338,6 @@ msgctxt "tfpixelate.label_quality.caption"
 msgid "Quality :"
 msgstr "Kalite:"
 
-#: tfposterize.button_cancel.caption
-msgctxt "tfposterize.button_cancel.caption"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tfposterize.button_ok.caption
-msgctxt "tfposterize.button_ok.caption"
-msgid "OK"
-msgstr "Tamam"
-
 #: tfposterize.caption
 msgctxt "tfposterize.caption"
 msgid "Posterize"
@@ -2441,6 +2352,7 @@ msgid "Levels :"
 msgstr "Seviyeler:"
 
 #: tfpreviewdialog.caption
+msgctxt "tfpreviewdialog.caption"
 msgid "Preview"
 msgstr "Önizleme"
 
@@ -2470,6 +2382,12 @@ msgstr "Yazdır"
 msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "En-boy oranını koruOran"
+
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
 
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
@@ -2513,6 +2431,12 @@ msgstr "Printer and paper:"
 msgid "Right:"
 msgstr "Sağ:"
 
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
+
 #: tfprint.label_top.caption
 msgid "Top:"
 msgstr "Üst:"
@@ -2534,16 +2458,6 @@ msgctxt "tfquestion.label_message.caption"
 msgid "."
 msgstr "."
 
-#: tfradialblur.button_cancel.caption
-msgctxt "TFRADIALBLUR.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tfradialblur.button_ok.caption
-msgctxt "TFRADIALBLUR.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Tamam"
-
 #: tfradialblur.caption
 msgctxt "tfradialblur.caption"
 msgid "Radial blur"
@@ -2553,16 +2467,6 @@ msgstr "Radyal Bulanıklık"
 msgctxt "tfradialblur.label_radius.caption"
 msgid "Radius :"
 msgstr "Yarıçap:"
-
-#: tfrain.button_cancel.caption
-msgctxt "tfrain.button_cancel.caption"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tfrain.button_ok.caption
-msgctxt "tfrain.button_ok.caption"
-msgid "OK"
-msgstr "Tamam"
 
 #: tfrain.caption
 msgid "Rain"
@@ -2639,6 +2543,7 @@ msgid "Quality:"
 msgstr "Kalite:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 
@@ -2682,16 +2587,6 @@ msgstr "30 bit"
 msgid "MioMap"
 msgstr "MioMap"
 
-#: tfsharpen.button_cancel.caption
-msgctxt "tfsharpen.button_cancel.caption"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tfsharpen.button_ok.caption
-msgctxt "tfsharpen.button_ok.caption"
-msgid "OK"
-msgstr "Tamam"
-
 #: tfsharpen.caption
 msgid "Sharpen/Smooth"
 msgstr "Keskinleştir/Düzleştir"
@@ -2700,16 +2595,6 @@ msgstr "Keskinleştir/Düzleştir"
 msgctxt "tfsharpen.label_amount.caption"
 msgid "Amount :"
 msgstr "Miktar:"
-
-#: tfshiftcolors.button_cancel.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tfshiftcolors.button_ok.caption
-msgctxt "TFSHIFTCOLORS.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Tamam"
 
 #: tfshiftcolors.caption
 msgctxt "tfshiftcolors.caption"
@@ -2731,20 +2616,70 @@ msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Saturasyon"
 
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "Süperformül"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Arkaplan rengi"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Kalem rengi"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Rasyonel"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Boyut"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Spike sayısı"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Spike örtüşmesi"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Genişlik"
+
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
 msgid "Tools"
 msgstr "Araçlar"
-
-#: tftwirl.button_cancel.caption
-msgctxt "TFTWIRL.BUTTON_CANCEL.CAPTION"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tftwirl.button_ok.caption
-msgctxt "TFTWIRL.BUTTON_OK.CAPTION"
-msgid "OK"
-msgstr "Tamam"
 
 #: tftwirl.caption
 msgctxt "tftwirl.caption"
@@ -2760,16 +2695,6 @@ msgstr "Açı:"
 msgctxt "tftwirl.label_radius.caption"
 msgid "Radius :"
 msgstr "Yarı çap:"
-
-#: tfwavedisplacement.button_cancel.caption
-msgctxt "tfwavedisplacement.button_cancel.caption"
-msgid "Cancel"
-msgstr "Vazgeç"
-
-#: tfwavedisplacement.button_ok.caption
-msgctxt "tfwavedisplacement.button_ok.caption"
-msgid "OK"
-msgstr "Tamam"
 
 #: tfwavedisplacement.caption
 msgid "Wave displacement"
@@ -2841,6 +2766,10 @@ msgstr "En iyi kalite"
 msgid "Bitmap"
 msgstr "Bitmap"
 
+#: uresourcestrings.rsblack
+msgid "Black"
+msgstr "Siyah"
+
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
 msgstr "Karıştırma işlemi sadece altında bir katman varsa uygulanır."
@@ -2883,6 +2812,10 @@ msgstr "Kanvas boyutu"
 msgid "CD"
 msgstr "CD"
 
+#: uresourcestrings.rschannels
+msgid "Channels"
+msgstr "Kanallar"
+
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
 msgstr "Paleti temizle"
@@ -2895,6 +2828,14 @@ msgstr "İsteği kapat"
 #: uresourcestrings.rscmd
 msgid "CMD"
 msgstr "CMD"
+
+#: uresourcestrings.rscolordescription
+msgid "Color description: click to type in a color with the keyboard using color names or CSS notation."
+msgstr "Renk açıklaması: Klavyede renk adlarını veya CSS gösterimini kullanarak renk girmek için tıklayın."
+
+#: uresourcestrings.rscoloroverlay
+msgid "Color overlay"
+msgstr "Renk kaplaması"
 
 #: uresourcestrings.rscolors
 msgctxt "uresourcestrings.rscolors"
@@ -2948,9 +2889,17 @@ msgstr "Kes"
 msgid "CTRL"
 msgstr "CTRL"
 
+#: uresourcestrings.rscurrentlayernotsplit
+msgid "Current layer is not split"
+msgstr "Geçerli katman bölünmemiş"
+
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
 msgstr "Son noktanın eğri modunu ayarlamak için S veya X'e basın"
+
+#: uresourcestrings.rscyan
+msgid "Cyan"
+msgstr "Camgöbeği"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
@@ -2981,6 +2930,10 @@ msgstr "Bağış..."
 #: uresourcestrings.rsdownload
 msgid "Download"
 msgstr "İndir"
+
+#: uresourcestrings.rsdropshadow
+msgid "Drop shadow"
+msgstr "Gölge ekle"
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
@@ -3014,9 +2967,7 @@ msgstr "Eşleşme olmadan bitir"
 
 #: uresourcestrings.rsenterfolderorcontainername
 msgid "Enter name for new folder or container (using RES or LRS extension):"
-msgstr ""
-"Yeni klasör veya kapsayıcı için ad girin (RES veya LRS uzantısını "
-"kullanarak):"
+msgstr "Yeni klasör veya kapsayıcı için ad girin (RES veya LRS uzantısını kullanarak):"
 
 #: uresourcestrings.rsenterlayername
 msgid "Enter layer name:"
@@ -3098,6 +3049,7 @@ msgid "File not saved"
 msgstr "Dosya kaydedilmedi"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Boyut"
 
@@ -3129,6 +3081,10 @@ msgstr "Klasör veya kapsayıcı zaten var."
 #: uresourcestrings.rsfollowingerrorsoccurred
 msgid "Following errors occurred:"
 msgstr "Aşağıdaki hatalar oluştu:"
+
+#: uresourcestrings.rsfractaltree
+msgid "Fractal tree"
+msgstr "Fraktal ağaç"
 
 #: uresourcestrings.rsframes
 msgid "Frames"
@@ -3196,6 +3152,12 @@ msgctxt "uresourcestrings.rsiconsize"
 msgid "Icon size"
 msgstr "Simge boyutu"
 
+#: uresourcestrings.rsimage
+#, fuzzy
+msgctxt "uresourcestrings.rsimage"
+msgid "Image"
+msgstr "Resim"
+
 #: uresourcestrings.rsimagetoobig
 msgid "Image is too big"
 msgstr "Resim çok büyük"
@@ -3209,6 +3171,14 @@ msgstr "Sonsuzluk"
 msgid "Information"
 msgstr "Bilgi"
 
+#: uresourcestrings.rsinnerlight
+msgid "Inner light"
+msgstr "İç ışık"
+
+#: uresourcestrings.rsinnershadow
+msgid "Inner shadow"
+msgstr "İç gölge"
+
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
 msgid "Intensity"
@@ -3217,6 +3187,10 @@ msgstr "Yoğunluk"
 #: uresourcestrings.rsinternalerror
 msgid "Internal error"
 msgstr "İç hata"
+
+#: uresourcestrings.rsinvalidangle
+msgid "Invalid angle"
+msgstr "Geçersiz açı"
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
@@ -3259,14 +3233,26 @@ msgstr "Yatay"
 msgid "The latest version of LazPaint available online is"
 msgstr "LazPaint'in çevrimiçi olarak sunulan en son sürümü"
 
+#: uresourcestrings.rslava
+msgid "Lava"
+msgstr "Lava"
+
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
 msgid "Layer"
 msgstr "Katman"
 
+#: uresourcestrings.rslayeralreadysplit
+msgid "Layer already split"
+msgstr "Katman zaten bölünmüş"
+
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
 msgstr "Katmanlı görüntü"
+
+#: uresourcestrings.rslayereffect
+msgid "Layer effect"
+msgstr "Katman efekti"
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
@@ -3321,9 +3307,29 @@ msgstr "Palet yükle..."
 msgid "Loop count"
 msgstr "Döngü sayısı"
 
+#: uresourcestrings.rsmagenta
+msgid "Magenta"
+msgstr "Macenta"
+
+#: uresourcestrings.rsmakemonochromatic
+msgid "Make monochromatic"
+msgstr "Tek renk yap"
+
 #: uresourcestrings.rsmakencolorspalettefrombitmap
 msgid "Make %1-colors palette from image"
 msgstr "Görüntüden %1-renk paleti yap"
+
+#: uresourcestrings.rsmask
+msgid "Mask"
+msgstr "Maske"
+
+#: uresourcestrings.rsmaskfromalphachannel
+msgid "Mask from alpha channel"
+msgstr "Alfa kanalından maske"
+
+#: uresourcestrings.rsmerge
+msgid "Merge"
+msgstr "Birleştir"
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -3335,12 +3341,8 @@ msgid "Mitchell"
 msgstr "Mitchell"
 
 #: uresourcestrings.rsmorethanonefile
-msgid ""
-"You are trying to open more than one file. How would you like these files to "
-"be opened?"
-msgstr ""
-"Birden fazla dosya açmaya çalışıyorsunuz. Bu dosyaların nasıl açılmasını "
-"istersiniz?"
+msgid "You are trying to open more than one file. How would you like these files to be opened?"
+msgstr "Birden fazla dosya açmaya çalışıyorsunuz. Bu dosyaların nasıl açılmasını istersiniz?"
 
 #: uresourcestrings.rsmovingorrotatingselection
 msgctxt "uresourcestrings.rsmovingorrotatingselection"
@@ -3363,6 +3365,10 @@ msgstr "Ağ"
 msgctxt "uresourcestrings.rsnewimage"
 msgid "New image"
 msgstr "Yeni resim"
+
+#: uresourcestrings.rsnewmask
+msgid "New mask"
+msgstr "Yeni maske"
 
 #: uresourcestrings.rsno
 msgid "No"
@@ -3389,6 +3395,10 @@ msgstr "isimsiz"
 msgid "Normal"
 msgstr "Normal"
 
+#: uresourcestrings.rsnotchromaticchannel
+msgid "This is not a chromatic channel"
+msgstr "Bu bir kromatik kanal değil"
+
 #: uresourcestrings.rsnothingtobedeformed
 msgctxt "uresourcestrings.rsnothingtobedeformed"
 msgid "There is nothing to be deformed"
@@ -3399,14 +3409,23 @@ msgctxt "uresourcestrings.rsnothingtoberetrieved"
 msgid "There is nothing to be retrieved"
 msgstr "Alınacak bir şey yok"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "Bu bir LazPaint komut dosyası değil"
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
-msgstr ""
-"Bu kadar büyük bir görüntüyü bu dosya formatında kaydetmek mantıklı değil."
+msgstr "Bu kadar büyük bir görüntüyü bu dosya formatında kaydetmek mantıklı değil."
 
 #: uresourcestrings.rsnumber
 msgid "№"
 msgstr "Hayır"
+
+#: uresourcestrings.rsok
+#, fuzzy
+msgctxt "uresourcestrings.rsok"
+msgid "OK"
+msgstr "Tamam"
 
 #: uresourcestrings.rsokay
 msgid "Okay"
@@ -3475,6 +3494,12 @@ msgstr "Paleti kullanarak katmanı posterize edin"
 msgid "Preset name"
 msgstr "Ön ayar adı"
 
+#: uresourcestrings.rspreview
+#, fuzzy
+msgctxt "uresourcestrings.rspreview"
+msgid "Preview"
+msgstr "Önizleme"
+
 #: uresourcestrings.rspx
 msgid "px"
 msgstr "px"
@@ -3516,6 +3541,12 @@ msgstr "Çıkarılabilir"
 msgid "Remove color from palette"
 msgstr "Paletten rengi kaldır"
 
+#: uresourcestrings.rsrender
+#, fuzzy
+msgctxt "uresourcestrings.rsrender"
+msgid "Render"
+msgstr "İşle(render)"
+
 #: uresourcestrings.rsrepeatimage
 msgctxt "uresourcestrings.rsrepeatimage"
 msgid "Repeat image"
@@ -3539,9 +3570,21 @@ msgctxt "uresourcestrings.rsrgb"
 msgid "RGB"
 msgstr "RGB"
 
+#: uresourcestrings.rsrightclickfinishshape
+msgid "Use RIGHT click to finish shape"
+msgstr "Şekli tamamlamak için SAĞ tıklayın"
+
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
 msgstr "Kaynağı tanımlamak için SAĞ tıklamayı kullanın"
+
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Dönüşüm merkezini tanımlamak için sağ tıklayın"
+
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Efekti güncellemek için bu komut dosyasını yeniden çalıştırın"
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
@@ -3561,8 +3604,7 @@ msgstr "Belirtilen dosya adıyla kaydet"
 #: uresourcestrings.rssavechanges
 msgctxt "uresourcestrings.rssavechanges"
 msgid "Current bitmap has been modified. Do you want to save changes?"
-msgstr ""
-"Mevcut bit eşlem değiştirildi. Değişiklikleri kaydetmek istiyor musunuz?"
+msgstr "Mevcut bit eşlem değiştirildi. Değişiklikleri kaydetmek istiyor musunuz?"
 
 #: uresourcestrings.rssavepaletteas
 msgid "Save palette as..."
@@ -3572,6 +3614,10 @@ msgstr "Paleti farklı kaydet..."
 msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Komut dosyası"
+
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "Komut dosyası güvenli görünmüyor: %1"
 
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
@@ -3596,9 +3642,29 @@ msgctxt "uresourcestrings.rsspline"
 msgid "Spline"
 msgstr "Spline"
 
+#: uresourcestrings.rssplitcmyk
+msgid "Split CMYK"
+msgstr "CMYK ayır"
+
+#: uresourcestrings.rssplithsl
+msgid "Split HSL"
+msgstr "HSL ayır"
+
+#: uresourcestrings.rssplitrgb
+msgid "Split RGB"
+msgstr "RGB ayır"
+
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
 msgstr "Cihaz"
+
+#: uresourcestrings.rsstroke
+msgid "Stroke"
+msgstr "Çizgi"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "Bu komut dosyasını çalıştırmak istediğinizden emin misiniz? Bu komut dosyasında kullanılan aşağıdaki modüller güvensiz olabilir: %1"
 
 #: uresourcestrings.rstextoutline
 msgctxt "uresourcestrings.rstextoutline"
@@ -3612,16 +3678,11 @@ msgstr "Doku eşleme"
 
 #: uresourcestrings.rstherearenocheckeditems
 msgid "There are no checked items. Check some items or add some new ones."
-msgstr ""
-"Kontrol edilen öğe yok. Bazı öğeleri kontrol edin veya yenilerini ekleyin."
+msgstr "Kontrol edilen öğe yok. Bazı öğeleri kontrol edin veya yenilerini ekleyin."
 
 #: uresourcestrings.rsthereisnofilenamegivenforthisfileusesaveas
-msgid ""
-"There is no file name given for this file. Use \"Save as...\" from the main "
-"menu."
-msgstr ""
-"Bu dosya için dosya adı verilmemiştir. Ana menüden \"Farklı kaydet...\" "
-"seçeneğini kullanın."
+msgid "There is no file name given for this file. Use \"Save as...\" from the main menu."
+msgstr "Bu dosya için dosya adı verilmemiştir. Ana menüden \"Farklı kaydet...\" seçeneğini kullanın."
 
 #: uresourcestrings.rstodo
 msgid "To do"
@@ -3687,6 +3748,22 @@ msgstr "Bilinmeyen orijinal"
 msgid "Vectorial layer"
 msgstr "Vektörel katman"
 
+#: uresourcestrings.rsversion
+msgid "Version"
+msgstr "Sürüm"
+
+#: uresourcestrings.rsverticalsize
+msgid "Vertical size"
+msgstr "Dikey boyut"
+
+#: uresourcestrings.rsvisible
+msgid "Visible"
+msgstr "Görünür"
+
+#: uresourcestrings.rsyellow
+msgid "Yellow"
+msgstr "Sarı"
+
 #: uresourcestrings.rsyes
 msgid "Yes"
 msgstr "Tamam"
@@ -3700,3 +3777,4 @@ msgstr "Katman istifini içe yakınlaştır"
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
 msgstr "Katman istifini yakınlaştır"
+

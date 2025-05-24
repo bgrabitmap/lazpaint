@@ -556,7 +556,7 @@ implementation
 
 uses BGRAWriteLzp, BGRAReadLzp, BGRAStreamLayers, BGRALzpCommon, ugraph, Types,
   BGRATransform, zstream, LCVectorRectShapes, BGRAPen, LCVectorialFill,
-  BGRAGradientOriginal;
+  BGRAGradientOriginal, LCSuperformulaOriginal;
 
 function IsInverseImageDiff(ADiff1, ADiff2: TCustomImageDifference): boolean;
 begin
@@ -2673,7 +2673,8 @@ begin
     self.duplicateId := LayeredBitmap.ProduceLayerUniqueId;
     self.duplicateOriginal := useOriginal and
       ((LayeredBitmap.LayerOriginalClass[SelectedImageLayerIndex]=TVectorOriginal) or
-       (LayeredBitmap.LayerOriginalClass[SelectedImageLayerIndex]=TBGRALayerGradientOriginal));
+       (LayeredBitmap.LayerOriginalClass[SelectedImageLayerIndex]=TBGRALayerGradientOriginal) or
+       (LayeredBitmap.LayerOriginalClass[SelectedImageLayerIndex]=TSuperformulaOriginal));
     if self.duplicateOriginal then
       CreateGUID(duplicateGuid);
   end;

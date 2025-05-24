@@ -426,11 +426,11 @@ msgstr "Anzahl der Seiten:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Hypozykloide"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Spitzen:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -764,6 +764,10 @@ msgstr "Änderungen prüfen"
 #: tfmain.exportpicturedialog.title
 msgid "Export as..."
 msgstr "Ausführen als..."
+
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Überprüfen, ob Skripte sicher sind"
 
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
@@ -1465,7 +1469,7 @@ msgstr "Perlin-Rauschen (zyklisch)"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Hypozykloide..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -1494,6 +1498,11 @@ msgstr "Spuren im Schnee"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Stein"
+
+#: tfmain.rendersuperformula.caption
+msgctxt "tfmain.rendersuperformula.caption"
+msgid "SuperFormula..."
+msgstr "Superformel..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -2312,6 +2321,7 @@ msgid "Saturation"
 msgstr "Sättigung"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Hintergrundfarbe"
 
@@ -2320,6 +2330,7 @@ msgid "Keep"
 msgstr "Behalten"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Stiftfarbe"
 
@@ -2388,6 +2399,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "Seitenverhältnis beibehalten"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Bildgröße"
@@ -2429,6 +2446,12 @@ msgstr "Drucker und Papier:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Rechts:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2536,6 +2559,7 @@ msgid "Quality:"
 msgstr "Qualität:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 
@@ -2607,6 +2631,67 @@ msgstr "Farbton"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Sättigung"
+
+#: tfsuperformula.caption
+msgctxt "tfsuperformula.caption"
+msgid "Superformula"
+msgstr "Superformel"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Hintergrundfarbe"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Stiftfarbe"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Rational"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Größe"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Spike-Zählung"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Spike-Überlappung"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Breite"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2975,6 +3060,7 @@ msgid "File not saved"
 msgstr "Datei nicht gespeichert"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Größe"
 
@@ -3238,6 +3324,7 @@ msgid "Make monochromatic"
 msgstr "Monochromatisch machen"
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
+#, fuzzy, badformat
 msgid "Make %1-colors palette from image"
 msgstr "Eine %1-Farben-Palette des Bildes erstellen"
 
@@ -3325,6 +3412,10 @@ msgstr "Es gibt nichts zu verformen"
 #: uresourcestrings.rsnothingtoberetrieved
 msgid "There is nothing to be retrieved"
 msgstr "Es gibt nichts zurückzuholen"
+
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "Dies ist kein LazPaint-Skript"
 
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
@@ -3490,6 +3581,14 @@ msgstr "Verwenden Sie die RECHTE Maustaste, um die Form zu beenden"
 msgid "Use RIGHT click to define source"
 msgstr "RECHTS-Klick um die Quelle zu wählen"
 
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "RECHTS-Klick um den Mittelpunkt der Transformation festzulegen"
+
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Führen Sie dieses Skript erneut aus, um den Effekt zu aktualisieren"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"
@@ -3517,6 +3616,10 @@ msgstr "Palette speichern als..."
 msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Skript"
+
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "Die Skriptdatei scheint nicht sicher zu sein: %1"
 
 #: uresourcestrings.rsselectblendoperation
 #, fuzzy
@@ -3561,6 +3664,10 @@ msgstr "Gerät"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "Strich"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "Sind Sie sicher, dass Sie dieses Skript ausführen möchten? Die folgenden Module, die von diesem Skript verwendet werden, könnten unsicher sein: %1"
 
 #: uresourcestrings.rstextoutline
 #, fuzzy
@@ -3654,7 +3761,7 @@ msgid "Vertical size"
 msgstr "Vertikal Größe"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
+msgid "Visible"
 msgstr "Sichtbar"
 
 #: uresourcestrings.rsyellow

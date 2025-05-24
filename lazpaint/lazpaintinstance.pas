@@ -263,6 +263,7 @@ type
     function ShowSharpenDlg(AFilterConnector: TObject): TScriptResult; override;
     function ShowPosterizeDlg(AParameters: TVariableSet): TScriptResult; override;
     function ShowHypocycloidDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult; override;
+    function ShowSuperformulaDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult; override;
     procedure ShowPrintDlg; override;
     function HideTopmost: TTopMostInfo; override;
     procedure ShowTopmost(AInfo: TTopMostInfo); override;
@@ -304,7 +305,7 @@ uses Types, Dialogs, FileUtil, StdCtrls, LCLIntf, BGRAUTF8, UTranslation,
 
      URadialBlur, UMotionBlur, UEmboss, UTwirl, UWaveDisplacement,
      unewimage, uresample, UPixelate, unoisefilter, ufilters,
-     USharpen, uposterize, uhypocycloid, UPhongFilter, UFilterFunction,
+     USharpen, uposterize, uhypocycloid, USuperformula, UPhongFilter, UFilterFunction,
      uprint, USaveOption, UFormRain,
      {$IFDEF DARWIN}Graphics, BGRAGraphics,{$ENDIF}
 
@@ -537,10 +538,19 @@ begin
 end;
 
 procedure TLazPaintInstance.UseConfig(ini: TInifile);
+var
+  c: TBGRAPixel;
 begin
   FreeAndNil(FConfig);
   BlackAndWhite := ini.ReadBool('General','BlackAndWhite',BlackAndWhite);
   FConfig := TLazPaintConfig.Create(ini,LazPaintVersionStr);
+  // make sure default pen color is not fully or almost fully transparent
+  if FConfig.DefaultToolForeColor.Alpha < 32 then
+  begin
+    c := FConfig.DefaultToolForeColor;
+    c.alpha := 255;
+    FConfig.SetDefaultToolForeColor(c);
+  end;
   ToolManager.LoadFromConfig;
   FGridVisible := Config.DefaultGridVisible;
   FDockLayersAndColors:= Config.DefaultDockLayersAndColors;
@@ -1896,6 +1906,7 @@ begin
   try
     FScriptTempFileNames := TStringList.Create;
     p := TPythonScript.Create;
+    p.CheckScriptSecure:= Config.DefaultCheckScriptsSecure;
     if Trim(ACaption).Length > 0 then
       FScriptName:= Trim(ACaption)
       else FScriptName := AFilename;

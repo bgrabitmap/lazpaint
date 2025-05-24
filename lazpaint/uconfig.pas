@@ -108,6 +108,9 @@ type
     function DefaultScriptDirectory: string;
     procedure SetDefaultScriptDirectory(value: string);
 
+    function DefaultCheckScriptsSecure: boolean;
+    procedure SetDefaultCheckScriptsSecure(value: boolean);
+
     function DefaultIconSize(defaultValue: integer): integer;
     procedure SetDefaultIconSize(value: integer);
     function GetDarkTheme: boolean;
@@ -308,6 +311,9 @@ type
     function DefaultCuspCount: integer;
     procedure SetDefaultCuspCount(value: integer);
 
+    function DefaultSuperformulaParameters: string;
+    procedure SetDefaultSuperformulaParameters(value: string);
+
     //twirl config
     function DefaultTwirlRadius: double;
     procedure SetDefaultTwirlRadius(value: double);
@@ -427,12 +433,14 @@ end;
 
 function TLazPaintConfig.DefaultImageWidth: integer;
 begin
-  result := iniOptions.ReadInteger('General','DefaultImageWidth',640);
+  result := iniOptions.ReadInteger('General','DefaultImageWidth',
+    round(640 * ScreenInfo.PixelsPerInchX / 96));
 end;
 
 function TLazPaintConfig.DefaultImageHeight: integer;
 begin
-  result := iniOptions.ReadInteger('General','DefaultImageHeight',480);
+  result := iniOptions.ReadInteger('General','DefaultImageHeight',
+    round(480 * ScreenInfo.PixelsPerInchX / 96));
 end;
 
 procedure TLazPaintConfig.SetDefaultImageWidth(value: integer);
@@ -821,7 +829,7 @@ end;
 
 function TLazPaintConfig.DefaultToolForeColor: TBGRAPixel;
 begin
-  result := StrToBGRA(iniOptions.ReadString('Tool','ForeColor','00000080'));
+  result := StrToBGRA(iniOptions.ReadString('Tool','ForeColor','000000FF'));
 end;
 
 function TLazPaintConfig.DefaultToolBackColor: TBGRAPixel;
@@ -881,7 +889,8 @@ end;
 
 function TLazPaintConfig.DefaultToolPenWidth: single;
 begin
-  result := iniOptions.ReadFloat('Tool','PenWidth',5);
+  result := iniOptions.ReadFloat('Tool','PenWidth',
+    round(5 * ScreenInfo.PixelsPerInchX / 96));
 end;
 
 procedure TLazPaintConfig.SetDefaultToolPenWidth(value: single);
@@ -891,7 +900,8 @@ end;
 
 function TLazPaintConfig.DefaultToolEraserWidth: single;
 begin
-  result := iniOptions.ReadFloat('Tool','EraserWidth',10);
+  result := iniOptions.ReadFloat('Tool','EraserWidth',
+    round(10 * ScreenInfo.PixelsPerInchX / 96));
 end;
 
 procedure TLazPaintConfig.SetDefaultToolEraserWidth(value: single);
@@ -1296,6 +1306,16 @@ end;
 procedure TLazPaintConfig.SetDefaultCuspCount(value: integer);
 begin
   iniOptions.WriteInteger('Filter','CuspCount',value);
+end;
+
+function TLazPaintConfig.DefaultSuperformulaParameters: string;
+begin
+  result := iniOptions.ReadString('Filter','SuperformulaParameters','');
+end;
+
+procedure TLazPaintConfig.SetDefaultSuperformulaParameters(value: string);
+begin
+  iniOptions.WriteString('Filter','SuperformulaParameters',value);
 end;
 
 function TLazPaintConfig.DefaultTwirlRadius: double;
@@ -1738,6 +1758,16 @@ end;
 procedure TLazPaintConfig.SetDefaultScriptDirectory(value: string);
 begin
   iniOptions.WriteString('General','ScriptDirectory',ChompPathDelim(value))
+end;
+
+function TLazPaintConfig.DefaultCheckScriptsSecure: boolean;
+begin
+  result := iniOptions.ReadBool('General', 'CheckScriptsSecure', true);
+end;
+
+procedure TLazPaintConfig.SetDefaultCheckScriptsSecure(value: boolean);
+begin
+  iniOptions.WriteBool('General', 'CheckScriptsSecure', value);
 end;
 
 function TLazPaintConfig.DefaultIconSize(defaultValue: integer): integer;

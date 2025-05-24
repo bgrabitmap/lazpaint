@@ -422,11 +422,11 @@ msgstr "Aantal zijden:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Hypocycloïde"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Knobbels:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -758,6 +758,10 @@ msgstr "Wijzigingen valideren"
 #: tfmain.exportpicturedialog.title
 msgid "Export as..."
 msgstr "Exporteren als..."
+
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Controleren of scripts veilig zijn"
 
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
@@ -1455,7 +1459,7 @@ msgstr "Cyclische Perlin-ruis"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Hypocycloïde..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -1484,6 +1488,10 @@ msgstr "Sneeuwafdruk"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Steen"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "Superformule..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -2300,6 +2308,7 @@ msgid "Saturation"
 msgstr "Verzadiging"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Achtergrondkleur"
 
@@ -2308,6 +2317,7 @@ msgid "Keep"
 msgstr "Behouden"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Penkleur"
 
@@ -2376,6 +2386,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "Aspectverhouding behouden"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Afbeeldingsgrootte"
@@ -2417,6 +2433,12 @@ msgstr "Printer en papier:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Rechts:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2524,6 +2546,7 @@ msgid "Quality:"
 msgstr "Kwaliteit:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 
@@ -2595,6 +2618,66 @@ msgstr "Kleurtint"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Verzadiging"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "Superformule"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Achtergrondkleur"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Penkleur"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Rationaal"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Grootte"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Spike telling"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Spike-overlap"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Breedte"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2961,6 +3044,7 @@ msgid "File not saved"
 msgstr "Bestand niet opgeslaan"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Grootte"
 
@@ -3310,6 +3394,10 @@ msgstr "Er is niets om te vervormen"
 msgid "There is nothing to be retrieved"
 msgstr "Er is niets om op te halen"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "Dit is geen LazPaint-script"
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "Het is onredelijk om zo'n grote afbeelding in dit bestandsformaat op te slaan."
@@ -3472,6 +3560,14 @@ msgstr "Gebruik RECHTS klikken om de vorm te finaliseren"
 msgid "Use RIGHT click to define source"
 msgstr "Gebruik RECHTS klikken om de bron te definiëren"
 
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Gebruik RECHTS klikken om het transformatiecentrum te definiëren"
+
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Voer dit script opnieuw uit om het effect bij te werken"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"
@@ -3499,6 +3595,10 @@ msgstr "Palet opslaan als..."
 msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Script"
+
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "Het scriptbestand lijkt niet veilig te zijn: %1"
 
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
@@ -3542,6 +3642,10 @@ msgstr "Apparaat"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "Penkleur"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "Weet u zeker dat u dit script wilt uitvoeren? De volgende modules die door dit script worden gebruikt, kunnen onveilig zijn: %1"
 
 #: uresourcestrings.rstextoutline
 msgctxt "uresourcestrings.rstextoutline"
@@ -3634,7 +3738,7 @@ msgid "Vertical size"
 msgstr "Verticale afmeting"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
+msgid "Visible"
 msgstr "Zichtbaar"
 
 #: uresourcestrings.rsyellow

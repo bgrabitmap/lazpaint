@@ -30,8 +30,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="7"/>
-      <MinorVersionNr Value="2"/>
-      <RevisionNr Value="2"/>
+      <MinorVersionNr Value="3"/>
       <CharSet Value="04B0"/>
       <StringTable CompanyName="http://sourceforge.net/projects/lazpaint/" FileDescription="LazPaint" InternalName="lazpaint" OriginalFilename="lazpaint.exe" ProductName="LazPaint"/>
     </VersionInfo>
@@ -418,11 +417,11 @@
     <RequiredPackages Count="5">
       <Item1>
         <PackageName Value="BGRABitmapPack"/>
-        <MinVersion Major="11" Minor="5" Release="2" Valid="True"/>
+        <MinVersion Major="11" Minor="6" Release="6" Valid="True"/>
       </Item1>
       <Item2>
         <PackageName Value="bgracontrols"/>
-        <MinVersion Major="7" Minor="5" Valid="True"/>
+        <MinVersion Major="9" Release="2" Valid="True"/>
       </Item2>
       <Item3>
         <PackageName Value="lazpaintcontrols"/>
@@ -435,7 +434,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="108">
+    <Units Count="109">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -1069,6 +1068,14 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit107>
+      <Unit108>
+        <Filename Value="dialog\filter\usuperformula.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FSuperformula"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="USuperformula"/>
+      </Unit108>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

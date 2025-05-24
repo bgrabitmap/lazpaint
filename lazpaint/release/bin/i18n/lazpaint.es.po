@@ -415,11 +415,11 @@ msgstr "Número de lados:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Hipocicloide"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Cúspides:"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -751,6 +751,10 @@ msgstr "Validar modificaciones"
 #: tfmain.exportpicturedialog.title
 msgid "Export as..."
 msgstr "Exportar como..."
+
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr "Verificar que los scripts sean seguros"
 
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
@@ -1448,7 +1452,7 @@ msgstr "Ruido Perlin Cíclico"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Hipocicloide..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -1477,6 +1481,10 @@ msgstr "Impresión en la nieve"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Piedra"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "SuperFórmula..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -2294,6 +2302,7 @@ msgid "Saturation"
 msgstr "Saturación"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Color de fondo"
 
@@ -2302,6 +2311,7 @@ msgid "Keep"
 msgstr "Mantener"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Color de pluma"
 
@@ -2370,6 +2380,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "Mantener aspecto"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Tamaño de imagen"
@@ -2411,6 +2427,12 @@ msgstr "Impresora y papel:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Derecha:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2518,6 +2540,7 @@ msgid "Quality:"
 msgstr "Calidad:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 
@@ -2589,6 +2612,66 @@ msgstr "Matiz"
 msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Saturación"
+
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "Superfórmula"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr ""
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr ""
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Color de fondo"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr ""
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr ""
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr ""
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Color de pluma"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Racional"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Tamaño"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Recuento de picos"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Superposición de picos"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Ancho"
 
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
@@ -2963,6 +3046,7 @@ msgid "File not saved"
 msgstr "Fichero no guardado"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Tamaño"
 
@@ -3321,6 +3405,10 @@ msgctxt "uresourcestrings.rsnothingtoberetrieved"
 msgid "There is nothing to be retrieved"
 msgstr "No hay nada para ser recuperado"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr "Este no es un script de LazPaint"
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "No es razonable guardar una imagen tan grande con este formato."
@@ -3485,6 +3573,14 @@ msgstr "Usa clic DERECHO para acabar la forma"
 msgid "Use RIGHT click to define source"
 msgstr "Usa clic DERECHO para definir fuente"
 
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Usa clic DERECHO para establecer el centro de la transformación"
+
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Vuelva a ejecutar este script para actualizar el efecto"
+
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
 msgid "Saturation"
@@ -3513,6 +3609,10 @@ msgstr "Guardar paleta como..."
 msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Guión"
+
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr "El archivo de script no parece ser seguro: %1"
 
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
@@ -3556,6 +3656,10 @@ msgstr "Dispositivo"
 #: uresourcestrings.rsstroke
 msgid "Stroke"
 msgstr "Trazo"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
+msgstr "¿Estás seguro de que deseas ejecutar este script? Los siguientes módulos utilizados por este script pueden ser inseguros: %1"
 
 #: uresourcestrings.rstextoutline
 msgctxt "uresourcestrings.rstextoutline"
@@ -3648,7 +3752,7 @@ msgid "Vertical size"
 msgstr "Tamaño vertical"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
+msgid "Visible"
 msgstr "Visible"
 
 #: uresourcestrings.rsyellow

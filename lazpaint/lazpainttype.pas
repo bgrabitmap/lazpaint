@@ -11,7 +11,7 @@ uses
   {$IFDEF LINUX}, InterfaceBase{$ENDIF};
 
 const
-  LazPaintVersion = 7020200;
+  LazPaintVersion = 7030000;
 
   function LazPaintVersionStr: string;
 
@@ -74,7 +74,7 @@ type
                     pfSphere, pfTwirl, pfWaveDisplacement, pfCylinder, pfPlane,
                     pfPerlinNoise,pfCyclicPerlinNoise,pfClouds,pfCustomWater,pfWater,pfRain,pfWood,pfWoodVertical,pfPlastik,pfMetalFloor,pfCamouflage,
                     pfSnowPrint,pfStone,pfRoundStone,pfMarble,
-                    pfHypocycloid);
+                    pfHypocycloid, pfSuperformula);
 
 const
   PictureFilterStr : array[TPictureFilter] of string =
@@ -85,7 +85,7 @@ const
                     'Sphere', 'Twirl', 'WaveDisplacement', 'Cylinder', 'Plane',
                     'PerlinNoise','CyclicPerlinNoise','Clouds','CustomWater','Water','Rain','Wood','WoodVertical','Plastik','MetalFloor','Camouflage',
                     'SnowPrint','Stone','RoundStone','Marble',
-                    'Hypocycloid');
+                    'Hypocycloid', 'Superformula');
 
   IsColoredFilter: array[TPictureFilter] of boolean =
                    (false,
@@ -95,7 +95,7 @@ const
                     false, false, false, false, false,
                     false,false,true,true,true,true,true,true,true,true,true,
                     true,true,true,true,
-                    true);
+                    true, true);
 
 const
   MinZoomForGrid = 4;
@@ -104,7 +104,7 @@ type
   TVSCursorPosition = record
      bounds: TRect;
      c: TPointF;
-     rx,ry: single;
+     rx,ry,penWidth: single;
   end;
   ArrayOfLayerId = array of integer;
 
@@ -295,6 +295,7 @@ type
     function ShowSharpenDlg(AFilterConnector: TObject): TScriptResult; virtual; abstract;
     function ShowPosterizeDlg(AParameters: TVariableSet): TScriptResult; virtual; abstract;
     function ShowHypocycloidDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult; virtual; abstract;
+    function ShowSuperformulaDlg(AInstance: TLazPaintCustomInstance; AParameters: TVariableSet): TScriptResult; virtual; abstract;
     procedure ShowPrintDlg; virtual; abstract;
     function OpenImage (FileName: string; AddToRecent: Boolean= True): boolean; virtual; abstract;
     procedure AddToImageList(const FileNames: array of String); virtual; abstract;

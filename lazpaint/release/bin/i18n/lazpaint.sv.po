@@ -384,7 +384,7 @@ msgstr "HSL"
 
 #: tffilterfunction.tabsheet_lab.caption
 msgid "Lab"
-msgstr ""
+msgstr "Lab"
 
 #: tffilterfunction.tabsheet_rgb.caption
 msgctxt "tffilterfunction.tabsheet_rgb.caption"
@@ -415,11 +415,11 @@ msgstr "Antal sidor:"
 
 #: tfhypocycloid.caption
 msgid "Hypocycloid"
-msgstr ""
+msgstr "Hypocykloid"
 
 #: tfhypocycloid.label_amount.caption
 msgid "Cusps:"
-msgstr ""
+msgstr "Udd"
 
 #: tfimagelist.caption
 msgid "Image List"
@@ -452,22 +452,22 @@ msgstr "Avmarkera icke-existerande filer"
 #: tfimagelist.stringgrid1.columns[0].title.caption
 msgctxt "tfimagelist.stringgrid1.columns[0].title.caption"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[1].title.caption
 msgctxt "tfimagelist.stringgrid1.columns[1].title.caption"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[2].title.caption
 msgctxt "tfimagelist.stringgrid1.columns[2].title.caption"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.stringgrid1.columns[3].title.caption
 msgctxt "tfimagelist.stringgrid1.columns[3].title.caption"
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: tfimagelist.tbaddfiles.hint
 msgid "Add images to list"
@@ -599,11 +599,11 @@ msgstr "Skifta färger..."
 
 #: tfmain.combobox_arrowend.hint
 msgid "Ending arrow"
-msgstr ""
+msgstr "Pil i slutet"
 
 #: tfmain.combobox_arrowstart.hint
 msgid "Starting arrow"
-msgstr ""
+msgstr "Pil i början"
 
 #: tfmain.combobox_penstyle.hint
 msgid "Pen style"
@@ -754,6 +754,10 @@ msgstr "Bekräfta ändringar"
 msgid "Export as..."
 msgstr "Exportera som..."
 
+#: tfmain.filecheckscriptssecure.caption
+msgid "Check scripts are secure"
+msgstr ""
+
 #: tfmain.filechooseentry.caption
 msgid "Choose entry..."
 msgstr "Välj post..."
@@ -798,11 +802,11 @@ msgstr "Skriva ut..."
 
 #: tfmain.filequicksave.caption
 msgid "Quick save"
-msgstr ""
+msgstr "Spara snabbt"
 
 #: tfmain.filequicksave.hint
 msgid "Save current file without dialogs"
-msgstr ""
+msgstr "Spara aktuell fil utan dialogrutor"
 
 #: tfmain.filequit.hint
 msgctxt "TFMAIN.FILEQUIT.HINT"
@@ -1173,7 +1177,7 @@ msgstr "Sudda"
 #: tfmain.label_grid.caption
 msgctxt "TFMAIN.LABEL_GRID.CAPTION"
 msgid "Grid"
-msgstr "Nät"
+msgstr "Rutnät"
 
 #: tfmain.label_gridx.caption
 msgctxt "tfmain.label_gridx.caption"
@@ -1453,7 +1457,7 @@ msgstr "Cyklisk Perlinbrus"
 
 #: tfmain.renderhypocycloid.caption
 msgid "Hypocycloid..."
-msgstr ""
+msgstr "Hypocykloid..."
 
 #: tfmain.rendermarble.caption
 msgid "Marble"
@@ -1482,6 +1486,10 @@ msgstr "Snöavtryck"
 #: tfmain.renderstone.caption
 msgid "Stone"
 msgstr "Sten"
+
+#: tfmain.rendersuperformula.caption
+msgid "SuperFormula..."
+msgstr "Superformel..."
 
 #: tfmain.renderwater.caption
 msgctxt "tfmain.renderwater.caption"
@@ -1892,7 +1900,7 @@ msgstr "Progressiv flodfyllning"
 
 #: tfmain.tool_textalignbottom.hint
 msgid "Align bottom"
-msgstr ""
+msgstr "Justera mot botten"
 
 #: tfmain.tool_textaligncenter.hint
 msgid "Center"
@@ -1904,7 +1912,7 @@ msgstr "Justera till vänster"
 
 #: tfmain.tool_textalignmiddle.hint
 msgid "Center vertically"
-msgstr ""
+msgstr "Centrera vertikalt"
 
 #: tfmain.tool_textalignright.hint
 msgid "Align right"
@@ -1912,15 +1920,15 @@ msgstr "Justera till höger"
 
 #: tfmain.tool_textaligntop.hint
 msgid "Align top"
-msgstr ""
+msgstr "Justera mot toppen"
 
 #: tfmain.tool_textbidirectional.hint
 msgid "Bidirectional"
-msgstr ""
+msgstr "Dubbelriktad"
 
 #: tfmain.tool_textbold.hint
 msgid "Bold"
-msgstr ""
+msgstr "Fetstil"
 
 #: tfmain.tool_textfont.hint
 msgctxt "TFMAIN.TOOL_TEXTFONT.HINT"
@@ -1929,11 +1937,11 @@ msgstr "Välj typsnitt..."
 
 #: tfmain.tool_textitalic.hint
 msgid "Italic"
-msgstr ""
+msgstr "Kursiv"
 
 #: tfmain.tool_textltr.hint
 msgid "Left to right"
-msgstr ""
+msgstr "Vänster till höger"
 
 #: tfmain.tool_textoutline.hint
 msgctxt "TFMAIN.TOOL_TEXTOUTLINE.HINT"
@@ -1947,7 +1955,7 @@ msgstr "Phongskuggning för text"
 
 #: tfmain.tool_textrtl.hint
 msgid "Right to left"
-msgstr ""
+msgstr "Höger till vänster"
 
 #: tfmain.tool_textshadow.hint
 msgctxt "TFMAIN.TOOL_TEXTSHADOW.HINT"
@@ -1956,11 +1964,11 @@ msgstr "Textskugga"
 
 #: tfmain.tool_textstrikeout.hint
 msgid "Strikeout"
-msgstr ""
+msgstr "Överstruken"
 
 #: tfmain.tool_textunderline.hint
 msgid "Underline"
-msgstr ""
+msgstr "Understruken"
 
 #: tfmain.viewcolors.caption
 msgctxt "TFMAIN.VIEWCOLORS.CAPTION"
@@ -2025,7 +2033,7 @@ msgstr "Anpassa zoom efter fönstret"
 #: tfmain.viewzoomin.hint
 msgctxt "TFMAIN.VIEWZOOMIN.HINT"
 msgid "Zoom in"
-msgstr "Zoom ut"
+msgstr "Zoom in"
 
 #: tfmain.viewzoomoriginal.caption
 msgctxt "TFMAIN.VIEWZOOMORIGINAL.CAPTION"
@@ -2039,7 +2047,7 @@ msgstr "Zooma till urpsrunglig pixelstorlek"
 #: tfmain.viewzoomout.hint
 msgctxt "TFMAIN.VIEWZOOMOUT.HINT"
 msgid "Zoom out"
-msgstr "Zoom in"
+msgstr "Zoom ut"
 
 #: tfmotionblur.caption
 msgctxt "tfmotionblur.caption"
@@ -2300,6 +2308,7 @@ msgid "Saturation"
 msgstr "Intensitet"
 
 #: tfphongfilter.radio_usebackcolor.caption
+msgctxt "tfphongfilter.radio_usebackcolor.caption"
 msgid "Back color"
 msgstr "Bakgrundsfärg"
 
@@ -2308,6 +2317,7 @@ msgid "Keep"
 msgstr "Behåll"
 
 #: tfphongfilter.radio_usepencolor.caption
+msgctxt "tfphongfilter.radio_usepencolor.caption"
 msgid "Pen color"
 msgstr "Pennfärg"
 
@@ -2377,6 +2387,12 @@ msgctxt "tfprint.checkbox_ratio.caption"
 msgid "Keep aspect ratio"
 msgstr "Behåll bildformat"
 
+#: tfprint.combobox_orientation.text
+#, fuzzy
+msgctxt "tfprint.combobox_orientation.text"
+msgid "0"
+msgstr "0"
+
 #: tfprint.groupbox_imagesize.caption
 msgid "Image size"
 msgstr "Bildstorlek"
@@ -2420,6 +2436,12 @@ msgstr "Skrivare och papper:"
 #: tfprint.label_right.caption
 msgid "Right:"
 msgstr "Höger:"
+
+#: tfprint.label_selectedprinterandpaper.caption
+#, fuzzy
+msgctxt "tfprint.label_selectedprinterandpaper.caption"
+msgid "."
+msgstr "."
 
 #: tfprint.label_top.caption
 msgid "Top:"
@@ -2521,13 +2543,14 @@ msgstr "Ditrering"
 
 #: tfsaveoption.checkbox_lossless.caption
 msgid "Lossless"
-msgstr ""
+msgstr "Förlustfri"
 
 #: tfsaveoption.label1.caption
 msgid "Quality:"
 msgstr "Kvalitet:"
 
 #: tfsaveoption.label_0.caption
+msgctxt "tfsaveoption.label_0.caption"
 msgid "0"
 msgstr "0"
 
@@ -2600,6 +2623,66 @@ msgctxt "TFSHIFTCOLORS.LABEL2.CAPTION"
 msgid "Saturation"
 msgstr "Intensitet"
 
+#: tfsuperformula.caption
+msgid "Superformula"
+msgstr "Superformel"
+
+#: tfsuperformula.label_a.caption
+msgid "a"
+msgstr "a"
+
+#: tfsuperformula.label_b.caption
+msgid "b"
+msgstr "b"
+
+#: tfsuperformula.label_backcolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_backcolor.caption"
+msgid "Back color"
+msgstr "Bakgrundsfärg"
+
+#: tfsuperformula.label_n1.caption
+msgid "n1"
+msgstr "n1"
+
+#: tfsuperformula.label_n2.caption
+msgid "n2"
+msgstr "n2"
+
+#: tfsuperformula.label_n3.caption
+msgid "n3"
+msgstr "n3"
+
+#: tfsuperformula.label_pencolor.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_pencolor.caption"
+msgid "Pen color"
+msgstr "Pennfärg"
+
+#: tfsuperformula.label_rational.caption
+msgid "Rational"
+msgstr "Rationellt"
+
+#: tfsuperformula.label_size.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_size.caption"
+msgid "Size"
+msgstr "Storlek"
+
+#: tfsuperformula.label_spikecount.caption
+msgid "Spike count"
+msgstr "Spikräkning"
+
+#: tfsuperformula.label_spikeoverlap.caption
+msgid "Spike overlap"
+msgstr "Spiköverlappning"
+
+#: tfsuperformula.label_width.caption
+#, fuzzy
+msgctxt "tfsuperformula.label_width.caption"
+msgid "Width"
+msgstr "Bredd"
+
 #: tftoolbox.caption
 msgctxt "tftoolbox.caption"
 msgid "Tools"
@@ -2646,7 +2729,7 @@ msgstr "Lägg till filer i bildbehandlingslistan"
 
 #: uresourcestrings.rsaddtopalette
 msgid "Add color to palette"
-msgstr "Lägg till färg till palett"
+msgstr "Lägg till färg i palett"
 
 #: uresourcestrings.rsalignshape
 msgid "Align shape"
@@ -2692,7 +2775,7 @@ msgstr "Bitmap"
 
 #: uresourcestrings.rsblack
 msgid "Black"
-msgstr ""
+msgstr "Svart"
 
 #: uresourcestrings.rsblendopnotusedforbackground
 msgid "The blend operation is applied only if there is a layer underneath"
@@ -2738,7 +2821,7 @@ msgstr "CD"
 
 #: uresourcestrings.rschannels
 msgid "Channels"
-msgstr ""
+msgstr "Kanaler"
 
 #: uresourcestrings.rsclearpalette
 msgid "Clear palette"
@@ -2758,7 +2841,7 @@ msgstr "Färgbeskrivning: klicka för att skriva in en färg med tangentbordet g
 
 #: uresourcestrings.rscoloroverlay
 msgid "Color overlay"
-msgstr ""
+msgstr "Färgöverlägg"
 
 #: uresourcestrings.rscolors
 msgctxt "uresourcestrings.rscolors"
@@ -2801,7 +2884,7 @@ msgstr "Korrigera CW Färgton"
 
 #: uresourcestrings.rscosine
 msgid "Cosine"
-msgstr "Cosine"
+msgstr "Cosinus"
 
 #: uresourcestrings.rscrop
 msgid "Crop"
@@ -2813,7 +2896,7 @@ msgstr "CTRL"
 
 #: uresourcestrings.rscurrentlayernotsplit
 msgid "Current layer is not split"
-msgstr ""
+msgstr "Aktuellt lager är inte uppdelat"
 
 #: uresourcestrings.rscurvemodehint
 msgid "Press S or X to set the curve mode of the last point"
@@ -2821,7 +2904,7 @@ msgstr "Tryck S eller X för att sätta den sista punktens banläge"
 
 #: uresourcestrings.rscyan
 msgid "Cyan"
-msgstr ""
+msgstr "Cyan"
 
 #: uresourcestrings.rsdefaultpalette
 msgid "Default palette"
@@ -2856,7 +2939,7 @@ msgstr "Ladda ner"
 
 #: uresourcestrings.rsdropshadow
 msgid "Drop shadow"
-msgstr ""
+msgstr "Fallskugga"
 
 #: uresourcestrings.rsduplicateimage
 msgid "Duplicate image"
@@ -2967,6 +3050,7 @@ msgid "File not saved"
 msgstr "Filen har inte sparats"
 
 #: uresourcestrings.rsfilesize
+msgctxt "uresourcestrings.rsfilesize"
 msgid "Size"
 msgstr "Storlek"
 
@@ -3002,7 +3086,7 @@ msgstr "Följande fel har inträffat:"
 
 #: uresourcestrings.rsfractaltree
 msgid "Fractal tree"
-msgstr ""
+msgstr "Fraktalträd"
 
 #: uresourcestrings.rsframes
 msgid "Frames"
@@ -3018,7 +3102,7 @@ msgstr "Grön"
 
 #: uresourcestrings.rshalfcosine
 msgid "Half-cosine"
-msgstr "Halv-cosine"
+msgstr "Halv-cosinus"
 
 #: uresourcestrings.rsholdkeyforsquare
 msgid "Hold %1 to draw a square or a circle"
@@ -3090,11 +3174,11 @@ msgstr "Information"
 
 #: uresourcestrings.rsinnerlight
 msgid "Inner light"
-msgstr ""
+msgstr "Inre ljus"
 
 #: uresourcestrings.rsinnershadow
 msgid "Inner shadow"
-msgstr ""
+msgstr "Inre skugga"
 
 #: uresourcestrings.rsintensity
 msgctxt "uresourcestrings.rsintensity"
@@ -3107,7 +3191,7 @@ msgstr "Internt fel"
 
 #: uresourcestrings.rsinvalidangle
 msgid "Invalid angle"
-msgstr ""
+msgstr "Ogiltig vinkel"
 
 #: uresourcestrings.rsinvalidname
 msgid "Invalid name"
@@ -3151,7 +3235,7 @@ msgstr "Senaste versionen av LazPaint som finns tillgänglig online är"
 
 #: uresourcestrings.rslava
 msgid "Lava"
-msgstr ""
+msgstr "Lava"
 
 #: uresourcestrings.rslayer
 msgctxt "uresourcestrings.rslayer"
@@ -3160,7 +3244,7 @@ msgstr "Lager"
 
 #: uresourcestrings.rslayeralreadysplit
 msgid "Layer already split"
-msgstr ""
+msgstr "Lager redan uppdelat"
 
 #: uresourcestrings.rslayeredimage
 msgid "Layered image"
@@ -3168,7 +3252,7 @@ msgstr "Bild med lager"
 
 #: uresourcestrings.rslayereffect
 msgid "Layer effect"
-msgstr ""
+msgstr "Lagereffekt"
 
 #: uresourcestrings.rslayers
 msgctxt "uresourcestrings.rslayers"
@@ -3223,27 +3307,28 @@ msgstr "Antal upprepningar"
 
 #: uresourcestrings.rsmagenta
 msgid "Magenta"
-msgstr ""
+msgstr "Magenta"
 
 #: uresourcestrings.rsmakemonochromatic
 msgid "Make monochromatic"
-msgstr ""
+msgstr "Gör enfärgad"
 
 #: uresourcestrings.rsmakencolorspalettefrombitmap
+#, fuzzy, badformat
 msgid "Make %1-colors palette from image"
 msgstr "Skapa %1-färgers palett från bilden"
 
 #: uresourcestrings.rsmask
 msgid "Mask"
-msgstr ""
+msgstr "Maskering"
 
 #: uresourcestrings.rsmaskfromalphachannel
 msgid "Mask from alpha channel"
-msgstr ""
+msgstr "Maskering från alfakanal"
 
 #: uresourcestrings.rsmerge
 msgid "Merge"
-msgstr ""
+msgstr "Sammanfoga"
 
 #: uresourcestrings.rsmergeselection
 msgid "Do you want to merge selection?"
@@ -3280,7 +3365,7 @@ msgstr "Ny bild"
 
 #: uresourcestrings.rsnewmask
 msgid "New mask"
-msgstr ""
+msgstr "Ny maskering"
 
 #: uresourcestrings.rsno
 msgid "No"
@@ -3308,7 +3393,7 @@ msgstr "Normal"
 
 #: uresourcestrings.rsnotchromaticchannel
 msgid "This is not a chromatic channel"
-msgstr ""
+msgstr "Det här är inte en kromatisk kanal"
 
 #: uresourcestrings.rsnothingtobedeformed
 msgid "There is nothing to be deformed"
@@ -3318,13 +3403,17 @@ msgstr "Det finns inget att förvränga"
 msgid "There is nothing to be retrieved"
 msgstr "Det finns inget att återhämta"
 
+#: uresourcestrings.rsnotlazpaintscript
+msgid "This is not a LazPaint script"
+msgstr ""
+
 #: uresourcestrings.rsnotreasonableformat
 msgid "It is not reasonable to save such a big image in this file format."
 msgstr "Det är inte rimligt att spara en så stor bild i det här filformatet."
 
 #: uresourcestrings.rsnumber
 msgid "№"
-msgstr ""
+msgstr "№"
 
 #: uresourcestrings.rsok
 #, fuzzy
@@ -3476,11 +3565,19 @@ msgstr "RGB"
 
 #: uresourcestrings.rsrightclickfinishshape
 msgid "Use RIGHT click to finish shape"
-msgstr ""
+msgstr "Använd Högerklick för att slutföra figur"
 
 #: uresourcestrings.rsrightclickforsource
 msgid "Use RIGHT click to define source"
 msgstr "Använd Högerklick för att välja källa"
+
+#: uresourcestrings.rsrightclickfortransformcenter
+msgid "Use RIGHT click to define transform center"
+msgstr "Högerklicka för att definiera omvandlingscentret"
+
+#: uresourcestrings.rsrunscriptagaintoupdateeffect
+msgid "Run this script again to update effect"
+msgstr "Kör det här skriptet igen för att uppdatera effekten"
 
 #: uresourcestrings.rssaturation
 msgctxt "uresourcestrings.rssaturation"
@@ -3510,6 +3607,10 @@ msgctxt "uresourcestrings.rsscript"
 msgid "Script"
 msgstr "Skript"
 
+#: uresourcestrings.rsscriptnotsafe
+msgid "The script file does not seem to be safe: %1"
+msgstr ""
+
 #: uresourcestrings.rsselectblendoperation
 msgctxt "uresourcestrings.rsselectblendoperation"
 msgid "Select blend operation"
@@ -3535,15 +3636,15 @@ msgstr "Spline"
 
 #: uresourcestrings.rssplitcmyk
 msgid "Split CMYK"
-msgstr ""
+msgstr "Dela upp CMYK"
 
 #: uresourcestrings.rssplithsl
 msgid "Split HSL"
-msgstr ""
+msgstr "Dela upp HSL"
 
 #: uresourcestrings.rssplitrgb
 msgid "Split RGB"
-msgstr ""
+msgstr "Dela upp RGB"
 
 #: uresourcestrings.rsstoragedevice
 msgid "Device"
@@ -3551,6 +3652,10 @@ msgstr "Enhet"
 
 #: uresourcestrings.rsstroke
 msgid "Stroke"
+msgstr "Penseldrag"
+
+#: uresourcestrings.rssuretorununsafescript
+msgid "Are you sure you would like to run this script? The following modules used by this script may be unsafe: %1"
 msgstr ""
 
 #: uresourcestrings.rstextoutline
@@ -3638,19 +3743,19 @@ msgstr "Vektorlager"
 
 #: uresourcestrings.rsversion
 msgid "Version"
-msgstr ""
+msgstr "Version"
 
 #: uresourcestrings.rsverticalsize
 msgid "Vertical size"
-msgstr ""
+msgstr "Vertikal storlek"
 
 #: uresourcestrings.rsvisible
-msgid "Visibile"
-msgstr ""
+msgid "Visible"
+msgstr "Synlig"
 
 #: uresourcestrings.rsyellow
 msgid "Yellow"
-msgstr ""
+msgstr "Gul"
 
 #: uresourcestrings.rsyes
 msgid "Yes"

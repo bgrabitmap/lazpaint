@@ -69,6 +69,10 @@ end;
 
 procedure TFLoading.FormCreate(Sender: TObject);
 begin
+  if PopupFontFullHeight = 0 then
+  begin
+    PopupFontFullHeight := DoScaleY(20,OriginalDPI);
+  end;
 end;
 
 procedure TFLoading.BGRAPanel1AfterRenderBCPanel(Sender: TObject;
@@ -136,7 +140,6 @@ end;
 {$R *.lfm}
 
 initialization
-  PopupFontFullHeight := DoScaleY(20,OriginalDPI);
 
 finalization
 

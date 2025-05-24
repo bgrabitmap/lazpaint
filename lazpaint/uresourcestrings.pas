@@ -20,6 +20,11 @@ resourcestring
   rsLazPaint = 'LazPaint';
   rsDonate = 'Donate...';
   rsScript = 'Script';
+  rsNotLazPaintScript = 'This is not a LazPaint script';
+  rsScriptNotSafe = 'The script file does not seem to be safe: %1';
+  rsSureToRunUnsafeScript =
+    'Are you sure you would like to run this script? ' +
+    'The following modules used by this script may be unsafe: %1';
   rsFunctionNotDefined = 'The function %1 is not defined.';
   rsPythonUnexpectedVersion = 'Expected Python version %1 but %2 found.';
   rsOpening='Opening';
@@ -36,7 +41,7 @@ resourcestring
   rsErrorDecodingRaw='Error decoding raw image.';
   rsErrorLoadingOriginal='Error while loading original however layer can be rasterized.';
   rsRasterLayer = 'Raster layer';
-  rsVisible = 'Visibile';
+  rsVisible = 'Visible';
   rsTransformedRasterLayer = 'Transformed raster layer';
   rsVectorialLayer = 'Vectorial layer';
   rsUnknownOriginal = 'Unknown original';
@@ -96,6 +101,7 @@ resourcestring
   rsZoomLayerStackIn = 'Zoom layer stack in';
   rsZoomLayerStackOut = 'Zoom layer stack out';
   rsRightClickForSource = 'Use RIGHT click to define source';
+  rsRightClickForTransformCenter = 'Use RIGHT click to define transform center';
 
   rsFileCannotBeEmpty = 'File cannot be empty';
   rsEmptySelection='Selection is empty';
@@ -200,6 +206,7 @@ resourcestring
   rsUnknownCommand='Unknown command : ';
   rsUnableToSaveFile='Unable to save file : ';
   rsInternalError='Internal error';
+  rsRunScriptAgainToUpdateEffect='Run this script again to update effect';
 
   rsExpectNParameters='expects N parameters : ';
   rsExpect1Parameter='expects one parameter : ';

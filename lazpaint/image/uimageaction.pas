@@ -100,6 +100,11 @@ type
     function AddLayerFromBitmap(ABitmap: TBGRABitmap; AName: string): boolean;
     function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string): boolean;
     function AddLayerFromOriginal(AOriginal: TBGRALayerCustomOriginal; AName: string; AMatrix: TAffineMatrix; ABlendOp: TBlendOperation = boTransparent; AOpacity: byte = 255): boolean;
+    function ChangeLayeredImageCanvasSize(layeredBmp: TLazPaintImage; newWidth,
+      newHeight: integer; anchor: string; background: TBGRAPixel;
+      repeatImage: boolean; flipMode: boolean): TBGRALayeredBitmap;
+    procedure ChangeCanvasSize(AWidth, AHeight: integer; AAnchor: string;
+      ARepeatImage, AFlipMode: boolean);
     function LoadSelection(AFilenameUTF8: string; ALoadedImage: PImageEntry = nil): boolean;
     property Image: TLazPaintImage read GetImage;
     property ToolManager: TToolManager read GetToolManager;
@@ -1383,6 +1388,59 @@ begin
   end;
 end;
 
+function TImageActions.ChangeLayeredImageCanvasSize(layeredBmp: TLazPaintImage; newWidth,
+  newHeight: integer; anchor: string; background: TBGRAPixel;
+  repeatImage: boolean; flipMode: boolean): TBGRALayeredBitmap;
+var i,idx: integer;
+  orig: TBGRALayerCustomOriginal;
+  newOrigin: TPoint;
+  newBmp: TBGRABitmap;
+begin
+  result := TBGRALayeredBitmap.Create;
+  for i := 0 to layeredbmp.NbLayers-1 do
+  begin
+    FInstance.ReportActionProgress(i*100 div layeredbmp.NbLayers);
+    newBmp := ChangeBitmapCanvasSize(layeredbmp.LayerBitmap[i],layeredbmp.LayerOffset[i],layeredBmp.Width,layeredBmp.Height, newwidth,newHeight,anchor,background,repeatImage,flipMode);
+    idx := result.AddOwnedLayer(newBmp,layeredBmp.BlendOperation[i],layeredbmp.LayerOpacity[i]);
+    result.LayerName[idx] := layeredbmp.LayerName[i];
+    result.LayerVisible[idx] := layeredbmp.LayerVisible[i];
+    if not repeatImage and layeredBmp.LayerOriginalDefined[i] and layeredBmp.LayerOriginalKnown[i] then
+    begin
+      orig := layeredBmp.LayerOriginal[i];
+      if Assigned(orig) then
+      begin
+        if result.IndexOfOriginal(orig)=-1 then result.AddOriginal(orig,false);
+        result.LayerOriginalGuid[idx] := orig.Guid;
+        newOrigin := ChangeCanvasSizeOrigin(layeredBmp.Width,layeredBmp.Height,newwidth,newHeight,anchor);
+        result.LayerOriginalMatrix[idx] := AffineMatrixTranslation(newOrigin.X,newOrigin.Y)*layeredBmp.LayerOriginalMatrix[i];
+        result.RenderLayerFromOriginal(idx);
+      end;
+    end;
+  end;
+  FInstance.ReportActionProgress(100);
+end;
+
+procedure TImageActions.ChangeCanvasSize(AWidth,AHeight: integer;
+  AAnchor: string; ARepeatImage, AFlipMode: boolean);
+var result: TLayeredBitmapAndSelection;
+begin
+  result.layeredBitmap := ChangeLayeredImageCanvasSize(Image,
+     AWidth,AHeight,AAnchor,BGRAPixelTransparent, ARepeatImage, AFlipMode);
+  if Image.SelectionMaskReadonly <> nil then
+    result.selection := ChangeBitmapCanvasSize(Image.SelectionMaskReadonly,
+      Point(0,0),Image.Width,Image.Height,
+      AWidth,AHeight,AAnchor,BGRABlack, ARepeatImage, AFlipMode)
+  else
+    result.selection := nil;
+  if Image.SelectionLayerReadonly <> nil then
+    result.selectionLayer := ChangeBitmapCanvasSize(Image.SelectionLayerReadonly,
+       Point(0,0),Image.Width,Image.Height,
+       AWidth,AHeight,AAnchor,BGRAPixelTransparent, ARepeatImage, AFlipMode)
+  else
+    result.selectionLayer := nil;
+  Image.Assign(result, true, true);
+end;
+
 procedure TImageActions.HorizontalFlip(AOption: TFlipOption);
 begin
   try
@@ -1691,21 +1749,32 @@ begin
         if partial.NbPixels <> 0 then
         begin
           ToolManager.ToolCloseDontReopen;
-          layeraction := Image.CreateAction(true, true);
-          layeraction.ReleaseSelection;
-          layeraction.QuerySelection;
-          pastePos := Point((image.Width - partial.Width) div 2 - image.ImageOffset.X,
-             (image.Height - partial.Height) div 2 - image.ImageOffset.Y);
-          if pastePos.x+partial.width > image.width then pastePos.x := image.width-partial.width;
-          if pastePos.y+partial.Height > image.Height then pastePos.y := image.Height-partial.Height;
-          if pastePos.x < 0 then pastePos.x := 0;
-          if pastePos.y < 0 then pastePos.y := 0;
-          layeraction.GetOrCreateSelectionLayer.PutImage(pastePos.x,pastePos.y,partial,dmFastBlend);
-          ComputeSelectionMask(layeraction.GetOrCreateSelectionLayer,layeraction.currentSelection,
-            rect(pastePos.x,pastePos.y,pastePos.x+partial.Width,pastePos.y+partial.Height));
-          Image.SelectionMaskMayChange(rect(pastePos.x,pastePos.y,pastePos.x+partial.Width,pastePos.y+partial.Height));
-          layeraction.Validate;
-          layeraction.Free;
+          DoBegin;
+          try
+            if (partial.Width > Image.Width) or
+             (partial.Height > Image.Height) then
+            begin
+              ChangeCanvasSize(max(partial.Width, Image.Width),
+                max(partial.Height, Image.Height), 'middle', false,false);
+            end;
+            layeraction := Image.CreateAction(true, true);
+            layeraction.ReleaseSelection;
+            layeraction.QuerySelection;
+            pastePos := Point((image.Width - partial.Width) div 2 - image.ImageOffset.X,
+               (image.Height - partial.Height) div 2 - image.ImageOffset.Y);
+            if pastePos.x+partial.width > image.width then pastePos.x := image.width-partial.width;
+            if pastePos.y+partial.Height > image.Height then pastePos.y := image.Height-partial.Height;
+            if pastePos.x < 0 then pastePos.x := 0;
+            if pastePos.y < 0 then pastePos.y := 0;
+            layeraction.GetOrCreateSelectionLayer.PutImage(pastePos.x,pastePos.y,partial,dmFastBlend);
+            ComputeSelectionMask(layeraction.GetOrCreateSelectionLayer,layeraction.currentSelection,
+              rect(pastePos.x,pastePos.y,pastePos.x+partial.Width,pastePos.y+partial.Height));
+            Image.SelectionMaskMayChange(rect(pastePos.x,pastePos.y,pastePos.x+partial.Width,pastePos.y+partial.Height));
+            layeraction.Validate;
+            layeraction.Free;
+          finally
+            DoEnd;
+          end;
           ChooseTool(ptMoveSelection);
         end;
         partial.Free;

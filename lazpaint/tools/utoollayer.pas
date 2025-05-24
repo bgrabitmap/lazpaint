@@ -16,6 +16,7 @@ type
   TToolMoveLayer = class(TGenericTool)
   protected
     handMoving: boolean;
+    notMovedAtAll: boolean;
     handOriginF: TPointF;
     originalTransformBefore: TAffineMatrix;
     layerOffsetBefore: TPoint;
@@ -74,6 +75,7 @@ type
     FLastUpdateRectDefined: boolean;
     FOriginalBounds: TRect;
     FOriginalBoundsDefined: boolean;
+    class var RightClickHintShown: boolean;
     function GetIsSelectingTool: boolean; override;
     function DoToolDown({%H-}toolDest: TBGRABitmap; {%H-}pt: TPoint; ptF: TPointF;
       rightBtn: boolean): TRect; override;
@@ -151,12 +153,17 @@ end;
 
 function TToolMoveLayer.DoToolDown(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF; rightBtn: boolean): TRect;
+var
+  ofs: TPoint;
 begin
   result := EmptyRect;
   if not handMoving then
   begin
     GetAction;
     handMoving := true;
+    ofs := LayerOffset;
+    notMovedAtAll:= (toolDest = nil) or
+      (toolDest.GetPixel(ptF.X - ofs.X, ptF.Y - ofs.Y).alpha = 0);
     handOriginF := ptF;
     if UseOriginal then Manager.Image.DraftOriginal := true;
     SaveOffsetBefore;
@@ -293,9 +300,14 @@ end;
 
 function TToolMoveLayer.ToolUp: TRect;
 begin
-  handMoving := false;
+  if handMoving then
+  begin
+    handMoving := false;
+    if UseOriginal then Manager.Image.DraftOriginal := false;
+    if notMovedAtAll then
+      Manager.QueryExitTool;
+  end;
   result := EmptyRect;
-  if UseOriginal then Manager.Image.DraftOriginal := false;
 end;
 
 function TToolMoveLayer.DoToolKeyDown(var key: Word): TRect;
@@ -417,7 +429,6 @@ var
   m: TAffineMatrix;
   ab: TAffineBox;
   ptsF: ArrayOfTPointF;
-  pts: array of TPoint;
 begin
   NeedLayerBounds;
 
@@ -434,17 +445,12 @@ begin
             BitmapToVirtualScreen(m*PointF(FLayerBounds.Right-0.001,FLayerBounds.Top+0.001)),
             BitmapToVirtualScreen(m*PointF(FLayerBounds.Left+0.001,FLayerBounds.Bottom-0.001)));
   ptsF := ab.AsPolygon;
-  pts := nil;
-  setlength(pts, length(ptsF));
-  for i := 0 to high(pts) do
-    pts[i] := ptsF[i].Round;
-
-  result := TRect.Union(pts);
-  result.Inflate(1,1);
+  for i := 0 to high(ptsF) do ptsF[i] := ptsF[i] + PointF(0.5, 0.5);
 
   if Assigned(VirtualScreen) then
-    virtualScreen.DrawpolygonAntialias(pts,BGRA(230,255,230,255),BGRA(0,0,0,255),
-      FrameDashLength*Manager.CanvasScale);
+    result := NiceFrame(virtualScreen, Manager.CanvasScale, ptsF,
+      BGRA(230,255,230,255), BGRA(0,0,0,255)) else
+    result := NiceFrameBounds(Manager.CanvasScale, ptsF);
 end;
 
 { TToolTransformLayer }
@@ -545,6 +551,11 @@ end;
 function TToolTransformLayer.DoToolMove(toolDest: TBGRABitmap; pt: TPoint;
   ptF: TPointF): TRect;
 begin
+  if not RightClickHintShown then
+  begin
+    Manager.ToolPopup(tpmRightClickForTransformCenter);
+    RightClickHintShown := true;
+  end;
   with Manager.Image.LayerOffset[Manager.Image.CurrentLayerIndex] do
     ptF += PointF(X,Y);
   if FTransforming then
@@ -723,8 +734,6 @@ var
   m: TAffineMatrix;
   ab: TAffineBox;
   ptsF: ArrayOfTPointF;
-  pts: array of TPoint;
-  ptsRect: TRect;
 begin
   idx := Manager.Image.CurrentLayerIndex;
   if not FOriginalBoundsDefined then
@@ -759,18 +768,13 @@ begin
             BitmapToVirtualScreen(m*PointF(FOriginalBounds.Right-0.001,FOriginalBounds.Top+0.001)),
             BitmapToVirtualScreen(m*PointF(FOriginalBounds.Left+0.001,FOriginalBounds.Bottom-0.001)));
   ptsF := ab.AsPolygon;
-  pts := nil;
-  setlength(pts, length(ptsF));
-  for i := 0 to high(pts) do
-    pts[i] := ptsF[i].Round;
-
-  ptsRect := TRect.Union(pts);
-  ptsRect.Inflate(1,1);
-  Result.Union(ptsRect);
+  for i := 0 to high(ptsF) do ptsF[i] := ptsF[i] + PointF(0.5, 0.5);
 
   if Assigned(VirtualScreen) then
-    virtualScreen.DrawpolygonAntialias(pts,BGRA(230,255,230,255),BGRA(0,0,0,255),
-      FrameDashLength*Manager.CanvasScale);
+    result := NiceFrame(virtualScreen, Manager.CanvasScale, ptsF,
+      BGRA(230,255,230,255), BGRA(0,0,0,255))
+  else
+    result := NiceFrameBounds(Manager.CanvasScale, ptsF)
 end;
 
 function TToolTransformLayer.GetIsSelectingTool: boolean;
