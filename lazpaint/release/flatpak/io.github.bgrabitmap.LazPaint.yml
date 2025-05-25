@@ -26,21 +26,20 @@ modules:
     sources:
       - type: git
         url: https://github.com/bgrabitmap/bgrabitmap.git
-        commit: f9748a37f5382b18d1cd197293d1032a522e8561
+        commit: 6ada359c45fe2230b8af6e108bd6c660bf9202ec
         dest: 'bgrabitmap'
+        disable-submodules: true
       - type: git
         url: https://github.com/bgrabitmap/bgracontrols.git
-        commit: f5efbf8b79d0725d33b88c5bd41857d9139428bd
+        commit: 20dbed8ca89620721dc3028c221c91609db53fe2
         dest: 'bgracontrols'
+        disable-submodules: true
       - type: git
         url: https://github.com/bgrabitmap/lazpaint.git
-        commit: 501d44c511fb49ca166dc0ec101305dddbf3aee6
+        commit: a11930b418c7d9050886bd7d321fe78acfcd7ea6
+        disable-submodules: true
       - type: file
         path: io.github.bgrabitmap.LazPaint.metainfo.xml
-      - type: patch
-        path: 0001-515-runtime-fix-for-Qt.patch
-      - type: patch
-        path: 0001-avoid-crash-on-Qt5.patch
       - type: patch
         path: no-image-browser-by-default.patch
     buildsystem: simple

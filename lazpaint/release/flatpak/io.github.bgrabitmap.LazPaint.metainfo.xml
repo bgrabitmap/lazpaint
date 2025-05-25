@@ -86,6 +86,34 @@ Filters can be applied to the whole image or to the active selection.
   </screenshots>
 
   <releases>
+    <release version="7.3.0" date="2025-05-25">
+      <url type="details">https://github.com/bgrabitmap/lazpaint/releases/tag/v7.3</url>
+      <description>
+        <ul>
+          <li>fixes for high DPI</li>
+          <li>binding keys (digits) to colors</li>
+          <li>compilation fix for newer FPC / LCL</li>
+          <li>runtime fix for Qt</li>
+          <li>improve safety of Python scripts</li>
+          <li>enable or disable preview in filter windows</li>
+          <li>Turkish translation</li>
+          <li>add hypocycloid in Render menu</li>
+          <li>increase maximum shape per layer</li>
+          <li>auto-switch between selection tools</li>
+          <li>fixed deformation grid error</li>
+          <li>fixed blank print error</li>
+          <li>adapt print UI on Linux</li>
+          <li>fix selection with vertical text alignment</li>
+          <li>fix euro symbol with AltGr</li>
+          <li>add superformula layer</li>
+          <li>easy of use for beginners</li>
+          <li>aliasing option for shapes</li>
+          <li>increase canvas size when pasting</li>
+          <li>increase max shape count</li>
+          <li>complete translations</li>
+        </ul>
+      </description>
+    </release>
     <release version="7.2.2" date="2022-08-23">
       <url type="details">https://github.com/bgrabitmap/lazpaint/releases/tag/v7.2.2</url>
       <description>
