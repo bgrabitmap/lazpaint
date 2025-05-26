@@ -1,3 +1,29 @@
+lazpaint (7.3) stable; urgency=low
+
+  * fixes for high DPI
+  * binding keys (digits) to colors
+  * compilation fix for newer FPC / LCL
+  * runtime fix for Qt
+  * improve safety of Python scripts
+  * enable or disable preview in filter windows
+  * Turkish translation
+  * add hypocycloid in Render menu
+  * increase maximum shape per layer
+  * auto-switch between selection tools
+  * fixed deformation grid error
+  * fixed blank print error
+  * adapt print UI on Linux
+  * fix selection with vertical text alignment
+  * fix euro symbol with AltGr
+  * add superformula layer
+  * easy of use for beginners
+  * aliasing option for shapes
+  * increase canvas size when pasting
+  * increase max shape count
+  * complete translations
+
+ -- circular <circular@fastmail.com>  Mon, 26 May 2025 01:04:00 +0100
+
 lazpaint (7.2.2) stable; urgency=low
 
   * Linux: fix compilation for Qt5 and older LCL
