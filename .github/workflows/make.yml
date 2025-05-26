@@ -3,7 +3,7 @@ name: Make
 
 on:
   schedule:
-    - cron:  '0 0 1 * *'
+    - cron: '0 0 1 * *'
   push:
     branches:
       - "**"
@@ -31,26 +31,52 @@ jobs:
       with:
         submodules: true
 
-    - name: Build on Linux
+    - name: Install Lazarus on Linux
       if: runner.os == 'Linux'
       shell: bash
       run: |
         set -xeuo pipefail
         sudo bash -c 'apt-get update; apt-get install -y lazarus cppcheck pylint shellcheck' >/dev/null
-        instantfpc -Fu/usr/lib/lazarus/*/components/lazutils .github/workflows/make.pas
 
+    - name: Build on Linux
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        set -xeuo pipefail
+        instantfpc -Fu/usr/lib/lazarus/*/components/lazutils .github/workflows/make.pas
+        delp -r "${PWD}"
+
+    - name: Get Lazarus installer from cache on Windows
+      if: runner.os == 'Windows'
+      id: cache-lazarus
+      uses: actions/cache@v4
+      with:
+        path: lazarus-installer
+        key: ${{ runner.os }}-lazarus-installer-4.0
+
+    - name: Download Lazarus installer if not cached on Windows
+      if: runner.os == 'Windows' && steps.cache-lazarus.outputs.cache-hit != 'true'
+      shell: powershell
+      run: |
+        New-Item -ItemType Directory -Force -Path lazarus-installer
+        $Uri = 'http://consume.o2switch.net/lazarus/lazarus-4.0-fpc-3.2.2-win64.exe'
+        $OutFile = "lazarus-installer\lazarus-setup.exe"
+        Invoke-WebRequest -Uri $Uri -OutFile $OutFile
+
+    - name: Install Lazarus on Windows
+      if: runner.os == 'Windows'
+      shell: powershell
+      run: |
+        $Installer = "lazarus-installer\lazarus-setup.exe"
+        & $Installer /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART | Out-Null
+    
     - name: Build on Windows
       if: runner.os == 'Windows'
       shell: powershell
       run: |
-        New-Variable -Option Constant -Name VAR -Value @{
-            Uri = 'http://consume.o2switch.net/lazarus/lazarus-4.0-fpc-3.2.2-win64.exe'
-            OutFile = (New-TemporaryFile).FullName + '.exe'
-        }
-        Invoke-WebRequest @VAR
-        & $VAR.OutFile.Replace('Temp', 'Temp\.') /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART | Out-Null
         $Env:PATH+=';C:\Lazarus'
         $Env:PATH+=';C:\Lazarus\fpc\3.2.2\bin\x86_64-win64'
         (Get-Command 'lazbuild').Source | Out-Host
         (Get-Command 'instantfpc').Source | Out-Host
         instantfpc '-FuC:\Lazarus\components\lazutils' .github/workflows/make.pas
+        delp -r $PWD.Path
