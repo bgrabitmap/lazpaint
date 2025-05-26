@@ -8,9 +8,6 @@
                     {{- else -}}
                         {{- $item.Set "URL" (relURL .URL) -}}
                     {{- end -}}
-                    {{- if and (eq .Name "documentation") (ne $page.Language.Lang "en") -}}
-                        {{- $item.Set "URL" (printf "%s/%s" ($item.Get "URL") $page.Language.Lang) -}}
-                    {{- end -}}
                     {{- if eq (relURL $page.Permalink) (relLangURL .URL) -}}
                         {{- $item.Set "Class" "button success" -}} 
                     {{- else -}}

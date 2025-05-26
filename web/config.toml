@@ -29,7 +29,7 @@ disableKinds = ["taxonomy"]
     weight = 6
 
 [permalinks]
-  blog = "/:filename/"
+  blog = "/:contentbasename/"
 
 # See https://feathericons.com/
 # The value of pre is the icon name
@@ -44,7 +44,7 @@ disableKinds = ["taxonomy"]
     weight = 2
    [[menu.main]]
     name = "documentation"
-    url = "https://wiki.freepascal.org/LazPaint"
+    url = "/documentation/"
     weight = 3
    [[menu.main]]
     name = "download"

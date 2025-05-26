@@ -11,11 +11,10 @@
    {{ $link_linux64_qt5_no_install := printf "%s_linux64_qt5_no_install.tar.gz" $prefix -}}
    {{ $link_linux32_qt5_deb := printf "%s_linux32_qt5.deb" $prefix -}}
    {{ $link_linux64_qt5_deb := printf "%s_linux64_qt5.deb" $prefix -}}
-   {{ $link_rpi32_no_install := printf "%s_raspbian-hf_no_install.tar.gz" $prefix -}}
-   {{ $link_rpi64_no_install := printf "%s_raspbian64_no_install.tar.gz" $prefix -}}
-   {{ $link_rpi32_deb := printf "%s_raspbian-hf.deb" $prefix -}}
-   {{ $link_rpi64_deb := printf "%s_raspbian64.deb" $prefix -}}
-   {{ $link_freebsd64_no_install := printf "%s_freebsd64_no_install.tar.gz" $prefix -}}
+   {{ $link_linux64_app_image := printf "%s_x86_64.AppImage" $prefix -}}
+   {{ $link_arm32_no_install := printf "%s_linux_arm32_gtk2_no_install.zip" $prefix -}}
+   {{ $link_aarch64_no_install := printf "%s_linux_aarch64_gtk2_no_install.zip" $prefix -}}
+   {{ $link_freebsd64_no_install := printf "%s_freebsd64_gtk2_no_install.zip" $prefix -}}
    {{ $link_macos32_dmg := printf "%s_macos32.dmg" $prefix -}}
    {{ $link_macos64_dmg := printf "%s_macos64.dmg" $prefix -}}
    {{ $link_macos_brew := "https://formulae.brew.sh/cask/lazpaint" }}
@@ -35,31 +34,28 @@
                     ({{ i18n "no_install" }})</a>
                 <a class="button" href="{{$link_win64_no_install}}">{{ printf (i18n "archive") (i18n "bit_64") }}
                     ({{ i18n "no_install" }})</a>
-                <a href="https://portableapps.com/apps/graphics_pictures/lazpaint-portable" class="button">Portable ({{ i18n "bit_32_and_64" }})</a></p>
+                <!--<a href="https://portableapps.com/apps/graphics_pictures/lazpaint-portable" class="button">Portable ({{ i18n "bit_32_and_64" }})</a>--></p>
           </div>
           <div id="Linux">
             <h2>Linux</h2>
-            <p><a class="button" href="{{$link_linux32_deb}}">{{ printf (i18n "deb_package") (i18n "bit_32") }}
-                    </a>
+            <p><!--<a class="button" href="{{$link_linux32_deb}}">{{ printf (i18n "deb_package") (i18n "bit_32") }}
+                    </a>-->
                 <a class="button" href="{{$link_linux64_deb}}">{{ printf (i18n "deb_package") (i18n "bit_64") }}
                     </a>
-                <a class="button" href="{{$link_linux32_no_install}}">{{ printf (i18n "archive") (i18n "bit_32") }}
-                    ({{ i18n "no_install" }})</a>
+                <!--<a class="button" href="{{$link_linux32_no_install}}">{{ printf (i18n "archive") (i18n "bit_32") }}
+                    ({{ i18n "no_install" }})</a>-->
                 <a class="button" href="{{$link_linux64_no_install}}">{{ printf (i18n "archive") (i18n "bit_64") }}
                     ({{ i18n "no_install" }})</a></p>
+				<a class="button" href="{{$link_linux64_app_image}}">AppImage {{ printf (i18n "bit_64") }}</a></p>
             <h2>Linux (Qt5)</h2>
             <p><a class="button" href="{{$link_linux64_qt5_deb}}">Qt5 {{ printf (i18n "deb_package") (i18n "bit_64") }}
                     </a>
                 <a class="button" href="{{$link_linux64_qt5_no_install}}">Qt5 {{ printf (i18n "archive") (i18n "bit_64") }}
                     ({{ i18n "no_install" }})</a></p>
-            <h2>Rpi</h2>
-            <p><a class="button" href="{{$link_rpi32_deb}}">{{ printf (i18n "deb_package") (i18n "bit_32") }}
-                    </a>
-                <a class="button" href="{{$link_rpi64_deb}}">{{ printf (i18n "deb_package") (i18n "bit_64") }}
-                    </a>
-                <a class="button" href="{{$link_rpi32_no_install}}">{{ printf (i18n "archive") (i18n "bit_32") }}
+            <h2>Linux ARM</h2>
+            <p><a class="button" href="{{$link_arm32_no_install}}">{{ printf (i18n "archive") (i18n "bit_32") }}
                     ({{ i18n "no_install" }})</a>
-                <a class="button" href="{{$link_rpi64_no_install}}">{{ printf (i18n "archive") (i18n "bit_64") }}
+                <a class="button" href="{{$link_aarch64_no_install}}">{{ printf (i18n "archive") (i18n "bit_64") }}
                     ({{ i18n "no_install" }})</a></p>
           </div>
           <div id="UNIX">
@@ -69,8 +65,8 @@
           </div>
           <div id="MacOS">
             <h2>MacOS</h2>
-            <p><a class="button" href="{{$link_macos32_dmg}}">MacOS
-                    {{ i18n "bit_32" }}</a>
+            <p><!--<a class="button" href="{{$link_macos32_dmg}}">MacOS
+                    {{ i18n "bit_32" }}</a>-->
                 <a class="button" href="{{$link_macos64_dmg}}">MacOS
                     {{ i18n "bit_64" }}</a>
                 <a class="button" href="{{$link_macos_brew}}">MacOS
