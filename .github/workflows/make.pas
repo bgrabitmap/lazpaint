@@ -27,7 +27,7 @@ type
   procedure OutLog(Knd: TLog; Msg: string);
   begin
     case Knd of
-        error: Writeln(stderr, #27'[31m', Msg, #27'[0m');
+        error: Writeln(stderr, #27'[33m', Msg, #27'[0m');
         info:  Writeln(stderr, #27'[32m', Msg, #27'[0m');
         audit: Writeln(stderr, #27'[33m', Msg, #27'[0m');
     end;
