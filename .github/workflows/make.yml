@@ -72,12 +72,9 @@ jobs:
             check=True,
         )
         os.environ["INSTANTFPCOPTIONS"] = "-Fu/Applications/Lazarus/components/lazutils"
-        result = subprocess.run(
+        sys.exit(subprocess.run(
             "instantfpc .github/workflows/make.pas build".split(),
-            capture_output=True,
-        )
-        sys.stderr.write(result.stderr.decode() if result.returncode != 0 else result.stdout.decode())
-        sys.exit(result.returncode)
+        ).returncode)
 
     - name: Build on Windows
       if: runner.os == 'Windows'
