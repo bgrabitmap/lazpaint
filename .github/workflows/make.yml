@@ -50,8 +50,9 @@ jobs:
         import sys
         import subprocess
         subprocess.run(
-            "openssl version -a".split(),
+            "openssl version -d".split(),
             check=True,
+            capture_output=True,
         )
         OPENSSL=subprocess.run(
             "brew --prefix openssl@1.1".split(),
@@ -70,6 +71,7 @@ jobs:
         subprocess.run(
             "lazbuild -v".split(),
             check=True,
+            capture_output=True,
         )
         os.environ["INSTANTFPCOPTIONS"] = "-Fu/Applications/Lazarus/components/lazutils"
         sys.exit(subprocess.run(
