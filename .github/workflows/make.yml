@@ -41,34 +41,34 @@ jobs:
         declare -rx INSTANTFPCOPTIONS=-Fu/usr/lib/lazarus/*/components/lazutils
         instantfpc '.github/workflows/make.pas' build
 
-      - name: Build
-        if: runner.os == 'Macos'
-        shell: python
-        run: |
-          """https://macappstore.org/lazarus"""
-          import os
-          import subprocess
-          subprocess.run(
-              "openssl version -a".split(),
-              check=True,
-          )
-          OPENSSL=subprocess.run(
-              "brew --prefix openssl@1.1".split(),
-              check=True,
-              capture_output=True,
-          ).stdout.decode().strip("\n")
-          os.environ["PATH"] += f":{OPENSSL}/bin"
-          os.environ["DYLD_LIBRARY_PATH"] = f"{OPENSSL}/lib"
-          subprocess.run(
-              "brew install --cask lazarus".split(),
-              check=True,
-              capture_output=True,
-          )
-          os.environ["INSTANTFPCOPTIONS"] = "-Fu/Applications/Lazarus/components/lazutils"
-          subprocess.run(
-              "instantfpc .github/workflows/make.pas build".split(),
-              check=True,
-          )
+    - name: Build
+      if: runner.os == 'Macos'
+      shell: python
+      run: |
+        """https://macappstore.org/lazarus"""
+        import os
+        import subprocess
+        subprocess.run(
+            "openssl version -a".split(),
+            check=True,
+        )
+        OPENSSL=subprocess.run(
+            "brew --prefix openssl@1.1".split(),
+            check=True,
+            capture_output=True,
+        ).stdout.decode().strip("\n")
+        os.environ["PATH"] += f":{OPENSSL}/bin"
+        os.environ["DYLD_LIBRARY_PATH"] = f"{OPENSSL}/lib"
+        subprocess.run(
+            "brew install --cask lazarus".split(),
+            check=True,
+            capture_output=True,
+        )
+        os.environ["INSTANTFPCOPTIONS"] = "-Fu/Applications/Lazarus/components/lazutils"
+        subprocess.run(
+            "instantfpc .github/workflows/make.pas build".split(),
+            check=True,
+        )
 
     - name: Build on Windows
       if: runner.os == 'Windows'
