@@ -25,6 +25,7 @@ jobs:
         os:
           - ubuntu-latest
           - windows-latest
+          - macos-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -37,7 +38,45 @@ jobs:
       run: |
         set -xeuo pipefail
         sudo bash -c 'apt-get update; apt-get install -y lazarus cppcheck pylint shellcheck' >/dev/null
-        instantfpc -Fu/usr/lib/lazarus/*/components/lazutils .github/workflows/make.pas
+        declare -rx INSTANTFPCOPTIONS=-Fu/usr/lib/lazarus/*/components/lazutils
+        instantfpc '.github/workflows/make.pas' build
+
+    - name: Build
+      if: runner.os == 'Macos'
+      shell: python
+      run: |
+        """https://macappstore.org/lazarus"""
+        import os
+        import sys
+        import subprocess
+        subprocess.run(
+            "openssl version -d".split(),
+            check=True,
+            capture_output=True,
+        )
+        OPENSSL=subprocess.run(
+            "brew --prefix openssl@1.1".split(),
+            check=True,
+            capture_output=True,
+        ).stdout.decode().strip("\n")
+        os.environ["PATH"] += f":{OPENSSL}/bin"
+        os.environ["DYLD_LIBRARY_PATH"] = f"{OPENSSL}/lib"
+        subprocess.run(
+            "brew install --cask lazarus".split(),
+            check=True,
+            capture_output=True,
+        )
+        os.environ["INSTANTFPCOPTIONS"] = "-Fu/Applications/Lazarus/components/lazutils"
+        os.environ["PATH"] += ":/Applications/Lazarus"
+        subprocess.run(
+            "lazbuild -v".split(),
+            check=True,
+            capture_output=True,
+        )
+        os.environ["INSTANTFPCOPTIONS"] = "-Fu/Applications/Lazarus/components/lazutils"
+        sys.exit(subprocess.run(
+            "instantfpc .github/workflows/make.pas build".split(),
+        ).returncode)
 
     - name: Build on Windows
       if: runner.os == 'Windows'
@@ -53,4 +92,5 @@ jobs:
         $Env:PATH+=';C:\Lazarus\fpc\3.2.2\bin\x86_64-win64'
         (Get-Command 'lazbuild').Source | Out-Host
         (Get-Command 'instantfpc').Source | Out-Host
-        instantfpc '-FuC:\Lazarus\components\lazutils' .github/workflows/make.pas
+        $Env:INSTANTFPCOPTIONS='-FuC:\Lazarus\components\lazutils'
+        instantfpc '.github\workflows\make.pas' build
