@@ -1201,13 +1201,15 @@ function NiceFrameBounds(ACanvasScale: integer; APoints: array of TPointF): TRec
 var
   rF: TRectF;
   w: Extended;
-  pt: TPointF;
+  pt, topleft, bottomright: TPointF;
 begin
   w := FramePenWidth*ACanvasScale/10 / 2 + 1;
   rF := EmptyRectF;
-  for pt in APoints do
-    rF := rF.Union(RectF(pt + PointF(0.5, 0.5) - PointF(w, w),
-      pt + PointF(0.5, 0.5) + PointF(w, w)));
+  for pt in APoints do begin
+    topleft := pt + PointF(0.5, 0.5) - PointF(w, w);
+    bottomright := pt + PointF(0.5, 0.5) + PointF(w, w);
+    rF := rF.Union(RectF(topleft.x, topleft.y, bottomright.x, bottomright.y));
+  end;
   result := rect(floor(rF.Left), floor(rF.Top),
     ceil(rF.Right), ceil(rF.Bottom));
 end;
