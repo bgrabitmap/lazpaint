@@ -25,6 +25,7 @@ jobs:
         os:
           - ubuntu-latest
           - windows-latest
+          - macos-13
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -44,6 +45,26 @@ jobs:
       run: |
         set -xeuo pipefail
         instantfpc -Fu/usr/lib/lazarus/*/components/lazutils .github/workflows/make.pas
+        delp -r "${PWD}"
+
+    - name: Install Lazarus on macOS Intel
+      if: matrix.os == 'macos-13'
+      shell: bash
+      run: |
+        set -xeuo pipefail
+        brew update
+        brew install --cask lazarus
+        echo "Lazarus v$(lazbuild -v)"
+    
+    - name: Build on macOS Intel
+      if: matrix.os == 'macos-13'
+      shell: bash
+      run: |
+        set -xeuo pipefail
+        export PATH="$PATH:/Applications/Lazarus"
+        export INSTANTFPCOPTIONS="-Fu/Applications/Lazarus/components/lazutils"
+        echo "Lazarus v$(lazbuild -v)"
+        instantfpc .github/workflows/make.pas build
         delp -r "${PWD}"
 
     - name: Get Lazarus installer from cache on Windows

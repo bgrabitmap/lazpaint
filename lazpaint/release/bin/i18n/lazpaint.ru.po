@@ -2374,7 +2374,6 @@ msgid "Keep aspect ratio"
 msgstr "Сохранять пропорции"
 
 #: tfprint.combobox_orientation.text
-#, fuzzy
 msgctxt "tfprint.combobox_orientation.text"
 msgid "0"
 msgstr "0"
@@ -2422,7 +2421,6 @@ msgid "Right:"
 msgstr "Справа:"
 
 #: tfprint.label_selectedprinterandpaper.caption
-#, fuzzy
 msgctxt "tfprint.label_selectedprinterandpaper.caption"
 msgid "."
 msgstr "."
@@ -2619,7 +2617,6 @@ msgid "b"
 msgstr ""
 
 #: tfsuperformula.label_backcolor.caption
-#, fuzzy
 msgctxt "tfsuperformula.label_backcolor.caption"
 msgid "Back color"
 msgstr "Дополнит."
@@ -2637,7 +2634,6 @@ msgid "n3"
 msgstr ""
 
 #: tfsuperformula.label_pencolor.caption
-#, fuzzy
 msgctxt "tfsuperformula.label_pencolor.caption"
 msgid "Pen color"
 msgstr "Основной"
@@ -2647,7 +2643,6 @@ msgid "Rational"
 msgstr "Рациональное"
 
 #: tfsuperformula.label_size.caption
-#, fuzzy
 msgctxt "tfsuperformula.label_size.caption"
 msgid "Size"
 msgstr "Размер"
@@ -2661,7 +2656,6 @@ msgid "Spike overlap"
 msgstr "Перекрытие шипов"
 
 #: tfsuperformula.label_width.caption
-#, fuzzy
 msgctxt "tfsuperformula.label_width.caption"
 msgid "Width"
 msgstr "Ширина"
@@ -3395,7 +3389,6 @@ msgid "№"
 msgstr "№"
 
 #: uresourcestrings.rsok
-#, fuzzy
 msgctxt "uresourcestrings.rsok"
 msgid "OK"
 msgstr "ОК"
@@ -3467,7 +3460,6 @@ msgid "Preset name"
 msgstr "Предустановленное имя"
 
 #: uresourcestrings.rspreview
-#, fuzzy
 msgctxt "uresourcestrings.rspreview"
 msgid "Preview"
 msgstr "Предварительный осмотр"
@@ -3745,5 +3737,5 @@ msgstr "Увеличить размер стопки слоёв"
 #: uresourcestrings.rszoomlayerstackout
 msgctxt "uresourcestrings.rszoomlayerstackout"
 msgid "Zoom layer stack out"
-msgstr "Увеличить размер стопки слоёв"
+msgstr "Уменьшить размер стопки слоёв"
 
