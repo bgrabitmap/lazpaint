@@ -8,8 +8,56 @@ body {
     background: black;
 }
 
+code {
+	background: #444;
+}
+
 p {
     margin: 0px;
+}
+
+.doc {
+	background: #403531;
+	padding: 2em;
+}
+
+.doc p, .doc dd {
+	margin-bottom: 6px;
+}
+
+.doc a:not(.button) {
+	color: #85D4DE;
+}
+
+.columns {
+  column-width: 25em;
+  column-gap: 2em;
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  word-spacing: -1px;
+  margin: 1em 0;
+  padding: 1em;
+}
+
+.large-columns {
+  column-width: 33em;
+  column-gap: 2em;
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  word-spacing: -1px;
+  margin: 1em 0;
+  padding: 1em;
+}
+
+.columns h2 {
+	margin-top: 0;
+	padding-top: 0;
+}
+
+.columns:nth-child(even) {
+	background: #51433E;
 }
 
 h1 {
@@ -35,6 +83,7 @@ h2 {
     padding-bottom: 30px;
     margin-bottom: 5px;
     background-repeat: no-repeat;
+	background-position: 50% 20%;
 }
 
 .languages {

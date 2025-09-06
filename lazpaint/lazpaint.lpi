@@ -391,6 +391,9 @@
               </Win32>
             </Options>
           </Linking>
+          <Other>
+            <CustomOptions Value="-Cg -k-pie -k-znow"/>
+          </Other>
         </CompilerOptions>
       </Item10>
       <SharedMatrixOptions Count="2">

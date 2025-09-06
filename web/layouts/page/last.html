@@ -1,6 +1,6 @@
 {{ partial "header.html" . }}
 {{ $url := "https://api.github.com/repos/bgrabitmap/lazpaint/releases/latest" -}}
-{{ $last := getJSON $url -}}
+{{ $last := resources.GetRemote $url | transform.Unmarshal }}
 {{ $text := printf "\n%s" $last.body -}}
 {{ $text := replace $text "  *" "-" -}}
 {{ $text := replace $text "\n-" "\n•" -}}

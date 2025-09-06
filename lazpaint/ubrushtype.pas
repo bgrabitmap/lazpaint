@@ -41,6 +41,7 @@ type
     constructor Create;
     constructor Create(ASideCount: integer; AIsGradient: boolean);
     constructor CreateFromStream64(AStream64: string);
+    constructor CreateFromStream(AStream: TStream);
     destructor Destroy; override;
     procedure AssignBrushImage(ABitmap: TBGRABitmap);
     function MakeColoredBrushImage(AColor: TBGRAPixel): TBGRABitmap;
@@ -299,6 +300,20 @@ constructor TLazPaintBrush.CreateFromStream64(AStream64: string);
 begin
   Init;
   Stream64 := AStream64;
+end;
+
+constructor TLazPaintBrush.CreateFromStream(AStream: TStream);
+var
+  encoder:  TBase64EncodingStream;
+  str: TStringStream;
+begin
+  Init;
+  str:= TStringStream.Create('');
+  encoder := TBase64EncodingStream.Create(str);
+  encoder.CopyFrom(AStream, AStream.Size);
+  encoder.Free;
+  Stream64:= str.DataString;
+  str.Free;
 end;
 
 destructor TLazPaintBrush.Destroy;
