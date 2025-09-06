@@ -25,7 +25,7 @@ jobs:
         os:
           - ubuntu-latest
           - windows-latest
-          - macos-latest
+          - macos-13
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -48,7 +48,7 @@ jobs:
         delp -r "${PWD}"
 
     - name: Build
-      if: runner.os == 'Macos'
+      if: matrix.os == 'macos-13'
       shell: python
       run: |
         """https://macappstore.org/lazarus"""
@@ -56,28 +56,13 @@ jobs:
         import sys
         import subprocess
         subprocess.run(
-            "openssl version -d".split(),
-            check=True,
-            capture_output=True,
-        )
-        OPENSSL=subprocess.run(
-            "brew --prefix openssl@1.1".split(),
-            check=True,
-            capture_output=True,
-        ).stdout.decode().strip("\n")
-        os.environ["PATH"] += f":{OPENSSL}/bin"
-        os.environ["DYLD_LIBRARY_PATH"] = f"{OPENSSL}/lib"
-        subprocess.run(
             "brew install --cask lazarus".split(),
             check=True,
-            capture_output=True,
         )
-        os.environ["INSTANTFPCOPTIONS"] = "-Fu/Applications/Lazarus/components/lazutils"
         os.environ["PATH"] += ":/Applications/Lazarus"
         subprocess.run(
             "lazbuild -v".split(),
             check=True,
-            capture_output=True,
         )
         os.environ["INSTANTFPCOPTIONS"] = "-Fu/Applications/Lazarus/components/lazutils"
         sys.exit(subprocess.run(
