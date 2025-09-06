@@ -47,27 +47,25 @@ jobs:
         instantfpc -Fu/usr/lib/lazarus/*/components/lazutils .github/workflows/make.pas
         delp -r "${PWD}"
 
-    - name: Build
+    - name: Install Lazarus on macOS Intel
       if: matrix.os == 'macos-13'
-      shell: python
+      shell: bash
       run: |
-        """https://macappstore.org/lazarus"""
-        import os
-        import sys
-        import subprocess
-        subprocess.run(
-            "brew install --cask lazarus".split(),
-            check=True,
-        )
-        os.environ["PATH"] += ":/Applications/Lazarus"
-        subprocess.run(
-            "lazbuild -v".split(),
-            check=True,
-        )
-        os.environ["INSTANTFPCOPTIONS"] = "-Fu/Applications/Lazarus/components/lazutils"
-        sys.exit(subprocess.run(
-            "instantfpc .github/workflows/make.pas build".split(),
-        ).returncode)
+        set -xeuo pipefail
+        brew update
+        brew install --cask lazarus
+        echo "Lazarus v$(lazbuild -v)"
+    
+    - name: Build on macOS Intel
+      if: matrix.os == 'macos-13'
+      shell: bash
+      run: |
+        set -xeuo pipefail
+        export PATH="$PATH:/Applications/Lazarus"
+        export INSTANTFPCOPTIONS="-Fu/Applications/Lazarus/components/lazutils"
+        echo "Lazarus v$(lazbuild -v)"
+        instantfpc .github/workflows/make.pas build
+        delp -r "${PWD}"
 
     - name: Get Lazarus installer from cache on Windows
       if: runner.os == 'Windows'
