@@ -65,7 +65,7 @@ uses LazFileUtils, Dialogs,
     UTranslation, UFileSystem,
     base64;
 
-const OnlineResourcesURL = 'https://gitcdn.link/repo/bgrabitmap/lazpaint/master/lazpaint/release/stable/';
+const OnlineResourcesURL = 'https://raw.githubusercontent.com/bgrabitmap/lazpaint/master/lazpaint/release/stable/';
 
 function GetNumericPart(s: string): string;
 var
