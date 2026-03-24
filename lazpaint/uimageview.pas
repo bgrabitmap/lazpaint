@@ -2,9 +2,9 @@
 unit UImageView;
 
 {$mode objfpc}{$H+}
-{$IF defined(LINUX) and not defined(LCLqt5)}{$DEFINE IMAGEVIEW_DIRECTUPDATE}{$ENDIF}
+{$IF defined(LINUX) and not defined(LCLqt5) and not defined(LCLqt6)}{$DEFINE IMAGEVIEW_DIRECTUPDATE}{$ENDIF}
 {$DEFINE DRAW_TOOL_OUTSIDE_IMAGE}
-{$IF not defined(DARWIN) and not defined(LCLqt5)}{$DEFINE IMAGEVIEW_QUICKUPDATE}{$ENDIF}
+{$IF not defined(DARWIN) and not defined(LCLqt5) and not defined(LCLqt6)}{$DEFINE IMAGEVIEW_QUICKUPDATE}{$ENDIF}
 
 interface
 
