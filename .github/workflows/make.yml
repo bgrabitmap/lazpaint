@@ -70,7 +70,7 @@ jobs:
     - name: Get Lazarus installer from cache on Windows
       if: runner.os == 'Windows'
       id: cache-lazarus
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: lazarus-installer
         key: ${{ runner.os }}-lazarus-installer-4.0
