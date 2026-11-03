@@ -75,6 +75,8 @@ type
     procedure SpinEdit_DPIChange(Sender: TObject);
     procedure SpinEdit_SizeChange(Sender: TObject);
   private
+    procedure MoveImageClick(Sender: TObject);
+    procedure AddImagePositionButtons;
     function GetDpiX: single;
     function GetDpiY: single;
     function GetRotatedSpinBottom: TSpinEdit;
@@ -684,9 +686,76 @@ begin
     end;
 end;
 
+procedure TFPrint.MoveImageClick(Sender: TObject);
+var
+  delta: TPointF;
+  step: single;
+begin
+  // Paper-space movement goes through the same redraw/clamping as dragging.
+  step := 5 / 25.4 * 72;
+  if ssShift in GetKeyShiftState then step := step * 5;
+  delta := PointF(0, 0);
+  case TControl(Sender).Tag of
+    0: delta.x := -step;
+    1: delta.y := -step;
+    2: delta.y := step;
+    3: delta.x := step;
+  end;
+  FImagePos += delta;
+  FWantedImagePos := FImagePos;
+  UpdatePrintPreview;
+end;
+
+procedure TFPrint.AddImagePositionButtons;
+var
+  group: TGroupBox;
+  button: TButton;
+  i, buttonHeight, spacing: integer;
+begin
+  group := TGroupBox.Create(Self);
+  group.Name := 'GroupBox_ImagePosition';
+  group.Caption := rsPrintImagePosition;
+  group.SetBounds(GroupBox_ImageSize.Left, Button_Print.Top,
+    GroupBox_ImageSize.Width, DoScaleY(55, OriginalDPI));
+  group.Parent := Panel2;
+  Panel2.SetControlIndex(group, Panel2.GetControlIndex(Button_Print));
+  group.TabOrder := Button_Print.TabOrder;
+  Button_Print.TabOrder := group.TabOrder + 1;
+  group.ChildSizing.Layout := cclLeftToRightThenTopToBottom;
+  group.ChildSizing.ControlsPerLine := 4;
+  group.ChildSizing.EnlargeHorizontal := crsHomogenousChildResize;
+  group.ChildSizing.LeftRightSpacing := DoScaleX(2, OriginalDPI);
+  group.ChildSizing.HorizontalSpacing := DoScaleX(2, OriginalDPI);
+  buttonHeight := DoScaleY(26, OriginalDPI);
+  for i := 0 to 3 do
+  begin
+    button := TButton.Create(Self);
+    button.Name := 'Button_MoveImage' + IntToStr(i);
+    button.Tag := i;
+    button.SetBounds(i * DoScaleX(40, OriginalDPI), 0,
+      DoScaleX(38, OriginalDPI), buttonHeight);
+    case i of
+      0: begin button.Caption := '←'; button.Hint := rsPrintMoveLeft; end;
+      1: begin button.Caption := '↑'; button.Hint := rsPrintMoveUp; end;
+      2: begin button.Caption := '↓'; button.Hint := rsPrintMoveDown; end;
+      3: begin button.Caption := '→'; button.Hint := rsPrintMoveRight; end;
+    end;
+    button.ShowHint := true;
+    button.OnClick := @MoveImageClick;
+    button.Parent := group;
+    button.TabOrder := i;
+  end;
+  spacing := DoScaleY(6, OriginalDPI);
+  Button_Print.Top := group.Top + group.Height + spacing;
+  ClientHeight := Max(ClientHeight, Panel1.Height + Button_Print.Top +
+    Button_Print.Height + DoScaleY(40, OriginalDPI));
+  Constraints.MinHeight := Max(Constraints.MinHeight, Height);
+end;
+
 procedure TFPrint.FormCreate(Sender: TObject);
 begin
   ScaleControl(Self,OriginalDPI);
+  AddImagePositionButtons;
   BGRAVirtualScreen1 := TBGRAVirtualScreen.Create(self);
   BGRAVirtualScreen1.Align := alClient;
   BGRAVirtualScreen1.BitmapAutoScale:= false;
