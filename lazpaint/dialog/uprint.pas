@@ -115,7 +115,7 @@ type
 
 implementation
 
-uses printers, UResourceStrings, Types, LCScaleDPI, umac, ULoading;
+uses printers, UResourceStrings, Types, Math, LCScaleDPI, umac, ULoading;
 
 var
   marginLeft, marginRight, marginTop, marginBottom: integer;
@@ -583,12 +583,14 @@ begin
   if IntersectRect(area,area,Bitmap.ClipRect) then
   begin
     Bitmap.ClipRect := area;
-    if FImagePos.x + FImageSize.x > paperSizeInPoints.x - unrotatedMarginBottomRightInPoints.x then
-      FImagePos.x := paperSizeInPoints.x - unrotatedMarginBottomRightInPoints.x - FImageSize.x;
-    if FImagePos.y + FImageSize.y > paperSizeInPoints.y - unrotatedMarginBottomRightInPoints.y then
-      FImagePos.y := paperSizeInPoints.y - unrotatedMarginBottomRightInPoints.y - FImageSize.y;
-    if FImagePos.x < unrotatedMarginTopLeftInPoints.x then FImagePos.x := unrotatedMarginTopLeftInPoints.x;
-    if FImagePos.y < unrotatedMarginTopLeftInPoints.y then FImagePos.y := unrotatedMarginTopLeftInPoints.y;
+    // Keep small images inside the margins; let oversized images cover the
+    // printable area while moving between their opposite edges.
+    imgTopLeft := unrotatedMarginTopLeftInPoints;
+    imgBottomRight := paperSizeInPoints - unrotatedMarginBottomRightInPoints - FImageSize;
+    FImagePos.x := EnsureRange(FImagePos.x, Min(imgTopLeft.x, imgBottomRight.x),
+      Max(imgTopLeft.x, imgBottomRight.x));
+    FImagePos.y := EnsureRange(FImagePos.y, Min(imgTopLeft.y, imgBottomRight.y),
+      Max(imgTopLeft.y, imgBottomRight.y));
     imgTopLeft := FPreviewTransform*FImagePos;
     imgBottomRight := FPreviewTransform*(FImagePos+FImageSize);
     imgRect := rect(round(imgTopLeft.x),round(imgTopLeft.y),round(imgBottomRight.x),round(imgBottomRight.y));
