@@ -17,6 +17,11 @@ const
   rsPhotoshop = 'Photoshop';
 
 resourcestring
+  rsPrintImagePosition = 'Image position (5 mm)';
+  rsPrintMoveLeft = 'Move left (Shift: 25 mm)';
+  rsPrintMoveUp = 'Move up (Shift: 25 mm)';
+  rsPrintMoveDown = 'Move down (Shift: 25 mm)';
+  rsPrintMoveRight = 'Move right (Shift: 25 mm)';
   rsLazPaint = 'LazPaint';
   rsDonate = 'Donate...';
   rsScript = 'Script';
