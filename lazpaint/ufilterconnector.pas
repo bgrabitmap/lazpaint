@@ -248,7 +248,7 @@ begin
 end;
 
 procedure TFilterConnector.RestoreBackup;
-var oldClip: TRect;
+var oldClip, imgRect: TRect;
 begin
   if not IsRectEmpty(FWorkArea) then
   begin
@@ -256,7 +256,10 @@ begin
     ActiveLayer.ClipRect := FWorkArea;
     ActiveLayer.PutImage(0,0,BackupLayer,dmSet);
     ActiveLayer.ClipRect := oldClip;
-    FLazPaintInstance.NotifyImageChange(False, FWorkArea);
+    imgRect := FWorkArea;
+    with ActiveLayerOffset do
+      OffsetRect(imgRect, X,Y);
+    FLazPaintInstance.NotifyImageChange(False, imgRect);
   end;
 end;
 

@@ -1,0 +1,47 @@
+<?xml version="1.0" ?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="12"/>
+    <General>
+      <MainUnit Value="0"/>
+      <Title Value="Filter preview restoration regression"/>
+    </General>
+    
+    <RequiredPackages Count="5">
+      <Item1>
+        <PackageName Value="BGRABitmapPack"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="bgracontrols"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="lazpaintcontrols"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="Printer4Lazarus"/>
+      </Item4>
+      <Item5>
+        <PackageName Value="LCL"/>
+      </Item5>
+    </RequiredPackages>
+    
+    <Units Count="1">
+      <Unit0>
+        <Filename Value="test_restore.lpr"/>
+        <IsPartOfProject Value="True"/>
+      </Unit0>
+    </Units>
+  </ProjectOptions>
+  
+  <CompilerOptions>
+    <Version Value="11"/>
+    <Target>
+      <Filename Value="test_restore"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="../../../lazpaint"/>
+      <OtherUnitFiles Value="../../../lazpaint;../../../lazpaint/tablet;../../../lazpaint/tools;../../../lazpaint/dialog;../../../lazpaint/dialog/color;../../../lazpaint/dialog/filter;../../../lazpaint/image"/>
+      <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
+    </SearchPaths>
+  </CompilerOptions>
+</CONFIG>

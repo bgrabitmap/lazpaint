@@ -1,0 +1,7 @@
+/lib/
+/test_restore
+/test_restore.exe
+/test_restore.app/
+/*.compiled
+/*.lps
+/*.res
