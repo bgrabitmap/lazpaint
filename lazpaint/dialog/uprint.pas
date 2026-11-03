@@ -438,6 +438,7 @@ var FPrintTransform: TAffineMatrix;
   marTopLeft,marBottomRight,imgTopLeft,imgBottomRight: TPointF;
   bmp: TBitmap;
   area: TRect;
+  printError: string;
 begin
   if (unrotatedTotalMarginInPoints.x >= paperSizeInPoints.x) or
     (unrotatedTotalMarginInPoints.y >= paperSizeInPoints.y) then exit;
@@ -452,38 +453,47 @@ begin
   end;
 
   FLabelCount.Caption:= '...';
-  MessagePopupForever(rsActionInProgress);
-  Self.Enabled:= false;
-  Application.ProcessMessages;
   try
-    FPrintTransform := AffineMatrixScale(Printer.XDPI/72, Printer.YDPI/72);
-    Printer.BeginDoc;
-    marTopLeft := FPrintTransform*unrotatedMarginTopLeftInPoints;
-    marBottomRight := FPrintTransform*(paperSizeInPoints - unrotatedMarginBottomRightInPoints);
-    area := rect(round(marTopLeft.x),round(marTopLeft.y),round(marBottomRight.x),round(marBottomRight.y));
-    Printer.Canvas.ClipRect := area;
-    Printer.Canvas.Clipping := true;
-    imgTopLeft := FPrintTransform*FImagePos;
-    imgBottomRight := FPrintTransform*(FImagePos+FImageSize);
-    bmp := Instance.Image.RenderedImage.MakeBitmapCopy(clWhite);
     try
-      Printer.Canvas.StretchDraw(rect(round(imgTopLeft.x),round(imgTopLeft.y),
-        round(imgBottomRight.x),round(imgBottomRight.y)), bmp);
+      MessagePopupForever(rsActionInProgress);
+      Self.Enabled:= false;
+      Application.ProcessMessages;
+      FPrintTransform := AffineMatrixScale(Printer.XDPI/72, Printer.YDPI/72);
+      Printer.BeginDoc;
+      marTopLeft := FPrintTransform*unrotatedMarginTopLeftInPoints;
+      marBottomRight := FPrintTransform*(paperSizeInPoints - unrotatedMarginBottomRightInPoints);
+      area := rect(round(marTopLeft.x),round(marTopLeft.y),round(marBottomRight.x),round(marBottomRight.y));
+      Printer.Canvas.ClipRect := area;
+      Printer.Canvas.Clipping := true;
+      imgTopLeft := FPrintTransform*FImagePos;
+      imgBottomRight := FPrintTransform*(FImagePos+FImageSize);
+      bmp := Instance.Image.RenderedImage.MakeBitmapCopy(clWhite);
+      try
+        Printer.Canvas.StretchDraw(rect(round(imgTopLeft.x),round(imgTopLeft.y),
+          round(imgBottomRight.x),round(imgBottomRight.y)), bmp);
+      finally
+        bmp.Free;
+      end;
+      Printer.Canvas.Clipping := false;
+      Printer.EndDoc;
+      inc(FPrintCount);
     finally
-      bmp.Free;
+      Self.Enabled := true;
+      MessagePopupHide;
+      FLabelCount.Caption := IntToStr(FPrintCount);
     end;
-    Printer.Canvas.Clipping := false;
-    Printer.EndDoc;
     MessagePopup(rsOkay, 4000);
-    inc(FPrintCount);
   except on ex:exception do
     begin
-      Instance.ShowError(Caption, ex.Message);
-      if Printer.Printing then Printer.Abort;
+      printError := ex.Message;
+      try
+        if Printer.Printing then Printer.Abort;
+      except on abortError: Exception do
+        printError := printError + LineEnding + abortError.Message;
+      end;
+      Instance.ShowError(Caption, printError);
     end;
   end;
-  Self.Enabled := true;
-  FLabelCount.Caption := IntToStr(FPrintCount);
 end;
 
 procedure TFPrint.Button_ZoomFitClick(Sender: TObject);
