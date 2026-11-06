@@ -137,7 +137,7 @@ end;
 procedure TFPhongFilter.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FHeightMap);
-  if Assigned(FTexture) then FTexture.Free;
+  if Assigned(FTexture) then FTexture.FreeReference;
   if Assigned(FComputedImage) then FComputedImage.Free;
 end;
 
