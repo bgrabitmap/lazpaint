@@ -61,6 +61,8 @@ type
     class var sourcePositionRelative: boolean;
     class var sourceFlattened: boolean;
     class var sourceDefined: boolean;
+    class var lastCursorPos: TPointF;
+    class var cursorPosKnown: boolean;
     function PickColorWithShift: boolean; override;
     function DrawBrushAt(toolDest: TBGRABitmap; x, y: single): TRect; override;
     procedure PrepareBrush(rightBtn: boolean); override;
@@ -68,6 +70,8 @@ type
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; override;
     function DoToolShiftClick({%H-}toolDest: TBGRABitmap; {%H-}ptF: TPointF; {%H-}rightBtn: boolean): TRect; override;
   public
+    class var KeepSourceVisible: boolean;
+    class var SourceMarkerColor: TBGRAPixel;
     class procedure ForgetHintShown;
     function SubPixelAccuracy: boolean; override;
     constructor Create(AManager: TToolManager); override;
@@ -80,6 +84,12 @@ type
 implementation
 
 uses Math, UGraph, UResourceStrings, Graphics, LazPaintType;
+
+function positiveMod(a, b: integer): integer;
+begin
+  result := a mod b;
+  if result < 0 then inc(result, b);
+end;
 
 { TToolClone }
 
@@ -164,6 +174,8 @@ end;
 function TToolClone.DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF
   ): TRect;
 begin
+  lastCursorPos := Manager.ToolCurrentCursorPos;
+  cursorPosKnown := true;
   if not RightClickHintShown then
   begin
     Manager.ToolPopup(tpmRightClickForSource);
@@ -207,15 +219,38 @@ function TToolClone.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
   VirtualScreenHeight: integer;
   BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 var sourcePosF: TPointF;
+  srcIdx: integer;
+  srcOfs, toolOfs: TPoint;
+  show: boolean;
 begin
   Result:=inherited Render(VirtualScreen, VirtualScreenWidth,
     VirtualScreenHeight, BitmapToVirtualScreen);
-  if not sourcePositionRelative and (sourceFlattened or
+  show := false;
+  if sourceDefined and (sourceFlattened or
     (Manager.Image.LayerBitmapById[sourceLayerId] <> nil)) then
   begin
-    sourcePosF := BitmapToVirtualScreen(PointF(sourcePosition.X mod Manager.Image.Width,
-      sourcePosition.Y mod Manager.Image.Height));
-    result := RectUnion(result,NicePoint(VirtualScreen, sourcePosF.X,sourcePosF.Y));
+    if not sourcePositionRelative then
+    begin
+      sourcePosF := BitmapToVirtualScreen(PointF(sourcePosition.X mod Manager.Image.Width,
+        sourcePosition.Y mod Manager.Image.Height));
+      show := true;
+    end else if KeepSourceVisible and cursorPosKnown then
+    begin
+      if sourceFlattened then srcOfs := Point(0,0) else
+      begin
+        srcIdx := Manager.Image.GetLayerIndexById(sourceLayerId);
+        srcOfs := Manager.Image.LayerOffset[srcIdx];
+      end;
+      toolOfs := LayerOffset;
+      sourcePosF := BitmapToVirtualScreen(PointF(
+        positiveMod(round(lastCursorPos.x) - toolOfs.x + sourcePosition.X + srcOfs.x, Manager.Image.Width),
+        positiveMod(round(lastCursorPos.y) - toolOfs.y + sourcePosition.Y + srcOfs.y, Manager.Image.Height)));
+      show := true;
+    end;
+  end;
+  if show then
+  begin
+    result := RectUnion(result,NicePoint(VirtualScreen, sourcePosF.X,sourcePosF.Y, SourceMarkerColor));
     if sourcePosF.Y > virtualScreenHeight/2 then
       result := RectUnion(result,NiceText(VirtualScreen, round(sourcePosF.X),round(sourcePosF.Y-6), VirtualScreenWidth,VirtualScreenHeight, rsSourcePosition, taCenter, tlBottom))
     else
@@ -393,6 +428,7 @@ initialization
   RegisterTool(ptClone,TToolClone);
 
   TToolClone.sourceLayerId := -1;
+  TToolClone.SourceMarkerColor := BGRA(255,255,255,192);
 
 end.
 
