@@ -590,12 +590,10 @@ end;
 
 function TDarkTheme.IsLclDarkTheme: boolean;
 const
-  cMax = $A0;
-var
-  N: TColor;
+  cMaxLightness = 26214; // 40% of 65535
 begin
-  N:= ColorToRGB(clWindow);
-  Result:= (Red(N)<cMax) and (Green(N)<cMax) and (Blue(N)<cMax);
+  // perceived lightness (weighted components) of the gamma-expanded color
+  Result:= GetLightness(GammaExpansion(ColorToBGRA(ColorToRGB(clWindow)))) < cMaxLightness;
 end;
 
 function TDarkTheme.IsLclLightThemeSafe: boolean;
