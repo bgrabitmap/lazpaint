@@ -589,9 +589,11 @@ begin
 end;
 
 function TDarkTheme.IsLclDarkTheme: boolean;
+const
+  cMaxLightness = 26214; // 40% of 65535
 begin
-  // perceived lightness (weighted components) in linear light, compared to 50%
-  Result:= GetLightness(GammaExpansion(ColorToBGRA(ColorToRGB(clWindow)))) < 32768;
+  // perceived lightness (weighted components) of the gamma-expanded color
+  Result:= GetLightness(GammaExpansion(ColorToBGRA(ColorToRGB(clWindow)))) < cMaxLightness;
 end;
 
 function TDarkTheme.IsLclLightThemeSafe: boolean;
