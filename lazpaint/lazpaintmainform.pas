@@ -958,8 +958,6 @@ begin
 
   previousToolImg:= -1;
   CreateCloneMarkerControls;
-  TToolClone.KeepSourceVisible := Config.DefaultCloneKeepSource;
-  TToolClone.SourceMarkerColor := Config.DefaultCloneSourceColor;
 
   spacePressed:= false;
   altPressed:= false;
@@ -1073,6 +1071,8 @@ var
 begin
   FInitialized := false;
   Config := LazPaintInstance.Config;
+  TToolClone.KeepSourceVisible := Config.DefaultCloneKeepSource;
+  TToolClone.SourceMarkerColor := Config.DefaultCloneSourceColor;
   CreateMenuAndToolbar;
 
   if Config.Default3dObjectDirectory = '' then
