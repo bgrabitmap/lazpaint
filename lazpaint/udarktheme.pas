@@ -589,13 +589,9 @@ begin
 end;
 
 function TDarkTheme.IsLclDarkTheme: boolean;
-const
-  cMax = $A0;
-var
-  N: TColor;
 begin
-  N:= ColorToRGB(clWindow);
-  Result:= (Red(N)<cMax) and (Green(N)<cMax) and (Blue(N)<cMax);
+  // perceived lightness (weighted components) in linear light, compared to 50%
+  Result:= GetLightness(GammaExpansion(ColorToBGRA(ColorToRGB(clWindow)))) < 32768;
 end;
 
 function TDarkTheme.IsLclLightThemeSafe: boolean;
