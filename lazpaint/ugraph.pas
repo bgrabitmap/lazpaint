@@ -36,7 +36,6 @@ function NiceFrame(ABitmap: TBGRABitmap; ACanvasScale: integer; APoints: array o
 function NicePointBounds(x,y: single): TRect;
 function NicePoint(bmp: TBGRABitmap; x,y: single; alpha: byte = 192):TRect; overload;
 function NicePoint(bmp: TBGRABitmap; ptF: TPointF; alpha: byte = 192):TRect; overload;
-function NicePoint(bmp: TBGRABitmap; x,y: single; ringColor: TBGRAPixel): TRect; overload;
 procedure NiceLine(bmp: TBGRABitmap; x1,y1,x2,y2: single; alpha: byte = 192);
 function NiceText(bmp: TBGRABitmap; x,y,bmpWidth,bmpHeight: integer; s: string; align: TAlignment = taLeftJustify; valign: TTextLayout = tlTop): TRect;
 function ComputeColorCircle(tx,ty: integer; light: word; hueCorrection: boolean = true): TBGRABitmap;
@@ -1253,11 +1252,6 @@ begin
 end;
 
 function NicePoint(bmp: TBGRABitmap; x, y: single; alpha: byte = 192): TRect;
-begin
-  result := NicePoint(bmp,x,y,BGRA(255,255,255,alpha));
-end;
-
-function NicePoint(bmp: TBGRABitmap; x, y: single; ringColor: TBGRAPixel): TRect;
 var
   multi: TBGRAMultishapeFiller;
   oldClip: TRect;
@@ -1272,9 +1266,9 @@ begin
   penWidthStroke := penWidth * 3.5;
   multi := TBGRAMultishapeFiller.Create;
   multi.AddEllipseBorder(x,y,NicePointMaxRadius*CanvasScale-2,
-    NicePointMaxRadius*CanvasScale-2, penWidthStroke, BGRA(0,0,0,ringColor.alpha));
+    NicePointMaxRadius*CanvasScale-2, penWidthStroke, BGRA(0,0,0,alpha));
   multi.AddEllipseBorder(x,y,NicePointMaxRadius*CanvasScale-2,
-    NicePointMaxRadius*CanvasScale-2, penWidth, ringColor);
+    NicePointMaxRadius*CanvasScale-2, penWidth, BGRA(255,255,255,alpha));
   multi.PolygonOrder:= poLastOnTop;
   multi.Draw(bmp);
   multi.Free;

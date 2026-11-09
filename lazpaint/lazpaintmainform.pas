@@ -738,8 +738,10 @@ type
     FInPerspective, FInGridNb: Boolean;
     FOnlineUpdater: TLazPaintCustomOnlineUpdater;
     FInitialized: boolean;
-    FCheckKeepSource: TCheckBox;
-    FShapeSourceColor: TShape;
+    FToolBarKeepSource: TToolBar;
+    FButtonKeepSource: TToolButton;
+    FKeepSourceImages: TImageList;
+    FPanelBrushBaseWidth: integer;
     FShouldArrange: boolean;
     spacePressed, altPressed, snapPressed, shiftPressed, altGrPressed: boolean;
     snapPressedTime: TDateTime;
@@ -794,8 +796,8 @@ type
     function SpinEditFocused: boolean;
     procedure UpdateBrush;
     procedure CreateCloneMarkerControls;
-    procedure CheckKeepSourceChange(Sender: TObject);
-    procedure SourceColorClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure ButtonKeepSourceClick(Sender: TObject);
+    procedure UpdateKeepSourceIcon(ASize: integer);
     procedure UpdateCloneMarkerControls;
     procedure UpdateBrushList;
     function CatchToolKeyDown(var AKey: Word): boolean;
@@ -1072,7 +1074,6 @@ begin
   FInitialized := false;
   Config := LazPaintInstance.Config;
   TToolClone.KeepSourceVisible := Config.DefaultCloneKeepSource;
-  TToolClone.SourceMarkerColor := Config.DefaultCloneSourceColor;
   CreateMenuAndToolbar;
 
   if Config.Default3dObjectDirectory = '' then
@@ -1225,6 +1226,7 @@ begin
 
     m.ImageList := LazPaintInstance.Icons[iconSize];
     m.Apply;
+    UpdateKeepSourceIcon(iconSize);
     FLayout.Menu := m;
 
     SVGImageList1.Width := iconSize;
@@ -4525,58 +4527,67 @@ end;
 
 procedure TFMain.CreateCloneMarkerControls;
 begin
-  FCheckKeepSource := TCheckBox.Create(self);
-  FCheckKeepSource.Parent := Panel_Brush;
-  FCheckKeepSource.Caption := 'Keep source visible';
-  FCheckKeepSource.Hint := 'Keep the source marker visible while cloning';
-  FCheckKeepSource.ShowHint := true;
-  FCheckKeepSource.SetBounds(ToolBar21.Left + ToolBar21.Width + 8, 4, 140, 20);
-  FCheckKeepSource.OnChange := @CheckKeepSourceChange;
-  FShapeSourceColor := TShape.Create(self);
-  FShapeSourceColor.Parent := Panel_Brush;
-  FShapeSourceColor.Hint := 'Source marker color';
-  FShapeSourceColor.ShowHint := true;
-  FShapeSourceColor.Cursor := crHandPoint;
-  FShapeSourceColor.SetBounds(FCheckKeepSource.Left + FCheckKeepSource.Width + 4, 5, 18, 18);
-  FShapeSourceColor.OnMouseUp := @SourceColorClick;
-  FCheckKeepSource.Visible := false;
-  FShapeSourceColor.Visible := false;
+  FKeepSourceImages := TImageList.Create(self);
+  FToolBarKeepSource := TToolBar.Create(self);
+  FToolBarKeepSource.Parent := Panel_Brush;
+  FToolBarKeepSource.Align := alNone;
+  FToolBarKeepSource.AutoSize := true;
+  FToolBarKeepSource.EdgeBorders := [];
+  FToolBarKeepSource.Images := FKeepSourceImages;
+  FToolBarKeepSource.SetBounds(ToolBar21.Left + ToolBar21.Width + 8, ToolBar21.Top, 24, ToolBar21.Height);
+  FButtonKeepSource := TToolButton.Create(self);
+  FButtonKeepSource.Parent := FToolBarKeepSource;
+  FButtonKeepSource.Style := tbsCheck;
+  FButtonKeepSource.Hint := 'Keep the source position visible';
+  FButtonKeepSource.ShowHint := true;
+  FButtonKeepSource.OnClick := @ButtonKeepSourceClick;
+  UpdateKeepSourceIcon(16);
+  FToolBarKeepSource.Visible := false;
+end;
+
+procedure TFMain.UpdateKeepSourceIcon(ASize: integer);
+var
+  bmp: TBGRABitmap;
+  c, r, penWidth: single;
+begin
+  // same kind of marker as the source position, with a diameter of half the icon
+  bmp := TBGRABitmap.Create(ASize, ASize, BGRAPixelTransparent);
+  c := (ASize-1)/2;
+  r := ASize/4;
+  penWidth := ASize/16;
+  if penWidth < 1 then penWidth := 1;
+  bmp.EllipseAntialias(c, c, r, r, BGRA(0,0,0,192), penWidth*3.5);
+  bmp.EllipseAntialias(c, c, r, r, BGRA(255,255,255,192), penWidth);
+  FKeepSourceImages.Clear;
+  FKeepSourceImages.Width := ASize;
+  FKeepSourceImages.Height := ASize;
+  FKeepSourceImages.Add(bmp.Bitmap, nil);
+  bmp.Free;
+  FToolBarKeepSource.Images := FKeepSourceImages;
+  FToolBarKeepSource.ButtonWidth := ASize + ScaleX(6, 96);
+  FToolBarKeepSource.ButtonHeight := ASize + ScaleY(5, 96);
+  FButtonKeepSource.ImageIndex := 0;
 end;
 
 procedure TFMain.UpdateCloneMarkerControls;
 var isClone: boolean;
 begin
-  if FCheckKeepSource = nil then exit;
+  if FToolBarKeepSource = nil then exit;
+  if FPanelBrushBaseWidth = 0 then FPanelBrushBaseWidth := Panel_Brush.Width;
   isClone := ToolManager.GetCurrentToolType = ptClone;
-  FCheckKeepSource.Visible := isClone;
-  FShapeSourceColor.Visible := isClone;
-  FCheckKeepSource.Checked := TToolClone.KeepSourceVisible;
-  FShapeSourceColor.Brush.Color := BGRAToColor(TToolClone.SourceMarkerColor);
-  FShapeSourceColor.Enabled := TToolClone.KeepSourceVisible;
-  if isClone then Panel_Brush.Width := FShapeSourceColor.Left + FShapeSourceColor.Width + 6;
+  FToolBarKeepSource.Visible := isClone;
+  FButtonKeepSource.Down := TToolClone.KeepSourceVisible;
+  if isClone then
+    Panel_Brush.Width := FToolBarKeepSource.Left + FToolBarKeepSource.Width + 6
+  else
+    Panel_Brush.Width := FPanelBrushBaseWidth;
 end;
 
-procedure TFMain.CheckKeepSourceChange(Sender: TObject);
+procedure TFMain.ButtonKeepSourceClick(Sender: TObject);
 begin
-  TToolClone.KeepSourceVisible := FCheckKeepSource.Checked;
-  FShapeSourceColor.Enabled := FCheckKeepSource.Checked;
-  Config.SetDefaultCloneKeepSource(FCheckKeepSource.Checked);
+  TToolClone.KeepSourceVisible := FButtonKeepSource.Down;
+  Config.SetDefaultCloneKeepSource(FButtonKeepSource.Down);
   Image.OnImageChanged.NotifyObservers;
-end;
-
-procedure TFMain.SourceColorClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var c: TBGRAPixel;
-begin
-  if not FShapeSourceColor.Enabled then exit;
-  ColorDialog1.Color := BGRAToColor(TToolClone.SourceMarkerColor);
-  if ColorDialog1.Execute then
-  begin
-    c := ColorToBGRA(ColorDialog1.Color, TToolClone.SourceMarkerColor.alpha);
-    TToolClone.SourceMarkerColor := c;
-    Config.SetDefaultCloneSourceColor(c);
-    FShapeSourceColor.Brush.Color := ColorDialog1.Color;
-    Image.OnImageChanged.NotifyObservers;
-  end;
 end;
 
 procedure TFMain.ManagerBrushChanged(Sender: TObject);

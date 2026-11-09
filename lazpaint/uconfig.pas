@@ -222,8 +222,6 @@ type
     procedure SetDefaultToolPenWidth(value: single);
     function DefaultCloneKeepSource: boolean;
     procedure SetDefaultCloneKeepSource(value: boolean);
-    function DefaultCloneSourceColor: TBGRAPixel;
-    procedure SetDefaultCloneSourceColor(value: TBGRAPixel);
     function DefaultToolEraserWidth: single;
     procedure SetDefaultToolEraserWidth(value: single);
     function DefaultToolOptionDrawShape: boolean;
@@ -910,16 +908,6 @@ end;
 procedure TLazPaintConfig.SetDefaultCloneKeepSource(value: boolean);
 begin
   iniOptions.WriteBool('Tool','CloneKeepSource',value);
-end;
-
-function TLazPaintConfig.DefaultCloneSourceColor: TBGRAPixel;
-begin
-  result := StrToBGRA(iniOptions.ReadString('Tool','CloneSourceColor','#FFFFFFC0'), BGRA(255,255,255,192));
-end;
-
-procedure TLazPaintConfig.SetDefaultCloneSourceColor(value: TBGRAPixel);
-begin
-  iniOptions.WriteString('Tool','CloneSourceColor',BGRAToStr(value));
 end;
 
 function TLazPaintConfig.DefaultToolEraserWidth: single;
