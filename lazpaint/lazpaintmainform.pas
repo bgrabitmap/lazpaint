@@ -1278,6 +1278,7 @@ begin
   VectorialFill_Back.Width := startFillControlWidth;
   VectorialFill_Outline.Width := startFillControlWidth;
   ToolManager.UpdateContextualToolbars;
+  UpdateCloneMarkerControls;
   UpdateToolImage;
   UpdateToolBar;
   FShouldArrange := true;
