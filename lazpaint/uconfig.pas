@@ -220,6 +220,8 @@ type
     procedure SetDefaultToolOutlineGradient(value: string);
     function DefaultToolPenWidth: single;
     procedure SetDefaultToolPenWidth(value: single);
+    function DefaultCloneKeepSource: boolean;
+    procedure SetDefaultCloneKeepSource(value: boolean);
     function DefaultToolEraserWidth: single;
     procedure SetDefaultToolEraserWidth(value: single);
     function DefaultToolOptionDrawShape: boolean;
@@ -896,6 +898,16 @@ end;
 procedure TLazPaintConfig.SetDefaultToolPenWidth(value: single);
 begin
   iniOptions.WriteFloat('Tool','PenWidth',value);
+end;
+
+function TLazPaintConfig.DefaultCloneKeepSource: boolean;
+begin
+  result := iniOptions.ReadBool('Tool','CloneKeepSource',false);
+end;
+
+procedure TLazPaintConfig.SetDefaultCloneKeepSource(value: boolean);
+begin
+  iniOptions.WriteBool('Tool','CloneKeepSource',value);
 end;
 
 function TLazPaintConfig.DefaultToolEraserWidth: single;

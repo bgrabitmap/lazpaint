@@ -738,6 +738,10 @@ type
     FInPerspective, FInGridNb: Boolean;
     FOnlineUpdater: TLazPaintCustomOnlineUpdater;
     FInitialized: boolean;
+    FToolBarKeepSource: TToolBar;
+    FButtonKeepSource: TToolButton;
+    FKeepSourceImages: TImageList;
+    FPanelBrushBaseWidth: integer;
     FShouldArrange: boolean;
     spacePressed, altPressed, snapPressed, shiftPressed, altGrPressed: boolean;
     snapPressedTime: TDateTime;
@@ -791,6 +795,10 @@ type
     function ShowOpenBrushDialog: boolean;
     function SpinEditFocused: boolean;
     procedure UpdateBrush;
+    procedure CreateCloneMarkerControls;
+    procedure ButtonKeepSourceClick(Sender: TObject);
+    procedure UpdateKeepSourceIcon(ASize: integer);
+    procedure UpdateCloneMarkerControls;
     procedure UpdateBrushList;
     function CatchToolKeyDown(var AKey: Word): boolean;
     function CatchToolKeyUp(var AKey: Word): boolean;
@@ -951,6 +959,7 @@ begin
   SaveSelectionDialog.Filter := SavePictureDialog1.Filter;
 
   previousToolImg:= -1;
+  CreateCloneMarkerControls;
 
   spacePressed:= false;
   altPressed:= false;
@@ -1064,6 +1073,7 @@ var
 begin
   FInitialized := false;
   Config := LazPaintInstance.Config;
+  TToolClone.KeepSourceVisible := Config.DefaultCloneKeepSource;
   CreateMenuAndToolbar;
 
   if Config.Default3dObjectDirectory = '' then
@@ -1216,6 +1226,7 @@ begin
 
     m.ImageList := LazPaintInstance.Icons[iconSize];
     m.Apply;
+    UpdateKeepSourceIcon(iconSize);
     FLayout.Menu := m;
 
     SVGImageList1.Width := iconSize;
@@ -1267,6 +1278,7 @@ begin
   VectorialFill_Back.Width := startFillControlWidth;
   VectorialFill_Outline.Width := startFillControlWidth;
   ToolManager.UpdateContextualToolbars;
+  UpdateCloneMarkerControls;
   UpdateToolImage;
   UpdateToolBar;
   FShouldArrange := true;
@@ -4195,6 +4207,7 @@ begin
   begin
     PaintBox_PenPreview.Invalidate;
     Image.OnImageChanged.NotifyObservers;
+    UpdateCloneMarkerControls;
     UpdateToolImage;
     UpdatePenWidthToolbar;
     UpdateCurveModeToolbar;
@@ -4511,6 +4524,71 @@ end;
 function TFMain.GetImage: TLazPaintImage;
 begin
   result := LazPaintInstance.Image;
+end;
+
+procedure TFMain.CreateCloneMarkerControls;
+begin
+  FKeepSourceImages := TImageList.Create(self);
+  FToolBarKeepSource := TToolBar.Create(self);
+  FToolBarKeepSource.Parent := Panel_Brush;
+  FToolBarKeepSource.Align := alNone;
+  FToolBarKeepSource.AutoSize := true;
+  FToolBarKeepSource.EdgeBorders := [];
+  FToolBarKeepSource.Images := FKeepSourceImages;
+  FToolBarKeepSource.SetBounds(ToolBar21.Left + ToolBar21.Width + 8, ToolBar21.Top, 24, ToolBar21.Height);
+  FButtonKeepSource := TToolButton.Create(self);
+  FButtonKeepSource.Parent := FToolBarKeepSource;
+  FButtonKeepSource.Style := tbsCheck;
+  FButtonKeepSource.Hint := 'Keep the source position visible';
+  FButtonKeepSource.ShowHint := true;
+  FButtonKeepSource.OnClick := @ButtonKeepSourceClick;
+  UpdateKeepSourceIcon(16);
+  FToolBarKeepSource.Visible := false;
+end;
+
+procedure TFMain.UpdateKeepSourceIcon(ASize: integer);
+var
+  bmp: TBGRABitmap;
+  c, r, penWidth: single;
+begin
+  // same kind of marker as the source position, with a diameter of half the icon
+  bmp := TBGRABitmap.Create(ASize, ASize, BGRAPixelTransparent);
+  c := (ASize-1)/2;
+  r := ASize/4;
+  penWidth := ASize/16;
+  if penWidth < 1 then penWidth := 1;
+  bmp.EllipseAntialias(c, c, r, r, BGRA(0,0,0,192), penWidth*3.5);
+  bmp.EllipseAntialias(c, c, r, r, BGRA(255,255,255,192), penWidth);
+  FKeepSourceImages.Clear;
+  FKeepSourceImages.Width := ASize;
+  FKeepSourceImages.Height := ASize;
+  FKeepSourceImages.Add(bmp.Bitmap, nil);
+  bmp.Free;
+  FToolBarKeepSource.Images := FKeepSourceImages;
+  FToolBarKeepSource.ButtonWidth := ASize + ScaleX(6, 96);
+  FToolBarKeepSource.ButtonHeight := ASize + ScaleY(5, 96);
+  FButtonKeepSource.ImageIndex := 0;
+end;
+
+procedure TFMain.UpdateCloneMarkerControls;
+var isClone: boolean;
+begin
+  if FToolBarKeepSource = nil then exit;
+  if FPanelBrushBaseWidth = 0 then FPanelBrushBaseWidth := Panel_Brush.Width;
+  isClone := ToolManager.GetCurrentToolType = ptClone;
+  FToolBarKeepSource.Visible := isClone;
+  FButtonKeepSource.Down := TToolClone.KeepSourceVisible;
+  if isClone then
+    Panel_Brush.Width := FToolBarKeepSource.Left + FToolBarKeepSource.Width + 6
+  else
+    Panel_Brush.Width := FPanelBrushBaseWidth;
+end;
+
+procedure TFMain.ButtonKeepSourceClick(Sender: TObject);
+begin
+  TToolClone.KeepSourceVisible := FButtonKeepSource.Down;
+  Config.SetDefaultCloneKeepSource(FButtonKeepSource.Down);
+  Image.OnImageChanged.NotifyObservers;
 end;
 
 procedure TFMain.ManagerBrushChanged(Sender: TObject);

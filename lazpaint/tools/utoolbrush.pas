@@ -61,13 +61,18 @@ type
     class var sourcePositionRelative: boolean;
     class var sourceFlattened: boolean;
     class var sourceDefined: boolean;
+    class var lastCursorPos: TPointF;
+    class var cursorPosKnown: boolean;
+    class var lastRenderedMarkerBounds: TRect;
     function PickColorWithShift: boolean; override;
     function DrawBrushAt(toolDest: TBGRABitmap; x, y: single): TRect; override;
     procedure PrepareBrush(rightBtn: boolean); override;
     procedure ReleaseBrush; override;
+    function DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF; rightBtn: boolean): TRect; override;
     function DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF): TRect; override;
     function DoToolShiftClick({%H-}toolDest: TBGRABitmap; {%H-}ptF: TPointF; {%H-}rightBtn: boolean): TRect; override;
   public
+    class var KeepSourceVisible: boolean;
     class procedure ForgetHintShown;
     function SubPixelAccuracy: boolean; override;
     constructor Create(AManager: TToolManager); override;
@@ -80,6 +85,12 @@ type
 implementation
 
 uses Math, UGraph, UResourceStrings, Graphics, LazPaintType;
+
+function positiveMod(a, b: integer): integer;
+begin
+  result := a mod b;
+  if result < 0 then inc(result, b);
+end;
 
 { TToolClone }
 
@@ -164,12 +175,27 @@ end;
 function TToolClone.DoToolMove(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF
   ): TRect;
 begin
+  if ssSnap in ShiftState then ptF := PointF(pt.X,pt.Y);
+  lastCursorPos := ptF;
+  cursorPosKnown := true;
   if not RightClickHintShown then
   begin
     Manager.ToolPopup(tpmRightClickForSource);
     RightClickHintShown := true;
   end;
   Result:=inherited DoToolMove(toolDest, pt, ptF);
+  // the source marker follows the cursor: ask for a refresh of the tool rendering
+  if Result.IsEmpty and KeepSourceVisible and sourceDefined and sourcePositionRelative then
+    Result := OnlyRenderChange;
+end;
+
+function TToolClone.DoToolDown(toolDest: TBGRABitmap; pt: TPoint; ptF: TPointF;
+  rightBtn: boolean): TRect;
+begin
+  if ssSnap in ShiftState then ptF := PointF(pt.X,pt.Y);
+  lastCursorPos := ptF;
+  cursorPosKnown := true;
+  Result:=inherited DoToolDown(toolDest, pt, ptF, rightBtn);
 end;
 
 function TToolClone.DoToolShiftClick(toolDest: TBGRABitmap; ptF: TPointF;
@@ -207,20 +233,51 @@ function TToolClone.Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth,
   VirtualScreenHeight: integer;
   BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect;
 var sourcePosF: TPointF;
+  srcIdx: integer;
+  srcOfs: TPoint;
+  show: boolean;
+  markerBounds: TRect;
 begin
   Result:=inherited Render(VirtualScreen, VirtualScreenWidth,
     VirtualScreenHeight, BitmapToVirtualScreen);
-  if not sourcePositionRelative and (sourceFlattened or
+  show := false;
+  if sourceDefined and (sourceFlattened or
     (Manager.Image.LayerBitmapById[sourceLayerId] <> nil)) then
   begin
-    sourcePosF := BitmapToVirtualScreen(PointF(sourcePosition.X mod Manager.Image.Width,
-      sourcePosition.Y mod Manager.Image.Height));
-    result := RectUnion(result,NicePoint(VirtualScreen, sourcePosF.X,sourcePosF.Y));
-    if sourcePosF.Y > virtualScreenHeight/2 then
-      result := RectUnion(result,NiceText(VirtualScreen, round(sourcePosF.X),round(sourcePosF.Y-6), VirtualScreenWidth,VirtualScreenHeight, rsSourcePosition, taCenter, tlBottom))
-    else
-      result := RectUnion(result,NiceText(VirtualScreen, round(sourcePosF.X),round(sourcePosF.Y+6), VirtualScreenWidth,VirtualScreenHeight, rsSourcePosition, taCenter, tlTop));
+    if not sourcePositionRelative then
+    begin
+      sourcePosF := BitmapToVirtualScreen(PointF(sourcePosition.X mod Manager.Image.Width,
+        sourcePosition.Y mod Manager.Image.Height));
+      show := true;
+    end else if KeepSourceVisible and cursorPosKnown then
+    begin
+      if sourceFlattened then srcOfs := Point(0,0) else
+      begin
+        srcIdx := Manager.Image.GetLayerIndexById(sourceLayerId);
+        srcOfs := Manager.Image.LayerOffset[srcIdx];
+      end;
+      // lastCursorPos is in the coordinates of the tool layer, like the brush position
+      sourcePosF := BitmapToVirtualScreen(PointF(
+        positiveMod(round(lastCursorPos.x) + sourcePosition.X + srcOfs.x, Manager.Image.Width),
+        positiveMod(round(lastCursorPos.y) + sourcePosition.Y + srcOfs.y, Manager.Image.Height)));
+      show := true;
+    end;
   end;
+  if show then
+  begin
+    markerBounds := NicePoint(VirtualScreen, sourcePosF.X,sourcePosF.Y);
+    if sourcePosF.Y > virtualScreenHeight/2 then
+      markerBounds := RectUnion(markerBounds,NiceText(VirtualScreen, round(sourcePosF.X),round(sourcePosF.Y-6), VirtualScreenWidth,VirtualScreenHeight, rsSourcePosition, taCenter, tlBottom))
+    else
+      markerBounds := RectUnion(markerBounds,NiceText(VirtualScreen, round(sourcePosF.X),round(sourcePosF.Y+6), VirtualScreenWidth,VirtualScreenHeight, rsSourcePosition, taCenter, tlTop));
+    result := RectUnion(result, markerBounds);
+  end else
+    markerBounds := EmptyRect;
+  // the marker may have moved or disappeared: the previously drawn area must be refreshed too
+  if Assigned(VirtualScreen) then
+    lastRenderedMarkerBounds := markerBounds
+  else
+    result := RectUnion(result, lastRenderedMarkerBounds);
 end;
 
 { TToolBrush }
