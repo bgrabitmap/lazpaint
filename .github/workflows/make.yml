@@ -25,7 +25,7 @@ jobs:
         os:
           - ubuntu-latest
           - windows-latest
-          - macos-15-intel
+          - macos-13
     steps:
     - name: Checkout
       uses: actions/checkout@v6
@@ -48,7 +48,7 @@ jobs:
         delp -r "${PWD}"
 
     - name: Install Lazarus on macOS Intel
-      if: matrix.os == 'macos-15-intel'
+      if: matrix.os == 'macos-13'
       shell: bash
       run: |
         set -xeuo pipefail
@@ -57,7 +57,7 @@ jobs:
         echo "Lazarus v$(lazbuild -v)"
     
     - name: Build on macOS Intel
-      if: matrix.os == 'macos-15-intel'
+      if: matrix.os == 'macos-13'
       shell: bash
       run: |
         set -xeuo pipefail
