@@ -29,5 +29,10 @@ jobs:
       run: |
         export PATH="$HOME/lazarus:$PATH"
         export INSTANTFPCOPTIONS="-Fu$HOME/lazarus/components/lazutils"
-        lazbuild --lazarusdir="$HOME/lazarus" --add-package-link lazpaint/lazpaintcontrols/lazpaintcontrols.lpk || true
-        instantfpc .github/workflows/make.pas build || true
+        mkdir -p "$HOME/.lazarus"
+        cat > "$HOME/.lazarus/environmentoptions.xml" <<XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <CONFIG><EnvironmentOptions><LazarusDirectory Value="$HOME/lazarus/"/><CompilerFilename Value="/opt/homebrew/bin/fpc"/><FPCSourceDirectory Value=""/></EnvironmentOptions></CONFIG>
+        XML
+        lazbuild -v
+        instantfpc .github/workflows/make.pas build
