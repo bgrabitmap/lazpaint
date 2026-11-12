@@ -23,7 +23,7 @@ jobs:
         set -x
         git clone --depth 1 --branch lazarus_4_4 https://gitlab.com/freepascal.org/lazarus/lazarus.git "$HOME/lazarus" || git clone --depth 1 https://gitlab.com/freepascal.org/lazarus/lazarus.git "$HOME/lazarus"
         cd "$HOME/lazarus"
-        make lazbuild LCL_PLATFORM=cocoa -j4
+        make lazbuild LCL_PLATFORM=cocoa
         ./lazbuild -v
     - name: Build LazPaint
       run: |
