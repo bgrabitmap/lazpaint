@@ -1,0 +1,33 @@
+name: Probe macOS arm64
+on:
+  push:
+    branches: ["castor/ci-macos-arm"]
+jobs:
+  probe:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        submodules: true
+    - name: Info
+      run: |
+        uname -m; sw_vers
+        brew info fpc | head -5
+        brew info --cask lazarus | head -3 || true
+    - name: Install FPC
+      run: |
+        brew install fpc
+        fpc -iV; fpc -iTP; fpc -iTO
+    - name: Build Lazarus from source
+      run: |
+        set -x
+        git clone --depth 1 --branch lazarus_4_4 https://gitlab.com/freepascal.org/lazarus/lazarus.git "$HOME/lazarus" || git clone --depth 1 https://gitlab.com/freepascal.org/lazarus/lazarus.git "$HOME/lazarus"
+        cd "$HOME/lazarus"
+        make lazbuild LCL_PLATFORM=cocoa -j4
+        ./lazbuild -v
+    - name: Build LazPaint
+      run: |
+        export PATH="$HOME/lazarus:$PATH"
+        export INSTANTFPCOPTIONS="-Fu$HOME/lazarus/components/lazutils"
+        lazbuild --lazarusdir="$HOME/lazarus" --add-package-link lazpaint/lazpaintcontrols/lazpaintcontrols.lpk || true
+        instantfpc .github/workflows/make.pas build || true
