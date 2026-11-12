@@ -83,7 +83,8 @@ type
         for Line in SplitString(Result.Output, LineEnding) do
           with TRegExpr.Create do
           begin
-            Expression := '(Fatal|Error):';
+            // Also show the linker output (ld may be prefixed, e.g. x86_64-linux-gnu-ld.bfd)
+            Expression := '(Fatal|Error:|(^|[/-])ld(\.[a-z]+)?:|undefined reference|cannot find|collect2)';
             if Exec(Line) then
               OutLog(error, #10 + Line);
             Free;

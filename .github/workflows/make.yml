@@ -37,7 +37,7 @@ jobs:
       shell: bash
       run: |
         set -xeuo pipefail
-        sudo bash -c 'apt-get update; apt-get install -y lazarus cppcheck pylint shellcheck' >/dev/null
+        sudo bash -c 'apt-get update; apt-get install -y lazarus libgtk2.0-dev cppcheck pylint shellcheck' >/dev/null
 
     - name: Build on Linux
       if: runner.os == 'Linux'
