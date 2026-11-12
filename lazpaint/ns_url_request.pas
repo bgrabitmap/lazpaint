@@ -21,7 +21,7 @@ uses
   SysUtils,
   Classes,
   CocoaUtils,
-{$IF DEFINED(IPHONESIM) OR DEFINED(CPUARM) OR DEFINED(CPUAARCH64)}  //iOS
+{$IF DEFINED(IPHONESIM) OR DEFINED(CPUARM) OR (DEFINED(CPUAARCH64) AND DEFINED(IOS))}  //iOS (aarch64 alone is also macOS Apple Silicon)
  {$IFDEF NoiPhoneAll}
   Foundation
  {$ELSE}
