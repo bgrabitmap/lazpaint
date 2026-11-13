@@ -145,7 +145,7 @@ function StrToToolWindowDocking(AValue: string): TToolWindowDocking;
 
 implementation
 
-uses Graphics, Toolwin, math, UDarkTheme, LCScaleDPI;
+uses Graphics, Toolwin, math, UDarkTheme, LCScaleDPI, UTool;
 
 function ToolWindowDockingToStr(AValue: TToolWindowDocking): string;
 begin
@@ -259,22 +259,36 @@ begin
 end;
 
 function TMainFormLayout.CatchToolKeyDown(var AKey: Word): boolean;
+var isModifier: boolean;
 begin
   if Assigned(FImageView) then
   begin
+    // the palette must always see modifiers, otherwise its Ctrl/Alt state
+    // can stay stuck when a tool consumes the key event (issue #619)
+    isModifier := (AKey = VK_MENU) or (AKey = VK_SNAP) or (AKey = VK_SNAP2);
     result := FImageView.CatchToolKeyDown(AKey);
-    if not result and Assigned(FPaletteToolbar) then
-      result := FPaletteToolbar.CatchToolKeyDown(AKey);
+    if (not result or isModifier) and Assigned(FPaletteToolbar) then
+      result := FPaletteToolbar.CatchToolKeyDown(AKey) or result;
   end  else result := false;
 end;
 
 function TMainFormLayout.CatchToolKeyUp(var AKey: Word): boolean;
+var isModifier: boolean;
+  origKey: Word;
 begin
   if Assigned(FImageView) then
   begin
+    isModifier := (AKey = VK_MENU) or (AKey = VK_SNAP) or (AKey = VK_SNAP2);
+    origKey := AKey; // the image view may clear Alt (pen size), the palette still needs it
     result := FImageView.CatchToolKeyUp(AKey);
-    if not result and Assigned(FPaletteToolbar) then
-      result := FPaletteToolbar.CatchToolKeyUp(AKey);
+    if (not result or isModifier) and Assigned(FPaletteToolbar) then
+    begin
+      if isModifier then
+      begin
+        if FPaletteToolbar.CatchToolKeyUp(origKey) then result := true;
+      end
+      else result := FPaletteToolbar.CatchToolKeyUp(AKey) or result;
+    end;
   end  else result := false;
 end;
 
