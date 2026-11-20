@@ -939,10 +939,21 @@ var
 
 procedure GtkIMCommit(context: PGtkIMContext; str: Pgchar; data: gpointer); cdecl;
 var s: TUTF8Char;
+    p: PChar;
+    n: integer;
 begin
   if (GtkIMForm = nil) or (str = nil) then exit;
-  s := TUTF8Char(str);
-  if s <> '' then GtkIMForm.FormUTF8KeyPress(GtkIMForm, s);
+  // TUTF8Char only holds 7 bytes: send the committed text character by character
+  p := str;
+  while p^ <> #0 do
+  begin
+    n := UTF8CharacterLength(p);
+    if n < 1 then n := 1;
+    SetLength(s, n);
+    Move(p^, s[1], n);
+    GtkIMForm.FormUTF8KeyPress(GtkIMForm, s);
+    inc(p, n);
+  end;
 end;
 
 function GtkIMKeySnooper(grab_widget: PGtkWidget; event: PGdkEventKey; func_data: gpointer): gint; cdecl;
@@ -2854,7 +2865,7 @@ begin
   end;
   FLayout.CheckDelayedUpdate;
   {$IFDEF LCLGTK2}
-  UpdateGtkTextInput(self, (CurrentTool = ptText) and Active and not EditingColors and not SpinEditFocused);
+  UpdateGtkTextInput(self, ToolManager.IsEditingText and Active and not EditingColors and not SpinEditFocused);
   {$ENDIF}
   if Assigned(LazPaintInstance) then
   begin

@@ -176,6 +176,7 @@ type
     function GetContextualToolbars: TContextualToolbars; override;
     function Render(VirtualScreen: TBGRABitmap; VirtualScreenWidth, VirtualScreenHeight: integer; BitmapToVirtualScreen: TBitmapToVirtualScreenFunction): TRect; override;
     function ToolKeyPress(var key: TUTF8Char): TRect; override;
+    function GetIsEditingText: boolean; override;
     function ToolUp: TRect; override;
     function ToolCommand(ACommand: TToolCommand): boolean; override;
     function ToolProvideCommand(ACommand: TToolCommand): boolean; override;
@@ -1269,6 +1270,12 @@ begin
       end;
     end;
   end;
+end;
+
+function TEditShapeTool.GetIsEditingText: boolean;
+begin
+  Result:= (GetEditMode = esmShape) and Assigned(GetVectorOriginal.SelectedShape) and
+           (GetVectorOriginal.SelectedShape.Usermode = vsuEditText);
 end;
 
 function TEditShapeTool.ToolKeyPress(var key: TUTF8Char): TRect;
