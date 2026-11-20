@@ -917,9 +917,46 @@ uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
    ugeometricbrush, UPreviewDialog, UQuestion, BGRALayerOriginal,
    BGRATransform, LCVectorPolyShapes, URaw, UFileSystem,
-   UTranslation, UPython, BCTypes;
+   UTranslation, UPython, BCTypes
+   {$IFDEF LCLGTK2}, Gtk2, Gtk2Def, Gtk2Globals, Gtk2Proc{$ENDIF};
 
 const PenWidthFactor = 10;
+
+{$IFDEF LCLGTK2}
+var
+  GtkTextInputFocused: boolean = false;
+
+{ The LCL GTK2 interface keeps one global input method context to filter key
+  presses, but never gives it the focus. Input methods like Fcitx need the
+  focus to compose, so give it to the main window while the text tool is
+  active (the text is drawn on the canvas, there is no native text widget). }
+procedure UpdateGtkTextInputFocus(AForm: TCustomForm; AWanted: boolean);
+var w: PGtkWidget;
+begin
+  if (im_context = nil) or not AForm.HandleAllocated then exit;
+  w := PGtkWidget(AForm.Handle);
+  if AWanted then
+  begin
+    if im_context_widget <> w then
+    begin
+      ResetDefaultIMContext;
+      im_context_widget := w;
+      gtk_im_context_set_client_window(im_context, GetControlWindow(w));
+      GtkTextInputFocused := false;
+    end;
+    if not GtkTextInputFocused then
+    begin
+      gtk_im_context_focus_in(im_context);
+      GtkTextInputFocused := true;
+    end;
+  end else
+  if GtkTextInputFocused then
+  begin
+    gtk_im_context_focus_out(im_context);
+    GtkTextInputFocused := false;
+  end;
+end;
+{$ENDIF}
 
 { TFMain }
 
@@ -2777,6 +2814,9 @@ begin
     FCoordinatesCaptionCount := 0;
   end;
   FLayout.CheckDelayedUpdate;
+  {$IFDEF LCLGTK2}
+  UpdateGtkTextInputFocus(self, (CurrentTool = ptText) and Active and not EditingColors and not SpinEditFocused);
+  {$ENDIF}
   if Assigned(LazPaintInstance) then
   begin
     if DarkThemeInstance.HasSystemDarkThemeChanged then
