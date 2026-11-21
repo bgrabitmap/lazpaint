@@ -5531,7 +5531,7 @@ object FMain: TFMain
     end
     object EditMoveToFront: TAction
       Category = 'Edit'
-      Hint = 'Bring to front'
+      Hint = 'Bring to top'
       ImageIndex = 127
       OnExecute = EditMoveToFrontExecute
       OnUpdate = EditMoveToFrontUpdate
@@ -5545,7 +5545,7 @@ object FMain: TFMain
     end
     object EditMoveToBack: TAction
       Category = 'Edit'
-      Hint = 'Send to back'
+      Hint = 'Send to bottom'
       ImageIndex = 129
       OnExecute = EditMoveToBackExecute
       OnUpdate = EditMoveToBackUpdate

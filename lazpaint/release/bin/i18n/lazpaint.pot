@@ -233,7 +233,7 @@ msgid "Corrected hue and lightness"
 msgstr ""
 
 #: tfcolorize.label_colorness.caption
-msgid "Colorness"
+msgid "Saturation"
 msgstr ""
 
 #: tfcolorize.label_hue.caption
@@ -604,11 +604,11 @@ msgid "Move down"
 msgstr ""
 
 #: tfmain.editmovetoback.hint
-msgid "Send to back"
+msgid "Send to bottom"
 msgstr ""
 
 #: tfmain.editmovetofront.hint
-msgid "Bring to front"
+msgid "Bring to top"
 msgstr ""
 
 #: tfmain.editmoveup.hint
