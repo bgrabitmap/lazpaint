@@ -36,13 +36,17 @@ jobs:
         XML
         # Apple ld (Xcode >= 16.3) rejects FPC 3.2.2 ObjC method lists with a macOS 11 target:
         # lower the deployment target as reported on the Lazarus forum (topic 70698)
-        cat > "$HOME/.fpc.cfg" <<CFG
+        # ~/.fpc.cfg would replace the default configuration, so append to the Homebrew one
+        FPCCFG=$(ls /opt/homebrew/etc/fpc.cfg /etc/fpc.cfg 2>/dev/null | head -1)
+        echo "FPC config: $FPCCFG"
+        test -n "$FPCCFG"
+        cat >> "$FPCCFG" <<CFG
         #IFDEF Darwin
         #IFDEF CPUAARCH64
         -WM10.15
         #ENDIF
         #ENDIF
         CFG
-        cat "$HOME/.fpc.cfg"
+        tail -8 "$FPCCFG"
         lazbuild -v
         instantfpc .github/workflows/make.pas build
