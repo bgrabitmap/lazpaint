@@ -34,6 +34,7 @@ jobs:
         <?xml version="1.0" encoding="UTF-8"?>
         <CONFIG><EnvironmentOptions><LazarusDirectory Value="$HOME/lazarus/"/><CompilerFilename Value="/opt/homebrew/bin/fpc"/><FPCSourceDirectory Value=""/></EnvironmentOptions></CONFIG>
         XML
-        export FPCEXTCMD="-k-ld_classic"
+        export FPCEXTCMD="-k-ld_classic -vx"
+        ld -v 2>&1 | head -3; xcrun --show-sdk-version; xcrun ld -ld_classic 2>&1 | head -3 || true
         lazbuild -v
         instantfpc .github/workflows/make.pas build
