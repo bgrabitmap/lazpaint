@@ -34,7 +34,14 @@ jobs:
         <?xml version="1.0" encoding="UTF-8"?>
         <CONFIG><EnvironmentOptions><LazarusDirectory Value="$HOME/lazarus/"/><CompilerFilename Value="/opt/homebrew/bin/fpc"/><FPCSourceDirectory Value=""/></EnvironmentOptions></CONFIG>
         XML
-        export FPCEXTCMD="-k-ld_classic -vx"
-        ld -v 2>&1 | head -3; xcrun --show-sdk-version; xcrun ld -ld_classic 2>&1 | head -3 || true
+        # Apple ld (Xcode >= 16.3) rejects FPC 3.2.2 ObjC method lists with a macOS 11 target:
+        # lower the deployment target as reported on the Lazarus forum (topic 70698)
+        printf '#IFDEF Darwin
+#IFDEF CPUAARCH64
+-WM10.15
+#ENDIF
+#ENDIF
+' > "$HOME/.fpc.cfg"
+        cat "$HOME/.fpc.cfg"
         lazbuild -v
         instantfpc .github/workflows/make.pas build
