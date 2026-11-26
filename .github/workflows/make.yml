@@ -70,8 +70,8 @@ jobs:
       shell: bash
       run: |
         set -xeuo pipefail
-        FPCCFG="$(ls "$(brew --prefix)/etc/fpc.cfg" /etc/fpc.cfg 2>/dev/null | head -1)"
-        test -n "$FPCCFG"
+        FPCCFG="$(brew --prefix)/etc/fpc.cfg"
+        test -f "$FPCCFG"
         cat >> "$FPCCFG" <<CFG
         #IFDEF Darwin
         #IFDEF CPUAARCH64
