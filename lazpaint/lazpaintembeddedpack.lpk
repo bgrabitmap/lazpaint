@@ -27,7 +27,7 @@
       </Linking>
     </CompilerOptions>
     <Version Major="7" Minor="3"/>
-    <Files Count="94">
+    <Files Count="95">
       <Item1>
         <Filename Value="lazpaintinstance.pas"/>
         <UnitName Value="LazpaintInstance"/>
@@ -404,6 +404,10 @@
         <Filename Value="image\ustatetype.pas"/>
         <UnitName Value="UStateType"/>
       </Item94>
+      <Item95>
+        <Filename Value="utextinput.pas"/>
+        <UnitName Value="UTextInput"/>
+      </Item95>
     </Files>
     <RequiredPkgs Count="6">
       <Item1>

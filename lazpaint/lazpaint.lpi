@@ -437,7 +437,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="109">
+    <Units Count="110">
       <Unit0>
         <Filename Value="lazpaint.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -1079,6 +1079,11 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="USuperformula"/>
       </Unit108>
+      <Unit109>
+        <Filename Value="utextinput.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UTextInput"/>
+      </Unit109>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

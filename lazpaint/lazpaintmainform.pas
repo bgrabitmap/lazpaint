@@ -917,7 +917,7 @@ uses LCLIntf, BGRAUTF8, ugraph, math, umac, uclipboard, ucursors,
    ufilters, ULoadImage, ULoading, UFileExtensions, UBrushType,
    ugeometricbrush, UPreviewDialog, UQuestion, BGRALayerOriginal,
    BGRATransform, LCVectorPolyShapes, URaw, UFileSystem,
-   UTranslation, UPython, BCTypes;
+   UTranslation, UPython, BCTypes, UTextInput;
 
 const PenWidthFactor = 10;
 
@@ -2777,6 +2777,7 @@ begin
     FCoordinatesCaptionCount := 0;
   end;
   FLayout.CheckDelayedUpdate;
+  UpdateTextInput(self, ToolManager.IsEditingText and Active and not EditingColors and not SpinEditFocused, @FormUTF8KeyPress);
   if Assigned(LazPaintInstance) then
   begin
     if DarkThemeInstance.HasSystemDarkThemeChanged then
