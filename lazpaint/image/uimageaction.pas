@@ -951,6 +951,7 @@ var
   newSelection: TBGRABitmap;
   LayerAction: TLayerAction;
 begin
+  newSelection := nil;
   LayerAction := nil;
   result := false;
   try
