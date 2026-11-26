@@ -25,7 +25,8 @@ jobs:
         os:
           - ubuntu-latest
           - windows-latest
-          - macos-13
+          - macos-15-intel
+          - macos-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v7
@@ -47,22 +48,50 @@ jobs:
         instantfpc -Fu/usr/lib/lazarus/*/components/lazutils .github/workflows/make.pas
         delp -r "${PWD}"
 
-    - name: Install Lazarus on macOS Intel
-      if: matrix.os == 'macos-13'
+    # The Homebrew Lazarus cask is disabled: install FPC from Homebrew and build lazbuild
+    # for Cocoa from the Lazarus sources.
+    - name: Install FPC and Lazarus on macOS
+      if: runner.os == 'macOS'
       shell: bash
       run: |
         set -xeuo pipefail
-        brew update
-        brew install --cask lazarus
-        echo "Lazarus v$(lazbuild -v)"
-    
-    - name: Build on macOS Intel
-      if: matrix.os == 'macos-13'
+        brew install fpc
+        git clone --depth 1 --branch lazarus_4_4 https://gitlab.com/freepascal.org/lazarus/lazarus.git "$HOME/lazarus"
+        make -C "$HOME/lazarus" lazbuild LCL_PLATFORM=cocoa
+        echo "Lazarus v$("$HOME/lazarus/lazbuild" -v)"
+
+    # Apple's linker (Xcode 16.3 and later) rejects the Objective-C method lists written by
+    # FPC 3.2.2 when targeting macOS 11 (aarch64 default): "malformed method list atom".
+    # A lower deployment target avoids the problem
+    # (https://forum.lazarus.freepascal.org/index.php/topic,70698.0.html).
+    # A ~/.fpc.cfg would replace the default configuration, so append to the Homebrew one.
+    - name: Configure FPC on macOS
+      if: runner.os == 'macOS'
       shell: bash
       run: |
         set -xeuo pipefail
-        export PATH="$PATH:/Applications/Lazarus"
-        export INSTANTFPCOPTIONS="-Fu/Applications/Lazarus/components/lazutils"
+        FPCCFG="$(brew --prefix)/etc/fpc.cfg"
+        test -f "$FPCCFG"
+        cat >> "$FPCCFG" <<CFG
+        #IFDEF Darwin
+        #IFDEF CPUAARCH64
+        -WM10.15
+        #ENDIF
+        #ENDIF
+        CFG
+        mkdir -p "$HOME/.lazarus"
+        cat > "$HOME/.lazarus/environmentoptions.xml" <<XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <CONFIG><EnvironmentOptions><LazarusDirectory Value="$HOME/lazarus/"/><CompilerFilename Value="$(which fpc)"/><FPCSourceDirectory Value=""/></EnvironmentOptions></CONFIG>
+        XML
+
+    - name: Build on macOS
+      if: runner.os == 'macOS'
+      shell: bash
+      run: |
+        set -xeuo pipefail
+        export PATH="$HOME/lazarus:$PATH"
+        export INSTANTFPCOPTIONS="-Fu$HOME/lazarus/components/lazutils"
         echo "Lazarus v$(lazbuild -v)"
         instantfpc .github/workflows/make.pas build
         delp -r "${PWD}"
